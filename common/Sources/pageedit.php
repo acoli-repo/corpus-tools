@@ -121,7 +121,8 @@
 			if ( !$desctxt ) $desctxt = "<i>Custom page</i>";
 			$donepags[$ffid][$fflang] = 1;
 			if ( $fflang ) $desctxt .= "<td>for language $fflang";
-			if (substr($entry, -4) == "html" ) $maintext .= "<tr><td><a href='index.php?action=$entry'>preview</a> 
+			$previewlink = preg_replace("/\..*/", "", $entry);
+			if (substr($entry, -4) == "html" ) $maintext .= "<tr><td><a href='index.php?action=$previewlink'>preview</a> 
 					&bull; <a href='index.php?action=$action&id=$ffn'>edit</a><td>$entry<td>$desctxt";
 		};
 		$maintext .= "</table>";

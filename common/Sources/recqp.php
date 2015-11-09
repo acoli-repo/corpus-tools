@@ -55,7 +55,11 @@
 	} else if ( ( $_GET['check'] || $recentfile ) && file_exists("tmp/recqp.log")  && !$_GET['force'] ) {
 		
 		$logtxt = file_get_contents("tmp/recqp.log");
-		$maintext .= "<p>The generation process seems to have terminated successfully. The transcript of the process
+		if ( filesize("cqp/corpus.vrt") == 0 ) 
+			$maintext .= "<p>The generation process seems to have terminated, but the corpus file is empty. The transcript of the process
+				can be read below. ";
+		else
+		$maintext .= filesize("cqp/corpus.vrt")."<p>The generation process seems to have terminated successfully. The transcript of the process
 			can be read below. 
 			<p>Click <a href='index.php?action=cqp'>here</a> to continute to the CQP search
 			
