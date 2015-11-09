@@ -70,6 +70,7 @@
 		if ( file_exists("Facsimile" ) )
 			$maintext .= "<li><a href='index.php?action=images&act=check'>check facsimile images</a>";
 
+		if ( is_array($settings['menu']['admin']) )
 		foreach ( $settings['menu']['admin'] as $key => $item ) { 	
 			$link = "{$tlpr}index.php?action=$key";
 			$maintext .= "<li><a href='$link'>{%".$item['display']."}</a>";

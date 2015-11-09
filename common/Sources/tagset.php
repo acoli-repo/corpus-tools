@@ -1,4 +1,7 @@
 <?php
+	// Script to help with a position-based tagset
+	// The tagset is defined in settings.xml 
+	// (c) Maarten Janssen, 2015
 
 	$maintext .= "<h1>{%Tagset}</h1>";
 	$tagset = $settings['tagset']['positions'];

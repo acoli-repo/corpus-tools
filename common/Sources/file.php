@@ -63,7 +63,7 @@
 // 	};
 
 	$file = namespacemake($file);
-	$xml = simplexml_load_string($file);
+	$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$xml ) { fatal ( "Failing to read/parse $fileid" ); };
 			
 	$result = $xml->xpath("//title"); 
