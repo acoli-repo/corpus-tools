@@ -15,7 +15,7 @@
 		$file = file_get_contents($filename); 
 		
 		# Check if this new person is valid XML
-		$test = simplexml_load_string($newrec);
+		$test = simplexml_load_string($newrec, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$test ) fatal ( "XML Error in AR record. Please go back and make sure to input valid XML" );
 		
 		if ( $id == "new" ) {
@@ -29,7 +29,7 @@
 			$newxml = preg_replace ( "/<ar id=\"$id\".*?<\/ar>/smi", $newrec, $file );
 		};
 		
-		$test = simplexml_load_string($newxml);
+		$test = simplexml_load_string($newxml, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$test ) fatal ( "XML Error in XDXF - something went wrong here (record XML was valid though)" );
 		
 		# print $newxml; exit;
@@ -47,7 +47,7 @@
 		
 	} else if ( $act == "edit" ) {
 	
-		$xml = simplexml_load_file($filename);
+		$xml = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( $id && $id != "new" ) {
 			$result = $xml->xpath("//lexicon/ar[@id=\"$id\"]"); 
 			$maintext .= "<h1>Edit dictionary item $id</h1>";
@@ -93,7 +93,7 @@
 		# Each <ar> needs a unique ID
 		check_login();
 		$id = 1;
-		$xml = simplexml_load_file($filename);
+		$xml = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		$result = $xml->xpath("//lexicon/ar"); 
 		foreach ( $result as $entry ) {
 			$entry['id'] = $id;
@@ -137,7 +137,7 @@
 
 		if ( !$query && !$id && file_exists("Resources/dictInfo-$dict.tpl") ) {
 
-			$xml = simplexml_load_string($file);
+			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { print "Dict XML Error"; exit; };
 		
 			$header = file_get_contents("Resources/dictInfo-$dict.tpl");

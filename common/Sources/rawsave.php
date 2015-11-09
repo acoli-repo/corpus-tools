@@ -31,7 +31,7 @@
 				# Protect & in the xml - if they are not already HTML codes
 				$savexml = preg_replace ( "/&(?![a-z]+;)/", "&amp;", $savexml );
 				
-				$xml = simplexml_load_string($file);
+				$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 				$mtxtelement = $xml->xpath($mtxtelement); 
 				if ( !$mtxtelement ) { "<p>Error. There is no element $mtxtelement in this XML file"; exit; };
 				

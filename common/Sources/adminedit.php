@@ -39,7 +39,7 @@
 		
 		# If this is an XML file, check first whether it is valid XML
 		if ( preg_match("/\.xml/", $id) ) {
-			$xml = simplexml_load_string($_POST['rawxml']);
+			$xml = simplexml_load_string($_POST['rawxml'], NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { 
 				fatal ( "File seems no longer to be valid XML - cowardly refusing to save" ); 
 				$badfile = 1;

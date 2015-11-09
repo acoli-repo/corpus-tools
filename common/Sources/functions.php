@@ -19,7 +19,7 @@
 		$toktxt = shell_exec($cmd);
 		
 		// Now, parse this xml
-		$tokxml = simplexml_load_string($toktxt);
+		$tokxml = simplexml_load_string($toktxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 
 		// set pform to innerHTML
 		$tokxml['pform'] = $tokxml."";
@@ -68,7 +68,7 @@
 		} else {
 			# No index - do this the slow way
 			$file = file_get_contents($fn);
-			$xml = simplexml_load_string($file);
+			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { return -1; };
 			$result = $xml->xpath("//{$tag}[@id='$id']"); 
 			$match = $result[0];
@@ -195,7 +195,7 @@
 			$xmltxt = preg_replace( "/[a-z]+=\"\"/", "", $xmltxt );
 		};
 
-		$xml = simplexml_load_string($xmltxt);
+		$xml = simplexml_load_string($xmltxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( $xml === false ) {
 			# The input is not XML (anymore)
 			print "<h1>Oops</h1> <p>There is an error in the XML and we will not save. 
@@ -578,7 +578,7 @@
 			};
 		};
 		$file = file_get_contents("$xmlfolder/$fileid"); 
-		$xml = simplexml_load_string($file);
+		$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		return $xml;
 		
 	};

@@ -59,7 +59,7 @@
 			$maintext .= "<p>The generation process seems to have terminated, but the corpus file is empty. The transcript of the process
 				can be read below. ";
 		else
-		$maintext .= filesize("cqp/corpus.vrt")."<p>The generation process seems to have terminated successfully. The transcript of the process
+		$maintext .= "<p>The generation process seems to have terminated successfully. The transcript of the process
 			can be read below. 
 			<p>Click <a href='index.php?action=cqp'>here</a> to continute to the CQP search
 			

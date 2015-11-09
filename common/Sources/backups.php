@@ -14,7 +14,7 @@
 
 		$maintext .= "<h1>Version Retrieval - $xmlid / $date</h1>";
 		$file = file_get_contents("{$_GET['bid']}"); 
-		$xml = simplexml_load_string($file);
+		$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
 
 		$result = $xml->xpath("//title"); 
@@ -75,11 +75,11 @@
 				<tr><td><td><th>$date1<th>$date2";
 	
 		$file2 = file_get_contents($fid2); 
-		$xml2 = simplexml_load_string($file2);
+		$xml2 = simplexml_load_string($file2, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$xml2 ) { fatal("Not a valid XML file: ".$fid2); };
 		
 		$file1 = file_get_contents($fid1); 
-		$xml1 = simplexml_load_string($file1);
+		$xml1 = simplexml_load_string($file1, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$xml1 ) { fatal("Not a valid XML file: ".$fid1); };		
 		
 		$toks2 = $xml2->xpath("//tok"); 

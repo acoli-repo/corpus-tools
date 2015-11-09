@@ -32,7 +32,7 @@
 		$file = preg_replace ( "/ id=\".*?\"/", "", $file );
 	};
 	
-	$xml = simplexml_load_string($file);
+	$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
 
 			

@@ -63,7 +63,7 @@
 			$results = str_replace('<?xml version="1.0" encoding="UTF-8"?>', '', $results); // remove multiple <?xml
 			$results = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><results>$results</results>";
 			# print $results; exit;
-			$resxml = simplexml_load_string($results);
+			$resxml = simplexml_load_string($results, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if (strstr($results, '<results></results>')) {
 				$maintext .= "<p>No results for found.</p>";
 			} else if ( $resxml ) {
@@ -111,7 +111,7 @@
 			header("Content-type: text/txt"); 
 			header('Content-disposition: attachment; filename="'.$filename.'"');
 			$file = file_get_contents("Annotations/$cid.psdx");
-			$forestxml = simplexml_load_string($file);
+			$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			print "/* PSD Tree generated from PSDX by TEITOK */\n\n";
 			foreach  ($forestxml->xpath('//forest') as $forest ) {
 			
@@ -191,7 +191,7 @@
 
 			$maintext .= "<h2>Results</h2><p>";
 
-			$resxml = simplexml_load_string($results);
+			$resxml = simplexml_load_string($results, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if (strstr($results, '<results></results>')) {
 				$maintext .= "<p>No results for found.</p>";
 			} else if ( $resxml ) {
@@ -242,7 +242,7 @@
 		$cid = $_POST['cid'];
 
 		$file = file_get_contents("Annotations/$cid.psdx");
-		$forestxml = simplexml_load_string($file);
+		$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$forestxml ) { fatal ("File not found or not parsable: $cid"); };
 		
 		$nid = $_POST['nid'];
@@ -274,7 +274,7 @@
 
 		if ($_POST['newxml']) {
 			$file = file_get_contents("Annotations/$cid.psdx");
-			$forestxml = simplexml_load_string($file);
+			$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$forestxml ) { print "Forest not found: $cid<hr>"; print $file; exit; };
 
 			$result = $forestxml->xpath("//forest[@id=\"$treeid\"]"); 
@@ -284,7 +284,7 @@
 			$forest[0] = "##INSERT##";
 			
 			# Renumber the tree
-			$newtree = simplexml_load_string($_POST['newxml']);
+			$newtree = simplexml_load_string($_POST['newxml'], NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			renumber($newtree);
 			$newxml = $newtree->asXML();
 			$newxml = preg_replace('/<\?xml[^>]*\?>/', '', $newxml); // remove redundant <?xml
@@ -305,7 +305,7 @@
 		};
 		
 		$file = file_get_contents("Annotations/$cid.psdx");
-		$forestxml = simplexml_load_string($file);
+		$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$forestxml ) { fatal ("Failed to load PSDX file: Annotations/$cid.psdx"); }; # print "Node not found: <hr>//forest[@id=\"$treeid\"]//*[@id=\"$nid\"]<hr>".htmlentities($forestxml->asXML()); exit; };
 
 		$result = $forestxml->xpath("//forest[@id=\"$treeid\"]"); 
@@ -362,7 +362,7 @@
 		};
 		
 		$file = file_get_contents("Annotations/$cid.psdx");
-		$forestxml = simplexml_load_string($file);
+		$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$forestxml ) { fatal ("Failed to load PSDX file: Annotations/$cid.psdx"); }; # print "Node not found: <hr>//forest[@id=\"$treeid\"]//*[@id=\"$nid\"]<hr>".htmlentities($forestxml->asXML()); exit; };
 		$nid = $_GET['nid'];
 		
@@ -402,7 +402,7 @@
 	} else if ( $cid && file_exists("Annotations/$cid.psdx") ) {
 
 		$file = file_get_contents("Annotations/$cid.psdx");
-		$forestxml = simplexml_load_string($file);
+		$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 
 		# Check if there are <forest> <eTree> or <eLeaf> without @is - if so, renumber and reload
 		if ( $forestxml->xpath("//forest[not(@id)] | //eTree[not(@id)] | //eLeaf[not(@id)]") ) {
@@ -621,7 +621,7 @@
 	function makesvgtree ( $forest, $root = true ) {
 		$rowheight = 60; global $level; $level = 0;
 		$svgtxt .= "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"100%\" height=\"500\">".drawtree3($forest, $root)."</svg>";
-		$svgxml = simplexml_load_string($svgtxt); // Put the leaves and lines on the canvas
+		$svgxml = simplexml_load_string($svgtxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING); // Put the leaves and lines on the canvas
 		if ( !$svgxml ) return "<p><i>Error while drawing tree</i>";
 		// Now position the leaves and lines
 		foreach ( $svgxml->xpath("//text[@type=\"leaf\"]") as $textnode ) $maxrow = max($maxrow, $textnode['row']+0); 

@@ -25,7 +25,7 @@
 			print "<p>Template $xmltemplate not found"; exit;
 		};
 		$file = file_get_contents("Resources/$xmltemplate"); 
-		$xml = simplexml_load_string($file);
+		$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
 	} else { 
 		// print_r($_POST);

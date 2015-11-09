@@ -3,7 +3,7 @@
 	$annotation = $_GET['annotation'];
 	if ( $annotation ) {
 		$anfile = file_get_contents("Annotations/$annotation.xml");
-		$anxml = simplexml_load_string($anfile);
+		$anxml = simplexml_load_string($anfile, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		$result = $anxml->xpath("//tagset/tag"); 
 		foreach ( $result as $tmp ) { 
 			$tagset[$tmp['key'].''] = $tmp;

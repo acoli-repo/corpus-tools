@@ -43,7 +43,7 @@
 			$file = file_get_contents("$xmlfolder/$fileid"); 
 			# Kill the namespace in the XML since SimpleXML does not like it
 			$file = preg_replace("/ xmlns=\"[^\"]+\"/", "", $file);
-			$xml = simplexml_load_string($file);
+			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { $maintext .= "Failing to read/parse $fileid"; next; };
 
 			$maintext .= "<h3>Treating $fileid</h3>";

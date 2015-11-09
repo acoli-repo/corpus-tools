@@ -11,7 +11,7 @@
 	libxml_use_internal_errors(true);
 
 	$file = file_get_contents("Resources/filelist.xml"); 
-	$xml = simplexml_load_string($file);
+	$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$xml ) { 
 		print "Failing to read/parse filelist<hr>"; 
 		foreach(libxml_get_errors() as $error) {
@@ -151,7 +151,7 @@
 
 			// Now that we have one file, go check for tokenization, etc.
 			$file = file_get_contents("$fff"); 
-			$xml = simplexml_load_string($file);
+			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
 			
 			$maintext .= "<h2>Status check</h2><table>";

@@ -43,12 +43,12 @@
 						$toinsert = '<'.$matches[1].'>'.$value.'</'.$matches[2].'>'; 
 						print "About to insert: ".htmlentities($toinsert);
 					} else { print "\n<p>Cannot insert node, does not have start and end tag: {".htmlentities($tmp).'}'; exit; };
-					$sxe = simplexml_load_string($toinsert);
+					$sxe = simplexml_load_string($toinsert, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 					if ( !$sxe && $value ) {
 						# This is not proper XML - try to repair
 						print "\n<p>Repairing XML - $toninsert";
 						$toinsert = preg_replace("/\&(?![a-z+];)/", "&amp;", $toinsert);
-						$sxe = simplexml_load_string($toinsert);					
+						$sxe = simplexml_load_string($toinsert, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);					
 					};
 					if ( !$sxe && $value ) {
 						print "\n<p>Cannot insert node, invalid XML: {".htmlentities($toinsert).'}'; exit;

@@ -19,7 +19,7 @@
 		};
 		
 		$file = file_get_contents("$xmlfolder/$fileid"); 
-		$xml = simplexml_load_string($file);
+		$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 
 		$result = $xml->xpath("//*[@id='$tokid']"); 
 		$elm = $result[0]; # print_r($token); exit;
@@ -57,27 +57,6 @@
 		$txtxml = $result[0]; 
 
 		$maintext .= "</table>";
-
-		# Allow adding/deleting tokens 
-		# Why would this apply to empty elements?
-// 		$maintext .= "
-// 		<hr>
-// 		<!-- <a href=''>join to previous token</a> &bull;  -->
-// 			insert tok after:
-// 			<a href='index.php?action=retok&dir=after&cid=$fileid&tid=$tokid&pos=left'>attached</a> /
-// 			<a href='index.php?action=retok&dir=after&cid=$fileid&tid=$tokid'>separate</a>
-// 		&bull; before:
-// 			<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&pos=right'>attached</a> /
-// 			<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid'>separate</a>
-// 		&bull;
-// 			<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=par'>insert paragraph before</a>
-// 
-// 		&bull;
-// 			<script language=Javascript src='Scripts/simtoks.js'></script>
-// 			<span onClick=\"simtoks('$tokid');\">treat similar tokens</span>
-// 			<div id='simtoks'></div>
-// 		
-// 		";
 
 		$maintext .= "<hr>
 		<input type=submit value=\"Save\">
