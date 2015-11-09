@@ -1,0 +1,20 @@
+<p><br>Type in a search query in the CQP (Corpus Query Protocol) format in the text box above to search in 
+	the corpus. 
+<br>Which fields can be searched on depends on the corpus, but they typically include: 
+
+<ul>
+<li> word: the written version of the word
+<li> nform: the normalized/regularized version of the word
+<li> lemma: the lemma
+<li> pos: the Part-of-Speech tag
+</ul>
+
+<p>The <a href='index.php?action=cqp&act=advanced'>advanced search</a> page includes several of the corpus-specific search options 
+
+<p>The CQP Query syntax uses an intuitive system of defining properties of words you are looking for, as in for instance: 
+	<div style='font-size: 11pt; padding-left: 20px;' onClick="cqpdo(this);">[lemma="casa"] [pos="A.*"]</div>
+	<p>for form of the word <i>casa</i> followed by a adjective.
+	
+	<p>Within each query, it is possible to use full regular expression searches, 
+		to find words that have a diphtongue "ue" in it, you can use:
+		 <div style='font-size: 11pt; padding-left: 20px;' onClick="cqpdo(this);">[word="[^q]ue.*"]</div>

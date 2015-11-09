@@ -1,0 +1,156 @@
+<?php
+	// Script to edit HTML pages
+	// (c) Maarten Janssen, 2015
+
+
+	check_login();
+	$id = $_GET['id'];
+	$deflang = $settings['languages']['default'] or $deflang = "en";
+
+	$filedescs = array (
+		"home" => "Homepage - first page to show upon entry",
+		"cqptext" => "Starting page of the search function (action=cqp - subpage without title)",
+		"searchhelp" => "Explanation of the advanced search",
+		"rawsearchtext" => "Explantion of the raw text search",
+		"breaks" => "Explanation of how TEITOK deals with (line/page) breaks",
+		"xmlreqs" => "Explanation of the restrictions TEITOK places on XML files",
+		"notfound" => "Page to be shown when looking for a non-existing page",
+		"notli" => "Page to be shown when accessing a restricted area while not logged in",
+		);
+	
+	if ( $act == "save" ) {
+
+		$id = $_POST['id'];
+		if ( !$id ) {
+			$id = $_POST['newid'];
+			if ( !$id ) fatal ( "No filename given" );
+			if ( substr($id, -4) != "html" ) $id .= ".html";
+			if ( file_exists("Pages/$id") )  fatal ( "File $id already exists" );
+		};
+		if ( substr($id,-5) != ".html" ) $id .= ".html";
+		$pagename = substr($id, 0,-5);
+		
+		file_put_contents("Pages/$id", $_POST['content']);
+		
+		print "<p>File saved. Reloading.
+			<script language=Javascript>top.location='index.php?action=$pagename';</script>
+			";
+			
+	} else if ( $id ) {
+	
+		list ( $ffid, $fflang ) = explode ( "-", $id );
+		if ( $id == "new" ) {
+			$content = "";
+			$maintext .= "<h1>Create HTML Page</h1>";
+			$idfield = "<p>Filename: <input name=newid value='{$_GET['name']}' size=40>";
+		} else {
+			if ( !$fflang ) { $fflang = "xxx"; }; # hack to force opening non-localized file
+			
+			$content = getlangfile($ffid, true, $fflang);
+			if ( $getlangfile_lastfile == "" ) $newfile = " - file to be created";
+			else if ( substr($getlangfile_lastfile,0,10) == "../common/" ) $newfile = " - file to be created from the default ".substr($getlangfile_lastfile,16);
+			else if ( $getlangfile_lastfile != "Pages/$id.html" ) $newfile = " - file to be created from $getlangfile_lastfile - ";
+
+			if ( file_exists("Pages/$id.html") && !is_writable("Pages/$id.html") ) {
+				fatal ("Due to file permissions, $id.html cannot be edited, please contact the server administrator");
+			};
+			
+			$maintext .= "<h1>Edit HTML Page</h1>
+				<h2>Page name: $id.html$newfile</h2>";
+			$idfield = "<input type=hidden name=id value='$id'>";
+		};
+
+		if ( $id != "new" ) {
+			if ( $filedescs[$ffid] ) $maintext .= "<i>{$filedescs[$ffid]}</i>"; 
+			if ( $fflang != "xxx" ) $maintext .= " - for language $fflang";
+		} else if ( preg_match("/-([^.]+)/", $_GET['name'], $matches ) ) { 
+			$fflang = $matches[1];
+			$maintext .= "For language: $fflang"; 
+		};
+		
+		$maintext .= '
+			<script type="text/javascript" src="http://alfclul.clul.ul.pt/teitok/tinymce/tinymce.min.js"></script>
+			<script type="text/javascript">
+			tinymce.init({
+				selector: "textarea",
+				plugins: [
+					 "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
+					 "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
+					 "save table contextmenu directionality emoticons template paste textcolor"
+			   ],
+				content_css: "Resources/htmlstyles.css", 
+				toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | l      ink image | print preview media fullpage | forecolor backcolor ", 
+			    width: "100%",
+			    height: 400
+			 });
+			</script>';
+			
+		$maintext .= "
+			<p><form action='index.php?action=$action&act=save' method=post>
+			$idfield
+			<textarea name=content>$content</textarea>
+			<p><input type=submit value=Save>
+			</form>
+			";
+		
+		
+	} else {
+		$maintext .= "<h1>HTML Pages</h1>
+			<p>Select the HTLM page you want to edit, or create a new page.	Remember that 
+				in TEITOK, pages end in .html, the home page is called home.thml, and pages localized 
+				in a specific language have the language code 
+				after a hyphen, as in: home-pt.html.</p>
+			
+			<hr>
+			<p><a href='index.php?action=$action&id=new'>new page</a>
+			<hr>
+			<table><tr><td><th>Filename<th colspan=2>Description
+			";
+			
+		$files = scandir("Pages");
+		sort($files);
+		
+		foreach ( $files as $entry ) {
+			if ( substr($entry,0,1) == "." ) continue;
+			$ffn = preg_replace ( "/\.html/", "", $entry );
+			list ( $ffid, $fflang ) = explode ("-", $ffn);
+			list ( $efid, $eflang ) = explode ("-", $entry);
+			$desctxt = $filedescs[$ffid];
+			if ( !$desctxt && $menuitems[$efid] ) $desctxt = "<i>".$menuitems[$efid]."</i>";
+			if ( !$desctxt ) $desctxt = "<i>Custom page</i>";
+			$donepags[$ffid][$fflang] = 1;
+			if ( $fflang ) $desctxt .= "<td>for language $fflang";
+			if (substr($entry, -4) == "html" ) $maintext .= "<tr><td><a href='index.php?action=$entry'>preview</a> 
+					&bull; <a href='index.php?action=$action&id=$ffn'>edit</a><td>$entry<td>$desctxt";
+		};
+		$maintext .= "</table>";
+
+		# Now - see if there are pages that still need a translation
+		foreach ( $donepags as $ffid => $tmp ) {
+			if ( is_array($settings['languages']['options']) )
+			foreach ( $settings['languages']['options'] as $key => $item ) {
+				$ktxt = $item['name'] or $ktxt = $key;
+				# if ( $key == $deflang ) { $key = ""; };
+				if ( !$tmp[$key] && ($key != $deflang || !$tmp[""]) && $ffid && $ktxt != $deflang ) {
+					if ( $filedescs[$ffid] ) $dtxt = " ({$filedescs[$ffid]})"; else $dtxt = "";
+					$mistrans .= "<li><a href='index.php?action=$action&id=$ffid-$key'>Add translation into $ktxt for <i>$ffid.html</i></a>$dtxt";
+				};
+			};
+		};
+		if ( $mistrans ) {
+			$maintext .= "<h2>Create missing translated pages</h2><ul>$mistrans</ul>";
+		};
+
+		# Now - see if there are any central TEITOK files that could be used
+		foreach ( $filedescs as $key => $val ) {
+			if ( !$donepags[$key] ) {
+				$mispag .= "<li><a href='index.php?action=$action&id=$key-$lang'>{$val}</a>";
+			}; 
+		};
+		if ( $mispag ) {
+			$maintext .= "<h2>Customize standard pages</h2><ul>$mispag</u>";
+		};
+		
+	};
+	
+?>

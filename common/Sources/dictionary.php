@@ -1,0 +1,189 @@
+<?php
+	// Script to allow visualizing and editing
+	// a dictionary that is based on the corpus
+	// (c) Maarten Janssen, 2015
+	
+	$dict = $_GET['dict'] or $dict = "gloss";
+	$filename = "Resources/dict-$dict.xml";
+	$id = $_GET['id'];
+
+	if ( $act != "generate" && !file_exists($filename) ) fatal("Dictionary file does not exist");
+
+	if ( $username && $act == "save" && $id ) {
+
+		$newrec = $_POST['rawxml']; 
+		$file = file_get_contents($filename); 
+		
+		# Check if this new person is valid XML
+		$test = simplexml_load_string($newrec);
+		if ( !$test ) fatal ( "XML Error in AR record. Please go back and make sure to input valid XML" );
+		
+		if ( $id == "new" ) {
+			# Add the new record after the first entry
+			$newrec = preg_replace ( "/<!--.*?-->/", "", $newrec );
+			$newxml = preg_replace ( "/<\/lexicon>/smi", $newrec."\n\n</lexicon>", $file, 1 );
+			$newk = $test->k[0]."";
+			if ( !$newk ) { fatal ("No headword given"); };
+		} else {
+			# Overwrite the existing record
+			$newxml = preg_replace ( "/<ar id=\"$id\".*?<\/ar>/smi", $newrec, $file );
+		};
+		
+		$test = simplexml_load_string($newxml);
+		if ( !$test ) fatal ( "XML Error in XDXF - something went wrong here (record XML was valid though)" );
+		
+		# print $newxml; exit;
+		# Save new XML to file
+		file_put_contents($filename, $newxml);
+		
+		if ( $id == "new" ) {
+			print "Changes save. Reloading. 
+				<script language=Javascript>top.location='index.php?action=$action&act=renumber&toword=$newk'</script>"; 
+		} else {
+			print "Changes save. Reloading. 
+				<script language=Javascript>top.location='index.php?action=$action&id=$id'</script>"; 
+		};
+		exit;
+		
+	} else if ( $act == "edit" ) {
+	
+		$xml = simplexml_load_file($filename);
+		if ( $id && $id != "new" ) {
+			$result = $xml->xpath("//lexicon/ar[@id=\"$id\"]"); 
+			$maintext .= "<h1>Edit dictionary item $id</h1>";
+		} else {
+			$result = $xml->xpath("//ar[@id=\"new\"]"); 
+			$maintext .= "<h1>New dictionary item</h1>";
+		};
+		
+		foreach ( $result as $entry ) {
+			$editxml = $entry->asXML();
+			$editxml = htmlentities($editxml, ENT_QUOTES, "UTF-8");
+			$id = $entry['id'];
+		};
+										
+		$maintext .= "
+			<div id=\"editor\" style='width: 100%; height: 300px;'>".$editxml."</div>
+
+			<form action=\"index.php?action=$action&act=save&id=$id\" id=frm name=frm method=post>
+			<textarea style='display:none' name=rawxml></textarea>
+			<p><input type=button value=Save onClick=\"runsubmit();\"> 
+			<input type=button value=Cancel onClick=\"window.open('index.php?action=$action', '_self');\"> 
+			</form>
+	
+			<script src=\"http://alfclul.clul.ul.pt/teitok/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+			<script>
+				var editor = ace.edit(\"editor\");
+				editor.setTheme(\"ace/theme/chrome\");
+				editor.getSession().setMode(\"ace/mode/xml\");
+		
+				function runsubmit ( ) {
+					document.frm.rawxml.value = editor.getSession().getValue();
+					document.frm.submit();
+				};
+			</script>
+		";
+		
+	} else if ( $act == "generate" ) {
+	
+		fatal ("Generation not implemented yet");
+	
+	} else if ( $act == "renumber" ) {
+	
+		# Each <ar> needs a unique ID
+		check_login();
+		$id = 1;
+		$xml = simplexml_load_file($filename);
+		$result = $xml->xpath("//lexicon/ar"); 
+		foreach ( $result as $entry ) {
+			$entry['id'] = $id;
+			$id++;
+		};
+		file_put_contents($filename, $xml->asXML()); 
+		header("location:index.php?action=$action");
+		exit;
+		
+	} else {
+	
+		$css = file_get_contents("Resources/dict.css");
+		if ( !$css ) $css = file_get_contents("../common/Resources/dict.css");
+		$maintext .= "<style>$css</style>";
+
+		$file = file_get_contents($filename);
+
+		$max = $_GET['max'] or $max = 100;
+		$query = $_GET['query'];
+	
+		if ( preg_match("/lang_from=\"(.*?)\"/", $file, $matches) ) $langfrom = "{%lang-{$matches[1]}}";
+		if ( preg_match("/lang_to=\"(.*?)\"/", $file, $matches) ) $langto = " - {%lang-{$matches[1]}}";
+		$dtitle = xpathrun("<h1>{%Dictionary} $langfrom $langto</h1>");
+		if ( $_GET['match'] == 1 ) $msel = "selected";
+		if ( $_GET['match'] == 2 ) $msel2 = "selected";
+		if ( $_GET['match'] == 3 ) $msel3 = "selected";
+		
+		$maintext .= "$dtitle<form action='index.php'>{%Word} 
+			<select name=match>
+				<option value=\"\">{%contains}</option>
+				<option value=\"1\" $msel>{%matches}</option>
+				<option value=\"2\" $msel2>{%translates as}</option>
+				<option value=\"3\" $msel3>{%translation contains}</option>
+			</select>
+			<input name=query value=\"$query\">
+			<input type=hidden name=action value=\"$action\">
+			<input type=Submit value=\"{%Search}\">
+			</form>
+			<hr>
+			<div id=\"dict\">";
+
+		if ( !$query && !$id && file_exists("Resources/dictInfo-$dict.tpl") ) {
+
+			$xml = simplexml_load_string($file);
+			if ( !$xml ) { print "Dict XML Error"; exit; };
+		
+			$header = file_get_contents("Resources/dictInfo-$dict.tpl");
+			$maintext .= xpathrun($header, $xml);
+		
+		} else {
+
+			$xml = new DOMDocument();
+			$xml->load($filename);
+			if ( !$xml ) { print "Dict XML Error"; exit; };
+			$xpath = new DOMXPath($xml);
+			$noregex = 1;
+			
+			if ( $id ) $xquery = "//lexicon/ar[@id=\"$id\"]";
+			else if ( $query && $_GET['match'] == 3 ) $xquery = "//lexicon/ar[.//dtrn[contains(.,'$query')]]"; // Lookup in translation
+			else if ( $query && $_GET['match'] == 2 ) $xquery = "//lexicon/ar[.//dtrn[.='$query']]"; // Lookup in translation
+			else if ( $query && $_GET['match'] == 1 ) $xquery = "//lexicon/ar/k[.='$query']/.."; // Match
+			else if ( $query && $noregex ) $xquery = "//lexicon/ar/k[contains(.,'$query')]/.."; // Contains
+			else if ( $query ) { // Regexp - does not work
+				$xpath->registerNamespace("php", "http://php.net/xpath");
+				$xpath->registerPHPFunctions();
+				$xquery = "//lexicon/ar[php:functionString(\"preg_match\",\"/$query/\",.)]";
+			} else $xquery = "//lexicon/ar";
+		
+			# print $xquery;
+			$result = $xpath->query($xquery); 
+			if ( $result ) {
+				$count = $result->length;
+				if ( $count > $max ) $showing = " - {%showing first} $max";
+				$maintext .= "<p><i>$count {%results}</i> $showing<p>";
+				$sortarray = array();
+				foreach ( $result as $entry ) {
+					$entryxml = $entry->ownerDocument->saveXML($entry);
+					$arid = $entry->getAttribute("id");
+					$ark = $entry->getElementsByTagName('k')->item(0)->textContent;
+					$entryxml = preg_replace("/<gr>(.*?)<\/gr>/", "<gr>{%\\1}</gr>", $entryxml); # Make POS translatable
+					if ( $username && $arid ) $entryxml = "<div onClick=\"window.open('index.php?action=$action&act=edit&id=$arid', '_self')\">".$entryxml."</div>";
+					array_push ( $sortarray, "<ar k=\"$ark\"/>".$entryxml );
+					if ( $cnt++ > $max ) break;
+				};
+				natsort($sortarray);
+				$maintext .= join ( "\n", $sortarray );
+			} else $maintext .= "<i>{%No results found}</i>";
+		
+		};
+			
+	};
+
+?>

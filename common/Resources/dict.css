@@ -1,0 +1,18 @@
+#dict ar { display: block; clear: both; margin-bottom: 15px; }
+#dict k { font-weight: bold; }
+
+#dict ipa { color: #66aa66; }
+#dict ipa::before { content: "["; }
+#dict ipa::after { content: "]"; }
+
+#dict gr { color: #6666aa; font-style: italic; }
+#dict gr::before { content: "("; }
+#dict gr::after { content: ")"; }
+
+#dict kref { color: #669999; }
+#dict kref::before { content: "Cf. "; }
+#dict kref::after { content: "."; }
+
+#dict ex { display: block; margin-left: 20px; clear: left;  }
+#dict ex_orig { font-weight: bold; }
+#dict ex_trans { font-style: italic; }

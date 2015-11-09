@@ -1,0 +1,730 @@
+<?php
+	// Script to allow editing and viewing XML file
+	// This is the backbone of TEITOK
+	// (c) Maarten Janssen, 2015
+	
+	$fileid = $_POST['id'] or $fileid = $_GET['id'] or $fileid = $_GET['cid'];
+	$oid = $fileid;
+	if ( !preg_match("/\./", $fileid) && $fileid ) $fileid .= ".xml";
+	$xmlid = $fileid; 
+	$xmlid = preg_replace ( "/\.xml/", "", $xmlid );
+	$xmlid = preg_replace ( "/.*\//", "", $xmlid );
+	
+	
+	// on paged display, determine what to show
+	if ( !$_GET['pbtype'] ) { 
+		$pbelm = "pb";
+		$titelm = "Page";
+		$pbtype = "pb";
+		$pbsel = "&pbtype={$_GET['pbtype']}";
+	} else if ( $_GET['type'] == "chapter" ) { 
+		$pbtype = "milestone[@type=\"chapter\"]";
+		$titelm = "Chapter";
+		$pbelm = "milestone";
+		$pbsel = "&pbtype={$_GET['pbtype']}";
+	} else {
+		$pbtype = "milestone[@type=\"{$_GET['pbtype']}\"]";
+		$titelm = ucfirst($_GET['type']);
+		$pbelm = "milestone";
+		$pbsel = "&pbtype={$_GET['pbtype']}";
+	};
+	
+	if ( !$fileid ) { 
+		fatal ( "No XML file selected." );  
+	};
+
+	if ( !file_exists("$xmlfolder/$fileid") && substr($fileid,-4) != ".xml" ) { 
+		$fileid .= ".xml";
+	};
+	
+	if ( !file_exists("$xmlfolder/$fileid") ) { 
+	
+		$fileid = preg_replace("/^.*\//", "", $fileid);
+		$test = array_merge(glob("$xmlfolder/**/$fileid")); 
+		if ( !$test ) 
+			$test = array_merge(glob("$xmlfolder/$fileid"), glob("$xmlfolder/*/$fileid"), glob("$xmlfolder/*/*/$fileid")); 
+		$temp = array_pop($test); 
+		$fileid = preg_replace("/^".preg_quote($xmlfolder, '/')."\/?/", "", $temp);
+	
+		if ( $fileid == "" ) {
+			fatal("No such XML File: {$oid}"); 
+		};
+	};
+
+	# Determine the file date
+	$tmp = filemtime("$xmlfolder/$fileid");
+	$fdate = strftime("%d %h %Y", $tmp);
+
+	$file = file_get_contents("$xmlfolder/$fileid"); 
+
+// 	if ( ( preg_match("/<tok[^>]*>\s/", $file) || preg_match("/\s<\/tok>/", $file) ) && $username ) {
+// 		$warnings .= "<p style='background-color: #ffaaaa; padding: 5px;; font-weight: bold;'>This file seems to have been modified with external XML tags that 'normalized' the spaces.
+// 			Since the &lt;text&gt; element of TEITOK is a portion of whitespace-sensitive XML, please consider reverting to a previous version.</p>";
+// 	};
+
+	$file = namespacemake($file);
+	$xml = simplexml_load_string($file);
+	if ( !$xml ) { fatal ( "Failing to read/parse $fileid" ); };
+			
+	$result = $xml->xpath("//title"); 
+	$title = $result[0];
+	if ( $title == "" ) $title = "<i>{%Without Title}</i>";
+
+	# In paged texts, always jump to a page
+	if ( $settings['xmlfile']['paged'] && !$_GET['page'] && !$_GET['pageid'] ) {
+		# We will by default jump to the page containing the tok we are looking for
+		# IF there are multiple tokens, jump to the first one
+		$tokids = $_GET['tid'] or $tokids = $_GET['jmp'];
+		$tmp = split ( " ", $tokids ); $tokid = $tmp[0];
+		if ( $tokid ) {
+			# The page with the word we are trying to show
+			$tokpos = strpos($file, "id=\"$tokid\"");
+			$pbef = rstrpos($file, "<$pbelm", $tokpos) or $pbef = strpos($file, "<text");
+			$tmp = substr($file, $pbef, 30);
+			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) {$_GET['pageid'] = $matches[1]; }
+			else if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) {$_GET['page'] = $matches[1]; };
+		} else if ( !$_GET['page'] && !$_GET['pageid'] ) {
+			# Or just the first page (pb)
+			$pbef = strpos($file, "<$pbelm");
+			$tmp = substr($file, $pbef, 150); if ( preg_match("/<$pbelm [^>]*id=\"(.*?)\"/", $tmp, $matches) ) {
+				$_GET['pageid'] = $matches[1];
+			};
+ 		};
+	};
+
+	if ( $username ) $txtid = $fileid; else $txtid = $xmlid;
+	$maintext .= "<h2>$txtid</h2><h1>$title </h1>";
+
+
+	if ( $username && !is_writable("$xmlfolder/$fileid") ) {
+		$warnings .= "<p style='background-color: #ffaaaa; padding: 5px;; font-weight: bold;'>Due to filepermissions, this file cannot be
+			modified by TEITOK - please contact the administrator of the server.</p>";
+	};
+
+	$maintext .= $warnings;
+
+	# Show optional additional headers
+	if ( $_GET['tpl'] && file_exists("Resources/teiHeader-{$_GET['tpl']}.tpl") ) {
+		$header = file_get_contents("Resources/teiHeader-{$_GET['tpl']}.tpl");
+		$maintext .= xpathrun($header, $xml);
+	} else if ( $_GET['headers'] == "full" && file_exists("Resources/teiHeader-long.tpl") ) {
+		$header = file_get_contents("Resources/teiHeader-long.tpl");
+		$maintext .= xpathrun($header, $xml);
+		if ( file_exists("Resources/teiHeader.tpl") ) $maintext .= "<ul><li><a href='{$_SERVER['REQUEST_URI']}&headers=short'>{%less header data}</a></ul>";
+		$maintext .= "<hr>"; 
+	} else if ( file_exists("Resources/teiHeader.tpl") ) {
+		$header = file_get_contents("Resources/teiHeader.tpl");
+		$maintext .= xpathrun($header, $xml);
+		$maintext .= "<ul>"; 
+		if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$fileid";
+		if ( file_exists("Resources/teiHeader-long.tpl") ) $maintext .= "<li><a href='{$_SERVER['REQUEST_URI']}$cidurl&headers=full'>{%more header data}</a>";
+		if ( $settings['xmlfile']['teiHeader'] ) {
+			foreach ( $settings['xmlfile']['teiHeader'] as $key => $item ) {
+				$cond = $item['condition'];
+				if ( $cond ) {
+					$result = $xml->xpath($cond); 
+					if ( !$result ) {
+						continue; # Conditional header
+					};
+				};
+				$tpl = $key;
+				if ( $item['admin'] ) {
+					if ($username) $maintext .= " &bull; <a href='index.php?action=file&cid=$fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
+				} else if ( !$item['admin'] ) {
+					$maintext .= " &bull; <a href='index.php?action=file&cid=$fileid&tpl=$tpl'>{$item['display']}</a>";
+				};
+			};
+		};
+		if ( file_exists("Resources/teiHeader-edit.tpl") && $username ) $maintext .= " &bull; <a href='index.php?action=header&act=edit&cid=$fileid&tpl=teiHeader-edit.tpl' class=adminpart>edit teiHeader</a>";
+		$maintext .= "</ul><hr>";
+	} else {
+		foreach ( $headershow as $hq => $hn ) {
+			$result = $xml->xpath($hq); 
+			$hv = $result[0];
+			if ( $hv ) {
+				$htxt = $hv->asXML();
+				$maintext .= "<h3>{%$hn}</h3><p>$htxt</p>";
+			};
+		}; 
+		if ( $headershow ) $maintext .= "<hr>";
+	};
+	
+	# Too slow for large files
+	#$result = $xml->xpath("//tok"); 
+	#$tokcheck = $result[0]; 
+	if ( strstr($file, '</tok>' ) ) $tokcheck = 1; 
+
+	if ( $settings['xmlfile']['restriction'] && !$xml->xpath($settings['xmlfile']['restriction']) && !$username ) { 
+		// This file is not accessible - restrict to limited amound of words
+		$maxwords = $settings['xmlfile']['maxwords'] or $maxwords = 20;
+		if ( $_GET['jmp'] ) $prevword = substr($_GET['jmp'], 2);
+		else if ( $_GET['tid'] ) $prevword = substr($_GET['tid'], 2);
+		$startword = $prevword or $startword = $maxwords+1;
+		
+		$firstword = $startword - $maxwords; $lastword = $startword + $maxwords;
+		
+		# $editxml = "<p>Showing ($startword+-$maxwords) $firstword to $lastword";
+		$editxml = $file;
+		$pb = "id=\"w-$lastword\"";
+		$nidx = strpos($editxml, $pb);
+		# print $pb; print $nidx;
+		if ( !$nidx || $nidx == -1 ) { 
+			$nidx = strpos($editxml, "</text");
+		};
+
+		$bidx = rstrpos($editxml, "<tok id=\"w-$firstword\"", $nidx-1); 
+		if ( !$bidx || $bidx == -1 ) { 
+			$bidx = strpos($editxml, "<text", 0);
+		};
+		
+		$span = $nidx-$bidx;
+		$maintext .= "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
+		$editxml = substr($editxml, $bidx, $span);
+		
+	} else if ( $_GET['sentence'] ) {
+		# Show sentence view
+		$result = $xml->xpath("//s"); 
+		foreach ( $result as $sent ) {
+			$stxt = $sent->asXML();
+			$sentid = $sent['n'] or $sentid = $sent['id'];
+			$editxml .= "
+				<div style='display: inline-block; float: left; margin: 0px; padding: 0px; padding-top: 6px; width: 25px; font-size: 10pt;'><a href='index.php?action=sentedit&cid=$fileid&sid={$sent['id']}'>$sentid</a></div>
+				<div style='width: 90%; border-bottom: 1px solid #66aa66; padding-left: 50px; margin-bottom: 6px; padding-bottom: 6px;'>
+				$stxt";
+			foreach ( $settings['xmlfile']['sattributes'] as $item ) {
+				$key = $item['key'];
+				$atv = preg_replace("/\/\//", "<lb/>", $sent[$key]);	
+				if ($item['color']) { $scol = "style='color: {$item['color']}'"; } else { $scol = "class='s-$key'"; };
+				if ( $atv && ( !$item['admin'] || $username ) ) {
+					if ( $item['admin'] ) $scol .= " class='adminpart'";
+					$editxml .= "<div $scol title='{$item['display']}'>$atv</div>"; 
+				}
+			};
+			$editxml .= "</div>";
+		};
+	} else if ( ( $_GET['page'] || $_GET['pageid'] ) && $_GET['page'] != "all" ) {
+
+		# Show specific page
+		$editxml = $file;
+		if ( $_GET['pageid'] ) {
+			$pb = "<$pbelm id=\"{$_GET['pageid']}\"";
+			$pidx = strpos($editxml, $pb);
+		} else {
+			$pb = "<$pbelm n=\"{$_GET['page']}\"";
+			$pidx = strpos($editxml, $pb);
+		};
+		if ( !$pidx || $pidx == -1 ) { 
+			# When @n is not the first attribute, we cannot use strpos - try regexp instead (slower)
+			if ( $_GET['pageid'] ) {
+				preg_match("/<$pbelm [^>]*id=\"{$_GET['pageid']}\"/", $editxml, $matches, PREG_OFFSET_CAPTURE, 0);
+			} else {
+				preg_match("/<$pbelm [^>]*n=\"{$_GET['page']}\"/", $editxml, $matches, PREG_OFFSET_CAPTURE, 0);
+			};
+			$pidx = $matches[0][1];
+		};
+		if ( !$pidx || $pidx == -1 ) { fatal ("No such $pbelm in XML: {$_GET['page']} {$_GET['pageid']}"); };
+		
+		# Find the next page/chapter (for navigation, and to cut off editXML)
+		$nidx = strpos($editxml, "<$pbelm", $pidx+1); 
+		if ( !$nidx || $nidx == -1 ) { 
+			$nidx = strpos($editxml, "</text", $pidx+1); $nnav = "";
+		} else {
+			$tmp = substr($editxml, $nidx, 150 ); 
+			 
+			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $npid = $matches[1]; };
+			if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) { $npag = $matches[1]; };
+			
+			if ( $npid ) $nnav = "<a href='index.php?action=$action&cid=$fileid&pageid=$npid&pbtype={$_GET['pbtype']}'>> $npag</a>";
+			else $nnav = "<a href='index.php?action=$action&cid=$fileid&pageid=$npag'>> $npag</a>";
+		};
+		
+		# Find the previous page/chapter (for navigation)
+		$bidx = rstrpos($editxml, "<$pbelm ", $pidx-1); 
+		if ( !$bidx || $bidx == -1 ) { 
+			$bidx = strpos($editxml, "<text", 0); $bnav = "<a href='index.php?action=pages&cid=$fileid$pbsel'>{%index}</a>";
+		} else {
+			$tmp = substr($editxml, $bidx, 150 ); 
+			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $bpid = $matches[1]; };
+			if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) { $bpag = $matches[1]; } else { $bpag = ""; };
+			if ( $bpid  )  $bnav = "<a href='index.php?action=$action&cid=$fileid&pageid=$bpid$pbsel'>$bpag <</a> ";
+			else $bnav = "<a href='index.php?action=$action&cid=$fileid&page=$bpag'>$bpag <</a>";
+			if ( !$firstpage ) { $bnav = "<a href='index.php?action=pages&cid=$fileid$pbsel'>{%index}</a> &nbsp; $bnav"; };
+		};
+		
+		$span = $nidx-$pidx;
+		$editxml = substr($editxml, $pidx, $span); 
+		
+		if ( $_GET['page'] ) $folionr = $_GET['page']; // deal with pageid
+		else if ( $_GET['pageid'] ) {
+			if ( preg_match("/<$pbelm [^>]*n=\"(.*?)\"[^>]*id=\"{$_GET['pageid']}\"/", $editxml, $matches ) 
+				|| preg_match("/<$pbelm [^>]*id=\"{$_GET['pageid']}\"[^>]*n=\"([^\"]+)\"/", $editxml, $matches ) ) 
+					$folionr = $matches[1];
+		} else if ( preg_match("/<$pbelm [^>]*n=\"(.*?)\"/", $tmp, $matches ) ) {
+			$folionr = $matches[1]; 
+		};
+		
+		if ( $pbelm == "pb" ) $foliotxt = "{%Folio}";
+		
+		# Build the page navigation
+		$pagenav = "<table style='width: 100%'><tr> <!-- /<$pbelm [^>]*id=\"{$_GET['pageid']}\"[^>]*n=\"(.*?)\"/ -->
+						<td style='width: 33%' align=left>$bnav
+						<td style='width: 33%' align=center>$foliotxt $folionr
+						<td style='width: 33%' align=right>$nnav
+						</table>
+						<hr>
+						";
+
+	} else {
+		$result = $xml->xpath($mtxtelement); 
+		if ( $result ) {
+			$txtxml = $result[0]; 
+			$editxml = $txtxml->asXML();
+		} else {
+			# print $xml->asXML(); exit;
+			# $result = $xml->xpath("//name"); 
+			# print "$mtxtelement failed - trying something else : "; print_r($result); exit;
+		 	fatal ("Display element not found: $mtxtelement");
+		};
+
+	};
+	if ( $settings['xmlfile']['restriction'] && !$xml->xpath($settings['xmlfile']['restriction']) && $username ) { 
+		$pagenav .= "<p class=adminpart>This text is only show partially to visitors due to copyright restrictions; 	
+			to liberate this file, set ".$settings['xmlfile']['restriction']." in the header<hr>";
+	};
+	
+	# Change any <desc> into i18n elements
+	$editxml = preg_replace( "/<desc[^>]*>([^<]+)<\/desc>/smi", "<desc>{%\\1}</desc>", $editxml );
+	
+	$fp = $_GET['fp']; $lp = $_GET['lp'];
+	if ( $fp ) {
+		$fpx = preg_quote($fp);
+		$editxml = preg_replace( "/.*([^\s]*<$pbelm [^>]*n=\"$fpx\")/smi", "\\1", $editxml );
+	};
+	if ( $lp ) {
+		$lpx = preg_quote($lp);
+		$editxml = preg_replace("/(<$pbelm [^>]*n=\"$lpx\"[^>]*\/?>[^\s]*).*/smi", "", $editxml);
+	};
+
+			if ( preg_match("/^<!\[CDATA\[/", $editxml) ) {
+				 $shorthand = 1;
+				 $editxml = $txtxml.'';
+			};
+	
+	if (file_exists("Pages/csslegenda.html")) $customcss = file_get_contents("Pages/csslegenda.html");
+
+	# Define which view to show
+	$defaultview = $settings['xmlfile']['defaultview'];
+	// Calculate where to start from settings and cookies
+	if ( ( strpos($defaultview, "interpret") && !$_COOKIE['toggleint'] ) || $_COOKIE['toggleint'] == "true" ) {
+		$moreactions .= "\n				toggleint();";
+	};
+	if ( ( strpos($defaultview, "breaks") && !$_COOKIE['toggleshow'] ) || $_COOKIE['toggleshow'] == "true" ) {
+		$moreactions .= "\n				toggleshow();";
+	};
+	if ( ( strpos($defaultview, "pb") ) || $_COOKIE['pb'] == "true" ) {
+		$moreactions .= "\n				toggletn('pb');";
+	};
+	if ( ( strpos($defaultview, "lb") ) || $_COOKIE['lb'] == "true" ) {
+		$moreactions .= "\n				toggletn('lb');";
+	};
+	if ( ( strpos($defaultview, "colors") && !$_COOKIE['togglecol'] ) || $_COOKIE['togglecol'] == "true" ) {
+		$moreactions .= "\n				togglecol();";
+	};
+	if ( ( strpos($defaultview, "images") && !$_COOKIE['toggleimg'] ) || $_COOKIE['toggleimg'] == "true" ) {
+		$moreactions .= "\n				toggleimg();";
+	};
+	
+	if ( $shorthand ) {
+
+		if ( $username ) {
+			$maintext .= "
+			<div class=adminpart>
+				<p>Edit the content of the XML in the form below, using the shorthand notation defined 
+					for this project - the codes of which are displayed on the bottom.
+				<p> To edit the whole XML including the headers, click <a href='index.php?action=rawedit&id=$fileid&full=1'>here</a>. 
+				<br>To transform the shorthand notation into TEI, click <a href='index.php?action=unshorthand&id=$fileid'>here</a>
+					<hr>";
+
+			$maintext .= "
+					<form action='index.php?action=rawsave&cid=$fileid' method=post>
+					<textarea name=rawxml style='width: 100%; height: 250px;'>".$editxml."</textarea>
+					<input type=submit value=Save>
+					</form>
+					";
+
+			if ( file_exists("Resources/shorthand.tab") ) {
+				$maintext .= "<hr><p>Shorthand symbols: "; $sep = "";
+				foreach ( explode("\n", file_get_contents("Resources/shorthand.tab")) as $line ) {
+					list ( $from, $desc, $to ) = explode ( "\t", $line ); 
+					if ( $from ) $maintext .= "$sep <span style='color: #66aa66'>".htmlentities($from)."</span>: $desc"; $sep = " &bull; ";
+				};
+			};
+	
+			$maintext .= "
+			</div>";
+		
+
+		} else {
+			$editxml = preg_replace("/<lb\/>/", "<br/>", unshorthand($editxml));
+			$maintext .= "
+				<div id=mtxt>".$editxml."</div>";
+		};
+							
+	
+	} else {
+
+		# empty tags are working horribly in browsers - change
+		$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
+
+		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			$val = $item['direction'];
+			if ( $val )	{
+				 $fdlist .= "\n				formdir['$key'] = '$val';";
+			};
+		};
+		if ( $fdlist ) { $moreactions .= "\n				var formdir = [];$fdlist"; };
+		$lablist = $_COOKIE['labels'] or $lablist = $settings['xmlfile']['defaultlabels'];
+		if ( $lablist ) {
+			$labarray = explode(",", $lablist);
+		};
+		$showform = $_COOKIE['showform'] or $showform = $settings['xmlfile']['defaultform'];
+		if ( !$settings['xmlfile']['pattributes']['forms'][$showform] ) $showform = "form";
+					
+		$maintext .= "<div id=footnotediv style='display: none;'>This is where the footnotes go.</div>";
+
+		
+		#Build the view options	
+		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			$formcol = $item['color'];
+			# Only show forms that are not admin-only
+			if ( $username || !$item['admin'] ) {
+				if ( !$bestform ) $bestform = $key; 
+				if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+				$ikey = $item['inherit'];
+				if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract'] 
+					$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+					$fbc++;
+				};
+				if ( $key != "pform" ) { 
+					if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+					$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+				};
+			} else if ( $showform == $key ) $showform = $bestform;
+		};
+		# Check whether we HAVE the form to show - or switch back
+		if ( !strstr($editxml, " $showform=") 
+			&& !$settings['xmlfile']['pattributes']['forms'][$showform]['subtract']
+			) { $showform = $bestform;};
+		
+		
+		# Only show text options if there is more than one form to show
+		if ( $fbc > 1 ) $viewoptions .= "<p>{%Text}: $formbuts"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
+
+		$sep = "<p>";
+		if ( $fbc > 1 ) {
+			$showoptions .= "<button id='btn-col' style='background-color: #ffffff;' title='{%color-code form origin}' onClick=\"togglecol();\">{%Colors}</button> ";
+			$sep = " - ";
+		};
+		
+		if ( !$nobreakoptions && preg_match("/<tok.*?<[pl]b/smi", $editxml) ) {
+ 			$showoptions .= "<button id='btn-int' style='background-color: #ffffff;' title='{%format breaks}' onClick=\"toggleint();\">{%Formatting}</button>";
+		};
+		if ( !$nobreakoptions && preg_match("/<tok.*?<[pc]b/smi", $editxml) ) {
+ 			$showoptions .= "<button id='btn-tag-pb' style='background-color: #ffffff;' title='{%show pagebreaks}' onClick=\"toggletn('pb');\">&lt;pb&gt;</button>";
+		};
+		if ( !$nobreakoptions && preg_match("/<lb/", $editxml) ) {
+ 			$showoptions .= "<button id='btn-tag-lb' style='background-color: #ffffff;' title='{%show linebreaks}' onClick=\"toggletn('lb');\">&lt;lb&gt;</button>";
+		};
+		
+		if ( !$username ) $noadmin = "(?![^>]*admin=\"1\")";
+		if ( preg_match("/ facs=\"[^\"]+\"$noadmin/", $editxml) ) {
+			$showoptions .= " <button id='btn-img' style='background-color: #ffffff;' title='{%show facsimile images}' onClick=\"toggleimg();\">{%Images}</button>";
+		};
+						
+		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+			$val = $item['display'];
+			if ( preg_match("/ $key=/", $editxml) ) {
+				if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
+				if ( !$item['admin'] || $username ) {
+					$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
+					$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+					$pcolor = $item['color'];
+					$tagstxt .= "<button id='tbt-$key' style='background-color: #$bc; color: $pcolor;' onClick=\"toggletag('$key')\">{%$val}</button>";
+				};
+			} else if ( is_array($labarray) && ($akey = array_search($key, $labarray)) !== false) {
+			    unset($labarray[$akey]);
+			};
+		};
+		if ( $tagstxt ) $showoptions .= " - {%Tags}: $tagstxt ";
+		if ( $labarray ) {
+			$labtxt = join ( "','", $labarray );
+			$moreactions .= "\n				labels=['$labtxt'];";
+		};
+		if ( $showform ) {
+			$moreactions .= "\n				setForm('$showform');";
+		} else {
+			$moreactions .= "\n				setbut('but-pal');";
+		};
+		if ( $settings['xmlfile']['basedirection'] ) {
+			// for the correct order, abuse attnamelist 
+			$attnamelist .= "\n				setbd('".$settings['xmlfile']['basedirection']."');";
+		};
+
+		# See if there is a sound to display
+		$result = $xml->xpath("//media"); 
+		if ( $result ) {
+			foreach ( $result as $medianode ) {
+				list ( $mtype, $mform ) = explode ( '/', $medianode['mimeType'] );
+				if ( !$mtype ) $mtype = "audio";
+				if ( $mtype == "audio" ) {
+					# Determine the URL of the audio fragment
+					$audiourl = $medianode['url'];
+					if ( !strstr('http', $audiourl) ) {
+						if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
+						else $audiourl = "$baseurl/Audio/$audiourl"; 
+					}
+					if ( preg_match ( "/MSIE|Trident/i", $_SERVER['HTTP_USER_AGENT']) ) {	
+						// IE does not do sound - so just put up a warning
+						$audiobit .= "
+								<p><i><a href='$audiourl'>{%Audio fragment for this text}</a></i> - {%Consider using Chrome or Firefox for better audio support}</p>
+							"; 
+					} else {
+						$audiobit .= "<audio id=\"track\" src=\"$audiourl\" controls ontimeupdate=\"checkstop();\">
+								<p><i><a href='{$medianode['url']}'>{%Audio fragment for this text}</a></i></p>
+							</audio>
+							"; 
+						$result = $medianode ->xpath("desc"); 
+						$desc = $result[0].'';
+						if ( $desc ) {
+							$audiobit .= "<br><span style='font-size: small;'>$desc</span>";
+						};
+					};
+				};
+			};
+		};
+		
+		# Check if there are sub-sounds to display
+		$result = $xml->xpath("//*[@start]"); 
+		if ( $result && $audiobit ) {
+			$showoptions .= " <button id='btn-audio' style='background-color: #ffffff;' onClick=\"toggleaudio();\">{%Audio}</button> ";
+			$moreactions .= "makeaudio();";
+		};
+
+
+
+		if ( $showoptions != "" ) {
+			$viewoptions .= $sep."{%Show}: $showoptions";
+		};
+		
+		if ( $viewoptions != "" ) {
+			$maintext .= "
+				<p><h2>{%View options}</h2>
+				$viewoptions
+				<hr>
+				";
+					
+		};				
+
+		if ( $audiobit ) $maintext .= "<script language='Javascript' src=\"http://alfclul.clul.ul.pt/teitok/Scripts/audiocontrol.js\"></script>
+			$audiobit
+			<hr>";
+
+		if ( $username ) {
+			
+			if ( $tokcheck ) { 
+				$maintext .= "<p class=adminpart>			
+					Edit the information about each word of this file by clicking on the word in the text below, or click
+					<a href='index.php?action=rawedit&id=$fileid'>here</a> to edit the raw XML
+					</p><hr>
+					";
+
+			} else if ( preg_replace( "/\s*<.*?>\s*/", "", $editxml."") == "" && !preg_match("/<$pbelm/", $editxml) )  {
+			 	# If the XML is empty, immediately show the edit mode
+			 	
+				$maintext .= "<div class=adminpart>
+ 				<p>This XML file is empty. Please type or paste the text in the text box below, between the existing tags.
+ 				Since this is a browser interface, do not forget to save.</p>
+ 					<hr>";
+ 				
+				$editxml = "
+					<div id=\"editor\" style='width: 100%; height: 400px;'>".htmlentities($editxml)."</div>
+	
+					<form action=\"index.php?action=rawsave&cid=$fileid$type\" id=frm name=frm method=post>
+					<textarea style='display:none' name=rawxml></textarea>
+					<p><input type=button value=Save onClick=\"runsubmit();\"> $switch
+					</form>
+		
+					<script src=\"http://alfclul.clul.ul.pt/teitok/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+					<script>
+						var editor = ace.edit(\"editor\");
+						editor.setTheme(\"ace/theme/chrome\");
+						editor.getSession().setMode(\"ace/mode/xml\");
+			
+						function runsubmit ( ) {
+							document.frm.rawxml.value = editor.getSession().getValue();
+							document.frm.submit();
+						};
+					</script>
+				";
+ 				
+ 			} else {
+			
+				$maintext .= "<div class=adminpart>
+ 				<p>This XML has not been tokenized yet, and only the text is show below. To edit, click  
+ 				<a href='index.php?action=rawedit&cid=$fileid'>here</a>.
+ 				<br>If you wish to tokenize the XML and proceed to the tokenized edit mode, click
+ 				<a href='index.php?action=tokenize&id=$fileid&display=tok'>here</a></div>
+ 					<hr>";
+ 				
+ 				if ( $settings['xmlfile']['linebreaks'] && !strpos($editxml, "</p>") ) {
+ 					// Interpret linebreaks as <br/> - they will get interpreted in tokenization
+ 					$editxml = preg_replace("/\n/", "<br/>", $editxml);
+ 				};
+ 				
+ 			};
+ 		};
+
+		$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
+		$jsontrans = array2json($settings['transliteration']);
+						
+		$maintext .= "
+			<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
+			$pagenav
+			<div id=mtxt>".$editxml."</div>
+			<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/getplaintext.js'></script>
+			<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js'></script>
+			<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js'></script>
+			<script>
+				var username = '$username';
+				var formdef = $jsonforms;
+				var transl = $jsontrans;
+				var orgtoks = new Object();
+				var attributelist = Array($attlisttxt);
+				$attnamelist
+				formify(); 
+				var orgXML = document.getElementById('mtxt').innerHTML;
+				var tid = '$fileid'; var previd = '{$_GET['tid']}';
+				if ( previd ) { 
+					highlight(previd, '#ffffaa');
+				};
+				$moreactions
+				var jmps = '{$_GET['jmp']}'; var jmpid;
+				if ( jmps ) { 
+					var jmpar = jmps.split(' ');
+					for (var i = 0; i < jmpar.length; i++) {
+						var jmpid = jmpar[i];
+						highlight(jmpid, '#ffff88');
+					};
+					element = document.getElementById(jmpid)
+					alignWithTop = true;
+					element.scrollIntoView(alignWithTop);
+				};
+			</script>
+			";
+	
+		
+	
+		$maintext .= "<hr style='clear: both;'>
+			<table><tr><td valign=top style='padding-right: 15px;'>{%Legenda}:<td>";
+		
+		$sep = ""; foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			$formcol = $item['color']; $val = $item['display'];
+			if ( !$item['admin'] || $username )
+				$maintext .= "$sep<span style='color: $formcol'>{%$val}</span> ";
+				$sep = " &bull; ";
+		};
+
+
+		$maintext .= "<p style='margin-top: 5px;'>$customcss</table>
+			<hr>
+			<p>";
+		
+		if ( $settings['download']['admin'] != "1" || $username ) 
+			$maintext .= "<a href='index.php?action=getxml&cid=$fileid'>{%Download XML}</a> &bull; ";
+		$maintext .= "<a onClick='exporttxt();' style='cursor: pointer;'>{%Download current view as TXT}</a>
+			";
+		//			&bull; <a href='index.php?action=remtok&cid=$fileid'>{%Download as pure TEI}</a>
+
+		if ( !$_GET['sentence'] && strstr($editxml, "<s ") ) {
+			if ( !$_GET['id'] ) { $cidu = "&id=$fileid"; };
+			$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}$cidu&sentence=1'>{%Sentence view}</a>";
+		} else if ( strstr($editxml, "<s ") ) {
+			$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}&sentence=0'>{%Sentence view}</a>";
+		};
+		$maintext .= "<br>";
+
+	};
+	
+
+	if ( $username ) {
+		$maintext .= "<hr><div class=adminpart><h3>Admin options</h3>";
+		
+		if ( $settings['scripts'] ) {
+	
+			$maintext .= "
+			<p>Run a script on this file:<ul>";
+	
+			foreach ( $settings['scripts'] as $id => $item ) {
+				// See if thsi script is applicable
+				if ( $item['recond'] && !preg_match("/{$item['recond']}/", $editxml ) ) continue;
+				if ( $item['rerest'] && preg_match("/{$item['rerest']}/", $editxml ) ) continue;
+				if ( $item['xpcond'] && !$xml->xpath($item['xpcond']) ) continue;
+				if ( $item['xprest'] && $xml->xpath($item['xprest']) ) continue;
+				$maintext .= "<li><a href='index.php?action=runscript&script=$id&file=$fileid'>{$item['display']}</a>";
+			};
+			$maintext .= "</ul>";
+		
+		};
+		
+		if ( file_exists("Resources/filelist.xml") ) {
+			$fxml = getxmlrec("Resources/filelist.xml", $xmlid, "file");
+			$frec = simplexml_load_string($fxml);
+
+			if ( !$frec ) { 
+				$maintext .= "<h3>XML File Repository - no record for $xmlid</h3>";
+				$maintext .= "<p><ul><li><a href='index.php?action=filelist&act=edit&id=new&newid={$xmlid}'>Create file repository record</a></ul>";
+			} else {
+				$maintext .= "<h3>XML File Repository</h3>
+				<table>";
+				foreach ( $frec as $showf => $val ) {
+					$showh = $settings['filelist']['fields'][$showf]['display'] or $showh = $showf;
+
+					$maintext .= "<tr><th>$showh<td>$val";
+				};
+				$maintext .= "</table>";
+				$maintext .= "<p><ul><li><a href='index.php?action=filelist&act=edit&id={$xmlid}'>Edit file repository data</a></ul>";
+			};
+		};		
+
+		$maintext .= "<ul>";
+		if ( glob("backups/$xmlid-*") ) { 
+			$maintext .= "<li><a href='index.php?action=backups&cid=$fileid'>Recover a previous version of this file</a>
+				<br> Last change to this file: <b>$fdate</b>";
+		};
+		
+		if ( strstr($editxml, "<tok") ) {
+			if ( $_GET['pageid'] ) $pnr = "&pageid=".$_GET['pageid'];
+			else if ( $_GET['page'] ) $pnr = "&page=".$_GET['page'];
+			$maintext .= "<li><a href='index.php?action=verticalize&act=define&cid=$fileid$pnr'>View verticalized version of this text</a>";
+		};
+		
+		if ( $audiobit ) {
+			$maintext .= "<li><a href='index.php?action=audioalign&cid=$fileid'>Edit audio alignment</a>";
+		};
+		
+		if (is_array($filesources)) 
+		foreach ( $filesources as $key => $val ) {
+			$link = str_replace("[fn]", $fileid, $val[0]);
+			
+			$ln = $val[1];
+			$maintext .= "<li><a href='$link'>$ln</a>";
+		};
+		
+		if ( $settings['neotag'] && !strstr($editxml, "pos=") && strstr($editxml, "<tok") ) {
+			$maintext .= "<li><a href='index.php?action=neotag&cid=$fileid'>(Pre)tag this text with POS (and lemma)</a>";
+		};
+		$maintext .= "</ul></div>";
+	};
+
+
+?>

@@ -1,0 +1,8 @@
+<userlist>
+    <user email="admin" password="admin" permissions="admin" short="ADM">
+    	Superuser that can change settings and create users
+    </user>
+    <user email="user" password="user" permissions="user" short="USR">
+    	Normal staff user that can edit XML files
+    </user>
+</userlist>

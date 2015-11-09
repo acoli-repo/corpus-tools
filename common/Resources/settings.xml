@@ -1,0 +1,57 @@
+<ttsettings>
+	
+	<!-- Definition of the languages to be used in the interface -->
+	<languages prefixed="1" default="en">
+		<language code="en" locale="en_UK.UTF-8" menu="EN"/>	
+		<language code="nl" locale="nl_NL.UTF-8" menu="NL"/>	
+	</languages>
+
+	
+	<!-- Definition of the items to be displayed in the navigation menu -->
+	<menu>	
+		<itemlist>
+			<item key="home" display="Home"/>
+			<item key="cqp" display="Search"/>
+		</itemlist>
+	</menu>
+		
+		
+	<!-- Definition of the CQP corpus created from the XML files -->
+	<cqp corpus="TT-TEST" searchfolder="*.xml">	
+		<pattributes>
+			<item key="nform"/>
+			<item key="pos"/>
+			<item key="lemma"/>
+		</pattributes>
+		<sattributes>
+		</sattributes>
+	</cqp>
+
+	
+	<!-- Definition of the POS tagger -->
+	<neotag>
+	</neotag>
+
+
+	<!-- Definition of the items to be used in the XML files -->	
+	<xmlfile defaultform="dform" defaultview="interpret" xpath="//text">
+		<pattributes>
+			<forms>
+				<item key="pform" display="Transcription" direction="ltr"/>
+				<item key="form" display="Written form" direction="ltr" color="#990000"/>
+				<item key="fform" display="Expanded form" direction="ltr" inherit="form" color="#009900"/> 
+				<item key="nform" display="Normalized form" direction="ltr" inherit="fform" color="#990099"/> 
+			</forms>
+			
+			<tags>			
+				<item key="pos" display="POS tag" type="Select"/>
+				<item key="mfs" display="Morphological features"/>
+				<item key="lemma" display="Lemma"/>
+			</tags>
+		</pattributes>
+		<sattributes>
+			<item key="gloss" display="Translation gloss (English)"/>
+		</sattributes>
+	</xmlfile>
+
+</ttsettings>

@@ -1,0 +1,92 @@
+# use encoding 'utf8';
+use Getopt::Long;
+use XML::LibXML;
+ 
+ GetOptions ( ## Command line options
+            'debug' => \$debug, # debugging mode
+            'force' => \$force, # tag even if already tagged
+            'test' => \$test, # tokenize to string, do not change the database
+            'filename=s' => \$filename, # language of input
+            'mtxtelem=s' => \$mtxtelem, # language of input
+            'thisdir=s' => \$thisdir, # determine where we are running from
+            );
+
+	$parser = XML::LibXML->new(); $doc = ""; 
+	eval {
+		$tmpdoc = $parser->load_xml(location => $filename, load_ext_dtd => 0 );
+	};
+	if ( !$tmpdoc ) { print "Unable to parse\n"; print $tagtxt; exit; };
+	$tmpdoc->setEncoding('UTF-8');
+
+	# Define default namespace as "tei" - does still not parse
+	#my $context = XML::LibXML::XPathContext->new( $tmpdoc->documentElement() );
+	#my $ns = ( $tmpdoc->documentElement()->getNamespaces() )[0]->getValue();
+	#$context->registerNs( 'tei' => $ns );
+	
+	if ( $mtxtelem eq '' ) { $mtxtelem = "//text"; }; # Do we want this?
+	if ( $mtxtelem ne '' && $mtxtelem !~ /\// ) { $mtxtelem = "//$mtxtelem"; };
+	
+	# Number the tokens
+	$cnt = 0;
+	if ( $debug ) { print "Finding toks : //tok\n"; };
+	foreach $ttnode ($tmpdoc->findnodes("//tok")) {
+		$cnt++;
+		$ttnode->setAttribute('id', "w-$cnt");
+		$dcnt = 0;
+		if ( $debug ) { print "\n- $cnt\t".$ttnode->textContent; };
+		foreach $ddnode ( $ttnode->findnodes("dtok") ) {
+			$dcnt++;
+			if ( $debug ) { print "\n  - $dcnt\t".$ddnode->getAttribute('form'); };
+			$ddnode->setAttribute('id', "d-$cnt-$dcnt");
+		};
+	}; 
+	# warn " - number of tokens: $cnt\n";
+	
+	# Number the paragraphs
+	$cnt = 0;
+	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//p")) {
+		$cnt++;
+		$ttnode->setAttribute('id', "p-$cnt");
+	}; 
+	
+	# Number the sentences
+	$cnt = 0;
+	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//s")) {
+		$cnt++;
+		$ttnode->setAttribute('id', "s-$cnt");
+	}; 
+	
+	# Number the utterances
+	$cnt = 0;
+	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//u")) {
+		$cnt++;
+		$ttnode->setAttribute('id', "u-$cnt");
+	}; 
+	
+	# Number the breaks and other empty elements
+	$cnt = 0;
+	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//pb | $mtxtelem//lb | $mtxtelem//cb | $mtxtelem//gap | $mtxtelem//deco | $mtxtelem//milestone")) {
+		$cnt++;
+		$ttnode->setAttribute('id', "e-$cnt");
+	}; 
+	
+	# Number the footnotes
+	$cnt = 0;
+	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//note")) {
+		$cnt++;
+		$ttnode->setAttribute('id', "ftn-$cnt");
+	}; 
+	
+	$teitext = $tmpdoc->toString;
+		
+			
+print "-- renumbering complete\n";
+if ( $debug ) {
+	# binmode ( STDOUT, ":utf8" );
+	print $teitext;
+} else {
+	open FILE, ">$filename" or die ("no such file: $file");
+	# binmode ( FILE, ":utf8" );
+	print FILE $teitext;
+	close FILE;
+};
