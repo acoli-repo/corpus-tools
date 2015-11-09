@@ -1,9 +1,0 @@
-g++ -o neotagxml neotag-xml.cpp -lboost_system
-mv neotagxml ../bin
-
-g++ -o verticalize verticalize.cpp  pugixml.cpp 
-mv verticalize ../bin
-
-g++ -o xquery xquery.cpp  pugixml.cpp 
-mv xquery ../bin
-
