@@ -10,6 +10,7 @@
 	$filedescs = array (
 		"home" => "Homepage - first page to show upon entry",
 		"cqptext" => "Starting page of the search function (action=cqp - subpage without title)",
+		"tagsettext" => "Explanation above the tagset (action=tagset - subpage without title)",
 		"searchhelp" => "Explanation of the advanced search",
 		"rawsearchtext" => "Explantion of the raw text search",
 		"breaks" => "Explanation of how TEITOK deals with (line/page) breaks",
