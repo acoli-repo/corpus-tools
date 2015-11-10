@@ -22,8 +22,10 @@ At this moment, the repository is private to protect users, until security issue
 
 For the largest part, TEITOK is a PHP/Javascript system that will run by merely creating a folder containing both the **common** folder and project folder(s), where the latter are under the Apache root. 
 
-To create project folder(s), copy the myproject empty project, and open it in the browser, which will do a configuration check. If there are no crucial errors, rename index-off.php to index.php in that folder (renamed to the name of your project). 
+To create project folder(s), copy the **myproject** empty project, and open it in the browser, which will do a configuration check. If there are no crucial errors, rename index-off.php to index.php in that folder (renamed to the name of your project). 
 
 ### Dependencies
 - [Smarty Template engine](http://www.smarty.net/)
 - [Corpus WorkBench](http://cwb.sourceforge.net/) (when using CQP)
+
+The **src** folder contains several programs that make TEITOK work more smoothly, but are optional. These have to be installed locally on the server, with instruction provided in the src folder. Most of those depend on the c++ boost library.
