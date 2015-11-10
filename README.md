@@ -2,7 +2,7 @@
 
 A web-based framework for creating and distributing textually and linguistically annotated corpora.
 
-More information about the framework can be found on the TEITOK Home Page: http://teitok.corpuswiki.org
+More information about the framework can be found on the TEITOK Home Page: http://teitok.corpuswiki.org/site
 
 ## Download
 

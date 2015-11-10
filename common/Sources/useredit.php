@@ -69,8 +69,8 @@
 		$maintext .= "<h1>User Administration</h1>
 			<table><tr><th>ID<th>Email<th>Name<th>Status";
 		foreach ( $result as $usr ) {
-			# Hide the MJ user - which is the default user to allow the author of TEITOK access to help out
-			if ($usr['short'] != "MJ") $maintext .= "<tr><td>{$usr['short']}<td>{$usr['email']}<td><a href='index.php?action=$action&id={$usr['short']}'>$usr</a><td>{$usr['permissions']}";
+			# Hide the MJXXSU user - which is the default user to allow the author of TEITOK access to help out
+			if ($usr['email'] != "maarten@clul.ul.pt") $maintext .= "<tr><td>{$usr['short']}<td>{$usr['email']}<td><a href='index.php?action=$action&id={$usr['short']}'>$usr</a><td>{$usr['permissions']}";
 		};  
 		$maintext .= "</table>
 		<p><a href='index.php?action=$action&id=new'>create new user</a>";

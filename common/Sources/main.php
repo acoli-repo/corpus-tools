@@ -5,8 +5,11 @@
 
 	header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page!
 	if ( !defined(SMARTY_DIR) ) {
-		# Look for Smarty if not defined in a non-standard location
-		define('SMARTY_DIR', '/usr/local/share/smarty/');
+		# Look for Smarty in some standard locations if not defined in a non-standard location
+		if ( file_exists('/usr/local/share/smarty/Smarty.class.php') ) 
+			define('SMARTY_DIR', '/usr/local/share/smarty/');
+		else if ( file_exists('/usr/local/share/smarty/libs/Smarty.class.php') ) 
+			define('SMARTY_DIR', '/usr/local/share/smarty/libs/');
 	};
 	if ( !file_exists(SMARTY_DIR . 'Smarty.class.php') ) {
 		print "Smarty engine not installed or not found. Install Smarty, or indicate 
