@@ -1,0 +1,62 @@
+<ttsettings>
+	
+	<!-- Definition of the languages to be used in the interface -->
+	<languages prefixed="1" default="en">
+		<options>
+		<item key="en" locale="en_UK.UTF-8" menu="EN" name="English"/>	
+		<item key="es" locale="es_ES.UTF-8" menu="ES" name="Spanish"/>
+		</options>
+	</languages>
+	
+	
+	<!-- Definition of the items to be displayed in the navigation menu -->
+	<menu>	
+		<itemlist>
+			<item key="home" display="Home"/>
+			<item key="cqp" display="Search"/>
+		</itemlist>
+	</menu>
+		
+	<!-- Definition of the CQP corpus created from the XML files -->
+	<cqp corpus="TT-IMP" searchfolder="*.xml">	
+		<pattributes>
+			<item key="nform" display="Normalized form"/>
+			<item key="pos" display="POS Tag"/>
+			<item key="lemma" display="Lemma"/>
+		</pattributes>
+		<sattributes>
+			<item key="year" display="Year" type="range"/>
+			<item key="author" display="Author" long="Author name" type="long"/>
+		</sattributes>
+	</cqp>
+
+	
+	<!-- Definition of the POS tagger -->
+	<neotag>
+	</neotag>
+
+	<!-- Where (if at all) to write the TEITOK log -->
+    <log>
+        <item key="errorlog" filename="../log/myproject-error.log"/>
+    </log>
+
+	<!-- Definition of the items to be used in the XML files -->	
+	<xmlfile defaultform="dform" defaultview="interpret" xpath="//text/body" paged="0">
+		<pattributes>
+			<forms>
+				<item key="pform" display="Transcription"/>
+				<item key="form" display="Written form" color="#990000"/>
+				<item key="nform" display="Normalized form" inherit="fform" color="#990099"/> 
+			</forms>
+			
+			<tags>			
+				<item key="pos" display="POS tag"/>
+				<item key="lemma" display="Lemma"/>
+			</tags>
+		</pattributes>
+		<sattributes>
+			<item key="gloss" display="Translation gloss (English)"/>
+		</sattributes>
+	</xmlfile>
+
+</ttsettings>
