@@ -150,7 +150,7 @@
 	} else if ( $act == "xpath" ) {
 		// Allow queries over PSDX files using xpath wrapped in xsltproc
 		
-		$xpath = $_POST['xpath'];
+		$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'];
 		$searchfile = $_GET['cid'];
 		if ( $searchfile ) {	
 			$searchfiles = $searchfile; 

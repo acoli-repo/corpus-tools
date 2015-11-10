@@ -2,9 +2,11 @@
 
 A web-based framework for creating and distributing textually and linguistically annotated corpora.
 
+TEITOK Home Page: http://teitok.corpuswiki.org
+
 ## Download
 
-This package is maintained
+This package is maintained at
 [GitLab](https://gitlab.com/maartenes/TEITOK). Issues and pull requests
 should be submitted there.
 
@@ -18,8 +20,8 @@ At this moment, the repository is private to protect users, until security issue
 
 ## Installation
 
-For the largest part, TEITOK is a PHP/Javascript system that will run by merely creating a folder containing both the <common> folder and project folder(s), where the latter are under the Apache root. 
+For the largest part, TEITOK is a PHP/Javascript system that will run by merely creating a folder containing both the **common** folder and project folder(s), where the latter are under the Apache root. 
 
 Dependencies:
-- Smary Template engine
-- Corpus WorkBench (when using CQP)
+- [Smarty Template engine](http://www.smarty.net/)
+- [Corpus WorkBench](http://cwb.sourceforge.net/) (when using CQP)
