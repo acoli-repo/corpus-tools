@@ -50,6 +50,14 @@
 		print "<p class=right> CQP found, version: {$matches[1]}"; 
 	};
 
+	// Check whether main.php in common exists in the expected location
+	if ( !file_exists("../common/Sources/main.php") ) {
+		print "<p class=wrong> The common TEITOK files are missing or not in the folder directly above the project";
+		$critical = 1;
+	} else {
+		print "<p class=right> Common TEITOK files found"; 
+	};
+
 	// Check whether relevant folders is writable
 	if ( !is_writable("Resources") ) {
 		print "<p class=wrong> The folder Resources/ should be writable for Apache or TEITOK will not be able to modify preferences";

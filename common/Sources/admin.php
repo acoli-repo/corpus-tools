@@ -6,6 +6,31 @@
 	
 		# No longer here - now just under recqp.php 
 
+	} else if ( $act == "configcheck" ) {
+
+		// Check whether TEITOK configuration is safe and working
+		$maintext .= "<h1>Configuration Check</h1>
+					<style>
+			.wrong { color: #aa2000; } .wrong::before { content:'✘ ' }
+			.warn { color: #aa8800; } .warn::before { content:'✣ ' }
+			.right { color: #209900; } .right::before { content:'✔ ' }
+		</style>";
+		
+		// Check project folder permissions
+		$writefolders = array ( "xmlfiles" => "Modify XML files", "Resources" => "Change settings", "backups" => "Make XML backups" );	
+		foreach ( $writefolders as $fldr => $reason ) {
+			if ( !is_writable($fldr) ) {
+				$maintext .= "<p class=wrong> The folder $fldr/ should be writable for Apache, reason: $reason";
+				$foldererrors = 1;
+			};
+		}; if ( !$foldererrors ) $maintext .= "<p class=right> Main folder permissions in project are correct";
+
+		// Check project folder permissions of common 
+		if ( is_writable("../common") ) {
+			$maintext .= "<p class=warn> The common folder of TEITOK had best not be writable";
+		};
+		
+
 	} else if ( $act == "serverdata" ) {
 
 		$maintext .= "<h1>_SERVER</h1>";

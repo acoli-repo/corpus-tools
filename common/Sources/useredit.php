@@ -8,6 +8,11 @@
 	if ( !$user['permissions'] == "admin" ) { fatal ("Function for admin users only"); };
 	$id = $_GET['id'];
 
+		if ( !is_writable("Resources/userlist.xml"){
+			fatal ("Userlist is not writable - please contact admin");
+		};
+	
+
 	if ( $act == "save" ) {
 		$id = $_POST['id'];
 	
@@ -75,5 +80,6 @@
 		$maintext .= "</table>
 		<p><a href='index.php?action=$action&id=new'>create new user</a>";
 	};
+
 
 ?>

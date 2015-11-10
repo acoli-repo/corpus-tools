@@ -8,8 +8,12 @@
 		# Look for Smarty in some standard locations if not defined in a non-standard location
 		if ( file_exists('/usr/local/share/smarty/Smarty.class.php') ) 
 			define('SMARTY_DIR', '/usr/local/share/smarty/');
+		else if ( file_exists('/usr/local/lib/smarty/Smarty.class.php') ) 
+			define('SMARTY_DIR', '/usr/local/lib/smarty/');
 		else if ( file_exists('/usr/local/share/smarty/libs/Smarty.class.php') ) 
 			define('SMARTY_DIR', '/usr/local/share/smarty/libs/');
+		else if ( file_exists('/usr/local/lib/smarty/libs/Smarty.class.php') ) 
+			define('SMARTY_DIR', '/usr/local/lib/smarty/libs/');
 	};
 	if ( !file_exists(SMARTY_DIR . 'Smarty.class.php') ) {
 		print "Smarty engine not installed or not found. Install Smarty, or indicate 
