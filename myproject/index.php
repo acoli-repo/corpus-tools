@@ -42,11 +42,12 @@
 	};
 
 	// Check for CQP
-	$cqpcheck = shell_exec("cqp -v");
+	$cqpcheck = shell_exec("/usr/local/bin/cqp -v");
+	if ( !$cqpcheck ) $cqpcheck = shell_exec("cqp -v"); // if not in /usr/local/bin - try just running it if server allows
 	if ( !$cqpcheck ) {
 		print "<p class=warn> CQP not installed or not found. Install CQP, or search will not be available";
 	} else {
-		preg_match ("/version:\s*(.*)/");
+		preg_match ("/version:\s*(.*)/i", $cqpcheck, $matches);
 		print "<p class=right> CQP found, version: {$matches[1]}"; 
 	};
 

@@ -8,7 +8,7 @@
 	if ( !$user['permissions'] == "admin" ) { fatal ("Function for admin users only"); };
 	$id = $_GET['id'];
 
-		if ( !is_writable("Resources/userlist.xml"){
+		if ( !is_writable("Resources/userlist.xml") ) {
 			fatal ("Userlist is not writable - please contact admin");
 		};
 	
