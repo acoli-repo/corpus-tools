@@ -197,7 +197,7 @@
 				$maintext .= "<p>No results for found.</p>";
 			} else if ( $resxml ) {
 				$forestlist = $resxml->xpath("//forest");
-				$maintext .= "<p>".$forestlist.size()." matching (sub)trees";
+				$maintext .= "<p>".count($forestlist)." matching (sub)trees";
 				foreach ( $forestlist as $forest ) {
 					$maintext .= "<hr>";
 					$sentid = $forest['sentid'] or $sentid = $forest['Location'];
