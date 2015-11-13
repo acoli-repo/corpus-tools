@@ -20,6 +20,7 @@
 	
 		if ( $id == "new" ) {
 			$usr = $userlist->addChild("user");
+			$usr["short"] = $_POST['short'];
 		} else {
 			$result = $userlist->xpath("//user[@short=\"$id\"]");
 			$usr = $result[0];
@@ -50,7 +51,7 @@
 		
 		if ( $id == "new" ) {
 			$idfld = "<input type='hidden' name='id' value='new'>
-				<tr><th>Initials<td><input name='short' value='' size=6> (used as user ID)"; 
+				<tr><th>Initials<td><input name='short' value='' size=6> (used as user ID in TEI)"; 
 		} else { 
 			$idfld = "<input type='hidden' name='id' value='{$usr['short']}'>"; 
 			 $chpwd = "(unchanged when left empty)";
@@ -63,7 +64,6 @@
 			<tr><th>Real Name<td><input name='name' value='{$name}' size=70>
 			<tr><th>Email<td><input name='email' value='{$usr['email']}' size=50> (used as login)
 			<tr><th>Password<td><input name='password' size=20> $chpwd
-			<tr><th>Short name<td><input name='short' size=20 value='{$usr['short']}'> (used for TEI identification)
 			<tr><th>Permissions<td><input name='permissions' value='{$usr['permissions']}'> (user, admin, none)
 			</table>
 			<input type=submit value=Save> <a href='index.php?action=$action'>cancel</a>

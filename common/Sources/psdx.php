@@ -157,7 +157,7 @@
 			$subtit = "<p>Query over file: <a href='index.php?action=file&cid=$searchfiles'>$searchfiles</a>";
 		} else $searchfiles = "*";
 		
-		if (!$xpath) { 
+		if ( $xpath == "" ) { 
 			$test = 1; 
 			$xpath = '//eTree[@Label="IP-SUB" and .//eTree[@Label="ADV"]]';
 		};
@@ -169,6 +169,7 @@
 			$subtit
 			<p><input type=submit value=Search> {%Tree style}: 
 			<select name=treestyle>";
+			
 		foreach ( $treestyles as $key => $val ) {
 			if ( $key == $treestyle ) $slc = " selected"; else $slc = "";
 			$maintext .= "<option value=\"$key\"$slc>$val</option>";
@@ -195,7 +196,9 @@
 			if (strstr($results, '<results></results>')) {
 				$maintext .= "<p>No results for found.</p>";
 			} else if ( $resxml ) {
-				foreach ( $resxml->xpath("//forest") as $forest ) {
+				$forestlist = $resxml->xpath("//forest");
+				$maintext .= "<p>".forestlist.size()." matching (sub)trees";
+				foreach ( $forestlist as $forest ) {
 					$maintext .= "<hr>";
 					$sentid = $forest['sentid'] or $sentid = $forest['Location'];
 					$fileid = $forest['File'];
