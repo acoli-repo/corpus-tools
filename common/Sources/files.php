@@ -121,10 +121,13 @@
 		$maintext .= "<h1>{%List of XML files}</h1>";
 	
 		if ( $username ) 
-		$maintext .= "<form class=adminpart style='padding: 4px;' action='index.php?action=edit' method=post>
-			<p>Give the ID of the XML File to edit: <input name=id> <input type=submit value=Open>
+		$maintext .= "
+			<div class='adminpart'>
+			<form class=adminpart style='padding: 4px;' action='index.php?action=edit' method=post>
+			<p>Give the ID of the XML File to open: <input name=id> <input type=submit value=Open>
 			</form>
 			<p>Or select a file from the list below:
+			</div>
 			";
 	
 		$recf = 1;
@@ -162,6 +165,7 @@
 			};
 		};
 		$maintext .= "$dirlist";
+		if ( !$dirlist ) $maintext .= "<p><i>There are no XML files in this project yet</i>";
 		if ( $dirlist && $filelist ) $maintext .= "<hr>";
 		$maintext .= "$filelist<hr>$cnt files$showing";
 		if ($username) $maintext .= " &bull; <a href='index.php?action=$action&act=mkdir'>create new folder</a?";
