@@ -11,7 +11,6 @@
 
 	include ("../common/Sources/cwcqp.php");
 
-	# $debug = 1;
 	$registryfolder = "/usr/local/share/cwb/registry/";
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
@@ -454,10 +453,10 @@
 			$cqpquery = "tabulate $matches $start $end match text_id, $leftc $showform, $rightc $showform, $matchwords id $morematch";
 			$results = $cqp->exec($cqpquery);
 
-			if ( $debug ) $maintext .= "<p>$cqpquery<PRE>$results</PRE>";
+			if ( $debug ) $maintext .= "<p>From inital $cnt results: $cqpquery<PRE>$results</PRE>";
 
 			$resarr = split ( "\n", $results ); $scnt = count($resarr);
-			$maintext .= "<p>$cnt {%results}";
+			$maintext .= "<p>$scnt {%results}";
 			if ( $scnt < $cnt ) { 
 				$last = min($end,$cnt);
 				$maintext .= " &bull; {%Showing} $start - $last";

@@ -5,6 +5,8 @@
 	// include('Resources/settings.php');
 	if ( $_GET['debug'] == "1" ) $debug = true;
 	session_start();
+
+	error_reporting( error_reporting() & ~E_NOTICE );
 	
 	$thisdir = preg_replace("/\/[^\/]+$/", "", $_SERVER['SCRIPT_FILENAME'] );
 	

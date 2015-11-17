@@ -148,21 +148,21 @@
 	$menu .=  "<hr style='background-color: #aaaaaa; margin-top: 40px;'><p style='opacity: 0.5; font-size: 9pt;' onClick=\"window.open('http://teitok.corpuswiki.org/site/index.php', 'teitok');\">Powered by TEITOK<br>&copy; Maarten Janssen, 2014</p>";
 
 	// take care of the title and header
-	if ( !$pagetitle ) $pagetitle = $pagetitles[$action] or $pagetitle = $settings['defaults']['title']['display'];
-	$smarty->assign(title, $pagetitle);
-	$smarty->assign(header, $pagetitle);
-	$smarty->assign(menu, $menu);
+	if ( !isset($pagetitle) ) $pagetitle = $pagetitles[$action] or $pagetitle = $settings['defaults']['title']['display'];
+	$smarty->assign("title", $pagetitle);
+	$smarty->assign("header", $pagetitle);
+	$smarty->assign("menu", $menu);
 	
 	
 
 	// overrule page by error
 	// if ( $criticalerror ) $maintext = $criticalerror;
-	$smarty->assign(maintext, $maintext);
+	$smarty->assign("maintext", $maintext);
 	
 	// display the debug info if any
 	// if ( $debug) $smarty->assign(debug, "<!--\nDebugging\n $debug \n-->");
 
-	if ( $template == "" ) {
+	if ( !isset($template) ) {
  		if ( $username && file_exists("templates/admin.tpl" ) ) $template = "admin";
  		else $template = "main";
 	};

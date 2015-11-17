@@ -83,7 +83,10 @@
 				$maintext .= "<ul><li>  <a href='index.php?action=recqp&force=1'>regenerate</a> the script to regenerate the CQP corpus (after changing CQP settings)</ul>";
 			};
 		};
-		
+		if ( $settings['neotag'] ) {
+				$maintext .= "<li>  <a href='index.php?action=neotag'>check or update</a> the NeoTag tagset(s)";
+		};
+				
 		if ( $user['permissions'] == "admin" ) {
 			$maintext .= "<li><a href='index.php?action=useredit'>edit users</a>";
 			$maintext .= "<li><a href='index.php?action=adminedit'>edit settings files</a>";
