@@ -116,14 +116,6 @@ void treatnode ( pugi::xpath_node node ) {
 		} else {
 			formval = calcform(node.node(), formkey);
 		};
-		if ( !streams[formkey]["lexicon"].is_open() ) { 
-			if ( verbose ) { cout << "Creating files for: " << formkey << endl; };
-			streams[formkey]["lexicon"].open(corpusfolder+formkey+".lexicon");
-			filename = corpusfolder+formkey+".lexicon.idx";
-			files[formkey]["idx"] = fopen(filename.c_str(), "wb"); 
-			filename = corpusfolder+formkey+".corpus";
-			files[formkey]["corpus"] = fopen(filename.c_str(), "wb"); 
-		};
 	
 		// if ( lexitems[formkey].find(formval) == lexitems[formkey].end() ) {
 		if ( !lexitems[formkey][formval] ) {
@@ -159,8 +151,10 @@ void treatfile ( string filename ) {
         cout << "  Failed to load XML file " << filename << endl;
     	return;
     };
+    
+    string fileid = filename.substr(filename.find_last_of("/")+1,filename.find_last_of(".")-filename.find_last_of("/")-1	);
 
-	if ( debug ) { cout << "Treating: " << filename << endl; };
+	if ( debug > 0 ) { cout << "  - Treating: " << filename << " (" << fileid << ")" << endl; };
 
 	pugi::xpath_node resnode;
 
@@ -176,13 +170,16 @@ void treatfile ( string filename ) {
 	    
     // Go through the toks
 	pugi::xpath_node_set toks = doc.select_nodes(tokxpath);
+	map<string, int> id_pos;
 
 	int pos1 = tokcnt;
 	for (pugi::xpath_node_set::const_iterator it = toks.begin(); it != toks.end(); ++it)
 	{
 		pugi::xpath_node node = *it;
+		id_pos[it->node().attribute("id").value()] = tokcnt;
 
 		treatnode(node);
+				
 	}
 	int pos2 = tokcnt-1;
 
@@ -194,15 +191,6 @@ void treatfile ( string filename ) {
 	if ( debug > 0 ) {
 		cout << "<text> " << filename << " ranging from " << pos1 << " to " << pos2 << endl; 
 	};
-	if ( !streams["text_id"]["avs"].is_open() ) { 
-		streams["text_id"]["avs"].open(corpusfolder+"text_id.avs");
-		filename = corpusfolder+"text_id.avx";
-		files["text_id"]["avx"] = fopen(filename.c_str(), "wb"); 
-		filename = corpusfolder+"text_id.rng";
-		files["text_id"]["rng"] = fopen(filename.c_str(), "wb"); 
-		filename = corpusfolder+"text.rng";
-		files["text_"]["rng"] = fopen(filename.c_str(), "wb"); 
-	};	
 	if ( pos2 > pos1 ) {
 		write_network_number(pos1, files["text_"]["rng"]);
 		write_network_number(pos2, files["text_"]["rng"]);
@@ -215,78 +203,164 @@ void treatfile ( string filename ) {
 	streams["text_id"]["avs"] << idname << '\0'; 
 
 	// add the sattributes for <text>
-	string formkey; string formval;
-    for ( pugi::xml_node formfld = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
-		formkey = formfld.attribute("key").value(); 
-		if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
-		formkey = "text_" + formkey;
-		formval = "";
-		string external = formfld.attribute("external").value();
-		string xpath = formfld.attribute("xpath").value();
-		if ( xpath != "" ) {
-			pugi::xpath_node xres;
-			if ( external != "" ) {
-				if ( debug > 2 ) { cout << "External XML lookup: " << external << endl; };
-				string tmp = doc.select_single_node(external.c_str()).attribute().value();
-				  vector <string> exval;
-				  split( exval, tmp, is_any_of( "#" ) );
-				string exfile = exval[0];
-				if ( exfile.substr(exfile.length()-4) == ".xml" && !externals[exfile].first_child() ) { 
-					exfile = "Resources/" + exfile;
-					if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << tmp << endl; };
-					externals[exval[0]].load_file(exfile.c_str());
-				};
-				if ( exfile.substr(exfile.length()-4) != ".xml" && verbose ) {
-					cout << "Invalid external lookup: " << tmp << endl; 
-				};
-				if ( externals[exval[0]].first_child() ) { 
-					if ( exval[1] != "" ) {
-						string idlookup = "//*[@id=\""+exval[1]+"\"]";
-						if ( debug > 1 ) { cout << "ID lookup: " << idlookup << endl; };
-						pugi::xml_node exnode = externals[exval[0]].select_single_node(idlookup.c_str()).node();
-						if ( debug > 2 ) { exnode.print(cout); };
-						if ( exnode ) {
-							xres = exnode.select_single_node(xpath.c_str()); 
+	string formkey; string formval; pugi::xpath_node xres;
+	string rel_tokxpath = tokxpath;
+		rel_tokxpath = "." + rel_tokxpath;
+	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
+		string tagname = taglevel.attribute("key").value();
+		if ( tagname == "text" ) {
+			for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
+				formkey = formfld.attribute("key").value(); 
+				if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
+				formkey = "text_" + formkey;
+				formval = "";
+				string external = formfld.attribute("external").value();
+				string xpath = formfld.attribute("xpath").value();
+				if ( xpath != "" ) {
+					if ( external != "" ) {
+						if ( debug > 2 ) { cout << "External XML lookup: " << external << endl; };
+						string tmp = doc.select_single_node(external.c_str()).attribute().value();
+						  vector <string> exval;
+						  split( exval, tmp, is_any_of( "#" ) );
+						string exfile = exval[0];
+						if ( exfile.substr(exfile.length()-4) == ".xml" && !externals[exfile].first_child() ) { 
+							exfile = "Resources/" + exfile;
+							if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << tmp << endl; };
+							externals[exval[0]].load_file(exfile.c_str());
+						};
+						if ( exfile.substr(exfile.length()-4) != ".xml" && verbose ) {
+							cout << "Invalid external lookup: " << tmp << endl; 
+						};
+						if ( externals[exval[0]].first_child() ) { 
+							if ( exval[1] != "" ) {
+								string idlookup = "//*[@id=\""+exval[1]+"\"]";
+								if ( debug > 1 ) { cout << "ID lookup: " << idlookup << endl; };
+								pugi::xml_node exnode = externals[exval[0]].select_single_node(idlookup.c_str()).node();
+								if ( debug > 2 ) { exnode.print(cout); };
+								if ( exnode ) {
+									xres = exnode.select_single_node(xpath.c_str()); 
+								};
+							} else {
+								xres = externals[exval[0]].first_child().select_single_node(xpath.c_str()); 
+							};
 						};
 					} else {
-						xres = externals[exval[0]].select_single_node(xpath.c_str()); 
+						 xres = doc.select_single_node(xpath.c_str());
+					};
+					if ( xres.attribute() ) {	
+						formval = xres.attribute().value();
+					} else {
+						formval = xres.node().child_value();
 					};
 				};
-			} else {
-				 xres = doc.select_single_node(xpath.c_str());
-			};
-			if ( xres.attribute() ) {	
-				formval = xres.attribute().value();
-			} else {
-				formval = xres.node().child_value();
-			};
-		};
-		if ( debug > 0 ) { cout << filename << " - " << formkey << " (" << xpath << ") = " << formval << endl; };
-
-		if ( !streams[formkey]["avs"].is_open() ) { 
-			if ( verbose ) { cout << "Creating files for: " << formkey << endl; };
-			streams[formkey]["avs"].open(corpusfolder+formkey+".avs");
-			filename = corpusfolder+formkey+".avx";
-			files[formkey]["avx"] = fopen(filename.c_str(), "wb"); 
-			filename = corpusfolder+formkey+".rng";
-			files[formkey]["rng"] = fopen(filename.c_str(), "wb"); 
-		};
+				if ( debug > 0 ) { cout << filename << " - " << formkey << " (" << xpath << ") = " << formval << endl; };
 	
-		// if ( lexitems[formkey].find(formval) == lexitems[formkey].end() ) {
-		if ( !lexitems[formkey][formval] ) {
-			// new word		
-			lexitems[formkey][formval] = lexidx[formkey];
-			streams[formkey]["avs"] << formval << '\0'; 
+				// if ( lexitems[formkey].find(formval) == lexitems[formkey].end() ) {
+				if ( !lexitems[formkey][formval] ) {
+					// new word		
+					lexitems[formkey][formval] = lexidx[formkey];
+					streams[formkey]["avs"] << formval << '\0'; 
+				};
+				if ( pos2 > pos1 ) {
+					write_network_number(pos1, files[formkey]["rng"]);
+					write_network_number(pos2, files[formkey]["rng"]);
+					write_network_number(lexidx[formkey], files[formkey]["avx"]);
+					write_network_number(lexpos[formkey], files[formkey]["avx"]);
+					lexpos[formkey] += formval.length() + 1;
+					lexidx[formkey]++; 
+				};
+			};	
+		} else {
+			if ( debug > 2 ) { cout << "Looking for " << tagname << endl; };
+			// Add non-text level attributes
+			string xpath = "//text//" + tagname;
+			// Loop through the actual items
+			pugi::xpath_node_set elmres = doc.select_nodes(xpath.c_str());
+			for (pugi::xpath_node_set::const_iterator it = elmres.begin(); it != elmres.end(); ++it) {
+				pugi::xpath_node_set rel_toks = it->node().select_nodes(rel_tokxpath.c_str());
+				if ( rel_toks.empty() ) { continue; };
+				string toka = rel_toks[0].node().attribute("id").value();
+				string tokb = rel_toks[rel_toks.size()-1].node().attribute("id").value();
+				int posa = id_pos[toka]; // first "token" in the range
+				int posb = id_pos[tokb]; // last "token" in the range
+				if ( debug > 2 ) { cout << " Found a range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
+				write_network_number(posa, files[tagname+"_"]["rng"]);
+				write_network_number(posb, files[tagname+"_"]["rng"]);
+				for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
+					formkey = formfld.attribute("key").value(); 
+					if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
+					formkey = tagname + "_" + formkey;
+					formval = "";
+					xpath = formfld.attribute("xpath").value();
+					if ( xpath != "" ) {
+						xres = it->node().select_single_node(xpath.c_str());
+						if ( xres.attribute() ) {	
+							formval = xres.attribute().value();
+						} else {
+							formval = xres.node().child_value();
+						};
+					} else { 
+						formval = it->node().attribute(formfld.attribute("key").value()).value();
+					};
+					if ( debug > 0 ) { cout << filename << " - " << formkey << " (" << xpath << ") = " << formval << endl; };
+					// write the actual data
+					if ( !lexitems[formkey][formval] ) {
+						// new item		
+						lexitems[formkey][formval] = lexidx[formkey];
+						streams[formkey]["avs"] << formval << '\0'; 
+					};
+					write_network_number(lexidx[formkey], files[formkey]["avx"]);
+					write_network_number(lexpos[formkey], files[formkey]["avx"]);
+					write_network_number(posa, files[formkey]["rng"]);
+					write_network_number(posb, files[formkey]["rng"]);
+				};
+				lexpos[formkey] += formval.length() + 1;
+				lexidx[formkey]++; 
+			};	
+
 		};
-		if ( pos2 > pos1 ) {
-			write_network_number(pos1, files[formkey]["rng"]);
-			write_network_number(pos2, files[formkey]["rng"]);
-			write_network_number(lexidx[formkey], files[formkey]["avx"]);
-			write_network_number(lexpos[formkey], files[formkey]["avx"]);
+	};
+
+	// add the stand-off annotations
+	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("annotations").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
+		string tagname = taglevel.attribute("key").value();
+		if ( debug > 2 ) { cout << " - Looking for stand-off: " << tagname << endl; };
+		// Loop through the actual items
+		string xpath = "//file[@id=\""+fileid+"\"]/segment";
+		cout << "Query: " << xpath << endl;
+		pugi::xpath_node_set elmres = externals[taglevel.attribute("filename").value()].select_nodes(xpath.c_str());
+		for (pugi::xpath_node_set::const_iterator it = elmres.begin(); it != elmres.end(); ++it) {
+			string wlist = it->node().attribute("tokens").value();
+			string toka = wlist.substr(0,wlist.find(","));
+			string tokb = wlist.substr(wlist.find_last_of(",")+1);
+			if ( toka == "" || tokb == "" ) { continue; };
+			int posa = id_pos[toka]; // first "token" in the range
+			int posb = id_pos[tokb]; // last "token" in the range
+			if ( debug > 2 ) { cout << " Found a range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
+			write_network_number(posa, files[tagname+"_"]["rng"]);
+			write_network_number(posb, files[tagname+"_"]["rng"]);
+			for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
+				formkey = formfld.attribute("key").value(); 
+				if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
+				formkey = tagname + "_" + formkey;
+				formval = "";
+				formval = it->node().attribute(formfld.attribute("key").value()).value();
+				if ( debug > 0 ) { cout << filename << " - " << formkey << " (" << xpath << ") = " << formval << endl; };
+				// write the actual data
+				if ( !lexitems[formkey][formval] ) {
+					// new item		
+					lexitems[formkey][formval] = lexidx[formkey];
+					streams[formkey]["avs"] << formval << '\0'; 
+				};
+				write_network_number(lexidx[formkey], files[formkey]["avx"]);
+				write_network_number(lexpos[formkey], files[formkey]["avx"]);
+				write_network_number(posa, files[formkey]["rng"]);
+				write_network_number(posb, files[formkey]["rng"]);
+			};
 			lexpos[formkey] += formval.length() + 1;
 			lexidx[formkey]++; 
-		};
-	};		
+		};	
+	};
 };
 
 
@@ -371,6 +445,19 @@ int main(int argc, char *argv[])
 	if ( tagsettings.attribute("test") != NULL ) { test = true; verbose = true; };
 	if ( tagsettings.attribute("verbose") != NULL ) { verbose = true; };
 
+	// Output help information when so asked and quit
+	if ( tagsettings.attribute("help") != NULL ) { 
+		cout << "Usage:  tt-cwb-encode [options]" << endl;
+		cout << "" << endl;
+		cout << "Reads a collection of tokenized XML files, and generates CWB binary format corpus files, which can be converted into a full CWB corpus with cwb-makeall. Settings for the conversion are typcially read from an XML style settings file, which by default is called Resources/settings.xml. More information about the structure of the settings file can be found on: http://teitok.corpuswiki.org" << endl;
+		cout << "" << endl;
+		cout << "Options:" << endl;
+		cout << "  --debug=[n]    debug level" << endl;
+		cout << "  --verbose	  verbose output" << endl;
+		cout << "  --settings=[s] name of the settings file" << endl;
+		cout << "  --log=[s]	  write log to file [s]" << endl;
+		return -1; 
+	};
 	
 	// Read the settings.xml file where appropriate - by default from ./Resources/settings.xml
 	string settingsfile;
@@ -431,7 +518,7 @@ int main(int argc, char *argv[])
 		pugi::xml_node watt = xmlsettings.first_child().child("cqp").child("pattributes").append_child("item");
 		watt.append_attribute("key") = "id";
 	};
-	xmlsettings.first_child().child("cqp").child("pattributes").print(cout);
+	if ( debug > 2) { xmlsettings.first_child().child("cqp").child("pattributes").print(cout); };
 	string sep;
 
 	// Now we need to read the inheritance tree
@@ -475,7 +562,7 @@ int main(int argc, char *argv[])
 		};
 		registry << "ATTRIBUTE " << formkey << "  # " << longname << endl;
 		
-		if ( verbose ) { cout << "Creating files for: " << formkey << endl; };
+		if ( debug > 0 ) { cout << "Creating files for: " << formkey << endl; };
 		
 		// Open the files
 		streams[formkey]["lexicon"].open(corpusfolder+formkey+".lexicon");
@@ -484,26 +571,79 @@ int main(int argc, char *argv[])
 		filename = corpusfolder+formkey+".corpus";
 		files[formkey]["corpus"] = fopen(filename.c_str(), "wb"); 
 	};		
-	
-	// go through the sattributes on <text>
-	registry << endl << "## Structural attributes on <text>" << endl;
-	registry << "STRUCTURE text" << endl;
-    for ( pugi::xml_node formfld = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
-		formkey = formfld.attribute("key").value(); 
-		if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
-		formkey = "text_" + formkey;
-		longname = formfld.attribute("long").value();
-		if ( longname == "" ) { longname = formfld.attribute("display").value(); };
-		registry << "STRUCTURE " << formkey << "  # " << longname << endl;
 
-		if ( verbose ) { cout << "Creating files for: " << formkey << endl; };
-		streams[formkey]["avs"].open(corpusfolder+formkey+".avs");
-		filename = corpusfolder+formkey+".avx";
-		files[formkey]["avx"] = fopen(filename.c_str(), "wb"); 
-		filename = corpusfolder+formkey+".rng";
-		files[formkey]["rng"] = fopen(filename.c_str(), "wb"); 
+	
+	// go through the sattributes on all levels
+	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
+		string tagname = taglevel.attribute("key").value();
+			if ( debug > 0  ) { cout << "Creating files for: " << tagname << endl; };
+		registry << endl << "## Structural attributes on <" << tagname << ">" << endl;
+		registry << "STRUCTURE " << tagname << endl;
+		filename = corpusfolder+tagname+".rng";
+		files[tagname+"_"]["rng"] = fopen(filename.c_str(), "wb"); 
+		for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
+			formkey = formfld.attribute("key").value(); 
+			if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
+			formkey = tagname+"_" + formkey;
+			longname = formfld.attribute("long").value();
+			if ( longname == "" ) { longname = formfld.attribute("display").value(); };
+			registry << "STRUCTURE " << formkey << "  # " << longname << endl;
+
+			if ( debug > 0  ) { cout << "Creating attribute files for: " << formkey << endl; };
+			streams[formkey]["avs"].open(corpusfolder+formkey+".avs");
+			filename = corpusfolder+formkey+".avx";
+			files[formkey]["avx"] = fopen(filename.c_str(), "wb"); 
+			filename = corpusfolder+formkey+".rng";
+			files[formkey]["rng"] = fopen(filename.c_str(), "wb"); 
+		};
+	};
+	// There always should be a text_id
+	if ( !streams["text_id"]["avs"].is_open() ) {
+		registry << "STRUCTURE text_id" << endl;
+		streams["text_id"]["avs"].open(corpusfolder+"text_id.avs");
+		filename = corpusfolder+"text_id.avx";
+		files["text_id"]["avx"] = fopen(filename.c_str(), "wb"); 
+		filename = corpusfolder+"text_id.rng";
+		files["text_id"]["rng"] = fopen(filename.c_str(), "wb"); 
 	};
 	
+	// go through the stand-off annotations
+	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("annotations").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
+		string tagname = taglevel.attribute("key").value();
+		string filename = taglevel.attribute("filename").value();
+
+		// open the external XML file
+		string fullfilename = "Annotations/"+filename;
+		externals[filename].load_file(fullfilename.c_str());
+		if ( !externals[filename].first_child() ) {
+			cout << "Failed to load: " << fullfilename << endl; 
+			taglevel.parent().remove_child(taglevel); // Remove this node since we cannot read the stand-off annotation
+			continue; 
+		};
+
+		if ( debug > 0 ) { cout << "- Dealing with annotations: " << tagname << endl; };
+		registry << endl << "## Stand-off annotations of type " << tagname << endl;
+		registry << "STRUCTURE " << tagname << endl;
+		filename = corpusfolder+tagname+".rng";
+		files[tagname+"_"]["rng"] = fopen(filename.c_str(), "wb"); 
+		for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
+			formkey = formfld.attribute("key").value(); 
+			if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
+			formkey = tagname+"_" + formkey;
+			longname = formfld.attribute("long").value();
+			if ( longname == "" ) { longname = formfld.attribute("display").value(); };
+			registry << "STRUCTURE " << formkey << "  # " << longname << endl;
+
+			if ( debug > 0  ) { cout << "Creating attribute files for: " << formkey << endl; };
+			streams[formkey]["avs"].open(corpusfolder+formkey+".avs");
+			filename = corpusfolder+formkey+".avx";
+			files[formkey]["avx"] = fopen(filename.c_str(), "wb"); 
+			filename = corpusfolder+formkey+".rng";
+			files[formkey]["rng"] = fopen(filename.c_str(), "wb"); 
+		};
+
+	};
+		
 	string dofolders = tagsettings.attribute("searchfolder").value();
 	if ( dofolders != "" ) {
 		if ( verbose ) cout << "- Training folder(s): " << dofolders << endl;

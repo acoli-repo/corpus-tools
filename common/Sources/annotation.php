@@ -1,5 +1,5 @@
-<?
-	
+<?php
+
 	$annotation = $_GET['annotation'];
 	if ( $annotation ) {
 		$anfile = file_get_contents("Annotations/$annotation.xml");

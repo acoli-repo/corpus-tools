@@ -38,7 +38,7 @@
 			$lines = shell_exec("head {$item['params']}");
 			if ( preg_match ("/created=\"(.*?)\"/", $lines, $matches ) ) $lastupdate = $matches[1];
 			
-			if ( file_exists($item['params']) )
+			// if ( file_exists($item['params']) )
 				$maintext .= "<tr>
 					<td><a href='index.php?action=$action&params={$item['params']}'>select</a>
 					<td>{$item['params']}
