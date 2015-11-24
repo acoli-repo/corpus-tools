@@ -38,6 +38,12 @@
 
 		$rawtok = preg_replace( "/<\/?tok[^>]*>/", "", $token->asXML() );
 
+	if ( !token['id'] || $token->xpath(".//dtok[not(@id)]") ) {
+		$warning = "<div class=warning>TOK or DTOK without @is, which will not allow TEITOK 
+			tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$cid\">here</a> to renumber the XML file
+			which will provide all TOK and DTOK with an @id.</div>";
+	}
+
 	$result = $xml->xpath("//title"); 
 	$title = $result[0];
 	if ( $title == "" ) $title = "<i>{%Without Title}</i>";
@@ -103,6 +109,7 @@
 			<form action='index.php?action=toksave' method=post name=tagform id=tagform>
 			<input type=hidden name=cid value='$fileid'>
 			<input type=hidden name=tid value='$tokid'>
+			$warning
 			<table>";
 
 

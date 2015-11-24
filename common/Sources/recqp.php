@@ -55,7 +55,7 @@
 	} else if ( ( $_GET['check'] || $recentfile ) && file_exists("tmp/recqp.log")  && !$_GET['force'] ) {
 		
 		$logtxt = file_get_contents("tmp/recqp.log");
-		if ( filesize("cqp/corpus.vrt") == 0 ) 
+		if ( filesize("cqp/word.corpus") == 0 ) 
 			$maintext .= "<p>The generation process seems to have terminated, but the corpus file is empty. The transcript of the process
 				can be read below. ";
 		else
@@ -72,7 +72,7 @@
 	
 	} else {
 	
-		$maintext .= "<p>The generation script does not exists or is currently being created again.";
+		$maintext .= "<p>The generation script is currently being created (again).";
 	
 		# Create the script to regenerate the corpus and reload
 	
@@ -112,55 +112,65 @@
 	
 		if ( $cqpfolder == "" ) $cqpfolder = "**";
 	
-		if ( file_exists("../bin/verticalize") && ( !$settings['cqp']['verticalize'] || $settings['cqp']['verticalize'] == "verticalize" ) ) {
+		if ( !$settings['cqp']['verticalize'] ) {
 			# Verticalize using the verticalize C++ application
 			# For simplicity, we do htmldecoding externally in Perl
-			$cmd = "$thisdir/../bin/verticalize  | perl $thisdir/../common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
-		} else if ( $settings['cqp']['verticalize']['type'] == "xslt" || file_exists("Resources/verticalize.xslt") ) {
-			$xsltfile = $settings['cqp']['verticalize']['cmd'] or $xsltfile = "$thisdir/Resources/verticalize.xslt";
-			
-			# Verticalize using the verticalization XSLT transformation
-			$cmd = "/usr/bin/which xsltproc"; 
-			$pxslt = $settings['bin']['xsltproc']['path'];
-			if ( !$pxslt ) {
-				$pxslt = shell_exec($cmd); 
-				if ( $pxslt == "" ) { print "<p>Error: xsltproc not found - no response from `$cmd`"; exit; };
-				$pxslt = chop($pxslt);
-			};
-			foreach ( explode ( " ", $cqpfolder ) as $todofolder ) {
-				$folderlist .= " $thisdir/xmlfiles/$todofolder ";
-			};
-		
-			# We need to dedoce entities for in case there are any
-			$cmd = "$pxslt --novalid $xsltfile $folderlist | perl $thisdir/../common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
+			$maintext .= "<p>Using tt-cwb-encode";
+			$exec = $settings['bin']['tt-cwb-encode'] or $exec = "/usr/local/bin/tt-cwb-encode";
+			$cmd = "$exec";
+			$script .= "\n\nprint FILE '----------------------';";
+			$script .= "\nprint FILE '(1) Encoding the corpus';";
+			$script .= "\nprint FILE 'command:\n$cmd';";
+			$script .= "\n`$cmd`;";
 		} else {
-			# This should become a perl script or something - for which nothing is needed
-			$cmd = "$pxslt --novalid $thisdir/Resources/verticalize.xslt $folderlist | perl $thisdir/../common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
-		};
+			if ( $settings['cqp']['verticalize']['type'] == "xslt" && file_exists("Resources/verticalize.xslt") ) {
+				$maintext .= "<p>Using XSLT";
+				# This should become a perl script or something - for which nothing is needed
+				$cmd = "$pxslt --novalid $thisdir/Resources/verticalize.xslt $folderlist | perl $thisdir/../common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
+			} else {
+				$maintext .= "<p>Using verticalize";
+				$xsltfile = $settings['cqp']['verticalize']['cmd'] or $xsltfile = "$thisdir/Resources/verticalize.xslt";
+			
+				# Verticalize using the verticalization XSLT transformation
+				$cmd = "/usr/bin/which xsltproc"; 
+				$pxslt = $settings['bin']['xsltproc']['path'];
+				if ( !$pxslt ) {
+					$pxslt = shell_exec($cmd); 
+					if ( $pxslt == "" ) { print "<p>Error: xsltproc not found - no response from `$cmd`"; exit; };
+					$pxslt = chop($pxslt);
+				};
+				foreach ( explode ( " ", $cqpfolder ) as $todofolder ) {
+					$folderlist .= " $thisdir/xmlfiles/$todofolder ";
+				};
 		
-		$script .= "\n\nprint FILE '----------------------';";
-		$script .= "\nprint FILE '(1) Verticalizing the corpus';";
-		$script .= "\nprint FILE 'command:\n$cmd';";
-		$script .= "\n`$cmd`;";
-		
-		# Encode the corpus with all the required fields
-		$cmd = "export PATH=$PATH:/usr/local/bin; /usr/bin/which cwb-encode"; $pxenc = chop(shell_exec($cmd)); if ( !$pxenc ) { print "<p>Error: cwb-encode not found"; exit; };
-		foreach ( $cqpcols as $val ) { $poscols .= " -P $val "; };
-		foreach ( $settings['cqp']['xattributes'] as $xatt ) {
-			$xkey = $xatt['key'];
-			$pattlist .= " -S $xkey:0+id";
-			foreach ( $xatt as $key => $val ) { 
-				if ( substr($key,0,4) != "fld-" && $key != "key" && $key != "level" && $key != "display" ) $pattlist .= "+$key"; 
+				# We need to dedoce entities for in case there are any
+				$cmd = "$pxslt --novalid $xsltfile $folderlist | perl $thisdir/../common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
 			};
-		};
-		$cmd = "$pxenc -d $thisdir/cqp -c utf8 -f $thisdir/cqp/corpus.vrt -R /usr/local/share/cwb/registry/".strtolower($cqpcorpus)." -P id $poscols $pattlist";
+		
+			$script .= "\n\nprint FILE '----------------------';";
+			$script .= "\nprint FILE '(1) Verticalizing the corpus';";
+			$script .= "\nprint FILE 'command:\n$cmd';";
+			$script .= "\n`$cmd`;";
+		
+			# Encode the corpus with all the required fields
+			$cmd = "export PATH=$PATH:/usr/local/bin; /usr/bin/which cwb-encode"; $pxenc = chop(shell_exec($cmd)); if ( !$pxenc ) { print "<p>Error: cwb-encode not found"; exit; };
+			foreach ( $cqpcols as $val ) { $poscols .= " -P $val "; };
+			foreach ( $settings['cqp']['xattributes'] as $xatt ) {
+				$xkey = $xatt['key'];
+				$pattlist .= " -S $xkey:0+id";
+				foreach ( $xatt as $key => $val ) { 
+					if ( substr($key,0,4) != "fld-" && $key != "key" && $key != "level" && $key != "display" ) $pattlist .= "+$key"; 
+				};
+			};
+			$cmd = "$pxenc -d $thisdir/cqp -c utf8 -f $thisdir/cqp/corpus.vrt -R /usr/local/share/cwb/registry/".strtolower($cqpcorpus)." -P id $poscols $pattlist";
 
-		$script .= "\n\nprint FILE '----------------------';";
-		$script .= "\nprint FILE '(2) Encoding the corpus';";
-		$script .= "\nprint FILE ' - Structural attributes on <text>: $textfields -  Positional attributes: $poscols';";
-		$script .= "\nprint FILE 'command:\n$cmd';";
-		$script .= "\n`$cmd`;";
-	
+			$script .= "\n\nprint FILE '----------------------';";
+			$script .= "\nprint FILE '(2) Encoding the corpus';";
+			$script .= "\nprint FILE ' - Structural attributes on <text>: $textfields -  Positional attributes: $poscols';";
+			$script .= "\nprint FILE 'command:\n$cmd';";
+			$script .= "\n`$cmd`;";
+		};
+			
 		# Create the actual CQP corpus
 		$cmd = "export PATH=$PATH:/usr/local/bin; /usr/bin/which cwb-makeall "; $pxmal = chop(shell_exec($cmd)); if ( !$pxmal) { print "<p>Error: cwb-makeall not found"; exit; };
 		$cmd = "$pxmal  -r /usr/local/share/cwb/registry $cqpcorpus";

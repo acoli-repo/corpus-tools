@@ -524,7 +524,7 @@
 				} else {
 					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=edit&cid=$fileid&jmp=$tid'$target>$refname</a>
 						<td align=right>$lcontext<td align=center><b>$match</b><td>$rcontext";
-					# else $maintext .= "<p>?? $match, $line";
+					#else $maintext .= "<p>?? $match ".join( " ; ", explode ("\t", $line));
 				};
 			};
 			$maintext .= "</table>";

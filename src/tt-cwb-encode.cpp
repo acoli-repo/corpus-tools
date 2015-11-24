@@ -1,9 +1,10 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
+#include <boost/filesystem.hpp>
 #include "pugixml.hpp"
 #include <iostream>
-#include <string.h>
+#include <sstream>  
 #include <stdio.h>
 #include <fstream>
 #include <map>
@@ -23,6 +24,8 @@ pugi::xml_document trainlog;
 pugi::xml_node tagsettings;
 pugi::xml_node trainstats;
 list<string> formTags;
+
+    pugi::xml_document doc;
 
 string tagfld;
 string tagpos;
@@ -73,11 +76,6 @@ string strtoupper ( string str ) {
   return uppercase;
 };
 
-// Write CWB network style
-void write_network_number ( int towrite, FILE *stream ) {
-	int i = htonl(towrite);
-	fwrite(&i, 4, 1, stream);
-};
 
 string calcform ( pugi::xml_node node, string fld ) {
 	string getfld = fld;
@@ -91,6 +89,46 @@ string calcform ( pugi::xml_node node, string fld ) {
 	};
 };
 
+// Write CWB network style
+void write_network_number ( int towrite, FILE *stream ) {
+	int i = htonl(towrite);
+	fwrite(&i, 4, 1, stream);
+};
+
+// Write a range to .rng
+void write_range ( int pos1, int pos2, string formkey ) {
+	if ( pos2 < pos1 ) { return; }; // We can never have negative ranges
+	
+	write_network_number(pos1, files[formkey]["rng"]);
+	write_network_number(pos2, files[formkey]["rng"]);
+};
+
+// Write a range to .rng, .avs, .avx
+void write_range_value ( int pos1, int pos2, string formkey, string formval ) {
+	if ( pos2 < pos1 ) { return; }; // We can never have negative ranges
+	
+	write_network_number(pos1, files[formkey]["rng"]);
+	write_network_number(pos2, files[formkey]["rng"]);
+
+	if ( lexitems[formkey].size() == 0 ) { lexpos[formkey] = 0; lexidx[formkey] = 0;  }; // Initialize values 
+	
+	// CWB does not like empty value - convert to underscore
+	if ( formval == "" ) { formval = "_"; };
+
+	if ( debug > 2 ) { cout << "Range: " << filename << " - " << formkey << " " << pos1 << "-" << pos2 << "  = " << formval << endl; };
+	if ( lexitems[formkey].find(formval) == lexitems[formkey].end() ) {
+		// new value		
+		int thispos = lexpos[formkey];
+		lexitems[formkey][formval] = thispos;
+		if ( debug > 4 ) { cout << "New AVS value for " << formval << " = " << lexitems[formkey][formval] << " - " << thispos << endl; };
+		streams[formkey]["avs"] << formval << '\0'; 
+		lexpos[formkey] += formval.length() + 1;
+	};
+	write_network_number(lexidx[formkey], files[formkey]["avx"]);
+	write_network_number(lexitems[formkey][formval], files[formkey]["avx"]);
+	lexidx[formkey]++; 
+	
+};
 
 void treatnode ( pugi::xpath_node node ) {
 	string sep = "";
@@ -108,16 +146,29 @@ void treatnode ( pugi::xpath_node node ) {
 	// We have a valid token - handle it
 	tokcnt++;
 
-	string formkey; string formval;
+	// Write the .lexicon, .lexicon.idx and .corpus files
+	string formkey; string formval; pugi::xpath_node xres;
     for ( pugi::xml_node formfld = xmlsettings.first_child().child("cqp").child("pattributes").child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
+		string xpath = formfld.attribute("xpath").value();
 		formkey = formfld.attribute("key").value(); 
-		if ( formkey == "word" ) { // we NEED a word in CQP
-			formval = calcform(node.node(), "form");
+		if ( xpath != "" ) {
+			if ( debug > 4 ) { cout << "Calculating XPath value for node: " << xpath << endl; };
+			 xres = node.node().select_single_node(xpath.c_str());
+			if ( debug > 4 ) { xres.node().print(cout); };
+			if ( xres.attribute() ) {	
+				formval = xres.attribute().value();
+			} else {
+				formval = xres.node().child_value();
+			};
 		} else {
-			formval = calcform(node.node(), formkey);
+			if ( formkey == "word" ) { // we NEED a word in CQP
+				formval = calcform(node.node(), "form");
+			} else {
+				formval = calcform(node.node(), formkey);
+			};
 		};
-	
-		// if ( lexitems[formkey].find(formval) == lexitems[formkey].end() ) {
+			
+		if ( debug > 4 ) { cout << "Value: " << formkey << " = " << formval << endl; };
 		if ( !lexitems[formkey][formval] ) {
 			// new word		
 			lexitems[formkey][formval] = lexidx[formkey];
@@ -126,7 +177,18 @@ void treatnode ( pugi::xpath_node node ) {
 			lexidx[formkey]++; lexpos[formkey] += formval.length() + 1;
 		};
 		write_network_number(lexitems[formkey][formval], files[formkey]["corpus"]);
+
+
 	};		
+
+	// Write the word.xidx.rng
+	int xmlpos1 = node.node().offset_debug()-1;
+	std::ostringstream oss;
+	node.node().print(oss);
+	std::string xmltxt = oss.str();	
+	int xmlpos2 = xmlpos1 + xmltxt.length(); 
+	write_network_number(xmlpos1, files["xidx"]["rng"]);
+	write_network_number(xmlpos2, files["xidx"]["rng"]);
 
 };
 
@@ -146,7 +208,6 @@ void treatfile ( string filename ) {
     // Now - read the file 
 	string sep;
 
-    pugi::xml_document doc;
     if (!doc.load_file(filename.c_str())) {
         cout << "  Failed to load XML file " << filename << endl;
     	return;
@@ -167,6 +228,7 @@ void treatfile ( string filename ) {
 	char tokxpath [50];
 	if ( tagsettings.attribute("tokxpath") != NULL ) { strcpy(tokxpath, tagsettings.attribute("tokxpath").value()); } 
 		else { strcpy(tokxpath, "//tok"); };
+	if ( debug > 3 ) cout << "- treating all: " << tokxpath << endl;
 	    
     // Go through the toks
 	pugi::xpath_node_set toks = doc.select_nodes(tokxpath);
@@ -191,24 +253,19 @@ void treatfile ( string filename ) {
 	if ( debug > 0 ) {
 		cout << "<text> " << filename << " ranging from " << pos1 << " to " << pos2 << endl; 
 	};
-	if ( pos2 > pos1 ) {
-		write_network_number(pos1, files["text_"]["rng"]);
-		write_network_number(pos2, files["text_"]["rng"]);
-		write_network_number(pos1, files["text_id"]["rng"]);
-		write_network_number(pos2, files["text_id"]["rng"]);
-		write_network_number(lexidx["text_id"], files["text_id"]["avx"]);
-		write_network_number(lexpos["text_id"], files["text_id"]["avx"]);
-	};
-	lexidx["text_id"]++; lexpos["text_id"] += idname.length() + 1;
-	streams["text_id"]["avs"] << idname << '\0'; 
 
-	// add the sattributes for <text>
+	write_range (pos1, pos2, "text_" );
+	write_range_value (pos1, pos2, "text_id", idname);
+
+	// add the sattributes for all levels
 	string formkey; string formval; pugi::xpath_node xres;
 	string rel_tokxpath = tokxpath;
 		rel_tokxpath = "." + rel_tokxpath;
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
 		string tagname = taglevel.attribute("key").value();
 		if ( tagname == "text" ) {
+			// This is the <text> level
+			if ( !(pos2>pos1) ) { continue; }; // This will crash on texts without any tokens inside; do not add to CQP for now (but they should be added as indexes)
 			for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 				formkey = formfld.attribute("key").value(); 
 				if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
@@ -228,7 +285,7 @@ void treatfile ( string filename ) {
 							if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << tmp << endl; };
 							externals[exval[0]].load_file(exfile.c_str());
 						};
-						if ( exfile.substr(exfile.length()-4) != ".xml" && verbose ) {
+						if ( exfile.substr(exfile.length()-4) != ".xml" && debug > 0 ) {
 							cout << "Invalid external lookup: " << tmp << endl; 
 						};
 						if ( externals[exval[0]].first_child() ) { 
@@ -253,22 +310,8 @@ void treatfile ( string filename ) {
 						formval = xres.node().child_value();
 					};
 				};
-				if ( debug > 0 ) { cout << filename << " - " << formkey << " (" << xpath << ") = " << formval << endl; };
-	
-				// if ( lexitems[formkey].find(formval) == lexitems[formkey].end() ) {
-				if ( !lexitems[formkey][formval] ) {
-					// new word		
-					lexitems[formkey][formval] = lexidx[formkey];
-					streams[formkey]["avs"] << formval << '\0'; 
-				};
-				if ( pos2 > pos1 ) {
-					write_network_number(pos1, files[formkey]["rng"]);
-					write_network_number(pos2, files[formkey]["rng"]);
-					write_network_number(lexidx[formkey], files[formkey]["avx"]);
-					write_network_number(lexpos[formkey], files[formkey]["avx"]);
-					lexpos[formkey] += formval.length() + 1;
-					lexidx[formkey]++; 
-				};
+				
+				write_range_value (pos1, pos2, formkey, formval);
 			};	
 		} else {
 			if ( debug > 2 ) { cout << "Looking for " << tagname << endl; };
@@ -284,8 +327,8 @@ void treatfile ( string filename ) {
 				int posa = id_pos[toka]; // first "token" in the range
 				int posb = id_pos[tokb]; // last "token" in the range
 				if ( debug > 2 ) { cout << " Found a range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
-				write_network_number(posa, files[tagname+"_"]["rng"]);
-				write_network_number(posb, files[tagname+"_"]["rng"]);
+
+				write_range(posa, posb, tagname+"_" );
 				for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 					formkey = formfld.attribute("key").value(); 
 					if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
@@ -302,20 +345,20 @@ void treatfile ( string filename ) {
 					} else { 
 						formval = it->node().attribute(formfld.attribute("key").value()).value();
 					};
-					if ( debug > 0 ) { cout << filename << " - " << formkey << " (" << xpath << ") = " << formval << endl; };
+					
+					
 					// write the actual data
-					if ( !lexitems[formkey][formval] ) {
-						// new item		
-						lexitems[formkey][formval] = lexidx[formkey];
-						streams[formkey]["avs"] << formval << '\0'; 
-					};
-					write_network_number(lexidx[formkey], files[formkey]["avx"]);
-					write_network_number(lexpos[formkey], files[formkey]["avx"]);
-					write_network_number(posa, files[formkey]["rng"]);
-					write_network_number(posb, files[formkey]["rng"]);
+					write_range_value (posa, posb, formkey, formval);
+
+					// Write the XXX.xidx.rng
+					int xmlpos1 = it->node().offset_debug()-1;
+					std::ostringstream oss;
+					it->node().print(oss);
+					std::string xmltxt = oss.str();	
+					int xmlpos2 = xmlpos1 + xmltxt.length(); 
+					write_network_number(xmlpos1, files[tagname + "_xidx"]["rng"]);
+					write_network_number(xmlpos2, files[tagname + "_xidx"]["rng"]);
 				};
-				lexpos[formkey] += formval.length() + 1;
-				lexidx[formkey]++; 
 			};	
 
 		};
@@ -327,7 +370,6 @@ void treatfile ( string filename ) {
 		if ( debug > 2 ) { cout << " - Looking for stand-off: " << tagname << endl; };
 		// Loop through the actual items
 		string xpath = "//file[@id=\""+fileid+"\"]/segment";
-		cout << "Query: " << xpath << endl;
 		pugi::xpath_node_set elmres = externals[taglevel.attribute("filename").value()].select_nodes(xpath.c_str());
 		for (pugi::xpath_node_set::const_iterator it = elmres.begin(); it != elmres.end(); ++it) {
 			string wlist = it->node().attribute("tokens").value();
@@ -337,28 +379,18 @@ void treatfile ( string filename ) {
 			int posa = id_pos[toka]; // first "token" in the range
 			int posb = id_pos[tokb]; // last "token" in the range
 			if ( debug > 2 ) { cout << " Found a range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
-			write_network_number(posa, files[tagname+"_"]["rng"]);
-			write_network_number(posb, files[tagname+"_"]["rng"]);
+
+			write_range(posa, posb, tagname+"_" );
 			for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 				formkey = formfld.attribute("key").value(); 
 				if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
 				formkey = tagname + "_" + formkey;
 				formval = "";
 				formval = it->node().attribute(formfld.attribute("key").value()).value();
-				if ( debug > 0 ) { cout << filename << " - " << formkey << " (" << xpath << ") = " << formval << endl; };
+
 				// write the actual data
-				if ( !lexitems[formkey][formval] ) {
-					// new item		
-					lexitems[formkey][formval] = lexidx[formkey];
-					streams[formkey]["avs"] << formval << '\0'; 
-				};
-				write_network_number(lexidx[formkey], files[formkey]["avx"]);
-				write_network_number(lexpos[formkey], files[formkey]["avx"]);
-				write_network_number(posa, files[formkey]["rng"]);
-				write_network_number(posb, files[formkey]["rng"]);
+				write_range_value(posa, posb, formkey, formval);
 			};
-			lexpos[formkey] += formval.length() + 1;
-			lexidx[formkey]++; 
 		};	
 	};
 };
@@ -493,22 +525,16 @@ int main(int argc, char *argv[])
 		};
 	};
 	
-	// Determine which field to tag from and on
-	tmp = "";
-	if ( tagsettings.attribute("tagform") != NULL ) { tagfld = tagsettings.attribute("tagform").value(); } 
-		else { tagfld = "form"; };
-	if ( tagsettings.attribute("tagpos") != NULL ) { tagpos = tagsettings.attribute("tagpos").value(); } 
-		else { tagpos = "pos"; };
-	if ( tagsettings.attribute("lemmatize") != NULL ) { lemmafld = tagsettings.attribute("lemmatize").value(); } 
-		else { lemmafld = "form"; };
+	// Determine some default settings
 	if ( tagsettings.attribute("corpusfolder") != NULL ) { corpusfolder = tagsettings.attribute("corpusfolder").value(); } 
 		else { corpusfolder = "cqp/"; };
-	if ( tagsettings.attribute("formtags") != NULL ) { 
-		tmp= tagsettings.attribute("formtags").value(); 
-	} else { 
-		tmp = "lemma,"+tagpos; // By default, tag for lemma and pos
-	};
-	split(formTags, tmp, is_any_of(",")); 
+
+	// Check whether the corpusfolder exists, or create it, or fail
+    boost::filesystem::path dir(corpusfolder.c_str());
+    if(boost::filesystem::create_directory(dir))
+    {
+        if ( verbose ) { cout << "Directory Created: "<< corpusfolder << endl; };
+    }	
 
 	if ( xmlsettings.select_nodes("//neotag/pattributes/item[@key=\"word\"]").empty() ) { 
 		pugi::xml_node watt = xmlsettings.first_child().child("cqp").child("pattributes").append_child("item");
@@ -581,6 +607,8 @@ int main(int argc, char *argv[])
 		registry << "STRUCTURE " << tagname << endl;
 		filename = corpusfolder+tagname+".rng";
 		files[tagname+"_"]["rng"] = fopen(filename.c_str(), "wb"); 
+		filename = corpusfolder+tagname+"_xidx.rng";
+		files[tagname+"_xidx"]["rng"] = fopen(filename.c_str(), "wb"); 
 		for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 			formkey = formfld.attribute("key").value(); 
 			if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
@@ -603,6 +631,8 @@ int main(int argc, char *argv[])
 		streams["text_id"]["avs"].open(corpusfolder+"text_id.avs");
 		filename = corpusfolder+"text_id.avx";
 		files["text_id"]["avx"] = fopen(filename.c_str(), "wb"); 
+		filename = corpusfolder+"xidx.rng";
+		files["xidx"]["rng"] = fopen(filename.c_str(), "wb"); 
 		filename = corpusfolder+"text_id.rng";
 		files["text_id"]["rng"] = fopen(filename.c_str(), "wb"); 
 	};
@@ -620,12 +650,14 @@ int main(int argc, char *argv[])
 			taglevel.parent().remove_child(taglevel); // Remove this node since we cannot read the stand-off annotation
 			continue; 
 		};
-
-		if ( debug > 0 ) { cout << "- Dealing with annotations: " << tagname << endl; };
+		
+		if ( verbose ) { cout << "Loading external annotations XML: " << filename << endl; };
 		registry << endl << "## Stand-off annotations of type " << tagname << endl;
 		registry << "STRUCTURE " << tagname << endl;
 		filename = corpusfolder+tagname+".rng";
 		files[tagname+"_"]["rng"] = fopen(filename.c_str(), "wb"); 
+		filename = corpusfolder+tagname+"_xidx.rng";
+		files[tagname+"_xidx"]["rng"] = fopen(filename.c_str(), "wb"); 
 		for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 			formkey = formfld.attribute("key").value(); 
 			if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
