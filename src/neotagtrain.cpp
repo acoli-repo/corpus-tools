@@ -280,6 +280,7 @@ string lemrulemake ( string wrd, string lmma ) {
 		};
 		lemidx++;
 	};
+	if ( debug > 4 ) { cout << "Lemmatization rule: " << wrd << " + " << lmma << " = " <<  wrdroot + '#' + lemroot << endl; };
 	if ( !utf8_is_valid(wrdroot) || !utf8_is_valid(lemroot) ) { 
 		return "";
 	};
