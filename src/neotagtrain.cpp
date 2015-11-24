@@ -685,6 +685,7 @@ int main(int argc, char *argv[])
 								&& j<sibform.size() ) { j++; };
 							cfrm = cfrm.substr(j, cfrm.size()-j);
  						};
+ 						if ( !utf8_is_valid(cfrm) ) { cfrm = ""; }; 
 						sibling.attribute("form") = cfrm.c_str();
 					};
 				} else {
