@@ -144,8 +144,6 @@ void treatnode ( pugi::xpath_node node ) {
 			if ( node.node().attribute(t.c_str()) != NULL ) tok.append_attribute(t.c_str()) = node.node().attribute(t.c_str()).value();
 		}
 
-		lexitems[tagform][""] = lexitem;
-		lexitems[tagform][tagtag] = tok;
 	   
 	    // Add lemma-level attributes
 	   	if ( lemTags.size() ) {
@@ -168,6 +166,11 @@ void treatnode ( pugi::xpath_node node ) {
 				if ( strcmp(attr.name(), "id") ) dtok.append_attribute(attr.name()) = attr.value();
 			}        
         }
+
+		lexitems[tagform][""] = lexitem;
+		if ( tagtag != "" ) {
+			lexitems[tagform][tagtag] = tok;
+		};
 	   
 	};
 		
@@ -419,7 +422,7 @@ int main(int argc, char *argv[])
 	};
 
 	// Some things we want as accessible variables
-	if ( tagsettings.attribute("debug") != NULL ) { debug = true; };
+	if ( tagsettings.attribute("debug") != NULL ) { debug = atoi(tagsettings.attribute("debug").value()); };
 	if ( tagsettings.attribute("test") != NULL ) { test = true; verbose = true; };
 	if ( tagsettings.attribute("verbose") != NULL ) { verbose = true; };
 

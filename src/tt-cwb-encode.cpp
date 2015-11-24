@@ -11,6 +11,7 @@
 #include <vector>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <arpa/inet.h>
 
 using namespace std;
 using namespace boost;

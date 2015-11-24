@@ -575,6 +575,9 @@ vector<string> lemrulemake ( string wrd, string lmma ) {
 		};
 		lemidx++;
 	};
+	if ( !utf8_is_valid(wrdroot) || !utf8_is_valid(lemroot) ) { 
+		return lemmatizations;
+	};
 	
 	if ( wrdroot.size() == 0 || lemroot.size() == 0 ) {
 		return lemmatizations;
