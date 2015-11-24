@@ -38,7 +38,7 @@
 
 		$rawtok = preg_replace( "/<\/?tok[^>]*>/", "", $token->asXML() );
 
-	if ( !token['id'] || $token->xpath(".//dtok[not(@id)]") ) {
+	if ( !$token['id'] || $token->xpath(".//dtok[not(@id)]") ) {
 		$warning = "<div class=warning>TOK or DTOK without @is, which will not allow TEITOK 
 			tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$cid\">here</a> to renumber the XML file
 			which will provide all TOK and DTOK with an @id.</div>";
