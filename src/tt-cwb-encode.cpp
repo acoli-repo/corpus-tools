@@ -593,7 +593,8 @@ int main(int argc, char *argv[])
 		if ( debug > 0 ) { cout << "Creating files for: " << formkey << endl; };
 		
 		// Open the files
-		streams[formkey]["lexicon"].open(corpusfolder+formkey+".lexicon");
+		filename = corpusfolder+formkey+".lexicon";
+		streams[formkey]["lexicon"].open(filename.c_str());
 		filename = corpusfolder+formkey+".lexicon.idx";
 		files[formkey]["idx"] = fopen(filename.c_str(), "wb"); 
 		filename = corpusfolder+formkey+".corpus";
@@ -620,7 +621,8 @@ int main(int argc, char *argv[])
 			registry << "STRUCTURE " << formkey << "  # " << longname << endl;
 
 			if ( debug > 0  ) { cout << "Creating attribute files for: " << formkey << endl; };
-			streams[formkey]["avs"].open(corpusfolder+formkey+".avs");
+			filename = corpusfolder+formkey+".avs";
+			streams[formkey]["avs"].open(filename.c_str());
 			filename = corpusfolder+formkey+".avx";
 			files[formkey]["avx"] = fopen(filename.c_str(), "wb"); 
 			filename = corpusfolder+formkey+".rng";
@@ -670,7 +672,8 @@ int main(int argc, char *argv[])
 			registry << "STRUCTURE " << formkey << "  # " << longname << endl;
 
 			if ( debug > 0  ) { cout << "Creating attribute files for: " << formkey << endl; };
-			streams[formkey]["avs"].open(corpusfolder+formkey+".avs");
+			filename=corpusfolder+formkey+".avs";
+			streams[formkey]["avs"].open(filename.c_str());
 			filename = corpusfolder+formkey+".avx";
 			files[formkey]["avx"] = fopen(filename.c_str(), "wb"); 
 			filename = corpusfolder+formkey+".rng";
