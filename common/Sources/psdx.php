@@ -30,79 +30,7 @@
 		};
 		</style>";
 		
-	if ( $act == "xquery" ) {
-		// Allow queries over PSDX files using Saxon
-		// This by now is depricated in principle
-		// Check if saxon exists
-		if ( !file_exists("../bin/saxon.jar") ) { fatal("Saxon not found - please contact administration"); };
-		
-		$xquery = $_POST['xquery'];
-		
-		if (!$xquery) { 
-			$test = 1; 
-			$xquery = 'for $tree in //eTree[@Label="IP-MAT"]'."\n".' where exists($tree//eLeaf[@Text="a"])'."\n".'return $tree';
-		};
-		$maintext .= "<h2>XQuery Search</h2>
-			<p>Below you can search through the PSDX syntactic trees using XQuery.
-			
-			<form action='index.php?action=$action&act=$act' method=post>
-			<textarea style='width: 100%; height: 200px;' name='xquery'>$xquery</textarea>
-			<p><input type=submit value=Search>
-			</form>";
-
-		$xquery = preg_replace("/[\n\r]/", " ", $xquery );
-		
-		
-		if ( $xquery && !$test ) {
-			$cmd = "/bin/find Annotations/*.psdx -exec /usr/bin/java -cp ../bin/saxon.jar net.sf.saxon.Query -qs:'$xquery' -s:{} \;";
-			$results = shell_exec($cmd);
-			$maintext .= "<h2>Results</h2><p>";
-			# $results = str_replace('result:', '', $results); // remove the namespace
-			# $results = preg_replace('/xmlns="[^"]+"/', '', $results); // remove the namespace
-			
-			$results = str_replace('<?xml version="1.0" encoding="UTF-8"?>', '', $results); // remove multiple <?xml
-			$results = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><results>$results</results>";
-			# print $results; exit;
-			$resxml = simplexml_load_string($results, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-			if (strstr($results, '<results></results>')) {
-				$maintext .= "<p>No results for found.</p>";
-			} else if ( $resxml ) {
-				foreach ( $resxml->xpath("/results/*") as $resnode ) {
-					# $maintext .= "<hr>".htmlentities($resnode->asXML());
-					$maintext .= "<hr>";
-					$tmp = $resnode->xpath("//*[@Location]"); $sentid = $tmp[0]['sentid'] or $sentid = $tmp[0]['Location'];
-					$tmp = $resnode->xpath("//*[@File]"); $fileid = $tmp[0]['File'];
-					if ( $sentid && $fileid ) {
-						$maintext .= "<p>File: <a href='index.php?action=$action&cid=$fileid'>$fileid</a>, 
-							Sentence: <a href='index.php?action=$action&cid=$fileid&sentence=$sentid'>$sentid</a>";
-					} else if ( $fileid ) {
-						$maintext .= "<p>File: <a href='index.php?action=$action&cid=$fileid'>$fileid</a>";
-					}; 
-					if ( $treestyle == "horizontal" ) {
-						$maintext .=  "<div id=tree>".$resnode->asXML()."</div>";
-					} else {
-						$maintext .=  "<div id=tree>".drawtree($resnode, true)."</div>";
-					};
-				};
-				if ( $treestyle == "horizontal" ) {
-					$maintext .= "
-						<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js\"></script>
-						<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js\"></script>
-						<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/psdx.js\"></script>
-						<script language=Javascript>
-						var username = '$username';
-						var cid = '$cid';
-						var treeid = '$treeid';
-						maketext();
-						</script>
-						<link href='http://alfclul.clul.ul.pt/teitok/Scripts/psdx-hor.css' rel='stylesheet' type='text/css'/>
-					";
-				};
-			} else { $maintext .= "<p><i>Error while getting the result</i><hr>".htmlentities($results); };
-		};
-
-		
-	} else if ( $act == "download" && $cid ) {
+	if ( $act == "download" && $cid ) {
 		
 		$type = $_GET['type'];
 		$formats = array ( "psd" => "Penn Treebank PSD", "psdx" => "PSDX" ); 
@@ -147,27 +75,35 @@
 			$maintext .= "<hr><p><a href='index.php?action=$action&cid=$cid'>{%back to file}</a></p>";
 		};
 		
-	} else if ( $act == "xpath" ) {
+	} else if ( $act == "xpath" || $act == "query" ) {
+	
 		// Allow queries over PSDX files using xpath wrapped in xsltproc
 		
 		$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'];
 		$searchfile = $_GET['cid'];
 		if ( $searchfile ) {	
-			$searchfiles = $searchfile; 
+			$searchfiles = "Annotations/$searchfile.psdx"; 
 			$subtit = "<p>Query over file: <a href='index.php?action=file&cid=$searchfiles'>$searchfiles</a>";
-		} else $searchfiles = "*";
+		} else $searchfiles = "Annotations/*.psdx";
 		
 		if ( $xpath == "" ) { 
 			$test = 1; 
 			$xpath = '//eTree[@Label="IP-SUB" and .//eTree[@Label="ADV"]]';
 		};
-		$maintext .= "<h2>XPath Search</h2>
-			<p>{%Below you can search through the PSDX syntactic trees using XPath.} (<a href='index.php?action=xpath'>{%Help}</a>)
+		
+		//if ( file_exists("Pages/xpathhelp.html") ) {
+			$maintext .= "<div style='position: absolute; top: 70px; right: 20px'><a href='index.php?action=xpath'>{%help}</a></div>";
+		//};
+		
+		$maintext .= "
+			<table style='width: 100%'>
+			<tr><td valign=top style='padding-right: 10px;'>
+			<h3>XPath Search</h3>
+			<p style='visibility: hidden; margin-top: -20px;'>{%Below you can search through the PSDX syntactic trees using XPath.} (<a href='index.php?action=xpath'>{%Help}</a>)
 			
-			<form action='index.php?action=$action&act=$act&cid=$searchfile' method=post>
-			<textarea style='width: 100%; height: 50px;' name='xpath'>$xpath</textarea>
-			$subtit
-			<p><input type=submit value=Search> {%Tree style}: 
+			<form action='index.php?action=$action&act=$act&cid=$searchfile' method=post id=xpf name=xpf>
+			<textarea style='width: 100%; height: 50px;' name='xpath' id=xpathfield>$xpath</textarea>
+			<p> {%Tree style}: 
 			<select name=treestyle>";
 			
 		foreach ( $treestyles as $key => $val ) {
@@ -175,22 +111,77 @@
 			$maintext .= "<option value=\"$key\"$slc>$val</option>";
 		}
 		$maintext .= "</select>
-			</form>";
+			<p><input type=submit value=Search>";
 
 		$xquery = preg_replace("/[\n\r]/", " ", $xquery );
 		
 		
 		if ( $xpath && !$test ) {
-			$wrapper = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> <xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"> <xsl:output method=\"xml\"/> <xsl:template match=\"/\"> <xsl:for-each select='\"'\"'##'\"'\"'> <forest> <xsl:attribute name=\"File\"> <xsl:value-of select=\"./ancestor::forest/@File\"/> </xsl:attribute> <xsl:attribute name=\"Location\"> <xsl:value-of select=\"./ancestor::forest/@Location\"/> </xsl:attribute>  <xsl:attribute name=\"id\"> <xsl:value-of select=\"./ancestor::forest/@id\"/> </xsl:attribute> <xsl:copy-of select=\".\"/> </forest> </xsl:for-each> </xsl:template> </xsl:stylesheet>";
-			$xslt = preg_replace("/##/", $xpath, $wrapper);
-			$cmd = "echo '$xslt' | xsltproc --novalid - Annotations/$searchfiles.psdx";
-			# print "<p>CMD: ".htmlentities($cmd);
-			$results = shell_exec($cmd);
-			$results = str_replace('<?xml version="1.0"?>', '', $results); // remove multiple <?xml
-			$results = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><results>$results</results>";
-			# print "<p>Results: ".htmlentities($results); exit;
+			$maintext .= "</form>";
+			$sep = "";
+			## Check if there is a CQP query to run first
+			if ( is_array($_POST['atts']) && join("", array_values($_POST['atts'])) != "" ) {
+				foreach ( $_POST['atts'] as $tmp => $val ) {
+					if ( !$val ) continue;
+					list ( $key, $type ) = explode ( ":", $tmp );
+					if ( strstr($key, '_' ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
+					list ( $keytype, $keyname ) = explode ( "_", $xkey );
+					$attitem = $settings['cqp']['sattributes'][$keytype][$keyname]; 
+						$attname = $attitem['display']; $atttype = $attitem['type'];
+					if ( $type == "start" ) {
+						$cql .= " $sep int(match.$xkey) >= $val"; $sep = "&";
+						if (!$_POST['atts']["$key:end"]) $subtit .= "<p>$attname > $val";
+					} else if ( $type == "end" ) {
+						$cql .= " $sep int(match.$xkey) <= $val"; $sep = "&";
+						if ( $start = $_POST['atts']["$key:start"] ) 
+							$subtit .= "<p>$attname: $start - $val";
+						else 
+							$subtit .= "<p>$attname < $val";
+					} else if ( $atttype == "long" ) {
+						$cql .= " $sep match.$xkey = \".*$val.*\" %cd"; $sep = "&";
+						$subtit .= "<p>$attname {%contains} <i>$val</i>";
+					} else {
+						$val = quotemeta($val);
+						$cql .= " $sep match.$xkey = \"$val\""; $sep = "&";
+						$subtit .= "<p>$attname = <i>$val</i>";
+					};
+				
+					include ("../common/Sources/cwcqp.php"); $xmllist = array();
+					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+					$cqp = new CQP();
+					$cqp->exec($cqpcorpus); // Select the corpus
+					$cqp->exec("Matches = <text> [] :: ".$cql);
+					$cwbresults = $cqp->exec("tabulate Matches 0 5000 match text_id");
+					if ( $cwbresults ) {
+						$wrapper = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> <xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"> <xsl:output method=\"xml\"/> <xsl:template match=\"/\"> <xsl:for-each select='\"'\"'##'\"'\"'> <forest> <xsl:attribute name=\"File\"> <xsl:value-of select=\"./ancestor::forest/@File\"/> </xsl:attribute> <xsl:attribute name=\"Location\"> <xsl:value-of select=\"./ancestor::forest/@Location\"/> </xsl:attribute>  <xsl:attribute name=\"id\"> <xsl:value-of select=\"./ancestor::forest/@id\"/> </xsl:attribute> <xsl:copy-of select=\".\"/> </forest> </xsl:for-each> </xsl:template> </xsl:stylesheet>";
+						$searchfiles = ""; $sep = "";
+						$results = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><results>";
+						// This is not efficient
+						foreach ( explode ( "\n", $cwbresults ) as $line ) { 
+							if ( preg_match("/([^\/]+)\.xml/", $line, $matches ) )
+								$searchfiles = " Annotations/{$matches[1]}.psdx"; 
+							$xslt = preg_replace("/##/", $xpath, $wrapper);
+							$cmd = "echo '$xslt' | xsltproc --novalid - $searchfiles";
+							// print "<p>CMD: ".htmlentities($cmd);
+							$tmp = shell_exec($cmd);
+							$results .= str_replace('<?xml version="1.0"?>', '', $tmp); // remove multiple <?xml
 
-			$maintext .= "<h2>Results</h2><p>";
+						};
+						$results .= "</results>";
+						$subtit .= "<hr>";
+					};
+				};
+			} else {
+				$wrapper = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> <xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"> <xsl:output method=\"xml\"/> <xsl:template match=\"/\"> <xsl:for-each select='\"'\"'##'\"'\"'> <forest> <xsl:attribute name=\"File\"> <xsl:value-of select=\"./ancestor::forest/@File\"/> </xsl:attribute> <xsl:attribute name=\"Location\"> <xsl:value-of select=\"./ancestor::forest/@Location\"/> </xsl:attribute>  <xsl:attribute name=\"id\"> <xsl:value-of select=\"./ancestor::forest/@id\"/> </xsl:attribute> <xsl:copy-of select=\".\"/> </forest> </xsl:for-each> </xsl:template> </xsl:stylesheet>";
+				$xslt = preg_replace("/##/", $xpath, $wrapper);
+				$cmd = "echo '$xslt' | xsltproc --novalid - $searchfiles";
+				// print "<p>CMD: ".htmlentities($cmd);
+				$results = shell_exec($cmd);
+				$results = str_replace('<?xml version="1.0"?>', '', $results); // remove multiple <?xml
+				$results = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><results>$results</results>";
+			};
+
+			$maintext .= "<h2>Results</h2>$subtit<p>";
 
 			$resxml = simplexml_load_string($results, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if (strstr($results, '<results></results>')) {
@@ -238,7 +229,56 @@
 				};
 				$maintext .= "<hr>";
 			} else { $maintext .= "<p><i>Error while getting the result</i><hr>".htmlentities($results); };
+		
+		} else {
+			$maintext .= "<hr><h3>{%Predefined Queries}</h3>";
+			if ($settings['psdx']['queries']) {
+				foreach ( $settings['psdx']['queries'] as $key => $item ) { 
+					$maintext .= "<p><a onclick=\"document.getElementById('xpathfield').value=this.firstChild.innerHTML;\"><span style='display: none;'>{$key}</span>{%{$item['display']}}</a>";
+				};
+			};
+		
+			if ( $settings['psdx']['cqp'] ) {
+			
+				$cqpatts = $settings['cqp']['sattributes'];
+				$maintext .= "</td><td valign=top style='border-left: 1px solid #aaaaaa; padding-left: 10px;'>";
+				# Deal with old-style pattributes as xattribute
+				# Deal with any additional level attributes (sentence, utterance)
+				foreach ( $settings['cqp']['sattributes'] as $xatts ) {
+					if ( !$xatts['display'] ) continue; 
+					$maintext .= "$hr<h3>{%{$xatts['display']}}</h3><table>"; $hr = "<hr>";
+					foreach ( $xatts as $key => $item ) {
+						$xkey = "{$xatts['key']}_$key";
+						$val = $item['long']."" or $val = $item['display']."";
+						if ( $item['type'] == "group" ) { 
+							$maintext .= "<tr><td>&nbsp;<tr><td colspan=2 style='text-align: center; color: #992000; font-size: 10pt; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa;'>{%$val}";
+						} else {
+							if ( $item['nosearch'] ) $a = 1; # Ignore this in search 
+							else if ( $item['type'] == "range" ) 
+								$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
+							else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
+								# Read this index file
+								$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
+								foreach ( explode ( "\0", $tmp ) as $kval ) { 
+									if ( $kval) {
+										if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
+										$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+									};
+								};
+								if ( $item['sort'] == "numeric" ) sort( $optarr, SORT_NUMERIC ); 
+								else sort( $optarr, SORT_LOCALE_STRING ); 
+								$optlist = join ( "", $optarr );
+								$maintext .= "<tr><th>{%$val}<td><select name=atts[$xkey]><option value=''>{%[select]}</option>$optlist</select>";
+							} else 
+								$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey] value='' size=40>";
+						};
+					};
+					$maintext .= "</table>"; 
+				};	
+			};
 		};
+		$maintext .= "</form>";
+		$maintext .= "</td></tr></table>";
 
 	} else if ( $act == "nodesave" ) {
 		check_login();

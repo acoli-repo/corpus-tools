@@ -353,10 +353,11 @@ void treatfile ( string filename ) {
 
 					// Write the XXX.xidx.rng
 					int xmlpos1 = it->node().offset_debug()-1;
-					std::ostringstream oss;
-					it->node().print(oss);
-					std::string xmltxt = oss.str();	
-					int xmlpos2 = xmlpos1 + xmltxt.length(); 
+// 					std::ostringstream oss;
+// 					it->node().print(oss); // This is the interpreted XML, which is too long... get beginning of next node instead
+// 					std::string xmltxt = oss.str();	
+// 					int xmlpos2 = xmlpos1 + xmltxt.length(); 
+					int xmlpos2 = it->node().select_single_node("./following::*").node().offset_debug()-1;
 					write_network_number(xmlpos1, files[tagname + "_xidx"]["rng"]);
 					write_network_number(xmlpos2, files[tagname + "_xidx"]["rng"]);
 				};

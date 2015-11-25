@@ -453,7 +453,11 @@ int main(int argc, char *argv[])
 		if ( (*it).node().attribute("training") != NULL && ( tagsettings.attribute("pid") == NULL || !strcmp(tagsettings.attribute("pid").value(), (*it).node().attribute("pid").value()) ) ) {
 			parameters = (*it).node();
 		} else {
-			if ( verbose ) cout << "- Skipping parameters: " << (*it).node().attribute("restriction").value() << endl;
+			if ( verbose ) {
+				cout << "- Skipping parameters: " << (*it).node().attribute("restriction").value();
+				if ( tagsettings.attribute("pid") != NULL ) cout << " - wanted: " <<  tagsettings.attribute("pid").value();
+				cout << endl; 
+			};
 		};
 	};
 	
