@@ -122,7 +122,8 @@ void write_range_value ( int pos1, int pos2, string formkey, string formval ) {
 		int thispos = lexpos[formkey];
 		lexitems[formkey][formval] = thispos;
 		if ( debug > 4 ) { cout << "New AVS value for " << formval << " = " << lexitems[formkey][formval] << " - " << thispos << endl; };
-		streams[formkey]["avs"] << formval << '\0'; 
+		string tmp = "avs";
+		streams[formkey][tmp] << formval << '\0'; 
 		lexpos[formkey] += formval.length() + 1;
 	};
 	write_network_number(lexidx[formkey], files[formkey]["avx"]);
