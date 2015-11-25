@@ -82,19 +82,16 @@
 		$cqpfolder = $settings['cqp']['searchfolder'];
 		$cqpcols = array_keys($settings['cqp']['pattributes']);
 
-		$cqpatts = $settings['cqp']['sattributes'];
-		if ( $cqpatts ) { 
-			$settings['cqp']['xattributes']['text'] = $cqpatts;
-			$settings['cqp']['xattributes']['text']['display'] = "Document search";
-			$settings['cqp']['xattributes']['text']['key'] = "text";
-			$settings['cqp']['xattributes']['text']['level'] = "text";
-		} else {
-			$cqpatts = $settings['cqp']['xattributes']['text'];
-		};	
+	if ( !is_array($settings['cqp']['sattributes']['text']) ) { 
+		$settings['cqp']['sattributes']['text'] = $settings['cqp']['sattributes'];
+		$settings['cqp']['sattributes']['text']['display'] = "Document search";
+		$settings['cqp']['sattributes']['text']['key'] = "text";
+		$settings['cqp']['sattributes']['text']['level'] = "text";
+	};	
 		
 		# We always need the ID of the text;
-		if ( !$settings['cqp']['xattributes']['text'] ) 
-			$settings['cqp']['xattributes']['text']['key'] = 'text';		
+		if ( !$settings['cqp']['sattributes']['text']['key'] ) 
+			$settings['cqp']['sattributes']['text']['key'] = 'text';		
 		
 		$script = "open FILE, \">tmp/recqp.pid\";";
 		$script .= "$\ = \"\\n\";";
@@ -125,6 +122,15 @@
 		} else {
 			if ( $settings['cqp']['verticalize']['type'] == "xslt" && file_exists("Resources/verticalize.xslt") ) {
 				$maintext .= "<p>Using XSLT";
+				# Verticalize using the verticalization XSLT transformation
+				$cmd = "/usr/bin/which xsltproc"; 
+				$pxslt = $settings['bin']['xsltproc']['path'];
+				if ( !$pxslt ) {
+					$pxslt = shell_exec($cmd); 
+					if ( $pxslt == "" ) { print "<p>Error: xsltproc not found - no response from `$cmd`"; exit; };
+					$pxslt = chop($pxslt);
+				};
+				if ( !$pxslt ) $pxslt = "/bin/xsltproc";
 				# This should become a perl script or something - for which nothing is needed
 				$cmd = "$pxslt --novalid $thisdir/Resources/verticalize.xslt $folderlist | perl $thisdir/../common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
 			} else {
@@ -155,7 +161,7 @@
 			# Encode the corpus with all the required fields
 			$cmd = "export PATH=$PATH:/usr/local/bin; /usr/bin/which cwb-encode"; $pxenc = chop(shell_exec($cmd)); if ( !$pxenc ) { print "<p>Error: cwb-encode not found"; exit; };
 			foreach ( $cqpcols as $val ) { $poscols .= " -P $val "; };
-			foreach ( $settings['cqp']['xattributes'] as $xatt ) {
+			foreach ( $settings['cqp']['sattributes'] as $xatt ) {
 				$xkey = $xatt['key'];
 				$pattlist .= " -S $xkey:0+id";
 				foreach ( $xatt as $key => $val ) { 
