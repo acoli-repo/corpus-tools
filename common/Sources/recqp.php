@@ -120,21 +120,12 @@
 			$script .= "\nprint FILE 'command:\n$cmd';";
 			$script .= "\n`$cmd`;";
 		} else {
-			if ( $settings['cqp']['verticalize']['type'] == "xslt" && file_exists("Resources/verticalize.xslt") ) {
-				$maintext .= "<p>Using XSLT";
-				# Verticalize using the verticalization XSLT transformation
-				$cmd = "/usr/bin/which xsltproc"; 
-				$pxslt = $settings['bin']['xsltproc']['path'];
-				if ( !$pxslt ) {
-					$pxslt = shell_exec($cmd); 
-					if ( $pxslt == "" ) { print "<p>Error: xsltproc not found - no response from `$cmd`"; exit; };
-					$pxslt = chop($pxslt);
-				};
-				if ( !$pxslt ) $pxslt = "/bin/xsltproc";
+			if ( $settings['cqp']['verticalize']['type'] != "xslt" && file_exists("Resources/verticalize.xslt") ) {
 				# This should become a perl script or something - for which nothing is needed
-				$cmd = "$pxslt --novalid $thisdir/Resources/verticalize.xslt $folderlist | perl $thisdir/../common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
-			} else {
 				$maintext .= "<p>Using verticalize";
+				$cmd = "../bin/verticalize | perl $thisdir/../common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
+			} else {
+				$maintext .= "<p>Using XSLT";
 				$xsltfile = $settings['cqp']['verticalize']['cmd'] or $xsltfile = "$thisdir/Resources/verticalize.xslt";
 			
 				# Verticalize using the verticalization XSLT transformation
