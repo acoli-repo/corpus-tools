@@ -65,6 +65,8 @@
 		$maintext .= "<h1>File Upload</h1>
 			<h2>{$typedef['display']}</h2>";
 		
+		$maxsize = ini_get("upload_max_filesize");
+		
 		if ( !is_dir($typedef['folder']) ) {
 			$maintext .= "<p style='font-weight: bold; color: #992000;'>Folder {$typedef['folder']} does not exist, please contact admin</p>";
 		} else if ( !is_writable($typedef['folder']) ) {
@@ -72,6 +74,7 @@
 		} else {
 			$maintext .= "<p><form action='index.php?action=$action&act=save' method=post enctype=\"multipart/form-data\">
 				<p>Accepted extensions: <i>{$typedef['extension']}</i>
+				<p>Maximum file size: <i>$maxsize</i>
 				<input type=hidden name=type value='$type'>
 				<p>Add new file: <input type=file name=upfile accept=\"$accept\"> <input type=submit value=Save name=submit> 
 				</form> ";

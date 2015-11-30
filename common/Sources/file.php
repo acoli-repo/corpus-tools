@@ -92,6 +92,11 @@
  		};
 	};
 
+	// When so indicated, load the external PSDX file
+	if ( $settings['psdx'] && file_exists( "Annotations/$xmlid.psdx") ) {
+		$psdx = simplexml_load_file("Annotations/$xmlid.psdx", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+	};
+
 	if ( $username ) $txtid = $fileid; else $txtid = $xmlid;
 	$maintext .= "<h2>$txtid</h2><h1>$title </h1>";
 
@@ -187,9 +192,32 @@
 		foreach ( $result as $sent ) {
 			$stxt = $sent->asXML();
 			$sentid = $sent['n'] or $sentid = $sent['id'];
+			$treelink = ""; 
+			if ( $psdx ) {
+				$editxml .= "
+					<div style='display: inline-block; float: left; margin: 0px; padding: 0px; width: 80px;'>
+					<table style='width: 100%; table-layout:fixed;'><tr><td style='width: 25px;font-size: 10pt; '>";
+				if ( $psdx->xpath("//forest[@sentid=\"$sentid\"]") ) {
+					$editxml .= "<a href='index.php?action=psdx&cid=$xmlid&sentence=$sentid'>tree</a>";
+				};
+				$pl = "100px";
+				if ( $username ) {
+					$editxml .= " 
+						<td style='width: 25px;font-size: 10pt; '><a href='index.php?action=sentedit&cid=$fileid&sid={$sent['id']}'>edit</a>";
+					$pl = "100px";
+				};
+				$editxml .= " 
+					<td style='width: 30px;font-size: 10pt;  text-align: right;'>$sentid </table></div>";
+			}  else {
+				$editxml .= "
+					<div style='display: inline-block; float: left; margin: 0px; padding: 0px; padding-top: 6px; width: 25px; font-size: 10pt;'>
+						<a href='index.php?action=sentedit&cid=$fileid&sid={$sent['id']}'>$sentid</a>
+						$treelink
+					</div>";
+				$pl = "50px";
+			};
 			$editxml .= "
-				<div style='display: inline-block; float: left; margin: 0px; padding: 0px; padding-top: 6px; width: 25px; font-size: 10pt;'><a href='index.php?action=sentedit&cid=$fileid&sid={$sent['id']}'>$sentid</a></div>
-				<div style='width: 90%; border-bottom: 1px solid #66aa66; padding-left: 50px; margin-bottom: 6px; padding-bottom: 6px;'>
+				<div style='width: 90%; border-bottom: 1px solid #66aa66; padding-left: $pl; margin-bottom: 6px; padding-bottom: 6px;'>
 				$stxt";
 			foreach ( $settings['xmlfile']['sattributes'] as $item ) {
 				$key = $item['key'];

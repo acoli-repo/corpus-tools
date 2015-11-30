@@ -770,7 +770,7 @@
 						# Read this index file
 						$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
 						foreach ( explode ( "\0", $tmp ) as $kval ) { 
-							if ( $kval) {
+							if ( $kval && $kval != "_" ) {
 								if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
 								$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
 							};

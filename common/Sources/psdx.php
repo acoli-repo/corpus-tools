@@ -88,12 +88,10 @@
 		
 		if ( $xpath == "" ) { 
 			$test = 1; 
-			$xpath = '//eTree[@Label="IP-SUB" and .//eTree[@Label="ADV"]]';
+			$xpath = $settings['psdx']['default'] or $xpath = '//eTree[@Label="IP-SUB" and .//eTree[@Label="ADV"]]';
 		};
 		
-		//if ( file_exists("Pages/xpathhelp.html") ) {
-			$maintext .= "<div style='position: absolute; top: 70px; right: 20px'><a href='index.php?action=xpath'>{%help}</a></div>";
-		//};
+		$maintext .= "<div style='position: absolute; top: 70px; right: 20px'><a href='index.php?action=xpathhelp'>{%help}</a></div>";
 		
 		$maintext .= "
 			<table style='width: 100%'>
@@ -153,7 +151,7 @@
 					$cqp->exec("Matches = <text> [] :: ".$cql);
 					$cwbresults = $cqp->exec("tabulate Matches 0 5000 match text_id");
 					if ( $cwbresults ) {
-						$wrapper = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> <xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"> <xsl:output method=\"xml\"/> <xsl:template match=\"/\"> <xsl:for-each select='\"'\"'##'\"'\"'> <forest> <xsl:attribute name=\"File\"> <xsl:value-of select=\"./ancestor::forest/@File\"/> </xsl:attribute> <xsl:attribute name=\"Location\"> <xsl:value-of select=\"./ancestor::forest/@Location\"/> </xsl:attribute>  <xsl:attribute name=\"id\"> <xsl:value-of select=\"./ancestor::forest/@id\"/> </xsl:attribute> <xsl:copy-of select=\".\"/> </forest> </xsl:for-each> </xsl:template> </xsl:stylesheet>";
+						$wrapper = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> <xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"> <xsl:output method=\"xml\"/> <xsl:template match=\"/\"> <xsl:for-each select='\"'\"'##'\"'\"'> <forest> <xsl:attribute name=\"File\"> <xsl:value-of select=\"./ancestor::forest/@File\"/> </xsl:attribute> <xsl:attribute name=\"Location\"> <xsl:value-of select=\"./ancestor::forest/@Location\"/> </xsl:attribute> <xsl:attribute name=\"sentid\"> <xsl:value-of select=\"./ancestor::forest/@sentid\"/> </xsl:attribute>  <xsl:attribute name=\"id\"> <xsl:value-of select=\"./ancestor::forest/@id\"/> </xsl:attribute> <xsl:copy-of select=\".\"/> </forest> </xsl:for-each> </xsl:template> </xsl:stylesheet>";
 						$searchfiles = ""; $sep = "";
 						$results = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><results>";
 						// This is not efficient
@@ -172,7 +170,7 @@
 					};
 				};
 			} else {
-				$wrapper = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> <xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"> <xsl:output method=\"xml\"/> <xsl:template match=\"/\"> <xsl:for-each select='\"'\"'##'\"'\"'> <forest> <xsl:attribute name=\"File\"> <xsl:value-of select=\"./ancestor::forest/@File\"/> </xsl:attribute> <xsl:attribute name=\"Location\"> <xsl:value-of select=\"./ancestor::forest/@Location\"/> </xsl:attribute>  <xsl:attribute name=\"id\"> <xsl:value-of select=\"./ancestor::forest/@id\"/> </xsl:attribute> <xsl:copy-of select=\".\"/> </forest> </xsl:for-each> </xsl:template> </xsl:stylesheet>";
+				$wrapper = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> <xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"> <xsl:output method=\"xml\"/> <xsl:template match=\"/\"> <xsl:for-each select='\"'\"'##'\"'\"'> <forest> <xsl:attribute name=\"File\"> <xsl:value-of select=\"./ancestor::forest/@File\"/> </xsl:attribute> <xsl:attribute name=\"Location\"> <xsl:value-of select=\"./ancestor::forest/@Location\"/> </xsl:attribute> <xsl:attribute name=\"sentid\"> <xsl:value-of select=\"./ancestor::forest/@sentid\"/> </xsl:attribute> <xsl:attribute name=\"id\"> <xsl:value-of select=\"./ancestor::forest/@id\"/> </xsl:attribute> <xsl:copy-of select=\".\"/> </forest> </xsl:for-each> </xsl:template> </xsl:stylesheet>";
 				$xslt = preg_replace("/##/", $xpath, $wrapper);
 				$cmd = "echo '$xslt' | xsltproc --novalid - $searchfiles";
 				// print "<p>CMD: ".htmlentities($cmd);
@@ -195,8 +193,8 @@
 					$fileid = $forest['File'];
 					if ( $sentid && $fileid ) {
 						$nodeid = $forest->eTree[0]['id'];
-						$maintext .= "<p>File: <a href='index.php?action=file&cid=$fileid'>$fileid</a>, 
-							Sentence: <a href='index.php?action=$action&cid=$fileid&sentence=$sentid&node={$nodeid}'>$sentid</a></p>";
+						$maintext .= "<p>{%Text}: <a href='index.php?action=file&cid=$fileid'>$fileid</a>, 
+							{%Sentence}: <a href='index.php?action=$action&cid=$fileid&sentence=$sentid&node={$nodeid}' target=sent>$sentid</a></p>";
 					} else if ( $fileid ) {
 						$maintext .= "<p>File: <a href='index.php?action=$action&cid=$fileid'>$fileid</a></p>";
 					}; 
@@ -231,10 +229,11 @@
 			} else { $maintext .= "<p><i>Error while getting the result</i><hr>".htmlentities($results); };
 		
 		} else {
-			$maintext .= "<hr><h3>{%Predefined Queries}</h3>";
+			$maintext .= "<hr><h3>{%Predefined Queries}</h3>
+				<p>{%Click on one of the named queries below to copy it to the search window}";
 			if ($settings['psdx']['queries']) {
 				foreach ( $settings['psdx']['queries'] as $key => $item ) { 
-					$maintext .= "<p><a onclick=\"document.getElementById('xpathfield').value=this.firstChild.innerHTML;\"><span style='display: none;'>{$key}</span>{%{$item['display']}}</a>";
+					$maintext .= "<p class=\"list\"><a onclick=\"document.getElementById('xpathfield').value=this.firstChild.innerHTML;\"><span style='display: none;'>{$key}</span>{%{$item['display']}}</a></p>";
 				};
 			};
 		
@@ -260,7 +259,7 @@
 								# Read this index file
 								$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
 								foreach ( explode ( "\0", $tmp ) as $kval ) { 
-									if ( $kval) {
+									if ( $kval && $kval != "_" ) {
 										if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
 										$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
 									};
@@ -342,6 +341,7 @@
 		};
 
 	} else if ( $act == "treeedit" && $treeid && $cid ) {
+	
 		check_login();
 		if ( !is_writable("Annotations/$cid.psdx")  ) {
 			fatal ("File Annotations/$cid.psdx is not writable - please contact admin"); 
@@ -422,9 +422,9 @@
 		$nodetype = $node->getName();
 		if ( $nodetype == "eLeaf" ) {
 			$editfields = $settings['psdx']['eLeaf'] 
-				or $editfields = array ( "tokid" => array ("display" => "Token ID"), "Text" => array ("display" => "Text"), "Notext" => array ("display" => "Non-word content") );			
+				or $editfields = array ( "tokid" => array ("display" => "Token ID"), "Text" => array ("display" => "Text"), "Notext" => array ("display" => "Nonword content") );			
 		} else if ( $nodetype == "eTree" ) {
-			$editfields = $settings['psdx']['eLeaf'] 
+			$editfields = $settings['psdx']['eTree'] 
 				or $editfields = array ( "Label" => array ("display" => "Label") );
 		};
 		$maintext .= "<h2>Edit $nodetype: {$forest['id']}/{$node['id']}</h2>";
@@ -538,15 +538,34 @@
 			$result = $forestxml->xpath("//forest[@id=\"$treeid\"]/following-sibling::forest"); 
 			$nextforest = $result[0]; 
 			if ( $nextforest['id'] ) { $options .= " &bull; <a href='index.php?action=$action&cid=$cid&treeid={$nextforest['id']}&treestyle=$treestyle'>{%next sentence}</a>"; };
-			$maintext .= "<hr><a href='index.php?action=$action&cid=$cid'>{%sentence list}</a> &bull; <a href='index.php?action=edit&cid=$cid&jmp=$sentid'>{%to text mode}</a> $options</p><br>";
+			// $maintext .= "<hr><a href='index.php?action=$action&cid=$cid'>{%sentence list}</a> ";
+			$maintext .= "<hr><a href='index.php?action=file&cid=$cid&sentence=1'>{%sentence list}</a> ";
+			$maintext .= "&bull; <a href='index.php?action=edit&cid=$cid&jmp=$sentid'>{%to text mode}</a> $options</p><br>";
 		} else {
+			$maintext .= "<div id=mtxt><table cellpadding=3px>";
 			$result = $forestxml->xpath("//forest"); 
  			foreach ( $result as $tmp ) { 
  				$sentid = $tmp['sentid'] or $sentid = $tmp['Location'];
  				$forestid = $tmp['id'];
- 				$maintext .= "<p><a href='index.php?action=$action&cid=$cid&treeid=$forestid'>Sentence {$sentid}</a>";
+
+				if ( $ttxml->xml ) $tmp = $ttxml->xml->xpath("//s[@id=\"$sentid\"]"); $sentxml = $tmp[0];
+				if ( $sentxml ) {
+					$sentence = $sentxml->asXML();
+					foreach ( $settings['xmlfile']['sattributes'] as $item ) {
+						$key = $item['key'];
+						$atv = preg_replace("/\/\//", "<lb/>", $sentxml[$key]);	
+						if ($item['color']) { $scol = "style='color: {$item['color']}'"; } else { $scol = "class='s-$key'"; };
+						if ( $atv && ( !$item['admin'] || $username ) ) {
+							if ( $item['admin'] ) $scol .= " class='adminpart'";
+							$sentence .= "<div $scol title='{$item['display']}'>$atv</div>"; 
+						}
+					};
+				};
+
+ 				$maintext .= "<tr><td><a href='index.php?action=$action&cid=$cid&treeid=$forestid'>Sentence&nbsp;{$sentid}</a>
+ 								<td>$sentence";
  			};
-			$maintext .= "<hr><a href='index.php?action=$action'>More files</a> &bull; <a href='index.php?action=$action&act=xpath&cid=$cid'>{%Search in this file}</a>";
+			$maintext .= "</table></div><hr><a href='index.php?action=$action'>More files</a> &bull; <a href='index.php?action=$action&act=xpath&cid=$cid'>{%Search in this file}</a>";
 			if ( !$settings['psdx']['nodownload'] ) $maintext .= " &bull; <a href='index.php?action=$action&act=download&cid=$cid'>{%Download file}</a>";
 		};
 
@@ -585,7 +604,8 @@
 			if ( $result ) {
 				foreach ( $result as $leaf ) {	
 					$tid = $leaf['tokid'];
-					$leaftext = $leaf['Text'] or $text = "&empty;";
+					// $leaftext = $leaf['Text'] or $text = "&empty;";
+					$leaftext = $leaf['Text'] or $leaftext = $leaf['Notext'] or $leaftext = "&empty;";
 					$text = "<span onMouseOver=\"highlight('$tid', '#ffff00'); showtokinfo(this, document.getElementById('$tid'), this);\" onMouseOut=\"unhighlight(); hidetokinfo();\" class='node'>$leaftext</span>";
 					if ( $username && $tid != "" && $ttxml ) {
 						# Check whether tree is properly aligned
@@ -623,7 +643,7 @@
 				$text .= "<ul>";
 				foreach ( $result as $leaf ) {	
 					$tid = $leaf['tokid'];
-					$leaftext = $leaf['Text'] or $leaftext = "&empty;";
+					$leaftext = $leaf['Text'] or $leaftext = $leaf['Notext'] or $leaftext = "&empty;";
 					$leafcontent = "<qq onMouseOver=\"highlight('$tid', '#ffff00'); showtokinfo(this, document.getElementById('$tid'), this);\" onMouseOut=\"unhighlight(); hidetokinfo();\">$leaftext</qq>";
 					$text .= "<ul><li><span>$leafcontent</span></li></ul>";
 				};
@@ -650,7 +670,7 @@
 		};
 		foreach  ( $node->xpath("./eLeaf") as $leaf ) {
 			$tid = $leaf['tokid'];
-			$leaftext = $leaf['Text'] or $leaftext = "&empty;";
+			$leaftext = $leaf['Text'] or $leaftext = $leaf['Notext'] or $leaftext = "&empty;";
 			$leafoptions = "onMouseOver=\"highlight('$tid', '#ffff00'); showtokinfo(this, document.getElementById('$tid'), this);\" onMouseOut=\"unhighlight(); hidetokinfo();\" class='node'";
 			$level2 = $level+1;
 			$treetxt .= "\n\t<svg:text type=\"leaf\" id=\"{$leaf['id']}\" row=\"$level2\" $leafoptions>{$leaftext}</svg:text>"; # font-weight=\"bold\" 
