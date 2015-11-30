@@ -3,7 +3,9 @@
 	$cid = $_GET['cid'];
 	$treeid = $_GET['treeid'];
 	$sentenceid = $_GET['sentence'];
-
+	$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'];
+	$xpath = stripslashes($xpath);
+	
 	$treestyle = $_GET['treestyle'] or $treestyle = $_POST['treestyle'] or $treestyle = $_COOKIE['treestyle']  or $treestyle = $_SESSION['treestyle'] or $treestyle = $settings['psdx']['treestyle'] or $treestyle = "horizontal";
 	$_COOKIE['treestyle'] = $_SESSION['treestyle'] = $_GET['treestyle'];
 
@@ -79,7 +81,6 @@
 	
 		// Allow queries over PSDX files using xpath wrapped in xsltproc
 		
-		$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'];
 		$searchfile = $_GET['cid'];
 		if ( $searchfile ) {	
 			$searchfiles = "Annotations/$searchfile.psdx"; 
@@ -111,9 +112,6 @@
 		$maintext .= "</select>
 			<p><input type=submit value=Search>";
 
-		$xquery = preg_replace("/[\n\r]/", " ", $xquery );
-		
-		
 		if ( $xpath && !$test ) {
 			$maintext .= "</form>";
 			$sep = "";
@@ -128,20 +126,28 @@
 						$attname = $attitem['display']; $atttype = $attitem['type'];
 					if ( $type == "start" ) {
 						$cql .= " $sep int(match.$xkey) >= $val"; $sep = "&";
-						if (!$_POST['atts']["$key:end"]) $subtit .= "<p>$attname > $val";
+						if (!$_POST['atts']["$key:end"]) {
+							$subtit .= "<p>$attname > $val";
+							$docsel .= "$attname > $val; ";
+						};
 					} else if ( $type == "end" ) {
 						$cql .= " $sep int(match.$xkey) <= $val"; $sep = "&";
-						if ( $start = $_POST['atts']["$key:start"] ) 
+						if ( $start = $_POST['atts']["$key:start"] ) {
 							$subtit .= "<p>$attname: $start - $val";
-						else 
+							$docsel .= "$attname: $start - $val; ";
+						} else {
 							$subtit .= "<p>$attname < $val";
+							$docsel .= "$attname < $val; ";
+						};
 					} else if ( $atttype == "long" ) {
 						$cql .= " $sep match.$xkey = \".*$val.*\" %cd"; $sep = "&";
 						$subtit .= "<p>$attname {%contains} <i>$val</i>";
+						$docsel .= "$attname contains $val; ";
 					} else {
 						$val = quotemeta($val);
 						$cql .= " $sep match.$xkey = \"$val\""; $sep = "&";
 						$subtit .= "<p>$attname = <i>$val</i>";
+						$docsel .= "$attname = $val; ";
 					};
 				
 					include ("../common/Sources/cwcqp.php"); $xmllist = array();
@@ -179,54 +185,87 @@
 				$results = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><results>$results</results>";
 			};
 
-			$maintext .= "<h2>Results</h2>$subtit<p>";
-
-			$resxml = simplexml_load_string($results, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-			if (strstr($results, '<results></results>')) {
-				$maintext .= "<p>No results for found.</p>";
-			} else if ( $resxml ) {
-				$forestlist = $resxml->xpath("//forest");
-				$maintext .= "<p>".count($forestlist)." matching (sub)trees";
-				foreach ( $forestlist as $forest ) {
-					$maintext .= "<hr>";
-					$sentid = $forest['sentid'] or $sentid = $forest['Location'];
-					$fileid = $forest['File'];
-					if ( $sentid && $fileid ) {
-						$nodeid = $forest->eTree[0]['id'];
-						$maintext .= "<p>{%Text}: <a href='index.php?action=file&cid=$fileid'>$fileid</a>, 
-							{%Sentence}: <a href='index.php?action=$action&cid=$fileid&sentence=$sentid&node={$nodeid}' target=sent>$sentid</a></p>";
-					} else if ( $fileid ) {
-						$maintext .= "<p>File: <a href='index.php?action=$action&cid=$fileid'>$fileid</a></p>";
-					}; 
-					if ( $treestyle == "table" ) {
-						$maintext .=  "<div id=tree>".drawtree($forest, true)."</div>";
-					} else if ( $treestyle == "svg" ) {
-						$maintext .= "\n".makesvgtree($forest, true);
-					} else if ( $treestyle == "vertical" ) {	
-						$maintext .= "<link href='http://alfclul.clul.ul.pt/teitok/Scripts/treeul.css' rel='stylesheet' type='text/css'/><div class=tree>".drawtree2($forest)."</div>";
-					} else {
-						// Use table graph by default
-						$treestyle = "horizontal";
-						$maintext .=  "<div id=tree>".$forest->asXML()."</div>";
+			if ( $_GET['dltype'] == "psd" ) {
+				$filename = "results.psd";
+				header("Content-type: text/txt"); 
+				header('Content-disposition: attachment; filename="'.$filename.'"');
+				$resxml = simplexml_load_string($results, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+				print "/* PSD Tree generated from PSDX XPath search by TEITOK */\n";
+				print "/* XPath query: $xpath */\n\n";
+				if ( $docsel ) print "/* Document selection: $docsel */\n\n";
+				foreach  ($resxml->xpath('//forest') as $forest ) {
+			
+					$level = 1;
+					print "( ";
+					foreach  ( $forest->xpath("./eTree") as $node ) {
+						psdtree($node);
 					};
+					if ( $settings['psdx']['psd']['Location'] == "org" ) {
+						print "\n  (ID {$forest['File']},{$forest['Location']}))";
+					} else {
+						print "\n  (ID {$forest['File']},{$forest['sentid']}.{$forest['id']}))";
+					};
+					print "\n\n";
+			
 				};
-				if ( $treestyle == "horizontal" ) {
-					$maintext .= "
-						<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 3;'></div>
-						<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js\"></script>
-						<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js\"></script>
-						<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/psdx.js\"></script>
-						<script language=Javascript>
-						var username = '$username';
-						var cid = '$cid';
-						var treeid = '{$forest['id']}';
-						maketext();
-						</script>
-						<link href='http://alfclul.clul.ul.pt/teitok/Scripts/psdx-hor.css' rel='stylesheet' type='text/css'/>
-					";
+
+				exit;
+			} else {
+				// Display the results
+				$maintext .= "<h2>Results</h2>$subtit<p>";
+
+				$resxml = simplexml_load_string($results, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+				if (strstr($results, '<results></results>')) {
+					$maintext .= "<p>No results for found.</p>";
+				} else if ( $resxml ) {
+					$forestlist = $resxml->xpath("//forest");
+					$maintext .= "<p>".count($forestlist)." matching (sub)trees";
+					foreach ( $forestlist as $forest ) {
+						$maintext .= "<hr>";
+						$sentid = $forest['sentid'] or $sentid = $forest['Location'];
+						$fileid = $forest['File'];
+						if ( $sentid && $fileid ) {
+							$nodeid = $forest->eTree[0]['id'];
+							$maintext .= "<p>{%Text}: <a href='index.php?action=file&cid=$fileid'>$fileid</a>, 
+								{%Sentence}: <a href='index.php?action=$action&cid=$fileid&sentence=$sentid&node={$nodeid}' target=sent>$sentid</a></p>";
+						} else if ( $fileid ) {
+							$maintext .= "<p>File: <a href='index.php?action=$action&cid=$fileid'>$fileid</a></p>";
+						}; 
+						if ( $treestyle == "table" ) {
+							$maintext .=  "<div id=tree>".drawtree($forest, true)."</div>";
+						} else if ( $treestyle == "svg" ) {
+							$maintext .= "\n".makesvgtree($forest, true);
+						} else if ( $treestyle == "vertical" ) {	
+							$maintext .= "<link href='http://alfclul.clul.ul.pt/teitok/Scripts/treeul.css' rel='stylesheet' type='text/css'/><div class=tree>".drawtree2($forest)."</div>";
+						} else {
+							// Use table graph by default
+							$treestyle = "horizontal";
+							$maintext .=  "<div id=tree>".$forest->asXML()."</div>";
+						};
+					};
+					if ( $treestyle == "horizontal" ) {
+						$maintext .= "
+							<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 3;'></div>
+							<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js\"></script>
+							<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js\"></script>
+							<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/psdx.js\"></script>
+							<script language=Javascript>
+							var username = '$username';
+							var cid = '$cid';
+							var treeid = '{$forest['id']}';
+							maketext();
+							</script>
+							<link href='http://alfclul.clul.ul.pt/teitok/Scripts/psdx-hor.css' rel='stylesheet' type='text/css'/>
+						";
+					};
+					$xpathurl = addslashes($xpath);
+					$maintext .= "<hr> <form  style='display: none;' id=xpdf name=xpdf action='index.php?action=$action&act=xpath&dltype=psd' method=post>
+							<input type=hidden name=xpath value='$xpathurl'></form>
+						<a onclick=\"document.getElementById('xpdf').submit();\">Download results as PSD</a>";
+				} else { 
+					$maintext .= "<p><i>Error while getting the result</i><hr>".htmlentities($results); 
 				};
-				$maintext .= "<hr>";
-			} else { $maintext .= "<p><i>Error while getting the result</i><hr>".htmlentities($results); };
+			};
 		
 		} else {
 			$maintext .= "<hr><h3>{%Predefined Queries}</h3>
