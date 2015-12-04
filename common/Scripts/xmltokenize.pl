@@ -15,11 +15,9 @@ $scriptname = $0;
             'test' => \$test, # tokenize to string, do not change the database
             'linebreaks' => \$linebreaks, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
-            'mtxtelm=s' => \$mtxtelm, # language of input
-            'thisdir=s' => \$thisdir, # determine where we are running from
+            'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
             );
 
-# Natureza dos dados	Fonte	N??mero de ordem	Nome do autor	Ano de nascimento do autor	Sigla do autor	Nome do jornal/revista	Sigla do jornal/revista	T??tulo	N??mero do volume	Nome da disciplina curricular	Sigla da disciplina curricular	Ano de escolaridade	Sec????o	N??mero da edi????o	N??mero do jornal/revista	Editor	Colec????o	Localidade da edi????o	Data	G??nero/Tema	P??gina	Coluna	Pa??s da edi????o	Sigla do pa??s	Directoria	Ficheiro	N??mero de frases	N??mero de palavras	N??mero de caracteres	Estado	Observa????es	Introdu????o	Correc????o	Revis??o	Data da 1?? edi????o	Pa??s do autor	L??ngua materna do autor	Pa??s de nascimento do autor	Local de nascimento do autor	Endere??o web do download	Data do download	L??ngua do Original	Situa????o de Direitos de Autor
 $\ = "\n"; $, = "\t";
 
 if ( $mtxtelm eq '' ) { $mtxtelm = 'text'; };
@@ -53,7 +51,7 @@ if ( !$force && $rawxml =~ /<\/tok>/ ) {
 	print "Already tokenized"; exit;
 };
 
-# We cannot have an XML tag span a line
+# We cannot have an XML tag span a line, so join them back on a single line
 $rawxwl =~ s/<([^>]+)[\n\r]([^>]+)>/<\1 \2>/g;
 
 # Check if this is valid XML to start with
@@ -66,6 +64,7 @@ if ( !$doc ) {
 	exit;
 };
 
+# Take off the header and footer (ignore everything outside of $mtxtelm)
 if ( $rawxml =~ /(<$mtxtelm>|<$mtxtelm [^>]*>).*?<\/$mtxtelm>/gsmi ) { $tagtxt = $&; $head = $`; $foot = $'; }
 else { print "No element <$mtxtelm>"; exit; };
 
@@ -82,7 +81,7 @@ if ( $linebreaks ) {
 };
 
 # Do some preprocessing
-# decode will mess up <>
+# decode will mess up encoded <> so htmlencode them
 $tagtxt =~ s/&lt;/&amp;lt;/g;
 $tagtxt =~ s/&gt;/&amp;gt;/g;
 $tagtxt = decode_entities($tagtxt);
@@ -91,7 +90,7 @@ $tagtxt =~ s/(&[^ \n\r&]+;)/xx\1xx/g;
 $tagtxt =~ s/&(?![^ \n\r&]+;)/xx&amp;xx/g;
 
 # <note> elements should not get tokenized
-# And neither should <desc>
+# And neither should <desc> or <gap>
 # Take them out and put them back later
 $notecnt = 0;
 while ( $tagtxt =~ /<(note|desc|gap).+?<\/\1>/gsmi )  {

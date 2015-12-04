@@ -483,6 +483,7 @@
 					$purl = $settings['projects'][$projectid]['baseurl'];
 					$target = " target=external";
 				} else {
+					$fileid = preg_replace("/xmlfiles\//", "", $fileid );
 					if ( $setting['cqp']['resatts'] ) {
 						$refname = "attlist";
 					} else {
@@ -770,7 +771,7 @@
 						# Read this index file
 						$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
 						foreach ( explode ( "\0", $tmp ) as $kval ) { 
-							if ( $kval && $kval != "_" ) {
+							if ( $kval) {
 								if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
 								$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
 							};

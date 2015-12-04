@@ -11,6 +11,14 @@
 
 	include ("../common/Sources/cwcqp.php");
 
+	// This version of CQP relies on XIDX - check whether program and file exist
+	$xidxcmd = $settings['bin']['tt-cwb-xidx'] or $xidxcmd = "/usr/local/bin/tt-cwb-xidx";
+	if ( !file_exists($xidxcmd) || !file_exists("cqp/xidx.rng") ) {
+		print "<p>This CQP version works only with XIDX
+			<script language=Javascript>top.location='index.php?action=cqpraw';</script>
+		";
+	};
+
 	$registryfolder = "/usr/local/share/cwb/registry/";
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
@@ -214,7 +222,6 @@
 
 		$showform = $_POST['showform'] or $showform = $_GET['showform'] or $showform = 'word';
 		$sort = $_POST['sort'] or $sort = $_GET['sort'] or $sort = '';
-		$context = $_POST['context'] or $context = $_GET['context'] or $context = '5';
 
 		# This is a simple search - turn it into a CQP search
 		if ( $cql && !preg_match("/[\"\[\]]/", $cql) ) {
@@ -284,6 +291,9 @@
 				$subtit .= "<p>$attname = <i>$val</i>";
 			};
 		}; # if ( strstr($cql, "a.text") && !strstr($cql, "a:") ) { $cql = "a:$cql"; }
+
+		// Now that the we have the full CQL - make sure matches are always within a <text>
+		if ( !preg_match("/ within /", $cql) ) $cql .= " within text";
 
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
@@ -411,121 +421,194 @@
 				# $maintext .= "Sorted by $sort"; - this is not 
 				$cqp->exec("sort Matches by $sort");
 			};
-
-			if ( $_POST['style'] == "sent" || $audioelm ) {
-				# Extend to sent
-				$cqp->exec("set Matches target match");
-				$cqp->exec("set Matches keyword matchend");
-				$cqp->exec("Sent = Matches expand to sent");
-				
-				$matchwords = "target .. keyword";
-				$leftc = "match .. target[-1]";
-				$rightc = "keyword[1] .. matchend";
-				$matches = "Sent";
-			} else {
-				$matchwords = "match .. matchend";
-				$leftc = "match[-$context]..match[-1]";
-				$rightc = "matchend[1]..matchend[$context]";
-				$matches = "Matches";
-			};
-			
-
-			if ( $_POST['style'] == "attlist" ) {
-				$sfn = pattname($pform); 
-				$matchh = "<tr><td><th>$sfn";
-				$morematch = ", $matchwords word";
-				if ( $withproject ) $morematch .= ", $matchwords text_project";
-				else $morematch .= ", $matchwords text_id";
-				foreach ( $cqpcols as $i => $key ) {	
-					$morematch .= ", $matchwords $key";
-					$matchh .= "<th>". pattname($key);
-				};
-			} else if ( $audioelm ) {
-				$morematch = ", $matchwords $showform, $matchwords {$audioelm}_audio, $matchwords sent_start, $matchwords sent_end";
-			} else {
-				$morematch = ", $matchwords $showform";
-				if ( $withproject ) $morematch .= ", $matchwords text_project";
-			};
-			
-			$cqpquery = "tabulate $matches $start $end match text_id, $leftc $showform, $rightc $showform, $matchwords id $morematch";
+						
+			// $cqpquery = "tabulate Matches $start $end match text_id, match id, matchend id, match[-$context], matchend[$context]";
+			$cqpquery = "tabulate Matches $start $end match text_id, match ... matchend id, match, matchend";
 			$results = $cqp->exec($cqpquery);
 
 			if ( $debug ) $maintext .= "<p>From inital $cnt results: $cqpquery<PRE>$results</PRE>";
 
 			$resarr = split ( "\n", $results ); $scnt = count($resarr);
-			$maintext .= "<p>$scnt {%results}";
+			$maintext .= "<p>$cnt {%results}";
 			if ( $scnt < $cnt ) { 
 				$last = min($end,$cnt);
 				$maintext .= " &bull; {%Showing} $start - $last";
 				if ($end<$cnt) $maintext .= " (<a onclick=\"document.getElementById('rsstart').value ='$end';  document.resubmit.submit();\">{%next}</a>)";
 			};
-			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
-				<table>$matchh";
+			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>";
 			
 			$maxmatchlength = 0;
 			$minmatchlength = 1000;
 			
+				if ( $_POST['style'] == "context" && $_POST['substyle'] != "tok"  ) {
+					$expand = "--expand={$_POST['substyle']}";					
+				} else if ( $_POST['style'] == "context" ) {
+					$context = $_POST['tokcnt'] or $context = $_GET['tokcnt'] or $context = '30';
+					$expand = "--context=$context";
+				} else {
+					$context = $_POST['context'] or $context = $_GET['context'] or $context = '5';
+					$expand = "--context=$context";
+				};
+			
 			foreach ( $resarr as $line ) {
+				$i++;
 				if ( $line == "" ) continue;
 				$tmp = explode ( "\t", $line );
-				list ( $fileid, $lcontext, $rcontext, $tid, $word, $projectid  ) = $tmp;
-				$tmp2 = array_slice ($tmp,4);
-				foreach ( $tmp2 as $tmp3 => $tmp4 ) { $featres[$tmp3] = explode(" ", $tmp4); };
+				list ( $fileid, $match, $leftpos, $rightpos  ) = $tmp;
+				$idlist = split ( " ", $match );
+				if ( count($idlist) > $maxmatchlength )  $maxmatchlength = count($idlist);
+				if ( count($idlist) < $minmatchlength )  $minmatchlength = count($idlist);
+				$m1 = $idlist[0]; 
+				$m2 = end($idlist); 
+				
 
-				$tidarray = explode (" ", $tid );
-				if ( count($tidarray) > $maxmatchlength )  $maxmatchlength = count($tidarray);
-				if ( count($tidarray) < $minmatchlength )  $minmatchlength = count($tidarray);
-				$tid1 = $tidarray[0]; $match = $word;
+				$cmd = "$xidxcmd --filename=$fileid $expand $leftpos $rightpos";
+				$resxml = shell_exec($cmd);
+				if ( $debug ) $maintext .= "<pre>$cmd\n".htmlentities($xidxres)."</pre>";
+				
+				$fileid = preg_replace("/xmlfiles\//", "", $fileid );
+								
+				$m1 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m1 );
+				$m2 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m2 );
 
-				if ( $withproject ) {
-					# Centralized index
-					$refname = $settings['projects'][$projectid]['name']; # or $refname = $projectid;
-					$purl = $settings['projects'][$projectid]['baseurl'];
-					$target = " target=external";
+				# Replace block-type elements
+				$resxml = preg_replace ( "/(<\/?(p|seg)>\s*|<(p|seg) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<p>'>|</span> ", $resxml);
+				
+				$resstyle = "";
+				if ( $show == "kwic" ) {
+					$rescol = "#ffffaa";
+					$resxml = preg_replace ( "/(<tok[^>]*id=\"$m1\")/", "</td><td style='text-align: center; font-weight: bold;'>\\1", $resxml);
+					$resxml = preg_replace ( "/(id=\"$m2\".*?<\/tok>)/smi", "\\1</td><td>", $resxml);
+					$resstyle = "style='text-align: right;'";
+					$moreactions .= "\nhllist('$match', 'r-$i', '#ffffff'); ";
 				} else {
-					if ( $setting['cqp']['resatts'] ) {
-						$refname = "attlist";
-					} else {
-						$refname = "$fileid" ; #:$tid1";
-					};
-					$purl = "";
-					$target = "";
+					$moreactions .= "\nhllist('$match', 'r-$i', '#ffff55'); ";
+					if ($i/2 == floor($i/2)) $resstyle = "style='background-color: #f5f5f2;'"; 
 				};
-									
-				if ( $_POST['style'] == "attlist" ) {
-					$rowcnt = count($tidarray) + 1;	$colcnt = count($settings['xmlfile']['pattributes']['forms'])+count($settings['xmlfile']['pattributes']['tags']);
-					$maintext .= "<tr>
-							<th><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=edit&cid=$fileid&jmp=$tid'$target>$refname</a>
-							<th colspan='$colcnt'>$lcontext <b>$match</b> $rcontext";
-					foreach ( $tidarray as $key => $val ) {
-						if ( $username ) $val = "<a href='{$purl}index.php?action=tokedit&cid=$fileid&tid=$val'$target>$val</a>";
-						$maintext .= "<tr><td style='color: #bbbbbb;'>$val";
-						for ( $i = 0; $i <= count($tidarray)+1; $i++ ) {
-							if ( $i != 1 ) $maintext .= "<td>{$featres[$i][$key]}";
-						};
+				
+				if ( !$noprint ) $editxml .= "\n<tr id=\"r-$i\"><td><a href='index.php?action=file&amp;cid=$fileid&amp;jmp=$m1' style='font-size: 10pt; padding-right: 5px;' title='$fileid' target=view>{%view}</a></td><td $resstyle>$resxml</td></tr>";
+
+
+			};
+
+			# empty tags are working horribly in browsers - change
+			$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
+
+			#Build the view options	
+			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+				$formcol = $item['color'];
+				# Only show forms that are not admin-only
+				if ( $username || !$item['admin'] ) {	
+					if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+					$ikey = $item['inherit'];
+					if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract'] 
+						$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+						$fbc++;
 					};
-				} else if ( $_POST['style'] == "sent" ) {
-					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=edit&cid=$fileid&jmp=$tid'$target>$refname</a>
-						<td>$lcontext <span class=match>$match</span> $rcontext";
-				} else if ( $audioelm ) {
-					$src = $featres[1][0];
-					$audiobut = ""; 
-					if ( $src ) {
-						$strt = $featres[2][0]; $stp = $featres[3][0];
-						$audiobut = "<img src=\"http://alfclul.clul.ul.pt/teitok/common/Images/playbutton.gif\" width=\"14\" height=\"14\" style=\"margin-right: 5px; display: inline-block;\" onClick=\"playpart('$src', $strt, $stp, this );\">"; 
+					if ( $key != "pform" ) { 
+						if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+						$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 					};
-					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=edit&cid=$fileid&jmp=$tid'$target>$refname</a>
-						<td>$audiobut
-						<td>$lcontext <span class=match>$match</span> $rcontext";
-					else $maintext .= "<p>?? $match, $line";
-				} else {
-					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=edit&cid=$fileid&jmp=$tid'$target>$refname</a>
-						<td align=right>$lcontext<td align=center><b>$match</b><td>$rcontext";
-					#else $maintext .= "<p>?? $match ".join( " ; ", explode ("\t", $line));
 				};
 			};
-			$maintext .= "</table>";
-			$maintext = str_replace('__UNDEF__', '', $maintext);
+			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+				$val = $item['display'];
+				if ( preg_match("/ $key=/", $editxml) ) {
+					if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
+					if ( !$item['admin'] || $username ) {
+						if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+						$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
+						$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+						$pcolor = $item['color'];
+						$tagstxt .= " <button id='tbt-$key' style='background-color: #$bc; color: $pcolor;$bgcol' onClick=\"toggletag('$key')\">{%$val}</button>";
+					};
+				} else if ( is_array($labarray) && ($akey = array_search($key, $labarray)) !== false) {
+					unset($labarray[$akey]);
+				};
+			};
+
+			# Only show text options if there is more than one form to show
+			if ( $fbc > 1 ) $viewoptions .= "<p>{%Text}: $formbuts"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
+
+				$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
+				$jsontrans = array2json($settings['transliteration']);
+
+				if ( $tagstxt ) $showoptions .= "<p>{%Tags}: $tagstxt ";
+			
+			$maintext .= "
+					$viewoptions $showoptions
+					<hr>
+				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
+				$countrow
+				<div id='mtxt'><text><table>$editxml</table></text></div>
+
+					<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js'></script>
+					<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js'></script>
+					<script language=Javascript>
+
+						function makeunique () {
+							var mtxt = document.getElementById('mtxt');
+							var ress = mtxt.getElementsByTagName('tr');
+							for ( var a = 0; a<ress.length; a++ ) {
+								var res = ress[a];
+								console.log(res);
+								var resid = res.getAttribute('id');
+								var toks = res.getElementsByTagName(\"tok\");
+								for ( var b = 0; b<toks.length; b++ ) {
+									var tok = toks[b];
+									var tokid = tok.getAttribute('id');
+									tok.setAttribute('id', resid+'_'+tokid);
+								};					
+								var toks = res.getElementsByTagName(\"dtok\");
+								for ( var b = 0; b<toks.length; b++ ) {
+									var tok = toks[b];
+									var tokid = tok.getAttribute('id');
+									tok.setAttribute('id', resid+'_'+tokid);
+								};					
+							};
+						};
+
+						makeunique();
+						var username = '$username';
+						var formdef = $jsonforms;
+						var orgtoks = new Object();
+						var attributelist = Array($attlisttxt);
+						$attnamelist
+						formify(); 
+						var orgXML = document.getElementById('mtxt').innerHTML;
+						setForm('$showform');
+			
+						function hllist ( ids, container, color ) {
+							idlist = ids.split(' ');
+							for ( var i=0; i<idlist.length; i++ ) {
+								var id = idlist[i];
+								// node = getElementByXpath('//*[@id=\"'+container+'\"]//*[@id=\"'+id+'\"]');
+								node = document.getElementById(container+'_'+id);
+								if ( node ) {
+									if ( node.nodeName == 'DTOK' ) { 
+										node = node.parentNode; 
+										// console.log(node);
+										if ( color == '#ffffaa' ) {
+											node.style['background-color'] = '#ffeeaa';
+											node.style.backgroundColor= '#ffeeaa'; 
+										} else {
+											node.style['background-color'] = '#ffcccc';
+											node.style.backgroundColor= '#ffcccc'; 
+										};
+									} else {
+										node.style['background-color'] = color;
+										node.style.backgroundColor= color; 
+									};
+								};
+							};
+						};
+						function getElementByXpath(path) {
+							return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+						}
+					</script>
+		
+				<script language=Javascript>$moreactions</script>
+				";
 		};
 		
 		$cqlu = $cql;
@@ -611,11 +694,6 @@
 		# $tokatts['word'] = $tokatts['form'] or $tokatts['word'] = "Written form"; --> how to do this?
 		array_unshift($cqpcols, 'word' ); // Add word as a search option
 				
-		foreach ( $cqpcols as $col ) {
-			if ( strstr($col, "form") ) $formlist .= "<option value=$col>{%".pattname($col)."}</option>"; $flc++;
-		};
-		if ( $flc > 1 ) $formsel = "<p>{%Form to show}: <select name=showform><option value='word'>{%Written form}</option>$formlist</select> ";
-		
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
 			<!-- <h2>{%Advanced Search}</h2> -->
@@ -635,13 +713,11 @@
 					<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'word');\" $wdef> {%Word Search}
 				<script language=Javascript>
 				function switchtype ( tg, type ) { 
-					console.log(tg + ' , ' + type);
 					var types = [];
 					types['st'] = ['cqp', 'word'];
-					types['style'] = ['kwic', 'attlist'];
+					types['style'] = ['kwic', 'context'];
 					for ( var i in types[tg] ) {
 						stype = types[tg][i]; 
-					    console.log (stype + 'search');
 						document.getElementById(stype+'search').style.display = 'none';
 					};
 					document.getElementById(type+'search').style.display = 'block';
@@ -707,31 +783,37 @@
 			<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>";
 		
 		
-		if ( !$audioelm ) {
-			$maintext .= "
-					<p>{%Display method}: 
-					<input type=radio name=style value='kwic' onClick=\"switchtype('style', 'kwic');\" checked> KWIC
-					<input type=radio name=style value='attlist' onClick=\"switchtype('style', 'attlist');\"> {%Attribute list}";
+		// Preselect styles
+		if ( $settings['cqp']['defaults']['searchstyle'] ) { 
+			$moreactions .= "switchtype('style', '{$settings['cqp']['defaults']['searchstyle']}');"; 
+			$chcont = "checked";
+		} else { 
+			$moreactions .= "switchtype('style', 'kwic');"; 
+			$chkwic = "checked";
+		};
+		$maintext .= "
+				<p>{%Display method}: 
+				<input type=radio name=style value='kwic' onClick=\"switchtype('style', 'kwic');\" $chkwic> KWIC
+				<input type=radio name=style value='context' onClick=\"switchtype('style', 'context');\" $chcont> Context
+				";			
 		
-			if ( $settings['cqp']['sattributes']['s'] ) {
-				$maintext .= "<input type=radio name=style value='sent' onClick=\"switchtype('style', 'sent');\"> {%Sentence}";
-			};
-			
-		} else { $nokwic = "style='display: none;'"; };
+		foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
+			if ( $key != "text" && $val['display'] ) $morecontext .= "<input type=radio name=substyle value='{$val['key']}'> {$val['display']}";
+		};		
+		
 				
 		$maintext .= "
-				<div name='attlistsearch' id='attlistsearch' style='display: none;'>
-					<p>{%Context size}: <select name=context>
-						<option value='3'>3</option><option value='4'>4</option><option value='5' selected>5</option><option value='6'>6</option><option value='7'>7</option>
-					</select>  {%words}
+				<div name='contextsearch' id='contextsearch' style='display: none;'>
+					<p>{%Display context}: 
+						<input type=radio name=substyle value='tok'>
+						{%Tokens}: <select name=tokcnt> <option value='5'>5</option><option value='15'>15</option><option value='30' selected>30</option><option value='50'>50</option><option value='100'>100</option></select>
+						$morecontext
 				</div>
 				<div name='kwicsearch' id='kwicsearch' $nokwic>
 					$formsel
 					<p>{%Context size}: <select name=context>
 						<option value='3'>3</option><option value='4'>4</option><option value='5' selected>5</option><option value='6'>6</option><option value='7'>7</option>
 					</select>  {%words}
-				</div>
-				<div name='sentsearch' id='sentsearch' style='display: none;'>
 				</div>
 				<p>{%Sort on}: <select name=sort>
 					<option value='word'>{%Word}</option>
@@ -748,6 +830,7 @@
 				
 			<script language=Javascript>
 			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
+			$moreactions
 			</script>";
 			
 		$maintext .= "\n\t<td valign=top>";  $hr = "";
@@ -770,7 +853,7 @@
 						# Read this index file
 						$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
 						foreach ( explode ( "\0", $tmp ) as $kval ) { 
-							if ( $kval) {
+							if ( $kval && $kval != "_" ) {
 								if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
 								$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
 							};

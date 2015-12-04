@@ -42,7 +42,7 @@
 			header('Content-disposition: attachment; filename="'.$filename.'"');
 			$file = file_get_contents("Annotations/$cid.psdx");
 			$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-			print "/* PSD Tree generated from PSDX by TEITOK */\n\n";
+			print "// PSD Tree generated from PSDX by TEITOK\n\n";
 			foreach  ($forestxml->xpath('//forest') as $forest ) {
 			
 				$level = 1;
@@ -190,8 +190,8 @@
 				header("Content-type: text/txt"); 
 				header('Content-disposition: attachment; filename="'.$filename.'"');
 				$resxml = simplexml_load_string($results, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-				print "/* PSD Tree generated from PSDX XPath search by TEITOK */\n";
-				print "/* XPath query: $xpath */\n\n";
+				print "// PSD Tree generated from PSDX XPath search by TEITOK\n";
+				print "// XPath query: $xpath\n\n";
 				if ( $docsel ) print "/* Document selection: $docsel */\n\n";
 				foreach  ($resxml->xpath('//forest') as $forest ) {
 			
@@ -783,7 +783,7 @@
 			psdtree($child);
 		};
 		foreach  ( $node->xpath("./eLeaf") as $leaf ) {
-			print " ".$leaf['Text'].$leaf['Notext'];
+			print "".$leaf['Text'].$leaf['Notext'];
 		};
 		print ") ";
 		$level--;

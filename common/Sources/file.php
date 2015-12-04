@@ -42,7 +42,7 @@
 		$fileid = preg_replace("/^.*\//", "", $fileid);
 		$test = array_merge(glob("$xmlfolder/**/$fileid")); 
 		if ( !$test ) 
-			$test = array_merge(glob("$xmlfolder/$fileid"), glob("$xmlfolder/*/$fileid"), glob("$xmlfolder/*/*/$fileid")); 
+			$test = array_merge(glob("$xmlfolder/$fileid"), glob("$xmlfolder/*/$fileid"), glob("$xmlfolder/*/*/$fileid"), glob("$xmlfolder/*/*/*/$fileid")); 
 		$temp = array_pop($test); 
 		$fileid = preg_replace("/^".preg_quote($xmlfolder, '/')."\/?/", "", $temp);
 	

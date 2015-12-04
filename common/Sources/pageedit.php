@@ -2,7 +2,6 @@
 	// Script to edit HTML pages
 	// (c) Maarten Janssen, 2015
 
-
 	check_login();
 	$id = $_GET['id'];
 	$deflang = $settings['languages']['default'] or $deflang = "en";
@@ -35,6 +34,17 @@
 		
 		print "<p>File saved. Reloading.
 			<script language=Javascript>top.location='index.php?action=$pagename';</script>
+			";
+			
+	} else if ( $act == "trash" ) {
+
+		$id = $_GET['id'];
+		if ( !file_exists( "Pages/$id.html" ) ) { fatal("<p>No such HTML page: $id"); };
+		
+		rename("Pages/$id.html", "Trash/$id.html");		
+				
+		print "<p>File moved to Trash. Reloading.
+			<script language=Javascript>top.location='index.php?action=$action';</script>
 			";
 			
 	} else if ( $id ) {
@@ -90,7 +100,7 @@
 			<p><form action='index.php?action=$action&act=save' method=post>
 			$idfield
 			<textarea name=content>$content</textarea>
-			<p><input type=submit value=Save>
+			<p><input type=submit value=Save> <a href='index.php?action=$action&act=trash&id=$id'>move to trash</a>
 			</form>
 			";
 		

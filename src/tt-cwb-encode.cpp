@@ -261,6 +261,10 @@ void treatfile ( string filename ) {
 	write_range (pos1, pos2, "text" );
 	write_range_value (pos1, pos2, "text", "id", idname);
 
+	if ( debug > 4 ) {
+		cout << "written to text and text_id" << endl; 
+	};
+
 
 	// add the sattributes for all levels
 	string formkey; string formval; 

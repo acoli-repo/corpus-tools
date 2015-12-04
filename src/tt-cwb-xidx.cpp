@@ -19,6 +19,8 @@ map<string, string> clarg;
 string cqpfolder;
 string xmlfile;
 bool verbose;
+int context;
+int textrng[2];
 int rngpos[2];
 
 // Read network style
@@ -44,6 +46,11 @@ string read_file_range ( int from, int to, string filename ) {
 	
 	FILE* stream = fopen ( filename.c_str() , "rb" );
 
+	if ( stream == NULL ) { 
+		if ( verbose ) { cout << "File could not be opened " << filename << endl; };
+		return "";
+	};
+
 	// Reverse when needed
 	if ( to < from ) { int tmp = to; to=from; from=tmp; };
 
@@ -52,10 +59,13 @@ string read_file_range ( int from, int to, string filename ) {
 	fseek ( stream , from , SEEK_SET );
 
 	if ( verbose ) { cout << "Getting length " << to-from << endl; };
-	value = "";
+	value = ""; int last = ftell(stream);
     while ( ftell(stream) < to ) {
     	chr = fgetc(stream);
+		if ( verbose ) { cout << last << " : " << chr << endl; };
 	 	if ( ftell(stream) < to ) { value = value + chr; };
+	 	if ( last == ftell(stream) ) { return ""; }; // Not advancing, return nothing, prob out of file range
+		last = ftell(stream);
 	 };
 	if ( verbose ) { cout << "String " << value << endl; };
 
@@ -115,15 +125,18 @@ int cwb_rng_2_avx(string att, int pos) {
 
 	filename = cqpfolder + "/" + att + ".rng";
 	file = fopen ( filename.c_str() , "rb" );
-	if ( verbose ) { cout << "Reading range for " << filename << endl; };
+	if ( verbose ) { cout << "Getting range for " << pos << " in "  << filename << endl; };
 
 	for ( int i=0; i<max; i=i+2 ) {
 		int pos1 = read_network_number (i, file);
-		if ( verbose ) { cout << "Range 1 at " << i << " = " << pos1 << endl; };
-		if ( pos1 < pos ) {
+		// if ( verbose ) { cout << "Range 1 at " << i << " = " << pos1 << endl; };
+		if ( pos1 <= pos ) {
 			int pos2 = read_network_number (i+1, file);
-			if ( pos2 > pos ) {
+			// if ( verbose ) { cout << "Range 2 at " << i << " = " << pos2 << endl; };
+			if ( pos2 >= pos ) {
 				if ( verbose ) { cout << "Found a matching range " << pos1 << " - " << pos2 << " = " << i/2 << endl; };
+				// If this is the text - store start and end for context expansion
+				if ( att == "text_id" ) { textrng[0] = pos1;  textrng[1] = pos2;  };
 				res = i/2;
 				i=max+1;
 			};
@@ -208,11 +221,17 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 	
 	string filename; FILE * file; int rpos;
 	rngpos[0] = 0;
+
+ 	if ( xmlfile == "" || context > 0 )  { xmlfile = cwb_rng_2_val("text_id", pos1); }; // assume the whole stretch to be from one XML file
 	
 	if ( clarg.find("expand")  != clarg.end() ) {
 		// Asked to expand to level X - try it
 		if ( verbose ) { cout << "Expanding " << pos1 << " - " << pos2 << " to " << clarg["expand"] << endl; };
 		cwb_expand_rng(pos1, pos2, clarg["expand"]);
+	} else if ( context > 0 ) {
+		pos1 = max(pos1-context, textrng[0]);
+		pos2 = min(pos2+context, textrng[1]);
+		if ( verbose ) { cout << "Expanding context with " << context << " to " << pos1 << " - " << pos2 << endl; };
 	};
 		
 	if ( rngpos[0] == 0 ) {
@@ -230,11 +249,9 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 		fclose (file);
 	};
 		
-	filename = xmlfile;
-	if ( filename == "" )  { filename = cwb_rng_2_val("text_id", pos1); }; // assume the whole stretch to be from one XML file
 	
-	if ( verbose ) { cout << "XML filename: " << filename << endl; };
-	string value = read_file_range(rngpos[0], rngpos[1], filename);
+	if ( verbose ) { cout << "XML filename: " << xmlfile << endl; };
+	string value = read_file_range(rngpos[0], rngpos[1], xmlfile);
 	
 	return value;
 };
@@ -291,6 +308,8 @@ int main (int argc, char *argv[]) {
 	string patt = ""; if ( clarg.find("P") != clarg.end() ) { patt = clarg["P"];  };
 	string satt = ""; if ( clarg.find("R") != clarg.end() ) { satt = clarg["R"];  };
 	if ( clarg.find("verbose") != clarg.end() ) { verbose = true; };
+
+	if ( clarg.find("context") != clarg.end() ) { context = stoi(clarg["context"]); } else { context = 0; };
 	
 	if ( clarg.find("from") != clarg.end() ) { avls[0] = clarg["from"];  };
 	if ( clarg.find("to") != clarg.end() ) { avls[1] = clarg["to"];  };
