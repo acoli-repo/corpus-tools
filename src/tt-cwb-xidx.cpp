@@ -9,6 +9,7 @@
 #include <vector>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <arpa/inet.h>
 
 #define BUFSIZE 4096
 
@@ -309,7 +310,7 @@ int main (int argc, char *argv[]) {
 	string satt = ""; if ( clarg.find("R") != clarg.end() ) { satt = clarg["R"];  };
 	if ( clarg.find("verbose") != clarg.end() ) { verbose = true; };
 
-	if ( clarg.find("context") != clarg.end() ) { context = stoi(clarg["context"]); } else { context = 0; };
+	if ( clarg.find("context") != clarg.end() ) { context = atoi(clarg["context"].c_str()); } else { context = 0; };
 	
 	if ( clarg.find("from") != clarg.end() ) { avls[0] = clarg["from"];  };
 	if ( clarg.find("to") != clarg.end() ) { avls[1] = clarg["to"];  };
@@ -326,8 +327,8 @@ int main (int argc, char *argv[]) {
 			arg2 = inputs.front(); 
 			
 			try { 
-				pos1 = stoi(arg1); 
-				pos2 = stoi(arg2); 
+				pos1 = atoi(arg1.c_str()); 
+				pos2 = atoi(arg2.c_str()); 
 			} catch( const std::exception& e ) { continue; }; 
 			
 			cout << cwb_rng_2_xml ( pos1, pos2 ) << endl;
@@ -337,8 +338,8 @@ int main (int argc, char *argv[]) {
 		if ( avls[1] == "" ) { avls[1] = avls[0]; };
 		int pos1; int pos2;
 	
-		pos1 = stoi(avls[0]);
-		pos2 = stoi(avls[1]);
+		pos1 = atoi(avls[0].c_str());
+		pos2 = atoi(avls[1].c_str());
 
 		cout << cwb_rng_2_xml ( pos1, pos2 ) << endl;
 	};

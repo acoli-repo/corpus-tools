@@ -644,9 +644,9 @@ int main(int argc, char *argv[])
 		};
 	};
 	// There always should be a text_id
+	registry << "STRUCTURE text_id" << endl;
 	if ( streams["text_id"]["avs"] == NULL ) {
 		if ( debug > 4 ) { cout << "Creating text_id" << endl; };
-		registry << "STRUCTURE text_id" << endl;
 		filename = corpusfolder+"text_id.avs";
 		streams["text_id"]["avs"] = new ofstream(filename.c_str());
 		filename = corpusfolder+"text_id.avx";

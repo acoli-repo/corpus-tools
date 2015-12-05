@@ -1,6 +1,7 @@
 <?php
 	// Script to allow searching a CQP version of the corpus
 	// Requires a running version of CWB/CQP
+	// This version reads in the XML and requires tt-cwb-xidx
 	// Settings for the corpus are read from settings.xml
 	// (c) Maarten Janssen, 2015
 
@@ -19,7 +20,7 @@
 		";
 	};
 
-	$registryfolder = "/usr/local/share/cwb/registry/";
+	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "/usr/local/share/cwb/registry/";
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$cqpfolder = $settings['cqp']['searchfolder'];
@@ -220,7 +221,6 @@
 		# Consists either of a direct CQL query or of attribute-value pairs that have to be turned into one
 		# Text-level restrictions (or other XML-levels) are provided separately (by default)
 
-		$showform = $_POST['showform'] or $showform = $_GET['showform'] or $showform = 'word';
 		$sort = $_POST['sort'] or $sort = $_GET['sort'] or $sort = '';
 
 		# This is a simple search - turn it into a CQP search
@@ -352,8 +352,6 @@
 			$targetmatch = 1;
 		};
 			
-		
-		if ( $showform != "word" && !$fileonly ) { $subtit .= "<p>{%Showing form}: <i>".pattname($showform)."</i>"; };
 		$maintext .= $subtit;
 		$cqp->exec("Matches = ".$cql);
 		$cnt = $cqp->exec("size Matches");
@@ -363,6 +361,7 @@
 				<p><i>No matches</i> for $cql
 				"; 
 			$nomatch = 1;
+			if ( $debug ) $maintext .= "<p>Matches = $cql";
 		} else if ( $fileonly )  { 
 			
 			# Document searches	
@@ -475,7 +474,7 @@
 				$resxml = preg_replace ( "/(<\/?(p|seg)>\s*|<(p|seg) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<p>'>|</span> ", $resxml);
 				
 				$resstyle = "";
-				if ( $show == "kwic" ) {
+				if ( $_POST["style"] == "kwic" ) {
 					$rescol = "#ffffaa";
 					$resxml = preg_replace ( "/(<tok[^>]*id=\"$m1\")/", "</td><td style='text-align: center; font-weight: bold;'>\\1", $resxml);
 					$resxml = preg_replace ( "/(id=\"$m2\".*?<\/tok>)/smi", "\\1</td><td>", $resxml);
@@ -486,7 +485,7 @@
 					if ($i/2 == floor($i/2)) $resstyle = "style='background-color: #f5f5f2;'"; 
 				};
 				
-				if ( !$noprint ) $editxml .= "\n<tr id=\"r-$i\"><td><a href='index.php?action=file&amp;cid=$fileid&amp;jmp=$m1' style='font-size: 10pt; padding-right: 5px;' title='$fileid' target=view>{%view}</a></td><td $resstyle>$resxml</td></tr>";
+				if ( !$noprint ) $editxml .= "\n<tr id=\"r-$i\"><td><a href='index.php?action=file&amp;cid=$fileid&amp;jmp=$m1' style='font-size: 10pt; padding-right: 5px;' title='$fileid' target=view>{%context}</a></td><td $resstyle>$resxml</td></tr>";
 
 
 			};
@@ -527,6 +526,9 @@
 				};
 			};
 
+			$showform = $_POST['showform'] or $showform = $_GET['showform'] or $showform = 'form';
+			if ( $showform == "word" ) $showform = "form";
+
 			# Only show text options if there is more than one form to show
 			if ( $fbc > 1 ) $viewoptions .= "<p>{%Text}: $formbuts"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
 
@@ -551,7 +553,7 @@
 							var ress = mtxt.getElementsByTagName('tr');
 							for ( var a = 0; a<ress.length; a++ ) {
 								var res = ress[a];
-								console.log(res);
+								// console.log(res);
 								var resid = res.getAttribute('id');
 								var toks = res.getElementsByTagName(\"tok\");
 								for ( var b = 0; b<toks.length; b++ ) {
