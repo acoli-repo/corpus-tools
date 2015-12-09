@@ -200,7 +200,7 @@
 					<input id='newann-wrdlist' name='newann-wrdlist' readonly style='border: none;'>
 					<br><button onClick='makenewann()'>Create annotation</button> <button onClick='clearnewann()'>Clear</button>
 				</div>
-				<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/standoff.js'></script>
+				<script language=Javascript src='$jsurl/standoff.js'></script>
 				";
 			$maintext .= "</td></tr></table>
 			<hr>

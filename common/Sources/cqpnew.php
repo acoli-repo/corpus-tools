@@ -310,7 +310,7 @@
 			";
 
 		if ( $audioelm ) {
-			$maintext .= "<script language='Javascript' src=\"http://alfclul.clul.ul.pt/teitok/Scripts/audiocontrol.js\"></script>";
+			$maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>";
 			$maintext .= "<div style='display: none;'><audio id=\"track\" src=\"http://alfclul.clul.ul.pt/teitok/site/Audio/mini.wav\" controls ontimeupdate=\"checkstop();\"></audio></div>";
 		};
 		
@@ -544,8 +544,8 @@
 				$countrow
 				<div id='mtxt'><text><table>$editxml</table></text></div>
 
-					<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js'></script>
-					<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js'></script>
+					<script language=Javascript src='$jsurl/tokedit.js'></script>
+					<script language=Javascript src='$jsurl/tokview.js'></script>
 					<script language=Javascript>
 
 						function makeunique () {

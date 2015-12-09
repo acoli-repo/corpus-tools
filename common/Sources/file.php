@@ -553,7 +553,7 @@
 					
 		};				
 
-		if ( $audiobit ) $maintext .= "<script language='Javascript' src=\"http://alfclul.clul.ul.pt/teitok/Scripts/audiocontrol.js\"></script>
+		if ( $audiobit ) $maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>
 			$audiobit
 			<hr>";
 
@@ -582,7 +582,7 @@
 					<p><input type=button value=Save onClick=\"runsubmit();\"> $switch
 					</form>
 		
-					<script src=\"http://alfclul.clul.ul.pt/teitok/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+					<script src=\"$jsurl/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
 					<script>
 						var editor = ace.edit(\"editor\");
 						editor.setTheme(\"ace/theme/chrome\");
@@ -619,9 +619,9 @@
 			<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 			$pagenav
 			<div id=mtxt>".$editxml."</div>
-			<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/getplaintext.js'></script>
-			<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js'></script>
-			<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js'></script>
+			<script language=Javascript src='$jsurl/getplaintext.js'></script>
+			<script language=Javascript src='$jsurl/tokedit.js'></script>
+			<script language=Javascript src='$jsurl/tokview.js'></script>
 			<script>
 				var username = '$username';
 				var formdef = $jsonforms;

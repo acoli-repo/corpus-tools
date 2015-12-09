@@ -70,7 +70,7 @@
 				together. The original and the token after merge are shown below. If there are attributes on the tokens, the resulting merged token
 				will typically have to be correted manually, and will start out by having the merge of the values of the two tokens. 
 				<p>It is possible to join tokens that are separate by whitespaces in the original, but bear 
-				in mind that TEITOK works best if tokens with spaces inside are kept to a minimum (<a href='http://alfclul.clul.ul.pt/teitok/site/index.php?action=help&id=mwe'>read more</a>).
+				in mind that TEITOK works best if tokens with spaces inside are kept to a minimum (<a href='http://teitok.corpuswiki.org/site/index.php?action=help&id=mwe'>read more</a>).
 				<hr>
 				<h2>Before merge</h2>
 				<p>Token 1: ".htmlentities($token1->asXML())."</p>
@@ -154,8 +154,8 @@
 					$maintext .= "<div style='background-color: #ffffaa; padding: 5px;'>".htmlentitieS($newxml)."</div>";
 				};
 				$maintext .= "<p>Pre-visualization (token only)</p>
-					<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js'></script>
-					<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js'></script>
+					<script language=Javascript src='$jsurl/tokedit.js'></script>
+					<script language=Javascript src='$jsurl/tokview.js'></script>
 					<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 					<div id='mtxt'>$newxml</div>
 					<hr>

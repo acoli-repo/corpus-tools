@@ -98,7 +98,7 @@
 		$title = $result[0];
 		if ( $title == "" ) $title = "<i>{%Without Title}</i>";
 
-		$maintext .= "<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/audioalign.js\"></script>";
+		$maintext .= "<script language=Javascript src=\"$jsurl/audioalign.js\"></script>";
 		$maintext .= "<h2>$txtid</h2><h1>$title </h1>$audiobit
 				<style>.adminpart { background-color: #eeeedd; padding: 5px; }</style>";
 

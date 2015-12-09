@@ -36,13 +36,14 @@
 		$query = str_replace('[', '\[', $query);
 		$query = str_replace(']', '\]', $query);
 
-		foreach ( explode ( " ", $cqpfolder ) as $todofolder ) {
-			$folderlist .= " $thisdir/xmlfiles/$todofolder ";
-			$tmp = preg_replace ( "/\/[^\/]*/", "", $todofolder );
-			$folders[$tmp] = 1;
-		}; 
-		if ( $username ) { $folderlist = " *.xml */*.xml */*/*.xml"; };
-		$cmd = "/bin/grep -l '$query'  $folderlist";
+		if ( $settings['bin']['grep'] ) $grepcmd = $settings['bin']['grep'];
+		else {
+			$cmd = "/usr/bin/which grep"; $grepcmd = chop(shell_exec($cmd));
+			if ( !$grepcmd ) { $grepcmd = "grep"; };
+		};
+
+		if ( $username || !$cqpfolder ) { $folderlist = "xmlfiles"; } else { $folderlist = $cqpfolder; };
+		$cmd = "$grepcmd -lR '$query'  $folderlist";
 		print "<!-- QUERY: $cmd -->";
 
 		$reslist = shell_exec($cmd);

@@ -71,7 +71,7 @@
 			<input type=button value=Cancel onClick=\"window.open('index.php?action=$action', '_self');\"> 
 			</form>
 	
-			<script src=\"http://alfclul.clul.ul.pt/teitok/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+			<script src=\"$jsurl/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
 			<script>
 				var editor = ace.edit(\"editor\");
 				editor.setTheme(\"ace/theme/chrome\");

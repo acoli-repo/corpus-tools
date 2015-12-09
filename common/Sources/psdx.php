@@ -236,7 +236,7 @@
 						} else if ( $treestyle == "svg" ) {
 							$maintext .= "\n".makesvgtree($forest, true);
 						} else if ( $treestyle == "vertical" ) {	
-							$maintext .= "<link href='http://alfclul.clul.ul.pt/teitok/Scripts/treeul.css' rel='stylesheet' type='text/css'/><div class=tree>".drawtree2($forest)."</div>";
+							$maintext .= "<link href='$jsurl/treeul.css' rel='stylesheet' type='text/css'/><div class=tree>".drawtree2($forest)."</div>";
 						} else {
 							// Use table graph by default
 							$treestyle = "horizontal";
@@ -246,16 +246,16 @@
 					if ( $treestyle == "horizontal" ) {
 						$maintext .= "
 							<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 3;'></div>
-							<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js\"></script>
-							<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js\"></script>
-							<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/psdx.js\"></script>
+							<script language=Javascript src=\"$jsurl/tokedit.js\"></script>
+							<script language=Javascript src=\"$jsurl/tokview.js\"></script>
+							<script language=Javascript src=\"$jsurl/psdx.js\"></script>
 							<script language=Javascript>
 							var username = '$username';
 							var cid = '$cid';
 							var treeid = '{$forest['id']}';
 							maketext();
 							</script>
-							<link href='http://alfclul.clul.ul.pt/teitok/Scripts/psdx-hor.css' rel='stylesheet' type='text/css'/>
+							<link href='$jsurl/psdx-hor.css' rel='stylesheet' type='text/css'/>
 						";
 					};
 					$xpathurl = addslashes($xpath);
@@ -421,7 +421,7 @@
 							<input type=hidden name='cid' value='$cid'>
 							<input type=hidden name='treeid' value='$treeid'>
 						</form>
-						<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/psdx.js\"></script>
+						<script language=Javascript src=\"$jsurl/psdx.js\"></script>
 						<script language=Javascript>
 						var username = '';
 						var cid = '$cid';
@@ -432,9 +432,9 @@
 						treexml = parser.parseFromString(treetxt,'text/xml');
 						maketext();
 						</script>
-						<link href='http://alfclul.clul.ul.pt/teitok/Scripts/psdx-hor.css' rel='stylesheet' type='text/css'/>
+						<link href='$jsurl/psdx-hor.css' rel='stylesheet' type='text/css'/>
 						
-						<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/psdxedit.js\"></script>
+						<script language=Javascript src=\"$jsurl/psdxedit.js\"></script>
 					";
 
 	} else if ( $act == "nodeedit" && $_GET['nid'] && $treeid ) {
@@ -526,24 +526,24 @@
 				};
 			};
 			$maintext .= "<h2>{%Tree} $treeid = {%Sentence} $sentid</h2>
-				<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js\"></script>
+				<script language=Javascript src=\"$jsurl/tokedit.js\"></script>
 				<script language=Javascript>var tid = '$cid';</script>
 				<div id='mtxt' style='margin-bottom: 20px;'>$sentence</div>
 				<hr><p><i>{%Move your mouse over the leaves in the tree to get info from the corresponding word in the sentence.}</i></p>";
 			if ( $username ) $maintext .= "<p class=adminpart><i>Click on a node below or a word above to edit its content - use <a href='index.php?action=$action&act=treeedit&cid=$cid&treeid=$treeid'>tree edit</a> to edit the layout</i></p>";
 			if ($forest) {
 				if ( $treestyle == "vertical" ) {	
-					$maintext .= "<link href='http://alfclul.clul.ul.pt/teitok/Scripts/treeul.css' rel='stylesheet' type='text/css'/><div class=tree style='width: 2000px;'>".drawtree2($forest)."</div>";
+					$maintext .= "<link href='$jsurl/treeul.css' rel='stylesheet' type='text/css'/><div class=tree style='width: 2000px;'>".drawtree2($forest)."</div>";
 				} else if ( $treestyle == "horizontal"  ) {	
 					$maintext .= "\n<div id=tree>".$forest->asXML()."</div>
-						<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/psdx.js\"></script>
+						<script language=Javascript src=\"$jsurl/psdx.js\"></script>
 						<script language=Javascript>
 						var username = '$username';
 						var cid = '$cid';
 						var treeid = '$treeid';
 						maketext();
 						</script>
-						<link href='http://alfclul.clul.ul.pt/teitok/Scripts/psdx-hor.css' rel='stylesheet' type='text/css'/>
+						<link href='$jsurl/psdx-hor.css' rel='stylesheet' type='text/css'/>
 					";
 				} else if ( $treestyle == "svg"  ) {	
 					$maintext .= "\n".makesvgtree($forest);

@@ -22,6 +22,7 @@
 	};
 	include(SMARTY_DIR . 'Smarty.class.php');
 	
+	
 	ini_set("session.cookie_secure", 0); // TEITOK typically does not work on HTTPS, so SESSION vars have to be allow on HTTP
 	session_start();
 
@@ -44,7 +45,6 @@
 		$foldername = $matches[1];
 	} else $foldername = "teitok";
 	$sessionvar = "teitok-$foldername";
-
 	
 	# Determine which language to use
 	$deflang = $settings['languages']['default'] or $deflang = "en";
@@ -61,6 +61,13 @@
 	else {
 		$baseurl = str_replace('index.php', '', $_SERVER['SCRIPT_NAME'] );
 		$baseurl = str_replace("/$lang/", '/', $baseurl );
+	};
+
+	// Determine where to get the Javascript files from
+	if ( $settings['defaults']['javascript']['url'] ) {
+		$jsurl = $settings['defaults']['base']['javascript'];
+	} else {
+		$jsurl = "http://teitok.corpuswiki.org/Scripts";
 	};
 	
 	$mtxtelement = $settings['xmlfile']['xpath'];

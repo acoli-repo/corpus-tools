@@ -26,9 +26,9 @@
 
 		$maintext .= "
 		<h1>Create TEI from PDF</h1>
-			<script src='http://alfclul.clul.ul.pt/teitok/Scripts/pdf.js'></script>
+			<script src='$jsurl/pdf.js'></script>
 			<script language=Javascript>var pdffile = '$pdf';</script>
-			<script src='http://alfclul.clul.ul.pt/teitok/Scripts/pagerender.js'></script>
+			<script src='$jsurl/pagerender.js'></script>
 
 		<form id='frm' name='frm' action='index.php?action=$action&act=create' method=post>
 		<input type=hidden name=pdf value=\"$pdf\">
@@ -58,7 +58,7 @@
 		<p><input type=submit value=\"Generate TEI\">
 		</form>
 			<script language=Javascript>
- 				PDFJS.workerSrc = 'http://alfclul.clul.ul.pt/teitok/Scripts/pdf.worker.js';
+ 				PDFJS.workerSrc = '$jsurl/pdf.worker.js';
  				initialize();
 			</script>
 		";

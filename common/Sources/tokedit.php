@@ -291,7 +291,7 @@
 
 		# Similar tokens only works on tokens that are displayed here - which no longer works if we clip 
 		$maintext .= "<br>
-			<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/simtoks.js'></script>
+			<script language=Javascript src='$jsurl/simtoks.js'></script>
 			<span onClick=\"simtoks('$tokid');\">treat similar tokens</span>
 			<div id='simtoks'></div>
 		

@@ -115,8 +115,8 @@
 				<div id='warn' style='color: #992000; font-weight: bold; height: 30px; text-align: center; padding-top: 10px;'></div>
 				<hr>
 				<h2>Preview</h2>
-					<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js'></script>
-					<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js'></script>
+					<script language=Javascript src='$jsurl/tokedit.js'></script>
+					<script language=Javascript src='$jsurl/tokview.js'></script>
 					<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 				<div id='mtxt'>$fullxml</div><div style='height: 100px;'></div>
 					<script language=Javascript>

@@ -300,7 +300,7 @@
 			";
 
 		if ( $audioelm ) {
-			$maintext .= "<script language='Javascript' src=\"http://alfclul.clul.ul.pt/teitok/Scripts/audiocontrol.js\"></script>";
+			$maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>";
 			$maintext .= "<div style='display: none;'><audio id=\"track\" src=\"http://alfclul.clul.ul.pt/teitok/site/Audio/mini.wav\" controls ontimeupdate=\"checkstop();\"></audio></div>";
 		};
 		

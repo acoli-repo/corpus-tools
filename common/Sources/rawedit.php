@@ -82,7 +82,7 @@
 		<p><input type=button value=Save onClick=\"runsubmit();\"> $switch
 		</form>
 		
-		<script src=\"http://alfclul.clul.ul.pt/teitok/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+		<script src=\"$jsurl/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
 		<script>
 			var editor = ace.edit(\"editor\");
 			editor.setTheme(\"ace/theme/chrome\");

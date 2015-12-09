@@ -182,7 +182,6 @@ void treatnode ( pugi::xpath_node node ) {
 		};
 		write_network_number(lexitems[formkey][formval], files[formkey]["corpus"]);
 
-
 	};		
 
 	// Write the word.xidx.rng
@@ -193,6 +192,9 @@ void treatnode ( pugi::xpath_node node ) {
 	int xmlpos2 = xmlpos1 + xmltxt.length(); 
 	write_network_number(xmlpos1, files["xidx"]["rng"]);
 	write_network_number(xmlpos2, files["xidx"]["rng"]);
+
+	// write the //text/@id to text_id.idx
+	write_network_number(lexidx["text_id"], files["text_id"]["idx"]);
 
 };
 
@@ -638,6 +640,7 @@ int main(int argc, char *argv[])
 			filename = corpusfolder+tagname+"_"+formkey+".avs";
 			streams[tagname+"_"+formkey]["avs"] = new ofstream(filename.c_str());
 			filename = corpusfolder+tagname+"_"+formkey+".avx";
+			lexidx[tagname+"_"+formkey] = 0; lexpos[tagname+"_"+formkey] = 0;
 			files[tagname+"_"+formkey]["avx"] = fopen(filename.c_str(), "wb"); 
 			filename = corpusfolder+tagname+"_"+formkey+".rng";
 			files[tagname+"_"+formkey]["rng"] = fopen(filename.c_str(), "wb"); 
@@ -650,11 +653,14 @@ int main(int argc, char *argv[])
 		filename = corpusfolder+"text_id.avs";
 		streams["text_id"]["avs"] = new ofstream(filename.c_str());
 		filename = corpusfolder+"text_id.avx";
+		lexidx["text_id"] = 0; lexpos["text_id"] = 0;
 		files["text_id"]["avx"] = fopen(filename.c_str(), "wb"); 
 		filename = corpusfolder+"xidx.rng";
 		files["xidx"]["rng"] = fopen(filename.c_str(), "wb"); 
 		filename = corpusfolder+"text_id.rng";
 		files["text_id"]["rng"] = fopen(filename.c_str(), "wb"); 
+		filename = corpusfolder+"text_id.idx";
+		files["text_id"]["idx"] = fopen(filename.c_str(), "wb"); 
 	};
 	
 	// go through the stand-off annotations
@@ -696,6 +702,7 @@ int main(int argc, char *argv[])
 			filename = corpusfolder+tagname+"_" + formkey+".avs";
 			streams[tagname+"_" + formkey]["avs"] = new ofstream(filename.c_str());
 			filename = corpusfolder+tagname+"_" + formkey+".avx";
+			lexidx[tagname+"_"+formkey] = 0; lexpos[tagname+"_"+formkey] = 0;
 			files[tagname+"_" + formkey]["avx"] = fopen(filename.c_str(), "wb"); 
 			filename = corpusfolder+tagname+"_" + formkey+".rng";
 			files[tagname+"_" + formkey]["rng"] = fopen(filename.c_str(), "wb"); 

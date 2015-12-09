@@ -66,7 +66,7 @@ class TTXML
 
 	function viewheader() {
 		// Create necessary data for the view mode
-		global $settings;
+		global $settings; global $jsurl;
 		# Build the attribute names	
 		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
 			if ( $username || !$item['admin'] ) {
@@ -85,7 +85,7 @@ class TTXML
 		$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
 		$jsontrans = array2json($settings['transliteration']);
 		$header = "
-			<script language=Javascript src=\"http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js\"></script>
+			<script language=Javascript src=\"$jsurl/tokview.js\"></script>
 			<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 3;'></div>
 			<script language=Javascript>
 				var formdef = $jsonforms;
@@ -164,7 +164,7 @@ class TTXML
 	}
 	
 	function mtxt($editable=1) {
-		global $username, $settings;
+		global $username, $settings; global $jsurl;
 		if ( $editable ) { 
 			$moreactions .= "\n\tvar username='$username'; ";
 		};	
@@ -182,8 +182,8 @@ class TTXML
 
 
 		$mtxt = "
-			<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokedit.js'></script>
-			<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/tokview.js'></script>
+			<script language=Javascript src='$jsurl/tokedit.js'></script>
+			<script language=Javascript src='$jsurl/tokview.js'></script>
 			<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 			<div id='mtxt'>".$this->asXML()."</div>
 			<script language='Javascript'>

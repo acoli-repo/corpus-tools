@@ -63,7 +63,7 @@
 			<div style='padding: 4px; position: fixed; width: 100%; left: 0px; bottom: 0px; background-color: #ffffff; margin: 0px; border: 1px solid #aaaaaa;'>Node info: <span id=pathinfo style='background-color: #ffffaa; padding: 4px;'>&nbsp;</span></div>
 			<hr>
 			<div id=mtxt>".$editxml."</div>
-			<script language=Javascript src='http://alfclul.clul.ul.pt/teitok/Scripts/teixpath.js'></script>
+			<script language=Javascript src='$jsurl/teixpath.js'></script>
 			";
 
 ?>
