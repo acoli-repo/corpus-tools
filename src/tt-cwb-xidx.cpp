@@ -276,22 +276,18 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 		
 	if ( rngpos[0] == 0 ) {
 		// Get simple corpus positions - lookup the corresponding XML positions
-		if ( debug > 3 ) { cout << "Getting XML for " << pos1 << " - " << pos2 << endl; };
+		if ( debug > 4 ) { cout << "Getting XML for " << pos1 << " - " << pos2 << endl; };
 		filename = cqpfolder + "/xidx.rng";
 		file = fopen ( filename.c_str() , "rb" );
-		rpos = read_network_number(pos1*2,file);
-		if ( debug > 3 ) { cout << "XML Range position 1 for " << rpos << " in " << filename << " = " << rpos << " < " << pos1*2 << endl; };
-		rngpos[0] = rpos;
-		rpos = read_network_number(pos2*2+1,file);
+		rpos1 = read_network_number(pos1*2,file);
+		rpos2 = read_network_number(pos2*2+1,file);
  		fclose(file);
-		if ( debug > 3 ) { cout << "XML Range position 2 for " << rpos << " in " << filename << " = " << rpos << " < " << pos2*2+1 << endl; };
-		rngpos[1] = rpos;
-		if ( debug > 3 ) { cout << "XML Range positions for " << pos1 << "-" << pos2 << " in " << filename << " = " << rngpos[0] << "-" << rngpos[1] << endl; };
+		if ( debug > 0 ) { cout << "XML Range positions for " << pos1 << "-" << pos2 << " in " << filename << " = " << rpos1 << "-" << rpos2 << endl; };
 	};
 		
 	
 	if ( verbose ) { cout << "XML filename: " << xmlfile << endl; };
-	string value = read_file_range(rngpos[0], rngpos[1], xmlfile);
+	string value = read_file_range(rpos1, rpos2, xmlfile);
 	
 	return value;
 };

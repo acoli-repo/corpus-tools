@@ -64,7 +64,7 @@
 	};
 
 	// Determine where to get the Javascript files from
-	if ( $settings['defaults']['javascript']['url'] ) {
+	if ( $settings['defaults']['base']['javascript'] ) {
 		$jsurl = $settings['defaults']['base']['javascript'];
 	} else {
 		$jsurl = "http://teitok.corpuswiki.org/Scripts";
