@@ -274,16 +274,15 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 		if ( debug > 3 ) { cout << "Expanding context with " << context << " to " << pos1 << " - " << pos2 << endl; };
 	};
 		
-	if ( rngpos[0] == 0 ) {
-		// Get simple corpus positions - lookup the corresponding XML positions
-		if ( debug > 4 ) { cout << "Getting XML for " << pos1 << " - " << pos2 << endl; };
-		filename = cqpfolder + "/xidx.rng";
-		file = fopen ( filename.c_str() , "rb" );
-		rpos1 = read_network_number(pos1*2,file);
-		rpos2 = read_network_number(pos2*2+1,file);
- 		fclose(file);
-		if ( debug > 0 ) { cout << "XML Range positions for " << pos1 << "-" << pos2 << " in " << filename << " = " << rpos1 << "-" << rpos2 << endl; };
-	};
+	int rpos1, rpos2;
+	// Get simple corpus positions - lookup the corresponding XML positions
+	if ( debug > 4 ) { cout << "Getting XML for " << pos1 << " - " << pos2 << endl; };
+	filename = cqpfolder + "/xidx.rng";
+	file = fopen ( filename.c_str() , "rb" );
+	rpos1 = read_network_number(pos1*2,file);
+	rpos2 = read_network_number(pos2*2+1,file);
+	fclose(file);
+	if ( debug > 0 ) { cout << "XML Range positions for " << pos1 << "-" << pos2 << " in " << filename << " = " << rpos1 << "-" << rpos2 << endl; };
 		
 	
 	if ( verbose ) { cout << "XML filename: " << xmlfile << endl; };
