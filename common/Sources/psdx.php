@@ -161,12 +161,14 @@
 						$searchfiles = ""; $sep = "";
 						$results = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><results>";
 						// This is not efficient
-						foreach ( explode ( "\n", $cwbresults ) as $line ) { 
-							if ( preg_match("/([^\/]+)\.xml/", $line, $matches ) )
-								$searchfiles = " Annotations/{$matches[1]}.psdx"; 
-							$xslt = preg_replace("/##/", $xpath, $wrapper);
+						$resultarray = explode ( "\n", $cwbresults );
+						$xslt = preg_replace("/##/", $xpath, $wrapper);
+						$fsize = 100; // size of the list of files to pass in 1 go to XSLTPROC
+						for ( $i=0; $i< count($resultarray); $i+=$fsize ) { 
+							$line = join(" ", array_splice($resultarray, $i, $fsize));
+							$searchfiles = preg_replace("/( |^)[^ ]*?([^\/\. ]+)\.xml/", "\\1Annotations/\\2.psdx", $line);
 							$cmd = "echo '$xslt' | xsltproc --novalid - $searchfiles";
-							// print "<p>CMD: ".htmlentities($cmd);
+							# print "<p>CMD: ".htmlentities($cmd);
 							$tmp = shell_exec($cmd);
 							$results .= str_replace('<?xml version="1.0"?>', '', $tmp); // remove multiple <?xml
 

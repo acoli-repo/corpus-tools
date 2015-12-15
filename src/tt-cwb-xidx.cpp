@@ -22,7 +22,6 @@ string xmlfile;
 int debug = 0;
 bool verbose;
 int context;
-int rngpos[2];
 
 // Read network style
 int read_network_number ( int position, FILE *stream ) {
@@ -65,16 +64,14 @@ string read_file_range ( int from, int to, string filename ) {
 	value = ""; int last = ftell(stream);
     while ( ftell(stream) < to ) {
     	chr = fgetc(stream);
-		if ( debug > 4 ) { cout << last << " : " << chr << endl; };
+		if ( debug > 6 ) { cout << last << " : " << chr << endl; };
 	 	if ( ftell(stream) < to ) { value = value + chr; };
 	 	if ( last == ftell(stream) ) { return ""; }; // Not advancing, return nothing, prob out of file range
 		last = ftell(stream);
 	 };
-	if ( debug > 3 ) { cout << "String " << value << endl; };
+	if ( debug > 6 ) { cout << "String " << value << endl; };
 
 	fclose(stream);
-
-	if ( debug > 5 ) { cout << "String " << value << endl; };
 	
 	return value;
 };
@@ -132,10 +129,10 @@ int cwb_rng_2_avx(string att, int pos) {
 
 	for ( int i=0; i<max; i=i+2 ) {
 		int pos1 = read_network_number (i, file);
-		if ( debug > 5 ) { cout << "Range 1 at " << i << " = " << pos1 << endl; };
+		if ( debug > 6 ) { cout << "Range 1 at " << i << " = " << pos1 << endl; };
 		if ( pos1 <= pos ) {
 			int pos2 = read_network_number (i+1, file);
-			if ( debug > 5 ) { cout << "Range 2 at " << i << " = " << pos2 << endl; };
+			if ( debug > 6 ) { cout << "Range 2 at " << i << " = " << pos2 << endl; };
 			if ( pos2 >= pos ) {
 				if ( debug > 3 ) { cout << "Found a matching range " << pos1 << " - " << pos2 << " = " << i/2 << endl; };
 				// If this is the text - store start and end for context expansion
@@ -191,32 +188,39 @@ string cwb_avx_2_val(string att, int rangeidx) {
 	return value;
 };
 
-void cwb_expand_rng( int posa, int posb, string att ) {
+void cwb_expand_rng( int posa, int posb, int *rpos1, int *rpos2, string att ) {
 	string filename; FILE * file; int avx; int res = -1;
-	int max = 1000000; // This should be the number of positions in the file
+	int max; // This should be the number of positions in the file
 	int pos1; int pos2; 
 
 	filename = cqpfolder + "/" + att + ".rng";
 	file = fopen ( filename.c_str() , "rb" );
+	
 	if ( debug > 3 ) { cout << "Getting enclosing range from " << filename << endl; };
-
+	
+	// Determine filesize so that we do not seek beyond it
+	fseek(file, 0L, SEEK_END);
+	max = ftell(file)/4; // we read 4 bytes
+	
 	for ( int i=0; i<max; i=i+2 ) {
 		pos1 = read_network_number (i, file);
-		if ( debug > 5 ) { cout << "Range 1 at " << i << " = " << pos1 << endl; };
-		if ( pos1 < posa ) {
+		if ( debug > 6 ) { cout << "Range 1 at " << i << " = " << pos1 << endl; };
+		if ( pos1 <= posa ) {
 			pos2 = read_network_number (i+1, file);
-			if ( pos2 > posa ) {
-				if ( debug > 5 ) { cout << "Found a matching start range " << pos1 << " - " << pos2 << " = " << i/2 << endl; };
-				int rpos = i/2;
+			if ( pos2 >= posa ) {
+				if ( debug > 4 ) { cout << "Found a matching start range " << pos1 << " - " << pos2 << " = " << i/2 << endl; };
+				//int rpos = i/2;
+				int rpos = i;
 				// Now look in att_xidx.rng to find the XML positions
 				filename = cqpfolder + "/" + att + "_xidx.rng";
-				file = fopen ( filename.c_str() , "rb" );
-				rngpos[0] = read_network_number(rpos,file);
-				rngpos[1] = read_network_number(rpos+1,file);
-				if ( debug > 5 ) { cout << "XML range index for " << pos1 << " in " << filename << " = " << rngpos[0] << "-" << rngpos[1] << endl; };
-				fclose (file);
-				i=max+1;
-			};
+				FILE *file2 = fopen ( filename.c_str() , "rb" );
+				*rpos1 = read_network_number(rpos,file2);
+				*rpos2 = read_network_number(rpos+1,file2);
+				if ( debug > 4 ) { cout << "XML range index " << i << " for " << posa << " in " << filename << " = " << pos1 << " - " << pos2  << " = " << rpos  << " = " << *rpos1 << " - " << *rpos2 << endl; };
+				fclose (file2);
+				i=max+1; // "last"
+			} else if ( debug > 6 ) { cout << "Range too short - end = " << pos2 << endl; };
+
 		};
 	};
 	
@@ -225,12 +229,14 @@ void cwb_expand_rng( int posa, int posb, string att ) {
 		for ( int i=0; i<max; i=i+2 ) {
 			pos1 = read_network_number (i, file);
 			if ( debug > 4 ) { cout << "Range 2 at " << i << " = " << pos1 << endl; };
-			if ( pos1 < posb ) {
+			if ( pos1 <= posb ) {
 				pos2 = read_network_number (i+1, file);
-				if ( pos2 > posb ) {
-					if ( debug > 3 ) { cout << "Found a matching end range " << pos1 << " - " << pos2 << " = " << i/2 << endl; };
-					rngpos[1] = pos2;
-					i=max+1;
+				if ( pos2 >= posb ) {
+					if ( debug > 4 ) { cout << "Found a matching end range " << pos1 << " - " << pos2 << " = " << i/2 << endl; };
+					int rpos = i/2;
+					*rpos2 = read_network_number(rpos+1,file);
+					if ( debug > 4 ) { cout << "XML end range index for " << posb << " in " << filename << " = ... - " << pos2  << " = ... - " << *rpos2 << endl; };
+					i=max+1; // "last"
 				};
 			};
 		};
@@ -242,78 +248,64 @@ void cwb_expand_rng( int posa, int posb, string att ) {
 string cwb_rng_2_xml(int pos1, int pos2) {
 	
 	string filename; FILE * file; int rpos;
-	rngpos[0] = 0;
 
 	// Establish which XML file the pos range belongs to
- 		// xmlfile = cwb_rng_2_val("text_id", pos1); 
-		filename = cqpfolder + "/text_id.idx";
-		file = fopen ( filename.c_str() , "rb" );
- 		int textid1 = read_network_number(pos1, file);
- 		int textid2 = read_network_number(pos2, file);
- 		fclose(file);
+	// xmlfile = cwb_rng_2_val("text_id", pos1); // The old way - too slow
+	filename = cqpfolder + "/text_id.idx";
+	file = fopen ( filename.c_str() , "rb" );
+	int textid1 = read_network_number(pos1, file);
+	int textid2 = read_network_number(pos2, file);
+	fclose(file);
+
+	// Check that the positions belong to the same file
+	// TODO: it merely returns, whereas it should throw an exception
  	if ( textid1 != textid2 ) { 
 		if ( verbose ) { cout << "Corpus positions " << pos1 << " and " << pos2 << " do not belong to the same XML file" << endl;  };
 		return "";
  	};	
- 		// get the name of the file
- 		xmlfile = cwb_avx_2_val("text_id", textid1);
- 		// get the range
-		filename = cqpfolder + "/text_id.rng";
-		file = fopen ( filename.c_str() , "rb" );
- 		int textrng0 = read_network_number(textid1*2, file);
- 		int textrng1 = read_network_number(textid2*2+1, file);
- 		fclose(file);
+
+	// get the name of the file
+	xmlfile = cwb_avx_2_val("text_id", textid1);
+	// get the range
+	filename = cqpfolder + "/text_id.rng";
+	file = fopen ( filename.c_str() , "rb" );
+	int textrng0 = read_network_number(textid1*2, file);
+	int textrng1 = read_network_number(textid2*2+1, file);
+	fclose(file);
+
+	int rpos1, rpos2; rpos2 = 0;
 	
 	if ( clarg.find("expand")  != clarg.end() ) {
 		// Asked to expand to level X - try it
 		if ( debug > 3 ) { cout << "Expanding " << pos1 << " - " << pos2 << " to " << clarg["expand"] << endl; };
-		cwb_expand_rng(pos1, pos2, clarg["expand"]);
+		cwb_expand_rng(pos1, pos2, &rpos1, &rpos2, clarg["expand"]);
+		if ( debug > 4 ) { cout << "Expanded positions: " << rpos1 << " - " << rpos2 << endl; };
 	} else if ( context > 0 ) {
+		// Expand by context, limited to the first and last position in the text range
 		pos1 = max(pos1-context, textrng0);
 		pos2 = min(pos2+context, textrng1);
 		if ( debug > 3 ) { cout << "Expanding context with " << context << " to " << pos1 << " - " << pos2 << endl; };
 	};
 		
-	int rpos1, rpos2;
-	// Get simple corpus positions - lookup the corresponding XML positions
-	if ( debug > 4 ) { cout << "Getting XML for " << pos1 << " - " << pos2 << endl; };
-	filename = cqpfolder + "/xidx.rng";
-	file = fopen ( filename.c_str() , "rb" );
-	rpos1 = read_network_number(pos1*2,file);
-	rpos2 = read_network_number(pos2*2+1,file);
-	fclose(file);
-	if ( debug > 0 ) { cout << "XML Range positions for " << pos1 << "-" << pos2 << " in " << filename << " = " << rpos1 << "-" << rpos2 << endl; };
-		
+	if ( rpos2 == 0 ) {
+		// Get simple corpus positions - lookup the corresponding XML positions
+		if ( debug > 4 ) { cout << "Getting XML for " << pos1 << " - " << pos2 << endl; };
+		filename = cqpfolder + "/xidx.rng";
+		file = fopen ( filename.c_str() , "rb" );
+		rpos1 = read_network_number(pos1*2,file);
+		rpos2 = read_network_number(pos2*2+1,file);
+		fclose(file);
+		if ( debug > 0 ) { cout << "XML Range positions for " << pos1 << "-" << pos2 << " in " << filename << " = " << rpos1 << "-" << rpos2 << endl; };
+	};		
 	
 	if ( verbose ) { cout << "XML filename: " << xmlfile << endl; };
 	string value = read_file_range(rpos1, rpos2, xmlfile);
 	
+	if ( debug > 2 ) {
+		cout << "--------------------------" << endl; 
+	};
+	
 	return value;
-};
-
-void cwb_rng_2_pos(string att, int pos) {
-	
-	string filename; FILE * file;
-	
-	filename = cqpfolder + "/" + att + ".avx";
-	file = fopen ( filename.c_str() , "rb" );
-	if ( debug > 3 ) { cout << "Reading range for " << filename << endl; };
-	int rng = read_network_number(pos*2,file);
-	if ( debug > 3 ) { cout << "Range index for " << pos << " in " << filename << " = " << rng  << endl; };
-	fclose (file);
-
-	filename = cqpfolder + "/" + att + ".rng";
-	file = fopen ( filename.c_str() , "rb" );
-	int rpos;
-	rpos = read_network_number(rng*2,file);
-	if ( debug > 3 ) { cout << "Range position 1 for " << rpos << " in " << filename << " = " << rpos << " < " << rng*2 << endl; };
-	rngpos[0] = rpos;
-	rpos = read_network_number(rng*2+1,file);
-	if ( debug > 3 ) { cout << "Range position  2 for " << rpos << " in " << filename << " = " << rpos << " < " << rng*2+1 << endl; };
-	rngpos[1] = rpos;
-	if ( debug > 3 ) { cout << "Range positions for " << rng << " in " << filename << " = " << rngpos[0] << "-" << rngpos[1] << endl; };
-	fclose (file);
-	
 };
 
 int main (int argc, char *argv[]) {

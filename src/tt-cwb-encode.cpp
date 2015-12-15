@@ -1,7 +1,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
-#include <boost/filesystem.hpp>
+// #include <boost/filesystem.hpp>
 #include "pugixml.hpp"
 #include <iostream>
 #include <sstream>  
@@ -348,6 +348,18 @@ void treatfile ( string filename ) {
 				if ( debug > 2 ) { cout << " Found a range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
 
 				write_range(posa, posb, tagname );
+
+				// Write the XXX_xidx.rng
+				int xmlpos1 = it->node().offset_debug()-1;
+				// std::ostringstream oss;
+				// it->node().print(oss); // This is the interpreted XML, which is too long... get beginning of next node instead
+				// std::string xmltxt = oss.str();	
+				// int xmlpos2 = xmlpos1 + xmltxt.length(); 
+				int xmlpos2 = it->node().select_single_node("./following::*").node().offset_debug()-1;
+				if ( debug > 4 ) { cout << "Writing XIDX for " << tagname << " = " << xmlpos1 << " - " << xmlpos2 << endl; };
+				write_network_number(xmlpos1, files[tagname + "_xidx"]["rng"]);
+				write_network_number(xmlpos2, files[tagname + "_xidx"]["rng"]);
+
 				for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 					formkey = formfld.attribute("key").value(); 
 					if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
@@ -369,15 +381,6 @@ void treatfile ( string filename ) {
 					// write the actual data
 					write_range_value (posa, posb, tagname, formkey, formval);
 
-					// Write the XXX.xidx.rng
-					int xmlpos1 = it->node().offset_debug()-1;
-// 					std::ostringstream oss;
-// 					it->node().print(oss); // This is the interpreted XML, which is too long... get beginning of next node instead
-// 					std::string xmltxt = oss.str();	
-// 					int xmlpos2 = xmlpos1 + xmltxt.length(); 
-					int xmlpos2 = it->node().select_single_node("./following::*").node().offset_debug()-1;
-					write_network_number(xmlpos1, files[tagname + "_xidx"]["rng"]);
-					write_network_number(xmlpos2, files[tagname + "_xidx"]["rng"]);
 				};
 			};	
 
@@ -549,11 +552,14 @@ int main(int argc, char *argv[])
 		else { corpusfolder = "cqp/"; };
 
 	// Check whether the corpusfolder exists, or create it, or fail
-    boost::filesystem::path dir(corpusfolder.c_str());
-    if(boost::filesystem::create_directory(dir))
-    {
-        if ( verbose ) { cout << "Directory Created: "<< corpusfolder << endl; };
-    }	
+//     boost::filesystem::path dir(corpusfolder.c_str());
+//     if( boost::filesystem::create_directory(dir) )
+//     {
+//         if ( verbose ) { cout << "Directory Created: "<< corpusfolder << endl; };
+//     }	
+	if ( mkdir(corpusfolder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) ) {
+		if ( verbose ) { cout << "Directory Created: "<< corpusfolder << endl; };
+	};
 
 	if ( xmlsettings.select_nodes("//neotag/pattributes/item[@key=\"word\"]").empty() ) { 
 		pugi::xml_node watt = xmlsettings.first_child().child("cqp").child("pattributes").append_child("item");
