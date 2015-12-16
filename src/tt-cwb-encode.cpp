@@ -167,7 +167,11 @@ void treatnode ( pugi::xpath_node node ) {
 			};
 		} else {
 			if ( formkey == "word" ) { // we NEED a word in CQP
-				formval = calcform(node.node(), "form");
+				if ( !strcmp(node.node().name(), "dtok") ) {
+					formval = calcform(node.node(), "fform");
+				} else {
+					formval = calcform(node.node(), "form");
+				};
 			} else {
 				formval = calcform(node.node(), formkey);
 			};
@@ -246,10 +250,22 @@ void treatfile ( string filename ) {
 	for (pugi::xpath_node_set::const_iterator it = toks.begin(); it != toks.end(); ++it)
 	{
 		pugi::xpath_node node = *it;
-		id_pos[it->node().attribute("id").value()] = tokcnt;
+		
+		if ( node.node().child("dtok") && tagsettings.attribute("nodtoks") == NULL ) {
+			// Go through the dtoks
+			id_pos[it->node().attribute("id").value()] = tokcnt; // Use the first <dtok> as ref for the whole <tok> for stand-off purposes
+	        for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
+				id_pos[dtoken.attribute("id").value()] = tokcnt;
+		
+				treatnode(dtoken);
 
-		treatnode(node);
-				
+	    	};
+		} else {
+			id_pos[it->node().attribute("id").value()] = tokcnt;
+		
+			treatnode(node);
+		};
+			
 	}
 	int pos2 = tokcnt-1;
 

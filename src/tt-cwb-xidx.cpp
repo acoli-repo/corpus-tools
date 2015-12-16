@@ -271,7 +271,8 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 	filename = cqpfolder + "/text_id.rng";
 	file = fopen ( filename.c_str() , "rb" );
 	int textrng0 = read_network_number(textid1*2, file);
-	int textrng1 = read_network_number(textid2*2+1, file);
+	int textrng1 = read_network_number(textid1*2+1, file);
+	if ( debug > 4 ) { cout << "Text range: " << textrng0 << " - " << textrng1 << endl; };
 	fclose(file);
 
 	int rpos1, rpos2; rpos2 = 0;

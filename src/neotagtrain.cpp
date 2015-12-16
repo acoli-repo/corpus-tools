@@ -121,10 +121,14 @@ void treatnode ( pugi::xpath_node node ) {
 		return;
 	};
 
-	if ( tagtag == "" && tagsettings.attribute("inclnotag") == NULL && node.node().child("dtok").attribute(tagpos.c_str()) == NULL ) { 
+	string tagtest = tagtag; tagtest.erase(std::remove(tagtest.begin(), tagtest.end(), '.'), tagtest.end());
+	if ( tagtest == "" && tagsettings.attribute("inclnotag") == NULL ) { 
 		if ( debug > 1 ) { cout << "Skipping - not tagged, no: " <<  tagpos << endl; };
 		return;
+	} else { 
+		if ( debug > 3 ) { cout << "Tag: " <<  tagtag << endl; };
 	};
+	
 	
 	// We have a valid token - handle it
 	tokcnt++;
