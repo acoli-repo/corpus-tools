@@ -476,8 +476,8 @@
 				
 				
 				if ( $audiofile ) {
-					if ( preg_match("/start=\"([^\"]*)\"/", $resxml, $matches ) ) $strt = $matches[1];
-					if ( preg_match("/stop=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1];
+					if ( preg_match("/start=\"([^\"]*)\"/", $resxml, $matches ) ) $strt = $matches[1]; else $strt = 0;
+					if ( preg_match("/end=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1]; else $stp = 0;
 					$audiobut = "<td><img src=\"http://alfclul.clul.ul.pt/teitok/common/Images/playbutton.gif\" width=\"14\" height=\"14\" style=\"margin-right: 5px;\" onClick=\"playpart('$audiofile', $strt, $stp, this );\"></img></td>"; 
 				};
 				

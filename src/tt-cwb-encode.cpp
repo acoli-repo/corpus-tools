@@ -1,7 +1,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
-// #include <boost/filesystem.hpp>
 #include "pugixml.hpp"
 #include <iostream>
 #include <sstream>  
@@ -98,7 +97,10 @@ void write_network_number ( int towrite, FILE *stream ) {
 
 // Write a range to .rng
 void write_range ( int pos1, int pos2, string tagname ) {
-	if ( pos2 < pos1 ) { return; }; // We can never have negative ranges
+	if ( pos2 < pos1 ) { 
+		if ( debug >0 ) { cout << "negative range - not writing" << endl; };
+		return; 
+	}; // We can never have negative ranges
 		
 	write_network_number(pos1, files[tagname]["rng"]);
 	write_network_number(pos2, files[tagname]["rng"]);
@@ -257,15 +259,14 @@ void treatfile ( string filename ) {
 	
 	// Add the default attributes for <text>
 	if ( debug > 0 ) {
-		cout << "<text> " << filename << " ranging from " << pos1 << " to " << pos2 << endl; 
+		cout << "<text> " << idname << " ranging from " << pos1 << " to " << pos2 << endl; 
 	};
 
 	write_range (pos1, pos2, "text" );
+		if ( debug > 4 ) { cout << "  - written to text" << endl; };
 	write_range_value (pos1, pos2, "text", "id", idname);
+		if ( debug > 4 ) { cout << "  - written to text_id" << endl; };
 
-	if ( debug > 4 ) {
-		cout << "written to text and text_id" << endl; 
-	};
 
 
 	// add the sattributes for all levels
@@ -532,14 +533,14 @@ int main(int argc, char *argv[])
 		return -1;
 	};
 
-	// Place all neotag parameter settings from the settings.xml into the tagsettings
+	// Place all cqp parameter settings from the settings.xml into the tagsettings
 	for (pugi::xml_attribute_iterator it = parameters.attributes_begin(); it != parameters.attributes_end(); ++it)
 	{
 		if ( tagsettings.attribute((*it).name()) == NULL ) { 
 			tagsettings.append_attribute((*it).name()) =  (*it).value();
 		};
 	};
-	// Also take settings from the //neotag root ([item]/../..)
+	// Also take settings from the //cqp root ([item]/../..)
 	for (pugi::xml_attribute_iterator it = parameters.parent().parent().attributes_begin(); it != parameters.parent().parent().attributes_end(); ++it)
 	{
 		if ( tagsettings.attribute((*it).name()) == NULL ) { 
@@ -552,20 +553,16 @@ int main(int argc, char *argv[])
 		else { corpusfolder = "cqp/"; };
 
 	// Check whether the corpusfolder exists, or create it, or fail
-//     boost::filesystem::path dir(corpusfolder.c_str());
-//     if( boost::filesystem::create_directory(dir) )
-//     {
-//         if ( verbose ) { cout << "Directory Created: "<< corpusfolder << endl; };
-//     }	
+	// TODO: Using Boost seems redundant, since TEITOK is not very Windows in any case
 	if ( mkdir(corpusfolder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) ) {
 		if ( verbose ) { cout << "Directory Created: "<< corpusfolder << endl; };
 	};
 
-	if ( xmlsettings.select_nodes("//neotag/pattributes/item[@key=\"word\"]").empty() ) { 
+	if ( xmlsettings.select_nodes("//cqp/pattributes/item[@key=\"word\"]").empty() ) { 
 		pugi::xml_node watt = xmlsettings.first_child().child("cqp").child("pattributes").append_child("item");
 		watt.append_attribute("key") = "word";
 	};
-	if ( xmlsettings.select_nodes("//neotag/pattributes/item[@key=\"id\"]").empty() ) { 
+	if ( xmlsettings.select_nodes("//cqp/pattributes/item[@key=\"id\"]").empty() ) { 
 		pugi::xml_node watt = xmlsettings.first_child().child("cqp").child("pattributes").append_child("item");
 		watt.append_attribute("key") = "id";
 	};
@@ -623,7 +620,12 @@ int main(int argc, char *argv[])
 		filename = corpusfolder+formkey+".corpus";
 		files[formkey]["corpus"] = fopen(filename.c_str(), "wb"); 
 	};		
-
+	
+	// Throw an exception if we did not manage to create corpus.lexicon
+	if ( files["word"]["corpus"] == NULL ) {
+		cout << "Fatal error: failed to created files, check cqp folder exists and is writable" << endl;
+		return -1;
+	};
 	
 	// go through the sattributes on all levels
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {

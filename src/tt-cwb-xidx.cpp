@@ -25,7 +25,7 @@ int context;
 
 // Read network style
 int read_network_number ( int position, FILE *stream ) {
-	int *buf;
+	//int *buf;
 	int N, i, bufpos;
 	bufpos = position*sizeof(int);
 	fseek ( stream , bufpos , SEEK_SET );
@@ -40,10 +40,11 @@ int read_network_number ( int position, FILE *stream ) {
 
 // Read file range
 string read_file_range ( int from, int to, string filename ) {
-	int buf[BUFSIZE];
+	// int buf[BUFSIZE];
 	char chr = 'x';
 
-	char * result; string value;
+	// char * result; 
+	string value;
 	int i, bufpos;
 	
 	FILE* stream = fopen ( filename.c_str() , "rb" );
