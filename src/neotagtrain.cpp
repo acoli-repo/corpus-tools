@@ -106,7 +106,13 @@ void treatnode ( pugi::xpath_node node ) {
 	} else {
 		tagform = node.node().attribute(getfld.c_str()).value();
 	};
+	
 	tagtag = node.node().attribute(tagpos.c_str()).value();
+        for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
+			string tmp2 =  ".";
+			string tmp3 =  dtoken.attribute(tagpos.c_str()).value(); 
+			tagtag = tagtag + tmp2 + tmp3;
+		};
 
 	if ( debug > 1 ) node.node().print(std::cout);
 
@@ -115,7 +121,7 @@ void treatnode ( pugi::xpath_node node ) {
 		return;
 	};
 
-	if ( tagtag == "" && tagsettings.attribute("inclnotag") == NULL && node.node().child("dtok") == NULL ) { 
+	if ( tagtag == "" && tagsettings.attribute("inclnotag") == NULL && node.node().child("dtok").attribute(tagpos.c_str()) == NULL ) { 
 		if ( debug > 1 ) { cout << "Skipping - not tagged, no: " <<  tagpos << endl; };
 		return;
 	};
@@ -177,7 +183,7 @@ void treatnode ( pugi::xpath_node node ) {
 	if (debug > 1) lexitem.print(std::cout);
 
 	// push back tagtag onto tagHist
-	if ( tok.child("dtok") != NULL ) {
+	if ( !node.node().child("dtok").empty() ) {
         for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
 			addhist(dtoken.attribute(tagpos.c_str()).value());
 		};
