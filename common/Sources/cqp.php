@@ -443,7 +443,7 @@
 			$showsubstyle = $_POST['substyle'] or $showsubstyle = $settings['cqp']['defaults']['subtype'];
 			
 				if ( $showstyle == "context" && $showsubstyle != "tok"  ) {
-					$expand = "--expand={$_POST['substyle']}";					
+					$expand = "--expand=$showsubstyle";					
 				} else if ( $showstyle == "context" ) {
 					$context = $_POST['tokcnt'] or $context = $_GET['tokcnt'] or $context = $settings['cqp']['defaults']['context'] or $context = '30';
 					$expand = "--context=$context";
