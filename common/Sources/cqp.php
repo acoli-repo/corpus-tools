@@ -439,9 +439,12 @@
 			$maxmatchlength = 0;
 			$minmatchlength = 1000;
 			
-				if ( $_POST['style'] == "context" && $_POST['substyle'] != "tok"  ) {
+			$showstyle = $_POST['style'] or $showstyle = $settings['cqp']['defaults']['style'];
+			$showsubstyle = $_POST['substyle'] or $context = $settings['cqp']['defaults']['substyle'];
+			
+				if ( $showstyle == "context" && $showsubstyle != "tok"  ) {
 					$expand = "--expand={$_POST['substyle']}";					
-				} else if ( $_POST['style'] == "context" ) {
+				} else if ( $showstyle == "context" ) {
 					$context = $_POST['tokcnt'] or $context = $_GET['tokcnt'] or $context = $settings['cqp']['defaults']['context'] or $context = '30';
 					$expand = "--context=$context";
 				} else {
@@ -488,7 +491,7 @@
 				$resxml = preg_replace ( "/<$/", "", $resxml);
 				
 				$resstyle = "";
-				if ( $_POST["style"] == "context" || ( !$_POST["style"] && $settings['cqp']['defaults']['style'] == "context" ) ) {
+				if ( $showstyle == "context" ) {
 					// Show as context
 					$moreactions .= "\nhllist('$match', 'r-$i', '#ffff55'); ";
 					if ($i/2 == floor($i/2)) $resstyle = "style='background-color: #f5f5f2;'"; 
