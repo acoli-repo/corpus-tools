@@ -37,7 +37,7 @@
 		$_GET = strip_array($_GET);
 	}
 
-	if ( file_exists('Resources/settings.php') ) include('Resources/settings.php');
+	// if ( file_exists('Resources/settings.php') ) include('Resources/settings.php');
 	include('../common/Sources/settings.php');
 	
 	# Determine the folder to set a folder-specific user cookie
