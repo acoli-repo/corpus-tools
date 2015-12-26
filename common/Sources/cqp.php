@@ -439,8 +439,8 @@
 			$maxmatchlength = 0;
 			$minmatchlength = 1000;
 			
-			$showstyle = $_POST['style'] or $showstyle = $settings['cqp']['defaults']['style'];
-			$showsubstyle = $_POST['substyle'] or $context = $settings['cqp']['defaults']['substyle'];
+			$showstyle = $_POST['style'] or $showstyle = $settings['cqp']['defaults']['searchtype'];
+			$showsubstyle = $_POST['substyle'] or $context = $settings['cqp']['defaults']['subtype'];
 			
 				if ( $showstyle == "context" && $showsubstyle != "tok"  ) {
 					$expand = "--expand={$_POST['substyle']}";					
