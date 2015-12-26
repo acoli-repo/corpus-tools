@@ -807,8 +807,8 @@
 		
 		
 		// Preselect styles
-		if ( $settings['cqp']['defaults']['searchstyle'] ) { 
-			$moreactions .= "switchtype('style', '{$settings['cqp']['defaults']['searchstyle']}');"; 
+		if ( $settings['cqp']['defaults']['searchtype'] == "context" ) { 
+			$moreactions .= "switchtype('style', '{$settings['cqp']['defaults']['searchtype']}');"; 
 			$chcont = "checked";
 		} else { 
 			$moreactions .= "switchtype('style', 'kwic');"; 
@@ -821,7 +821,8 @@
 				";			
 		
 		foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
-			if ( $key != "text" && $val['display'] ) $morecontext .= "<input type=radio name=substyle value='{$val['key']}'> {$val['display']}";
+			if ( $settings['cqp']['defaults']['subtype'] == $key ) $sel = "checked"; else $sel = "";
+			if ( $key != "text" && $val['display'] ) $morecontext .= "<input type=radio name=substyle value='{$val['key']}' $sel> {$val['display']}";
 		};		
 		
 		
