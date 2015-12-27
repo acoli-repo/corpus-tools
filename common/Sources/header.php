@@ -5,7 +5,7 @@
 	$fileid = $_POST['id'] or $fileid = $_GET['id'] or $fileid = $_GET['cid'];
 	$xml = getxmlfile($fileid);
 	if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
-
+	$verbose = 1;
 
 	$result = $xml->xpath("//title"); 
 	$title = $result[0];
@@ -21,10 +21,10 @@
 
 		$dom = dom_import_simplexml($xml)->ownerDocument;		
 		
-		print "<p>Saving TEIHEADER<hr>";
+		print "\n<p>Saving TEIHEADER<hr>";
 		foreach ( $_POST['values'] as $key => $value ) {
 			$xquery = $_POST['queries'][$key];
-			print "<p>$xquery => $value ";
+			print "\n<p>$xquery => $value ";
 			
 			# If there is a new value to save, make sure the node exists (or create it)
 			if ( $value ) { $dom = createnode($dom, $xquery); };
@@ -41,7 +41,7 @@
 						$toinsert = $matches[1].$value.$matches[3]; 
 					} else if ( preg_match("/^<(([a-z]+)[^>]*?)\/>$/si", $tmp, $matches ) ) { 
 						$toinsert = '<'.$matches[1].'>'.$value.'</'.$matches[2].'>'; 
-						print "About to insert: ".htmlentities($toinsert);
+						print "\nAbout to insert: ".htmlentities($toinsert);
 					} else { print "\n<p>Cannot insert node, does not have start and end tag: {".htmlentities($tmp).'}'; exit; };
 					$sxe = simplexml_load_string($toinsert, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 					if ( !$sxe && $value ) {
@@ -63,7 +63,7 @@
 		# print htmlentities($dom->saveXML()); exit;
 		saveMyXML($dom->saveXML(), $fileid);
 
-		print "<hr><p>The header has been modified - reloading";
+		print "\n<hr><p>The header has been modified - reloading";
 		header("location:index.php?action=file&id=$fileid");
 		print "<script language=Javascript>top.location='index.php?action=file&id=$fileid';</script>";
 		exit;
@@ -78,10 +78,6 @@
 			$from = preg_quote($match, '/'); 
 
 			$xquery = $matches[1][$key];
-			# We need to remove SUBSTRING here
-// 			if ( preg_match ( "/substring\((.*?), (\d+)\)/", $xquery, $subms ) ) { 
-// 				$xquery = $subms[1]; $tmp  = $subms[2]-1;
-// 			};
 			
 			$result = $xml->xpath($xquery); 
 			$tmp = $result[0];
@@ -91,12 +87,12 @@
 				$to = preg_replace ("/^<[^>]+>/", "", $to); # Get the innerXML
 				$to = preg_replace ("/<\/[^>]+>$/", "", $to); # Get the innerXML
 			} else $to = $tmp."";
-			
-// 			if ( $to ) 
-// 			if ( strstr("<",$to->asXML()) ) fatal("Header edit cannot be applied to elements with XML tags inside: $xquery = ".htmlentities($to->asXML()));
-			
+
+			$xquery = str_replace("'", '&#039;', $xquery);
+						
 			$xval = str_replace('"', '&quot;', $to.""); # $to->asXML()
-			
+			$xval = str_replace("'", '&#039;', $xval);
+
 			$rowcnt = min(8,ceil(strlen($xval)/80));
 			$to = "<textarea name=\"values[$key]\" cols='80' rows='$rowcnt'>$xval</textarea>";
 			$to .= "<input type=hidden name='queries[$key]' value='$xquery'>";
@@ -135,6 +131,7 @@
 			};
 			
 			$xval = str_replace('"', '&quot;', $to);
+			$xval = str_replace("'", '&#039;', $xval);
 			
 			$to = "<input name='[$xquery]' size='50' value=\"$xval\">";
 			
@@ -150,39 +147,58 @@
 	};
 
 	function createnode ($xml, $xquery) {
+		# See if XML has a node matching the XPath, if not - create it
+		global $verbose;
+	
 		$xpath = new DOMXpath($xml);
-		# $xquery = preg_replace("/\/\@[^\/]+$/", "", $xquery); # We do not need to make attribute
+
 		$result = $xpath->query($xquery); 
 		if ( $result->length ) {
-			print "<p>Node exists ($xquery) - returning";
+			if ( $verbose ) { print "\n<p>Node exists ($xquery) - returning"; };
 			return $xml;
 		};
+		
 		if ( preg_match("/^(.*)\/(.*?)$/", $xquery, $matches) ) {
+		
+			// create the node type after the last / inside the xpath before that
+			// create the inner node again when needed
 			$before = $matches[1];
 			$new = $matches[2];
-			createnode($xml, $before);
+			if ( $before == "/" ) { print "\n<p>Non-rooted node $xquery does not exist - cannot create"; return -1; };
+			$res = createnode($xml, $before);
+			if ( $res == -1 ) { return -1; };
 
-			$att = $atv = "";
-			if ( preg_match("/^(.*)\[\@([a-z]+)=\"(.*?)\"\]$/", $new, $matches2) ) { 
-				$new = $matches2[1]; $att = $matches2[2]; $atv = $matches2[3]; 
+			$newatt = $newval = "";
+			if ( preg_match("/^(.*)\[([^\]]+)\]$/", $new, $matches2) ) { 
+				$new = $matches2[1]; $newrest = $matches2[2];
+				if ( $verbose ) { print "\n<p>Node restriction: $newrest"; };
+				if ( preg_match("/\@([a-z]+)=['\"](.*?)['\"]/", $newrest, $matches3) ) { 
+					$newatt = $matches3[1]; $newval = $matches3[2]; 
+				};
 			};
 
 			$result = $xpath->query($before); 
 			if ( $result->length == 1 ) {
 				foreach ( $result as $node ) {
 					if ( substr($new, 0, 1) == '@' ) {
+						# This should only happen if we find an attribute in our XPath, which should never happen
+						if ( $verbose ) { print "\n<p>Setting value for node of $att to x"; };
 						$att = substr($new, 1); 
 						$node->setAttribute($att, 'x');
 					} else {
-						print "<p>Creating a node $new inside $before";
+						if ( $verbose ) { print "\n<p>Creating a node $new inside $before"; };
 						$newelm = $xml->createElement($new, '');
-						if ($att) $newelm->setAttribute($att, $atv);
+						if ( $newatt ) {
+							if ( $verbose ) { print "\n<p>Setting value for node of $newatt to $newval"; };
+							$newelm->setAttribute($newatt, $newval);
+						};
+						if ( $verbose ) { print "\n<p>New node: ".htmlentities($newelm->ownerDocument->saveXML($newelm)); };
 						$node->appendChild($newelm);
 					};
 				};
 			};
 		} else {
-			print "<p>Failed to find a node to attach to $xquery - aborting";
+			if ( $verbose ) { print "\n<p>Failed to find a node to attach to $xquery - aborting"; };
 			return -1;
 		};
 		return $xml;

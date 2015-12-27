@@ -84,6 +84,7 @@
 			<script type="text/javascript">
 			tinymce.init({
 				selector: "textarea",
+				convert_urls: false,
 				plugins: [
 					 "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
 					 "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
