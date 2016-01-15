@@ -110,12 +110,36 @@
 	
 			$maintext .= "<hr><p><a href='index.php?action=$action&params=$paramsfile'>Back to parameter definitions</a>";
 	
+	} else if ( ( $act == "tag" || !$act ) && $_GET['cid'] ) {
+	
+		// Update this settings file
+		check_login();
+		
+		$cid = $_GET['cid'];
+		if ( !file_exists($cid) ) { fatal ( "File does not exist: $cid" ); };
+		
+		$exec = $settings['bin']['neotag'] or $exec = "/usr/local/bin/neotagxml";
+		
+		if ( $params['pid'] ) $pid = "--pid='{$params['pid']}'";
+
+		$cmd = "$exec --xmlfile=$cid --verbose $pid";
+
+		$response = shell_exec($cmd);
+		
+		$maintext .= "<h1>File tagged</h1>
+			<p>Tagging command: $cmd 
+			<p>Reponse text: 
+			<pre>$response</pre>
+		
+		" ;
+			$maintext .= "<hr><p><a href='index.php?action=file&cid=$cid'>Back to text</a>";
+	
 	} else if ( $act == "update" ) {
 	
 		// Update this settings file
 		check_login();
 		
-		$exec = $settings['neotag']['exec'] or $exec = "/usr/local/bin/neotagtrain";
+		$exec = $settings['bin']['neotagtrain'] or $exec = "/usr/local/bin/neotagtrain";
 		
 		if ( $params['pid'] ) $pid = "--pid='{$params['pid']}'";
 		$cmd = "$exec --verbose $pid";
@@ -169,6 +193,7 @@
 			$maintext .= "<hr><p><a href='index.php?action=$action&params=$paramsfile'>Back to parameter definitions</a>";
 	
 	} else {
+	
 		$file = file_get_contents($paramsfile);
 		$paramsxml = @simplexml_load_string($file);
 		

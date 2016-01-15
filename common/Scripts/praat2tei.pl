@@ -6,7 +6,7 @@ use Getopt::Long;
             'test' => \$test, # tokenize to string, do not change the database
             'export=s' => \$export, # which tiers to export
             'output=s' => \$output, # name of the output file - if empty STDOUT
-            'filename=s' => \$filename, # language of input
+            'filename=s' => \$filename, # filename of the input
             'exclude=s' => \$exclude, # an optional pattern to define which utterances NOT to export
             'tiernames=s' => \$tiernames, # an optional list of names for the @who for each tier 1=John,3=Tim
             );

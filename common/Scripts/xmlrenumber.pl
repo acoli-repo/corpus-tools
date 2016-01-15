@@ -11,6 +11,10 @@ use XML::LibXML;
             'thisdir=s' => \$thisdir, # determine where we are running from
             );
 
+	if ( $filename eq '' ) { $filename = shift; };
+	if ( $filename eq '' ) { print "No filename indicated"; exit; };
+	if ( !-e $filename  ) { print "$filename does not exist"; exit; };
+
 	$parser = XML::LibXML->new(); $doc = ""; 
 	eval {
 		$tmpdoc = $parser->load_xml(location => $filename, load_ext_dtd => 0 );
