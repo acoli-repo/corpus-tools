@@ -69,6 +69,7 @@
 			};
 			
 			if ( $changed ) {
+				$fileid = preg_replace("/^$xmlfolder\//", "", $fileid); # We need to kill the $xmlfolder before saving
 				$maintext .= "<p> -- saving changes";
 				saveMyXML($xml->asXML(), $fileid);
 			};
