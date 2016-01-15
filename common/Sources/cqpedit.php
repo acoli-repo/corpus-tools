@@ -23,35 +23,35 @@
 		
 		$maintext .= "<h2>Tokens to process</h2>";		
 		foreach ( $_POST['selected'] as $fileid => $toklist ) {
-			$fid = $fileid;
-			$fileid .= ".xml";
 			# Open the file
-			if ( !file_exists("$xmlfolder/$fileid") ) { 
+			$fid = $fileid;
+			if ( !file_exists("$fileid") ) { 
+				$fileid .= ".xml";
 	
 				$fileid = preg_replace("/^.*\//", "", $fileid);
 				$test = array_merge(glob("$xmlfolder/**/$fileid")); 
 				if ( !$test ) 
 					$test = array_merge(glob("$xmlfolder/$fileid"), glob("$xmlfolder/*/$fileid"), glob("$xmlfolder/*/*/$fileid")); 
 				$temp = array_pop($test); 
-				$fileid = preg_replace("/^".preg_quote($xmlfolder, '/')."\/?/", "", $temp);
+				$fileid = $xmlfolder.preg_replace("/^".preg_quote($xmlfolder, '/')."\/?/", "", $temp);
 	
 				if ( $fileid == "" ) {
 					$maintext .= "<p>No such XML File found: {$fileid}"; next;
 				};
 			};
 			
-			$file = file_get_contents("$xmlfolder/$fileid"); 
+			$file = file_get_contents("$fileid"); 
 			# Kill the namespace in the XML since SimpleXML does not like it
 			$file = preg_replace("/ xmlns=\"[^\"]+\"/", "", $file);
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-			if ( !$xml ) { $maintext .= "Failing to read/parse $fileid"; next; };
+			if ( !$xml ) { $maintext .= "Failing to read/parse $fileid"; continue; };
 
 			$maintext .= "<h3>Treating $fileid</h3>";
 			$changed = 0;
 		
 			foreach ( $toklist as $tokid => $val2 ) {
 				
-				$result = $xml->xpath("//tok[@id='$tokid'] | //dtok[@id='$tokid']"); 
+				@$result = $xml->xpath("//tok[@id='$tokid'] | //dtok[@id='$tokid']"); 
 				$token = $result[0];
 				if ( !$token ) { $maintext .= " ! token $tokid not found"; next; };
 				
