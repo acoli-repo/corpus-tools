@@ -208,8 +208,8 @@
 			if ($paramsxml) {
 				$maintext .= "<tr><th>last update<td>{$paramsxml[0]['created']}";
 				$maintext .= "<tr><th>training size<td>{$paramsxml[0]['cnt']}";
-				$maintext .= "<tr><th>lexicon size<td>".count($paramsxml->xpath("//lexicon/item"));
-				$maintext .= "<tr><th>tagset size<td>".count($paramsxml->xpath("//tags/item"));
+				$maintext .= "<tr><th>lexicon size<td>".count($paramsxml->{"lexicon"}[0]->{"item"});
+				$maintext .= "<tr><th>tagset size<td>".count($paramsxml->{"tags"}[0]->{"item"});
 				$maintext .= "</table>";
 			} else {
 				$maintext .= "</table>";

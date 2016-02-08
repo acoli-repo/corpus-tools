@@ -183,7 +183,7 @@
 			<p>Your previous version has been restored
 			<script language=Javascript>top.location='index.php?action=edit&cid=$fileid';</script>";
 
-	} else {	
+	} else if ( $xmlid ) {	
 	
 		$maintext .= "<h1>Version History - $xmlid</h1>
 	
@@ -208,6 +208,30 @@
 			};
 		};
 		$maintext .= "</ul>";
+		
+	} else {
+
+		$tmp = preg_split ( "/ +/", shell_exec("ls backups/ | wc") );	
+		list ( $x0, $filecnt, $x1, $x2 )  = $tmp ;	$tmp = join (";", $tmp );
+
+		$tmp = shell_exec("ls -l backups/ | head -n 1"); if ( preg_match("/total:?\s+(.*)/", $tmp, $matches) )  {  $totsize = floor($matches[1]*0.512); };	
+	
+	
+		$maintext .= "<h1>Version History</h1>
+			<p>Although not a full roll-back system, TEITOK allows you to revert to earlier version of an XML file (if changes have been made to it via the interface). 
+				To do this, go to the desired XML file, and select the option \"recover a previous version\" on the bottom of the page.
+			
+			<hr>
+			
+			<table>
+			<tr><td>Number of backups files:	<td align=right>$filecnt
+			<tr><td>Total size:					<td align=right>$totsize <td>kb
+			</table>
+			";
+			
+		
+		
+		
 	};
 	
 ?>

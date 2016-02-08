@@ -258,6 +258,14 @@ bool is_open_class ( string mainpos ) {
 	return false;
 };
 
+// Check whether a character is a punctuation mark 
+bool is_punct ( string str ) {
+	// TODO make this UTF8 [:isPunct]
+	if ( str == "'" || str == "-" ) { return true; };
+
+	return false;
+};
+
 // Create a rule to build the lemma from the wordform
 // This is being training on the training lexicon 
 // and optionally the external full-form lexicon
@@ -657,14 +665,18 @@ int main(int argc, char *argv[])
 		};
 		if ( oc1 == -1 || cc == -1 ) { 
 			continue; 
-		}; // With no open-class dtok, this is a lexicalized contraction
-			
+		}; // With no open-class dtok, this is a lexicalized contraction // with no close-class dtok, this contr wrong
+		
+		string tokform = (*it).node().parent().attribute("key").value();
 		// Now go through the dtoks again and check if they are to be added
         for ( int i=0; i < dtoklist.size(); i++ ) {
         	pugi::xml_node dtoken = dtoklist.at(i);
-			if ( dtoken.attribute("form") == NULL ) { continue; }; // We cannot do anything with dtoks that do not have a form
+			// if ( dtoken.attribute("form") == NULL ) { continue; }; // We cannot do anything with dtoks that do not have a form
 			string dform = calcform(dtoken, tagfld);
-        	// TODO: the @nform of the dtok is not always part of the @nform of the tok - resolution?
+			
+			if ( dform == "" ) { continue; }; // We cannot do anything with dtoks that do not have a tagform
+			
+        	
 			string dtag = dtoken.attribute(tagpos.c_str()).value();
 			// Determine the position and the left/right context - skip when not is_open_class
 			string sibform; string sibpos;
@@ -676,7 +688,44 @@ int main(int argc, char *argv[])
 				position = "right"; 
 				sibpos = dtoklist.at(i-1).attribute(tagpos.c_str()).value();
 				sibform = calcform(dtoklist.at(i-1), tagfld);
-			} else { continue; };
+			} else { 
+				continue; // If a closed-class part is squeezed between open-class ones, skip it (too complicated and maybe impossible)
+			};
+
+
+			// When tagfld is say @nform, we need to do some checks
+			if ( tagfld != "form" && dform.length() < tokform.length() ) {
+				if ( debug > 0 ) { 
+					cout << "Checking ending for " << dform << " against " << tokform  
+						<< " - parts: " << tokform.substr(tokform.length()-dform.length()-1, 1) << " . " 
+						<<  tokform.substr(tokform.length()-dform.length()) << endl; 
+				};
+
+				if ( position == "right" ) {
+					// Check if tok/@nform ends in dtok/@nform
+					if ( tokform.substr(tokform.length()-dform.length()) == dform ) {
+		        		// Check if tok/@nform ends in [::isPunct].dtok/@nform
+		        		string prevchar = tokform.substr(tokform.length()-dform.length()-1, 1);
+						if ( debug > 0 ) { cout << "Check is_punct for " << prevchar << endl; };
+		        		if ( is_punct(prevchar) ) {
+		        			dform = prevchar + dform;
+		        		};
+		        	} else {
+		        		// see if tok/@nform ends in dtok/@form 
+		        		string rawdform = calcform(dtoken, "form");
+						if ( tokform.substr(tokform.length()-rawdform.length()) == rawdform ) {
+			        		// this is tricky...
+							dform = rawdform;
+						} else {
+							// we cannot deal with this string
+							continue;
+						};
+		        	};
+		        } else if ( position == "left" ) {
+		        	// Check if tok/@nform starts with dtok/@nform.[::isPunct]
+		        	// Check if tok/@nform starts with dtok/@nform
+		        };
+			};        	
 			
 			// Store in the XML if we reached a (potentially) productive dtok
 			string dtpf = dform + '.' + dtag + '.' + position;
