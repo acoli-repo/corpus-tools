@@ -48,6 +48,33 @@
 	$title = $result[0];
 	if ( $title == "" ) $title = "<i>{%Without Title}</i>";
 
+	// Allow replacing special symbols by simple ASCII sequences
+	if (  $settings['input']['replace'] ) {
+		$chareqjs .= "<p>{%Special characters}: "; $sep = "";
+		foreach ( $settings['input']['replace'] as $key => $item ) {
+			$val = $item['value'];
+			$chareqjs .= "$sep $key = $val"; 
+			$charlist .= "ces['$key'] = '$val';";
+			$sep = ",";
+		};
+		$chareqtxt = $chareqjs; 
+		$chareqjs .= "
+			<script language=\"Javascript\">
+			var ces = {};
+			$charlist
+			function chareq (fld) {
+				// console.log(fld.value);
+				for(i in ces) {
+					console.log(i + ' = ' + ces[i]);
+					fld.value = fld.value.replace(i, ces[i]);
+					console.log(fld.value);
+				}
+			};
+			</script>
+		";
+		$chareqfn = "onkeyup=\"chareq(this);\"";
+	};			
+
 		$maintext .= "<h1>Edit Token</h1>
 		
 				<table>
@@ -57,6 +84,7 @@
 				<hr>
 		
 			<h2>Token value ($tokid): ".$rawtok."</h2>
+			$chareqjs
 			<script language=Javascript>
 				function addvalue ( ak, sel ) {	
 					document.getElementById('f'+ak).value += '+'+ sel.value;
@@ -119,15 +147,16 @@
 					$xmlword = str_replace("'", "&#039;", $xmlword);
 		$maintext .= "<tr><td>XML<td>Raw XML value<td><input size=60 name=word id='word' value='$xmlword'>";
 
-		// Show all the defined forms
+		// Show all the defined forms and make them editable
 		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
 			$atv = $token[$key]; 
 			$val = $item['display'];
-			if ( $key != "pform" && !$item['noedit'] ) {
-				$atv = str_replace("'", "&#039;", $atv);
-				$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
+			if ( $key != "pform" && !$item['noedit'] ) { // the raw XML is not an attribute, and some attribute are set to be non-editable
+				$atv = str_replace("'", "&#039;", $atv); // protect the HTML field
+				$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv' $chareqfn>";
 			};
 		};
+		
 		$maintext .= "<tr><td colspan=10><hr>";
 		// Show all the defined tags
 		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {

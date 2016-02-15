@@ -381,7 +381,7 @@ class wordtoken {
 					pugi::xml_node dtoken = token.append_child("dtok");
 					dtoken.append_attribute(tagpos.c_str()) =  it->tag.c_str();
 					if ( it->lexitem.attribute("lemma") != NULL ) { dtoken.append_attribute("lemma") =  it->lexitem.attribute("lemma").value(); };
-					cout << "dtoken added: " << endl;
+					if ( debug > 1 ) { cout << "dtoken added: " << endl; };
 				};
 			};
 		};

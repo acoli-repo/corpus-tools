@@ -71,7 +71,7 @@
 			var ces = {};
 			$charlist
 			function chareq (fld) {
-				console.log(fld.value);
+				// console.log(fld.value);
 				for(i in ces) {
 					console.log(i + ' = ' + ces[i]);
 					fld.value = fld.value.replace(i, ces[i]);
@@ -208,7 +208,7 @@
 				list ( $cvl, $cnt ) = explode ( "\t", $line );
 			
 				if ( $key == "project" ) $cvlt = $settings['projects'][$cvl]['name'];
-				else if ( $val['type'] == "kselect" ) $cvlt = "{%$key-$cvl}"; 
+				else if ( $val['type'] == "kselect" || $val['translate'] ) $cvlt = "{%$key-$cvl}"; 
 				else $cvlt = $cvl;
 				if ( $cvl ) $maintext .= "<tr><th>$cvlt<td style='text-align: right; padding-left: 10px;'>".number_format($cnt);
 			};
@@ -273,6 +273,12 @@
 			list ( $keytype, $keyname ) = explode ( "_", $xkey );
 			$attitem = $settings['cqp']['sattributes'][$keytype][$keyname]; 
 				$attname = $attitem['display']; $atttype = $attitem['type'];
+
+			# Account for multiple select
+			if ( is_array($val) ) {
+				$val = "#(".join("|", $val)."#)";
+			};
+
 			if ( $type == "start" ) {
 				$cql .= " $sep int(match.$xkey) >= $val"; $sep = "&";
 				if (!$_POST['atts']["$key:end"]) $subtit .= "<p>$attname > $val";
@@ -287,6 +293,11 @@
 				$subtit .= "<p>$attname {%contains} <i>$val</i>";
 			} else {
 				$val = quotemeta($val);
+				$val = str_replace("#\\", "", $val);
+				if ( $attitem['values'] == "multi" ) {
+					$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+					$val = "(|$mvsep)$val(|$mvsep)";
+				};
 				$cql .= " $sep match.$xkey = \"$val\""; $sep = "&";
 				$subtit .= "<p>$attname = <i>$val</i>";
 			};
@@ -755,20 +766,22 @@
 			$coldef = $settings['cqp']['pattributes'][$col];
 			if ( $coldef['admin'] == "1" ) {
 				$tstyle = " class=adminpart";
+				if ( !$username ) { continue; };
 			};
 			if ( substr($coldef['type'], -6) == "select" ) {
 				$tmp = file_get_contents("cqp/$col.lexicon"); unset($optarr); $optarr = array();
 				foreach ( explode ( "\0", $tmp ) as $kval ) { 
 					if ( $kval ) {
 						if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
-						if ( $coldef['type'] == "kselect" ) $kvaltxt = "{%$col-$kval}"; else $kvaltxt = $kval;
+						if ( $coldef['type'] == "kselect" || $coldef['translate'] ) $kvaltxt = "{%$col-$kval}"; else $kvaltxt = $kval;
 						if ( ( $coldef['type'] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) 
 							$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
 					};
 				};
 				sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
-
-				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
+				if ( $coldef['select'] == "multi" ) $multiselect = "multiple";
+				
+				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col] $multiselect><option value=''>{%[select]}</option>$optlist</select>";
 
 			} else 
 				$maintext .= "<tr><td$tstyle>{%$colname}
@@ -889,14 +902,22 @@
 						$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
 						foreach ( explode ( "\0", $tmp ) as $kval ) { 
 							if ( $kval && $kval != "_" ) {
-								if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
+								if ( $item['type'] == "kselect" || $item['translate'] ) $ktxt = "{%$key-$kval}"; 
+									else $ktxt = $kval;
 								$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
 							};
 						};
 						if ( $item['sort'] == "numeric" ) sort( $optarr, SORT_NUMERIC ); 
 						else sort( $optarr, SORT_LOCALE_STRING ); 
 						$optlist = join ( "", $optarr );
-						$maintext .= "<tr><th>{%$val}<td><select name=atts[$xkey]><option value=''>{%[select]}</option>$optlist</select>";
+						if ( $item['select'] == "multi" ) {
+							$multiselect = "multiple";  $msarr = "[]";
+							$mstext = "select choices";
+						} else {
+							$multiselect = ""; $msarr = "";
+							$mstext = "select";
+						};
+						$maintext .= "<tr><th>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
 					} else 
 						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey] value='' size=40>";
 				};

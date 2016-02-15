@@ -85,7 +85,7 @@
 			else if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) {$_GET['page'] = $matches[1]; };
 		} else if ( !$_GET['page'] && !$_GET['pageid'] ) {
 			# Or just the first page (pb)
-			$pbef = strpos($file, "<$pbelm");
+			$pbef = strpos($file, "<$pbelm") or $pbef = strpos($file, "<text"); # Allow for non-paged XML files
 			$tmp = substr($file, $pbef, 150); if ( preg_match("/<$pbelm [^>]*id=\"(.*?)\"/", $tmp, $matches) ) {
 				$_GET['pageid'] = $matches[1];
 			};
@@ -454,13 +454,16 @@
 			$sep = " - ";
 		};
 		
-		if ( !$nobreakoptions && preg_match("/<tok.*?<[pl]b/smi", $editxml) ) {
+		# Some of these checks work after the first token, so first find the first token
+		$tokpos = strpos($file, "<tok ");
+		
+		if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) ||  strpos($editxml, "<lb", $tokpos)  ) ) {
  			$showoptions .= "<button id='btn-int' style='background-color: #ffffff;' title='{%format breaks}' onClick=\"toggleint();\">{%Formatting}</button>";
 		};
-		if ( !$nobreakoptions && preg_match("/<tok.*?<[pc]b/smi", $editxml) ) {
+		if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) ) ) {
  			$showoptions .= "<button id='btn-tag-pb' style='background-color: #ffffff;' title='{%show pagebreaks}' onClick=\"toggletn('pb');\">&lt;pb&gt;</button>";
 		};
-		if ( !$nobreakoptions && preg_match("/<lb/", $editxml) ) {
+		if ( !$nobreakoptions && ( strpos($editxml, "<lb", $tokpos) ) ) {
  			$showoptions .= "<button id='btn-tag-lb' style='background-color: #ffffff;' title='{%show linebreaks}' onClick=\"toggletn('lb');\">&lt;lb&gt;</button>";
 		};
 		
