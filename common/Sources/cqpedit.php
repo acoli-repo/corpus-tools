@@ -24,7 +24,8 @@
 		$maintext .= "<h2>Tokens to process</h2>";		
 		foreach ( $_POST['selected'] as $fileid => $toklist ) {
 			# Open the file
-			$fid = $fileid;
+			$fid = $fileid; 
+			if ( file_exists("xmlfiles/$fileid") ) $file = "xmlfiles/$fileid"; 
 			if ( !file_exists("$fileid") ) { 
 				$fileid .= ".xml";
 	
