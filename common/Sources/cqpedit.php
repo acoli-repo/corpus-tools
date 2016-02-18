@@ -25,16 +25,15 @@
 		foreach ( $_POST['selected'] as $fileid => $toklist ) {
 			# Open the file
 			$fid = $fileid; 
-			if ( file_exists("xmlfiles/$fileid") ) $file = "xmlfiles/$fileid"; 
 			if ( !file_exists("$fileid") ) { 
-				$fileid .= ".xml";
-	
+				if ( !strpos(".xml", $fileid) ) { $fileid .= ".xml"; };
+				
 				$fileid = preg_replace("/^.*\//", "", $fileid);
 				$test = array_merge(glob("$xmlfolder/**/$fileid")); 
 				if ( !$test ) 
 					$test = array_merge(glob("$xmlfolder/$fileid"), glob("$xmlfolder/*/$fileid"), glob("$xmlfolder/*/*/$fileid")); 
-				$temp = array_pop($test); 
-				$fileid = $xmlfolder.preg_replace("/^".preg_quote($xmlfolder, '/')."\/?/", "", $temp);
+				$fileid = array_pop($test); 
+				# $fileid = $xmlfolder.preg_replace("/^".preg_quote($xmlfolder, '/')."\/?/", "", $temp);
 	
 				if ( $fileid == "" ) {
 					$maintext .= "<p>No such XML File found: {$fileid}"; next;
