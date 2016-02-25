@@ -12,7 +12,7 @@
 	
 	
 	// on paged display, determine what to show
-	if ( !$_GET['pbtype'] ) { 
+	if ( !$_GET['pbtype'] || $_GET['pbtype'] == "pb" ) { 
 		$pbelm = "pb";
 		$titelm = "Page";
 		$pbtype = "pb";

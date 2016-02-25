@@ -460,7 +460,7 @@
 					$expand = "--context=$context";
 				} else {
 					$context = $_POST['context'] or $context = $_GET['context'] or $context = $settings['cqp']['defaults']['kwic'] or $context = '5';
-					$expand = "--context=$context";
+					$expand = "--context=$context ";
 				};
 			
 			foreach ( $resarr as $line ) {
@@ -484,9 +484,20 @@
 				$m1 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m1 );
 				$m2 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m2 );
 
+				# Now, clean the resulting XML in various ways to make it display better
+				
+				# XMLIDX does not work perfectly, so if we just missed the <tok>, repair it
+				if ( substr($resxml, 0,3) == "tok" ) { $resxml = "<".$resxml; }; # Missing the beginning of <tok>
+				if ( substr($resxml, -4) == "</tok" ) { $resxml = $resxml.">"; }; # Missing the end of </tok>
+				$resxml = preg_replace("/<[^<>]+$/", "", $resxml); # A bit the beginning of a tag
+				$resxml = preg_replace("/^[^<>]+>/", "", $resxml); # A bit the end of a tag
+
 				# Replace block-type elements
 				$resxml = preg_replace ( "/(<\/?(p|seg)>\s*|<(p|seg) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<p>'>|</span> ", $resxml);
 				$resxml = preg_replace ( "/(<lb[^>]*\/>\s*)+/", " <span style='color: #aaffaa' title='<p>'>|</span> ", $resxml);
+				
+				# Remove HTML like code
+				$resxml = preg_replace ( "/<\/?(table|tr|td|div|font)[^>]*\/>/", "", $resxml);
 				
 				
 				if ( $audiofile ) {
