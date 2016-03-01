@@ -487,7 +487,7 @@
 				# Now, clean the resulting XML in various ways to make it display better
 				
 				# XMLIDX does not work perfectly, so if we just missed the <tok>, repair it
-				if ( substr($resxml, 0,3) == "tok" ) { $resxml = "<".$resxml; }; # Missing the beginning of <tok>
+				if ( substr($resxml, 0,3) == "tok" || substr($resxml, 0,4) == "dtok" ) { $resxml = "<".$resxml; }; # Missing the beginning of <tok>
 				if ( substr($resxml, -4) == "</tok" ) { $resxml = $resxml.">"; }; # Missing the end of </tok>
 				$resxml = preg_replace("/<[^<>]+$/", "", $resxml); # A bit the beginning of a tag
 				$resxml = preg_replace("/^[^<>]+>/", "", $resxml); # A bit the end of a tag

@@ -98,7 +98,7 @@ void write_network_number ( int towrite, FILE *stream ) {
 // Write a range to .rng
 void write_range ( int pos1, int pos2, string tagname ) {
 	if ( pos2 < pos1 ) { 
-		if ( debug >0 ) { cout << "negative range - not writing" << endl; };
+		if ( debug > 0 ) { cout << "negative range - not writing" << endl; };
 		return; 
 	}; // We can never have negative ranges
 		
@@ -646,7 +646,7 @@ int main(int argc, char *argv[])
 	// go through the sattributes on all levels
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
 		string tagname = taglevel.attribute("key").value();
-			if ( debug > 0  ) { cout << "Creating files for: " << tagname << endl; };
+			if ( debug > 0  ) { cout << "Creating files level: " << tagname << endl; };
 		registry << endl << "## Structural attributes on <" << tagname << ">" << endl;
 		registry << "STRUCTURE " << tagname << endl;
 		filename = corpusfolder+tagname+".rng";

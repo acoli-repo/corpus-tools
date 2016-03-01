@@ -455,7 +455,7 @@
 		};
 		
 		# Some of these checks work after the first token, so first find the first token
-		$tokpos = strpos($file, "<tok ");
+		$tokpos = strpos($editxml, "<tok"); 
 		
 		if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) ||  strpos($editxml, "<lb", $tokpos)  ) ) {
  			$showoptions .= "<button id='btn-int' style='background-color: #ffffff;' title='{%format breaks}' onClick=\"toggleint();\">{%Formatting}</button>";
