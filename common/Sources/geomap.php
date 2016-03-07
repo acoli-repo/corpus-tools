@@ -110,7 +110,7 @@ if ( $act == "xml" ) {
 	$cqp->exec("set PrettyPrint off");
 
 	$cqpquery = "Matches = <text_$geofld != \"_\"> []"; # This should become "" again
-	$cqp->exec($cqpquery);  print $cqpquery;
+	$cqp->exec($cqpquery); 
 
 	$size = $cqp->exec("size Matches");
 

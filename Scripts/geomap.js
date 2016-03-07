@@ -10,7 +10,7 @@
 	// Calculate min and max cnt, avg lat and lng
 	var minlat = 9999; var minlng = 9999; var totlat = 0;
 	var maxlat = -9999; var maxlng = -9999; var totlng = 0;
-	var totcnt = 0; var maxcnt = 9999999; var mincnt = 0;
+	var totcnt = 0; var maxcnt = 0; var mincnt = 999999;
 	for ( var i=0; i<doclist.length; i++ ) {
 		doc = doclist[i];
 		if ( doc.lat < minlat ) { minlat = doc.lat };
@@ -22,7 +22,9 @@
 		if ( doc.cnt < mincnt ) { mincnt = doc.cnt };
 		if ( doc.cnt > maxcnt ) { maxcnt = doc.cnt };
 		totcnt += doc.cnt		
-	};
+	}; var colsteps = (16*16-1)/maxcnt;
+	
+	console.log('cnt  - min: ' + mincnt + ' - max: ' + maxcnt);
 	
 	var startpos;
 	if ( typeof defpos == "undefined" ) { 
@@ -50,6 +52,13 @@
 
 		var contentString = doc.cid;
 
+		// Make dots on scale red - blue
+		var blue = ( '0' + Math.floor(colsteps*doc.cnt).toString(16) ).substr(-2);
+		var green = '00';
+		var red = ( '0' + Math.floor(colsteps*(maxcnt-doc.cnt)).toString(16) ).substr(-2);
+		var mcol = '#' + red + green + blue;
+		console.log(doc.cnt + ' = ' + mcol);
+
 		var htmltxt = '';
 		if ( typeof doc.desc != "undefined" ) {
 			htmltxt = '<div><h2>' + doc.location + '</h2><p>' + doc.desc + '</p>';
@@ -58,15 +67,14 @@
 		};
 
  		marker[i] = new google.maps.Marker({
- 	      strokeColor: '#FF0000',
  	      map: map,
  		  position: npos,
   icon: {
     path: google.maps.SymbolPath.CIRCLE,
     fillOpacity: 0.3,
-    fillColor: '#ff0000',
+    fillColor: mcol,
     strokeOpacity: 1.0,
-    strokeColor: '#ff0000',
+    strokeColor: mcol,
     strokeWeight: 1.0, 
     scale: 5 //pixels
   },
