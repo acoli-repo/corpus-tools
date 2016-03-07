@@ -24,16 +24,16 @@
 		totcnt += doc.cnt		
 	};
 	
-	var startpos = defpos;
-	if ( typeof startpos == "undefined" ) { 
+	var startpos;
+	if ( typeof defpos == "undefined" ) { 
 		// startpos = { lat: doclist[0].lat, lng: doclist[0].lng }; 
 		startpos = { lat: totlat/doclist.length, lng: totlng/doclist.length }; 
-	};
+	} else { startpos = defpos; };
 
-	var startzoom = defzoom;
-	if ( typeof startzoom == "undefined" ) { 
+	var startzoom ;
+	if ( typeof defzoom == "undefined" ) { 
 		startzoom = 4; 
-	};
+	} else { startzoom = defzoom; };
 
 	var map = new google.maps.Map(document.getElementById('map'), {
 	  zoom: startzoom,
@@ -50,6 +50,13 @@
 
 		var contentString = doc.cid;
 
+		var htmltxt = '';
+		if ( typeof doc.desc != "undefined" ) {
+			htmltxt = '<div><h2>' + doc.location + '</h2><p>' + doc.desc + '</p>';
+		} else {
+			htmltxt = '<div><h2>' + doc.location + '</h2><p><a href="index.php?action=geomap&act=view&place=' + doc.location + ' &lat=' + doc.lat + '&lng=' + doc.lng + '">' + doc.cnt + ' ' + doctxt + '</a></p>';
+		};
+
  		marker[i] = new google.maps.Marker({
  	      strokeColor: '#FF0000',
  	      map: map,
@@ -63,7 +70,7 @@
     strokeWeight: 1.0, 
     scale: 5 //pixels
   },
-   		  html: '<div><h2>' + doc.location + '</h2><p><a href="index.php?action=geomap&act=view&place=' + doc.location + ' &lat=' + doc.lat + '&lng=' + doc.lng + '">' + doc.cnt + ' ' + doctxt + '</a></div>',
+   		  html: htmltxt,
  		  title: doc.title
  		});
 		

@@ -82,6 +82,7 @@
 						"; 
 				} else {
 					$audiobit .= "<audio id=\"track\" src=\"{$medianode['url']}\" controls ontimeupdate=\"checkaudio();\">
+							<source  src=\"{$medianode['url']}\">
 							<p><i><a href='{$medianode['url']}'>{%Audio fragment for this text}</a></i></p>
 						</audio>
 						"; 

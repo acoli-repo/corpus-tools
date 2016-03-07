@@ -5,25 +5,70 @@
 # Consisting of lat and lng separated by a space
 # (c) Maarten Janssen, 2016
   
-$geofld = $settings['geomap']['geo'] or $geofld = "geo";
-$geoplace = $settings['geomap']['place'] or $geoplace = "place";
-$ftit = $settings['geomap']['title'] or $ftit = "id";
+$geofld = $settings['geomap']['cqp']['geo'] or $geofld = "geo";
+$geoplace = $settings['geomap']['cqp']['place'] or $geoplace = "place";
+$ftit = $settings['geomap']['cqp']['title'] or $ftit = "id";
 
 $apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B6JSu5Ne7WkNSE"; # Use our key when no other key is defined  
   
-// Since this dependends on text_geo, make sure it exists
-if ( !file_exists("cqp/text_$geofld.rng") ) {
-	fatal ( "Geodistribution is only available with a $geofld attribute on <text>." );
-};
 
-include ("../common/Sources/cwcqp.php");
-$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+if ( $act == "xml" ) {
+
+	require ("../common/Sources/ttxml.php");
+	$ttxml = new TTXML($cid, false);
+
+	$geoxp = $settings['geomap']['xml']['node'] or $geoxp = "//*[geo]";
+	$geoll = $settings['geomap']['xml']['geo'] or $geoxp = "./geo";
+	$geoname = $settings['geomap']['xml']['name'] or $geoxp = "./name";
+	$geodesc = $settings['geomap']['xml']['desc'] or $geoxp = "./desc";
+
+	$maintext .= "<h1>{%Geographical Locations}</h1>";
+	$maintext .= $ttxml->tableheader();
+	
+	$maintext .= "<ul>";
+	foreach ( $ttxml->xml->xpath($geoxp) as $geonode ) {
+
+		$geo = current($geonode->xpath($geoll))."";  
+		$place = current($geonode->xpath($geoname))."";  
+		$desc = current($geonode->xpath($geodesc))."";  
+	
+		list ( $lat, $lng ) = explode ( " ", $geo );
+		$maintext .= "<li>$place: $desc";
+		
+		$descs{$geo} .= "<p>$desc</p>"; $desctxt = $descs{$geo};
+		$jsonpoints{$geo} = "{ \"lat\": $lat, \"lng\": $lng, \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
+
+	};
+	$maintext .= "</ul>";
+	$jsondata = "[ ".join(", ", array_values($jsonpoints))." ]";
+
+	// Larger circles indicate more documents from that location.
+	$maintext  .= "
+	<div id=\"map\" style='width: 100%; height: 600px;'></div>
+	<script>
+	  $moresettings
+	  var defzoom = 8;
+	  var jsondata = '$jsondata';
+	  var doctxt = '{%documents}';
+	</script>
+	<script src=\"$jsurl/geomap.js\"></script>
+	<script async defer src=\"https://maps.googleapis.com/maps/api/js?key=$apikey&callback=initMap\"></script>
+	<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%back to text view}</a></p>";
+
+} else if ( $act == "view" ) {
+
+
+	// Since this dependends on text_geo, make sure it exists
+	if ( !file_exists("cqp/text_$geofld.rng") ) {
+		fatal ( "Geodistribution is only available with a <i>$geofld</i> attribute on &lt;text&gt; in CQP." );
+	};
+
+	include ("../common/Sources/cwcqp.php");
+	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
   
-$cqp = new CQP();
-$cqp->exec($cqpcorpus); // Select the corpus
-$cqp->exec("set PrettyPrint off");
-
-if ( $act == "view" ) {
+	$cqp = new CQP();
+	$cqp->exec($cqpcorpus); // Select the corpus
+	$cqp->exec("set PrettyPrint off");
 
 	# View all the documents of a given location
 	$location = $_GET['location'] or $location = $_GET['lat'].' '.$_GET['lng'];
@@ -47,9 +92,23 @@ if ( $act == "view" ) {
 			$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$title</a></p>";
 		};
 	};
+
 	
 
 } else {
+
+	// Since this dependends on text_geo, make sure it exists
+	if ( !file_exists("cqp/text_$geofld.rng") ) {
+		fatal ( "Geodistribution is only available with a <i>$geofld</i> attribute on &lt;text&gt; in CQP." );
+	};
+	
+	include ("../common/Sources/cwcqp.php");
+	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+  
+	$cqp = new CQP();
+	$cqp->exec($cqpcorpus); // Select the corpus
+	$cqp->exec("set PrettyPrint off");
+
 	$cqpquery = "Matches = <text_$geofld != \"_\"> []"; # This should become "" again
 	$cqp->exec($cqpquery);  print $cqpquery;
 
@@ -68,11 +127,11 @@ if ( $act == "view" ) {
 		$cnt += 0;
 		if ($lat) {
 			$tot{$geo} += $cnt;
-			$jsondata{$geo} = "{ \"lat\": $lat, \"lng\": $lng, \"location\": \"$name\", \"cnt\": ".$tot{$geo}." }";
+			$jsonpoints{$geo} = "{ \"lat\": $lat, \"lng\": $lng, \"location\": \"$name\", \"cnt\": ".$tot{$geo}." }";
 			$sep = ", ";
 		};
 	};
-	$jsondata = "[ ".join(", ", array_values($jsondata))." ]";
+	$jsondata = "[ ".join(", ", array_values($jsonpoints))." ]";
 
 	if ( $settings['geomap']['zoom'] ) $moresettings .= "var defzoom = {$settings['geomap']['zoom']};";
 	if ( $settings['geomap']['startpos'] ) {

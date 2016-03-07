@@ -653,29 +653,30 @@
 			</script>
 			";
 	
-		
-	
-		$maintext .= "<hr style='clear: both;'>
-			<table><tr><td valign=top style='padding-right: 15px;'>{%Legenda}:<td>";
-		
-		$sep = ""; foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
-			$formcol = $item['color']; $val = $item['display'];
-			if ( !$item['admin'] || $username )
-				$maintext .= "$sep<span style='color: $formcol'>{%$val}</span> ";
-				$sep = " &bull; ";
+		# This legend on the bottom only means something if colours are shown
+		# This is treated much better in the colours on the buttons on top
+// 		$sep = ""; foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+// 			$formcol = $item['color']; $val = $item['display'];
+// 			if ( !$item['admin'] || $username )
+// 				$maintext .= "$sep<span style='color: $formcol'>{%$val}</span> ";
+// 				$sep = " &bull; ";
+// 		};
+
+		if ( $customcss ) {
+			$maintext .= "<hr style='clear: both;'>
+				<table><tr><td valign=top style='padding-right: 15px;'>{%Legenda}:<td>";
+			$maintext .= "<p style='margin-top: 5px;'>$customcss</table>";
 		};
-
-
-		$maintext .= "<p style='margin-top: 5px;'>$customcss</table>
-			<hr>
-			<p>";
 		
-		if ( $settings['download']['admin'] != "1" || $username ) 
-			$maintext .= "<a href='index.php?action=getxml&cid=$fileid'>{%Download XML}</a> &bull; ";
-		$maintext .= "<a onClick='exporttxt();' style='cursor: pointer;'>{%Download current view as TXT}</a>
+		$sep = "<hr><p>";
+		if ( $settings['download']['admin'] != "1" || $username ) {
+			$maintext .= "$sep<a href='index.php?action=getxml&cid=$fileid'>{%Download XML}</a> &bull; ";
+			$sep = "";
+		};
+		if ( $settings['download']['disabled'] != "1" ) 
+			$maintext .= "$sep<a onClick='exporttxt();' style='cursor: pointer;'>{%Download current view as TXT}</a>
 			";
-		//			&bull; <a href='index.php?action=remtok&cid=$fileid'>{%Download as pure TEI}</a>
-
+			
 		if ( !$_GET['sentence'] && strstr($editxml, "<s ") ) {
 			if ( !$_GET['id'] ) { $cidu = "&id=$fileid"; };
 			$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}$cidu&sentence=1'>{%Sentence view}</a>";
