@@ -22,9 +22,9 @@
 		if ( doc.cnt < mincnt ) { mincnt = doc.cnt };
 		if ( doc.cnt > maxcnt ) { maxcnt = doc.cnt };
 		totcnt += doc.cnt		
-	}; var colsteps = (16*16-1)/maxcnt;
+	}; var colsteps = (16*16+1)/rescale(maxcnt);
 	
-	console.log('cnt  - min: ' + mincnt + ' - max: ' + maxcnt);
+	console.log('cnt  - min: ' + mincnt + ' - max: ' + maxcnt + ' - log: ' + rescale(maxcnt));
 	
 	var startpos;
 	if ( typeof defpos == "undefined" ) { 
@@ -53,11 +53,11 @@
 		var contentString = doc.cid;
 
 		// Make dots on scale red - blue
-		var blue = ( '0' + Math.floor(colsteps*doc.cnt).toString(16) ).substr(-2);
+		var blue = ( '0' + Math.floor(colsteps*rescale(doc.cnt)).toString(16) ).substr(-2);
 		var green = '00';
-		var red = ( '0' + Math.floor(colsteps*(maxcnt-doc.cnt)).toString(16) ).substr(-2);
+		var red = ( '0' + Math.floor(colsteps*(rescale(maxcnt)-rescale(doc.cnt))).toString(16) ).substr(-2);
 		var mcol = '#' + red + green + blue;
-		console.log(doc.cnt + ' = ' + mcol);
+		console.log(doc.cnt + ' = ' + rescale(doc.cnt) + ' = ' + mcol);
 
 		var htmltxt = '';
 		if ( typeof doc.desc != "undefined" ) {
@@ -92,3 +92,7 @@
 	};
 
   }
+  
+  function rescale (num) {
+  	return Math.log(num)+1;
+  };

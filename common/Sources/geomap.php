@@ -77,22 +77,27 @@ if ( $act == "xml" ) {
 	$cqpquery = "Matches = <text_$geofld = \"$location\"> []";
 	$cqp->exec($cqpquery);
 
-	$maintext .= "<h1>{%Documents from} $place</h1>";
+	$size = $cqp->exec("size Matches");
 
-	$cqpquery = "tabulate Matches 0 100 match text_id, match text_$ftit";
-	$results = $cqp->exec($cqpquery); 
+	$maintext .= "<h1>{%Documents from} $place</h1>"; # <p>$size {%results}</p><hr>
+
+	if ( $size > 0 ) {
+		$cqpquery = "tabulate Matches 0 100 match text_id, match text_$ftit";
+		$results = $cqp->exec($cqpquery); 
 
 
-	foreach ( split ( "\n", $results ) as $line ) {	
-		list ( $fileid, $title ) = explode ( "\t", $line );
-		if ( preg_match ( "/([^\/]+)\.xml/", $fileid, $matches ) ) {	
-			$cid = $matches[1];
-			if ( $title == $fileid ) $title = $cid;
+		foreach ( split ( "\n", $results ) as $line ) {	
+			list ( $fileid, $title ) = explode ( "\t", $line );
+			if ( preg_match ( "/([^\/]+)\.xml/", $fileid, $matches ) ) {	
+				$cid = $matches[1];
+				if ( $title == $fileid ) $title = $cid;
 		
-			$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$title</a></p>";
+				$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$title</a></p>";
+			};
 		};
+	} else {
+		$maintext .= "<p><i>{%No results found}</i></p>";
 	};
-
 	
 
 } else {
