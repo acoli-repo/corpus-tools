@@ -36,7 +36,7 @@ if ( $act == "xml" ) {
 		$maintext .= "<li>$place: $desc";
 		
 		$descs{$geo} .= "<p>$desc</p>"; $desctxt = $descs{$geo};
-		$jsonpoints{$geo} = "{ \"lat\": $lat, \"lng\": $lng, \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
+		$jsonpoints{$geo} = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
 
 	};
 	$maintext .= "</ul>";
@@ -132,7 +132,7 @@ if ( $act == "xml" ) {
 		$cnt += 0;
 		if ($lat) {
 			$tot{$geo} += $cnt;
-			$jsonpoints{$geo} = "{ \"lat\": $lat, \"lng\": $lng, \"location\": \"$name\", \"cnt\": ".$tot{$geo}." }";
+			$jsonpoints{$geo} = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$name\", \"cnt\": ".$tot{$geo}." }";
 			$sep = ", ";
 		};
 	};

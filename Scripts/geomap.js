@@ -48,7 +48,10 @@
 
 	for ( var i=0; i<doclist.length; i++ ) {
 		doc = doclist[i];
-		var npos = {lat: doc.lat, lng: doc.lng };
+		// coordinates need to be string for CQP match
+		var lat = doc.lat; if ( typeof lat == "string" ) { lat = parseFloat(lat); }; 
+		var lng = doc.lng; if ( typeof lng == "string" ) { lng = parseFloat(lng); }; 
+		var npos = { lat: lat, lng: lng };
 
 		var contentString = doc.cid;
 
@@ -57,7 +60,6 @@
 		var green = '00';
 		var red = ( '0' + Math.floor(colsteps*(rescale(maxcnt)-rescale(doc.cnt))).toString(16) ).substr(-2);
 		var mcol = '#' + red + green + blue;
-		console.log(doc.cnt + ' = ' + rescale(doc.cnt) + ' = ' + mcol);
 
 		var htmltxt = '';
 		if ( typeof doc.desc != "undefined" ) {
