@@ -73,8 +73,10 @@
 			//<li><a href='index.php?action=find'>find files</a> (using XPath)
 			//<li><a href='index.php?action=find2'>find content</a> (using XPath)
 		
-		// if ( $settings['xmltemplates'] || file_exists("Resources/xmltemplate.xml" ) )
+		if ( $settings['xmltemplates'] || file_exists("Resources/xmltemplate.xml" ) )
 			$maintext .= "<li><a href='index.php?action=create'>create new XML from template</a>";
+		else 
+			$maintext .= "<li><a href='index.php?action=create'>create new XML file</a>";
 		
 		if ( $settings['cqp']['corpus'] ) {
 			$maintext .= "<li><a href='index.php?action=recqp'>(re)generate the CQP corpus</a> (or only 
