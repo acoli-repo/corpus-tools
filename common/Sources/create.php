@@ -20,17 +20,16 @@
 	if ( $_POST['tplid'] ) $xmltemplate =  $_POST['tplid'];
 	if ( $_GET['tplid'] ) $xmltemplate =  $_GET['tplid'];
 
-	if ( $xmltemplate ) {
-		if ( !file_exists("Resources/$xmltemplate") ) {
-			print "<p>Template $xmltemplate not found"; exit;
-		};
-		$file = file_get_contents("Resources/$xmltemplate"); 
-		$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
-	} else { 
-		// print_r($_POST);
-		// print "No template defined - exiting"; exit;
+	$xmltemplate = "Resources/$xmltemplate";
+	
+	# Use the empty XML template from the common folder if there is no local template
+	if ( !file_exists("$xmltemplate") ) {
+		$xmltemplate = "../common/Resources/xmltemplate.xml";
 	};
+	
+	$file = file_get_contents("$xmltemplate"); 
+	$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+	if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
 
 	if ( $_POST['fname'] ) {
 		
