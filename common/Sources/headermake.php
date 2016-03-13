@@ -2,8 +2,10 @@
 
 	// An administration tool for creating teiHeader files
 	
-	check_login();
-
+	if ( $user['permissions'] != "admin" ) {
+		fatal("Super users only");
+	};
+	
 	# Determine which teiHeader.tpl we are using
 	
 	$deffiles = array ( 
@@ -43,6 +45,8 @@
 		if ( file_exists($filename) ) 
 			$headerfile = file_get_contents($filename);
 		$headerrows = array();
+
+		$newrows = 10;
 		
 		if ( $_POST['xml'] == "xmlfiles" && $_POST['localfile'] ) {
 			require ("../common/Sources/ttxml.php");
@@ -50,36 +54,55 @@
 			$examplexml = $ttxml->xml;
 			$filesave = "<input type=hidden name='examplexml' value='".$ttxml->fileid."'>";
 			$maintext .= "<p>Example XML file: <a href='index.php?action=file&cid=".$ttxml->fileid."' target=xml>".$ttxml->fileid."</a>";			
-		} else if ( $_POST['xml'] == "upload" && is_uploaded_file($_POST['upload']) ) {
-			$examplexml = simplexml_load_file($_POST['upload']['name']);
+			$newrows = 6;
+		} else if ( $_POST['xml'] == "upload" && file_exists($_FILES['upload']['tmp_name']) ) {
+			$examplexml = simplexml_load_file($_FILES['upload']['tmp_name']);
+			$maintext .= "<p>Example XML file: {$_FILES['upload']['name']} (uploaded file)";
+			$newrows = 6;
 		};
 
 		if ( $examplexml && !$headerfile ) {
 			// Use all the filled header elements 
 			$fieldslist = makelist ($examplexml->teiHeader);
 			foreach ( $fieldslist as $xpf ) {
-				$name = ""; $tmp = $headerxml->xpath($xpf);
+				$name = ""; 
+				if ($headerxml) $tmp = $headerxml->xpath($xpf);
 				if ( $tmp ) $name = $tmp[0]['name'];
 				array_push( $headerrows, array("name" => $name, "xpath" => $xpf ) );
 			};
-		};		
+			$exampletxt .= "<p><i>Pre-filled are all xpath definitions of the filled teiHeader elements from the XML example. 
+				Select the relevant elements for the teiHeader by inserting a name for it in the Field name column.</i>";
+		} else if ( $examplexml ) {
+			$exampletxt .= "<p><i>Below the XPath definition is the corresponding value in the example XML";
+		};	
+		
+		$maintext .= "<p>teiHeader currently being edited: $filename ({$_POST['tpl']} header)</p>";
 		
 		$maintext .= "<h2>Define fields</h2>
+			$exampletxt
 			<form action='index.php?action=$action&act=save' method=post>
 			<input type=hidden name='tplfile' value='$filename'>
 			$filesave
 			<table><tr><th>Field name/Known field description<th>XPath definition/Current value</tr>";
-		
 		
 		if ( $headerfile ) {
 			preg_match_all ( "/<tr><th>(.*?)<\/th><td>{#(.*?)}<\/td><\/tr>/", $headerfile, $matches );
 			for ( $i = 0; $i<count($matches[0]); $i++ ) {
 				$name = preg_replace("/{%(.*?)}/", "\\1", $matches[1][$i]); $xpath = $matches[2][$i];
 				array_push( $headerrows, array("name" => $name, "xpath" => $xpath ) );
+				$compare .= $matches[0][$i]."\n";
 			};
-			for ( $i = 0; $i < 4; $i++ ) {
-				array_push( $headerrows, array("name" => "", "xpath" => "" ) );
-			};
+			$newrows = 4;
+		};
+		
+		# Add a number of empty rows
+		for ( $i = 0; $i < $newrows; $i++ ) {
+			array_push( $headerrows, array("name" => "", "xpath" => "" ) );
+		};
+
+		$compare = "<table>\n$compare</table>";
+		if ( $compare != $headerfile && $headerfile) {
+			$warning = "<div style='font-weight: bold; color: #992000'>The stored $filename was not automatically generated - saving from this tool might overwrite manually set parameters in the file, it might be better to edit the raw file instead.</div>";
 		};
 
 		foreach ( $headerrows as $row ) {
@@ -88,7 +111,9 @@
 			
 			if ( $headerxml ) {
 				$tmp = $headerxml->xpath($xpath);
-				$defname = $tmp[0].""; if ( $defname == "" && $name )  $defname = "<i>Unknown field</i>";
+				$defname = $tmp[0].""; 
+				if ( $defname == "" && $xpath ) $defname = "<i>Unknown field</i>";
+				if ( $name == "" ) $name = $tmp[0]['tt:name'];
 			};
 			
 			if ( $examplexml ) {
@@ -102,11 +127,22 @@
 					";
 		};
 		$maintext .= "</table>
-				<input type=submit value=Save>
+				<input type=submit value=Save> 
 				</form>
+				
+				$warning
+				
+				<script langauge=Javascript>
+				document.onmousedown = function(e) {
+					if ( e.altKey ) {
+						var xpath = document.activeElement.value;
+					};
+				};		
+				</script>
+				<div id='teidesc'></div>
 		";
 		
-		$maintext .= "<h2>Current raw teiHeader File</h2><p><pre>".htmlentities($headerfile)."</pre>";
+		if ($headerfile) $maintext .= "<h2>Current raw teiHeader File</h2><p><pre>".htmlentities($headerfile)."</pre>";
 		
 	} else {
 		
@@ -124,7 +160,7 @@
 				them, this tool helps to build them either from scratch, or from an existing TEI XML. To create 
 				a header, select which header to use, and which XML to use as an example.
 		
-		<form action='index.php?action=$action' method=post>
+		<form action='index.php?action=$action' method=post   enctype=\"multipart/form-data\">
 		
 		<h2>Select a template</h2>
 		
@@ -142,7 +178,7 @@
 				<input name=localfile size=50>
 			<li><input type=radio value='upload' name=xml> 
 				Upload an XML file: 
-				<input type=file name=upload>
+				<input type=file name=upload id=upload>
 			<li><input type=radio value='common' name=xml> do not use an XML example
 		</ul>
 		<input type=submit value=Go>
@@ -159,6 +195,7 @@
 				$array = array_merge($array, makelist($childnode));
 			} else {
 				$nodexpath = makexpath($childnode);
+				// $nodexpath = preg_replace("/\/p$/", "", $nodexpath); // forget any <p> at the end
 				if ( $childnode."" != "" ) {
 					array_push($array, $nodexpath );
 				};

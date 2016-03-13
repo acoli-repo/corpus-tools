@@ -3,11 +3,33 @@
     <teiHeader>
     	<fileDesc>
     		<titleStmt>
-    			<author section='title' name="Author">Author of the (electronic) document</author>
-    			<title section='title' name="Title">Title of the (electronic) document</title>
+    			<author tt:section='title' tt:name="Author (XML)">Author of the XML</author>
+    			<title tt:section='title' tt:name="Title">Title of the XML</title>
+    			<sponsor tt:section='responsibility' tt:name="Sponsor">Sponsoring institution</sponsor>
+    			<funder tt:section='responsibility' tt:name="Funder">Funding institution</funder>
     		</titleStmt>
+			<publicationStmt>
+				<publisher tt:section="digital" tt:name="Publisher (XML)">Publisher of the XML</publisher>
+	            <idno tt:section="digital" tt:name="ID of the XML">Identification number of the electronic document</idno>
+	            <date tt:section="digital" tt:name="Publication date (XML)">Publication date of the XML</date>
+			</publicationStmt>
     	</fileDesc>
-    </teiHeader>
+         <sourceDesc>
+            <bibl>
+               <title tt:section='source' tt:name="Title">Title of the original text</title>
+               <author tt:section='source' tt:name="Author">Author of the original text</author>
+               <date tt:section='source' tt:name="Text date">Date of the original text</date>
+            </bibl>
+         </sourceDesc>
+ 		<profileDesc>
+ 			<textDesc>
+ 				<channel>Whether this is a spoken or written text</channel>
+ 			</textDesc>
+			<langUsage>
+				<language tt:section="miscellaneous" tt:name="Language" ident="Code of the main language of the text">Main language of the text</language>
+			</langUsage>
+		</profileDesc>
+   </teiHeader>
     <text>
     </text>
 </TEI>

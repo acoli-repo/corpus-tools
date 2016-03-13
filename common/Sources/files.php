@@ -168,7 +168,8 @@
 		if ( !$dirlist ) $maintext .= "<p><i>There are no XML files in this project yet</i>";
 		if ( $dirlist && $filelist ) $maintext .= "<hr>";
 		$maintext .= "$filelist<hr>$cnt files$showing";
-		if ($username) $maintext .= " &bull; <a href='index.php?action=$action&act=mkdir'>create new folder</a?";
+		if ($username) $maintext .= " &bull; <a href='index.php?action=$action&act=mkdir'>create new folder</a>";
+		if ($username) $maintext .= " &bull; <a href='index.php?action=create'>create new XML file</a>";
 	};
 		
 	function find_all_files($dir, $type, $opt) 

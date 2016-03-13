@@ -11,27 +11,31 @@
 	if ( !is_writable("xmlfiles") ) {
 		fatal ("The folder xmlfiles cannot be written by the system. Please contact the server administrator.");
 	};
+
+	$xmltitle = "Create XML from Template";
 	
-	if ( !$settings['xmltemplates'] ) $xmltemplate = "xmltemplate.xml";
 	if ( count($settings['xmltemplates']) == 1 ) {
 		$tmp = array_keys($settings['xmltemplates']);
 		$xmltemplate = $tmp[0];
-	};
-	if ( $_POST['tplid'] ) $xmltemplate =  $_POST['tplid'];
-	if ( $_GET['tplid'] ) $xmltemplate =  $_GET['tplid'];
+	} else if ( !$settings['xmltemplates'] ) {
+		$xmltemplate = "Resources/xmltemplate.xml";
 
-	$xmltemplate = "Resources/$xmltemplate";
-	
-	# Use the empty XML template from the common folder if there is no local template
-	if ( !file_exists("$xmltemplate") ) {
-		$xmltemplate = "../common/Resources/xmltemplate.xml";
+		# Use the empty XML template from the common folder if there is no local template
+		if ( !file_exists("$xmltemplate") ) {
+			$xmltemplate = "../common/Resources/xmltemplate.xml";
+			$xmltitle = "Create new empty XML file";
+		};
+	} else {
+		$tmp = $_POST['tplid'] or $tmp = $_GET['tplid'];
+		if ( $tmp ) { $xmltemplate = "Resources/$tmp"; };
 	};
 	
-	$file = file_get_contents("$xmltemplate"); 
-	$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-	if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
 
 	if ( $_POST['fname'] ) {
+	
+		$file = file_get_contents("$xmltemplate"); 
+		$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		if ( !$xml ) { print "Failing to read/parse $xmltemplate<hr>"; print $file; exit; };
 		
 		$cardid = $_POST['fname'];
 		if ( substr($cardid, -4) != ".xml" ) {
@@ -63,10 +67,14 @@
 			<script language=Javascript>top.location='index.php?action=edit&cid=$cardid&display=shand'</script>"; exit;
 
 	} else if ( $xmltemplate ) {
+
+		$file = file_get_contents("$xmltemplate"); 
+		$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		if ( !$xml ) { print "Failing to read/parse $xmltemplate<hr>"; print $file; exit; };
 	
 		if ( $xmltemplates[$xmltemplate] ) { $templatename = "<p>Template used: <b>{$xmltemplates[$xmltemplate]}</b>"; };
 		
-		$maintext .= "<h1>Create XML from Template</h1>
+		$maintext .= "<h1>$xmltitle</h1>
 		
 			$templatename 
 		
