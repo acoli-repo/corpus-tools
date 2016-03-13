@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI>
+    <teiHeader>
+    	<fileDesc>
+    		<titleStmt>
+    			<author section='title' name="Author">Author of the (electronic) document</author>
+    			<title section='title' name="Title">Title of the (electronic) document</title>
+    		</titleStmt>
+    	</fileDesc>
+    </teiHeader>
+    <text>
+    </text>
+</TEI>
