@@ -2,7 +2,7 @@
 	// Script to allow visualizing and editing
 	// a dictionary that is based on the corpus
 	// (c) Maarten Janssen, 2015
-	
+		
 	if ( $_GET['did'] ) {
 		$_SESSION['did'] = $_GET['did'];
 	};
@@ -22,6 +22,7 @@
 	$id = $_GET['id'];
 
 	$arxpath = $dict['entry'] or $arxpath = "//lexicon/ar";
+	$hwxpath = $dict['headword'] or $hwxpath = "k";
 
 	if ( $filename && !file_exists($filename) ) { fatal("Dictionary file not found: $filename"); }; 
 
@@ -134,12 +135,13 @@
 	} else {
 		
 		$cssfile = $dict['css'] or $cssfile = "dict.css";
-		$css = file_get_contents("Resources/$cssfile");
+		if ( file_exists("Resources/$cssfile") ) {
+			$maintext .= "\n<style type=\"text/css\"> @import url(\"Resources/$cssfile\"); </style>\n";
+		} else {
+			$css = file_get_contents("../common/Resources/dict.css");
+			$maintext .= "\n<style>\n$css\n</style>\n";
+		};
 		
-		if ( !$css ) $css = file_get_contents("../common/Resources/dict.css");
-		
-		$maintext .= "\n<style>\n$css\n</style>\n";
-
 		$file = file_get_contents($filename);
 
 		$max = $_GET['max'] or $max = 100;
@@ -159,8 +161,6 @@
 			<select name=match>
 				<option value=\"\">{%contains}</option>
 				<option value=\"1\" $msel>{%matches}</option>
-				<option value=\"2\" $msel2>{%translates as}</option>
-				<option value=\"3\" $msel3>{%translation contains}</option>
 			</select>
 			<input name=query value=\"$query\">
 			<input type=hidden name=action value=\"$action\">
@@ -169,7 +169,7 @@
 			<hr>
 			<div id=\"dict\">";
 
-		if ( !$query && !$id ) {
+		if ( !$query && !$id && !$debug ) {
 
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { print "Dict XML Error - unable to read $filename"; exit; };
@@ -194,18 +194,21 @@
 			$xpath = new DOMXPath($xml);
 			$noregex = 1;
 			
+			$kn = $_GET['kn'] or $kn = $hwxpath;
+			
 			if ( $id ) $restr = "@id=\"$id\"";
-			else if ( $query && $noregex ) $restr = "k[contains(.,'$query')]"; // Contains
+			else if ( $query && $_GET['match'] == 1 ) $restr = $kn."[.='$query']"; // Match
+			else if ( $query && $noregex ) $restr = $kn."[contains(.,'$query')]"; // Contains
 			else if ( $query ) { // Regexp - does not work
 				$xpath->registerNamespace("php", "http://php.net/xpath");
 				$xpath->registerPHPFunctions();
-				$restr = "k[php:functionString(\"preg_match\",\"/$query/\",.)]";
+				$restr = $kn."[php:functionString(\"preg_match\",\"/$query/\",.)]";
 			};
 			
 			$xquery = $arxpath;			
 			if ( $restr ) $xquery .= "[$restr]";
 		
-			# print $xquery;
+			if ( $debug ) $maintext .= "<p>XPath query: $xquery";
 			$result = $xpath->query($xquery); 
 			if ( $result ) {
 				$count = $result->length;
@@ -215,7 +218,7 @@
 				foreach ( $result as $entry ) {
 					$entryxml = $entry->ownerDocument->saveXML($entry);
 					$arid = $entry->getAttribute("id");
-					$ark = $entry->getElementsByTagName('k')->item(0)->textContent;
+					$tmp = $xpath->query($hwxpath, $entry); $ark = $tmp->item(0)->textContent;
 					if ( $username && $arid ) $entryxml = "<div onClick=\"window.open('index.php?action=$action&act=edit&id=$arid', '_self')\">".$entryxml."</div>";
 					array_push ( $sortarray, "<div k=\"$ark\">".$entryxml."</div>" );
 					if ( $cnt++ > $max ) break;
