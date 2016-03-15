@@ -66,8 +66,6 @@
 			$fieldslist = makelist ($examplexml->teiHeader);
 			foreach ( $fieldslist as $xpf ) {
 				$name = ""; 
-				if ($headerxml) $tmp = $headerxml->xpath($xpf);
-				if ( $tmp ) $name = $tmp[0]['name'];
 				array_push( $headerrows, array("name" => $name, "xpath" => $xpf ) );
 			};
 			$exampletxt .= "<p><i>Pre-filled are all xpath definitions of the filled teiHeader elements from the XML example. 
@@ -112,13 +110,13 @@
 			if ( $headerxml ) {
 				$tmp = $headerxml->xpath($xpath);
 				$defname = $tmp[0].""; 
-				if ( $defname == "" && $xpath ) $defname = "<i>Unknown field</i>";
+				if ( $defname == "" && $xpath ) $defname = "<i style='color: #888888;'>--</i>";
 				if ( $name == "" ) $name = $tmp[0]['tt:name'];
 			};
 			
 			if ( $examplexml ) {
 				$tmp = $examplexml->xpath($xpath);
-				$curval = $tmp[0].""; if ( $curval == "" && $xpath )  $curval = "<i>--</i>";
+				$curval = $tmp[0].""; if ( $curval == "" && $xpath )  $curval = "<i style='color: #888888;'>--</i>";
 			};
 			
 			$maintext .= "<tr>

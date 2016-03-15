@@ -79,7 +79,8 @@ if ( $act == "xml" ) {
 
 	$size = $cqp->exec("size Matches");
 
-	$maintext .= "<h1>{%Documents from} $place</h1>"; # <p>$size {%results}</p><hr>
+	$maintext .= "<h1>{%Documents from} $place</h1>
+		<p>$size {%documents}</p><hr>";
 
 	if ( $size > 0 ) {
 		$cqpquery = "tabulate Matches 0 100 match text_id, match text_$ftit";

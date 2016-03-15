@@ -3,13 +3,41 @@
 	// a dictionary that is based on the corpus
 	// (c) Maarten Janssen, 2015
 	
-	$dict = $_GET['dict'] or $dict = "gloss";
-	$filename = "Resources/dict-$dict.xml";
+	if ( $_GET['did'] ) {
+		$_SESSION['did'] = $_GET['did'];
+	};
+	$did = $_SESSION['did'];
+	if ( $settings['xdxf'] ) {
+		if ( $did ) { 
+			$dict = $settings['xdxf'][$did];
+		} else if ( count($settings['xdxf']) == 1 ) {	
+			$did = $dict['key'];
+			$dict = array_shift($settings['xdxf']);
+		};
+		$dictfile = $dict['filename'];
+	} else {
+		 $dictfile = "dict.xml";
+	};
+	$filename = "Resources/$dictfile";
 	$id = $_GET['id'];
 
-	if ( $act != "generate" && !file_exists($filename) ) fatal("Dictionary file does not exist");
+	$arxpath = $dict['entry'] or $arxpath = "//lexicon/ar";
 
-	if ( $username && $act == "save" && $id ) {
+	if ( $filename && !file_exists($filename) ) { fatal("Dictionary file not found: $filename"); }; 
+
+	if ( !$dictfile ) {
+		
+		if ( $settings['xdxf'] ) {
+			$maintext .= "<h1>XDXF Dictionay Tool</h1>
+				<p>Choose a dictionary from the list below";
+			foreach ( $settings['xdxf'] as $key => $dict ) {
+				$maintext .= "<p><a href='index.php?action=$action&did=$key'>{$dict['title']}</a>";
+			};
+		} else {
+			fatal("no dictionary selected");
+		};	
+		
+	} else if ( $username && $act == "save" && $id ) {
 
 		$newrec = $_POST['rawxml']; 
 		$file = file_get_contents($filename); 
@@ -49,7 +77,7 @@
 	
 		$xml = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( $id && $id != "new" ) {
-			$result = $xml->xpath("//lexicon/ar[@id=\"$id\"]"); 
+			$result = $xml->xpath($arxpath."[@id=\"$id\"]"); 
 			$maintext .= "<h1>Edit dictionary item $id</h1>";
 		} else {
 			$result = $xml->xpath("//ar[@id=\"new\"]"); 
@@ -94,7 +122,7 @@
 		check_login();
 		$id = 1;
 		$xml = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		$result = $xml->xpath("//lexicon/ar"); 
+		$result = $xml->xpath($arxpath); 
 		foreach ( $result as $entry ) {
 			$entry['id'] = $id;
 			$id++;
@@ -104,10 +132,13 @@
 		exit;
 		
 	} else {
-	
-		$css = file_get_contents("Resources/dict.css");
+		
+		$cssfile = $dict['css'] or $cssfile = "dict.css";
+		$css = file_get_contents("Resources/$cssfile");
+		
 		if ( !$css ) $css = file_get_contents("../common/Resources/dict.css");
-		$maintext .= "<style>$css</style>";
+		
+		$maintext .= "\n<style>\n$css\n</style>\n";
 
 		$file = file_get_contents($filename);
 
@@ -116,12 +147,15 @@
 	
 		if ( preg_match("/lang_from=\"(.*?)\"/", $file, $matches) ) $langfrom = "{%lang-{$matches[1]}}";
 		if ( preg_match("/lang_to=\"(.*?)\"/", $file, $matches) ) $langto = " - {%lang-{$matches[1]}}";
-		$dtitle = xpathrun("<h1>{%Dictionary} $langfrom $langto</h1>");
+		
+		
+		$dicttitle = $dict['title'];
+		$maintext .= "\n<h1>$dicttitle</h1>";
 		if ( $_GET['match'] == 1 ) $msel = "selected";
 		if ( $_GET['match'] == 2 ) $msel2 = "selected";
 		if ( $_GET['match'] == 3 ) $msel3 = "selected";
 		
-		$maintext .= "$dtitle<form action='index.php'>{%Word} 
+		$maintext .= "<form action='index.php'>{%Word} 
 			<select name=match>
 				<option value=\"\">{%contains}</option>
 				<option value=\"1\" $msel>{%matches}</option>
@@ -135,13 +169,22 @@
 			<hr>
 			<div id=\"dict\">";
 
-		if ( !$query && !$id && file_exists("Resources/dictInfo-$dict.tpl") ) {
+		if ( !$query && !$id ) {
 
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-			if ( !$xml ) { print "Dict XML Error"; exit; };
-		
-			$header = file_get_contents("Resources/dictInfo-$dict.tpl");
+			if ( !$xml ) { print "Dict XML Error - unable to read $filename"; exit; };
+
+			if ( file_exists("Resources/dictInfo-$did.tpl") ) { 
+				$header = file_get_contents("Resources/dictInfo-$did.tpl");
+			} else {
+				$header = "<table>
+					<tr><th>{%Author}</th><td>{#//author}</td>
+					<tr><th>{%Description}</th><td>{#//description}</td>	</tr>
+					</table>
+					";
+			};
 			$maintext .= xpathrun($header, $xml);
+			
 		
 		} else {
 
@@ -151,31 +194,30 @@
 			$xpath = new DOMXPath($xml);
 			$noregex = 1;
 			
-			if ( $id ) $xquery = "//lexicon/ar[@id=\"$id\"]";
-			else if ( $query && $_GET['match'] == 3 ) $xquery = "//lexicon/ar[.//dtrn[contains(.,'$query')]]"; // Lookup in translation
-			else if ( $query && $_GET['match'] == 2 ) $xquery = "//lexicon/ar[.//dtrn[.='$query']]"; // Lookup in translation
-			else if ( $query && $_GET['match'] == 1 ) $xquery = "//lexicon/ar/k[.='$query']/.."; // Match
-			else if ( $query && $noregex ) $xquery = "//lexicon/ar/k[contains(.,'$query')]/.."; // Contains
+			if ( $id ) $restr = "@id=\"$id\"";
+			else if ( $query && $noregex ) $restr = "k[contains(.,'$query')]"; // Contains
 			else if ( $query ) { // Regexp - does not work
 				$xpath->registerNamespace("php", "http://php.net/xpath");
 				$xpath->registerPHPFunctions();
-				$xquery = "//lexicon/ar[php:functionString(\"preg_match\",\"/$query/\",.)]";
-			} else $xquery = "//lexicon/ar";
+				$restr = "k[php:functionString(\"preg_match\",\"/$query/\",.)]";
+			};
+			
+			$xquery = $arxpath;			
+			if ( $restr ) $xquery .= "[$restr]";
 		
 			# print $xquery;
 			$result = $xpath->query($xquery); 
 			if ( $result ) {
 				$count = $result->length;
 				if ( $count > $max ) $showing = " - {%showing first} $max";
-				$maintext .= "<p><i>$count {%results}</i> $showing<p>";
+				$maintext .= "<p><i>$count {%results}</i> $showing</p>\n";
 				$sortarray = array();
 				foreach ( $result as $entry ) {
 					$entryxml = $entry->ownerDocument->saveXML($entry);
 					$arid = $entry->getAttribute("id");
 					$ark = $entry->getElementsByTagName('k')->item(0)->textContent;
-					$entryxml = preg_replace("/<gr>(.*?)<\/gr>/", "<gr>{%\\1}</gr>", $entryxml); # Make POS translatable
 					if ( $username && $arid ) $entryxml = "<div onClick=\"window.open('index.php?action=$action&act=edit&id=$arid', '_self')\">".$entryxml."</div>";
-					array_push ( $sortarray, "<ar k=\"$ark\"/>".$entryxml );
+					array_push ( $sortarray, "<div k=\"$ark\">".$entryxml."</div>" );
 					if ( $cnt++ > $max ) break;
 				};
 				natsort($sortarray);

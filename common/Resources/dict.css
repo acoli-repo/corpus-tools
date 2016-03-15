@@ -1,3 +1,5 @@
+/* CSS Definitions for the XDXF Dictionary tool */
+
 #dict ar { display: block; clear: both; margin-bottom: 15px; }
 #dict k { font-weight: bold; }
 
@@ -13,6 +15,7 @@
 #dict kref::before { content: "Cf. "; }
 #dict kref::after { content: "."; }
 
-#dict ex { display: block; margin-left: 20px; clear: left;  }
+#dict ex { display: block; margin-left: 20px; clear: left; color: #000000; margin-bottom: 4px; }
 #dict ex_orig { font-weight: bold; }
 #dict ex_trans { font-style: italic; }
+#dict ex iref { font-style: italic; color: #660000; }

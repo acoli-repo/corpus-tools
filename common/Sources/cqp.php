@@ -215,7 +215,8 @@
 			$maintext .= "</table>";
 		};		
 
-	} else if ( $cql || $_POST['atts'] || $_POST['vals'] ) {
+	} else if ( $cql || $_POST['atts'] || $_GET['atts'] || $_POST['vals'] ) {
+	
 		# Display the results for a given CQP search
 		# Can have a pre-query (to search within a selection)
 		# Consists either of a direct CQL query or of attribute-value pairs that have to be turned into one
@@ -223,7 +224,7 @@
 
 		$sort = $_POST['sort'] or $sort = $_GET['sort'] or $sort = '';
 
-		# This is a simple search - turn it into a CQP search
+		# If this is a simple search - turn it into a CQP search
 		if ( $cql && !preg_match("/[\"\[\]]/", $cql) ) {
 			$simple = $cql; $cql = "";
 			foreach ( explode ( " ", $simple ) as $swrd ) {
@@ -232,7 +233,15 @@
 			};
 		};
 		
-		# This is a word search - turn it into a CQP search
+		# If this is a word search - turn it into a CQP search
+		if ( !$cql && $_GET['atts'] ) {	
+			foreach ( explode ( ";", $_GET['atts'] ) as $att ) {
+				list ( $feat, $val ) = explode ( ":", $att );
+				$_POST['atts'][$feat] = $val;
+			};
+		}; 
+		
+		# If this is a word search - turn it into a CQP search
 		if ( !$cql && $_POST['vals'] ) {	
 			$cql = "["; $sep = "";
 			foreach ( $_POST['vals'] as $key => $val ) {
@@ -299,6 +308,8 @@
 					$val = "(|$mvsep)$val(|$mvsep)";
 				};
 				$cql .= " $sep match.$xkey = \"$val\""; $sep = "&";
+				if ( $attitem['type'] == "kselect" || $attitem['translate'] ) $val = "{%$key-$val}";
+				$val = stripslashes($val);
 				$subtit .= "<p>$attname = <i>$val</i>";
 			};
 		}; # if ( strstr($cql, "a.text") && !strstr($cql, "a:") ) { $cql = "a:$cql"; }

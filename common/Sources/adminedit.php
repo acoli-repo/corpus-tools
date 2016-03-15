@@ -16,6 +16,7 @@
 		"teiHeader-long.tpl" => "Header info - long style",
 		"settings.xml" => "Overall TEITOK settings",
 		"userlist.xml" => "File with user permissions",
+		"tagset.xml" => "Definition of the tagset",
 		"filelist.xml" => "Metadata file (can be too large to edit)",
 		"recqp.pl" => "(Automatically created) perl script to regenerate the CQP corpus",
 		);
