@@ -11,8 +11,8 @@
 		if ( $did ) { 
 			$dict = $settings['xdxf'][$did];
 		} else if ( count($settings['xdxf']) == 1 ) {	
-			$did = $dict['key'];
 			$dict = array_shift($settings['xdxf']);
+			$did = $dict['key'];
 		};
 		$dictfile = $dict['filename'];
 	} else {
