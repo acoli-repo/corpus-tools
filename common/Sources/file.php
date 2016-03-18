@@ -659,7 +659,7 @@
 						var jmpid = jmpar[i];
 						highlight(jmpid, '#ffff88');
 					};
-					element = document.getElementById(jmpid)
+					element = document.getElementById(jmpar[0])
 					alignWithTop = true;
 					element.scrollIntoView(alignWithTop);
 				};

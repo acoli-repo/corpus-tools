@@ -82,7 +82,9 @@
 		
 	} else {
 		# Let the user define a highlighting query
-		$maintext .= "<h1>{%Hightlighting Query}<h1>
+		$highlightheader = getlangfile("highlighttext", true);
+		$maintext .= "<h1>{%Hightlighting Query}</h1>
+			$highlightheader
 			<form action='index.php?action=$action&act=view' method=post>";
 
 		if ( $cid ) {
@@ -105,10 +107,10 @@
 				if ( $ftitle ) $cidlist .= "<option value=\"$fid\">$ftitle</option>";
 			};
 			
-			$maintext .= "<p>{%Select a file}: <select name=cid>$cidlist</select>";
+			$maintext .= "<p>{%Select a document}: <select name=cid>$cidlist</select>";
 		};
 		
-		$maintext .= "<p>{%CQP Query}: <input name=cql size=80>
+		$maintext .= "<p>{%CQP Query}: <input name=cql size=80 id=cql name=cql>
 			<input type=submit value=\"{%Search}\">
 			</form>
 			";
