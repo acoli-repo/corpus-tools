@@ -615,9 +615,24 @@
  			};
  		};
 
+		$atthl = $_POST['atthl'] or $atthl = $_GET['atthl'];
+		if ( $atthl ) {
+			list ( $att, $val ) = explode ( ":", $atthl );
+			$moreaction .= "\n";
+			foreach ( $xml->xpath("//tok[@$att=\"$val\"]") as $hltok ) {
+				$hlid = $hltok['id'];
+				$moreactions .= "highlight('$hlid', '#ffffaa');; ";
+			};
+			$moreaction .= "\n";
+		};
+
+		$hltit = $_POST['hltit'] or $hltit = $_GET['hltit'];
+		if ( $hltit ) $pagenav .= "<p>{$hltit}<hr>";
+
 		$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
 		$jsontrans = array2json($settings['transliteration']);
-						
+					
+		$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'];	
 		$maintext .= "
 			<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 			$pagenav
@@ -634,12 +649,10 @@
 				$attnamelist
 				formify(); 
 				var orgXML = document.getElementById('mtxt').innerHTML;
-				var tid = '$fileid'; var previd = '{$_GET['tid']}';
-				if ( previd ) { 
-					highlight(previd, '#ffffaa');
-				};
+				var tid = '$fileid'; 
+				var previd = '{$_GET['tid']}';
 				$moreactions
-				var jmps = '{$_GET['jmp']}'; var jmpid;
+				var jmps = '$highlights'; var jmpid;
 				if ( jmps ) { 
 					var jmpar = jmps.split(' ');
 					for (var i = 0; i < jmpar.length; i++) {

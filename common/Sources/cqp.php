@@ -233,7 +233,7 @@
 			};
 		};
 		
-		# If this is a word search - turn it into a CQP search
+		# Allow word searches to be defined via URL
 		if ( !$cql && $_GET['atts'] ) {	
 			foreach ( explode ( ";", $_GET['atts'] ) as $att ) {
 				list ( $feat, $val ) = explode ( ":", $att );

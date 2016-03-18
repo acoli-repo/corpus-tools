@@ -1,0 +1,138 @@
+<?php
+
+	## A Script to highlight words in an XML document based on a CQP search
+	# This script currently has to be called externally
+	# And will reload to file.php
+
+	$cid = $_POST['cid'] or $cid = $_GET['cid'] or $cid = $_GET['id'];
+
+	if ( $act == "view" || $_GET['atts'] ) {
+		
+		if ( !$_POST ) $_POST = $_GET;
+
+		$cql = $_POST['cql'] or $cql = $_GET['cql'];
+		if ( $cql ) $subtit .= "<p>CQP = $cql";
+
+		# If this is a simple search - turn it into a CQP search
+		if ( $cql && !preg_match("/[\"\[\]]/", $cql) ) {
+			$simple = $cql; $cql = "";
+			foreach ( explode ( " ", $simple ) as $swrd ) {
+				$swrd = preg_replace("/(?!\.\])\*/", ".*", $swrd);
+				$cql .= "[word=\"$swrd\"] ";
+			};
+		};
+		
+		# Allow word searches to be defined via URL
+		if ( !$cql && $_GET['atts'] ) {	
+			$_POST['atts'] = array();
+			foreach ( explode ( ";", $_GET['atts'] ) as $att ) {
+				list ( $feat, $val ) = explode ( ":", $att );
+				$_POST['vals'][$feat] = $val;
+			};
+		}; 
+		
+		# If this is a word search - turn it into a CQP search
+		if ( !$cql && $_POST['vals'] ) {	
+			$cql = "["; $sep = "";
+			foreach ( $_POST['vals'] as $key => $val ) {
+				$type = $_POST['matches'][$key];
+				$attname = pattname($key) or $attname =  pattname('form');
+				if ( $val ) {
+					if ( $type == "startswith" ) {
+						$cql .= " $sep $key = \"$val.*\""; $sep = "&";
+						$subtit .= "<p>$attname = $val-";
+					} else if ( $type == "contains" ) {
+						$cql .= "$sep$key=\".*$val.*\""; $sep = " & ";
+						$subtit .= "<p>$attname <i>{%contains}</i> $val";
+					} else if ( $type == "endsin" ) {
+						$cql .= "$sep$key=\".*$val\""; $sep = " & ";
+						$subtit .= "<p>$attname -$val";
+					} else {
+						$cql .= "$sep$key=\"$val\""; $sep = " & ";
+						$subtit .= "<p>$attname = $val";
+					};
+				};
+			};
+			$cql .= "]";
+		};
+
+		
+		require ( "../common/Sources/cwcqp.php" );
+		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		$cqp = new CQP();
+		$cqp->exec($cqpcorpus); // Select the corpus
+		$cqpquery = "Matches = $cql :: match.text_id = \"xmlfiles/$cid\"";
+		$cqp->exec($cqpquery);
+		$results = $cqp->exec('tabulate Matches match .. matchend id');
+		$cqp->close();
+		
+		if ( $subtit ) $hltit = "<p>{%Highlighted in the text are words with the following characteristics:} ".$subtit;
+		
+		$jmp = str_replace("\n", " ", $results);
+		$tmp = explode ( " ", $jmp ); $size = count($tmp);
+		
+		if ( $debug ) { print "<p>Query: $cqpquery<p>Matches found: $jmp<p>Link: <a href='index.php?action=file&cid=$cid&jmp=$jmp&hltit=$hltit'>index.php?action=file&cid=$cid&jmp=$jmp&hltit=$hltit</a>"; exit; };
+		print "$size Matching. Reloading
+			<form action='index.php?action=file&cid=$cid' method=post id=fwform name=fwform>
+			<input type=hidden name=jmp value='$jmp'>
+			<input type=hidden name=hltit value='$hltit'>
+			</form>
+			<script language=Javascript>document.fwform.submit();</script>";
+		exit;
+		
+	} else {
+		# Let the user define a highlighting query
+		$maintext .= "<h1>{%Hightlighting Query}<h1>
+			<form action='index.php?action=$action&act=view' method=post>";
+
+		if ( $cid ) {
+			$maintext .= "<input type=hidden name=cid value=\"$cid\">";
+		} else {
+			require ( "../common/Sources/cwcqp.php" );
+			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+			$cqp = new CQP();
+			$cqp->exec($cqpcorpus); // Select the corpus
+			$cqpquery = "Matches = <text> []";
+			$cqp->exec($cqpquery);
+			if ( $settings['cqp']['sattributes']['text']['title'] ) $tits = ", match text_title";
+			$results = $cqp->exec('tabulate Matches match text_id'.$tits);
+			$cqp->close();
+			
+			foreach ( explode ( "\n", $results ) as $line ) {
+				list ( $fid, $ftitle ) = explode ( "\t", $line );
+				$fid = str_replace ( "xmlfiles/", "", $fid);
+				if ( !$ftitle || $ftitle == "_" ) $ftitle = $fid;
+				if ( $ftitle ) $cidlist .= "<option value=\"$fid\">$ftitle</option>";
+			};
+			
+			$maintext .= "<p>{%Select a file}: <select name=cid>$cidlist</select>";
+		};
+		
+		$maintext .= "<p>{%CQP Query}: <input name=cql size=80>
+			<input type=submit value=\"{%Search}\">
+			</form>
+			";
+		
+	};
+
+	function pattname ( $key ) {
+		global $settings;
+		if ( $key == "word" ) $key = "form";
+		$val = $settings['xmlfile']['pattributes']['forms'][$key]['display'];
+		if ( $val ) return $val;
+		$val = $settings['xmlfile']['pattributes']['tags'][$key]['display'];
+		if ( $val ) return $val;
+		
+		# Now try without the text_ or such
+		if ( preg_match ("/^(.*)_(.*?)$/", $key, $matches ) ) {
+			$key2 = $matches[2]; $keytype = $matches[1];
+			$val = $settings['cqp']['sattributes'][$key2]['display'];
+			if ( $val ) return $val;
+			$val = $settings['cqp']['sattributes'][$keytype][$key2]['display'];
+			if ( $val ) return $val;
+		};
+		
+		return "<i>$key</i>";
+	};
+	
+?>

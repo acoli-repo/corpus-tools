@@ -3,10 +3,7 @@
 	// a dictionary that is based on the corpus
 	// (c) Maarten Janssen, 2015
 		
-	if ( $_GET['did'] ) {
-		$_SESSION['did'] = $_GET['did'];
-	};
-	$did = $_SESSION['did'];
+	$did = $_GET['did'] OR $did = $_SESSION['did'];
 	if ( $settings['xdxf'] ) {
 		if ( $did ) { 
 			$dict = $settings['xdxf'][$did];
@@ -18,19 +15,22 @@
 	} else {
 		 $dictfile = "dict.xml";
 	};
+	$_SESSION['did'] = $did; // Store the selected dictionary in a session variable
 	$filename = "Resources/$dictfile";
 	$id = $_GET['id'];
 
 	$arxpath = $dict['entry'] or $arxpath = "//lexicon/ar";
 	$hwxpath = $dict['headword'] or $hwxpath = "k";
+	$posxpath = $dict['pos'] or $hwxpath = "gr";
 
 	if ( $filename && !file_exists($filename) ) { fatal("Dictionary file not found: $filename"); }; 
 
 	if ( !$dictfile ) {
+		// Ask to choose a dictionary if there is more than one in the settings
 		
 		if ( $settings['xdxf'] ) {
-			$maintext .= "<h1>XDXF Dictionay Tool</h1>
-				<p>Choose a dictionary from the list below";
+			$maintext .= "<h1>{%Dictionay Reader}</h1>
+				<p>{%Choose a dictionary from the list below}";
 			foreach ( $settings['xdxf'] as $key => $dict ) {
 				$maintext .= "<p><a href='index.php?action=$action&did=$key'>{$dict['title']}</a>";
 			};
@@ -113,10 +113,6 @@
 			</script>
 		";
 		
-	} else if ( $act == "generate" ) {
-	
-		fatal ("Generation not implemented yet");
-	
 	} else if ( $act == "renumber" ) {
 	
 		# Each <ar> needs a unique ID
@@ -213,19 +209,69 @@
 			if ( $result ) {
 				$count = $result->length;
 				if ( $count > $max ) $showing = " - {%showing first} $max";
-				$maintext .= "<p><i>$count {%results}</i> $showing</p>\n";
+				if ( !$id ) $maintext .= "<p><i>$count {%results}</i> $showing</p>\n";
+				if ( $dict['cqp'] && $count > 1 ) $maintext .= "<p>{%Click on an entry to see corpus examples}</p><hr>"; 
 				$sortarray = array();
 				foreach ( $result as $entry ) {
 					$entryxml = $entry->ownerDocument->saveXML($entry);
 					$arid = $entry->getAttribute("id");
 					$tmp = $xpath->query($hwxpath, $entry); $ark = $tmp->item(0)->textContent;
-					if ( $username && $arid ) $entryxml = "<div onClick=\"window.open('index.php?action=$action&act=edit&id=$arid', '_self')\">".$entryxml."</div>";
+					if ( $dict['cqp'] && $arid ) $entryxml = "<div onClick=\"window.open('index.php?action=$action&act=view&id=$arid', '_self')\">".$entryxml."</div>";
+					else if ( $username && $arid ) $entryxml = "<div onClick=\"window.open('index.php?action=$action&act=edit&id=$arid', '_self')\">".$entryxml."</div>";
 					array_push ( $sortarray, "<div k=\"$ark\">".$entryxml."</div>" );
 					if ( $cnt++ > $max ) break;
+					if ( $count == 1 ) $id = $arid; 
 				};
 				natsort($sortarray);
 				$maintext .= join ( "\n", $sortarray );
 			} else $maintext .= "<i>{%No results found}</i>";
+			
+		
+			if ( $id ) {
+				if ( $username ) $maintext .= "<hr><p><a href='index.php?action=$action&act=edit&id=$id'>edit</a> this record";
+				if ( $dict['cqp'] ) {
+					# If so asked, get corpus results for this entry
+				
+					$tmp = $xpath->query($posxpath, $entry); if ($tmp) $arp = $tmp->item(0)->textContent;
+				
+					include ("../common/Sources/cwcqp.php");
+					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+  
+					$cqp = new CQP();
+					$cqp->exec($cqpcorpus); // Select the corpus
+					$cqp->exec("set PrettyPrint off");
+
+					# View all the documents of a given location
+					$location = $_GET['location'] or $location = $_GET['lat'].' '.$_GET['lng'];
+					$place = $_GET['place'];
+
+					$postag = $dict['cqp']['pos'] or $postag = "pos";
+					$lemtag = $dict['cqp']['lemma'] or $lemtag = "lemma";
+
+					$cqpquery = "Matches = [$lemtag=\"$ark\" & $postag=\"$arp.*\"]";
+					$cqp->exec($cqpquery); 
+					if ($debug) $maintext .= "<p>CQL: $cqpquery";
+
+					$size = $cqp->exec("size Matches");
+
+					if ( $size > 0 ) {
+						$maintext .= "<hr><p>corpus examples</p>";
+					
+						$cqpquery = "tabulate Matches 0 100 match text_id, match text_$ftit";
+						$results = $cqp->exec($cqpquery); 
+
+						foreach ( split ( "\n", $results ) as $line ) {	
+							list ( $fileid, $title ) = explode ( "\t", $line );
+							if ( preg_match ( "/([^\/]+)\.xml/", $fileid, $matches ) ) {	
+								$cid = $matches[1];
+								if ( $title == $fileid ) $title = $cid;
+		
+								$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$title</a></p>";
+							};
+						};
+					};
+				};
+			};
 		
 		};
 			

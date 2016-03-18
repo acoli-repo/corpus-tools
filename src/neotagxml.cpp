@@ -454,16 +454,23 @@ pugi::xpath_node_set getEndProb ( string word ) {
 	for ( int i = endlen; i + mblen > 0; i-- ) {
 		if ( word.length() > i ) {
 			string wordend = word.substr(word.length()-i, word.length());
-			if ( debug > 4 ) { cout << "    Trying ending: " << wordend << endl; };
 			// Do not count parts of MB chars
-			if ( ( *(wordend.substr(0,1).c_str()) & 0xc0 ) == 0x80 ) {  mblen++; continue; };
+			if ( ( *(wordend.substr(0,1).c_str()) & 0xc0 ) == 0x80 ) { 
+				if ( debug > 4 ) { cout << "    Skipping over partial UTF character: " << wordend << endl;  }; 
+				 mblen++; continue;
+			};
+			if ( debug > 4 ) { cout << "    Trying ending: " << wordend << endl; };
 			if ( !endProbs[wordend].empty() ) {
+				if ( debug > 4 ) { cout << "    Found some endings: " << endProbs[wordend].size() << endl; };
 				return endProbs[wordend];
 			} else {
 				string xpath = "item[@key=\""+wordend+"\"]/item";
 				pugi::xpath_node_set tmp = parameters.first_child().child("endings").select_nodes(xpath.c_str());
 				endProbs[wordend] = tmp;
-				if ( !tmp.empty() ) { return tmp; };
+				if ( !tmp.empty() ) { 
+					if ( debug > 4 ) { cout << "    Found some endings in XML: " << endProbs[wordend].size() << endl; };
+					return tmp; 
+				};
 			};
 		};
 	};
@@ -783,7 +790,7 @@ class tokpath {
 				else if ( debug ) { cout << stats["printout"] << "\t" ; };
 				cout << (*it).form << "\t" << besttag << "\t" << (*it).lemma;
 				cout << "\t" << (*it).source; 
-				if ( verbose > 1 && (*it).lemrule.size() ) { cout << " ~ " << (*it).lemrule; }; 
+				if ( debug > 1 && (*it).lemrule.size() ) { cout << " ~ " << (*it).lemrule; }; 
 
 				if ( debug || verbose ) { cout << "\t" << statline << "\t" << statline2; };
 				
@@ -795,7 +802,7 @@ class tokpath {
 						*outstream << "- dtok\t" ;
 						*outstream << (*it2).form << "\t" << (*it2).tag << "\t" << (*it2).lemma;
 						*outstream << "\t" << (*it2).source; 
-						if ( verbose > 1 && (*it2).lemrule.size() ) { *outstream << " ~ " << (*it2).lemrule; }; 
+						if ( debug > 1 && (*it2).lemrule.size() ) { *outstream << " ~ " << (*it2).lemrule; }; 
 						*outstream << endl;
 					};
 				};
@@ -977,21 +984,28 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 			if ( debug > 2 ) { cout << " -- possible post-clitic of " << word << " : " << base << " + " << ccform << "/" << cctag << " = " << ccprob << endl; };
 		};
 		if ( base != "" && base != word ) {
+			// In case of decontractions in normalized, kill spaces at the end of base word
+			if (  base.substr( base.length()-1, base.length()) == " " ) {
+				if ( debug > 4 ) { cout << "    Killing a space at the end: " << word << endl;  }; 
+				base = base.substr(0,base.length()-1);
+			};
+
 			vector<wordtoken> baseParse = morphoParse(base, insertword);
 			for ( int j=0; j<baseParse.size(); j++) {
 				wordtoken cb = baseParse.at(j);
 				if ( debug > 5 ) { cout << "    base word: " << cb.form << " : " << cb.tag << " = " << cb.prob << endl; };
+				
 				// check if this base word tag occurs with the clitic
 				string tmp = ".//sibling[@key=\""+cb.tag+"\"]";
 				if ( it->node().select_nodes(tmp.c_str()).empty() ) { 
-					if ( debug > 5 ) { cout << "    This base tag never appear with this clitic ~ " << tmp << endl; };
+					if ( debug > 4 ) { cout << "    This base tag never appear with this clitic ~ " << tmp << endl; };
 					continue;
 				};
+				
 				insertword.prob = ccprob * cb.prob;
 				insertword.source = "contractions: " + cb.source;
 				insertword.dtoks.clear();
 				wordtoken cctok; 
-				// cctok.lemma = it->node().attribute("lemma").value(); 
 				cctok.setform(ccform); cctok.settag(cctag); 
 				cctok.lexitem = it->node(); cctok.source = "contractions";
 				cb.lemmatize();
@@ -1030,7 +1044,7 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 	pugi::xpath_node_set tmp;
 	string xpath;
 
-	if ( verbose > 1 ) { cout << "** Processing new word: " << parseword.token.attribute("id").value() << " " << word << endl; };
+	if ( debug > 1 ) { cout << "** Processing new word: " << parseword.token.attribute("id").value() << " " << word << endl; };
 	
 	// step 1: see if we do not just know this word from the training corpus
 	tmp = getLexProb(word); 
@@ -1050,7 +1064,7 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 				};
 			}; 
 			insertword.source = "corpus:" + NumberToString(tmp.size());
-			if ( verbose > 2 ) { (*it).node().print(std::cout); };
+			if ( debug > 2 ) { (*it).node().print(std::cout); };
 			wordParse.push_back(insertword);
 			totprob += insertword.prob;
 		};
@@ -1072,7 +1086,7 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 						insertword.prob = insertword.prob / 1000; // divide by much to make it very unlikely but not impossible
 					};
 				}; 
-				if ( verbose > 2 ) { (*it).node().print(std::cout); };
+				if ( debug > 2 ) { (*it).node().print(std::cout); };
 				wordParse.push_back(insertword);
 				totprob += insertword.prob;
 			};
@@ -1080,7 +1094,6 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 	};	
 	
 	// step 2: see if it happens to be a clitic/contracted word
-	// TODO: this does not work yet
 	partialclitic = 0; // word that start with st which is sometimes a clitic should be treated as both
 	if ( parameters.first_child().child("dtoks") != NULL && wordParse.size() == 0 ) { // && dtoksout
 		wordtoken checkword; 
@@ -1119,7 +1132,7 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 		if ( !tmp.empty() ) {
 			pugi::xpath_node_set::const_iterator it = tmp.begin();
 			string foundend = (*it).node().parent().attribute("key").value();
-			if ( verbose > 1 ) { 
+			if ( debug > 3 ) { 
 				cout << " - " << tmp.size() << " types(s) found in training corpus for ending " << foundend << endl; 
 			};
 			for (pugi::xpath_node_set::const_iterator it = tmp.begin(); it != tmp.end(); ++it) {
@@ -1128,11 +1141,12 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 				insertword.source = "ending:" + foundend;
 				insertword.lexitem = (*it).node();
 				insertword.lemmatize();
-				if ( verbose > 2 ) { (*it).node().print(std::cout); };
+				if ( debug > 2 ) { (*it).node().print(std::cout); };
 				wordParse.push_back(insertword);
 				totprob += insertword.prob;
 			};
 		};
+
 	};
 	
 	// almost complete failure - try with raw POS frequencies 
@@ -1141,12 +1155,12 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 		xpath = "item";
 		tmp = parameters.first_child().child("tags").select_nodes(xpath.c_str());
 		if ( !tmp.empty() ) {
-			if ( verbose > 3 ) { cout << " - defaulting to the " << tmp.size() << " tags in the tagset " << endl; };
+			if ( debug > 3 ) { cout << " - defaulting to the " << tmp.size() << " tags in the tagset " << endl; };
 			for (pugi::xpath_node_set::const_iterator it = tmp.begin(); it != tmp.end(); ++it) {
 				insertword.settag((*it).node().attribute("key").value());
 				insertword.prob = atof((*it).node().attribute("cnt").value());
 				insertword.source = "tagset";
-				if ( verbose > 2 ) { (*it).node().print(std::cout); };
+				if ( debug > 2 ) { (*it).node().print(std::cout); };
 				wordParse.push_back(insertword);
 				totprob += insertword.prob;
 			};
@@ -1170,7 +1184,6 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 			wordParse[i].prob = wordParse[i].prob/totprob;
 		};
 	};
-
 	
 	return wordParse;
 }
@@ -1353,9 +1366,9 @@ int main (int argc, char * const argv[]) {
 		if ( (*it).node().attribute("restriction") == NULL 
 				|| doc.select_single_node((*it).node().attribute("restriction").value()) != NULL ) {
 			parameter = (*it).node();
-			if ( verbose > 2 ) cout << "  Applicable parameters restriction: " << (*it).node().attribute("restriction").value() << endl;
+			if ( debug > 2 ) cout << "  Applicable parameters restriction: " << (*it).node().attribute("restriction").value() << endl;
 		} else {
-			if ( verbose > 2 ) cout << "  Non-applicable parameters restriction: " << (*it).node().attribute("restriction").value() << endl;
+			if ( debug > 2 ) cout << "  Non-applicable parameters restriction: " << (*it).node().attribute("restriction").value() << endl;
 		};
 	};
 
@@ -1377,7 +1390,7 @@ int main (int argc, char * const argv[]) {
 	// See if we found a parameters folder to use - or throw an exception
 	if ( !strcmp(tagsettings.attribute("params").value(), "") ) {
         cout << "No parameters folder indicate or none applicable found in settings file: " << settingsfile << endl;
-		if ( verbose > 2 ) taglog.print(std::cout);
+		if ( debug > 2 ) taglog.print(std::cout);
         return -1;
 	} else {
 		if ( !parameters.load_file(tagsettings.attribute("params").value(), (pugi::parse_ws_pcdata)) ) { // pugi::parse_default | 
@@ -1512,13 +1525,13 @@ int main (int argc, char * const argv[]) {
 	if ( debug || verbose ) { 
 		float elapsed = (float(clock())-float(endT))/float(CLOCKS_PER_SEC);
 		float elapsed2 = (float(clock())-float(beginT))/float(CLOCKS_PER_SEC);
-		if ( debug >1 || verbose >1) { cout << "------------------" << endl << "-- done parsing --" << endl << "------------------" << endl; }
+		if ( debug >1 || debug >1) { cout << "------------------" << endl << "-- done parsing --" << endl << "------------------" << endl; }
 		else {  cout << "--------------------------" << endl; };
 				
 		cout << wordnr << " tokens tagged in " << elapsed << " (" 
 			<< wordnr/elapsed << " tk/s) - total time " << elapsed2 << endl; 
 		
-		if ( verbose > 2 ) {
+		if ( debug > 2 ) {
 			cout << "average word ambiguity: " << float(totparses)/float(wordnr) << endl;
 			cout << "average voc word ambiguity: " << float(totlexparses)/float(lexnr) << endl;
 			cout << "average path ambiguity: " << float(totpaths)/float(wordnr) << endl;
@@ -1539,7 +1552,7 @@ int main (int argc, char * const argv[]) {
 		cout << "oov lemmatization acc.: " << 100*(float(stats["tagoovlemgood"])/stats["oovtagmgood"]) << "%" << endl;
 
 	};
-	if ( verbose > 1 ) {
+	if ( debug > 1 ) {
 		cout << "---------- settings ------------" << endl;
 		for (map<string,string>::const_iterator it=settings.begin(); it!=settings.end(); ++it) {
 			cout << it->first << " : " << it->second << endl;   	
@@ -1579,7 +1592,7 @@ int main (int argc, char * const argv[]) {
 		doc.print(std::cout, "", pugi::format_raw, pugi::encoding_utf8); // , "\t", pugi::format_raw, pugi::encoding_utf8);
 	} else {
 		if ( !strcmp(outfile, "") ) { strcpy(outfile, tagsettings.attribute("xmlfile").value()); };
-		if ( verbose > 1 ) { cout << "Saving to: " << outfile << endl; };
+		if ( debug > 0 ) { cout << "Saving to: " << outfile << endl; };
 		doc.save_file(outfile, "", ( pugi::format_raw | pugi::format_no_escapes ) ); // , pugi::encoding_utf8);
 	};
 	
