@@ -7,6 +7,22 @@
 	$cid = $_POST['cid'] or $cid = $_GET['cid'] or $cid = $_GET['id'];
 
 	if ( $act == "view" || $_GET['atts'] ) {
+	
+		if ( !file_exists("$xmlfolder/$cid") ) { 
+			$oid = $cid;
+		
+			$cid = preg_replace("/^.*\//", "", $cid);
+			if ( !strstr(".xml", $cid) ) $cid .= ".xml";
+			$test = array_merge(glob("$xmlfolder/**/$cid")); 
+			if ( !$test ) 
+				$test = array_merge(glob("$xmlfolder/$cid"), glob("$xmlfolder/*/$cid"), glob("$xmlfolder/*/*/$cid"), glob("$xmlfolder/*/*/*/$cid")); 
+			$temp = array_pop($test); 
+			$cid = preg_replace("/^".preg_quote($xmlfolder, '/')."\/?/", "", $temp);
+	
+			if ( $cid == "" ) {
+				fatal("No such XML File: {$oid}"); 
+			};
+		};
 		
 		if ( !$_POST ) $_POST = $_GET;
 
@@ -96,18 +112,24 @@
 			$cqp->exec($cqpcorpus); // Select the corpus
 			$cqpquery = "Matches = <text> []";
 			$cqp->exec($cqpquery);
-			if ( $settings['cqp']['sattributes']['text']['title'] ) $tits = ", match text_title";
-			$results = $cqp->exec('tabulate Matches match text_id'.$tits);
-			$cqp->close();
+			$size = $cqp->exec("size Matches");
 			
-			foreach ( explode ( "\n", $results ) as $line ) {
-				list ( $fid, $ftitle ) = explode ( "\t", $line );
-				$fid = str_replace ( "xmlfiles/", "", $fid);
-				if ( !$ftitle || $ftitle == "_" ) $ftitle = $fid;
-				if ( $ftitle ) $cidlist .= "<option value=\"$fid\">$ftitle</option>";
+			if ( $size < 100 ) {
+				if ( $settings['cqp']['sattributes']['text']['title'] ) $tits = ", match text_title";
+				$results = $cqp->exec('tabulate Matches match text_id'.$tits);
+				$cqp->close();
+			
+				foreach ( explode ( "\n", $results ) as $line ) {
+					list ( $fid, $ftitle ) = explode ( "\t", $line );
+					$fid = str_replace ( "xmlfiles/", "", $fid);
+					if ( !$ftitle || $ftitle == "_" ) $ftitle = $fid;
+					if ( $ftitle ) $cidlist .= "<option value=\"$fid\">$ftitle</option>";
+				};
+			
+				$maintext .= "<p>{%Select a document}: <select name=cid>$cidlist</select>";
+			} else {
+				$maintext .= "<p>{%Select a document}: <input name=cid size=50>";
 			};
-			
-			$maintext .= "<p>{%Select a document}: <select name=cid>$cidlist</select>";
 		};
 		
 		$maintext .= "<p>{%CQP Query}: <input name=cql size=80 id=cql name=cql>
