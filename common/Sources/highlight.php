@@ -104,7 +104,14 @@
 			<form action='index.php?action=$action&act=view' method=post>";
 
 		if ( $cid ) {
+			require ("../common/Sources/ttxml.php");
+			$ttxml = new TTXML($cid, false);
+			$maintext .= "<hr><h2>".$ttxml->title()."</h2>"; 
+			$maintext .= $ttxml->tableheader(); 
+			$maintext .= $ttxml->viewheader(); 
+
 			$maintext .= "<input type=hidden name=cid value=\"$cid\">";
+
 		} else {
 			require ( "../common/Sources/cwcqp.php" );
 			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
