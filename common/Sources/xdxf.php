@@ -21,7 +21,7 @@
 
 	$arxpath = $dict['entry'] or $arxpath = "//lexicon/ar";
 	$hwxpath = $dict['headword'] or $hwxpath = "k";
-	$posxpath = $dict['pos'] or $hwxpath = "gr";
+	$posxpath = $dict['pos'] or $posxpath = "gr";
 
 	if ( $filename && !file_exists($filename) ) { fatal("Dictionary file not found: $filename"); }; 
 
@@ -145,7 +145,6 @@
 	
 		if ( preg_match("/lang_from=\"(.*?)\"/", $file, $matches) ) $langfrom = "{%lang-{$matches[1]}}";
 		if ( preg_match("/lang_to=\"(.*?)\"/", $file, $matches) ) $langto = " - {%lang-{$matches[1]}}";
-		
 		
 		$dicttitle = $dict['title'];
 		$maintext .= "\n<h1>$dicttitle</h1>";

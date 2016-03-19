@@ -1,10 +1,13 @@
 <?php
 	// Script to help with a position-based tagset
-	// The tagset is defined in settings.xml 
+	// The tagset is defined in tagset.xml
 	// (c) Maarten Janssen, 2015
 
+	require ( "../common/Sources/tttags.php" );
+
 	$maintext .= "<h1>{%Tagset}</h1>";
-	$tagset = $settings['tagset']['positions'];
+	$tttags = new TTTAGS("", false);
+	$tagset = $tttags->tagset['positions'];
 	if ( !$tagset ) { fatal("Tagset not position-based or positions not defined"); };
 		
 	if ( $act == "analyze" ) {
@@ -75,7 +78,6 @@
 		if ( $descriptionpage ) $maintext .= $descriptionpage;
 		else {	
 			$maintext .= "<h2>{%Description}";
-			# $maintext .= "</h2><p>{%Example}:";
 		};
 		
 		$maintext .= "<table>";

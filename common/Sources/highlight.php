@@ -12,7 +12,7 @@
 			$oid = $cid;
 		
 			$cid = preg_replace("/^.*\//", "", $cid);
-			if ( !strstr(".xml", $cid) ) $cid .= ".xml";
+			if ( !preg_match("/\.xml$/", $cid) ) $cid .= ".xml";
 			$test = array_merge(glob("$xmlfolder/**/$cid")); 
 			if ( !$test ) 
 				$test = array_merge(glob("$xmlfolder/$cid"), glob("$xmlfolder/*/$cid"), glob("$xmlfolder/*/*/$cid"), glob("$xmlfolder/*/*/*/$cid")); 
@@ -77,9 +77,11 @@
 		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
+		$size = $cqp->exec("set PrettyPrint off");
 		$cqpquery = "Matches = $cql :: match.text_id = \"xmlfiles/$cid\"";
 		$cqp->exec($cqpquery);
-		$results = $cqp->exec('tabulate Matches match .. matchend id');
+		$size = $cqp->exec("size Matches");
+		if ( $size > 0 ) $results = $cqp->exec('tabulate Matches match .. matchend id');
 		$cqp->close();
 		
 		if ( $subtit ) $hltit = "<p>{%Highlighted in the text are words with the following characteristics:} ".$subtit;
@@ -126,15 +128,18 @@
 				$results = $cqp->exec('tabulate Matches match text_id'.$tits);
 				$cqp->close();
 			
+				$options = array();
 				foreach ( explode ( "\n", $results ) as $line ) {
 					list ( $fid, $ftitle ) = explode ( "\t", $line );
 					$fid = str_replace ( "xmlfiles/", "", $fid);
 					if ( !$ftitle || $ftitle == "_" ) $ftitle = $fid;
-					if ( $ftitle ) $cidlist .= "<option value=\"$fid\">$ftitle</option>";
-				};
+					if ( $ftitle ) $options[$fid] = $ftitle;
+				}; natsort($options);
+				foreach ( $options as $fid => $ftitle ) $cidlist .= "<option value=\"$fid\">$ftitle</option>";
 			
 				$maintext .= "<p>{%Select a document}: <select name=cid>$cidlist</select>";
 			} else {
+				$cqp->close();
 				$maintext .= "<p>{%Select a document}: <input name=cid size=50>";
 			};
 		};

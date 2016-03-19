@@ -1,5 +1,9 @@
 <?php
 
+# A Class to read a TEITOK style TEI/XML file
+# expects the filename to be given in URL
+# (c) Maarten Janssen, 2015
+
 class TTXML
 {
 	public $filename; # The name of the file
