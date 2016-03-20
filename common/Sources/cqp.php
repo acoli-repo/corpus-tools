@@ -742,7 +742,7 @@
 	} else if ( $act == "advanced" ) {
 		
 		# Display the search screen (advanced search)
-	
+			
 		if ( file_exists("Pages/searchhelp.html") ) {
 			$maintext .= "<div style='position: absolute; top: 70px; right: 20px'><a href='index.php?action=searchhelp'>{%help}</a></div>";
 		};
@@ -790,7 +790,16 @@
 				$tstyle = " class=adminpart";
 				if ( !$username ) { continue; };
 			};
-			if ( substr($coldef['type'], -6) == "select" ) {
+			if ( $coldef['type'] == "mainpos" ) {
+				if ( !$tagset ) {
+					require ( "../common/Sources/tttags.php" );
+					$tagset = new TTTAGS("", false);
+				}; $optlist = "";
+				foreach ( $tagset->taglist() as $letters => $name ) {
+					$optlist .= "<option value=\"$letters.*\">$name</option>";
+				};
+				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
+			} else if ( substr($coldef['type'], -6) == "select" ) {
 				$tmp = file_get_contents("cqp/$col.lexicon"); unset($optarr); $optarr = array();
 				foreach ( explode ( "\0", $tmp ) as $kval ) { 
 					if ( $kval ) {
