@@ -51,8 +51,9 @@
 			}; if ( !$status ) { $status = "<span style='color: #009900'>(ok)</span>"; };
 			$interpret = preg_replace( "/;+$/", "", $interpret );
 			$interpret = preg_replace( "/;;+/", ";", $interpret );
+			$form = $tok['fform'] or $form = $tok['form'] or $form = $tok."";
 			$maintext .= "<tr>
-				<td><a href='index.php?action=tokedit&cid=$cid&tid={$tok['id']}' target=edit>{$tok['id']}<td>$tok
+				<td><a href='index.php?action=tokedit&cid=$cid&tid={$tok['id']}' target=edit>{$tok['id']}<td>$form
 				<td><a href='index.php?action=$action&act=analyze&tag=$mfs'>$mfs</a><td>$interpret
 				<td style='color: #992000;'>$status";
 		};
