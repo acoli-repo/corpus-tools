@@ -38,7 +38,7 @@
 		$maintext .= $ttxml->viewheader(); 
 
 		$maintext .= "<h2>Tag Validity Check</h2> <table>";
-		foreach ( $ttxml->xml->xpath("//tok[@".$tagfld."]") as $tok ) {
+		foreach ( $ttxml->xml->xpath("//tok[@".$tagfld."] | //dtok[@".$tagfld."]") as $tok ) {
 			$mfs = $tok[$tagfld]."";
 			$mainpos = $mfs[0]; $status = ""; $interpret = $tagset[$mainpos]['display'].";";
 			for ( $i = 1; $i<strlen($mfs); $i++ ) {
