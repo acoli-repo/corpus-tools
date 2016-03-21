@@ -108,6 +108,7 @@
 			$highlightheader
 			<form action='index.php?action=$action&act=view' method=post>";
 
+		# Show the document selector when needed
 		if ( $cid ) {
 			require ("../common/Sources/ttxml.php");
 			$ttxml = new TTXML($cid, false);
@@ -126,6 +127,7 @@
 			$cqp->exec($cqpquery);
 			$size = $cqp->exec("size Matches");
 			
+			# Make a pull-down of the document when no doc id is selected, or a field when there are too many
 			if ( $size < 100 ) {
 				if ( $settings['cqp']['sattributes']['text']['title'] ) $tits = ", match text_title";
 				$results = $cqp->exec('tabulate Matches match text_id'.$tits);
@@ -146,8 +148,100 @@
 				$maintext .= "<p>{%Select a document}: <input name=cid size=50>";
 			};
 		};
+
+		# Show word or CQP search	
+		$maintext .= "
+				<hr>
+				<p>{%Search method}:  &nbsp;
+					<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'cqp');\" $cdef> CQP &nbsp; &nbsp;
+					<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'word');\" $wdef> {%Word Search}
+				<script language=Javascript>
+				function switchtype ( tg, type ) { 
+					var types = [];
+					types['st'] = ['cqp', 'word'];
+					types['style'] = ['kwic', 'context'];
+					for ( var i in types[tg] ) {
+						stype = types[tg][i]; 
+						document.getElementById(stype+'search').style.display = 'none';
+					};
+					document.getElementById(type+'search').style.display = 'block';
+				};
+				</script>
+				<div name='wordsearch' id='wordsearch' style='display: none;'><table>";
+				
+		$cqpcols = array();
+		foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
+			if ( $username || !$item['admin'] ) array_push($cqpcols, $key); 
+		}; 
+		foreach ( $cqpcols as $col ) {
+			$colname = pattname($col);
+			if ( !$colname ) $colname = "[$col]";
+			$tstyle = ""; 
+			$coldef = $settings['cqp']['pattributes'][$col];
+			if ( $coldef['admin'] == "1" ) {
+				$tstyle = " class=adminpart";
+				if ( !$username ) { continue; };
+			};
+			if ( $coldef['type'] == "mainpos" ) {
+				if ( !$tagset ) {
+					require ( "../common/Sources/tttags.php" );
+					$tagset = new TTTAGS("", false);
+				}; $optlist = "";
+				foreach ( $tagset->taglist() as $letters => $name ) {
+					$optlist .= "<option value=\"$letters.*\">$name</option>";
+				};
+				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
+			} else if ( substr($coldef['type'], -6) == "select" ) {
+				$tmp = file_get_contents("cqp/$col.lexicon"); unset($optarr); $optarr = array();
+				foreach ( explode ( "\0", $tmp ) as $kval ) { 
+					if ( $kval ) {
+						if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
+						if ( $coldef['type'] == "kselect" || $coldef['translate'] ) $kvaltxt = "{%$col-$kval}"; else $kvaltxt = $kval;
+						if ( ( $coldef['type'] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) 
+							$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
+					};
+				};
+				sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+				if ( $coldef['select'] == "multi" ) $multiselect = "multiple";
+				
+				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col] $multiselect><option value=''>{%[select]}</option>$optlist</select>";
+
+			} else 
+				$maintext .= "<tr><td$tstyle>{%$colname}
+						      <td><select name=\"matches[$col]\"><option value='matches'>{%matches}</option><option value='startswith'>{%starts with}</option><option value='endsin'>{%ends in}</option><option value='contains'>{%contains}</option></select>
+						      <td><input name=vals[$col] size=50 $chareqfn>";
+		};
 		
-		$maintext .= "<p>{%CQP Query}: <input name=cql size=80 id=cql name=cql>
+		$maintext .= "</table>$chareqtxt</div>
+				<div name='cqpsearch' id='cqpsearch'>
+				<p>{%CQP Query}: &nbsp; <input name=cql size=70 value='{$cql}' $chareqfn>
+				$chareqjs 
+				$subheader
+				";
+
+			
+
+				
+		$maintext .= "
+							$stmp
+
+			<p><b>{%Searchable fields}</b>
+			
+			<table>
+			";
+			
+		foreach ( $cqpcols as $col ) {
+			$colname = pattname($col);
+			if ( $settings['cqp']['pattributes'][$col]['admin'] == "1" ) {
+				$maintext .= "<tr><th>$col<td class=adminpart>{%$colname}</tr>";				
+			} else {
+				$maintext .= "<tr><th>$col<td>{%$colname}</tr>";
+			};
+		};
+		$maintext .= "</table></div>
+			<hr>";
+		
+		$maintext .= "
 			<input type=submit value=\"{%Search}\">
 			</form>
 			";

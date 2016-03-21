@@ -17,6 +17,7 @@
 	if ( count($settings['xmltemplates']) == 1 ) {
 		$tmp = array_keys($settings['xmltemplates']);
 		$xmltemplate = $tmp[0];
+		if ( !file_exists($xmltemplate) ) $xmltemplate = "Resources/$xmltemplate";
 	} else if ( !$settings['xmltemplates'] ) {
 		$xmltemplate = "Resources/xmltemplate.xml";
 
