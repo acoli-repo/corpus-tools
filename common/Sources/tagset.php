@@ -28,7 +28,7 @@
 	} else if ( $act == "checkfile" ) {
 		check_login();
 		
-		$cid = $_GET['cid'];
+		$cid = $_GET['cid'] or $cid = $_GET['id'];
 		// Check if a certain file has only valid POS tags	
 		$tagfld = $settings['tagset']['fulltag'] or $tagfld = "pos";
 		require ("../common/Sources/ttxml.php");

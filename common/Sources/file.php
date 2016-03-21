@@ -616,12 +616,13 @@
  		};
 
 		$atthl = $_POST['atthl'] or $atthl = $_GET['atthl'];
+		$hlcol = $_POST['hlcol'] or $hlcol = $_GET['hlcol'] or $hlcol = $settings['defaults']['highlight']['color'] or $hlcol = "#ffffaa";
 		if ( $atthl ) {
 			list ( $att, $val ) = explode ( ":", $atthl );
 			$moreaction .= "\n";
 			foreach ( $xml->xpath("//tok[@$att=\"$val\"]") as $hltok ) {
 				$hlid = $hltok['id'];
-				$moreactions .= "highlight('$hlid', '#ffffaa');; ";
+				$moreactions .= "highlight('$hlid', '$hlcol'); ";
 			};
 			$moreaction .= "\n";
 		};
@@ -657,7 +658,7 @@
 					var jmpar = jmps.split(' ');
 					for (var i = 0; i < jmpar.length; i++) {
 						var jmpid = jmpar[i];
-						highlight(jmpid, '#ffff88');
+						highlight(jmpid, '$hlcol');
 					};
 					element = document.getElementById(jmpar[0])
 					alignWithTop = true;

@@ -89,10 +89,13 @@
 		$jmp = str_replace("\n", " ", $results);
 		$tmp = explode ( " ", $jmp ); $size = count($tmp);
 		
+		$hlcol = $_POST['hlcol'] or $hlcol = $_GET['hlcol'];
+		
 		if ( $debug ) { print "<p>Query: $cqpquery<p>Matches found: $jmp<p>Link: <a href='index.php?action=file&cid=$cid&jmp=$jmp&hltit=$hltit'>index.php?action=file&cid=$cid&jmp=$jmp&hltit=$hltit</a>"; exit; };
 		print "$size Matching. Reloading
 			<form action='index.php?action=file&cid=$cid' method=post id=fwform name=fwform>
 			<input type=hidden name=jmp value='$jmp'>
+			<input type=hidden name=hlcol value='$hlcol'>
 			<input type=hidden name=hltit value='$hltit'>
 			</form>
 			<script language=Javascript>document.fwform.submit();</script>";
