@@ -30,14 +30,14 @@
 		
 		$cid = $_GET['cid'];
 		// Check if a certain file has only valid POS tags	
-		$tagfld = $settings['tagset']['fulltag'];
+		$tagfld = $settings['tagset']['fulltag'] or $tagfld = "pos";
 		require ("../common/Sources/ttxml.php");
 		$ttxml = new TTXML($cid, false);
 		$maintext .= "<h2>".$ttxml->title()."</h2>"; 
 		$maintext .= $ttxml->tableheader(); 
 		$maintext .= $ttxml->viewheader(); 
 
-			$maintext .= "<h2>Tag Validity Check</h2> <table>";
+		$maintext .= "<h2>Tag Validity Check</h2> <table>";
 		foreach ( $ttxml->xml->xpath("//tok[@".$tagfld."]") as $tok ) {
 			$mfs = $tok[$tagfld]."";
 			$mainpos = $mfs[0]; $status = ""; $interpret = $settings['tagset']['positions'][$mainpos]['display'].";";

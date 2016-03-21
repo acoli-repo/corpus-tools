@@ -10,8 +10,12 @@ class TTTAGS
 	public $username; # Username
 
 	function __construct($filename = "", $fatal = 1) {	
-	
+		global $lang;
 		if ( $filename != "" ) {
+			$this->xml = simplexml_load_file($filename);
+			$this->tagset = xmlflatten($this->xml);
+		} else if ( file_exists("Resources/tagset-$lang.xml") ) { // allow language-specific tagsets
+			$filename = "Resources/tagset-$lang.xml";
 			$this->xml = simplexml_load_file($filename);
 			$this->tagset = xmlflatten($this->xml);
 		} else if ( file_exists("Resources/tagset.xml") ) {
