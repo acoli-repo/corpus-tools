@@ -40,14 +40,14 @@
 		$maintext .= "<h2>Tag Validity Check</h2> <table>";
 		foreach ( $ttxml->xml->xpath("//tok[@".$tagfld."]") as $tok ) {
 			$mfs = $tok[$tagfld]."";
-			$mainpos = $mfs[0]; $status = ""; $interpret = $settings['tagset']['positions'][$mainpos]['display'].";";
+			$mainpos = $mfs[0]; $status = ""; $interpret = $tagset[$mainpos]['display'].";";
 			for ( $i = 1; $i<strlen($mfs); $i++ ) {
 				$let = $mfs[$i];
-				if ( !$settings['tagset']['positions'][$mainpos] ) $status .= "Invalid main POS $mainpos; ";
-				if ( !$settings['tagset']['positions'][$mainpos][$i][$let] ) {
+				if ( !$tagset[$mainpos] ) $status .= "Invalid main POS $mainpos; ";
+				if ( !$tagset[$mainpos][$i][$let] ) {
 					$status .= "Invalid $let in position $i for $mainpos; ";
 					$interpret .= "?;";
-				} else { $interpret .= $settings['tagset']['positions'][$mainpos][$i][$let]['display'].";"; };
+				} else { $interpret .= $tagset[$mainpos][$i][$let]['display'].";"; };
 			}; if ( !$status ) { $status = "<span style='color: #009900'>(ok)</span>"; };
 			$interpret = preg_replace( "/;+$/", "", $interpret );
 			$interpret = preg_replace( "/;;+/", ";", $interpret );
