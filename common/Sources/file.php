@@ -616,7 +616,8 @@
  		};
 
 		$atthl = $_POST['atthl'] or $atthl = $_GET['atthl'];
-		$hlcol = $_POST['hlcol'] or $hlcol = $_GET['hlcol'] or $hlcol = $settings['defaults']['highlight']['color'] or $hlcol = "#ffffaa";
+		$hlcol = $_POST['hlcol'] or $hlcol = $_GET['hlcol'] or $hlcol = $settings['defaults']['highlight']['color'] or $hlcol = "#ffffaa"; 
+		if ( preg_match("/^[0-9a-f]+$/", $hlcol) ) $hlcol = "#".$hlcol; 
 		if ( $atthl ) {
 			list ( $att, $val ) = explode ( ":", $atthl );
 			$moreaction .= "\n";
