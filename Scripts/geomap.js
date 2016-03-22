@@ -50,12 +50,16 @@
 		var contentString = doc.cid;
 
 
-		// Make dots on scale red - blue
-		var blue = ( '0' + Math.floor(colsteps*rescale(doc.cnt)).toString(16) ).substr(-2);
-		var green = '00';
-		var red = ( '0' + Math.floor(colsteps*(rescale(maxcnt)-rescale(doc.cnt))).toString(16) ).substr(-2);
-		var mcol = '#' + red + green + blue;
-
+		if ( maxcnt > 1 ) {
+			// Make dots on scale red - blue
+			var blue = ( '0' + Math.floor(colsteps*rescale(doc.cnt)).toString(16) ).substr(-2);
+			var green = '00';
+			var red = ( '0' + Math.floor(colsteps*(rescale(maxcnt)-rescale(doc.cnt))).toString(16) ).substr(-2);
+			var mcol = '#' + red + green + blue;
+		} else {
+			var mcol = '#990000';
+		};
+		
 		// Define what to put in the infowindow
 		var htmltxt = '';
 		if ( typeof doc.desc != "undefined" ) {
