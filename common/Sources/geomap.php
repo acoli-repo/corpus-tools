@@ -10,7 +10,7 @@ $geoplace = $settings['geomap']['cqp']['place'] or $geoplace = "place";
 $ftit = $settings['geomap']['cqp']['title'] or $ftit = "id";
 
 $docname = $settings['geomap']['documents'] or $docname = "documents";
-$pagtit = $settings['geomap']['title'] or $docname = "Document Map";
+$pagtit = $settings['geomap']['title'] or $pagtit = "Document Map";
 
 $apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B6JSu5Ne7WkNSE"; # Use our key when no other key is defined  
   
