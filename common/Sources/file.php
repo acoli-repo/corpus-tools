@@ -160,6 +160,7 @@
 	if ( strstr($file, '</tok>' ) ) $tokcheck = 1; 
 
 	if ( $settings['xmlfile']['restriction'] && !$xml->xpath($settings['xmlfile']['restriction']) && !$username ) { 
+		$restricted = 1;
 		// This file is not accessible - restrict to limited amound of words
 		$maxwords = $settings['xmlfile']['maxwords'] or $maxwords = 20;
 		if ( $_GET['jmp'] ) $prevword = substr($_GET['jmp'], 2);
@@ -302,20 +303,22 @@
 						<hr>
 						";
 
-	} else {
+	} else if ( $mtxtelement ) {
 		$result = $xml->xpath($mtxtelement); 
 		if ( $result ) {
 			$txtxml = $result[0]; 
 			$editxml = $txtxml->asXML();
 		} else {
-			# print $xml->asXML(); exit;
-			# $result = $xml->xpath("//name"); 
-			# print "$mtxtelement failed - trying something else : "; print_r($result); exit;
 		 	fatal ("Display element not found: $mtxtelement");
 		};
+	} else {
+	
+		$editxml = "<text></text>";
 
 	};
-	if ( $settings['xmlfile']['restriction'] && !$xml->xpath($settings['xmlfile']['restriction']) && $username ) { 
+	
+	// Show a header above files that are only partially shown (to users) 
+	if ( $restricted && $username ) { 
 		$pagenav .= "<p class=adminpart>This text is only show partially to visitors due to copyright restrictions; 	
 			to liberate this file, set ".$settings['xmlfile']['restriction']." in the header<hr>";
 	};
@@ -338,7 +341,7 @@
 				 $editxml = $txtxml.'';
 			};
 	
-	if (file_exists("Pages/csslegenda.html")) $customcss = file_get_contents("Pages/csslegenda.html");
+	if ( file_exists("Pages/csslegenda.html") ) $customcss = file_get_contents("Pages/csslegenda.html");
 
 	# Define which view to show
 	$defaultview = $settings['xmlfile']['defaultview'];
@@ -569,7 +572,7 @@
 					</p><hr>
 					";
 
-			} else if ( preg_replace( "/\s*<.*?>\s*/", "", $editxml."") == "" && !preg_match("/<$pbelm/", $editxml) )  {
+			} else if ( $emptyxml )  {
 			 	# If the XML is empty, immediately show the edit mode
 			 	
 				$maintext .= "<div class=adminpart>
