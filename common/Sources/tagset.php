@@ -30,7 +30,7 @@
 		
 		$cid = $_GET['cid'] or $cid = $_GET['id'];
 		// Check if a certain file has only valid POS tags	
-		$tagfld = $settings['tagset']['fulltag'] or $tagfld = "pos";
+		$tagfld = $tagset->tagset['fulltag'] or $tagfld = "pos";
 		require ("../common/Sources/ttxml.php");
 		$ttxml = new TTXML($cid, false);
 		$maintext .= "<h2>".$ttxml->title()."</h2>"; 

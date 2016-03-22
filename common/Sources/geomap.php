@@ -9,6 +9,8 @@ $geofld = $settings['geomap']['cqp']['geo'] or $geofld = "geo";
 $geoplace = $settings['geomap']['cqp']['place'] or $geoplace = "place";
 $ftit = $settings['geomap']['cqp']['title'] or $ftit = "id";
 
+$docname = $settings['geomap']['documents'] or $docname = "documents";
+
 $apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B6JSu5Ne7WkNSE"; # Use our key when no other key is defined  
   
 
@@ -49,7 +51,7 @@ if ( $act == "xml" ) {
 	  $moresettings
 	  var defzoom = 8;
 	  var jsondata = '$jsondata';
-	  var doctxt = '{%documents}';
+	  var doctxt = '{%$docname}';
 	</script>
 	<script src=\"$jsurl/geomap.js\"></script>
 	<script async defer src=\"https://maps.googleapis.com/maps/api/js?key=$apikey&callback=initMap\"></script>
@@ -80,7 +82,7 @@ if ( $act == "xml" ) {
 	$size = $cqp->exec("size Matches");
 
 	$maintext .= "<h1>{%Documents from} $place</h1>
-		<p>$size {%documents}</p><hr>";
+		<p>$size {%$docname}</p><hr>";
 
 	if ( $size > 0 ) {
 		$cqpquery = "tabulate Matches 0 100 match text_id, match text_$ftit";
@@ -91,8 +93,8 @@ if ( $act == "xml" ) {
 			list ( $fileid, $title ) = explode ( "\t", $line );
 			if ( preg_match ( "/([^\/]+)\.xml/", $fileid, $matches ) ) {	
 				$cid = $matches[1];
-				if ( $title == $fileid ) $title = $cid;
-		
+				if ( $title == $fileid || $title == "" ) $title = $cid;
+
 				$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$title</a></p>";
 			};
 		};
@@ -146,7 +148,7 @@ if ( $act == "xml" ) {
 	};
 
 	$fileheader = getlangfile("geomaptext");
-	
+		
 	// Larger circles indicate more documents from that location.
 	$maintext  .= "
 	<h1>{%Document Map}</h1>
@@ -157,7 +159,7 @@ if ( $act == "xml" ) {
 	<script>
 	  $moresettings
 	  var jsondata = '$jsondata';
-	  var doctxt = '{%documents}';
+	  var doctxt = '{%$docname}';
 	</script>
 	<script src=\"$jsurl/geomap.js\"></script>
 	<script async defer src=\"https://maps.googleapis.com/maps/api/js?key=$apikey&callback=initMap\"></script>

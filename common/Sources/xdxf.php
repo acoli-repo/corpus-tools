@@ -164,7 +164,7 @@
 			<hr>
 			<div id=\"dict\">";
 
-		if ( !$query && !$id && !$debug ) {
+		if ( !$query && !$id && !$debug && $act != "list" ) {
 
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { print "Dict XML Error - unable to read $filename"; exit; };
