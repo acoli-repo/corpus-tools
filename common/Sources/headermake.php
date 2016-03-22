@@ -103,6 +103,7 @@
 			$warning = "<div style='font-weight: bold; color: #992000'>The stored $filename was not automatically generated - saving from this tool might overwrite manually set parameters in the file, it might be better to edit the raw file instead.</div>";
 		};
 
+		$i=0;
 		foreach ( $headerrows as $row ) {
 			
 			$name = $row['name']; $xpath = $row['xpath'];
@@ -123,6 +124,7 @@
 					<td><input size=40 name='name[$i]' value='$name'><br>$defname
 					<td><input size=100 name='xpath[$i]' value='$xpath'><br>$curval
 					";
+			$i++;
 		};
 		$maintext .= "</table>
 				<input type=submit value=Save> 
