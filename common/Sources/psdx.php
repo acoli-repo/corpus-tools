@@ -12,6 +12,7 @@
 	$treestyles = array ( 
 		"text" => "Text",
 		"xmltext" => "Sentence",
+		"bracketstring" => "Brackets",
 		"table" => "Table",
 		"horizontal" => "Table graph",
 		"vertical" => "Vertical graph",
@@ -224,55 +225,19 @@
 				} else if ( $resxml ) {
 					$forestlist = $resxml->xpath("//forest");
 					$maintext .= "<p>".count($forestlist)." matching (sub)trees";
-					if ( $treestyle == "xmltext" ) {
-						#Build the view options	
-						foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
-							$formcol = $item['color'];
-							# Only show forms that are not admin-only
-							if ( $username || !$item['admin'] ) {	
-								if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
-								$ikey = $item['inherit'];
-								if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] ) || $key == "pform" || 1==1 ) { #  || $item['subtract'] && preg_match("/ $ikey=/", $editxml)
-									$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
-									$fbc++;
-								};
-								if ( $key != "pform" ) { 
-									if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
-									$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
-								};
-							};
-						};
-						foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
-							$val = $item['display'];
-							if ( preg_match("/ $key=/", $editxml) || 1==1 ) {
-								if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
-								if ( !$item['admin'] || $username ) {
-									if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
-									$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
-									$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
-									$pcolor = $item['color'];
-									$tagstxt .= " <button id='tbt-$key' style='background-color: #$bc; color: $pcolor;$bgcol' onClick=\"toggletag('$key')\">{%$val}</button>";
-								};
-							} else if ( is_array($labarray) && ($akey = array_search($key, $labarray)) !== false) {
-								unset($labarray[$akey]);
-							};
-						};
-						$maintext .= "
-						$formbuts 
-						<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
-						"; # $tagstxt
-					};
 					foreach ( $forestlist as $forest ) {
-						$maintext .= "<hr>";
 						$sentid = $forest['sentid'] or $sentid = $forest['Location'];
 						$fileid = $forest['File'];
-						if ( $sentid && $fileid ) {
-							$nodeid = $forest->eTree[0]['id'];
-							$maintext .= "<p>{%Text}: <a href='index.php?action=file&cid=$fileid'>$fileid</a>, 
-								{%Sentence}: <a href='index.php?action=$action&cid=$fileid&sentence=$sentid&node={$nodeid}' target=sent>$sentid</a></p>";
-						} else if ( $fileid ) {
-							$maintext .= "<p>File: <a href='index.php?action=$action&cid=$fileid'>$fileid</a></p>";
-						}; 
+						if ( $treestyle != "xmltext" ) {
+							$maintext .= "<hr>";
+							if ( $sentid && $fileid ) {
+								$nodeid = $forest->eTree[0]['id'];
+								$maintext .= "<p>{%Text}: <a href='index.php?action=file&cid=$fileid'>$fileid</a>, 
+									{%Sentence}: <a href='index.php?action=$action&cid=$fileid&sentence=$sentid&node={$nodeid}' target=sent>$sentid</a></p>";
+							} else if ( $fileid ) {
+								$maintext .= "<p>File: <a href='index.php?action=$action&cid=$fileid'>$fileid</a></p>";
+							};
+						};
 						if ( $treestyle == "text" ) {
 							$editxml = totext($forest);
 							$maintext .=  "<div id=mtxt>".$editxml."</div>";
@@ -281,7 +246,12 @@
 							list ( $editxml, $ids ) = toxmltext($forest, $divid);
 							$editxml = preg_replace("/id=\"(.*?)\"/", "id=\"\\1_$divid\"", $editxml);
 							$totids .= $ids;
-							$maintext .=  "<div id=mtxt>".$editxml."</div>";
+							$sentlist .=  "<tr id=\"$divid\">
+									<td style=\"padding-right: 10px;\"><a href='index.php?action=file&cid=$fileid'>text</a>
+										<br><a href='index.php?action=$action&cid=$fileid&sentence=$sentid&node={$nodeid}' target=sent>tree</a>
+									<td id=mtxt>".$editxml."</td></tr>";
+						} else if ( $treestyle == "bracketstring" ) {
+							$maintext .=  "<div id=tree>".bracketstring($forest)."</div>";
 						} else if ( $treestyle == "table" ) {
 							$maintext .=  "<div id=tree>".drawtree($forest, true)."</div>";
 						} else if ( $treestyle == "svg" ) {
@@ -310,7 +280,43 @@
 						";
 					} else if ( $treestyle == "xmltext" ) {
 						$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
+						#Build the view options	
+						foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+							$formcol = $item['color'];
+							# Only show forms that are not admin-only
+							if ( $username || !$item['admin'] ) {	
+								if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+								$ikey = $item['inherit'];
+								if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] ) || $key == "pform" || 1==1 ) { #  || $item['subtract'] && preg_match("/ $ikey=/", $editxml)
+									$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+									$fbc++;
+								};
+								if ( $key != "pform" ) { 
+									if ( !$item['admin'] || $username ) { $attlisttxt .= $alsep."\"$key\""; $alsep = ","; };
+								};
+							};
+						};
+						foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+							$val = $item['display'];
+							if ( preg_match("/ $key=/", $editxml) || 1==1 ) {
+								if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
+								if ( !$item['admin'] || $username ) {
+									if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+									$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
+									$pcolor = $item['color'];
+									$tagstxt .= " <button id='tbt-$key' style='background-color: #$bc; color: $pcolor;$bgcol' onClick=\"toggletag('$key')\">{%$val}</button>";
+								};
+							} else if ( is_array($labarray) && ($akey = array_search($key, $labarray)) !== false) {
+								unset($labarray[$akey]);
+							};
+						};
 						$maintext .= "
+						<p>$formbuts 
+						<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
+							<div id=mtxt>
+							<table>
+							$sentlist
+							</table>
 							</div>
 							<script language=Javascript src='$jsurl/tokedit.js'></script>
 							<script language=Javascript src='$jsurl/tokview.js'></script>
@@ -869,6 +875,21 @@
 			$text .= $node['Text']." ";
 		}; 
 		return $text;
+	};	
+
+	function bracketstring ( $forestxml ) {
+		# Turn the tree into text
+		$string = "";
+		if ( $forestxml->getName() == "eLeaf" ) {
+			return $forestxml['Text'].$forestxml['Notext'];
+		} else {
+			$result = $forestxml->children();
+			$cat = $forestxml['Label'];
+			foreach ( $result as $node ) { 
+				$text .= bracketstring($node);
+			}; 
+			return "[<sub>$cat</sub> $text] ";
+		};
 	};	
 
 	function toxmltext ( $forestxml, $divid = "" ) {
