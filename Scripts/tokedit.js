@@ -561,14 +561,14 @@ function unhighlight () {
 	};
 };
 
-function highlight ( id, color ) {
+function highlight ( id, color, dtokcolor = color ) {
 	if ( !id )  { return -1; };
 	if ( document.getElementById(id) ) {
 		var element = document.getElementById(id);
 		
 		// Move up to TOK when we are trying to highlight a DTOK
-		if ( element.parentNode.tagName == "TOK" ) { element = element.parentNode; color = '#00ffff'; };
-		if ( element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; color = '#00ffff'; };
+		if ( element.parentNode.tagName == "TOK" ) { element = element.parentNode; color = dtokcolor; };
+		if ( element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; color = dtokcolor; };
 		
 		element.style['background-color'] = color;
 		element.style.backgroundColor= color; 
