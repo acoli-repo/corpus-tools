@@ -5,6 +5,11 @@
 	$sentenceid = $_GET['sentence'];
 	$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'];
 	$xpath = stripslashes($xpath);
+	$psdxfile = "Annotations/$cid.psdx";
+	if ( !file_exists($psdxfile) ) {
+		$test = array_merge(glob("Annotations/$cid.psdx"), glob("Annotations/*/$cid.psdx"), glob("Annotations/*/*/$cid.psdx"), glob("Annotations/*/*/*/$cid.psdx")); 
+		$psdxfile = array_pop($test); 
+	};
 	
 	$treestyle = $_GET['treestyle'] or $treestyle = $_POST['treestyle'] or $treestyle = $_COOKIE['treestyle']  or $treestyle = $_SESSION['treestyle'] or $treestyle = $settings['psdx']['treestyle'] or $treestyle = "horizontal";
 	$_COOKIE['treestyle'] = $_SESSION['treestyle'] = $_GET['treestyle'];
@@ -43,7 +48,7 @@
 			$filename = "$cid.psd";
 			header("Content-type: text/txt"); 
 			header('Content-disposition: attachment; filename="'.$filename.'"');
-			$file = file_get_contents("Annotations/$cid.psdx");
+			$file = file_get_contents($psdxfile);
 			$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			print "// PSD Tree generated from PSDX by TEITOK\n\n";
 			foreach  ($forestxml->xpath('//forest') as $forest ) {
@@ -69,7 +74,7 @@
 			header("Content-type: text/txt"); 
 			header('Content-disposition: attachment; filename="'.$filename.'"');
 			
-			print file_get_contents("Annotations/$cid.psdx"); 
+			print file_get_contents($psdxfile); 
 			exit;
 			
 		} else {
@@ -228,10 +233,10 @@
 					foreach ( $forestlist as $forest ) {
 						$sentid = $forest['sentid'] or $sentid = $forest['Location'];
 						$fileid = $forest['File'];
+						$nodeid = $forest->eTree[0]['id'];
 						if ( $treestyle != "xmltext" ) {
 							$maintext .= "<hr>";
 							if ( $sentid && $fileid ) {
-								$nodeid = $forest->eTree[0]['id'];
 								$maintext .= "<p>{%Text}: <a href='index.php?action=file&cid=$fileid'>$fileid</a>, 
 									{%Sentence}: <a href='index.php?action=$action&cid=$fileid&sentence=$sentid&node={$nodeid}' target=sent>$sentid</a></p>";
 							} else if ( $fileid ) {
@@ -246,8 +251,9 @@
 							list ( $editxml, $ids ) = toxmltext($forest, $divid);
 							$editxml = preg_replace("/id=\"(.*?)\"/", "id=\"\\1_$divid\"", $editxml);
 							$totids .= $ids;
+							$linkids = preg_replace("/_r-\d+/", "", $ids);
 							$sentlist .=  "<tr id=\"$divid\">
-									<td style=\"padding-right: 10px;\"><a href='index.php?action=file&cid=$fileid'>text</a>
+									<td style=\"padding-right: 10px;\"><a href='index.php?action=file&cid=$fileid&jmp=$linkids'>text</a>
 										<br><a href='index.php?action=$action&cid=$fileid&sentence=$sentid&node={$nodeid}' target=sent>tree</a>
 									<td id=mtxt>".$editxml."</td></tr>";
 						} else if ( $treestyle == "bracketstring" ) {
@@ -400,7 +406,7 @@
 		check_login();
 		$cid = $_POST['cid'];
 
-		$file = file_get_contents("Annotations/$cid.psdx");
+		$file = file_get_contents($psdxfile);
 		$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$forestxml ) { fatal ("File not found or not parsable: $cid"); };
 		
@@ -421,7 +427,7 @@
 		
 		renumber($forestxml);		
 		
-		file_put_contents("Annotations/$cid.psdx", $forestxml->asXML());
+		file_put_contents($psdxfile, $forestxml->asXML());
 		print "Changes have been saved
 			<script language=Javascript>top.location='index.php?action=$action&cid=$cid&treeid=$treeid&node=$nid';</script>"; exit;
 
@@ -432,7 +438,7 @@
 		$treeid = $_POST['treeid'];
 
 		if ($_POST['newxml']) {
-			$file = file_get_contents("Annotations/$cid.psdx");
+			$file = file_get_contents($psdxfile);
 			$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$forestxml ) { print "Forest not found: $cid<hr>"; print $file; exit; };
 
@@ -452,7 +458,7 @@
 			$newfile = preg_replace("/<[^>]+>##INSERT##<\/[^>]+>/", $newxml, $source);
 			
 			print "top.location='index.php?action=$action&cid=$cid&treeid=$treeid&node=$nid';";
-			file_put_contents("Annotations/$cid.psdx", $newfile);
+			file_put_contents($psdxfile, $newfile);
 			print "Changes have been saved
 				<script language=Javascript>top.location='index.php?action=$action&cid=$cid&treeid=$treeid&node=$nid';</script>"; exit;
 		};
@@ -460,11 +466,11 @@
 	} else if ( $act == "treeedit" && $treeid && $cid ) {
 	
 		check_login();
-		if ( !is_writable("Annotations/$cid.psdx")  ) {
+		if ( !is_writable($psdxfile)  ) {
 			fatal ("File Annotations/$cid.psdx is not writable - please contact admin"); 
 		};
 		
-		$file = file_get_contents("Annotations/$cid.psdx");
+		$file = file_get_contents($psdxfile);
 		$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$forestxml ) { fatal ("Failed to load PSDX file: Annotations/$cid.psdx"); }; # print "Node not found: <hr>//forest[@id=\"$treeid\"]//*[@id=\"$nid\"]<hr>".htmlentities($forestxml->asXML()); exit; };
 
@@ -517,11 +523,11 @@
 
 	} else if ( $act == "nodeedit" && $_GET['nid'] && $treeid ) {
 		check_login();
-		if ( !is_writable("Annotations/$cid.psdx")  ) {
+		if ( !is_writable($psdxfile)  ) {
 			fatal ("File Annotations/$cid.psdx is not writable - please contact admin"); 
 		};
 		
-		$file = file_get_contents("Annotations/$cid.psdx");
+		$file = file_get_contents($psdxfile);
 		$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$forestxml ) { fatal ("Failed to load PSDX file: Annotations/$cid.psdx"); }; # print "Node not found: <hr>//forest[@id=\"$treeid\"]//*[@id=\"$nid\"]<hr>".htmlentities($forestxml->asXML()); exit; };
 		$nid = $_GET['nid'];
@@ -559,18 +565,18 @@
 			<p><input type=submit value=Save>
 			</form>";
 					
-	} else if ( $cid && file_exists("Annotations/$cid.psdx") ) {
+	} else if ( $cid && file_exists($psdxfile) ) {
 
-		$file = file_get_contents("Annotations/$cid.psdx");
+		$file = file_get_contents($psdxfile);
 		$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 
 		# Check if there are <forest> <eTree> or <eLeaf> without @is - if so, renumber and reload
 		if ( $forestxml->xpath("//forest[not(@id)] | //eTree[not(@id)] | //eLeaf[not(@id)]") ) {
-			if ( !is_writable("Annotations/$cid.psdx")  ) {
-				if ( $username ) fatal ("File Annotations/$cid.psdx is not writable - please contact admin"); 
+			if ( !is_writable($psdxfile)  ) {
+				if ( $username ) fatal ("File Annotations/$cid.psdx is not writable (and needs to be renumbered) - please contact admin"); 
 			} else {
 				renumber($forestxml);
-				file_put_contents("Annotations/$cid.psdx", $forestxml->asXML());
+				file_put_contents($psdxfile, $forestxml->asXML());
 				print "<p>File not properly numbered - renumbering and reloading
 				<script language=Javascript>location.reload(true);</script>";
 				exit;
@@ -912,6 +918,7 @@
 		$tmp = $txtxml->xpath("//s[@id=\"$sentid\"]"); $sentxml = $tmp[0];
 		
 		if ( $sentxml ) $text = $sentxml->asXML();
+		else $text = "<i>".totext($forestxml)."</i>";
 				
 		return array ( $text, $idlist );
 	};	

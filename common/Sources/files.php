@@ -123,7 +123,7 @@
 		if ( $username ) 
 		$maintext .= "
 			<div class='adminpart'>
-			<form class=adminpart style='padding: 4px;' action='index.php?action=edit' method=post>
+			<form class=adminpart style='padding: 4px;' action='index.php?action=file' method=post>
 			<p>Give the ID of the XML File to open: <input name=id> <input type=submit value=Open>
 			</form>
 			<p>Or select a file from the list below:
@@ -156,7 +156,7 @@
 				if ( $username ) {
 					$editlink = "<div style='display: inline-block; padding: 4px;' class=adminpart><a href='index.php?action=$action&act=mv&id=$subftxt2$file'>rename</a></div> ";
 				};
-				$filelist .= "<p>$editlink<a href='index.php?action=edit&id=$subftxt2$file'>$file</a>"; 
+				$filelist .= "<p>$editlink<a href='index.php?action=file&id=$subftxt2$file'>$file</a>"; 
 				$cnt++;
 			} else if ( is_dir($subf.$file) ) {
 				$dirlist .= "<p><a href='index.php?action=files&folder=$subf$file'><b>{%$file}</b></a>";

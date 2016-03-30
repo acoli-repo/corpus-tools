@@ -561,8 +561,9 @@ function unhighlight () {
 	};
 };
 
-function highlight ( id, color, dtokcolor = color ) {
+function highlight ( id, color, dtokcolor ) {
 	if ( !id )  { return -1; };
+	if ( !dtokcolor )  { dtokcolor = color; };
 	if ( document.getElementById(id) ) {
 		var element = document.getElementById(id);
 		

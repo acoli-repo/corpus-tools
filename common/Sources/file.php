@@ -513,7 +513,7 @@
 				if ( $mtype == "audio" ) {
 					# Determine the URL of the audio fragment
 					$audiourl = $medianode['url'];
-					if ( !strstr('http', $audiourl) ) {
+					if ( !strstr($audiourl, 'http:') ) {
 						if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
 						else $audiourl = "$baseurl/Audio/$audiourl"; 
 					}
@@ -551,9 +551,14 @@
 		};
 		
 		if ( $viewoptions != "" ) {
+			# Show the View options - hidden when Javascript does not fire.
 			$maintext .= "
-				<p><h2>{%View options}</h2>
+				<div style='display: none;' id=jsoptions><h2>{%View options}</h2>
 				$viewoptions
+				</div>
+				<div style='display: block; color: #992000;' id=nojs>
+				{%Javascript seems to be turned off. Turn on Javascript for more display options.}
+				</div>
 				<hr>
 				";
 					
@@ -668,6 +673,8 @@
 					alignWithTop = true;
 					element.scrollIntoView(alignWithTop);
 				};
+				document.getElementById('jsoptions').style.display = 'block';
+				document.getElementById('nojs').style.display = 'none';
 			</script>
 			";
 	
