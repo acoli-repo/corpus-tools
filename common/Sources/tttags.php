@@ -11,7 +11,7 @@ class TTTAGS
 
 	function __construct($filename = "", $fatal = 1) {	
 		global $lang;
-		if ( $filename != "" ) {
+		if ( $filename != "" && file_exists($filename) ) {
 			$this->xml = simplexml_load_file($filename);
 			$this->tagset = xmlflatten($this->xml);
 		} else if ( file_exists("Resources/tagset-$lang.xml") ) { // allow language-specific tagsets
@@ -59,7 +59,8 @@ class TTTAGS
 			if ($tagoptions[$i][$posx]['lang-'.$lang]) $key2val = "{%{$tagoptions[$i][$posx]['lang-'.$lang]}}"; 
 				else if ($tagoptions[$i][$posx]['display']) $key2val = "{%{$tagoptions[$i][$posx]['display']}}"; 
 				else $key2val = "<span style='color: #aaaaaa'><i>{%does not apply}</i></span>";
-			$table .= "<tr><td>$posx<th>{%{$tagoptions[$i]['display']}}<td>$key2val</h2>";
+			$thdr = $tagoptions[$i]['display'] or $thdr = "(unknown)";
+			$table .= "<tr><td>$posx<th>{%$thdr}<td>$key2val</h2>";
 		};
 		$table .= "</table>";
 		

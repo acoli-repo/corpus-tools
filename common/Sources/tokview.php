@@ -3,12 +3,6 @@
 	# Interacts with XDXF and TAGSET  
 	# (c) Maarten Janssen, 2016
 	
-	# Read the tagset
-	require ( "../common/Sources/tttags.php" );
-	$maintext .= "<h1>{%Token Details}</h1>";
-	$tttags = new TTTAGS("", false);
-	$tagset = $tttags->tagset['positions'];
-
 	# Read the XML file
 	require ("../common/Sources/ttxml.php");
 	$ttxml = new TTXML($cid, false);
@@ -21,6 +15,7 @@
 	$result = $ttxml->xml->xpath("//tok[@id='$tokid']"); 
 	$token = $result[0]; # print_r($token); exit;
 
+	$maintext .= "<h1>{%Token Details}</h1>";
 
 	if ( $debug ) $maintext .= "<p>Token: ".htmlentities($token->asXML());
 
@@ -53,6 +48,10 @@
 	};
 	$maintext .= "</table>";
 	
+	# Read the tagset
+	require ( "../common/Sources/tttags.php" );
+	$tttags = new TTTAGS("", false);
+	$tagset = $tttags->tagset['positions'];
 	# Display the tagset analysis
 	$tagfld = $tttags->tagset['fulltag'] or $tagfld = "pos";
 	$tag = $token[$tagfld];
