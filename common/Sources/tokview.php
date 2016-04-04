@@ -2,6 +2,8 @@
 	# Script to view details of a partical token
 	# Interacts with XDXF and TAGSET  
 	# (c) Maarten Janssen, 2016
+
+	$maintext .= "<h1>{%Token Details}</h1>";
 	
 	# Read the XML file
 	require ("../common/Sources/ttxml.php");
@@ -15,7 +17,6 @@
 	$result = $ttxml->xml->xpath("//tok[@id='$tokid']"); 
 	$token = $result[0]; # print_r($token); exit;
 
-	$maintext .= "<h1>{%Token Details}</h1>";
 
 	if ( $debug ) $maintext .= "<p>Token: ".htmlentities($token->asXML());
 
