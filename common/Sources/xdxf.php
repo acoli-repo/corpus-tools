@@ -113,6 +113,30 @@
 			</script>
 		";
 		
+	} else if ( $act == "advanced" && $dict['search'] ) {
+	
+		$dicttitle = $dict['title'];
+		$maintext .= "\n<h1>$dicttitle</h1>";
+		$maintext .= "<h2>Advanced Search</h2>
+			<form action='index.php?action=$action' method=post>
+			<input type=hidden name=advanced value=1>
+			<table>";
+
+		foreach ( $dict['search'] as $key => $val ) {
+			$maintext .= "<tr>
+				<input type=hidden name=kn[$key] value=\"{$val['kn']}\">
+				<td>{%{$val['display']}}</td>
+				<td>
+					<select name=match[$key]><option value=\"contains\">{%contains}</option><option value=\"match\" $msel>{%matches}</option><option value=\"regex\" $msel>{%patterns}</option></select>
+				</td>
+				<td>
+					<input name=query[$key] value=\"$wordquery\">
+				</td>
+				</tr>";		
+		};
+		$maintext .= "
+			</table><p><input type=submit value=\"{%Search}\"></form>";
+	
 	} else if ( $act == "renumber" ) {
 	
 		# Each <ar> needs a unique ID
@@ -141,30 +165,39 @@
 		$file = file_get_contents($filename);
 
 		$max = $_GET['max'] or $max = 100;
-		$query = $_GET['query'];
+		$query = $_GET['query'];	
+		if ( !preg_match('//u', $query) ) $query = utf8_encode($query); // Repair URL variables coming in as Latin 1
+
+		// Place the command line query in the POST
+		if ($query) {
+			$_POST['query']['url'] = $query;
+			$_POST['match']['url'] = $_GET['match'];
+			$_POST['kn']['url'] = $_GET['kn'] or $_POST['url']['kn'] = "./k";
+		};
 	
 		if ( preg_match("/lang_from=\"(.*?)\"/", $file, $matches) ) $langfrom = "{%lang-{$matches[1]}}";
 		if ( preg_match("/lang_to=\"(.*?)\"/", $file, $matches) ) $langto = " - {%lang-{$matches[1]}}";
 		
 		$dicttitle = $dict['title'];
 		$maintext .= "\n<h1>$dicttitle</h1>";
-		if ( $_GET['match'] == 1 ) $msel = "selected";
-		if ( $_GET['match'] == 2 ) $msel2 = "selected";
-		if ( $_GET['match'] == 3 ) $msel3 = "selected";
+		if ( $_GET['match'] == "match" ) $msel = "selected";
 		
+		# Display the search box
+		if ( !$_GET['kn'] ) $wordquery = $query;
+		if ( $dict['search'] ) $advanced = "<a href='index.php?action=$action&act=advanced'>{%advanced}</a>";
 		$maintext .= "<form action='index.php'>{%Word} 
 			<select name=match>
-				<option value=\"\">{%contains}</option>
-				<option value=\"1\" $msel>{%matches}</option>
+				<option value=\"contains\">{%contains}</option>
+				<option value=\"match\" $msel>{%matches}</option>
 			</select>
-			<input name=query value=\"$query\">
+			<input name=query value=\"$wordquery\">
 			<input type=hidden name=action value=\"$action\">
-			<input type=Submit value=\"{%Search}\">
+			<input type=Submit value=\"{%Search}\"> $advanced
 			</form>
 			<hr>
 			<div id=\"dict\">";
-
-		if ( !$query && !$id && !$debug && $act != "list" ) {
+						
+		if ( !$query && !$_POST['query'] && !$id && !$debug && $act != "list" ) {
 
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { print "Dict XML Error - unable to read $filename"; exit; };
@@ -187,19 +220,26 @@
 			$xml->load($filename);
 			if ( !$xml ) { print "Dict XML Error"; exit; };
 			$xpath = new DOMXPath($xml);
-			$noregex = 1;
-			
-			$kn = $_GET['kn'] or $kn = $hwxpath;
-			
+
 			if ( $id ) $restr = "@id=\"$id\"";
-			else if ( $query && $_GET['match'] == 1 ) $restr = $kn."[.='$query']"; // Match
-			else if ( $query && $noregex ) $restr = $kn."[contains(.,'$query')]"; // Contains
-			else if ( $query ) { // Regexp - does not work
-				$xpath->registerNamespace("php", "http://php.net/xpath");
-				$xpath->registerPHPFunctions();
-				$restr = $kn."[php:functionString(\"preg_match\",\"/$query/\",.)]";
-			};
-			
+			else {
+				$restr = ""; $sep = "";
+				foreach ( $_POST['query'] as $key => $tq ) {
+					if ( !$tq ) continue; 
+					$restr .= $sep; 
+					$match = $_POST['match'][$key] or $match = "contains";
+					$kn = $_POST['kn'][$key] or $kn = $hwxpath;
+					if ( $match == "match" ) $restr .= $kn."[.='$tq']"; // Match
+					else if ( $match == "contains" ) $restr .= $kn."[contains(.,'$tq')]"; // Contains
+					else if ( $match == "regex" ) { // Regexp - does not work
+						$xpath->registerNamespace("php", "http://php.net/xpath");
+						$xpath->registerPHPFunctions();
+						$restr .= $kn."[php:functionString(\"preg_match\",\"/$tq/\",.)]";
+					};
+					if ( $restr ) $sep = " and ";
+				};
+			}; 
+						
 			$xquery = $arxpath;			
 			if ( $restr ) $xquery .= "[$restr]";
 		
@@ -207,27 +247,65 @@
 			$result = $xpath->query($xquery); 
 			if ( $result ) {
 				$count = $result->length;
-				if ( $count > $max ) $showing = " - {%showing first} $max";
+				$start = $_GET['start'] or $start = 0; 
+				$starttxt = $start + 1;
+				$end = min( $start+$max, $count );
+				if ( $count > $max ) {
+					$showing = " - {%showing} $starttxt - $end";
+					$minurl = preg_replace("/&start=\d+/", "", $_SERVER['REQUEST_URI']);
+					// We need to forward the post variables in order to be able to scroll advanced searches
+					if ( !$_POST['advanced'] ) {
+						if ( $start > 0 ) { 
+							$url = $minurl."&start=".max($start-$max, 0);
+							$showing .= " - <a href='$url'>{%previous}</a>"; 
+						};
+						if ( $end < $count ) { 
+							$url = $minurl."&start=".($end);
+							$showing .= " - <a href='$url'>{%next}</a>"; 
+						};
+					};
+				};
 				if ( !$id ) $maintext .= "<p><i>$count {%results}</i> $showing</p>\n";
-				if ( $dict['cqp'] && $count > 1 ) $maintext .= "<p>{%Click on an entry to see corpus examples}</p><hr>"; 
+				if ( $dict['cqp'] && $count > 1 && $linkdict ) $maintext .= "<p>{%Click on an entry to see corpus examples}</p><hr>"; 
 				$sortarray = array();
-				foreach ( $result as $entry ) {
+				for ( $i=$start; $i<$end; $i++ ) {
+					$entry = $result->item($i);
 					$entryxml = $entry->ownerDocument->saveXML($entry);
 					$arid = $entry->getAttribute("id");
 					$tmp = $xpath->query($hwxpath, $entry); $ark = $tmp->item(0)->textContent;
-					if ( $dict['cqp'] && $arid ) $entryxml = "<div onClick=\"window.open('index.php?action=$action&act=view&id=$arid', '_self')\">".$entryxml."</div>";
-					else if ( $username && $arid ) $entryxml = "<div onClick=\"window.open('index.php?action=$action&act=edit&id=$arid', '_self')\">".$entryxml."</div>";
+					if ( $dict['cqp'] && $arid && $linkdict ) $entryxml = "<div onClick=\"window.open('index.php?action=$action&act=view&id=$arid', '_self')\">".$entryxml."</div>";
+					else if ( $username && $arid ) $entryxml = " <a onClick=\"window.open('index.php?action=$action&act=edit&id=$arid', '_self')\">edit</a> ".$entryxml;
 					array_push ( $sortarray, "<div k=\"$ark\">".$entryxml."</div>" );
 					if ( $cnt++ > $max ) break;
 					if ( $count == 1 ) $id = $arid; 
 				};
-				natsort($sortarray);
+				natcasesort($sortarray);
 				$maintext .= join ( "\n", $sortarray );
 			} else $maintext .= "<i>{%No results found}</i>";
 			
+			$maintext .= "<script language=Javascript>
+				function makekref () {
+					var its = document.getElementById('dict').getElementsByTagName(\"kref\");
+					for ( var a = 0; a<its.length; a++ ) {
+						var it = its[a];
+						if ( typeof(it) != 'object' ) { continue; };
+						// Make this node clickable
+						it.onclick = function() { 
+							var linktarget;
+							if ( this.getAttribute('ref') ) {
+								linktarget = this.getAttribute('ref');
+							} else{
+								linktarget = this.textContent;
+							};
+							window.open('index.php?action=xdxf&match=match&query='+linktarget, '_top'); 
+						};
+					};
+				};
+				makekref();
+				</script>";
 		
 			if ( $id ) {
-				if ( $username ) $maintext .= "<hr><p><a href='index.php?action=$action&act=edit&id=$id'>edit</a> this record";
+				// if ( $username ) $maintext .= "<hr><p><a href='index.php?action=$action&act=edit&id=$id'>edit</a> this record";
 				if ( $dict['cqp'] ) {
 					# If so asked, get corpus results for this entry
 				
@@ -244,30 +322,39 @@
 					$location = $_GET['location'] or $location = $_GET['lat'].' '.$_GET['lng'];
 					$place = $_GET['place'];
 
-					$postag = $dict['cqp']['pos'] or $postag = "pos";
+					$postag = $dict['cqp']['pos'];
 					$lemtag = $dict['cqp']['lemma'] or $lemtag = "lemma";
 
-					$cqpquery = "Matches = [$lemtag=\"$ark\" & $postag=\"$arp.*\"]";
+					if ( $postag ) $posq = "& $postag=\"$arp.*\"";
+					
+					// HTML Decode if needed
+					$ark = html_entity_decode($ark);
+
+					$cqpquery = "Matches = [$lemtag=\"$ark\" $posq]";
 					$cqp->exec($cqpquery); 
 					if ($debug) $maintext .= "<p>CQL: $cqpquery";
-
+					
 					$size = $cqp->exec("size Matches");
 
 					if ( $size > 0 ) {
-						$maintext .= "<hr><p>corpus examples</p>";
+						$maintext .= "<hr><h2>corpus examples</h2>
+						
+						<div id=mtxt2>
+						<table>";
 					
-						$cqpquery = "tabulate Matches 0 100 match text_id, match text_$ftit";
+						$cqpquery = "tabulate Matches 0 100 match text_id, match id, match[-8]..matchend[8] word";
 						$results = $cqp->exec($cqpquery); 
-
+						if ($debug) $maintext .= "<p>CQL results: $results";
+						
 						foreach ( split ( "\n", $results ) as $line ) {	
-							list ( $fileid, $title ) = explode ( "\t", $line );
+							list ( $fileid, $tid, $context ) = explode ( "\t", $line );
 							if ( preg_match ( "/([^\/]+)\.xml/", $fileid, $matches ) ) {	
 								$cid = $matches[1];
-								if ( $title == $fileid ) $title = $cid;
 		
-								$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$title</a></p>";
+								$maintext .= "<tr><td><a href='index.php?action=file&cid=$cid&jmp=$tid'>$cid</a><td>$context</td>";
 							};
 						};
+						$maintext .= "</table></div>";
 					};
 				};
 			};

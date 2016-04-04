@@ -188,10 +188,15 @@
 		$editxml = substr($editxml, $bidx, $span);
 		
 	} else if ( $_GET['sentence'] ) {
+	
 		# Show sentence view
-		$result = $xml->xpath("//s"); 
+		$stype = $_GET['sentence'] or $stype = "s";
+		$result = $xml->xpath("//$stype"); 
+		if ( $result > 100 ) { 
+			$result = array_slice($result, 0, 100);
+		};
 		foreach ( $result as $sent ) {
-			$stxt = $sent->asXML();
+			$stxt = $sent->asXML(); 
 			$sentid = $sent['n'] or $sentid = $sent['id'];
 			$treelink = ""; 
 			if ( $psdx ) {
@@ -231,6 +236,7 @@
 			};
 			$editxml .= "</div>";
 		};
+		
 	} else if ( ( $_GET['page'] || $_GET['pageid'] ) && $_GET['page'] != "all" ) {
 
 		# Show specific page
@@ -693,7 +699,7 @@
 			$maintext .= "<p style='margin-top: 5px;'>$customcss</table>";
 		};
 		
-		$sep = "<hr><p>";
+		$sep = "<hr style='clear: both; margin-top: 10px;'><p>";
 		if ( $settings['download']['admin'] != "1" || $username ) {
 			$maintext .= "$sep<a href='index.php?action=getxml&cid=$fileid'>{%Download XML}</a> &bull; ";
 			$sep = "";
@@ -704,9 +710,9 @@
 			
 		if ( !$_GET['sentence'] && strstr($editxml, "<s ") ) {
 			if ( !$_GET['id'] ) { $cidu = "&id=$fileid"; };
-			$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}$cidu&sentence=1'>{%Sentence view}</a>";
+			$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}$cidu&sentence=s'>{%Sentence view}</a>";
 		} else if ( strstr($editxml, "<s ") ) {
-			$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}&sentence=0'>{%Sentence view}</a>";
+			$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}&sentence=0'>{%Text view}</a>";
 		};
 		$maintext .= "<br>";
 

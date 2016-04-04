@@ -351,6 +351,7 @@
 			document.getElementById('fnform').focus();
 			highlight('$tokid',  '#ffee88');
 		</script>
+		&bull; <a href='index.php?action=tokview&cid=$fileid&tid=$tokid'>Token Details</a>
 		
 		</form>
 		";

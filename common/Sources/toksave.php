@@ -116,7 +116,7 @@
 			};
 		};
 		
-		if ( !$nextaction ) $nextaction = "edit";
+		if ( !$nextaction ) $nextaction = "tokview";
 		$maintext .= "<hr><p>Your text has been modified - reloading";
 		header("location:index.php?action=$nextaction&id=$fileid&tid=$tokid$slnk");
 		exit;
