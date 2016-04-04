@@ -26,7 +26,7 @@ class TTTAGS
 			global $settings; # Use settings when needed
 			$this->tagset = $settings['tagset'];
 		};
-		
+		if ( $fatal && !$this->tagset ) { fatal("Failed to load tagset"); };
 	}
 	
 	function analyse ( $tag ) {
