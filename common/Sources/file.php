@@ -349,13 +349,13 @@
 	
 	if ( file_exists("Pages/csslegenda.html") ) $customcss = file_get_contents("Pages/csslegenda.html");
 
-		// <note> is ambiguous in TEITOK - make notes into footnotes optional
-		if ( $settings['xmlfile']['textnotes'] ) {
-			// for the correct order, abuse attnamelist 
-			$attnamelist .= "\n				var floatnotes = false;";
-		} else {
-			$attnamelist .= "\n				var floatnotes = true;";
-		};
+	// <note> is ambiguous in TEITOK - make <note> into rollover notes optional
+	if ( $settings['xmlfile']['textnotes'] ) {
+		// for the correct order, abuse attnamelist 
+		$attnamelist .= "\n				var floatnotes = false;";
+	} else {
+		$attnamelist .= "\n				var floatnotes = true;";
+	};
 
 	# Define which view to show
 	$defaultview = $settings['xmlfile']['defaultview'];

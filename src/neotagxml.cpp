@@ -416,11 +416,19 @@ float getTransProb ( string transitionstring ) {
 	};
 };
 
+string xpescape ( string word ) {
+	// Escape XPath query strings
+	
+	boost::replace_all(word, "\"", "&quot;");
+	
+	return word;
+};
+
 pugi::xpath_node_set getLexProb ( string word ) {
 	if ( !posProbs[word].empty() ) {
 		return posProbs[word];
 	} else {
-		string xpath = "item[@key=\""+word+"\"]/tok";
+		string xpath = "item[@key=\""+xpescape(word)+"\"]/tok";
 		pugi::xpath_node_set tmp = parameters.first_child().child("lexicon").select_nodes(xpath.c_str());
 		posProbs[word] = tmp;
 		return tmp;
@@ -868,6 +876,7 @@ class parsepath {
 	};
 	
 	void addword ( vector<wordtoken> newword ) {
+	
 		map<string,tokpath> newpathlist; // keep a map with only the best path for each (end) tag
 		newpathlist.clear();
 		if ( pathlist.size() == 0 ) { 

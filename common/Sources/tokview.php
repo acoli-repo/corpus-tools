@@ -37,6 +37,8 @@
 		};
 		$maintext .= "<hr>";
 	} else {
+		# Show a reasonably sized context
+		# Until defined, just show nothing
 	};
 	
 	# Display the token details

@@ -85,6 +85,7 @@
 		$context .= "<hr>";
 		$context .= "<h2>Current context</h2><div id=mtxt>".$contextxml."</div>";
 	} else {
+		# Just don't show if we have nothing easy to show
 	};
 		
 			if ( preg_match("/\S/", $intertext) ) $maintext .= "
