@@ -9,6 +9,19 @@
 		if ( $timediff < 100 ) {  $recentfile = 1; }; # If recqp ended less than 100 sec ago, do not regenerate
 	};
 
+	# Check whether registry file matches our corpus
+	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "/usr/local/share/cwb/registry/";
+	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+	$registryfile = $registryfolder.strtolower($cqpcorpus);
+	if ( file_exists($registryfile) || 1==1) {
+		$registry = file_get_contents($registryfile);
+		if ( preg_match( "/HOME\s+(.*)/", $registry, $matches ) ) { $cqphome = $matches[1]; };
+		$thisfolder = $_SERVER['SCRIPT_FILENAME']; $thisfolder = substr($thisfolder, 0, strpos($thisfolder, '/index.php') );
+		if ( $thisfolder."/cqp" != $cqphome ) {
+			fatal("You are trying to create corpus $cqpcorpus. There is such a corpus in $cqphome, which does not seem to be this corpus. Please use a different corpus name in settings.xml or remove the existing registry file ($registryfile) if this is there is no name conflict");
+		};
+	};
+
 	# First - check whether the process is not already running
 	if ( file_exists("tmp/recqp.pid") ) {
 	
@@ -24,7 +37,7 @@
 					<li> Encode : encode all the lines in the verticalized text in CWB format
 					<li> Make : create all the necessary files for the CQP corpus
 				</ol>
-			<p>Step 3 tends to be fast, while steps 1 and 2 can take several minutes. 
+			<p>Step 3 tends to be fast, while steps 1 and 2 (which are combined in tt-cwb-encode) can take several minutes. 
 		
 			<hr><pre>$logtxt</pre>
 			

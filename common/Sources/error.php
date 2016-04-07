@@ -6,4 +6,8 @@
 	$maintext .= "<h1>Fatal Error</h1>
 		<p>A fatal error has occurred: <blockquote><b>{$_GET['msg']}</b></blockquote>";
 
+	if ( $username ) {
+		$maintext .= "<hr><p class='adminpart'>Click <a href='{$_SERVER['HTTP_REFERER']}'>here</a> to go back after correcting the error";
+	};
+
 ?>

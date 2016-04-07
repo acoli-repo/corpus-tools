@@ -11,7 +11,7 @@
 	$xmlid = preg_replace ( "/.*\//", "", $xmlid );
 	
 	
-	// on paged display, determine what to show
+	// on "paged" display, determine what to show
 	if ( !$_GET['pbtype'] || $_GET['pbtype'] == "pb" ) { 
 		$pbelm = "pb";
 		$titelm = "Page";
@@ -348,6 +348,14 @@
 			};
 	
 	if ( file_exists("Pages/csslegenda.html") ) $customcss = file_get_contents("Pages/csslegenda.html");
+
+		// <note> is ambiguous in TEITOK - make notes into footnotes optional
+		if ( $settings['xmlfile']['textnotes'] ) {
+			// for the correct order, abuse attnamelist 
+			$attnamelist .= "\n				var floatnotes = false;";
+		} else {
+			$attnamelist .= "\n				var floatnotes = true;";
+		};
 
 	# Define which view to show
 	$defaultview = $settings['xmlfile']['defaultview'];

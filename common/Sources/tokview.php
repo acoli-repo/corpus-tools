@@ -26,7 +26,7 @@
 
 	# Display the best context
 	// See if there is a <s> or <l> around or token
-	$tmp = $token->xpath("ancestor::s | ancestor::l");
+	$tmp = $token->xpath("ancestor::s | ancestor::l | ancestor::p");
 	if ( $tmp ) {	
 		$sent = $tmp[0];
 		$editxml = $sent->asXML();

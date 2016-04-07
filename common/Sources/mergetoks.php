@@ -76,6 +76,16 @@
 				<p>Token 1: ".htmlentities($token1->asXML())."</p>
 				<p>Token 2: ".htmlentities($token2->asXML())."</p>";
 		
+	# Display the best context
+	// See if there is a <s> or <l> or <p> around or token
+	$tmp = $token1->xpath("ancestor::s | ancestor::l | ancestor::p");
+	if ( $tmp ) {	
+		$sent = $tmp[0];
+		$contextxml = $sent->asXML();
+		$context .= "<hr>";
+		$context .= "<h2>Current context</h2><div id=mtxt>".$contextxml."</div>";
+	} else {
+	};
 		
 			if ( preg_match("/\S/", $intertext) ) $maintext .= "
 				<p>Intertext: ".htmlentities($intertext)."</p>
@@ -87,9 +97,9 @@
 		
 				foreach ( $token2->attributes() as $key=>$val) {
 					if ( $key == "id" ) continue;
-					if ( $token1[$key] && $val ) {
+					if ( $token1[$key] && $token1[$key] != "--" && $val && $val != "--" ) {
 						$token1[$key] .= "+".$val;
-					} else {
+					} else if ( $val != "--" ) {
 						$token1[$key] = $val;
 					}; 
 				};
@@ -134,7 +144,6 @@
 			
 				$newtok = $newtok1.$innerxml.$closetext."</tok>";
 			
-			
 				$xmltest = simplexml_load_string($newtok);
 				if ( !$xmltest ) { 
 					$maintext .= "<p style='background-color: #ffbbbb; padding: 5px;'>Warning: invalid XML in merge, please revise manually"; 
@@ -162,7 +171,7 @@
 					<input type=submit value=Save> 
 					<a href='index.php?action=tokedit&cid=$fileid&tid=$tokid1'>cancel</a> ";
 				if (!$_GET['manual']) $maintext .= "&bull; <a href='index.php?action=mergetoks&cid=$fileid&tid1=$tokid1&tid2=$tokid2&manual=1'>edit rawxml</a>";
-				$maintext .= "</form>"; 
+				$maintext .= "$context</form>"; 
 		
 		
 			};

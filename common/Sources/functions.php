@@ -29,7 +29,6 @@
 
 	function getxmlrec($fn, $id, $tag, $opt="") {
 		# Get a record from an XML file by ID on a given tag
-		# 
 		$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
 
 		# See if we can find an index for this file
@@ -186,8 +185,8 @@
 		return "";	
 	};
 
-	// Safe store XML to file, and keep a backup
 	function saveMyXML ( $xmltxt, $filename, $noempties = true ) {
+		// Safe store XML to file, and keep a backup
 		global $xmlfolder;
 		libxml_use_internal_errors(true);
 
@@ -197,7 +196,7 @@
 
 		$xml = simplexml_load_string($xmltxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( $xml === false ) {
-			# The input is not XML (anymore)
+			# The input is not XML (anymore) - throw an error and do not save
 			print "<h1>Oops</h1> <p>There is an error in the XML and we will not save. 
 					The error messages are shows below. 
 					More info can be found by looking at the source code of this page.</p>";
@@ -209,33 +208,31 @@
 					if ( $linenr != 0 ) $markers .= "editor.resize(true); editor.scrollToLine($linenr, true, true, function () {}); editor.getSession().addMarker(new Range($linenr, 0, $linenr, 2000), 'warning', 'line', true);";
 				}
 			}
-			
-			# print "<hr><textarea style='width: 100%; height: 300px;'>$xmltxt</textarea>";
 
-	$xmltxt = htmlentities($xmltxt);
-	if ( $markers ) print "<p>The (first) conflicting line has been highlighted";
+			$xmltxt = htmlentities($xmltxt);
+			if ( $markers ) print "<p>The (first) conflicting line has been highlighted";
 	
-	print "<p>Click <a href='index.php?action=edit&cid=$filename'>here</a> to go (back) to view mode";
+			print "<p>Click <a href='index.php?action=edit&cid=$filename'>here</a> to go (back) to view mode";
 	
-	print "
-		<div id=\"editor\" style='width: 100%; height: 300px;'>".$xmltxt."</div>
+			print "
+				<div id=\"editor\" style='width: 100%; height: 300px;'>".$xmltxt."</div>
 			
-		<script src=\"ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
-		<style>.warning
-		{
-			background: rgba(255, 255, 50, 0.2);
-			position: absolute;
-			width: 100% !important;
-			left: 0 !important;
-		}</style>
-		<script>
-			var editor = ace.edit(\"editor\");
-			editor.setTheme(\"ace/theme/chrome\");
-			editor.getSession().setMode(\"ace/mode/xml\");
-			editor.setReadOnly(true);
-			var Range = ace.require(\"ace/range\").Range;
-			$markers
-		</script>
+				<script src=\"ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+				<style>.warning
+				{
+					background: rgba(255, 255, 50, 0.2);
+					position: absolute;
+					width: 100% !important;
+					left: 0 !important;
+				}</style>
+				<script>
+					var editor = ace.edit(\"editor\");
+					editor.setTheme(\"ace/theme/chrome\");
+					editor.getSession().setMode(\"ace/mode/xml\");
+					editor.setReadOnly(true);
+					var Range = ace.require(\"ace/range\").Range;
+					$markers
+				</script>
 			";
 
 			exit;
@@ -285,7 +282,7 @@
 	function namespacemake ( $text ) {
 		
 		# prefix HTML element in XML with xml namespace
-		foreach ( array ( "head", "opener", "address", "div" ) as $tagname ) {
+		foreach ( array ( "head", "opener", "address", "div", "option" ) as $tagname ) {
 			$text = preg_replace( "/<$tagname([ >])/", "<tei:$tagname$1", $text );
 			$text = preg_replace( "/<\/$tagname>/", "</tei:$tagname>", $text );
 		};
@@ -294,7 +291,7 @@
 		return $text;
 	};
 	
-	//
+	// log errors (optional)
 	function errorlog ( $type, $txt, $action='' ) {
 	 $logfile = "log/error.log";
 
@@ -347,14 +344,6 @@
 			fwrite($fh, $line);
 			fclose ( $fh );
 		} else print "<!-- error opening log file -->";
-	};
-
-	function mysqlerror( $query ) {
-		global $action, $mysqlquery;
-		
-		$mysqlquery = $query;
-
-		$action = "mysqlerror";
 	};
 
 	function sentShow ( $sentid, $text, $headpos, $args ) {
@@ -454,17 +443,6 @@
 		return $array;
 	};
 
-	function mysql2time ( $timestamp ) {
-		$year = substr( $timestamp, 0, 4 );
-		$month = substr( $timestamp, 4, 2 );
-		$day = substr( $timestamp, 6, 2 );
-		$hour = substr( $timestamp, 8, 2 );
-		$minute = substr( $timestamp, 10, 2 );
-		$second = substr( $timestamp, 12, 2 );
-		$time = mktime ( $hour, $minute, $second, $month, $day, $year );
-		return $time;
-	};
-
 	function screentype () {
 		if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
 			return "tablet";
@@ -508,6 +486,7 @@
 	};
 
 	function fatal ($txt) {
+		global $username;
 		print "<h1>Fatal Error</h1><p>A fatal error has occurred: $txt
 			<script language=Javascript>top.location='index.php?action=error&msg=$txt';</script>";
 		exit;

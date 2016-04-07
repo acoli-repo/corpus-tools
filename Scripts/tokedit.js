@@ -128,23 +128,25 @@ function formify () {
 			it.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
 	};
 
-	var its = mtxt.getElementsByTagName("note");
-	for ( var a = 0; a<its.length; a++ ) {
-		var it = its[a];  
-		if ( typeof(it) != 'object' ) { continue; };
-		var notenr = it.getAttribute('n');
-		if (!notenr) { notenr = parseInt(a)+1; };
-		var noteid = it.getAttribute('id');
-		if ( !footnotes[noteid] ) { footnotes[noteid] = it.innerHTML; };
-		it.innerHTML = '['+notenr+']';
-		it.style.display = 'inline';
-		// Make this node roll-over
-		it.onmouseover = function() { shownote(this.getAttribute('id')); };
-		it.onmouseout = function() { hidenote(); };
-		if ( it.getAttribute('id') && username != '' )
-			it.onclick = function() { window.open('index.php?action=noteedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
+	if ( typeof(floatnotes) != "undefined" && floatnotes ) {
+		var its = mtxt.getElementsByTagName("note");
+		for ( var a = 0; a<its.length; a++ ) {
+			var it = its[a];  
+			if ( typeof(it) != 'object' ) { continue; };
+			var notenr = it.getAttribute('n');
+			if (!notenr) { notenr = parseInt(a)+1; };
+			var noteid = it.getAttribute('id');
+			if ( !footnotes[noteid] ) { footnotes[noteid] = it.innerHTML; };
+			it.innerHTML = '['+notenr+']';
+			it.style.display = 'inline';
+			// Make this node roll-over
+			it.onmouseover = function() { shownote(this.getAttribute('id')); };
+			it.onmouseout = function() { hidenote(); };
+			if ( it.getAttribute('id') && username != '' )
+				it.onclick = function() { window.open('index.php?action=noteedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
+		};
 	};
-
+	
 	var its = mtxt.getElementsByTagName("deco");
 	for ( var a = 0; a<its.length; a++ ) {
 		var it = its[a];

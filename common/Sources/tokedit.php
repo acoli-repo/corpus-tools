@@ -341,6 +341,8 @@
 			$editxml = $txtxml->asXML();
 		};
 		
+		# empty tags are working horribly in browsers - change
+		$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
 		
 		# Show the context
 		$maintext .= "<hr><div id=mtxt>".$editxml."</div>
