@@ -204,6 +204,28 @@ class TTXML
 		return $mtxt;
 	}
 	
+	function context( $tokid ) {
+		global $settings;
+		$tmp = $this->xml->xpath("//*[@id='$tokid']"); $token = $tmp[0];
+		if ( !$token ) return "";
+		$tmp = $token->xpath("ancestor::s | ancestor::l | ancestor::p");
+		if ( $tmp ) {	
+			$sent = $tmp[0];
+			$editxml = $sent->asXML();
+			$context = "<div id=mtxt>".$editxml."</div>";
+			if ( is_array($settings['xmlfile']['sattributes']) ) 
+			foreach ( $settings['xmlfile']['sattributes'] as $key => $val ) {
+				if ( $val['color'] ) $style = " style=\"color: {$val['color']}\" ";
+				if ( $sent[$key] ) $context .= "<p title=\"{$val['display']}\" $style>$sent[$key]</p>";
+			};
+		} else {
+			# Show a reasonably sized context
+			# Until defined, just show nothing
+		};
+		
+		return $context;
+	}
+
 };
 
 ?>

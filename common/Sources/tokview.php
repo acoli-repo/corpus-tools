@@ -26,20 +26,8 @@
 
 	# Display the best context
 	// See if there is a <s> or <l> around or token
-	$tmp = $token->xpath("ancestor::s | ancestor::l | ancestor::p");
-	if ( $tmp ) {	
-		$sent = $tmp[0];
-		$editxml = $sent->asXML();
-		$maintext .= "<hr><div id=mtxt>".$editxml."</div>";
-		foreach ( $settings['xmlfile']['sattributes'] as $key => $val ) {
-			if ( $val['color'] ) $style = " style=\"color: {$val['color']}\" ";
-			if ( $sent[$key] ) $maintext .= "<p title=\"{$val['display']}\" $style>$sent[$key]</p>";
-		};
-		$maintext .= "<hr>";
-	} else {
-		# Show a reasonably sized context
-		# Until defined, just show nothing
-	};
+	$ctxt = $ttxml->context($token['id']);
+	if ( $ctxt ) $maintext .= "<hr>$ctxt<hr>";
 	
 	# Display the token details
 	$maintext .= "<table>";

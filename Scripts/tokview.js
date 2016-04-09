@@ -29,7 +29,9 @@ function mouseOut(evt) {
 };
 
 function hidetokinfo() {
-	document.getElementById('tokinfo').style.display = 'none';
+	if ( document.getElementById('tokinfo') ) {
+		document.getElementById('tokinfo').style.display = 'none';
+	};
 };
 
 function mouseEvent(evt) { 
