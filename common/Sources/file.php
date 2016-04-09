@@ -93,6 +93,7 @@
 	};
 
 	// When so indicated, load the external PSDX file
+	// Why would we want this?
 	if ( $settings['psdx'] && file_exists( "Annotations/$xmlid.psdx") ) {
 		$psdx = simplexml_load_file("Annotations/$xmlid.psdx", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	};
@@ -722,6 +723,17 @@
 		} else if ( strstr($editxml, "<s ") ) {
 			$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}&sentence=0'>{%Text view}</a>";
 		};
+		
+		if ( $settings['annotations'] ) {
+			foreach ( $settings['annotations'] as $key => $val ) {
+				if ( $val['type'] == "standoff" && file_exists("Annotations/{$key}_$xmlid.xml") &&  ( !$val['admin'] || $username ) ) {
+					$maintext .= " &bull; <a href='index.php?action=annotation&annotation=$key&cid=$xmlid.xml'>{%{$val['display']}}</a>";
+				} else if ( $val['type'] == "psdx" && file_exists("Annotations/$xmlid.psdx") ) {
+					$maintext .= " &bull; <a href='index.php?action=psdx&cid=$xmlid'>{%{$val['display']}}</a>";
+				};
+			}; 
+		};
+				
 		$maintext .= "<br>";
 
 	};

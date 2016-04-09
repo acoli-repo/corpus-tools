@@ -2,6 +2,9 @@
 	$annotation = $_GET['annotation'] or $annotation = $_SESSION['annotation'];
 	if ( $annotation ) {
 		$andef = simplexml_load_file("Annotations/{$annotation}_def.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		if ( ( !$settings['annotations'][$anid] || $settings['annotations'][$anid]['admin'] ) && !$username )  {
+			fatal ( "Annotation data for <i>{$andef['name']}</i> are not publicly accessible" );
+		};
 		$result = $andef->xpath("//interp"); 
 		foreach ( $result as $tmp ) { 
 			$tagset[$tmp['key'].''] = $tmp;
@@ -26,12 +29,15 @@
 	
 		$maintext .= "<h1>Annotations</h1>
 			";
-		foreach (glob("Annotations/*_def.xml") as $filename) {
-			$some = 1; $anid = preg_replace( "/.*\/(.*?)_def\.xml/", "\\1", $filename );
+		foreach ( glob("Annotations/*_def.xml") as $filename ) {
+			$anid = preg_replace( "/.*\/(.*?)_def\.xml/", "\\1", $filename );
 			$andef = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			$tit = $andef['name'];
-			$maintext .= "<p><h2><a href='index.php?action=$action&annotation=$anid'>$tit</a></h2><p>".$andef->desc."</p>
-				<p><a href='index.php?action=$action&annotation=$anid'>{%select}</a></p>";
+			if ( ( $settings['annotations'][$anid] && !$settings['annotations'][$anid]['admin'] ) || $username )  {
+				$maintext .= "<p><h2><a href='index.php?action=$action&annotation=$anid'>$tit</a></h2><p>".$andef->desc."</p>
+					<p><a href='index.php?action=$action&annotation=$anid'>{%select}</a></p>";
+				$some = 1; 
+			};
 		};
 		if ( !$some ) $maintext .= "<p><i>{%No annotation schemes found}</i>";
 	
