@@ -70,8 +70,8 @@
 		};
 
 		foreach ( $_POST['news'] as $key => $val ) {
-			if ( $val['tokens'] == "" ) { continue; }
-			$segnode = $anxml->firstChild->addChild('span', $val['text']); unset($val['text']);
+			if ( $val['corresp'] == "" ) { continue; }
+			$segnode = $anxml->addChild('span', $val['text']); unset($val['text']);
 			foreach ( $val as $fk => $fv ) {
 				$segnode[$fk] = $fv;
 			};
@@ -155,7 +155,7 @@
 			$tokid = "w-$i";
 			if ( in_array($tokid, $toklist) ) $checked = "checked"; else $checked = "";
 			$tmp = $ttxml->xml->xpath("//tok[@id=\"$tokid\"]"); $ttok = $tmp[0];
-			$toklisttxt .= "<tr><td><input type=checkbox name=toks[$sid][$tokid] $checked value=1><td>$tokid<td>$ttok<td style='color: #888888;'>".htmlentities($ttok->asXML());
+			if ($ttok) $toklisttxt .= "<tr><td><input type=checkbox name=toks[$sid][$tokid] $checked value=1><td>$tokid<td>$ttok<td style='color: #888888;'>".htmlentities($ttok->asXML());
 		};
 		$toklisttxt .= "</table>";
 		
@@ -189,14 +189,15 @@
 				};
 			};
 			$maintext .= "</table>
-				<p><input type=submit value=Save>
+				<p><input type=submit value=Save> 
+					<a href='index.php?action=$action&act=&annotation=$annotation&cid=$fileid'>cancel</a>
 				</form>
-				<p><a href='index.php?action=$action&act=delete&annotation=$annotation&sid=$sid'>delete segment</a>
+				<p><a href='index.php?action=$action&act=delete&annotation=$annotation&sid=$sid&cid=$fileid'>delete segment</a>
 				";
 			
 			$ctxt = $ttxml->context($toklist[0]);
 			if ( $ctxt ) {	
-				foreach ( $toklist as $wk ) $hllist .= "highlight('$wk');";
+				foreach ( $toklist as $wk ) $hllist .= "highlight('$wk', '#ffcccc');";
 				$maintext .= "<hr><h2>Context</h2>$ctxt
 					<script language=Javascript src=\"$jsurl/tokedit.js\"></script>
 					<script language=Javascript>$hllist</script>
@@ -250,7 +251,10 @@
 		$maintext .= "<h1>{%{$andef['name']}}</h1>";
 		$maintext .= "<h2>".$ttxml->title()."</h2>"; 
 		$maintext .= $ttxml->tableheader(); 
-		 
+		
+		$description = $andef->desc;
+		if ( $description ) $maintext .= "<p>$description</p><hr>";
+ 
 		$maintext .= "
 			<table width='100%'><tr><td width='50%' valign=top>".$ttxml->mtxt(0);
 		$maintext .= "</td><td valign=top style='border-left: 1px solid #991000; padding-left: 20px;'>";
@@ -288,7 +292,7 @@
 				$maintext .= "
 				
 					<tr style='display: none;' id='newrow-$i'>
-						<td><input type=hidden name=\"news[$i][tokens]\" id=\"news[$i][tokens]\">
+						<td><input type=hidden name=\"news[$i][corresp]\" id=\"news[$i][corresp]\">
 							<input name=\"news[$i][text]\" id=\"news[$i][text]\" style='border: none; font-size: 11pt;' readonly>";
 				foreach ( $tagset as $key => $val ) {
 					$maintext .= "<td><input name='news[$i][$key]' value=''></td>";
@@ -316,7 +320,7 @@
 				function markout ( list) { 
 					var array = list.split(' ');
 					for ( var i=0; i<array.length; i++ ) {
-						highlight(array[i], '#ffaaaa');
+						highlight(array[i], '#ffcccc');
 					};
 				};
 			</script>

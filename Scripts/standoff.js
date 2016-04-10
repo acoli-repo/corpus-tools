@@ -1,12 +1,18 @@
+/* 
+	Javascript for stand-off annotation in TEITOK
+	(c) Maarten Janssen, 2015
+*/ 
+
 document.onclick = clickEvent; 
 var ttsep = ''; var twsep = ''; var newrow = 0;
 
 function addtok(tokid) { 
+	if ( !tokid ) { console.log('No token ID'); return; };
 	document.getElementById('newann').style.display = 'block';
 	highlight(tokid, '#00ffff');
-	document.getElementById('newann-toklist').value += ttsep + tokid;		
+	document.getElementById('newann-toklist').value += ttsep + '#' + tokid;		
 	document.getElementById('newann-wrdlist').value += twsep + document.getElementById(tokid).textContent;		
-	ttsep = ','; twsep = ' ';			
+	ttsep = ' '; twsep = ' ';			
 };
 
 function clearnewann() {
@@ -20,9 +26,9 @@ function clearnewann() {
 function makenewann() {
 	newrow++;
 	document.getElementById('newrow-'+newrow).style.display = 'table-row';
-	document.getElementById("news["+newrow+"][tokens]").value = document.getElementById('newann-toklist').value;
+	document.getElementById("news["+newrow+"][corresp]").value = document.getElementById('newann-toklist').value;
 	document.getElementById("news["+newrow+"][text]").value = document.getElementById('newann-wrdlist').value;
-	if ( newrow > 9 ) { document.getElementById('newann').innerHTML = 'Maximum number of new annotations reach. Please save and reload to continue'; };
+	if ( newrow > 9 ) { document.getElementById('newann').innerHTML = 'Maximum number of new annotations reached. Please save and reload to continue'; };
 	clearnewann();
 };
 
