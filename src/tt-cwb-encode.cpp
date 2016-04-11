@@ -407,30 +407,36 @@ void treatfile ( string filename ) {
 	// add the stand-off annotations
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("annotations").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
 		string tagname = taglevel.attribute("key").value();
-		if ( debug > 2 ) { cout << " - Looking for stand-off: " << tagname << endl; };
-		// Loop through the actual items
-		string xpath = "//file[@id=\""+fileid+"\"]/segment";
-		pugi::xpath_node_set elmres = externals[taglevel.attribute("filename").value()]->select_nodes(xpath.c_str());
-		for (pugi::xpath_node_set::const_iterator it = elmres.begin(); it != elmres.end(); ++it) {
-			string wlist = it->node().attribute("tokens").value();
-			string toka = wlist.substr(0,wlist.find(","));
-			string tokb = wlist.substr(wlist.find_last_of(",")+1);
-			if ( toka == "" || tokb == "" ) { continue; };
-			int posa = id_pos[toka]; // first "token" in the range
-			int posb = id_pos[tokb]; // last "token" in the range
-			if ( debug > 2 ) { cout << " Found a range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
+		string annotationfile = "Annotations/" + tagname + "_" + fileid+ ".xml";
+		if ( debug > 2 ) { cout << " - Looking for stand-off: " << annotationfile << endl; };
+		// Loop through the actual items if the file exists
+		if ( access( annotationfile.c_str(), F_OK ) != -1 ) { // Check whether the annotation file exists for this file
+			externals[tagname]->load_file(annotationfile.c_str());
+			// string xpath = "//file[@id=\""+fileid+"\"]/segment";
+			string xpath = "//span";
+			if ( debug > 2 ) { cout << " - Going through each item: " << xpath << endl; };
+			pugi::xpath_node_set elmres = externals[tagname]->select_nodes(xpath.c_str());
+			for (pugi::xpath_node_set::const_iterator it = elmres.begin(); it != elmres.end(); ++it) {
+				string wlist = it->node().attribute("corresp").value();
+				string toka = wlist.substr(1,wlist.find(" ")-1);
+				string tokb = wlist.substr(wlist.find_last_of("#")+1);
+				if ( toka == "" || tokb == "" ) { continue; };
+				int posa = id_pos[toka]; // first "token" in the range
+				int posb = id_pos[tokb]; // last "token" in the range
+				if ( debug > 2 ) { cout << " Found a range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
 
-			write_range(posa, posb, tagname);
-			for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
-				formkey = formfld.attribute("key").value(); 
-				if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
-				formval = "";
-				formval = it->node().attribute(formfld.attribute("key").value()).value();
+				write_range(posa, posb, tagname);
+				for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
+					formkey = formfld.attribute("key").value(); 
+					if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
+					formval = "";
+					formval = it->node().attribute(formfld.attribute("key").value()).value();
 
-				// write the actual data
-				write_range_value(posa, posb, tagname, formkey, formval);
-			};
-		};	
+					// write the actual data
+					write_range_value(posa, posb, tagname, formkey, formval);
+				};
+			};	
+		};
 	};
 };
 
@@ -695,20 +701,20 @@ int main(int argc, char *argv[])
 
 		// open the external XML file
 		string fullfilename = "Annotations/"+filename;
-			cout << "Loading: " << fullfilename << endl; 
 		
-		externals[filename] = new pugi::xml_document();
-		try {
-			externals[filename]->load_file(fullfilename.c_str());
-		} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
-		if ( externals[filename] == NULL ) {
-			cout << "Failed to load: " << fullfilename << endl; 
-			taglevel.parent().remove_child(taglevel); // Remove this node since we cannot read the stand-off annotation
-			continue; 
+		externals[tagname] = new pugi::xml_document();
+		if ( 1 == 2 ) { // filename != ""
+			try {
+				externals[filename]->load_file(fullfilename.c_str());
+			} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "Failing to load: " << filename << endl; };  };
+			if ( externals[filename] == NULL ) {
+				cout << "Failed to load: " << fullfilename << endl; 
+				taglevel.parent().remove_child(taglevel); // Remove this node since we cannot read the stand-off annotation
+				continue; 
+			};
+			if ( verbose ) { cout << "Loading external annotations XML: " << filename << endl; };
 		};
-			cout << "Loaded: " << fullfilename << endl; 
-		
-		if ( verbose ) { cout << "Loading external annotations XML: " << filename << endl; };
+				
 		registry << endl << "## Stand-off annotations of type " << tagname << endl;
 		registry << "STRUCTURE " << tagname << endl;
 		filename = corpusfolder+tagname+".rng";

@@ -116,7 +116,10 @@
 			};
 		};
 		
-		if ( !$nextaction ) $nextaction = "tokview";
+		if ( !$nextaction ) { // Somehow we need to decide what the best action after saving is...
+			if ( $settings['defaults']['popup'] ) $nextaction = "tokview";
+			else $nextaction = "file";
+		};
 		$maintext .= "<hr><p>Your text has been modified - reloading";
 		header("location:index.php?action=$nextaction&id=$fileid&tid=$tokid$slnk");
 		exit;
