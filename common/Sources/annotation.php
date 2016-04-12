@@ -15,6 +15,7 @@
 		};
 	};	
 	$fileid = $_GET['cid'];
+	if ( !strstr($fileid, ".xml") ) $fileid .= ".xml";
 	$xmlid = preg_replace("/\.xml$/", "", $fileid);
 	$filename = "Annotations/{$annotation}_$fileid";
 
