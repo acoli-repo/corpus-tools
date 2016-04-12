@@ -728,6 +728,8 @@
 			foreach ( $settings['annotations'] as $key => $val ) {
 				if ( $val['type'] == "standoff" && file_exists("Annotations/{$key}_$xmlid.xml") &&  ( !$val['admin'] || $username ) ) {
 					$maintext .= " &bull; <a href='index.php?action=annotation&annotation=$key&cid=$xmlid.xml'>{%{$val['display']}}</a>";
+				} else if ( $val['type'] == "standoff" && !file_exists("Annotations/{$key}_$xmlid.xml") && $username ) {
+					$maintext .= " &bull; <a href='index.php?action=annotation&act=edit&annotation=$key&cid=$xmlid.xml'>Create {%{$val['display']}}</a>";
 				} else if ( $val['type'] == "psdx" && file_exists("Annotations/$xmlid.psdx") ) {
 					$maintext .= " &bull; <a href='index.php?action=psdx&cid=$xmlid'>{%{$val['display']}}</a>";
 				};

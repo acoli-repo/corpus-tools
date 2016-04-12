@@ -15,6 +15,7 @@
 		};
 	};	
 	$fileid = $_GET['cid'];
+	$xmlid = preg_replace("/\.xml$/", "", $fileid);
 	$filename = "Annotations/{$annotation}_$fileid";
 
 	if ( $_GET['query'] ) {
@@ -43,7 +44,9 @@
 	
 	} else if ( $act == "save" && $fileid ) {
 	
-		$anxml = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		$antxt = file_get_contents($filename);
+		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
+		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		require ("../common/Sources/ttxml.php");
 		$ttxml = new TTXML($fileid);
 
@@ -114,7 +117,9 @@
 
 	} else if ( $fileid && $act == "delete" ) {
 
-		$anxml = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		$antxt = file_get_contents($filename);
+		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
+		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		
 		$sid = $_GET['sid'];
 		$result = $anxml->xpath("//segment[@id=\"$sid\"]"); 
@@ -142,7 +147,10 @@
 		$ttxml = new TTXML($fileid);
 		
 		$sid = $_GET['id'];
-		$anxml = simplexml_load_file("Annotations/{$annotation}_$fileid", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+
+		$antxt = file_get_contents($filename);
+		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
+		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		$result = $anxml->xpath("//span[@id=\"$sid\"]"); 
 		$segnode = $result[0];		
 		$result = $segnode->xpath(".."); 
@@ -243,7 +251,9 @@
 	} else if ( $fileid ) {
 		# Show a specific annotation on a file
 	
-		$anxml = simplexml_load_file("Annotations/{$annotation}_$fileid", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		$antxt = file_get_contents($filename);
+		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
+		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 
 		require ("../common/Sources/ttxml.php");
 		$ttxml = new TTXML();
