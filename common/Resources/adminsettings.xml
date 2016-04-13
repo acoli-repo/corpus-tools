@@ -1,0 +1,269 @@
+<ttsettings>
+	
+	<item key="languages" display="Definition of the languages to be used in the interface">
+		<att key="prefixed" display="use URL prefixes for language settings (1/0)">
+			<val key="0" value="Do not use a URL prefix"/>
+			<val key="1" value="Use a URL prefix"/>
+		</att>
+		<att key="default" display="default language"/>
+	    <item key="options" display="List of languages">
+			<list display="Language settings">
+				<att key="key" display="ISO code of the language"/>
+				<att key="locale" display="Locale settings for the language (UTF8)"/>
+				<att key="menu" display="Name of the language as it appear in the menu bar"/> 
+				<att key="name" display="Full name of the language (in English)"/>	
+			</list>
+		</item>
+	</item>
+	
+	<item key="defaults" display="Some global definitions">
+	    <item key="title" display="Title of the page">
+	    	<att key="display" display="Display name"/>
+		</item>
+	    <item key="base" display="HTML base setting for the site">
+		    <att key="url" display="Base URL for the site"/> 
+		    <att key="javascript" display="URL to the Javascript folder"/>
+		</item>
+	</item>
+	
+	<item key="geomap" display="Settings for the Geomap module">
+		<item key="cqp" display="Settings for the CQP interaction">
+			 <att key="place" display="text attribute containing the placename"/> 
+			 <att key="geo"  display="text attribute containing the geolocation"/> 
+			 <att key="title"  display="text attribute containing the text title"/> />
+		</item>
+		<item key="xml" display="Setting for the XML files">
+			 <att key="node" display="XPath for the node to be looked up"/>
+			 <att key="geo" display="XPath for the geolocation within the node"/>
+			 <att key="name" display="XPath for the placename within the node"/>
+			 <att key="desc" display="XPath for the description (placename type) within the node"/>
+		</item>
+	</item>
+	
+	<item key="menu" display="Items to be displayed in the navigation menu">	
+		<item key="itemlist" display="List of menu items">
+			<list>
+				<att key="key" display="link action (index.php?action=XX)"/>
+				<att key="display" display="link name"/>
+			</list>
+		</item>
+		<item key="admin" display="List of admin items (shown on the Admin page)">
+			<list>
+				<att key="key" display="link action (index.php?action=XX)"/>
+				<att key="display" display="link name"/>
+			</list>
+		</item>
+	</item>
+		
+
+	<item key="cqp" display="Definition of the CQP corpus created from the XML files">		
+		<att key="corpus" display="CQP corpus ID"/>
+		<att key="searchfolder" display="Folders to use for the corpus"/>
+		<att key="searchmethod" display="Default search method"/>	
+		<item key="defaults" display="Default values">
+			<att key="searchtype" display="Default type of search">
+				<val key="context" value="Context search"/>
+				<val key="kwic" value="KWIC search"/>
+			</att>
+			<att key="subtype" display="Default context type">
+				<val key="text" value="Text (Document)"/>
+				<val key="s" value="Sentence"/>
+				<val key="u" value="Utterance"/>
+				<val key="l" value="Verse line"/>
+			</att>
+		</item>
+		<item key="pattributes" display="Positional attributes">
+			<list display="List of positional attributes">
+				<att key="key" display="CQP name of the value"/>
+				<att key="display" display="Title to be used (if diffferent from XML section)"/>
+				<att key="xpath" display="XPath for the value lookup (if not @key)"/>
+				<att key="type" display="Type of feature (mainpos, kselect)"/>
+	    		<att key="admin" display="Visible only for admin users (1/0)"/>
+			</list>
+		</item>
+		<item key="sattributes" display="Structural attributes">
+			<list display="Level of the attributes">
+				<att key="key" display="ID for this level"/>
+				<att key="level" display="XML tag of the level">
+					<val key="text" value="Text (Document)"/>
+					<val key="s" value="Sentence"/>
+					<val key="u" value="Utterance"/>
+					<val key="l" value="Verse line"/>
+				</att>
+				<att key="display" display="Header of the search section"/>
+				<list display="List of structural attributes for the level">
+					<att key="key" display="CQP name of the value (text_XX)"/>
+					<att key="display" display="Title to be used"/>
+					<att key="long" display="Long title"/>
+					<att key="nosearch" display="Non-searchable field (1/0)"/>
+					<att key="type" display="Type of feature (select, kselect, long)"/>
+					<att key="xpath" display="XPath for the value lookup (if not @key)"/>
+					<att key="external" display="Lookup if the XPath is in an external file"/>
+				</list>
+			</list>
+		</item>
+		<item key="annotations" display="External annotations to be incorporated into CQP">
+			<list display="List of annotations">
+				<att key="key" display="ID for the annotation"/>
+				<att key="tag" display="XML tag to be used in CQP (if not @key)"/>
+				<att key="diplay" display="Name for the annotation"/>
+				<list display="List of attribues to be incorporated">
+					<att key="key" display="Attribute ID"/>
+					<att key="display" display="Title of the attibute"/>
+				</list>
+			</list>
+		</item>
+		<item key="result" display="Node to be used by default for the result">
+			<att key="node" display="Node"/>
+		</item>
+		<item key="frequency" display="Default frequency searches">
+			<list>
+				<att key="key" display="Query"/>
+				<att key="display" display="Name of the query"/>
+			</list>
+		</item>
+	</item>
+
+
+	<item key="xmlfile" display="Definitions for the display of the XML files"> 
+		<att key="defaultform" display="Default word form"/> 
+		<att key="defaultview" display="Default view options"/>  
+		<att key="xpath" display="XPath to the text body (//text)"/> 
+		<att key="linebreaks" display="Interpret linebreaks as lb before tokenization (1/0)"/> 
+		<att key="paged" display="Show one page at a time (1/0)"/> 
+		<item key="pattributes" display="Positional attributes">
+			<item key="forms" display="Word form definitions">
+				<list>
+					<att key="key" display="Attribute name of the form"/>
+					<att key="display" display="Name of the form"/>
+					<att key="inherit" display="Form to inherit from when empty"/>
+					<att key="subtract" display="Form to subtract from when inheriting"/>
+					<att key="color" display="Colour to be used for the form"/>
+					<att key="admin" display="Admin (1/0)"/>
+				</list>
+			</item>
+			<item key="tags" display="Token tags">
+				<list>
+					<att key="key" display="Attribute name of the tag"/>
+					<att key="display" display="Name of the tag"/>
+					<att key="type" display="Type of tag (mselect)"/>
+					<att key="translate" display="Internationalize (1/0)"/>
+					<att key="color" display="Colour to be used for the tag"/>
+					<att key="form" display="Form that the tag is associated with"/>
+					<att key="admin" display="Admin (1/0)"/>
+				</list>
+			</item>
+		</item>
+		<item key="sattributes" display="Structural attributes">
+			<list display="List of structural attributes for the level">
+				<att key="color" display="Colour for the tag value"/>
+				<att key="key" display="Attribute name of the tag"/>
+				<att key="display" display="Name of the tag"/>
+				<att key="admin" display="Admin">
+					<val key="1" value="Only visible for admin users"/>
+					<val key="0" value="Visible for everyone"/>
+				</att>
+			</list>
+		</item>
+	</item>
+
+    <item key="download" display="Define how the XML files can be downloaded">
+        <item key="options" display="Option list">
+            <list>
+				<att key="key" display="ID for the option"/>
+				<att key="display" display="Title for the download option"/>
+				<att key="cmd" display="Command to create the downloadable file"/>
+            </list>
+        </item>
+    </item>
+
+    <item key="input" display="Characters that are hard to type">
+        <item key="replace" display="List of character translations">
+        	<list>
+				<att key="key" display="ASCII character sequence"/>
+				<att key="value" display="Translated character"/>
+        	</list>
+        </item>
+    </item>
+
+    <item key="psdx" display="Definitions for the PSDX files">
+    	<att key="cqp" display="Use with CQP (1/0)"/> 
+    	<att key="default" display="Default XPath search query"/>
+        <item key="queries" display="List of XPath queries">
+        	<list>
+            	<att key="key" display="XPath query definition"/>
+            	<att key="display" display="Name of the query"/>
+            </list>
+        </item>
+    </item>
+    
+    <item key="scripts" display="Project-defined admin scripts">
+    	<list>
+    		<att key="key" display="ID for the script"/> 
+    		<att key="action" display="Script command"/>
+    		<att key="display" display="Display title for the script"/>
+		</list>
+    </item>
+
+	<item key="neotag" display="NeoTag Tagger definitions">
+		<item key="parameters" display="List of NeoTag parameter definitions">
+			<list>
+	    		<att key="pid" display="ID for the settings"/> 
+	    		<att key="restriction" display="XPath restriction for using this parameter set"/> 
+	    		<att key="params" display="Filename of the parameter file"/> 
+	    		<att key="training" display="Folders used for (re)training the parameter file"/> 
+	    		<att key="tagform" display="Word form to tag from"/> 
+	    		<att key="tagpos" display="Attribute name for the POS tag"/> 
+	    		<att key="folder" display="Folder where the parameter files are stored (deprecated)" deprecatd="1"/> 
+	    		<att key="formtags" display="Attributes to assign while tagging"/> 
+	    		<att key="lemmatize" display="Attributes that should be lemmatized"/> 
+	    		<att key="normalize" display="Attributes that should be normalize (not yet implemented)"/> 
+			</list>
+		</item> 
+	</item>
+
+    <item key="xmltemplates" display="Definition of the templates for new XML files">
+    	<list>
+    		<att key="key" display="ID for the template"/> 
+    		<att key="display" display="Name for the template"/>
+		</list>
+    </item>
+	
+    <item key="annotations" display="Definitions for stand-off annotations">
+    	<list>
+    		<att key="key" display="ID for the annotation"/> 
+    		<att key="type" display="Type of annotation">
+    			<val key="psdx" value="PSDX Syntactic annotation"/>
+    			<val key="stand-off" value="TEITOK style stand-off annotation"/>
+    		</att>
+    		<att key="display" display="Name for the annotation"/>
+    		<att key="admin" display="Admin (1/0)"/>
+		</list>
+    </item>
+
+    <item key="xdxf" display="Settings for the (XDXF) dictionarie(s)">
+        <list display="List of dictionaries">
+        	<att key="key" display="ID of the dictionary"/>
+        	<att key="filename" display="Filename of the dictionary XML file"/>
+        	<att key="title" display="Name of the dictionary"/>
+        	<item key="search" display="Search options">
+        		<list>
+	                <att key="key" display="ID of the option"/> 
+	                <att key="display" display="Title for the search option"/> 
+	                <att key="kn" display="XPath for the search query"/>
+        		</list>
+        	</item>
+        	<item key="cqp" display="CQP options">
+				<att key="pos" display="attribute name of the part-of-speech tag"/> 
+				<att key="lemma" display="attribute name of the lemma"/> 
+        	</item>
+        </list>
+    </item>
+	
+	<!-- bin (see CETAC) - not used anymore? -->
+	<!-- log (see CETAC) - not used anymore? -->
+
+	<!-- CDD (see PS) maybe not to be included here -->
+	<!-- Filelist (see PS) maybe not to be included here -->
+
+</ttsettings>
