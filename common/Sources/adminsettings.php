@@ -94,7 +94,8 @@
 	};
 
 	function is_attribute($node) {
-		return !($node->asXML()[0] == "<");
+		$tmp = $node->asXML();
+		return !( $tmp[0] == "<");
 	};
 	
 ?>
