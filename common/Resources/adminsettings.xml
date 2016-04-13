@@ -8,7 +8,8 @@
 		<att key="default" display="default language"/>
 	    <item key="options" display="List of languages">
 			<list display="Language settings">
-				<att key="key" display="ISO code of the language"/>
+				<att key="key" display="ID for the language"/>
+				<att key="code" display="ISO code of the language"/>
 				<att key="locale" display="Locale settings for the language (UTF8)"/>
 				<att key="menu" display="Name of the language as it appear in the menu bar"/> 
 				<att key="name" display="Full name of the language (in English)"/>	
@@ -60,6 +61,7 @@
 		<att key="corpus" display="CQP corpus ID"/>
 		<att key="searchfolder" display="Folders to use for the corpus"/>
 		<att key="searchmethod" display="Default search method"/>	
+		<att key="nodtoks" display="Export tokens even if there are dtoks"/>	
 		<item key="defaults" display="Default values">
 			<att key="searchtype" display="Default type of search">
 				<val key="context" value="Context search"/>
@@ -96,8 +98,17 @@
 					<att key="display" display="Title to be used"/>
 					<att key="long" display="Long title"/>
 					<att key="nosearch" display="Non-searchable field (1/0)"/>
-					<att key="type" display="Type of feature (select, kselect, long)"/>
+					<att key="noshow" display="Do not display field results (hidden value)"/>
+					<att key="type" display="Type of feature">
+						<val key="select" display="Create a pull-down list from existing values"/>
+						<val key="long" display="Search term looked for as substring of full value"/>
+						<val key="range" display="Create a search range (minimum and maximum value)"/>
+						<val key="kselect" display="Select + translate (deprecated)" deprecated="1"/>
+					</att>
+					<att key="translate" display="Make items in select pull-down internationalized"/>
 					<att key="xpath" display="XPath for the value lookup (if not @key)"/>
+		    		<att key="admin" display="Visible only for admin users (1/0)"/>
+		    		<att key="sort" display="Sort method for select lists"/>
 					<att key="external" display="Lookup if the XPath is in an external file"/>
 				</list>
 			</list>
@@ -234,13 +245,24 @@
     		<att key="key" display="ID for the annotation"/> 
     		<att key="type" display="Type of annotation">
     			<val key="psdx" value="PSDX Syntactic annotation"/>
-    			<val key="stand-off" value="TEITOK style stand-off annotation"/>
+    			<val key="standoff" value="TEITOK style stand-off annotation"/>
     		</att>
     		<att key="display" display="Name for the annotation"/>
+    		<att key="filename" display="Filename of the annotation XML (deprecated)" deprecated="1"/>
     		<att key="admin" display="Admin (1/0)"/>
 		</list>
     </item>
 
+    <item key="files" display="Settings for file uploads">
+    	<list display="Type of uploadable files">
+	    	<att key="key" display="ID of the file type"/>
+	    	<att key="display" display="Name of the file type"/>
+	    	<att key="folder" display="Folder where uploaded files are stored"/>
+	    	<att key="extension" display="Acceptable file extension (*.xxx,*.yyy)"/>
+	    	<att key="description" display="Description of the file type"/>
+    	</list>
+	</item>
+	
     <item key="xdxf" display="Settings for the (XDXF) dictionarie(s)">
         <list display="List of dictionaries">
         	<att key="key" display="ID of the dictionary"/>

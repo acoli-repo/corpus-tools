@@ -2,6 +2,8 @@
 	# Module to conveniently edit the settings.xml file
 	if ( !$settingsxml ) { fatal("Failed to load settings.xml");};
 
+	check_login();
+
 	$setdef = simplexml_load_file("../common/Resources/adminsettings.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$setdef ) { fatal("Failed to load adminsettings.xml");};
 
