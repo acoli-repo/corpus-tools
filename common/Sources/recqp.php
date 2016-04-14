@@ -17,9 +17,9 @@
 		$registry = file_get_contents($registryfile);
 		if ( preg_match( "/HOME\s+(.*)/", $registry, $matches ) ) { $cqphome = $matches[1]; };
 		$thisfolder = $_SERVER['SCRIPT_FILENAME']; $thisfolder = substr($thisfolder, 0, strpos($thisfolder, '/index.php') );
-		if ( $thisfolder."/cqp" != $cqphome ) {
+		if ( realpath($thisfolder."/cqp") != realpath($cqphome) ) {
 			fatal("You are trying to create corpus $cqpcorpus. 
-				There is such a corpus in $cqphome, which does not seem to be this corpus ($thisfolder). 
+				There is such a corpus in $cqphome, which does not seem to be this corpus ($thisfolder/$cqp). 
 				Please use a different corpus name in settings.xml or remove the existing registry file ($registryfile) if this is there is no name conflict");
 		};
 	};
