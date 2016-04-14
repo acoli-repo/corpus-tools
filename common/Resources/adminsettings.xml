@@ -1,11 +1,11 @@
 <ttsettings>
 	
 	<item key="languages" display="Definition of the languages to be used in the interface">
-		<att key="prefixed" display="use URL prefixes for language settings (1/0)">
+		<att key="prefixed" display="use URL prefixes for language settings (1/0)" default="0">
 			<val key="0" value="Do not use a URL prefix"/>
 			<val key="1" value="Use a URL prefix"/>
 		</att>
-		<att key="default" display="default language"/>
+		<att key="default" display="default language" default="en"/>
 	    <item key="options" display="List of languages">
 			<list display="Language settings">
 				<att key="key" display="ID for the language"/>
@@ -28,6 +28,10 @@
 	</item>
 	
 	<item key="geomap" display="Settings for the Geomap module">
+		<att key="startpos" display="Starting coordinates on the map"/> 	
+		<att key="zoom" display="Starting zoom factor of the map" default="8"/> 	
+		<att key="documents" display="Name of a file" default="documents"/> 	
+		<att key="title" display="Title of the sound map" default="Document Map"/>
 		<item key="cqp" display="Settings for the CQP interaction">
 			 <att key="place" display="text attribute containing the placename"/> 
 			 <att key="geo"  display="text attribute containing the geolocation"/> 
@@ -80,7 +84,7 @@
 				<att key="display" display="Title to be used (if diffferent from XML section)"/>
 				<att key="xpath" display="XPath for the value lookup (if not @key)"/>
 				<att key="type" display="Type of feature (mainpos, kselect)"/>
-	    		<att key="admin" display="Visible only for admin users (1/0)"/>
+	    		<att key="admin" display="Visible only for admin users (1/0)" default="0"/>
 			</list>
 		</item>
 		<item key="sattributes" display="Structural attributes">
@@ -97,17 +101,17 @@
 					<att key="key" display="CQP name of the value (text_XX)"/>
 					<att key="display" display="Title to be used"/>
 					<att key="long" display="Long title"/>
-					<att key="nosearch" display="Non-searchable field (1/0)"/>
+					<att key="nosearch" display="Non-searchable field (1/0)" default="0"/>
 					<att key="noshow" display="Do not display field results (hidden value)"/>
-					<att key="type" display="Type of feature">
+					<att key="type" display="Type of feature (how the values are treated)">
 						<val key="select" display="Create a pull-down list from existing values"/>
 						<val key="long" display="Search term looked for as substring of full value"/>
 						<val key="range" display="Create a search range (minimum and maximum value)"/>
-						<val key="kselect" display="Select + translate (deprecated)" deprecated="1"/>
+						<val key="kselect" display="Select + translate" deprecated="1"/>
 					</att>
 					<att key="translate" display="Make items in select pull-down internationalized"/>
 					<att key="xpath" display="XPath for the value lookup (if not @key)"/>
-		    		<att key="admin" display="Visible only for admin users (1/0)"/>
+		    		<att key="admin" display="Visible only for admin users (1/0)" default="0"/>
 		    		<att key="sort" display="Sort method for select lists"/>
 					<att key="external" display="Lookup if the XPath is in an external file"/>
 				</list>
@@ -140,8 +144,9 @@
 		<att key="defaultform" display="Default word form"/> 
 		<att key="defaultview" display="Default view options"/>  
 		<att key="xpath" display="XPath to the text body (//text)"/> 
-		<att key="linebreaks" display="Interpret linebreaks as lb before tokenization (1/0)"/> 
-		<att key="paged" display="Show one page at a time (1/0)"/> 
+		<att key="linebreaks" display="Interpret linebreaks as lb before tokenization (1/0)" default="0"/> 
+		<att key="paged" display="Show one page at a time (1/0)" default="0"/>
+		<item key="teiHeader" display="items from the teiHeader to display" deprecated="1"/>
 		<item key="pattributes" display="Positional attributes">
 			<item key="forms" display="Word form definitions">
 				<list>
@@ -150,7 +155,7 @@
 					<att key="inherit" display="Form to inherit from when empty"/>
 					<att key="subtract" display="Form to subtract from when inheriting"/>
 					<att key="color" display="Colour to be used for the form"/>
-					<att key="admin" display="Admin (1/0)"/>
+					<att key="admin" display="Admin (1/0)" default="0"/>
 				</list>
 			</item>
 			<item key="tags" display="Token tags">
@@ -158,10 +163,10 @@
 					<att key="key" display="Attribute name of the tag"/>
 					<att key="display" display="Name of the tag"/>
 					<att key="type" display="Type of tag (mselect)"/>
-					<att key="translate" display="Internationalize (1/0)"/>
+					<att key="translate" display="Internationalize (1/0)" default="0"/>
 					<att key="color" display="Colour to be used for the tag"/>
 					<att key="form" display="Form that the tag is associated with"/>
-					<att key="admin" display="Admin (1/0)"/>
+					<att key="admin" display="Admin (1/0)" default="0"/>
 				</list>
 			</item>
 		</item>
@@ -198,7 +203,7 @@
     </item>
 
     <item key="psdx" display="Definitions for the PSDX files">
-    	<att key="cqp" display="Use with CQP (1/0)"/> 
+    	<att key="cqp" display="Use with CQP (1/0)" default="0"/> 
     	<att key="default" display="Default XPath search query"/>
         <item key="queries" display="List of XPath queries">
         	<list>
@@ -225,7 +230,7 @@
 	    		<att key="training" display="Folders used for (re)training the parameter file"/> 
 	    		<att key="tagform" display="Word form to tag from"/> 
 	    		<att key="tagpos" display="Attribute name for the POS tag"/> 
-	    		<att key="folder" display="Folder where the parameter files are stored (deprecated)" deprecatd="1"/> 
+	    		<att key="folder" display="Folder where the parameter files are stored" deprecated="1"/> 
 	    		<att key="formtags" display="Attributes to assign while tagging"/> 
 	    		<att key="lemmatize" display="Attributes that should be lemmatized"/> 
 	    		<att key="normalize" display="Attributes that should be normalize (not yet implemented)"/> 
@@ -248,8 +253,8 @@
     			<val key="standoff" value="TEITOK style stand-off annotation"/>
     		</att>
     		<att key="display" display="Name for the annotation"/>
-    		<att key="filename" display="Filename of the annotation XML (deprecated)" deprecated="1"/>
-    		<att key="admin" display="Admin (1/0)"/>
+    		<att key="filename" display="Filename of the annotation XML" deprecated="1"/>
+    		<att key="admin" display="Admin (1/0)" default="0"/>
 		</list>
     </item>
 
