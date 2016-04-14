@@ -1,9 +1,18 @@
 <ttsettings>
 	
 	<item key="languages" display="Definition of the languages to be used in the interface">
+		<desc>
+			TEITOK project sites can be presented in several languages. In these settings, you
+			can indicate which interface languages should be included. The actual internationalization
+			is taken care of by i18n files. An i18n file for the default TEITOK interface texts for
+			a number of languages is included with the TEITOK distribution, but given the flexible
+			set-up of TEITOK, it will typically be necessary to add custom translation even for 
+			those languages (which can be provided in the internationalization section of the 
+			admin menu).
+		</desc>
 		<att key="prefixed" display="use URL prefixes for language settings (1/0)" default="0">
-			<val key="0" value="Do not use a URL prefix"/>
-			<val key="1" value="Use a URL prefix"/>
+			<val key="0" display="Do not use a URL prefix"/>
+			<val key="1" display="Use a URL prefix"/>
 		</att>
 		<att key="default" display="default language" default="en"/>
 	    <item key="options" display="List of languages">
@@ -28,6 +37,16 @@
 	</item>
 	
 	<item key="geomap" display="Settings for the Geomap module">
+		<desc>
+			The Geomap module creates a Google Map with dots for the "location" of each
+			document in the corpus (where it was written/published/sent from/...). For this,
+			it uses the Google format "latitude longitude", which have to be stored explicitly
+			somewhere in the XML document. In order to quickly build the map, the coordinates 
+			are stored in the CQP corpus. To get it to work, you have to make sure 
+			the geolocation gets exported to the CQP corpus (in the CQP settings), and indicate
+			here which attribute is used for the geolocation, and where the data about the
+			location can be found in the XML file.
+		</desc>
 		<att key="startpos" display="Starting coordinates on the map"/> 	
 		<att key="zoom" display="Starting zoom factor of the map" default="8"/> 	
 		<att key="documents" display="Name of a file" default="documents"/> 	
@@ -38,7 +57,7 @@
 			 <att key="title"  display="text attribute containing the text title"/> />
 		</item>
 		<item key="xml" display="Setting for the XML files">
-			 <att key="node" display="XPath for the node to be looked up"/>
+			 <att key="node" display="XPath for the XML node where the geolocation is stored"/>
 			 <att key="geo" display="XPath for the geolocation within the node"/>
 			 <att key="name" display="XPath for the placename within the node"/>
 			 <att key="desc" display="XPath for the description (placename type) within the node"/>
@@ -46,6 +65,13 @@
 	</item>
 	
 	<item key="menu" display="Items to be displayed in the navigation menu">	
+		<desc>
+			This section defines which links should be included in the navigation menu (typically
+			on the left-hand side of the page), and which project-specific links should be 
+			included in the admin menu (on the admin functions page). The link will be interpreted
+			as an action (that is, "home" will be translated to "index.php?action=home"), unless
+			it is a full URL (including http://)
+		</desc>
 		<item key="itemlist" display="List of menu items">
 			<list>
 				<att key="key" display="link action (index.php?action=XX)"/>
@@ -61,57 +87,80 @@
 	</item>
 		
 
-	<item key="cqp" display="Definition of the CQP corpus created from the XML files">		
+	<item key="cqp" display="Definition of the CQP corpus created from the XML files">	
+		<desc>
+			For searching the corpus, TEITOK uses the Corpus WorkBench. This section defines
+			both how that corpus is created from the XML files, and how that CQP corpus can
+			be searched. 
+			More information can be found in the 
+			<a href="http://teitok.corpuswiki.org/site/index.php?action=help&amp;id=cqp">help pages</a>
+		</desc>	
 		<att key="corpus" display="CQP corpus ID"/>
 		<att key="searchfolder" display="Folders to use for the corpus"/>
 		<att key="searchmethod" display="Default search method"/>	
-		<att key="nodtoks" display="Export tokens even if there are dtoks"/>	
+		<att key="nodtoks" display="Export tokens even if there are dtoks" default="0">	
+			<val key="1" display="Always export toks"/>
+			<val key="0" display="Export dtoks when they exist"/>
+		</att>
 		<item key="defaults" display="Default values">
 			<att key="searchtype" display="Default type of search">
-				<val key="context" value="Context search"/>
-				<val key="kwic" value="KWIC search"/>
+				<val key="context" display="Context search"/>
+				<val key="kwic" display="KWIC search"/>
 			</att>
 			<att key="subtype" display="Default context type">
-				<val key="text" value="Text (Document)"/>
-				<val key="s" value="Sentence"/>
-				<val key="u" value="Utterance"/>
-				<val key="l" value="Verse line"/>
+				<val key="text" display="Text (Document)"/>
+				<val key="s" display="Sentence"/>
+				<val key="u" display="Utterance"/>
+				<val key="l" display="Verse line"/>
 			</att>
 		</item>
 		<item key="pattributes" display="Positional attributes">
 			<list display="List of positional attributes">
 				<att key="key" display="CQP name of the value"/>
-				<att key="display" display="Title to be used (if diffferent from XML section)"/>
-				<att key="xpath" display="XPath for the value lookup (if not @key)"/>
-				<att key="type" display="Type of feature (mainpos, kselect)"/>
-	    		<att key="admin" display="Visible only for admin users (1/0)" default="0"/>
+				<att key="display" display="Title to be used"/>
+				<att key="xpath" display="XPath for the value lookup" default="@key"/>
+				<att key="type" display="Type of feature">
+					<val key="mainpos" display="Main part-of-speech tag"/>
+					<val key="kselect" display="Select + translate" deprecated="1"/>
+				</att>
+	    		<att key="admin" display="Admin attribute" default="0">
+					<val key="1" display="Visible only for admin users"/>
+					<val key="0" display="Visible for everyone"/>
+	    		</att>
 			</list>
 		</item>
 		<item key="sattributes" display="Structural attributes">
 			<list display="Level of the attributes">
 				<att key="key" display="ID for this level"/>
 				<att key="level" display="XML tag of the level">
-					<val key="text" value="Text (Document)"/>
-					<val key="s" value="Sentence"/>
-					<val key="u" value="Utterance"/>
-					<val key="l" value="Verse line"/>
+					<val key="text" display="Text (Document)"/>
+					<val key="s" display="Sentence"/>
+					<val key="u" display="Utterance"/>
+					<val key="l" display="Verse line"/>
 				</att>
 				<att key="display" display="Header of the search section"/>
 				<list display="List of structural attributes for the level">
-					<att key="key" display="CQP name of the value (text_XX)"/>
+					<att key="key" display="CQP name of the sattribute"/>
 					<att key="display" display="Title to be used"/>
 					<att key="long" display="Long title"/>
-					<att key="nosearch" display="Non-searchable field (1/0)" default="0"/>
+					<att key="nosearch" display="Non-searchable field" default="0">
+						<val key="1" display="Do no show in search"/>
+						<val key="0" display="Show in search"/>
+					</att>
 					<att key="noshow" display="Do not display field results (hidden value)"/>
-					<att key="type" display="Type of feature (how the values are treated)">
+					<att key="type" display="Type of attribute" default="match">
+						<val key="match" display="Match full value"/>
 						<val key="select" display="Create a pull-down list from existing values"/>
-						<val key="long" display="Search term looked for as substring of full value"/>
-						<val key="range" display="Create a search range (minimum and maximum value)"/>
+						<val key="long" display="Search for substring"/>
+						<val key="range" display="Search range (min-max)"/>
 						<val key="kselect" display="Select + translate" deprecated="1"/>
 					</att>
 					<att key="translate" display="Make items in select pull-down internationalized"/>
 					<att key="xpath" display="XPath for the value lookup (if not @key)"/>
-		    		<att key="admin" display="Visible only for admin users (1/0)" default="0"/>
+		    		<att key="admin" display="Visible only for admin users" default="0">
+						<val key="1" display="Visible only for admin users"/>
+						<val key="0" display="Visible for everyone"/>
+		    		</att>
 		    		<att key="sort" display="Sort method for select lists"/>
 					<att key="external" display="Lookup if the XPath is in an external file"/>
 				</list>
@@ -141,6 +190,10 @@
 
 
 	<item key="xmlfile" display="Definitions for the display of the XML files"> 
+		<desc>
+			The central feature of TEITOK are the TEI/XML files. This section defines several
+			aspects of those XML files, especially which attributes each token has. 
+		</desc>
 		<att key="defaultform" display="Default word form"/> 
 		<att key="defaultview" display="Default view options"/>  
 		<att key="xpath" display="XPath to the text body (//text)"/> 
@@ -155,7 +208,10 @@
 					<att key="inherit" display="Form to inherit from when empty"/>
 					<att key="subtract" display="Form to subtract from when inheriting"/>
 					<att key="color" display="Colour to be used for the form"/>
-					<att key="admin" display="Admin (1/0)" default="0"/>
+					<att key="admin" display="Admin" default="0">
+						<val key="1" display="Visible only for admin users"/>
+						<val key="0" display="Visible for everyone"/>
+					</att>
 				</list>
 			</item>
 			<item key="tags" display="Token tags">
@@ -166,7 +222,10 @@
 					<att key="translate" display="Internationalize (1/0)" default="0"/>
 					<att key="color" display="Colour to be used for the tag"/>
 					<att key="form" display="Form that the tag is associated with"/>
-					<att key="admin" display="Admin (1/0)" default="0"/>
+					<att key="admin" display="Admin" default="0">
+						<val key="1" display="Visible only for admin users"/>
+						<val key="0" display="Visible for everyone"/>
+					</att>
 				</list>
 			</item>
 		</item>
@@ -176,14 +235,19 @@
 				<att key="key" display="Attribute name of the tag"/>
 				<att key="display" display="Name of the tag"/>
 				<att key="admin" display="Admin">
-					<val key="1" value="Only visible for admin users"/>
-					<val key="0" value="Visible for everyone"/>
+					<val key="1" display="Only visible for admin users"/>
+					<val key="0" display="Visible for everyone"/>
 				</att>
 			</list>
 		</item>
 	</item>
 
     <item key="download" display="Define how the XML files can be downloaded">
+    	<desc>
+    		In order to make XML files downloadable, it is possible to define scripts
+    		that generate a downloadable XML file. The most simple script is "cat [fn]" 
+    		which will simply make the XML file itself downloadable without modifications.
+    	</desc>
         <item key="options" display="Option list">
             <list>
 				<att key="key" display="ID for the option"/>
@@ -194,7 +258,14 @@
     </item>
 
     <item key="input" display="Characters that are hard to type">
-        <item key="replace" display="List of character translations">
+    	<desc>
+    		Especially historical corpora often contain characters that are not easy to produce
+    		on a normal keyboard. To make it easier for users to search through the corpus, it
+    		is possible to define ascii sequences that correspond to special character, such
+    		as "^e" for "ê" - which means that typing an "e" after a "^" will automatically 
+    		replace these two character by "ê". These shorthands will be used in various places throughout the system.
+    	</desc>
+        <item key="replace" display="List of character shorthands">
         	<list>
 				<att key="key" display="ASCII character sequence"/>
 				<att key="value" display="Translated character"/>
@@ -214,6 +285,14 @@
     </item>
     
     <item key="scripts" display="Project-defined admin scripts">
+    	<desc>
+    		In this section, it is possible to define custom command-line commands that can 
+    		be applied to an XML file for custom transformations. The commmand should be full
+    		command, that can be run in the home folder of the project. To include the name of 
+    		the current file, use "[fn]" so a typical Perl script is called in the following way:
+    		<br/> 
+    		<tt>/usr/bin/perl /home/me/teitokscripts/kill_whitespace.pl [fn] > [fn]</tt>
+    	</desc>
     	<list>
     		<att key="key" display="ID for the script"/> 
     		<att key="action" display="Script command"/>
@@ -222,6 +301,11 @@
     </item>
 
 	<item key="neotag" display="NeoTag Tagger definitions">
+		<desc>
+			TEITOK has a built-in POS tagger called NeoTag. This section defines the parameter
+			settings for the tagger, which can either be incorporated from an existing project,
+			or trained on the current project corpus itself.
+		</desc>
 		<item key="parameters" display="List of NeoTag parameter definitions">
 			<list>
 	    		<att key="pid" display="ID for the settings"/> 
@@ -239,6 +323,12 @@
 	</item>
 
     <item key="xmltemplates" display="Definition of the templates for new XML files">
+    	<desc>
+    		The creation of new XML files in TEITOK can either start with a simple, empty
+    		TEI file, or a template can be used that contains a number of standard fields in the
+    		header, such as the publishing institution, the project, etc. Multiple templates
+    		can be used if there are different types of files in the corpus. 
+    	</desc>
     	<list>
     		<att key="key" display="ID for the template"/> 
     		<att key="display" display="Name for the template"/>
@@ -246,19 +336,34 @@
     </item>
 	
     <item key="annotations" display="Definitions for stand-off annotations">
+    	<desc>
+    		The TEITOK XML files can only contain token-level annotations, since anything
+    		above token-level could intersect with other information in the XML file. For
+    		multi-token annotations, two types of annotations can be added: segment-based
+    		stand-off annotations, and PSDX syntactic annotations. 
+    	</desc>
     	<list>
     		<att key="key" display="ID for the annotation"/> 
     		<att key="type" display="Type of annotation">
-    			<val key="psdx" value="PSDX Syntactic annotation"/>
-    			<val key="standoff" value="TEITOK style stand-off annotation"/>
+    			<val key="psdx" display="PSDX Syntactic annotation"/>
+    			<val key="standoff" display="TEITOK style stand-off annotation"/>
     		</att>
     		<att key="display" display="Name for the annotation"/>
     		<att key="filename" display="Filename of the annotation XML" deprecated="1"/>
-    		<att key="admin" display="Admin (1/0)" default="0"/>
+			<att key="admin" display="Admin" default="0">
+				<val key="1" display="Visible only for admin users"/>
+				<val key="0" display="Visible for everyone"/>
+			</att>
 		</list>
     </item>
 
     <item key="files" display="Settings for file uploads">
+    	<desc>
+			TEITOK allows uploaded files, such as XML files, Facsimile, images, PDF files, etc., through
+			the interface. By default, only site images (for the folder Images) and TEI/XML files
+			(for the folder xmlfiles) can be uploaded, but other types of uploadable files can
+			be defined here.
+    	</desc>
     	<list display="Type of uploadable files">
 	    	<att key="key" display="ID of the file type"/>
 	    	<att key="display" display="Name of the file type"/>
@@ -269,6 +374,15 @@
 	</item>
 	
     <item key="xdxf" display="Settings for the (XDXF) dictionarie(s)">
+    	<desc>
+    		TEITOK can display dictionaries in XML formats such as XDXF and the TEI
+    		dictionary format. This section defines the dictionarie(s) to be displayed,
+    		with a definition about where the relevant parts of the dictionary are in the
+    		XML file, and how they can be searched. Furthermore, it is possible to associate
+    		one dictionary with the CQP corpus, in two directions: under the dictionary entry,
+    		TEITOK can display corpus examples, and in the CQP corpus, dictionary definitions
+    		can be shown.
+    	</desc>
         <list display="List of dictionaries">
         	<att key="key" display="ID of the dictionary"/>
         	<att key="filename" display="Filename of the dictionary XML file"/>
