@@ -1,14 +1,13 @@
 <ttsettings>
 	
-	<item key="languages" display="Definition of the languages to be used in the interface">
+	<item key="languages" display="Settings for the languages to be used in the interface">
 		<desc>
 			TEITOK project sites can be presented in several languages. In these settings, you
 			can indicate which interface languages should be included. The actual internationalization
 			is taken care of by i18n files. An i18n file for the default TEITOK interface texts for
 			a number of languages is included with the TEITOK distribution, but given the flexible
 			set-up of TEITOK, it will typically be necessary to add custom translation even for 
-			those languages (which can be provided in the internationalization section of the 
-			admin menu).
+			those languages (which can be provided in the <a href="index.php?action=i18n">internationalization section</a>).
 		</desc>
 		<att key="prefixed" display="use URL prefixes for language settings (1/0)" default="0">
 			<val key="0" display="Do not use a URL prefix"/>
@@ -26,7 +25,7 @@
 		</item>
 	</item>
 	
-	<item key="defaults" display="Some global definitions">
+	<item key="defaults" display="Some global settings">
 	    <item key="title" display="Title of the page">
 	    	<att key="display" display="Display name"/>
 		</item>
@@ -87,7 +86,7 @@
 	</item>
 		
 
-	<item key="cqp" display="Definition of the CQP corpus created from the XML files">	
+	<item key="cqp" display="Settings for the CQP corpus created from the XML files">	
 		<desc>
 			For searching the corpus, TEITOK uses the Corpus WorkBench. This section defines
 			both how that corpus is created from the XML files, and how that CQP corpus can
@@ -103,7 +102,7 @@
 			<val key="0" display="Export dtoks when they exist"/>
 		</att>
 		<item key="defaults" display="Default values">
-			<att key="searchtype" display="Default type of search">
+			<att key="searchtype" display="Default type of search" default="kwic">
 				<val key="context" display="Context search"/>
 				<val key="kwic" display="KWIC search"/>
 			</att>
@@ -114,7 +113,7 @@
 				<val key="l" display="Verse line"/>
 			</att>
 		</item>
-		<item key="pattributes" display="Positional attributes">
+		<item key="pattributes" display="Positional attributes (token-level)">
 			<list display="List of positional attributes">
 				<att key="key" display="CQP name of the value"/>
 				<att key="display" display="Title to be used"/>
@@ -129,7 +128,7 @@
 	    		</att>
 			</list>
 		</item>
-		<item key="sattributes" display="Structural attributes">
+		<item key="sattributes" display="Structural attributes (above token-level)">
 			<list display="Level of the attributes">
 				<att key="key" display="ID for this level"/>
 				<att key="level" display="XML tag of the level">
@@ -139,7 +138,7 @@
 					<val key="l" display="Verse line"/>
 				</att>
 				<att key="display" display="Header of the search section"/>
-				<list display="List of structural attributes for the level">
+				<list display="List of sattributes for the level">
 					<att key="key" display="CQP name of the sattribute"/>
 					<att key="display" display="Title to be used"/>
 					<att key="long" display="Long title"/>
@@ -189,7 +188,7 @@
 	</item>
 
 
-	<item key="xmlfile" display="Definitions for the display of the XML files"> 
+	<item key="xmlfile" display="Settings for the display of the XML files"> 
 		<desc>
 			The central feature of TEITOK are the TEI/XML files. This section defines several
 			aspects of those XML files, especially which attributes each token has. 
@@ -200,7 +199,7 @@
 		<att key="linebreaks" display="Interpret linebreaks as lb before tokenization (1/0)" default="0"/> 
 		<att key="paged" display="Show one page at a time (1/0)" default="0"/>
 		<item key="teiHeader" display="items from the teiHeader to display" deprecated="1"/>
-		<item key="pattributes" display="Positional attributes">
+		<item key="pattributes" display="Positional attributes (token-level)">
 			<item key="forms" display="Word form definitions">
 				<list>
 					<att key="key" display="Attribute name of the form"/>
@@ -229,8 +228,8 @@
 				</list>
 			</item>
 		</item>
-		<item key="sattributes" display="Structural attributes">
-			<list display="List of structural attributes for the level">
+		<item key="sattributes" display="Structural attributes (above token-level)">
+			<list display="List of sattributes for the level">
 				<att key="color" display="Colour for the tag value"/>
 				<att key="key" display="Attribute name of the tag"/>
 				<att key="display" display="Name of the tag"/>
@@ -273,7 +272,7 @@
         </item>
     </item>
 
-    <item key="psdx" display="Definitions for the PSDX files">
+    <item key="psdx" display="Settings for the PSDX files">
     	<att key="cqp" display="Use with CQP (1/0)" default="0"/> 
     	<att key="default" display="Default XPath search query"/>
         <item key="queries" display="List of XPath queries">
@@ -300,7 +299,7 @@
 		</list>
     </item>
 
-	<item key="neotag" display="NeoTag Tagger definitions">
+	<item key="neotag" display="Settings for the NeoTag POS Tagger">
 		<desc>
 			TEITOK has a built-in POS tagger called NeoTag. This section defines the parameter
 			settings for the tagger, which can either be incorporated from an existing project,
@@ -322,7 +321,7 @@
 		</item> 
 	</item>
 
-    <item key="xmltemplates" display="Definition of the templates for new XML files">
+    <item key="xmltemplates" display="Settings for the templates for new XML files">
     	<desc>
     		The creation of new XML files in TEITOK can either start with a simple, empty
     		TEI file, or a template can be used that contains a number of standard fields in the
@@ -335,7 +334,7 @@
 		</list>
     </item>
 	
-    <item key="annotations" display="Definitions for stand-off annotations">
+    <item key="annotations" display="Settings for stand-off annotations">
     	<desc>
     		The TEITOK XML files can only contain token-level annotations, since anything
     		above token-level could intersect with other information in the XML file. For
@@ -401,7 +400,21 @@
         </list>
     </item>
 	
-	<!-- bin (see CETAC) - not used anymore? -->
+    <item key="bin" display="Settings for executable binaries">
+    	<desc>
+    		TEITOK interacts with several UNIX command-line executables. Since these can
+    		be in different locations, TEITOK has to verify where these executables are located
+    		on the system. For efficiency, it is possible to indicate the full path here
+    		instead.
+    	</desc>
+        <list display="List of executables">
+        	<att key="key" display="name of the executable">
+        		<val key="xsltproc" display="XSLT executing command, mostly deprecated"/>
+        	</att>
+        	<att key="path" display="full path of the executable"/>
+        </list>
+    </item>
+	
 	<!-- log (see CETAC) - not used anymore? -->
 
 	<!-- CDD (see PS) maybe not to be included here -->

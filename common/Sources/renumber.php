@@ -50,7 +50,7 @@
 
 		# Number the sentences
 		$wcnt = 1;
-		$result = $newxml->xpath("//$mtxtelement//s"); 
+		$result = $newxml->xpath("//$mtxtelement//s | //$mtxtelement//l"); 
 		foreach ( $result as $node ) {
 			$node['id'] = "s-$wcnt"; $wcnt++;
 		};

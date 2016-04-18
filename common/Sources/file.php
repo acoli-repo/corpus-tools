@@ -83,10 +83,17 @@
 			$tmp = substr($file, $pbef, 30);
 			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) {$_GET['pageid'] = $matches[1]; }
 			else if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) {$_GET['page'] = $matches[1]; };
-		} else if ( !$_GET['page'] && !$_GET['pageid'] ) {
+		} else {
 			# Or just the first page (pb)
-			$pbef = strpos($file, "<$pbelm") or $pbef = strpos($file, "<text"); # Allow for non-paged XML files
-			$tmp = substr($file, $pbef, 150); if ( preg_match("/<$pbelm [^>]*id=\"(.*?)\"/", $tmp, $matches) ) {
+			$pbef = strpos($file, "<$pbelm");
+			$pbaf = strpos($file, ">", $pbef);
+			$pblen = $pbaf-$pbef+1;
+			if ( !$pbef ) {	
+				$pbef = strpos($file, "<text"); # Allow for non-paged XML files
+				$pblen = 500;
+			};
+			$tmp = substr($file, $pbef, $pblen); 
+			if ( preg_match("/<$pbelm [^>]*id=\"(.*?)\"/", $tmp, $matches) ) {
 				$_GET['pageid'] = $matches[1];
 			};
  		};
@@ -192,6 +199,7 @@
 	
 		# Show sentence view
 		$stype = $_GET['sentence'] or $stype = "s";
+		if ( $stype == "1" ) $stype = "s";
 		$result = $xml->xpath("//$stype"); 
 		if ( $result > 100 ) { 
 			$result = array_slice($result, 0, 100);
@@ -265,7 +273,8 @@
 		if ( !$nidx || $nidx == -1 ) { 
 			$nidx = strpos($editxml, "</text", $pidx+1); $nnav = "";
 		} else {
-			$tmp = substr($editxml, $nidx, 150 ); 
+			$nidy = strpos($editxml, ">", $nidx); 
+			$tmp = substr($editxml, $nidx, $nidy-$nidx ); 
 			 
 			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $npid = $matches[1]; };
 			if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) { $npag = $matches[1]; };
@@ -478,7 +487,8 @@
 		if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) ||  strpos($editxml, "<lb", $tokpos)  ) ) {
  			$showoptions .= "<button id='btn-int' style='background-color: #ffffff;' title='{%format breaks}' onClick=\"toggleint();\">{%Formatting}</button>";
 		};
-		if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) ) ) {
+		if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) || ( $username && strpos($editxml, "<pb") )  ) ) {
+			// Should the <pb> button be hidden if there is only one page? (not for admin - pb editing)
  			$showoptions .= "<button id='btn-tag-pb' style='background-color: #ffffff;' title='{%show pagebreaks}' onClick=\"toggletn('pb');\">&lt;pb&gt;</button>";
 		};
 		if ( !$nobreakoptions && ( strpos($editxml, "<lb", $tokpos) ) ) {

@@ -17,12 +17,12 @@
 		$tmp = $settingsxml->xpath($xpath); 
 		$valnode = $tmp[0];
 		
-		if ( !$valnode ) {
+		if ( !$tmp ) {
 			# Non-existing node (attribute) - create
 			if ( preg_match("/^(.*)\/([^\/]+$)/", $xpath, $matches ) ) {
 				$parxp = $matches[1]; $thisnode = $matches[2];
 				$tmp = $settingsxml->xpath($parxp); $parnode = $tmp[0];
-				if ( !$parnode ) fatal("No parent node $parxp found");
+				if ( !$tmp ) fatal("No parent node $parxp found");
 				if ( substr($thisnode,0,1) == "@" ) {
 					$attname = substr($thisnode,1);
 					$parnode[$attname] = "";
@@ -33,8 +33,8 @@
 			
 		};
 			
-		if ( !$valnode ) { 
-			fatal("Node not found: $xpath"); 
+		if ( !$tmp ) { 
+			fatal("Node not found and cannot be created: $xpath"); 
 		};
 
 		if ( preg_match ("/ttsettings\/([^\/]+)/", $xpath, $matches) ) $section = $matches[1];
@@ -57,7 +57,7 @@
 		file_put_contents("Resources/settings.xml", $settingsxml->asXML());
 		print "<p>File saved. Reloading.
 			<script language=Javascript>top.location='index.php?action=$action&section=$section';</script>
-			";
+			"; exit;
 
 	} else if ( $act == "edit" ) {
 
@@ -67,13 +67,20 @@
 		
 		$defnode = findnode($xpath);
 		
+		if ( $defnode['default'] ) { 
+			$defval = $defnode['default'];
+			$tmp = $defnode->xpath("val[@key=\"$defval\"]"); $defdis = $tmp[0]['display'];
+			$deftxt = "<p>Default value: $defval = $defdis"; 
+		};
+		
 		$xptxt = "".$xpath;
 		$valtxt = addslashes($valnode);
 		if ( !$valtxt ) $valtxt = $defnode['default']."";
 
 		$maintext .= "<h1>Edit settings</h1>
 			<p>Settings node: $xpath
-			<p>{$defnode['display']}
+			<p style='color: #666666;'>{$defnode['display']}
+			$deftxt 
 			<p>Current value: <b>$valnode</b>
 			<form action=\"index.php?action=$action&act=save\" method=post>
 			<textarea style='display: none;' type=hidden name=xpath>$xptxt</textarea>
@@ -92,10 +99,100 @@
 		$maintext .= "
 			<input type=submit value=Save></form>";
 
+	} else if ( $act == "addelm" ) {
+		
+		$xpath = $_GET['node'];
+
+		if ( !$xpath ) { fatal ("No new element xpath selected"); };
+		if ( preg_match( "/\/ttsettings\/([^\/]+)/", $xpath, $matches ) ) { $section = $matches[1]; }; 
+		
+		# Create the element
+		if ( preg_match("/^(.*)\/([^\/]+$)/", $xpath, $matches ) ) {
+			$parxp = $matches[1]; $thisnode = $matches[2];
+			$tmp = $settingsxml->xpath($parxp); $parnode = $tmp[0];
+			if ( !$tmp ) fatal("No parent node $parxp found");
+			if ( substr($thisnode,0,1) != "@" ) {
+				$parnode->addChild($thisnode);
+			};
+		};
+		
+		# Save a backup copy
+		$date = date("Ymd"); 
+		$buname = "settings-$date.xml";
+		if ( !file_exists("backups/$buname") ) {
+			copy ( "Resources/settings.xml", "backups/$buname");
+		};
+	
+		
+		# Now save the actual file
+		file_put_contents("Resources/settings.xml", $settingsxml->asXML());
+		print "<p>File saved. Reloading.
+			<script language=Javascript>top.location='index.php?action=$action&section=$section&showunused=1';</script>
+			"; exit;
+
+
+	} else if ( $act == "createsection" ) {
+		
+		$newsection = $_GET['section'];
+
+		if ( !$newsection ) { fatal ("No new section selected"); };
+		
+		# Check whether known
+		if ( !$setdef->xpath("/ttsettings/item[@key=\"$newsection\"]") ) { fatal ("Invalid new section: $newsection"); };
+		# Check whether new
+		if ( $settingsxml->xpath("/ttsettings/$newsection") ) { fatal ("Section exists: $newsection"); };
+
+		# Create the section
+		$settingsxml->addChild($newsection);
+		
+		# Save a backup copy
+		$date = date("Ymd"); 
+		$buname = "settings-$date.xml";
+		if ( !file_exists("backups/$buname") ) {
+			copy ( "Resources/settings.xml", "backups/$buname");
+		};
+	
+		
+		# Now save the actual file
+		file_put_contents("Resources/settings.xml", $settingsxml->asXML());
+		print "<p>File saved. Reloading.
+			<script language=Javascript>top.location='index.php?action=$action&section=$section&showunused=1';</script>
+			"; exit;
+
+
+	} else if ( $act == "additem" ) {
+		
+		$xpath = $_GET['xpath'];
+
+		if ( !$xpath ) { fatal ("No xpath given"); };
+		
+		if ( preg_match( "/\/ttsettings\/([^\/]+)/", $xpath, $matches ) ) { $section = $matches[1]; }; 
+		
+		# Check whether new
+		$tmp = $settingsxml->xpath($xpath); $valnode = $tmp[0];
+		if ( !$tmp ) { fatal ("No such node: $xpath"); };
+
+		# Create the section
+		$valnode->addChild("item");
+		
+		# Save a backup copy
+		$date = date("Ymd"); 
+		$buname = "settings-$date.xml";
+		if ( !file_exists("backups/$buname") ) {
+			copy ( "Resources/settings.xml", "backups/$buname");
+		};
+	
+		# Now save the actual file
+		file_put_contents("Resources/settings.xml", $settingsxml->asXML());
+		print "<p>File saved. Reloading.
+			<script language=Javascript>top.location='index.php?action=$action&section=$section&showunused=1';</script>
+			"; exit;
+
 	} else if ( $section ) {
 		
 		$tmp = $setdef->xpath("/ttsettings/item[@key=\"$section\"]"); 
 		$secdef = $tmp[0]; 
+		if ( !$secdef ) { fatal ("No such section: $section"); };
 
 		$tmp = $settingsxml->xpath("/ttsettings/$section"); 
 		$valdef = $tmp[0]; 
@@ -103,18 +200,24 @@
 		$maintext .= "<h1>Settings: $section</h1>
 			<p><b>{$secdef['display']}</b></p>";
 		
-		if ( $secdef->desc ) 
-			$maintext .= "<p>".$secdef->desc->asXML()."</p>";
-	
+		if ( $secdef->desc ) {
+			$maintext .= "<p>".$secdef->desc->asXML()."</p><hr>";
+		};	
 		
 		$maintext .= settingstable($valdef, $secdef, $_GET['showunused'] );		
 	
 		$maintext .= "<hr><p><a href='index.php?action=$action'>back to sections</a>";
-		if ( !$_GET['showunused'] ) $maintext .= " &bull; <a href='index.php?action=$action&section=$section&showunused=1'>show unused attributes</a>";
+		if ( !$_GET['showunused'] ) $maintext .= " &bull; <a href='index.php?action=$action&section=$section&showunused=1'>show/edit unused items and attributes</a>";
 	
 	} else {
 	
 		$maintext .= "<h1>Settings sections</h1>
+		
+			<p>TEITOK is highly customizable, to make it usable for a wide range of projects.
+				The customization is mostly done in the settings file, which can be edited here.
+				The settings file is divided into several sections, each addressing a different
+				aspect of the system.
+			<hr>
 		
 			<table>";
 		
@@ -131,7 +234,7 @@
 			} else {
 				$notused .= "
 					<tr>
-					<td><a href='index.php?action=$action&section={$child['key']}'>create</a></td>
+					<td><a href='index.php?action=$action&act=createsection&section={$child['key']}'>create</a></td>
 					<th>{$child['key']}</th>
 					<td>{$child['display']}</td>
 					</tr>";
@@ -140,7 +243,7 @@
 		$maintext .= "</table>";
 
 		foreach ( $settings as $key => $val ) {
-			if ( !$done[$key] ) $maintext .= "<p>Unknown section: $key"; 
+			if ( !$done[$key] ) $maintext .= "<p style='color: #992000'>Unknown section: $key"; 
 		};		
 	
 		if ($notused) $maintext .= "<h2>Unused sections</h2><table>$notused</table>";
@@ -153,8 +256,10 @@
 	
 	function settingstable ( $valnode, $defnode, $showunused = false ) {
 		global $user;
-		if ( !$valnode ) return "";
-		if ( !$defnode ) return "<i>Unknown field</i>";
+
+		if ( $valnode->asXML() == "" ) return "";
+		if ( !$defnode ) return "<i style='color: #992000'>Unknown field</i>";
+		
 		
 		$tabletext .= "<table>"; unset($done);
 		foreach ( $valnode->attributes() as $key => $item ) {
@@ -163,7 +268,7 @@
 			if ( $itdef ) {
 				$tmp = $itdef->xpath("val[@key=\"$item\"]"); $value = $tmp[0]['display'];
 			};
-			$deftxt = $itdef['display'] or $deftxt = "<i>Unknown attribute</i>";
+			$deftxt = $itdef['display'] or $deftxt = "<i style='color: #992000'>Unknown attribute</i>";
 			if ( $user['permissions'] == "admin" ) {
 				$xpath = makexpath($item);
 				$item = "<a href='index.php?action=adminsettings&act=edit&node=$xpath'>$item</a>";
@@ -205,6 +310,7 @@
 			$key .= ""; $done[$key] = 1; 
 			$nodetype = $item->getName();
 			if ( $nodetype == "item" ) {
+				$done['list'] = 1;
 				$tmp = $defnode->xpath("list"); $itdef = $tmp[0];
 				$tabletext .= "<tr><td><td colspan=3>".settingstable($item, $itdef, $showunused);
 			} else {
@@ -218,9 +324,36 @@
 				if ( $item->getName() != "item" || $item['deprecated'] ) continue;
 				$key = $item['key']."";
 				$deftxt = $item['display'];
+				if ( $user['permissions'] == "admin" ) {
+					$xpath = makexpath($valnode)."/$key";
+					$add = "<br><a href='index.php?action=adminsettings&act=addelm&node=$xpath'>create item</a>";
+				};
 				if ( !$done[$key] ) {
 					$tabletext .= "<tr><th style='background-color: #d2d2ff'>$key
-						<td style='color: #888888;'>(unused)
+						<td style='color: #888888;'>(unused)$add
+						<td style='color: #888888; padding-left: 20px;'>$deftxt
+						<td>$value
+						";
+				};
+			};
+			foreach ( $defnode->children() as $key => $item ) {
+				if ( $item->getName() != "list" || $item['deprecated'] ) continue;
+				$key = $item['key']."";
+				$deftxt = $item['display'];
+				if ( !$done["list"] ) {
+					$xpath = makexpath($valnode);
+					if ( $user['permissions'] == "admin" ) {
+						$add = "<br><a href='index.php?action=adminsettings&act=additem&xpath=$xpath'>add item</a>";
+					} else $add = "";
+					$tabletext .= "<tr><td>
+						<td style='color: #888888;'>(unused)$add
+						<td style='color: #888888; padding-left: 20px;'>$deftxt
+						<td>$value
+						";
+				} else {
+					$xpath = makexpath($valnode);
+					$tabletext .= "<tr><td>
+						<td><a href='index.php?action=adminsettings&act=additem&xpath=$xpath'>add item</a> 
 						<td style='color: #888888; padding-left: 20px;'>$deftxt
 						<td>$value
 						";
@@ -266,69 +399,14 @@
 		while ( $tn->getName() != "ttsettings" && $c < 10 ) {
 			$c++;
 			$nn = $tn->getName();
-			if ( $nn == "item" ) { $nn = "{$nn}[@key=\"".$tn['key']."\"]"; };
+			if ( $nn == "item" ) { 
+				if ( $tn['key'] == "" ) $nn = "{$nn}[not(@key) or @key=\"\"]"; 
+				else $nn = "{$nn}[@key=\"".$tn['key']."\"]"; 
+			};
 			$xpath = "/$nn".$xpath;
 			$tmp = $tn->xpath(".."); $tn = $tmp[0];
 		};
 		return "/ttsettings$xpath";
-	};
-
-	function createnode ($xml, $xquery) {
-		# See if XML has a node matching the XPath, if not - create it
-		global $verbose;
-	
-		$xpath = new DOMXpath($xml);
-
-		$result = $xpath->query($xquery); 
-		if ( $result->length ) {
-			if ( $verbose ) { print "\n<p>Node exists ($xquery) - returning"; };
-			return $xml;
-		};
-		
-		if ( preg_match("/^(.*)\/(.*?)$/", $xquery, $matches) ) {
-		
-			// create the node type after the last / inside the xpath before that
-			// create the inner node again when needed
-			$before = $matches[1];
-			$new = $matches[2];
-			if ( $before == "/" ) { print "\n<p>Non-rooted node $xquery does not exist - cannot create"; return -1; };
-			$res = createnode($xml, $before);
-			if ( $res == -1 ) { return -1; };
-
-			$newatt = $newval = "";
-			if ( preg_match("/^(.*)\[([^\]]+)\]$/", $new, $matches2) ) { 
-				$new = $matches2[1]; $newrest = $matches2[2];
-				if ( $verbose ) { print "\n<p>Node restriction: $newrest"; };
-				if ( preg_match("/\@([a-z]+)=['\"](.*?)['\"]/", $newrest, $matches3) ) { 
-					$newatt = $matches3[1]; $newval = $matches3[2]; 
-				};
-			};
-
-			$result = $xpath->query($before); 
-			if ( $result->length == 1 ) {
-				foreach ( $result as $node ) {
-					if ( substr($new, 0, 1) == '@' ) {
-						# This should only happen if we find an attribute in our XPath, which should never happen
-						if ( $verbose ) { print "\n<p>Setting value for node of $att to x"; };
-						$att = substr($new, 1); 
-						$node->setAttribute($att, 'x');
-					} else {
-						if ( $verbose ) { print "\n<p>Creating a node $new inside $before"; };
-						$newelm = $xml->createElement($new, '');
-						if ( $newatt ) {
-							if ( $verbose ) { print "\n<p>Setting value for node of $newatt to $newval"; };
-							$newelm->setAttribute($newatt, $newval);
-						};
-						if ( $verbose ) { print "\n<p>New node: ".htmlentities($newelm->ownerDocument->saveXML($newelm)); };
-						$node->appendChild($newelm);
-					};
-				};
-			};
-		} else {
-			if ( $verbose ) { print "\n<p>Failed to find a node to attach to $xquery - aborting"; };
-			return -1;
-		};
-		return $xml;
 	};
 	
 ?>

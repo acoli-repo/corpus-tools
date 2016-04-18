@@ -13,6 +13,11 @@
 		$paramsfile = $params['params'];
 	};	
 	
+	# Load the tagset as well
+	require ( "../common/Sources/tttags.php" );
+	$tagset = new TTTAGS("", false);
+	$settings['tagset'] = $tagset->tagset;
+	
 	$paramdef = array ( 
 		"lemmatize" => "The form attribute used for lemmatization of OOV items",
 		"tagform" => "The form attribute used for tagging",

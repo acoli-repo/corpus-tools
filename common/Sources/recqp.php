@@ -13,7 +13,7 @@
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "/usr/local/share/cwb/registry/";
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$registryfile = $registryfolder.strtolower($cqpcorpus);
-	if ( file_exists($registryfile) || 1==1) {
+	if ( file_exists($registryfile) ) {
 		$registry = file_get_contents($registryfile);
 		if ( preg_match( "/HOME\s+(.*)/", $registry, $matches ) ) { $cqphome = $matches[1]; };
 		$thisfolder = $_SERVER['SCRIPT_FILENAME']; $thisfolder = substr($thisfolder, 0, strpos($thisfolder, '/index.php') );

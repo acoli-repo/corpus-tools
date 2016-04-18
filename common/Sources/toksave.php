@@ -106,7 +106,9 @@
 
 		saveMyXML($xml->asXML(), $fileid);
 
-		if ( substr($tokid,0,1) == "s" ) $slnk = "&sentence=1";
+		if ( substr($tokid,0,1) == "s" && 1==2 ) $slnk = "&sentence=s";
+		else if ( $token->getName() == "s" ) $slnk = "&sentence=s";
+		else if ( $token->getName() == "l" ) $slnk = "&sentence=l";
 		else if ( $settings['xmlfile']['paged']  ) {
 			$tokpos = strpos($file, "id=\"$tokid\"");
 			$pbef = rstrpos($file, "<pb", $tokpos) or $pbef = strpos($file, "<pb");

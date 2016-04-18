@@ -174,27 +174,52 @@ function formify () {
 			) { // Set a marker to say we already made an img
 			var pbimg = pb.getAttribute('facs');
 			pb.setAttribute("img", "yes");
-			var imgelm = document.createElement("img");
+
 			var imgsrc = pb.getAttribute('facs');
-			if ( imgsrc.substr(0,1) == "#" ) {
-				// The source of the facs is somewhere else - try to pick it up
+			if ( imgsrc.substr(0,4) != "http" ) {
+				imgsrc = baseurl + 'Facsimile/' + imgsrc;
 			};
-			if ( imgsrc.substr(0,4) == "http" ) {
-				imgelm.src = imgsrc;
+			var cropside = pb.getAttribute('crop');
+			if ( cropside ) {
+				var imgelm = document.createElement("div");
+				var rlimg = document.createElement("img");
+				imgelm.appendChild(rlimg);
+				var pbcopy = pb.getAttribute('copy');
+				if ( !pbcopy && typeof(facscopy) != "undefined" ) pbcopy = facscopy; 
+				if ( pbcopy ) {
+					var imgdesc = document.createElement("div");
+					imgelm.appendChild(imgdesc);
+					imgdesc.innerHTML = '&copy; ' + pb.getAttribute('copy');
+					imgdesc.width = '100%';
+					imgdesc.style['text-align'] = 'center';
+					imgdesc.style['font-size'] = 'small';
+					imgdesc.style['color'] = 'grey';
+				};
+				
+				imgelm.setAttribute('src', imgsrc);
+				rlimg.src = imgsrc;
+				rlimg.style.width = '200%';
+				if ( cropside == "left" ) {
+					rlimg.style['cssFloat'] = 'left';
+				} else if ( cropside == "right" ) {
+					rlimg.style['cssFloat'] = 'right';
+				};
+				imgelm.style['overflow'] = 'hidden';
 			} else {
-				imgelm.src = baseurl + 'Facsimile/' + imgsrc;
+				var imgelm = document.createElement("img");
+				imgelm.src = imgsrc;
+			
+				imgelm.style['display'] = 'none';
 			};
-			imgelm.style.width = '40%';
-			imgelm.style['cssFloat'] = 'right';
-			imgelm.style['clear'] = 'right';
-			imgelm.style['display'] = 'none';
-			imgelm.style.marginTop = '10px';
-			imgelm.style.marginLeft = '10px';
 			if ( pb.getAttribute("admin") === "1"  ) { 	
 				imgelm.style.border = '3px solid #992000'; 
 				imgelm.title = 'Not shown to visitors due to copyright restrictions'; 
 			};
-
+			imgelm.style.width = '40%';
+			imgelm.style['cssFloat'] = 'right';
+			imgelm.style['clear'] = 'right';
+			imgelm.style.marginTop = '10px';
+			imgelm.style.marginLeft = '10px';
 			imgelm.onclick = function() { window.open(this.getAttribute('src'), 'img'); };
 			if ( pb.parentNode.nodeName == "tok" || pb.parentNode.nodeName == "TOK" ) {
 				// We need to place this next to the tok - so go on to grandparent iff tok
@@ -243,6 +268,7 @@ function toggletn (tag) { // Show or hide empty elements
 
 function toggletag (tag) { // Show or hide empty elements
 	var but = document.getElementById('tbt-'+tag);
+	if ( !but ) return;
 	var idx = labels.indexOf(tag);
 	if ( idx > -1 ) {
 		labels.splice(idx, 1);;
@@ -258,6 +284,7 @@ function toggletag (tag) { // Show or hide empty elements
 
 function togglecol () { // Show or hide colours
 	var but = document.getElementById('btn-col');
+	if ( !but ) return;
 	if ( showcol ) {
 		showcol = false;
 		but.style.background = '#FFFFFF';
@@ -271,6 +298,7 @@ function togglecol () { // Show or hide colours
 
 function toggleimg () { // Show or hide images
 	var but = document.getElementById('btn-img');
+	if ( !but ) return;
 	if ( showimg ) {
 		showimg = false;
 		if (but && typeof(but.style) == "object") {
@@ -300,6 +328,7 @@ function toggleimg () { // Show or hide images
 
 function toggleint () { // Interpret breaks or not
 	var but = document.getElementById('btn-int');
+	if ( !but ) return;
 	if ( interpret ) {
 		interpret = false;
 		if ( typeof(but) == "object" ) { 

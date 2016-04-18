@@ -11,6 +11,7 @@
 	$sentid = $_POST['sid'] or $sentid = $_GET['sid'];
 	
 	if ( $fileid ) { 
+		$stype = $_GET['sentence'] or $stype = "s";
 	
 		if ( !file_exists("$xmlfolder/$fileid") ) { 
 			print "No such XML File: $xmlfolder/$fileid"; 
@@ -20,7 +21,7 @@
 		$file = file_get_contents("$xmlfolder/$fileid"); 
 		$xml = simplexml_load_string($file);
 
-		$result = $xml->xpath("//s[@id='$sentid']"); 
+		$result = $xml->xpath("//*[@id='$sentid']"); 
 		$sent = $result[0]; # print_r($token); exit;
 		if ( !$sent ) fatal ( "Sentence not found: $sentid" );
 		
@@ -31,6 +32,7 @@
 			<form action='index.php?action=toksave' method=post name=tagform id=tagform>
 			<input type=hidden name=cid value='$fileid'>
 			<input type=hidden name=tid value='$sentid'>
+			<input type=hidden name=stype value='$stype'>
 			<table>";
 
 		// Show all the defined attributes

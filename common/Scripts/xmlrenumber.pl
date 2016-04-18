@@ -55,7 +55,7 @@ use XML::LibXML;
 	
 	# Number the sentences
 	$cnt = 0;
-	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//s")) {
+	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//s | $mtxtelem//l")) {
 		$cnt++;
 		$ttnode->setAttribute('id', "s-$cnt");
 	}; 
