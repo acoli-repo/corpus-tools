@@ -19,6 +19,7 @@
 		
 		if ( !$tmp ) {
 			# Non-existing node (attribute) - create
+			$unused = "&showunused=1";
 			if ( preg_match("/^(.*)\/([^\/]+$)/", $xpath, $matches ) ) {
 				$parxp = $matches[1]; $thisnode = $matches[2];
 				$tmp = $settingsxml->xpath($parxp); $parnode = $tmp[0];
@@ -56,7 +57,7 @@
 		# Now save the actual file
 		file_put_contents("Resources/settings.xml", $settingsxml->asXML());
 		print "<p>File saved. Reloading.
-			<script language=Javascript>top.location='index.php?action=$action&section=$section';</script>
+			<script language=Javascript>top.location='index.php?action=$action&section=$section$unused';</script>
 			"; exit;
 
 	} else if ( $act == "edit" ) {
@@ -185,7 +186,7 @@
 		# Now save the actual file
 		file_put_contents("Resources/settings.xml", $settingsxml->asXML());
 		print "<p>File saved. Reloading.
-			<script language=Javascript>top.location='index.php?action=$action&section=$section&showunused=1';</script>
+			<script language=Javascript>top.location='index.php?action=adminsettings&act=edit&node={$xpath}/item[not(@key) or @key=\"\"]/@key';</script>
 			"; exit;
 
 	} else if ( $section ) {

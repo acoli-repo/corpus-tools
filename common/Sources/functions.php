@@ -77,12 +77,15 @@
 		
 	};
 
-	function xpathrun ( $text, $xml ) {
+	function xpathrun ( $text, $xml, $filename = "" ) {
 		# Fill in variable from XPath queries
-		global $showempties; // When so desired, remove empty rows
+		global $showempties; global $fileid; // When so desired, remove empty rows
 		if ( !$xml ) { return $text; }; # No XML to compare to, so just return
+		if ( !$filename ) $filename = $fileid;
 		
 		if ( strpos("{#", $text) == -1 ) return $text; # If there is nothing to translate - return to save time
+
+		$text = preg_replace ( "/\{#fn\}/", $filename, $text );		
 		
 		preg_match_all ( "/\{#([^\}]+)\}/", $text, $matches );		
 

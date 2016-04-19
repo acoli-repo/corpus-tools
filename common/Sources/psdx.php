@@ -356,7 +356,7 @@
 				<p>{%Click on one of the named queries below to copy it to the search window}";
 			if ($settings['psdx']['queries']) {
 				foreach ( $settings['psdx']['queries'] as $key => $item ) { 
-					$maintext .= "<p class=\"list\"><a onclick=\"document.getElementById('xpathfield').value=this.firstChild.innerHTML;\"><span style='display: none;'>{$key}</span>{%{$item['display']}}</a></p>";
+					$maintext .= "<p class=\"list\"><a onclick=\"document.getElementById('xpathfield').value=this.firstChild.innerHTML; document.getElementById('xpathfield').focus();\"><span style='display: none;'>{$key}</span>{%{$item['display']}}</a></p>";
 				};
 			};
 		
@@ -854,15 +854,18 @@
 	};
 	
 	function psdtree ( $node ) {
-		global $level;
+		global $level; global $spacing;
+		$spacing[1] = 2;
 		$level++; $first = 1;
-		print "({$node['Label']} ";
+		$levstr = "({$node['Label']} ";
+		print $levstr; $spacing[$level] = $spacing[$level-1] + strlen($levstr);
 		foreach  ( $node->xpath("./eTree") as $child ) {
 			if ( $first ) {
 				$first = 0;
 			} else {
 				print "\n";
-				for ( $i=0; $i<$level; $i++ ) { print "   "; };
+				#for ( $i=0; $i<$level; $i++ ) { print "   "; };
+				print str_repeat(' ', $spacing[$level]);
 			};
 			psdtree($child);
 		};

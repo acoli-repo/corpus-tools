@@ -19,11 +19,12 @@ if ( $act == "xml" ) {
 
 	require ("../common/Sources/ttxml.php");
 	$ttxml = new TTXML($cid, false);
-
+	$fileid = $ttxml->fileid;
+	
 	$geoxp = $settings['geomap']['xml']['node'] or $geoxp = "//*[geo]";
-	$geoll = $settings['geomap']['xml']['geo'] or $geoxp = "./geo";
-	$geoname = $settings['geomap']['xml']['name'] or $geoxp = "./name";
-	$geodesc = $settings['geomap']['xml']['desc'] or $geoxp = "./desc";
+	$geoll = $settings['geomap']['xml']['geo'] or $geoll = "./geo";
+	$geoname = $settings['geomap']['xml']['name'] or $geoname = "./name";
+	$geodesc = $settings['geomap']['xml']['desc'] or $geodesc = "./desc";
 
 	$maintext .= "<h1>{%Geographical Locations}</h1>";
 	$maintext .= $ttxml->tableheader();
@@ -32,11 +33,13 @@ if ( $act == "xml" ) {
 	foreach ( $ttxml->xml->xpath($geoxp) as $geonode ) {
 
 		$geo = current($geonode->xpath($geoll))."";  
-		$place = current($geonode->xpath($geoname))."";  
-		$desc = current($geonode->xpath($geodesc))."";  
+		$place = current($geonode->xpath($geoname)).""; 
+		
+		if ( preg_match( "/^=(.*)$/", $geodesc, $matches ) ) $desc = $matches[1];
+		else $desc = current($geonode->xpath($geodesc))."";  
 	
 		list ( $lat, $lng ) = explode ( " ", $geo );
-		$maintext .= "<li>$place: $desc";
+		$maintext .= "<li>$place"; if ( $desc ) $maintext .= ": $desc";
 		
 		$descs{$geo} .= "<p>$desc</p>"; $desctxt = $descs{$geo};
 		$jsonpoints{$geo} = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
