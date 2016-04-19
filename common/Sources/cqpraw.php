@@ -622,137 +622,141 @@
 			<!-- <h2>{%Advanced Search}</h2> -->
 			<form action='' method=post id=cqp name=cqp>";
 			
-		if ( $settings['cqp']['sattributes'] ) { $maintext .= "<table cellpadding=5><tr><td valign=top style='border-right: 1px solid #cccccc;'>
-			<h3>{%Text Search}</h3>"; };	
+		if ( $settings['cqp']['sattributes'] && $settings['cqp']['pattributes'] ) { 
+			$maintext .= "<table cellpadding=5><tr><td valign=top style='border-right: 1px solid #cccccc;'>
+			<h3>{%Text Search}</h3>"; 
+		};	
 
-		if ( $settings['cqp']['searchmethod'] == "word" ) {
-			$wdef = "checked";
-			$stmp = "<script language=Javascript>switchtype('st', 'word');</script>";
-		} else { $cdef = "checked"; };
+		if ( $settings['cqp']['pattributes'] ){
+			if ( $settings['cqp']['searchmethod'] == "word" ) {
+				$wdef = "checked";
+				$stmp = "<script language=Javascript>switchtype('st', 'word');</script>";
+			} else { $cdef = "checked"; };
 		
-		$maintext .= "
-				<p>{%Search method}:  &nbsp;
-					<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'cqp');\" $cdef> CQP &nbsp; &nbsp;
-					<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'word');\" $wdef> {%Word Search}
-				<script language=Javascript>
-				function switchtype ( tg, type ) { 
-					console.log(tg + ' , ' + type);
-					var types = [];
-					types['st'] = ['cqp', 'word'];
-					types['style'] = ['kwic', 'attlist'];
-					for ( var i in types[tg] ) {
-						stype = types[tg][i]; 
-					    console.log (stype + 'search');
-						document.getElementById(stype+'search').style.display = 'none';
-					};
-					document.getElementById(type+'search').style.display = 'block';
-				};
-				</script>
-				<div name='wordsearch' id='wordsearch' style='display: none;'><table>";
-				
-		foreach ( $cqpcols as $col ) {
-			$colname = pattname($col);
-			if ( !$colname ) $colname = "[$col]";
-			$tstyle = ""; 
-			$coldef = $settings['cqp']['pattributes'][$col];
-			if ( $coldef['admin'] == "1" ) {
-				$tstyle = " class=adminpart";
-			};
-			if ( substr($coldef['type'], -6) == "select" ) {
-				$tmp = file_get_contents("cqp/$col.lexicon"); unset($optarr); $optarr = array();
-				foreach ( explode ( "\0", $tmp ) as $kval ) { 
-					if ( $kval ) {
-						if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
-						if ( $coldef['type'] == "kselect" ) $kvaltxt = "{%$col-$kval}"; else $kvaltxt = $kval;
-						if ( ( $coldef['type'] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) 
-							$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
-					};
-				};
-				sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
-
-				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
-
-			} else 
-				$maintext .= "<tr><td$tstyle>{%$colname}
-						      <td><select name=\"matches[$col]\"><option value='matches'>{%matches}</option><option value='startswith'>{%starts with}</option><option value='endsin'>{%ends in}</option><option value='contains'>{%contains}</option></select>
-						      <td><input name=vals[$col] size=50 $chareqfn>";
-		};
-		
-		$maintext .= "</table>$chareqtxt</div>
-				<div name='cqpsearch' id='cqpsearch'>
-				<p>{%CQP Query}: &nbsp; <input name=cql size=70 value='{$cql}' $chareqfn>
-				$chareqjs 
-				$subheader
-				";
-
-			
-
-				
-		$maintext .= "
-							$stmp
-
-			<p><b>{%Searchable fields}</b>
-			
-			<table>
-			";
-			
-		foreach ( $cqpcols as $col ) {
-			$colname = pattname($col);
-			if ( $settings['cqp']['pattributes'][$col]['admin'] == "1" ) {
-				$maintext .= "<tr><th>$col<td class=adminpart>{%$colname}</tr>";				
-			} else {
-				$maintext .= "<tr><th>$col<td>{%$colname}</tr>";
-			};
-		};
-		$maintext .= "</table></div>
-			<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>";
-		
-		
-		if ( !$audioelm ) {
 			$maintext .= "
-					<p>{%Display method}: 
-					<input type=radio name=style value='kwic' onClick=\"switchtype('style', 'kwic');\" checked> KWIC
-					<input type=radio name=style value='attlist' onClick=\"switchtype('style', 'attlist');\"> {%Attribute list}";
-		
-			if ( $settings['cqp']['sattributes']['s'] ) {
-				$maintext .= "<input type=radio name=style value='sent' onClick=\"switchtype('style', 'sent');\"> {%Sentence}";
-			};
-			
-		} else { $nokwic = "style='display: none;'"; };
+					<p>{%Search method}:  &nbsp;
+						<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'cqp');\" $cdef> CQP &nbsp; &nbsp;
+						<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'word');\" $wdef> {%Word Search}
+					<script language=Javascript>
+					function switchtype ( tg, type ) { 
+						console.log(tg + ' , ' + type);
+						var types = [];
+						types['st'] = ['cqp', 'word'];
+						types['style'] = ['kwic', 'attlist'];
+						for ( var i in types[tg] ) {
+							stype = types[tg][i]; 
+							console.log (stype + 'search');
+							document.getElementById(stype+'search').style.display = 'none';
+						};
+						document.getElementById(type+'search').style.display = 'block';
+					};
+					</script>
+					<div name='wordsearch' id='wordsearch' style='display: none;'><table>";
 				
-		$maintext .= "
-				<div name='attlistsearch' id='attlistsearch' style='display: none;'>
-					<p>{%Context size}: <select name=context>
-						<option value='3'>3</option><option value='4'>4</option><option value='5' selected>5</option><option value='6'>6</option><option value='7'>7</option>
-					</select>  {%words}
-				</div>
-				<div name='kwicsearch' id='kwicsearch' $nokwic>
-					$formsel
-					<p>{%Context size}: <select name=context>
-						<option value='3'>3</option><option value='4'>4</option><option value='5' selected>5</option><option value='6'>6</option><option value='7'>7</option>
-					</select>  {%words}
-				</div>
-				<div name='sentsearch' id='sentsearch' style='display: none;'>
-				</div>
-				<p>{%Sort on}: <select name=sort>
-					<option value='word'>{%Word}</option>
-					<option value='word on matchend[1]..matchend[5]'>{%Right context}</option>
-					<option value='word on match[-1]..match[-5]'>{%Left context}</option>
-					<option value=''>{%Corpus order}</option>
-				</select> 
-				<p>{%Matching stategy}: <select name=strategy>
-					<option value='longest' selected>{%Longest match}</option>
-					<option value='shortest'>{%Shortest match}</option>
-				</select> 
-				
-				
-				
-			<script language=Javascript>
-			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
-			</script>";
-			
-		$maintext .= "\n\t<td valign=top>";  $hr = "";
+			foreach ( $cqpcols as $col ) {
+				$colname = pattname($col);
+				if ( !$colname ) $colname = "[$col]";
+				$tstyle = ""; 
+				$coldef = $settings['cqp']['pattributes'][$col];
+				if ( $coldef['admin'] == "1" ) {
+					$tstyle = " class=adminpart";
+				};
+				if ( substr($coldef['type'], -6) == "select" ) {
+					$tmp = file_get_contents("cqp/$col.lexicon"); unset($optarr); $optarr = array();
+					foreach ( explode ( "\0", $tmp ) as $kval ) { 
+						if ( $kval ) {
+							if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
+							if ( $coldef['type'] == "kselect" ) $kvaltxt = "{%$col-$kval}"; else $kvaltxt = $kval;
+							if ( ( $coldef['type'] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) 
+								$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
+						};
+					};
+					sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
 
+					$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
+
+				} else 
+					$maintext .= "<tr><td$tstyle>{%$colname}
+								  <td><select name=\"matches[$col]\"><option value='matches'>{%matches}</option><option value='startswith'>{%starts with}</option><option value='endsin'>{%ends in}</option><option value='contains'>{%contains}</option></select>
+								  <td><input name=vals[$col] size=50 $chareqfn>";
+			};
+		
+			$maintext .= "</table>$chareqtxt</div>
+					<div name='cqpsearch' id='cqpsearch'>
+					<p>{%CQP Query}: &nbsp; <input name=cql size=70 value='{$cql}' $chareqfn>
+					$chareqjs 
+					$subheader
+					";
+
+			
+
+				
+			$maintext .= "
+								$stmp
+
+				<p><b>{%Searchable fields}</b>
+			
+				<table>
+				";
+			
+			foreach ( $cqpcols as $col ) {
+				$colname = pattname($col);
+				if ( $settings['cqp']['pattributes'][$col]['admin'] == "1" ) {
+					$maintext .= "<tr><th>$col<td class=adminpart>{%$colname}</tr>";				
+				} else {
+					$maintext .= "<tr><th>$col<td>{%$colname}</tr>";
+				};
+			};
+			$maintext .= "</table></div>
+				<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>";
+		
+		
+			if ( !$audioelm ) {
+				$maintext .= "
+						<p>{%Display method}: 
+						<input type=radio name=style value='kwic' onClick=\"switchtype('style', 'kwic');\" checked> KWIC
+						<input type=radio name=style value='attlist' onClick=\"switchtype('style', 'attlist');\"> {%Attribute list}";
+		
+				if ( $settings['cqp']['sattributes']['s'] ) {
+					$maintext .= "<input type=radio name=style value='sent' onClick=\"switchtype('style', 'sent');\"> {%Sentence}";
+				};
+			
+			} else { $nokwic = "style='display: none;'"; };
+				
+			$maintext .= "
+					<div name='attlistsearch' id='attlistsearch' style='display: none;'>
+						<p>{%Context size}: <select name=context>
+							<option value='3'>3</option><option value='4'>4</option><option value='5' selected>5</option><option value='6'>6</option><option value='7'>7</option>
+						</select>  {%words}
+					</div>
+					<div name='kwicsearch' id='kwicsearch' $nokwic>
+						$formsel
+						<p>{%Context size}: <select name=context>
+							<option value='3'>3</option><option value='4'>4</option><option value='5' selected>5</option><option value='6'>6</option><option value='7'>7</option>
+						</select>  {%words}
+					</div>
+					<div name='sentsearch' id='sentsearch' style='display: none;'>
+					</div>
+					<p>{%Sort on}: <select name=sort>
+						<option value='word'>{%Word}</option>
+						<option value='word on matchend[1]..matchend[5]'>{%Right context}</option>
+						<option value='word on match[-1]..match[-5]'>{%Left context}</option>
+						<option value=''>{%Corpus order}</option>
+					</select> 
+					<p>{%Matching stategy}: <select name=strategy>
+						<option value='longest' selected>{%Longest match}</option>
+						<option value='shortest'>{%Shortest match}</option>
+					</select> 
+				
+				
+				
+				<script language=Javascript>
+				function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
+				</script>";
+			
+			$maintext .= "\n\t<td valign=top>";  $hr = "";
+		};
+		
 		# Deal with any additional level attributes (sentence, utterance)
 		if ( is_array ( $settings['cqp']['sattributes']))
 		foreach ( $settings['cqp']['sattributes'] as $xatts ) {
