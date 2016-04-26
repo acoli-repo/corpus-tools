@@ -139,6 +139,7 @@
 		};	
 			
 		foreach ( split ( "\n", $results ) as $line ) {	
+			$typecnt++;
 			$fields = split ( "\t", $line ); $newcql = "";
 			if ( $fld ) {
 				$newcql = "[$fld = \"{$fields[0]}\"]";
@@ -157,7 +158,8 @@
 				$maintext .= "$ptd</tr>";
 			};
 		};
-			$maintext .= "</table>";
+			$maintext .= "
+				<tr><td style='border-top: 1px solid #999999; color: #999999;' colspan=".count($fields).">$typecnt {%types}<td style='border-top: 1px solid #999999; text-align: right; color: #999999;'>".$size."</table>";
 		
 
 	} else if ( $act == "download" ) {

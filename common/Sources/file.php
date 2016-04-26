@@ -595,6 +595,8 @@
 
 		if ( $username ) {
 			
+			if ( preg_match("/<text[^>]*>\s*<\/text>/", $editxml) ) $emptyxml = 1;
+			
 			if ( $tokcheck ) { 
 				$maintext .= "<p class=adminpart>			
 					Edit the information about each word of this file by clicking on the word in the text below, or click
@@ -602,8 +604,9 @@
 					</p><hr>
 					";
 
-			} else if ( $emptyxml )  {
+			} else if ( $emptyxml && 1 == 2 )  {
 			 	# If the XML is empty, immediately show the edit mode
+			 	# This does not seem to be good in most cases
 			 	
 				$maintext .= "<div class=adminpart>
  				<p>This XML file is empty. Please type or paste the text in the text box below, between the existing tags.
@@ -630,6 +633,13 @@
 						};
 					</script>
 				";
+ 				
+ 			} else if ( $emptyxml ) {
+ 				
+				$maintext .= "<div class=adminpart>
+ 				<p>This XML does not (yet) have a text content. To edit the raw XML of the file, click  
+ 				<a href='index.php?action=rawedit&cid=$fileid&full=1'>here</a>.
+ 					<hr>";
  				
  			} else {
 			

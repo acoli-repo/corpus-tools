@@ -191,7 +191,7 @@
 		$array = array();
 		
 		foreach ( $xml->children() as $childnode ) {
-			if ( $childnode->count() ) {
+			if ( count($childnode) ) {
 				$array = array_merge($array, makelist($childnode));
 			} else {
 				$nodexpath = makexpath($childnode);
