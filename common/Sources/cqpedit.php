@@ -8,7 +8,53 @@
 	include ("../common/Sources/cwcqp.php");
 	check_login();
 
-	if ( $_POST['selected'] ) {
+	if ( $_POST['selected'] && $settings['cqp']['defaults']['background'] ) {
+	
+		# Run the actual changes in a background Perl script
+		$pid = time();
+		$xml = simplexml_load_string("<multiedit pid=\"$pid\"/>", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+
+		$maintext .= "<h1>Executing multi-token edit</h1>";
+
+		$maintext .= "<p>Changes will be running in the background. Click <a href='index.php?action=process&pid=$pid'>here</a> to check the status of the changes<hr>";
+
+		$maintext .= "<p>Underlying query: <a href='index.php?action=cqp&cql={$_POST['query']}'>{$_POST['query']}</a></p>";		
+		$query = $xml->addChild("query");
+		$query[0] = $_POST['query'];
+
+		$maintext .= "<h2>Changes to be made</h2>";		
+		$changes = $xml->addChild("changes");
+		foreach ( $_POST['atts'] as $key => $val ) {
+			if ( $val != "" ) { 
+				$change = $changes->addChild("tok");
+				$maintext .= "   - Change $key to $val";
+				$change['key'] = $key; 
+				$change['val'] = $val; 
+			};
+		};
+		if ( !$change )  { fatal('Nothing to change'); };
+
+		$maintext .= "<h2>Tokens to process</h2>";		
+		$filelist = $xml->addChild("files");
+		foreach ( $_POST['selected'] as $fileid => $toklist ) {
+			$maintext .= "<h3>File: $fileid</h3>";
+			$file = $filelist->addChild("file"); $file['id'] = $fileid;
+			foreach ( $toklist as $tokid => $val2 ) {
+				$tok = $file->addChild("tok"); $tok['id'] = $tokid;
+				$tok['org'] = $_POST['orgform'][$fileid][$tokid];
+				$maintext .= "<p> - Token: <a target=check href='index.php?action=file&cid=$fileid&tid=$tokid'>$tokid</a>";
+			};
+		};		
+
+		$maintext .= "<hr><p>Changes are running in the background. Click <a href='index.php?action=process&pid=$pid'>here</a> to check the status of the changes";
+
+		file_put_contents("tmp/pid$pid.xml", $xml->asXML());
+
+		# Now start the process
+		$cmd = "perl ../common/Scripts/multichange.pl $pid > /dev/null &";
+		exec($cmd);
+
+	} else if ( $_POST['selected'] ) {
 
 		$maintext .= "<h1>Executing multi-token edit</h1>";
 		
@@ -88,7 +134,6 @@
 		} else {
 			$maintext .= "<hr><p>Click <a href='index.php?action=cqp'>here</a> to continue";
 		};
-		# exit;
 	
 	} else {
 
@@ -179,7 +224,8 @@
 			$cqp->exec("sort Matches by $sort");
 		};
 		# $maintext .= "<P>QUERY: $cqpquery";
-
+		$maintext .= "<input type=hidden name=query value='$cql'>";
+		
 			$cnt = $cqp->exec("size Matches");
 	
 		$context = 5;

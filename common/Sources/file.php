@@ -775,7 +775,11 @@
 				if ( $item['rerest'] && preg_match("/{$item['rerest']}/", $editxml ) ) continue;
 				if ( $item['xpcond'] && !$xml->xpath($item['xpcond']) ) continue;
 				if ( $item['xprest'] && $xml->xpath($item['xprest']) ) continue;
-				$maintext .= "<li><a href='index.php?action=runscript&script=$id&file=$fileid'>{$item['display']}</a>";
+				if ( $item['type'] == "php" ) {
+					$url = str_replace("[fn]", $fileid, $item['action'] );
+					$maintext .= "<li><a href='$url'>{$item['display']}</a>";
+				} else 
+					$maintext .= "<li><a href='index.php?action=runscript&script=$id&file=$fileid'>{$item['display']}</a>";
 			};
 			$maintext .= "</ul>";
 		
