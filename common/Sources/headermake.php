@@ -144,6 +144,9 @@
 		
 		if ($headerfile) $maintext .= "<h2>Current raw teiHeader File</h2><p><pre>".htmlentities($headerfile)."</pre>";
 		
+		$resid = str_replace("Resources/", "", $filename);
+		$maintext .= "<hr><a href='index.php?action=adminedit&id=$resid'>edit raw HTML</a>";
+		
 	} else {
 		
 		$maintext .= "<h1>teiHeader Template Creator</h1>

@@ -644,7 +644,7 @@
  			} else {
 			
 				$maintext .= "<div class=adminpart>
- 				<p>This XML has not been tokenized yet, and only the text is show below. To edit, click  
+ 				<p>This XML has not been tokenized yet, and only the text is shown below. To edit, click  
  				<a href='index.php?action=rawedit&cid=$fileid'>here</a>.
  				<br>If you wish to tokenize the XML and proceed to the tokenized edit mode, click
  				<a href='index.php?action=tokenize&id=$fileid&display=tok'>here</a></div>
