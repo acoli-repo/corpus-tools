@@ -776,7 +776,9 @@
 				if ( $item['xpcond'] && !$xml->xpath($item['xpcond']) ) continue;
 				if ( $item['xprest'] && $xml->xpath($item['xprest']) ) continue;
 				if ( $item['type'] == "php" ) {
-					$url = str_replace("[id]", $fileid, $item['action'] );
+					$url = $item['action'];
+					$url = str_replace("[id]", $fileid, $url );
+					$url = str_replace("[fn]", $filename, $url );
 					$maintext .= "<li><a href='$url'>{$item['display']}</a>";
 				} else 
 					$maintext .= "<li><a href='index.php?action=runscript&script=$id&file=$fileid'>{$item['display']}</a>";
