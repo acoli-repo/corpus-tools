@@ -17,6 +17,8 @@
 	if ( $_GET['cid'] ) {
 		require_once ("../common/Sources/ttxml.php");
 		$ttxml = new TTXML($txtid, true);
+		$maintext .= "<h2>".$ttxml->title()."</h2>"; 
+		$maintext .= $ttxml->tableheader(); 
 		$filename = current($ttxml->xml->xpath("//note[@n=\"orgfile\"]"))."";
 	} else {
 		$filename = $_GET['id'];
