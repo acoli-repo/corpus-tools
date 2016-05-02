@@ -16,9 +16,9 @@
 	# Determine the raw filename
 	if ( $_GET['cid'] ) {
 		require_once ("../common/Sources/ttxml.php");
-		$ttxml = new TTXML($txtid, true);
-		$maintext .= "<h2>".$ttxml->title()."</h2>"; 
-		$maintext .= $ttxml->tableheader(); 
+		$ttxml = new TTXML($_GET['cid'], true);
+		$ttheader .= "<h2>".$ttxml->title()."</h2>"; 
+		$ttheader .= $ttxml->tableheader(); 
 		$filename = current($ttxml->xml->xpath("//note[@n=\"orgfile\"]"))."";
 	} else {
 		$filename = $_GET['id'];
@@ -49,6 +49,7 @@
 	} else {
 		# Show the raw source in-line
 		$maintext .= "<h1>Raw source input file</h1>
+			$ttheader
 			<p>Filename: $filename</p>
 			<p><i>This is a dump of the original file used for the creation of this XML file</i>
 			$raw
