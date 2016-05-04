@@ -52,6 +52,7 @@ sub readfolder ( $folder ) {
 	while(readdir $dh) {
 		$file = $_;
 		if ( $file =~ /^\./ || $file eq '' ) {	
+			if ( $debug ) { print "Skipping file: $file"; };
 			next;
 		} elsif ( -d $folder.'/'.$file ) { 
 			readfolder ($folder.'/'.$file);
