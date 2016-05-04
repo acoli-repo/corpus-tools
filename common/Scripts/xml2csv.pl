@@ -25,7 +25,7 @@ if ( $xpathqueries eq '' ) {
 	open FILE, $xpathqueries; 
 	binmode ( FILE, ":utf8" );
 	$xpathqueries = <FILE>;
-	join ( ",", split ( "\n", $xpathqueries) )
+	join ( ",", split ( "\n", $xpathqueries) );
 	chop ( $xpathqueries );
 	close FILE;
 };
