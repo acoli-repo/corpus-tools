@@ -49,8 +49,7 @@ sub readfolder ( $folder ) {
 	if ( $debug ) { print "Treating folder: $folder"; };
 	
 	opendir(my $dh, $folder) || die ("Cannot read: $folder");
-	while(readdir $dh) {
-		$file = $_;
+	while($file = readdir $dh) {
 		if ( $file =~ /^\./ || $file eq '' ) {	
 			if ( $debug ) { print "Skipping file: $file"; };
 			next;
