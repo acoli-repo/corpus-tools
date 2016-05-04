@@ -25,6 +25,7 @@ if ( $xpathqueries eq '' ) {
 	open FILE, $xpathqueries; 
 	binmode ( FILE, ":utf8" );
 	$xpathqueries = <FILE>;
+	join ( ",", split ( "\n", $xpathqueries) )
 	chop ( $xpathqueries );
 	close FILE;
 };
@@ -39,6 +40,9 @@ if ( $csvfile eq '' ) {
 binmode ( OUTPUT, ":utf8" );
 
 @xpath = split ( ",", $xpathqueries);
+if ( $header ) { 
+	print OUTPUT "[fn]\t".join ( "\t", split ( ",", $xpathqueries) );
+};
 readfolder($xmlfolder);
 
 close OUTPUT;
