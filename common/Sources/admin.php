@@ -86,7 +86,10 @@
 			};
 		};
 		if ( $settings['neotag'] ) {
-				$maintext .= "<li>  <a href='index.php?action=neotag'>check or update</a> the NeoTag tagset(s)";
+				$maintext .= "<li>  <a href='index.php?action=neotag'>check or update</a> the NeoTag parameter set(s)";
+		};
+		if ( file_exists("Resources/tagset.xml") || $settings['tagset'] ) {
+				$maintext .= "<li>  <a href='index.php?action=tagset'>check</a> the tagset";
 		};
 				
 		if ( $user['permissions'] == "admin" ) {
