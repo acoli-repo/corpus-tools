@@ -50,7 +50,7 @@ sub readfolder ( $folder ) {
 	opendir(my $dh, $folder) || die ("Cannot read: $folder");
 	while(readdir $dh) {
 		$file = $_;
-		if ( $file =~ /^\./ ) {	
+		if ( $file =~ /^\./ || $file eq '' ) {	
 			next;
 		} elsif ( -d $folder.'/'.$file ) { 
 			readfolder ($folder.'/'.$file);
