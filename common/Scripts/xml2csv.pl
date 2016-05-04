@@ -46,6 +46,7 @@ close OUTPUT;
 # Go recursively through a folder
 sub readfolder ( $folder ) {
 	my $folder = @_[0]; 
+	if ( $debug ) { print "Treating folder: $folder"; };
 	
 	opendir(my $dh, $folder) || die ("Cannot read: $folder");
 	while(readdir $dh) {
@@ -56,6 +57,8 @@ sub readfolder ( $folder ) {
 			readfolder ($folder.'/'.$file);
 		} elsif ( $file =~ /\.$ext/ )  {
 			treatfile ( $folder.'/'.$file );
+		} else {
+			if ( $debug ) { print "Ignoring file: $file"; };
 		};
 	}
 	closedir $dh;
@@ -63,6 +66,7 @@ sub readfolder ( $folder ) {
 
 sub treatfile ( $file ) {
 	my $file = @_[0]; 
+	if ( $debug ) { print "Treating file: $file"; };
 	
 	$xml = $parser->load_xml(location => $file);
 	
