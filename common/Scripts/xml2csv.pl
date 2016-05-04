@@ -44,7 +44,7 @@ binmode ( OUTPUT, ":utf8" );
 
 @xpath = split ( ",", $xpathqueries);
 if ( $header ) { 
-	print OUTPUT "[fn]\t".join ( "\t", split ( ",", $xpathqueries) );
+	print OUTPUT "[fn]\t".join ( "\t", split ( ",", $xpathqueries) )."\n";
 };
 readfolder($xmlfolder);
 
