@@ -14,6 +14,7 @@ GetOptions (
             'xmlfolder=s' => \$xmlfolder,
             'queries=s' => \$xpathqueries,
             'extention=s' => \$ext,
+            'header' => \$header,
             'debug' => \$debug,
             );
 
