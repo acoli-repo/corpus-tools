@@ -23,12 +23,14 @@ if ( $xmlfolder eq '' ) { $xmlfolder = "xmlfiles"; };
 if ( $xpathqueries eq '' ) { 
 	$xpathqueries = "//title"; 
 } elsif ( -e $xpathqueries ) {
+	$/ = undef;
 	open FILE, $xpathqueries; 
 	binmode ( FILE, ":utf8" );
 	$xpathqueries = <FILE>;
 	join ( ",", split ( "\n", $xpathqueries) );
 	chop ( $xpathqueries );
 	close FILE;
+	$/ = "\n";
 };
 if ( $ext eq '' ) { $ext = "xml"; };
 
