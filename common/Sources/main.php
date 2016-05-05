@@ -152,7 +152,7 @@
 
 
 	# Add the TeiTOK footer
-	$menu .=  "<hr style='background-color: #aaaaaa; margin-top: 40px;'><p style='opacity: 0.5; font-size: 9pt;' onClick=\"window.open('http://teitok.corpuswiki.org/site/index.php', 'teitok');\">Powered by TEITOK<br>&copy; Maarten Janssen, 2014</p>";
+	$menu .=  "<hr style='background-color: #aaaaaa; margin-top: 40px;'><p style='opacity: 0.5; font-size: smaller;' onClick=\"window.open('http://teitok.corpuswiki.org/site/index.php', 'teitok');\">Powered by TEITOK<br>&copy; Maarten Janssen, 2014</p>";
 
 	// take care of the title and header
 	if ( !isset($pagetitle) ) $pagetitle = $pagetitles[$action] or $pagetitle = $settings['defaults']['title']['display'];
