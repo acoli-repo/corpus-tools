@@ -4,4 +4,8 @@
 	htmlstyles.css and xmlstyles.css
 */
 
+/* Style used to mark admin-only functions */
 .adminpart { background-color: #eeeedd; }
+
+/* Make sure the ACE textarea does not show until loaded */
+div#editor { color: #ffffff; }
