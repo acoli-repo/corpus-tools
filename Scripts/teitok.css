@@ -8,4 +8,7 @@
 .adminpart { background-color: #eeeedd; }
 
 /* Make sure the ACE textarea does not show until loaded */
-div#editor { color: #ffffff; }
+/* div#editor { color: #ffffff; } */
+
+/* Allow hiding non-used elements in the teiHeader display */
+#teiheader *[id=""] { display: none; }
