@@ -5,6 +5,12 @@
 		if ( ( !$settings['annotations'][$anid] || $settings['annotations'][$anid]['admin'] ) && !$username )  {
 			fatal ( "Annotation data for <i>{$andef['name']}</i> are not publicly accessible" );
 		};
+		if ( !$andef ) {
+			if ( $username ) 
+				fatal ( "Error reading annotation definition file Annotations/{$annotation}_def.xml" );
+			else
+				fatal ( "Annotation data for <i>{$andef['name']}</i> cannot be read" );
+		};
 		$result = $andef->xpath("//interp"); 
 		foreach ( $result as $tmp ) { 
 			$tagset[$tmp['key'].''] = $tmp;
