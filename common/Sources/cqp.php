@@ -307,12 +307,14 @@
 				$val = str_replace("#\\", "", $val);
 				if ( $attitem['values'] == "multi" ) {
 					$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
-					$val = "(|$mvsep)$val(|$mvsep)";
+					$subtit .= "<p>$attname = <i>$val</i>";
+					$val = "(.*$mvsep)?$val($mvsep.*)?"; # Brackets not supported in CQP
+				} else {
+					$subtit .= "<p>$attname = <i>$val</i>";
 				};
 				$cql .= " $sep match.$xkey = \"$val\""; $sep = "&";
 				if ( $attitem['type'] == "kselect" || $attitem['translate'] ) $val = "{%$key-$val}";
 				$val = stripslashes($val);
-				$subtit .= "<p>$attname = <i>$val</i>";
 			};
 		}; # if ( strstr($cql, "a.text") && !strstr($cql, "a:") ) { $cql = "a:$cql"; }
 
@@ -934,11 +936,26 @@
 					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
 						# Read this index file
 						$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
-						foreach ( explode ( "\0", $tmp ) as $kval ) { 
-							if ( $kval && $kval != "_" ) {
-								if ( $item['type'] == "kselect" || $item['translate'] ) $ktxt = "{%$key-$kval}"; 
-									else $ktxt = $kval;
-								$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+						foreach ( explode ( "\0", $tmp ) as $kva ) { 
+							if ( $kva ) {
+								if ( $item['values'] == "multi" ) {
+									$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+									$kvl = split ( $mvsep, $kva );
+								} else {
+									$kvl = array ( $kva );
+								}
+								
+								foreach ( $kvl as $kval ) {
+									if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
+									$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+								};
+							};
+							foreach ( $kvl as $kval ) {
+								if ( $kval && $kval != "_" ) {
+									if ( $item['type'] == "kselect" || $item['translate'] ) $ktxt = "{%$key-$kval}"; 
+										else $ktxt = $kval;
+									$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+								};
 							};
 						};
 						if ( $item['sort'] == "numeric" ) sort( $optarr, SORT_NUMERIC ); 
