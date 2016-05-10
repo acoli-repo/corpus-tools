@@ -740,9 +740,9 @@ int main(int argc, char *argv[])
 
 	};
 		
-	string dofolders = tagsettings.attribute("searchfolder").value();
+	string dofolders = xmlsettings.select_single_node("//cqp/@searchfolder").attribute().value();
 	if ( dofolders != "" ) {
-		if ( verbose ) cout << "- Training folder(s): " << dofolders << endl;
+		if ( verbose ) cout << "- Indexing folder(s): " << dofolders << endl;
 		char_separator<char> sep(" ");
     	tokenizer< char_separator<char> > tokens(dofolders, sep);
 		BOOST_FOREACH (const string& fldr, tokens) {
@@ -752,7 +752,7 @@ int main(int argc, char *argv[])
 			treatdir ( fldr );
 		}
 	} else {
-		if ( verbose ) cout << "- Training folder: ./xmlfiles" << endl;
+		if ( verbose ) cout << "- Default training folder: ./xmlfiles" << endl;
 		treatdir ( "xmlfiles" ); 
 	};
 

@@ -154,7 +154,18 @@
 						<val key="range" display="Search range (min-max)"/>
 						<val key="kselect" display="Select + translate" deprecated="1"/>
 					</att>
-					<att key="translate" display="Make items in select pull-down internationalized"/>
+					<att key="translate" display="Make items in select pull-down internationalized" default="0">
+						<val key="1" display="translate pull-down items"/>
+						<val key="0" display="do not translate"/>
+					</att>
+					<att key="values" display="Whether values are comma-separated or not" default="simple">
+						<val key="simple" display="simple values"/>
+						<val key="multi" display="comma-separated list of values"/>
+					</att>
+					<att key="selection" display="Whether to use multiple select in a dropdown" default="simple">
+						<val key="simple" display="simple dropdown menu"/>
+						<val key="multi" display="multi-select dropdown"/>
+					</att>
 					<att key="xpath" display="XPath for the value lookup (if not @key)"/>
 		    		<att key="admin" display="Visible only for admin users" default="0">
 						<val key="1" display="Visible only for admin users"/>

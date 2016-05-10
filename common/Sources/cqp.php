@@ -806,12 +806,27 @@
 				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
 			} else if ( substr($coldef['type'], -6) == "select" ) {
 				$tmp = file_get_contents("cqp/$col.lexicon"); unset($optarr); $optarr = array();
-				foreach ( explode ( "\0", $tmp ) as $kval ) { 
-					if ( $kval ) {
-						if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
-						if ( $coldef['type'] == "kselect" || $coldef['translate'] ) $kvaltxt = "{%$col-$kval}"; else $kvaltxt = $kval;
-						if ( ( $coldef['type'] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) 
-							$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
+				foreach ( explode ( "\0", $tmp ) as $kva ) { 
+					if ( $kva ) {
+						if ( $coldef['values'] == "multi" ) {
+							$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+							$kvl = split ( $mvsep, $kva );
+						} else {
+							$kvl = array ( $kva );
+						}
+						
+						foreach ( $kvl as $kval ) {
+							if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
+							$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+						};
+					};
+					foreach ( $kvl as $kval ) {
+						if ( $kval ) {
+							if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
+							if ( $coldef['type'] == "kselect" || $coldef['translate'] ) $kvaltxt = "{%$col-$kval}"; else $kvaltxt = $kval;
+							if ( ( $coldef['type'] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) 
+								$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
+						};
 					};
 				};
 				sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
