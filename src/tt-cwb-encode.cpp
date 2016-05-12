@@ -21,8 +21,8 @@ bool verbose = false;
 
 char tokxpath [50];
 pugi::xml_document trainlog;
-pugi::xml_node tagsettings;
-pugi::xml_node trainstats;
+pugi::xml_node cqpsettings;
+pugi::xml_node cqpstats;
 list<string> formTags;
 
     pugi::xml_document doc;
@@ -231,14 +231,14 @@ void treatfile ( string filename ) {
 
 	pugi::xpath_node resnode;
 
-	if ( tagsettings.attribute("restriction") != NULL 
-			&& doc.select_single_node(tagsettings.attribute("restriction").value()) == NULL ) {
-		if ( debug ) cout << "- XML " << filename << " not matching " << tagsettings.attribute("restriction") .value() << endl;
+	if ( cqpsettings.attribute("restriction") != NULL 
+			&& doc.select_single_node(cqpsettings.attribute("restriction").value()) == NULL ) {
+		if ( debug ) cout << "- XML " << filename << " not matching " << cqpsettings.attribute("restriction") .value() << endl;
 		return;
 	};
 
 	char tokxpath [50];
-	if ( tagsettings.attribute("tokxpath") != NULL ) { strcpy(tokxpath, tagsettings.attribute("tokxpath").value()); } 
+	if ( cqpsettings.attribute("tokxpath") != NULL ) { strcpy(tokxpath, cqpsettings.attribute("tokxpath").value()); } 
 		else { strcpy(tokxpath, "//tok"); };
 	if ( debug > 3 ) cout << "- treating all: " << tokxpath << endl;
 	    
@@ -251,7 +251,7 @@ void treatfile ( string filename ) {
 	{
 		pugi::xpath_node node = *it;
 		
-		if ( node.node().child("dtok") && tagsettings.attribute("nodtoks") == NULL ) {
+		if ( node.node().child("dtok") && cqpsettings.attribute("nodtoks") == NULL ) {
 			// Go through the dtoks
 			id_pos[it->node().attribute("id").value()] = tokcnt; // Use the first <dtok> as ref for the whole <tok> for stand-off purposes
 	        for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
@@ -492,8 +492,8 @@ int main(int argc, char *argv[])
 {
 
 	trainlog.append_child("xmltrain");
-	tagsettings = trainlog.first_child().append_child("settings");	
-	trainstats = trainlog.first_child().append_child("stats");	
+	cqpsettings = trainlog.first_child().append_child("settings");	
+	cqpstats = trainlog.first_child().append_child("stats");	
 
 	time_t beginT = clock(); time_t tm = time(0);
 	string tmp = ctime(&tm);
@@ -508,22 +508,22 @@ int main(int argc, char *argv[])
 			
 			if ( spacepos == -1 ) {
 				string akey = argm.substr(2);
-				tagsettings.append_attribute(akey.c_str()) = "1";
+				cqpsettings.append_attribute(akey.c_str()) = "1";
 			} else {
 				string akey = argm.substr(2,spacepos-2);
 				string aval = argm.substr(spacepos+1);
-				tagsettings.append_attribute(akey.c_str()) = aval.c_str();
+				cqpsettings.append_attribute(akey.c_str()) = aval.c_str();
 			};
 		};		
 	};
 
 	// Some things we want as accessible variables
-	if ( tagsettings.attribute("debug") != NULL ) { debug = atoi(tagsettings.attribute("debug").value()); };
-	if ( tagsettings.attribute("test") != NULL ) { test = true; verbose = true; };
-	if ( tagsettings.attribute("verbose") != NULL ) { verbose = true; };
+	if ( cqpsettings.attribute("debug") != NULL ) { debug = atoi(cqpsettings.attribute("debug").value()); };
+	if ( cqpsettings.attribute("test") != NULL ) { test = true; verbose = true; };
+	if ( cqpsettings.attribute("verbose") != NULL ) { verbose = true; };
 
 	// Output help information when so asked and quit
-	if ( tagsettings.attribute("help") != NULL ) { 
+	if ( cqpsettings.attribute("help") != NULL ) { 
 		cout << "Usage:  tt-cwb-encode [options]" << endl;
 		cout << "" << endl;
 		cout << "Reads a collection of tokenized XML files, and generates CWB binary format corpus files, which can be converted into a full CWB corpus with cwb-makeall. Settings for the conversion are typcially read from an XML style settings file, which by default is called Resources/settings.xml. More information about the structure of the settings file can be found on: http://teitok.corpuswiki.org" << endl;
@@ -539,8 +539,8 @@ int main(int argc, char *argv[])
 	// Read the settings.xml file where appropriate - by default from ./Resources/settings.xml
 	string settingsfile;
 	string folder;
-	if ( tagsettings.attribute("settings") != NULL ) { 
-		settingsfile = tagsettings.attribute("settings").value();
+	if ( cqpsettings.attribute("settings") != NULL ) { 
+		settingsfile = cqpsettings.attribute("settings").value();
 	} else {
 		folder = ".";
 		settingsfile = "./Resources/settings.xml";
@@ -555,23 +555,23 @@ int main(int argc, char *argv[])
 		return -1;
 	};
 
-	// Place all cqp parameter settings from the settings.xml into the tagsettings
+	// Place all cqp parameter settings from the settings.xml into the cqpsettings
 	for (pugi::xml_attribute_iterator it = parameters.attributes_begin(); it != parameters.attributes_end(); ++it)
 	{
-		if ( tagsettings.attribute((*it).name()) == NULL ) { 
-			tagsettings.append_attribute((*it).name()) =  (*it).value();
+		if ( cqpsettings.attribute((*it).name()) == NULL ) { 
+			cqpsettings.append_attribute((*it).name()) =  (*it).value();
 		};
 	};
 	// Also take settings from the //cqp root ([item]/../..)
 	for (pugi::xml_attribute_iterator it = parameters.parent().parent().attributes_begin(); it != parameters.parent().parent().attributes_end(); ++it)
 	{
-		if ( tagsettings.attribute((*it).name()) == NULL ) { 
-			tagsettings.append_attribute((*it).name()) =  (*it).value();
+		if ( cqpsettings.attribute((*it).name()) == NULL ) { 
+			cqpsettings.append_attribute((*it).name()) =  (*it).value();
 		};
 	};
 	
 	// Determine some default settings
-	if ( tagsettings.attribute("corpusfolder") != NULL ) { corpusfolder = tagsettings.attribute("corpusfolder").value(); } 
+	if ( cqpsettings.attribute("corpusfolder") != NULL ) { corpusfolder = cqpsettings.attribute("corpusfolder").value(); } 
 		else { corpusfolder = "cqp/"; };
 
 	// Check whether the corpusfolder exists, or create it, or fail
@@ -740,6 +740,7 @@ int main(int argc, char *argv[])
 
 	};
 		
+	// This does not listen to the command line at the moment, should be reverted back to cqpsettings
 	string dofolders = xmlsettings.select_single_node("//cqp/@searchfolder").attribute().value();
 	if ( dofolders != "" ) {
 		if ( verbose ) cout << "- Indexing folder(s): " << dofolders << endl;
@@ -760,11 +761,11 @@ int main(int argc, char *argv[])
 
 
 	if ( verbose ) cout << "- " << tokcnt << " tokens in CQP corpus" << endl; 
-	trainstats.append_attribute("tokens") = tokcnt;
+	cqpstats.append_attribute("tokens") = tokcnt;
 	
-	if ( tagsettings.attribute("log") != NULL ) {
-		cout << "- Saving log to: " << tagsettings.attribute("log").value() << endl;
-		trainlog.save_file(tagsettings.attribute("log").value());
+	if ( cqpsettings.attribute("log") != NULL ) {
+		cout << "- Saving log to: " << cqpsettings.attribute("log").value() << endl;
+		trainlog.save_file(cqpsettings.attribute("log").value());
 	};
 
 }

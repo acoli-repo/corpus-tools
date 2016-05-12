@@ -510,6 +510,7 @@
 				# Replace block-type elements
 				$resxml = preg_replace ( "/(<\/?(p|seg|u)>\s*|<(p|seg|u) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<\\2>'>|</span> ", $resxml);
 				$resxml = preg_replace ( "/(<lb[^>]*\/>\s*)+/", " <span style='color: #aaffaa' title='<p>'>|</span> ", $resxml);
+				$resxml = preg_replace ( "/(<sb[^>]*\/>\s*)+/", " <span style='color: #aaffaa' title='<p>'>|</span> ", $resxml); # non-standard section break
 				$resxml = preg_replace ( "/(<pb[^>]*\/>\s*)+/", " <span style='color: #ffaaaa' title='<p>'>|</span> ", $resxml);
 				
 				# Remove HTML like code

@@ -119,6 +119,15 @@
 		return $text;
 	};
 
+	function hrnum ( $num ) {
+		$deg = array ( "", "k", "M", "G", "T",  "P", "E" );
+		$i = 0;
+		while ( $num > 1000 ) {
+			$i++; $num = $num/1000;
+		};
+		return $num.$deg[$i];
+	};
+
 	function i18n ( $text ) {
 		global $lang; global $i18n; global $langprefix; global $deflang; global $debug;
 		
