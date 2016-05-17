@@ -767,7 +767,7 @@
 		if ( $settings['scripts'] ) {
 	
 			$maintext .= "
-			<p>Run a script on this file:<ul>";
+			<p>Custom actions:<ul>";
 	
 			foreach ( $settings['scripts'] as $id => $item ) {
 				// See if thsi script is applicable

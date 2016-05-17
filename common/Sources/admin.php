@@ -10,20 +10,29 @@
 
 		// Check whether TEITOK configuration is safe and working
 		$maintext .= "<h1>Configuration Check</h1>
-					<style>
+		
+		<p>Below is a list of checks to see whether your TEITOK project is installed properly, and whether
+		the set-up is secure.
+		<hr>
+			
+		<style>
 			.wrong { color: #aa2000; } .wrong::before { content:'✘ ' }
 			.warn { color: #aa8800; } .warn::before { content:'✣ ' }
 			.right { color: #209900; } .right::before { content:'✔ ' }
 		</style>";
 		
 		// Check project folder permissions
-		$writefolders = array ( "xmlfiles" => "Modify XML files", "Resources" => "Change settings", "backups" => "Make XML backups" );	
+		$writefolders = array ( "xmlfiles" => "Modify XML files", 
+			"Resources" => "Change settings", 
+			"backups" => "Make XML backups"
+			);	
 		foreach ( $writefolders as $fldr => $reason ) {
 			if ( !is_writable($fldr) ) {
 				$maintext .= "<p class=wrong> The folder $fldr/ should be writable for Apache, reason: $reason";
 				$foldererrors = 1;
 			};
-		}; if ( !$foldererrors ) $maintext .= "<p class=right> Main folder permissions in project are correct";
+		}; 
+		if ( !$foldererrors ) $maintext .= "<p class=right> All folders TEITOK needs to write to are writable";
 
 		// Check project folder permissions of common 
 		if ( is_writable("../common") ) {

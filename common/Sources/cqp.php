@@ -135,14 +135,22 @@
 			$fld = $matches[1];
 			$fldname = pattname($fld) or $fldname = $fld;
 			$frf = 1;
-			$maintext .= "<tr><th>$fldname<th>{%$freqnum}<th>{%Percentage}";
+			if ( strstr($fld, '_') ) {
+				$sattfld = 1; $td = "<td>";
+				$maintext .= "<tr><td><th>$fldname<th>{%$freqnum}<th>{%Percentage}";
+			} else {
+				$maintext .= "<tr><th>$fldname<th>{%$freqnum}<th>{%Percentage}";
+			};
 		};	
 			
 		foreach ( split ( "\n", $results ) as $line ) {	
 			$typecnt++;
 			$fields = split ( "\t", $line ); $newcql = "";
 			if ( $fld ) {
-				$newcql = "[$fld = \"{$fields[0]}\"]";
+				if ( $sattfld ) {	
+					$newcql = "<text> [] :: match.$fld = \"{$fields[0]}\"";
+					$newscql = "[] :: match.$fld = \"{$fields[0]}\"";
+				} else $newcql = "[$fld = \"{$fields[0]}\"]";
 			};
 			if ( $frf ) { 
 				$perc = sprintf("%0.2f", ($fields[$frf]/$size)*100);
@@ -150,6 +158,7 @@
 			};
 			if ( $fields[1] ) {
 				$maintext .= "<tr>";
+				if ( $sattfld ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newscql)."'; document.newform.submit();\">docs</a></td>";
 				foreach ( $fields as $key => $field ) {
 					if ( $newcql && $key == 0 ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newcql)."'; document.newform.submit();\">".preg_replace ( "/__UNDEF__/", "(none)", $fields[0])."</a></td>";
 					else if ( $key == $frf ) $maintext .= "<td align=right>$field</td>";
@@ -159,7 +168,7 @@
 			};
 		};
 			$maintext .= "
-				<tr><td style='border-top: 1px solid #999999; color: #999999;' colspan=".count($fields).">$typecnt {%types}<td style='border-top: 1px solid #999999; text-align: right; color: #999999;'>".$size."</table>";
+				<tr>$td<td style='border-top: 1px solid #999999; color: #999999;' colspan=".count($fields).">$typecnt {%types}<td style='border-top: 1px solid #999999; text-align: right; color: #999999;'>".$size."</table>";
 		
 
 	} else if ( $act == "download" ) {
@@ -271,11 +280,14 @@
 		# This is a document search - turn it into CCQP
 		if ( !$cql || $cql == "[]" ) {	
 			$cql = "<text> []";  $sep = "::"; $fileonly = true;
+		} else if ( strstr($cql, '<text> [] ::') ) { 
+			$sep = "&"; $fileonly = true;
 		} else if ( strstr($cql, '::') ) { 
 			$sep = "&"; 
 		} else if ( $_POST['atts'] ) { 
 			 $sep = "::"; 
 		};
+		
 		if ( is_array($_POST['atts']) )
 		foreach ( $_POST['atts'] as $tmp => $val ) {
 			if ( !$val ) continue;
@@ -319,7 +331,7 @@
 		}; # if ( strstr($cql, "a.text") && !strstr($cql, "a:") ) { $cql = "a:$cql"; }
 
 		// Now that the we have the full CQL - make sure matches are always within a <text>
-		if ( !preg_match("/ within /", $cql) ) $cql .= " within text";
+		if ( !preg_match("/ within /", $cql) && !$fileonly ) $cql .= " within text";
 
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus

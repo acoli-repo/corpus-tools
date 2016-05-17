@@ -27,6 +27,14 @@
 		return $tokxml;
 	};
 
+	function file_locate ( $filename ) {
+		$cmd = "locate $filename";
+		$filepath = shell_exec($cmd);
+		if ( strstr($filepath, "\n") ) $filepath = substr($filepath, 0, strpos($filepath, "\n"));
+
+		return $filepath;
+	};
+
 	function getxmlrec($fn, $id, $tag, $opt="") {
 		# Get a record from an XML file by ID on a given tag
 		$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
