@@ -158,7 +158,8 @@
 			};
 			if ( $fields[1] ) {
 				$maintext .= "<tr>";
-				if ( $sattfld ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newscql)."'; document.newform.submit();\">docs</a></td>";
+				if ( $fld == "text_id" ) $maintext .= "<td><a href=\"index.php?action=file&cid={$fields[0]}\">doc</a></td>";
+				else if ( $sattfld ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newscql)."'; document.newform.submit();\">docs</a></td>";
 				foreach ( $fields as $key => $field ) {
 					if ( $newcql && $key == 0 ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newcql)."'; document.newform.submit();\">".preg_replace ( "/__UNDEF__/", "(none)", $fields[0])."</a></td>";
 					else if ( $key == $frf ) $maintext .= "<td align=right>$field</td>";
