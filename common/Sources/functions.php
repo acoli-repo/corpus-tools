@@ -128,11 +128,17 @@
 	};
 
 	function hrnum ( $num ) {
+		# Make a human readable number
 		$deg = array ( "", "k", "M", "G", "T",  "P", "E" );
 		$i = 0;
+		# Keep dividing by 1000
 		while ( $num > 1000 ) {
 			$i++; $num = $num/1000;
 		};
+		# Keep one digit after the comma for number below 10
+		if ( $num < 10 && round($num*10)/10 != round($num) ) {
+			$num = round($num*10)/10; 
+		} else { $num = round($num); };
 		return $num.$deg[$i];
 	};
 

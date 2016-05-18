@@ -132,6 +132,9 @@ sub xpathset ( $xquery, $xml, $val ) {
 				# Attribute node
 				$thisnode->setValue($val);
 				if ( $debug ) { print "Setting attribute value: $xquery = $val"; };
+			} elsif ( $thisnode->textContent ne "" ) {
+				$thisnode[0] = $val;
+				if ( $debug ) { print "Setting text content: $xquery = $val"; };
 			} else {
 				$newnode = $xml->createTextNode( $val );
 				$thisnode->addChild($newnode);

@@ -3,7 +3,7 @@
 	// Requires a running version of CWB/CQP
 	// This version reads in the XML and requires tt-cwb-xidx
 	// Settings for the corpus are read from settings.xml
-	// (c) Maarten Janssen, 2015
+	// (c) Maarten Janssen, 2015-2016
 
 	// Do not allow searches while the corpus is being rebuilt...
 	if ( file_exists("tmp/recqp.pid") ) {
@@ -148,8 +148,8 @@
 			$fields = split ( "\t", $line ); $newcql = "";
 			if ( $fld ) {
 				if ( $sattfld ) {	
-					$newcql = "<text> [] :: match.$fld = \"{$fields[0]}\"";
-					$newscql = "[] :: match.$fld = \"{$fields[0]}\"";
+					$newscql = "<text> [] :: match.$fld = \"{$fields[0]}\"";
+					$newcql = "[] :: match.$fld = \"{$fields[0]}\"";
 				} else $newcql = "[$fld = \"{$fields[0]}\"]";
 			};
 			if ( $frf ) { 

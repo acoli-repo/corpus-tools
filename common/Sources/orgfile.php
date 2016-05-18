@@ -12,6 +12,17 @@
 		$basefolder = "";
 	};
 	
+	$filetype = array ( 
+			"txt" => array ( 'mime' => 'text/txt', 'show' => 1 ),
+			"htm" => array ( 'mime' => 'text/html', 'show' => 1 ),
+			"html" => array ( 'mime' => 'text/html', 'show' => 1 ),
+			"doc" => array ( 'mime' => 'application/msword',  
+				'helpers' => array ( 'textutil' => '-stdout -convert html {}' ), 
+			),
+			"docx" => array ( 'mime' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+				'helpers' => array ( 'textutil' => '-stdout -convert txt {}' ), 
+			),
+		);
 	
 	# Determine the raw filename
 	if ( $_GET['cid'] ) {
@@ -24,27 +35,55 @@
 		$filename = $_GET['id'];
 	};
 
+
 	if ( !preg_match("/^\//", $filename) )  { $filename = $basefolder.$filename; };
 	$thisdir = preg_replace("/\/[^\/]+$/", "", $_SERVER['SCRIPT_FILENAME'] );
 
+	if ( preg_match("/([^\/]+\.([^\/.]+))/", $filename, $matches)) { 
+		$shortname = $matches[1]; $extention = $matches[2]; 
+	};
 
 	# Get the raw source file
-	if ( file_exists($filename) ) {
+	if ( file_exists($filename) && !$filetype[$extention]['show'] ) {
+		
+		if ( is_array($filetype[$extention]['helpers']) ) {
+			foreach ( $filetype[$extention]['helpers'] as $app => $options ) {
+				$cmd = "$app $options";
+				$cmd = str_replace("{}", $filename, $cmd);
+				$rawtxt = shell_exec($cmd);
+			};
+		};
+		
+		if ( !$rawtxt ) $rawtxt = "Raw document (type $extention) cannot be displayed";
+		
+	} else if ( file_exists($filename) ) {
+	
 		$rawtxt = file_get_contents($filename);
+		$rawtxt = "<pre>".htmlentities($rawtxt)."</pre>";
+
 	} else if ( file_exists($filename.".Z") ) {
+		# compressed file
 		$filename .= ".Z";
 		$cmd = "/bin/zcat $filename";
-		$rawtxt =  shell_exec($cmd);
+		$rawtxt = shell_exec($cmd);
+		$rawtxt = "<pre>".htmlentities($rawtxt)."</pre>";
+
 	} else {
 		$rawtxt = "No such file";
 	};
 	
 
 	# Check if the raw source is HTML
-	if ( strstr($rawtxt, "<html") || strstr($rawtxt, "<HTML") )  { $raw = "<p><a href='index.php?action=$action&id=$filename&html=1' target=html>View as HTML file</a>"; };
+	if ( !$showable[$extention] )  { $raw = "<p><a href='index.php?action=$action&id=$filename&raw=1' target=html>Download file</a>"; }
+	else if ( strstr($rawtxt, "<html") || strstr($rawtxt, "<HTML") )  { $raw = "<p><a href='index.php?action=$action&id=$filename&html=1' target=html>View as HTML file</a>"; };
 	
 	if ( $_GET['html'] ) {
 		# Show the raw source as HTML
+		print $rawtxt; exit;
+	} else if ( $_GET['raw'] ) {
+		# Download the raw file
+		if ( $filetype[$extention]['mime'] ) { header("Content-Type: ".$filetype[$extention]['mime']); }
+		header("Content-Disposition: attachment; filename=\"$shortfile\"");
 		print $rawtxt; exit;
 	} else {
 		# Show the raw source in-line
@@ -54,7 +93,7 @@
 			<p><i>This is a dump of the original file used for the creation of this XML file</i>
 			$raw
 			<hr>
-			<pre>".htmlentities($rawtxt)."</pre>
+			$rawtxt 
 			";
 
 	};		
