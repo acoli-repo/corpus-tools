@@ -89,7 +89,7 @@
 		$boxes['num'] = "<input #ID size=80 value=''>";
 		$boxes['cdata'] = "<textarea #ID cols=60 rows=10></textarea>";
 		foreach ( $result as $node ) {
-			list ( $vtype, $skey ) = split ( ": ", $node['desc'] );
+			list ( $vtype, $skey ) = explode ( ": ", $node['desc'] );
 			# if ( $skey == "" ) { $vtype = "XML"; $skey = $node['desc'].''; };
 			if ( !$vt[$vtype] ) $vt[$vtype] = array();
 			$vt[$vtype][$skey] = $node;

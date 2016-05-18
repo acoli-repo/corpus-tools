@@ -26,7 +26,7 @@
 	$filename = "Annotations/{$annotation}_$fileid";
 
 	if ( $_GET['query'] ) {
-		list ( $fld, $val ) = split ( ":", $_GET['query'] );
+		list ( $fld, $val ) = explode ( ":", $_GET['query'] );
 		$sqtxt .= "<p>{$tagset[$fld]['long']} = '$val'";
 		$squery = "[@$fld=\"$val\"]";
 	};

@@ -21,8 +21,8 @@
 		$cqp->exec("set PrettyPrint off");
 		$cqp->exec("Matches = [$akey=\"$aval\"]");
 		$res = $cqp->exec("group Matches match $att");
-		foreach ( split ( "\n", $res ) as $line ) {
-			list ( $val, $cnt ) = split ( "\t", $line );
+		foreach ( explode ( "\n", $res ) as $line ) {
+			list ( $val, $cnt ) = explode ( "\t", $line );
 			if ( $val != "__UNDEF__" && $val != "" ) $vals[$val] = $cnt;
 		};
 	} else {

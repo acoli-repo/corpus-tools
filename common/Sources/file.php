@@ -75,7 +75,7 @@
 		# We will by default jump to the page containing the tok we are looking for
 		# IF there are multiple tokens, jump to the first one
 		$tokids = $_GET['tid'] or $tokids = $_GET['jmp'];
-		$tmp = split ( " ", $tokids ); $tokid = $tmp[0];
+		$tmp = explode ( " ", $tokids ); $tokid = $tmp[0];
 		if ( $tokid ) {
 			# The page with the word we are trying to show
 			$tokpos = strpos($file, "id=\"$tokid\"");

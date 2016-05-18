@@ -245,7 +245,7 @@
 
 		if ( $debug ) $maintext .= "<p>$cqpquery<PRE>$results</PRE>";
 
-		$resarr = split ( "\n", $results ); $scnt = count($resarr);
+		$resarr = explode ( "\n", $results ); $scnt = count($resarr);
 		$maintext .= "<p>$cnt {%results} for $cql";
 		if ( $scnt < $cnt ) { 
 			$last = min($end,$cnt);

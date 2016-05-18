@@ -346,7 +346,7 @@
 						$results = $cqp->exec($cqpquery); 
 						if ($debug) $maintext .= "<p>CQL results: $results";
 						
-						foreach ( split ( "\n", $results ) as $line ) {	
+						foreach ( explode ( "\n", $results ) as $line ) {	
 							list ( $fileid, $tid, $context ) = explode ( "\t", $line );
 							if ( preg_match ( "/([^\/]+)\.xml/", $fileid, $matches ) ) {	
 								$cid = $matches[1];

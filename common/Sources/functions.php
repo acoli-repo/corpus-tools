@@ -374,13 +374,13 @@
 
 	function sentShow ( $sentid, $text, $headpos, $args ) {
 
-		$words = split ( " ", $text ); 
+		$words = explode ( " ", $text ); 
 		$words[$headpos] = "<span class='head'>".$words[$headpos]."</span>";
 
-		$tmp = split ( ";", $args );
+		$tmp = explode ( ";", $args );
 		foreach ( $tmp as $key => $tmp2 ) {
 			$an = $key+1;
-			$tmp3 = split ( '\+', $tmp2 );
+			$tmp3 = explode ( '\+', $tmp2 );
 			foreach ( $tmp3 as $key2 => $tmp4 ) {
 				$words[$tmp4] = "<span class='filler$an'>".$words[$tmp4]."</span>";
 			};
@@ -461,9 +461,9 @@
 
 	
 	function parseList ( $list ) {
-		$temp = split ( ", ", $list );
+		$temp = explode ( ", ", $list );
 		while ( list ( $key, $val ) = each ( $temp ) ) {
-			list ( $key2, $val2 ) = split ( ":", $val );
+			list ( $key2, $val2 ) = explode ( ":", $val );
 			$array[$key2] = $val2;
 		};
 		return $array;

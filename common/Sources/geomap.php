@@ -93,7 +93,7 @@ if ( $act == "xml" ) {
 		$results = $cqp->exec($cqpquery); 
 
 
-		foreach ( split ( "\n", $results ) as $line ) {	
+		foreach ( explode ( "\n", $results ) as $line ) {	
 			list ( $fileid, $title ) = explode ( "\t", $line );
 			if ( preg_match ( "/([^\/]+)\.xml/", $fileid, $matches ) ) {	
 				$cid = $matches[1];
@@ -130,9 +130,9 @@ if ( $act == "xml" ) {
 	$results = $cqp->exec($cqpquery);
 
 	$sep = "";
-	foreach ( split ( "\n", $results ) as $line ) {	
-		list ( $geo, $name, $cnt ) = split ( "\t", $line );
-		list ( $lat, $lng ) = split ( " ", $geo );
+	foreach ( explode ( "\n", $results ) as $line ) {	
+		list ( $geo, $name, $cnt ) = explode ( "\t", $line );
+		list ( $lat, $lng ) = explode ( " ", $geo );
 		$name = htmlentities($name, ENT_QUOTES);
 		$lat = preg_replace("/,.*/", "", $lat);
 		$lng = preg_replace("/,.*/", "", $lng);
@@ -147,7 +147,7 @@ if ( $act == "xml" ) {
 
 	if ( $settings['geomap']['zoom'] ) $moresettings .= "var defzoom = {$settings['geomap']['zoom']};";
 	if ( $settings['geomap']['startpos'] ) {
-		list ( $lat, $lng ) = split ( " ", $settings['geomap']['startpos'] );
+		list ( $lat, $lng ) = explode ( " ", $settings['geomap']['startpos'] );
 		$moresettings .= " var defpos = {lat: $lat, lng: $lng };";
 	};
 
