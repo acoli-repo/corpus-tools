@@ -143,9 +143,9 @@
 			};
 		};	
 			
-		foreach ( split ( "\n", $results ) as $line ) {	
+		foreach ( explode ( "\n", $results ) as $line ) {	
 			$typecnt++;
-			$fields = split ( "\t", $line ); $newcql = "";
+			$fields = explode ( "\t", $line ); $newcql = "";
 			if ( $fld ) {
 				if ( $sattfld ) {	
 					$newscql = "<text> [] :: match.$fld = \"{$fields[0]}\"";
@@ -432,7 +432,7 @@
 			if ( $debug ) $maintext .= "<p>TABULATE COMMAND:<br>$cqpquery";
 		
 		
-			$resarr = split ( "\n", $results ); $scnt = count($resarr);
+			$resarr = explode ( "\n", $results ); $scnt = count($resarr);
 			$maintext .= "<p>$cnt {%results}";
 			if ( $scnt < $cnt ) { 
 				$maintext .= " &bull; {%Showing} $start - $end *
@@ -466,7 +466,7 @@
 
 			if ( $debug ) $maintext .= "<p>From inital $cnt results: $cqpquery<PRE>$results</PRE>";
 
-			$resarr = split ( "\n", $results ); $scnt = count($resarr);
+			$resarr = explode ( "\n", $results ); $scnt = count($resarr);
 			$maintext .= "<p>$cnt {%results}";
 			if ( $scnt < $cnt ) { 
 				$last = min($end,$cnt);
@@ -496,7 +496,7 @@
 				if ( $line == "" ) continue;
 				$tmp = explode ( "\t", $line );
 				list ( $fileid, $match, $leftpos, $rightpos, $audiofile ) = $tmp;
-				$idlist = split ( " ", $match );
+				$idlist = explode ( " ", $match );
 				if ( count($idlist) > $maxmatchlength )  $maxmatchlength = count($idlist);
 				if ( count($idlist) < $minmatchlength )  $minmatchlength = count($idlist);
 				$m1 = $idlist[0]; 
@@ -824,7 +824,7 @@
 					if ( $kva ) {
 						if ( $coldef['values'] == "multi" ) {
 							$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
-							$kvl = split ( $mvsep, $kva );
+							$kvl = explode ( $mvsep, $kva );
 						} else {
 							$kvl = array ( $kva );
 						}
@@ -969,7 +969,7 @@
 							if ( $kva ) {
 								if ( $item['values'] == "multi" ) {
 									$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
-									$kvl = split ( $mvsep, $kva );
+									$kvl = explode ( $mvsep, $kva );
 								} else {
 									$kvl = array ( $kva );
 								}

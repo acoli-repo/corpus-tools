@@ -18,15 +18,17 @@
 	</menu>
 		
 	<!-- Definition of the CQP corpus created from the XML files -->
-	<cqp corpus="TT-IMP" searchfolder="*.xml">	
+	<cqp corpus="TT-MYPROJECT" searchfolder="xmlfiles">	
 		<pattributes>
 			<item key="nform" display="Normalized form"/>
 			<item key="pos" display="POS Tag"/>
 			<item key="lemma" display="Lemma"/>
 		</pattributes>
 		<sattributes>
-			<item key="year" display="Year" type="range"/>
-			<item key="author" display="Author" long="Author name" type="long"/>
+		    <item key="text" level="text" display="Document Seach">
+    			<item key="year" display="Year" type="range"/>
+	    		<item key="author" display="Author" long="Author name" type="long"/>
+	    	</item>
 		</sattributes>
 	</cqp>
 

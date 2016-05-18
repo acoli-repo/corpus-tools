@@ -124,7 +124,7 @@
 	
 		if ( $cqpfolder == "" ) $cqpfolder = "**";
 	
-		if ( !$settings['cqp']['verticalize'] ) {
+		if ( !$settings['cqp']['verticalize'] && ( $settings['bin']['tt-cwb-encode'] || file_exists("/usr/local/bin/tt-cwb-encode") )  ) {
 			# Verticalize using the verticalize C++ application
 			# For simplicity, we do htmldecoding externally in Perl
 			$maintext .= "<p>Using tt-cwb-encode";
