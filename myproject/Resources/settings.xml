@@ -41,7 +41,7 @@
     </log>
 
 	<!-- Definition of the items to be used in the XML files -->	
-	<xmlfile defaultform="dform" defaultview="interpret" xpath="//text/body" paged="0">
+	<xmlfile defaultform="dform" defaultview="interpret" xpath="//text" paged="0">
 		<pattributes>
 			<forms>
 				<item key="pform" display="Transcription"/>

@@ -56,6 +56,17 @@
 		print "<p class=right> All crucial files/folders are writable"; 
 	};
 	
+	// Check whether XML::LibXML is installed
+	$cmd = "perl -e 'use XML::LibXML; print \"works\";'";
+	$test = shell_exec($cmd);
+	if ( $test != "works" ) {
+		print "<p class=warn> For most external scripts, TEITOK requires the Perl module XML::LibXML to be installed, which it is not.";
+		$perlerror = 1;
+	};
+	if ( !$perlerror ) {
+		print "<p class=right> Required Perl modules working.";
+	};
+	
 	// Check whether SESSION variables work (forget COOKIE - SESSION works with cookies, so that should be implied)
 	if ( $_SESSION['check']["2"] != "also" ) {
 		print "<p class=wrong> If this message remains after reload, SESSION variables are not stored, and you will not be able to log in.";

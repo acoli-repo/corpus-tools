@@ -80,6 +80,7 @@ sub treatfile ( $file ) {
 	
 	if ( $restriction && !$xml->findnodes($restriction) ) {
 		if ( $debug ) { print "Not matching restriction: $restriction\n"; };
+		return;
 	};
 	
 	print OUTPUT $file;
