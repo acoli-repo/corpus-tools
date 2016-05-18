@@ -1004,6 +1004,65 @@
 			};
 			$maintext .= "</table>"; 
 		};	
+
+		# Deal with any stand-off annotation attributes (errors, etc.)
+		if ( is_array ( $settings['cqp']['annotations']))
+		foreach ( $settings['cqp']['annotations'] as $xatts ) {
+			if ( !$xatts['display'] || ( $xatts['admin'] && !$username ) ) continue;
+			if ( $xatts['admin'] ) $adms = " class=adminpart";
+			$maintext .= "$hr<div$adms><h3>{%{$xatts['display']}}</h3><table>"; $hr = "<hr>";
+			foreach ( $xatts as $key => $item ) {
+				$xkey = "{$xatts['key']}_$key";
+				$val = $item['long']."" or $val = $item['display']."";
+				if ( $item['type'] == "group" ) { 
+					$maintext .= "<tr><td>&nbsp;<tr><td colspan=2 style='text-align: center; color: #992000; font-size: 10pt; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa;'>{%$val}";
+				} else {
+					if ( $item['nosearch'] ) $a = 1; # Ignore this in search 
+					else if ( $item['type'] == "range" ) 
+						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
+					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
+						# Read this index file
+						$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
+						foreach ( explode ( "\0", $tmp ) as $kva ) { 
+							if ( $kva ) {
+								if ( $item['values'] == "multi" ) {
+									$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+									$kvl = explode ( $mvsep, $kva );
+								} else {
+									$kvl = array ( $kva );
+								}
+								
+								foreach ( $kvl as $kval ) {
+									if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
+									$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+								};
+							};
+							foreach ( $kvl as $kval ) {
+								if ( $kval && $kval != "_" ) {
+									if ( $item['type'] == "kselect" || $item['translate'] ) $ktxt = "{%$key-$kval}"; 
+										else $ktxt = $kval;
+									$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+								};
+							};
+						};
+						if ( $item['sort'] == "numeric" ) sort( $optarr, SORT_NUMERIC ); 
+						else sort( $optarr, SORT_LOCALE_STRING ); 
+						$optlist = join ( "", $optarr );
+						if ( $item['select'] == "multi" ) {
+							$multiselect = "multiple";  $msarr = "[]";
+							$mstext = "select choices";
+						} else {
+							$multiselect = ""; $msarr = "";
+							$mstext = "select";
+						};
+						$maintext .= "<tr><th>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
+					} else 
+						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey] value='' size=40>";
+				};
+			};
+			$maintext .= "</table></div>"; 
+		};	
+
 		$maintext .= "</table>"; 
 		$maintext .= "<p><input type=submit value=\"{%Search}\"></form>";
 	
