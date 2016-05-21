@@ -18,15 +18,15 @@ To use these programs, compile them on your server, and either place them in /us
 or place them somewhere you want them to be and indicate in your 
 settings.xml where the executable is located.
 
-These programs only have two dependencies: [http://www.boost.org/](BOOST) and [http://pugixml.org/](PUGIXML), where the latter is included
-in this folder. How to include LBOOST may depend on your server, but typical compile instructions
-are:
+These programs only have two dependencies: [http://www.boost.org/](BOOST) and [http://pugixml.org/](PUGIXML), 
+where the latter is included in this folder. 
+How to include BOOST may depend on your server, but typical compile instructions are:
 
-g++ -o /usr/local/bin/neotagxml neotagxml.cpp pugixml.cpp -lboost_system
+sudo g++ -o /usr/local/bin/neotagxml neotagxml.cpp pugixml.cpp -lboost_system
 
-g++ -o /usr/local/bin/neotagtrain neotagtrain.cpp pugixml.cpp -lboost_system
+sudo g++ -o /usr/local/bin/neotagtrain neotagtrain.cpp pugixml.cpp -lboost_system
 
-g++ -o /usr/local/bin/tt-verticalize tt-verticalize.cpp  pugixml.cpp 
+sudo g++ -o /usr/local/bin/tt-cwb-encode tt-cwb-encode.cpp pugixml.cpp -lboost_system
 
-g++ -o /usr/local/bin/xpathquery xpathquery.cpp  pugixml.cpp 
+sudo g++ -o /usr/local/bin/tt-cwb-xidx tt-cwb-xidx.cpp pugixml.cpp -lboost_system
 

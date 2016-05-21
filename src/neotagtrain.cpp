@@ -3,6 +3,7 @@
 #include <boost/foreach.hpp>
 #include "pugixml.hpp"
 #include <iostream>
+#include <sstream>
 #include <string.h>
 #include <stdio.h>
 #include <fstream>
@@ -88,6 +89,28 @@ void addhist (string tagkey) {
 	transs[histstring] = transitem;
 };
 
+string calctag ( pugi::xml_node node ) {
+	string tagtag;
+	if ( tagpos.find("+") != -1 ) {
+		// we need to concatenate several attributes
+		stringstream ss(tagpos);
+		string item; string delim;
+		delim = ""; tagtag = ""; 
+		int parts = 0;
+		while (getline(ss, item, '+')) {
+			tagtag = tagtag + delim + node.attribute(item.c_str()).value();
+			parts++;
+			delim = "+";
+		};	
+		// If we have no content, return empty string
+		if ( tagtag.size() == parts - 1 ) { tagtag = ""; };
+    } else {
+		// a simple tag attribute - just return it
+		tagtag = node.attribute(tagpos.c_str()).value();
+	};
+	return tagtag;
+};
+
 void treatnode ( pugi::xpath_node node ) {
 	string sep = "";
 	vector<string>::iterator cait;
@@ -107,12 +130,14 @@ void treatnode ( pugi::xpath_node node ) {
 		tagform = node.node().attribute(getfld.c_str()).value();
 	};
 	
-	tagtag = node.node().attribute(tagpos.c_str()).value();
-        for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
-			string tmp2 =  ".";
-			string tmp3 =  dtoken.attribute(tagpos.c_str()).value(); 
-			tagtag = tagtag + tmp2 + tmp3;
-		};
+	// Calculate the tag for this node
+	tagtag = calctag(node.node()); 
+	// Add tags for all dtoks (separated by a dot)
+	for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
+		string tmp2 =  ".";
+		string tmp3 =  calctag(dtoken); 
+		tagtag = tagtag + tmp2 + tmp3;
+	}; 
 
 	if ( debug > 1 ) node.node().print(std::cout);
 
@@ -146,7 +171,7 @@ void treatnode ( pugi::xpath_node node ) {
 			lexitem.append_attribute("key") = tagform.c_str();
 		};
 		tok = lexitem.append_child("tok");
-		tok.append_attribute("key") = node.node().attribute(tagpos.c_str()).value(); 
+		tok.append_attribute("key") = tagtag.c_str(); 
 		tok.append_attribute("cnt") = 1; 
 		// add all items that are relevant here
 		BOOST_FOREACH(string t, formTags )
@@ -409,7 +434,6 @@ int treatdir (string dirname) {
 int main(int argc, char *argv[])
 {
 
-
 	trainlog.append_child("xmltrain");
 	tagsettings = trainlog.first_child().append_child("settings");	
 	trainstats = trainlog.first_child().append_child("stats");	
@@ -467,7 +491,7 @@ int main(int argc, char *argv[])
 	pattlist = xmlsettings.select_nodes("//neotag/parameters/item");
 	for (pugi::xpath_node_set::const_iterator it = pattlist.begin(); it != pattlist.end(); ++it)
 	{
-		// This should be stored for multiple parameter folders
+		// TODO: This should be stored for multiple parameter folders
 		if ( (*it).node().attribute("training") != NULL && ( tagsettings.attribute("pid") == NULL || !strcmp(tagsettings.attribute("pid").value(), (*it).node().attribute("pid").value()) ) ) {
 			parameters = (*it).node();
 		} else {
@@ -552,8 +576,6 @@ int main(int argc, char *argv[])
 	// Now that we have our full lexicon, start counting the classes
 	pugi::xml_node tagset;
 	tagset = paramfile.first_child().append_child("tags");
-	pugi::xml_node wordendxml;
-	wordendxml = paramfile.first_child().append_child("endings");
 	map<string, map<string, pugi::xml_node> > wordends; // wordend items
 	map<string, map<string, map<string, pugi::xml_node> > > lemruless; // wordend items
 	pattlist = lexicon.select_nodes("//tok[not(dtok)]");
@@ -588,57 +610,6 @@ int main(int argc, char *argv[])
 			tagscase.append_attribute("key") = wcase.c_str();
 			tagscase.append_attribute("cnt") = (*it).node().attribute("cnt").value();
 			tagss[tagstring][wcase] = tagscase;
-		};
-		
-		// Add to the ending probabilities
-		pugi::xml_node lexitem;
-		pugi::xml_node tok;
-		pugi::xml_node lemrules;
-		string lemrule = lemrulemake(calcform((*it).node(), lemmafld), (*it).node().attribute("lemma").value());
-		if ( debug > 4 ) { cout << calcform((*it).node(), lemmafld) << " / " << (*it).node().attribute("lemma").value() << " => " << lemrule << endl; };
-		for ( int i = 1; i <= (endlen+mblen); i++ ) {
-			if ( word.length() > i ) {
-				string wordend = word.substr(word.length()-i, word.length());
-				// Do not count parts of MB chars
-				if ( ( *(wordend.substr(0,1).c_str()) & 0xc0 ) == 0x80 ) {  mblen++; continue; };
-				if ( wordends[wordend][tagstring] ) {
-					// Add to the existing word ending
-					// We should check if this is the same word
-					tok = wordends[wordend][tagstring];
-					tok.attribute("cnt") = atoi(tok.attribute("cnt").value()) + atoi((*it).node().attribute("cnt").value());
-					// add the lemrule
-					if ( lemrule.length() > 0 ) {
-						if ( lemruless[wordend][tagstring][lemrule] ) {
-							lemrules = lemruless[wordend][tagstring][lemrule];
-							lemrules.attribute("cnt") = atoi(lemrules.attribute("cnt").value()) + atoi((*it).node().attribute("cnt").value());
-						} else {
-							lemrules = tok.append_child("lemmatization");
-							lemrules.append_attribute("key") = lemrule.c_str();
-							lemrules.append_attribute("cnt") = (*it).node().attribute("cnt").value(); 
-						};
-					};
-				} else {
-					// new word		
-					if ( wordends[wordend][""] ) {
-						lexitem = wordends[wordend][""];
-					} else{ 
-						lexitem = wordendxml.append_child("item");
-						lexitem.append_attribute("key") = wordend.c_str();
-					};
-					tok = lexitem.append_child("item");
-					tok.append_attribute("key") = tagstring.c_str(); 
-					tok.append_attribute("cnt") = (*it).node().attribute("cnt").value(); 
-					// add the lemrule
-					if ( lemrule.length() > 0 ) {
-						lemrules = tok.append_child("lemmatization");
-						lemrules.append_attribute("key") = lemrule.c_str();
-						lemrules.append_attribute("cnt") = (*it).node().attribute("cnt").value(); 
-					};
-				};
-				wordends[wordend][""] = lexitem;
-				wordends[wordend][tagstring] = tok;
-				lemruless[wordend][tagstring][lemrule] = lemrules;
-			};
 		};
 		
 	};

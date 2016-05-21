@@ -107,7 +107,7 @@
 		$results = $cqp->exec($query);
 
 			$maintext .= "<form style=\"display: none;\" action=\"index.php?action=$action\" method=post name=newform id=newform>
-					$chareqjs
+					List files: <input name=fileonly value=\"0\">
 					Pre-select: <input name=precql value=\"".preg_replace("/\"/", "&quot;", $cql)."\">
 					Select: <input name=cql value=\"\"  $chareqfn>
 				</form>";
@@ -135,7 +135,7 @@
 			$fld = $matches[1];
 			$fldname = pattname($fld) or $fldname = $fld;
 			$frf = 1;
-			if ( strstr($fld, '_') ) {
+			if ( strstr($fld, '_') && 1 == 2 ) { # Sometimes we want to see the documents insteads of the tokens, but rethink
 				$sattfld = 1; $td = "<td>";
 				$maintext .= "<tr><td><th>$fldname<th>{%$freqnum}<th>{%Percentage}";
 			} else {
@@ -144,7 +144,6 @@
 		};	
 			
 		foreach ( explode ( "\n", $results ) as $line ) {	
-			$typecnt++;
 			$fields = explode ( "\t", $line ); $newcql = "";
 			if ( $fld ) {
 				if ( $sattfld ) {	
@@ -158,8 +157,9 @@
 			};
 			if ( $fields[1] ) {
 				$maintext .= "<tr>";
+				$typecnt++;
 				if ( $fld == "text_id" ) $maintext .= "<td><a href=\"index.php?action=file&cid={$fields[0]}\">doc</a></td>";
-				else if ( $sattfld ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newscql)."'; document.newform.submit();\">docs</a></td>";
+				else if ( $sattfld ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newcql)."'; document.newform.fileonly.value='1'; document.newform.submit();\">docs</a></td>";
 				foreach ( $fields as $key => $field ) {
 					if ( $newcql && $key == 0 ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newcql)."'; document.newform.submit();\">".preg_replace ( "/__UNDEF__/", "(none)", $fields[0])."</a></td>";
 					else if ( $key == $frf ) $maintext .= "<td align=right>$field</td>";
@@ -287,6 +287,11 @@
 			$sep = "&"; 
 		} else if ( $_POST['atts'] ) { 
 			 $sep = "::"; 
+		};
+		
+		# Check whether we are asked to only list files
+		if ( $_GET['fileonly'] || $_POST['fileonly'] ) { 
+			$fileonly = true; 
 		};
 		
 		if ( is_array($_POST['atts']) )

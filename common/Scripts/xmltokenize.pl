@@ -93,7 +93,7 @@ $tagtxt =~ s/&(?![^ \n\r&]+;)/xx&amp;xx/g;
 # And neither should <desc> or <gap>
 # Take them out and put them back later
 $notecnt = 0;
-while ( $tagtxt =~ /<(note|desc|gap).+?<\/\1>/gsmi )  {
+while ( $tagtxt =~ /<(note|desc|gap|pb|fw)[^>]*(?<!\/)>.*?<\/\1>/gsmi )  {
 	$notetxt = $&; $leftc = $`;
 	$notes[$notecnt] = $notetxt; $newtxt = substr($leftc, -50).'#'.$notetxt;
 	if ( $oldtxt eq $newtxt ) { 

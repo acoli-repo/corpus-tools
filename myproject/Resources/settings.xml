@@ -8,7 +8,6 @@
 		</options>
 	</languages>
 	
-	
 	<!-- Definition of the items to be displayed in the navigation menu -->
 	<menu>	
 		<itemlist>
@@ -32,23 +31,13 @@
 		</sattributes>
 	</cqp>
 
-	
-	<!-- Definition of the POS tagger -->
-	<neotag>
-	</neotag>
-
-	<!-- Where (if at all) to write the TEITOK log -->
-    <log>
-        <item key="errorlog" filename="../log/myproject-error.log"/>
-    </log>
-
 	<!-- Definition of the items to be used in the XML files -->	
 	<xmlfile defaultform="dform" defaultview="interpret" xpath="//text" paged="0">
 		<pattributes>
 			<forms>
 				<item key="pform" display="Transcription"/>
 				<item key="form" display="Written form" color="#990000"/>
-				<item key="nform" display="Normalized form" inherit="fform" color="#990099"/> 
+				<item key="nform" display="Normalized form" inherit="form" color="#990099"/> 
 			</forms>
 			
 			<tags>			

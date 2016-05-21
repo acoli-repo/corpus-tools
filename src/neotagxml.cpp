@@ -164,7 +164,7 @@ string int2str(int number)
    return ss.str();//return a string with the contents of the stream
 }
 
-// String to Lowercase
+// String to Lowercase/Uppercase
 // should be made UTF 
 string strtolower ( string str ) {
   string lowercase = "";  int i=0;
@@ -305,38 +305,48 @@ class wordtoken {
 	void lemmatize () {
 		// lexitem has not <lemma> if there are dtok
 		if ( lemma.size() > 0 || lexitem.attribute("lemma") != NULL || lexitem.child("dtok").attribute("lemma") != NULL ) { return; }; // skip if the item has a lemma already
+		
 		if ( debug > 5 ) { cout << "   -- " << form << " in need of lemmatization (trying from ending/lemmatizations) " << endl; };
 		
 		// If we found a lemmatization, apply it
-		if ( lexitem.child("lemmatization") != NULL ) { 
+		if ( lemma.size() == 0 && lemmatizations.size() == 0 ) {
+			for ( int i = 0;  i < form.size(); i++ ) {
+				string wending = form.substr(i, form.size());
+				if ( endingProbs[wending][tag].lemmatizations.size() > 0 ) {
+					lemmatizations = endingProbs[wending][tag].lemmatizations;
+					i = form.size(); // break on the longest ending with lemmatizations
+				};
+			};
+		};
+		if ( lemma.size() == 0 && lemmatizations.size() > 0) { 
 			int maxlem = 0; 
 			if ( debug > 2 ) { cout << "   -- lemmatization options: " << lemmatizations.size() << endl; };
-			for ( pugi::xml_node lemopt = lexitem.child("lemmatization"); lemopt != NULL; lemopt = lemopt.next_sibling("lemmatization") ) {
-				if ( debug > 4 ) { cout << "   -- lemmatization option: " << lemopt.attribute("key").value() << endl; };
-			  if ( atoi(lemopt.attribute("cnt").value()) > maxlem ) {
-				string usedrule = lemopt.attribute("key").value();
-				string tmp = applylemrule ( calcform(token, lemmafld), usedrule );
-				if ( debug > 17 ) { cout << "Applied" << endl; };
+			for (map<string,int>::const_iterator it=lemmatizations.begin(); it!=lemmatizations.end(); ++it) {
+			  if ( it->second > maxlem ) {
+				string usedrule = it->first;
+				string tmp = applylemrule (form, usedrule);
 				if ( tmp.size() > 0  ) {
 					lemma = tmp;
 					if ( lemrule.size() ) { lemrule = lemrule + " + " + usedrule; }
 					else { lemrule = usedrule; };
-					maxlem = atoi(lemopt.attribute("cnt").value());
+					maxlem = it->second;
 				};
 			  }		
+			}
+		};
+		if ( lemma.size() == 0 ) {
+			// if unable to lemmatize, return the form indicated in lemmafld
+			if ( debug > 2 ) { cout << "   -- unable to lemmatize, using: " << lemmafld << endl; };
+			if ( lemmafld == "--" ) {
+				lemma = "";
+			} else if ( lemmafld != "form" ) {
+				lemma = calcform(token, lemmafld);
+			} else {
+				lemma = form;
 			};
-			return;
 		};
+
 		
-		// if unable to lemmatize, return the form in --lemmatize
-		if ( debug > 5 ) { cout << "   -- no lemmatization rules found, using " << lemmafld << " = " << calcform(token, lemmafld) << endl; };
-		if ( lemmafld != "--" ) {
-			lemma = "";
-		} else if ( lemmafld != "form" ) {
-			lemma = calcform(token, lemmafld);
-		} else {
-			lemma = form;
-		};
 	};
 		
 	void updatetok() {
@@ -370,7 +380,21 @@ class wordtoken {
 			if ( debug > 4 ) { lexitem.print(std::cout); };
 			// This is a new word - add calculated lemma and tag
 			if ( token.attribute(tagpos.c_str()) == NULL && tag != "" ) { 
-				token.append_attribute(tagpos.c_str()) =  tag.c_str();
+				if ( tagpos.find("+") != -1  ) {
+					// Multi-part tag, put back into place
+					stringstream ss(tagpos);
+					stringstream ss2(tag);
+					string item; string delim; string tagpart;
+					delim = "";
+					int parts = 0;
+					while (getline(ss, item, '+')) {
+						getline(ss2, tagpart, '+');
+						token.append_attribute(item.c_str()) =  tagpart.c_str();
+					};	
+				} else {
+					// Simple tag - just copy to the tag position
+					token.append_attribute(tagpos.c_str()) =  tag.c_str();
+				};
 			};
 			if ( token.attribute("lemma") == NULL && lemma != "" ) { 
 				token.append_attribute("lemma") =  lemma.c_str();
@@ -418,9 +442,7 @@ float getTransProb ( string transitionstring ) {
 
 string xpescape ( string word ) {
 	// Escape XPath query strings
-	
 	boost::replace_all(word, "\"", "&quot;");
-	
 	return word;
 };
 
@@ -686,6 +708,7 @@ class tokpath {
 					<< "     path likelihood: " << newprob << " = " << prob <<  " (old path) * " << newword.prob <<  " (lex prob) " 
 					<< " * " << transitionprob << " (trans prob) = "
 					<< transitionprob1 << " (" << lasttag1 << "." << newword.tag << ") ";
+				// TODO: currently only n=1 context
 // 				for ( int i=2; i<=contextlength; i++ ) {
 // 					cout << " + " <<  ( pow(contextfactor,i) * transitionProbs2[i][lasttag2][newword.tag]) << " (context " << i << ") for " << lasttag2;
 // 				};
@@ -709,7 +732,7 @@ class tokpath {
 			string besttag;
 			if (  tagsettings.attribute("lexprobs") != NULL ) {
 			  besttag = (*it).tag; // take the best lexical probability instead of the tag of the best path 
-			  	/* This is not implemented yet! */
+			  	// TODO: we should implement lexical probablities
 			} else {
 			  besttag = (*it).tag;
 			};
@@ -1132,31 +1155,100 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 //  		};
 // 	};
 		
-	// step 4: use the end of the word (should become also beginning) to determine POS
+	// step 4: use the end of the word to determine POS
 	// when have not yet found the word, or when we want to lexically smooth
 	// or when we have a word that only optionally starts with a clitic
-	// TODO: this no longer does smoothing - check if that is needed
-	if ( wordParse.size() == 0 || lexsmooth || partialclitic ) {
-		tmp = getEndProb(word); 
-		if ( !tmp.empty() ) {
-			pugi::xpath_node_set::const_iterator it = tmp.begin();
-			string foundend = (*it).node().parent().attribute("key").value();
-			if ( debug > 3 ) { 
-				cout << " - " << tmp.size() << " types(s) found in training corpus for ending " << foundend << endl; 
+	// TODO: this no longer does smoothing - check if that is still needed
+	// TODO: word end or word beginning
+	if ( wordParse.size() == 0 || lexsmooth  || partialclitic ) {
+		int fnd = 0; float smoothfactor = 1;
+		int endretry = 5;
+		string smoothtxt = "";
+		if ( lexsmooth ) { 
+			smoothfactor = lexsmooth;
+			if ( debug > 1 && wordParse.size() > 0 ) { 
+				cout << " - forcing to look on with lexical smoothfactor " << smoothfactor << endl;
 			};
-			for (pugi::xpath_node_set::const_iterator it = tmp.begin(); it != tmp.end(); ++it) {
-				insertword.settag((*it).node().attribute("key").value());
-				insertword.prob = atof((*it).node().attribute("cnt").value());
-				insertword.source = "ending:" + foundend;
-				insertword.lexitem = (*it).node();
-				insertword.lemmatize();
-				if ( debug > 2 ) { (*it).node().print(std::cout); };
-				wordParse.push_back(insertword);
-				totprob += insertword.prob;
+			if ( wordParse.size() > 0 ) { 
+				smoothtxt = " - lexically smoothed";
 			};
 		};
+		for ( int i = 1;  i < word.size(); i++ ) {
+			string wending = word.substr(i, word.size());
+			if ( endingProbs[wending].size() > 0 && fnd <= endretry ) {
+				fnd++;
+				// word found in the external lexicon, copy to wordParses
+				if ( debug > 1 ) { cout << " - found as ending " << word.size() - i << " = " << wending << " " << endingProbs[wending].size() << endl; };
+				map<string,wordtoken>::iterator pos;
+				for (pos = endingProbs[wending].begin(); pos != endingProbs[wending].end(); ++pos) {
+					insertword.setform(word);
+					insertword.settag(pos->first);
+					insertword.prob = pos->second.prob * pow ( 5, 0-fnd) * smoothfactor; // count each shorter ending match by a power less
+					insertword.lemmatizations = pos->second.lemmatizations;
 
+					if ( lemmaProbs.size() > 0 ) {
+						// insertword.tag2pos(); // calculate the pos of this word
+						string pos = insertword.pos;
+						int lemfound = 0; int maxlem = 0;
+						
+						if ( debug > 3 ) { cout << "   +  " << insertword.tag << ", " << insertword.prob  << endl; };
+						if ( debug > 4 ) { cout << insertword.lemmatizations.size() + 0 << " lemmatization options for " << wending << " " << insertword.tag << endl; };
+						// run through the lemmatization options here to see of any of them is in the lexicon
+						for (map<string,int>::const_iterator it=insertword.lemmatizations.begin(); it!=insertword.lemmatizations.end(); ++it) {
+							string lemrule = it->first;
+							string lemma = applylemrule(insertword.form, lemrule);
+							int lemprob = it->second * smoothfactor;
+							if ( lemma.size() > 0 ) {
+								// check the lemmatization result with the pos tag in the lemmalist
+								if ( lemmaProbs[lemma][pos] == 1 ) { 
+									// We should match against other features than pos as well - mostly for gender on nouns
+									if ( debug > 2 ) { cout << "   - found in the lemmalist: " << lemma  << ", " << pos << " << " << insertword.tag << endl; }; //  << lemmaProbs[lemma][0] 
+									wordtoken known_word = insertword;
+									known_word.lemma = lemma;
+									known_word.id = parseword.id;
+									known_word.source = "lemmalist" + smoothtxt;
+									known_word.lemrule = wending + " + " + lemrule;
+									known_word.prob *= 20; // we need to make this much more likely given that we found direct evidence in the lemmalist
+									known_word.applycase();
+									wordParse.push_back(known_word);
+									totprob += known_word.prob; lemfound = 1;
+								} else {
+									if ( debug > 3 ) { cout << "   - possible lemma (not in the lemmalist): " << lemma  << ", " << pos << " - freq " << lemprob << endl; }; //  << lemmaProbs[lemma][0] 
+									if ( lemprob > maxlem ) {
+										insertword.source = "ending" + smoothtxt;
+										insertword.lemrule = wending + " + " + lemrule;
+										insertword.lemma = lemma;
+										maxlem = lemprob;
+									};
+								};
+							};
+						};
+						if ( lemfound == 0 ) {
+							if ( insertword.pos == "CONTR" ) { // a CONTRACTION should never be added only based on its ending.....
+								if ( debug > 3 ) { cout << "   - we ended up with a contraction - rejecting: " << insertword.lemma  << ", " << insertword.pos << " - prob " << insertword.prob << endl; }; //  << lemmaProbs[lemma][0] 
+							} else {
+								if ( debug > 3 ) { cout << "   - adding it with most likely lemma: " << insertword.lemma  << ", " << insertword.tag  << ", " << insertword.pos << " - prob " << insertword.prob << endl; }; //  << lemmaProbs[lemma][0] 
+								insertword.applycase();
+								wordParse.push_back(insertword);
+							};
+							totprob += insertword.prob;
+						};
+						
+					} else {
+
+						if ( debug > 2 ) { cout << "   -  " << insertword.tag << ", " << insertword.prob << endl; };
+
+						insertword.source = "ending ";
+						insertword.lemrule = "" + wending;
+						wordParse.push_back(insertword);
+						totprob += insertword.prob;
+
+					};
+				};
+			};
+		};
 	};
+	
 	
 	// almost complete failure - try with raw POS frequencies 
 	if ( wordParse.size() == 0 ) {
@@ -1274,13 +1366,19 @@ void treatWord ( wordtoken insertword ) {
 // Deleted the READPARAMETERS
 void parseparameters () {
 	// Preload the posProbs - this might improve speed
-	for ( pugi::xml_node lexitem = parameters.first_child().child("lexicon").child("item"); lexitem != NULL; lexitem = lexitem.next_sibling("dtok") ) {
+	for ( pugi::xml_node lexitem = parameters.first_child().child("lexicon").child("item"); lexitem != NULL; lexitem = lexitem.next_sibling("item") ) {
 		string word = lexitem.attribute("key").value();
 		pugi::xpath_node_set tmp = lexitem.select_nodes("tok");
 		posProbs[word] = tmp;
+
+		// build the endprobs
+		for ( pugi::xml_node lextok = lexitem.child("tok"); lextok != NULL; lextok = lextok.next_sibling("tok") ) {
+			string tag = lextok.attribute("key").value();
+			string lemma = lextok.attribute("lemma").value();
+			endlemmas ( word, tag, lemma );
+		};
 	};
 	// Preload the transitionProbs
-	// Preload the endProbs
 };
 
 void help() {
@@ -1345,7 +1443,7 @@ int main (int argc, char * const argv[]) {
     	return -1;
 	};
 	
-	// Read in the source XML file
+	// Read in the source XML file to tag
     pugi::xml_document doc;
     if ( !doc.load_file(tagsettings.attribute("xmlfile").value(), (pugi::parse_ws_pcdata | pugi::parse_declaration | pugi::parse_doctype ) & ~pugi::parse_wconv_attribute & ~pugi::parse_escapes ) ) { // pugi::parse_default | 
         cout << "Failed to load XML file: " << tagsettings.attribute("featuretags").value() << endl;
@@ -1398,7 +1496,7 @@ int main (int argc, char * const argv[]) {
 
 	// See if we found a parameters folder to use - or throw an exception
 	if ( !strcmp(tagsettings.attribute("params").value(), "") ) {
-        cout << "No parameters folder indicate or none applicable found in settings file: " << settingsfile << endl;
+        cout << "No parameters file indicate or none applicable found in settings file: " << settingsfile << endl;
 		if ( debug > 2 ) taglog.print(std::cout);
         return -1;
 	} else {
@@ -1410,7 +1508,7 @@ int main (int argc, char * const argv[]) {
 		};
 	};
 	
-	// Should we preparse the XML?
+	// Preparse the XML to build the endlemma list and such
 	parseparameters();
 	
 	// Some default settings
@@ -1605,8 +1703,10 @@ int main (int argc, char * const argv[]) {
 		doc.save_file(outfile, "", ( pugi::format_raw | pugi::format_no_escapes ) ); // , pugi::encoding_utf8);
 	};
 	
-	taglog.save_file("neotag.log");
-		
+	if ( tagsettings.attribute("log") != NULL ) {
+		taglog.save_file("neotag.log");
+	};
+	
     return 0;
 	
 }

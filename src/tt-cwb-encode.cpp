@@ -120,7 +120,7 @@ void write_range_value ( int pos1, int pos2, string tagname, string attname, str
 	// CWB does not like empty value - convert to underscore
 	if ( formval == "" ) { formval = "_"; };
 
-	if ( debug > 2 ) { cout << "Range: " << filename << " - " << formkey << " " << pos1 << "-" << pos2 << "  = " << formval << endl; };
+	if ( debug > 2 ) { cout << "Range: " << formkey << " " << pos1 << "-" << pos2 << "  = " << formval << endl; };
 	if ( lexitems[formkey].find(formval) == lexitems[formkey].end() ) {
 		// new value		
 		int thispos = lexpos[formkey];
@@ -433,6 +433,7 @@ void treatfile ( string filename ) {
 					formval = it->node().attribute(formfld.attribute("key").value()).value();
 
 					// write the actual data
+					if ( debug > 4 ) { cout << " Writing value " << formkey << " = " << formval << " for " << tagname << ": " << posa << " to " << posb << endl; };
 					write_range_value(posa, posb, tagname, formkey, formval);
 				};
 			};	

@@ -10,15 +10,16 @@
 	$filedescs = array (
 		"htmlstyles.css" => "CSS definitions for the overall site layout",
 		"xmlstyles.css" => "CSS definitions for the actual text in the XML files",
-		"verticalize.xslt" => "XSLT for creating the CQP corpus",
-		"neotag.xslt" => "XSLT for creating verticalized input for the NeoTag POS tagger",
 		"teiHeader.tpl" => "Header info - short style",
 		"teiHeader-long.tpl" => "Header info - long style",
 		"settings.xml" => "Overall TEITOK settings",
 		"userlist.xml" => "File with user permissions",
 		"tagset.xml" => "Definition of the tagset",
 		"filelist.xml" => "Metadata file (can be too large to edit)",
-		"recqp.pl" => "(Automatically created) perl script to regenerate the CQP corpus",
+		// deprecated
+		// "verticalize.xslt" => "XSLT for creating the CQP corpus",
+		// "neotag.xslt" => "XSLT for creating verticalized input for the NeoTag POS tagger",
+		// "recqp.pl" => "(Automatically created) perl script to regenerate the CQP corpus",
 		);
 		
 	$reserved['filelist.xml'] = 1; # There is an editor for the file list
@@ -88,6 +89,7 @@
 			
 			$idfield = "<input type=hidden name=id value='$id'>";
 		};
+		
 		if ( $reserved[$id] && $user['permissions'] != "admin" ) { fatal("Not allow - superuser only"); };
 
 		$protcontent = htmlentities($content, ENT_QUOTES, 'UTF-8');

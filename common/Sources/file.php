@@ -582,7 +582,7 @@
 				$viewoptions
 				</div>
 				<div style='display: block; color: #992000;' id=nojs>
-				{%Javascript seems to be turned off. Turn on Javascript for more display options.}
+				{%Javascript seems to be turned off, or there was a communication error. Turn on Javascript for more display options.}
 				</div>
 				<hr>
 				";

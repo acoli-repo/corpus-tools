@@ -211,6 +211,7 @@ function formify () {
 			
 				imgelm.style['display'] = 'none';
 			};
+			if ( pb.getAttribute('url') ) { imgelm.setAttribute('url', pb.getAttribute('url')); };
 			if ( pb.getAttribute("admin") === "1"  ) { 	
 				imgelm.style.border = '3px solid #992000'; 
 				imgelm.title = 'Not shown to visitors due to copyright restrictions'; 
@@ -220,7 +221,11 @@ function formify () {
 			imgelm.style['clear'] = 'right';
 			imgelm.style.marginTop = '10px';
 			imgelm.style.marginLeft = '10px';
-			imgelm.onclick = function() { window.open(this.getAttribute('src'), 'img'); };
+			if ( imgelm.getAttribute('url') != "" ) {
+				imgelm.onclick = function() { window.open(this.getAttribute('url'), 'img'); };
+			} else {
+				imgelm.onclick = function() { window.open(this.getAttribute('src'), 'img'); };
+			};
 			if ( pb.parentNode.nodeName == "tok" || pb.parentNode.nodeName == "TOK" ) {
 				// We need to place this next to the tok - so go on to grandparent iff tok
 				var tmp = pb.parentNode.parentNode.insertBefore( imgelm, pb.parentNode.nextSibling );
@@ -352,9 +357,8 @@ function setview () {
 	for ( var a = 0; a<pbs.length; a++ ) {
 		var pb = pbs[a];
 		if ( typeof(pb) != 'object' ) { continue; };
-		pb.innerHTML = '';
 		if ( interpret ) {	
-			pb.innerHTML += '<hr style="background-color: #cccccc; clear: both;">';
+			if ( pb.innerHTML.indexOf('<hr') == -1 ) { pb.innerHTML = '<hr style="background-color: #cccccc; clear: both;">' + pb.innerHTML; };
 		};
 		if ( showee || showtag['pb'] ) {	
 			if ( pb.getAttribute('show') ) { pid = '' + pb.getAttribute('show'); } else 
