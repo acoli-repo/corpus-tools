@@ -29,7 +29,7 @@
 		"formtags" => "The list of attributes assigned by the POS tagger (form level)",
 	);
 	
-	if ( !$paramsfile ) {
+	if ( !$paramsfile && $_GET['pid'] != "auto" ) {
 	
 		$maintext .= "
 			<h1>NeoTag Parameter Settings</h1>

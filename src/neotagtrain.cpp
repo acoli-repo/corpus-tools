@@ -91,16 +91,18 @@ void addhist (string tagkey) {
 
 string calctag ( pugi::xml_node node ) {
 	string tagtag;
-	if ( tagpos.find("+") != -1 ) {
+	string tagdlm; 
+	tagdlm = "#"; // TODO: Make the tag delimiter optional? (is only tagger-internal)
+	if ( tagpos.find(tagdlm) != -1 ) {
 		// we need to concatenate several attributes
 		stringstream ss(tagpos);
 		string item; string delim;
 		delim = ""; tagtag = ""; 
 		int parts = 0;
-		while (getline(ss, item, '+')) {
+		while (getline(ss, item, tagdlm[0])) {
 			tagtag = tagtag + delim + node.attribute(item.c_str()).value();
 			parts++;
-			delim = "+";
+			delim = tagdlm;
 		};	
 		// If we have no content, return empty string
 		if ( tagtag.size() == parts - 1 ) { tagtag = ""; };

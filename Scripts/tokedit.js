@@ -221,7 +221,7 @@ function formify () {
 			imgelm.style['clear'] = 'right';
 			imgelm.style.marginTop = '10px';
 			imgelm.style.marginLeft = '10px';
-			if ( imgelm.getAttribute('url') != "" ) {
+			if ( imgelm.getAttribute('url') != "" && imgelm.getAttribute('url') != null ) {
 				imgelm.onclick = function() { window.open(this.getAttribute('url'), 'img'); };
 			} else {
 				imgelm.onclick = function() { window.open(this.getAttribute('src'), 'img'); };
@@ -501,13 +501,25 @@ function setForm ( type ) {
 			for ( var ab = 0; ab<labels.length; ab++ ) {
 				label = labels[ab];
 				var ltxt = tok.getAttribute(label); 
+				// Add dtoks to the view
+				var children = tok.childNodes;
+				var done = []; var sep = ""; var dtxt = "";
+				for ( i=0; i<children.length; i++ ) {
+					var child = children[i];
+					// console.log(child);
+					if ( child.tagName == "DTOK" && !done[child.getAttribute('id')] ) {
+						if ( child.getAttribute(label) != null ) { dtxt += sep + child.getAttribute(label); sep = "+"; };
+					};
+				};
+				if ( ltxt != null && dtxt != "" && dtxt != null ) { ltxt += ":" + dtxt; };
+				if ( ltxt == null && dtxt != "" && dtxt != null ) { ltxt = dtxt; };
 				if ( pattcolors[label] ) { 
 					lcol = pattcolors[label]; 
 				} else { lcol = "#999999"; };
 				if ( but = document.getElementById('tbt-'+label) ) {
 					ltit = " title=\""+but.textContent+"\"";
 				} else { ltit = ""; };
-				if ( ltxt != null ) { tok.innerHTML += "<div style='color: "+lcol+"'"+ltit+">" + ltxt + '</div>'; };
+				if ( ltxt != "" && ltxt != null ) { tok.innerHTML += "<div style='color: "+lcol+"'"+ltit+">" + ltxt + '</div>'; };
 			};
 		} else {
 			tok.className = '';

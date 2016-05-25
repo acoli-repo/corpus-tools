@@ -832,7 +832,7 @@
 		};
 		
 		if ( $settings['neotag'] && !strstr($editxml, "pos=") && strstr($editxml, "<tok") ) {
-			$maintext .= "<li><a href='index.php?action=neotag&cid=$fileid'>(Pre)tag this text with POS (and lemma)</a>";
+			$maintext .= "<li><a href='index.php?action=neotag&act=tag&pid=auto&cid=xmlfiles/$fileid'>(Pre)tag this text with POS (and lemma)</a>";
 		};
 		$maintext .= "</ul></div>";
 	};

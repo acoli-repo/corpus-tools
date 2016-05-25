@@ -220,6 +220,26 @@ string formcase ( string form ) {
 	return wcase;
 };
 
+void setpos ( pugi::xml_node token, string tag ) {
+	string tagdlm;
+	tagdlm = "#"; // TODO: Make the tag delimiter optional? (is only tagger-internal)
+	if ( tagpos.find(tagdlm) != -1  ) {
+		// Multi-part tag, put back into place
+		stringstream ss(tagpos);
+		stringstream ss2(tag);
+		string item; string delim; string tagpart;
+		delim = "";
+		int parts = 0;
+		while (getline(ss, item, tagdlm[0])) {
+			getline(ss2, tagpart, tagdlm[0]);
+			token.append_attribute(item.c_str()) =  tagpart.c_str();
+		};	
+	} else {
+		// Simple tag - just copy to the tag position
+		token.append_attribute(tagpos.c_str()) =  tag.c_str();
+	};
+};
+
 // class to hold a specific analysis for a word
 class wordtoken {
 	public:
@@ -355,13 +375,7 @@ class wordtoken {
 			// This is a known word - copy from the lexicon
 			if ( debug > 4 ) { lexitem.print(std::cout); };
 			lemma = lexitem.attribute("lemma").value();
-			// TODO: this should listen to formtags
-// 			for ( int i=0; i<formTags.size(); i++ ) {
-// 				string totag = formTags[i];
-// 				if ( token.attribute(totag.c_str()) == NULL && lexitem.attribute(totag.c_str()) != NULL ) { 
-// 					token.append_attribute(totag.c_str()) =  lexitem.attribute(totag.c_str());
-// 				};
-// 			};
+			// TODO: this should listen to formtags - although the parameters already listened to that...
 			for (pugi::xml_attribute_iterator it = lexitem.attributes_begin(); it != lexitem.attributes_end(); ++it) {
 				if ( !strcmp((*it).name(), "key") || !strcmp((*it).name(), "cnt")) { continue; };
 				if ( token.attribute((*it).name()) == NULL ) { 
@@ -370,31 +384,34 @@ class wordtoken {
 					token.attribute((*it).name()) =  (*it).value();
 				};
 			};
-			if ( token.child("dtok") == NULL ) {
+			if ( tagsettings.attribute("nodtoks") != NULL ) {
+				// Create the tag from the dtoks
 				for ( pugi::xml_node dtoken = lexitem.child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
-					// TODO: use existing dtoks in the tagging XML when they exist rather than just adding new ones
 					token.append_copy(dtoken);
+				};
+			} else {
+				// Add the dtoks when needed
+				pugi::xml_node textdtok = token.child("dtok");
+				for ( pugi::xml_node lexdtok = lexitem.child("dtok"); lexdtok != NULL; lexdtok = lexdtok.next_sibling("dtok") ) {
+					if ( textdtok == NULL ) {
+						token.append_copy(lexdtok); // TODO: see whether we should do only desired elements
+					} else {
+						if ( textdtok.attribute("lemma") == NULL ) {
+							textdtok.append_attribute("lemma") = lexdtok.attribute("lemma");
+						} else {
+							textdtok.attribute("lemma") = lexdtok.attribute("lemma");
+						};
+						string tag; tag = lexdtok.attribute("key").value();
+						setpos(textdtok, tag);
+						textdtok = textdtok.next_sibling("dtok");
+					};
 				};
 			};
 		} else {
 			if ( debug > 4 ) { lexitem.print(std::cout); };
 			// This is a new word - add calculated lemma and tag
 			if ( token.attribute(tagpos.c_str()) == NULL && tag != "" ) { 
-				if ( tagpos.find("+") != -1  ) {
-					// Multi-part tag, put back into place
-					stringstream ss(tagpos);
-					stringstream ss2(tag);
-					string item; string delim; string tagpart;
-					delim = "";
-					int parts = 0;
-					while (getline(ss, item, '+')) {
-						getline(ss2, tagpart, '+');
-						token.append_attribute(item.c_str()) =  tagpart.c_str();
-					};	
-				} else {
-					// Simple tag - just copy to the tag position
-					token.append_attribute(tagpos.c_str()) =  tag.c_str();
-				};
+				setpos(token, tag);
 			};
 			if ( token.attribute("lemma") == NULL && lemma != "" ) { 
 				token.append_attribute("lemma") =  lemma.c_str();
@@ -403,7 +420,7 @@ class wordtoken {
 				for (list<wordtoken>::const_iterator it = dtoks.begin(); it != dtoks.end(); ++it) {
 					if ( debug > 2 ) { cout << "    Generated dtok: " << it->form << endl; };
 					pugi::xml_node dtoken = token.append_child("dtok");
-					dtoken.append_attribute(tagpos.c_str()) =  it->tag.c_str();
+					setpos(dtoken, it->tag);
 					if ( it->lexitem.attribute("lemma") != NULL ) { dtoken.append_attribute("lemma") =  it->lexitem.attribute("lemma").value(); };
 					if ( debug > 1 ) { cout << "dtoken added: " << endl; };
 				};
@@ -1176,8 +1193,7 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 		for ( int i = 1;  i < word.size(); i++ ) {
 			string wending = word.substr(i, word.size());
 			if ( endingProbs[wending].size() > 0 && fnd <= endretry ) {
-				fnd++;
-				// word found in the external lexicon, copy to wordParses
+				fnd++; // We have some appropriate word-endings of length i
 				if ( debug > 1 ) { cout << " - found as ending " << word.size() - i << " = " << wending << " " << endingProbs[wending].size() << endl; };
 				map<string,wordtoken>::iterator pos;
 				for (pos = endingProbs[wending].begin(); pos != endingProbs[wending].end(); ++pos) {
@@ -1469,7 +1485,7 @@ int main (int argc, char * const argv[]) {
 	pattlist = xmlsettings.select_nodes("//neotag/parameters/item");
 	for (pugi::xpath_node_set::const_iterator it = pattlist.begin(); it != pattlist.end(); ++it)
 	{
-		if ( verbose ) cout << "  XML checking against " << (*it).node().attribute("restriction").value() << endl;
+		if ( debug > 3 ) cout << "  XML checking against " << (*it).node().attribute("restriction").value() << endl;
 		if ( (*it).node().attribute("restriction") == NULL 
 				|| doc.select_single_node((*it).node().attribute("restriction").value()) != NULL ) {
 			parameter = (*it).node();
