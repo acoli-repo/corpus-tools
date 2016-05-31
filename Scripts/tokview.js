@@ -32,6 +32,9 @@ function hidetokinfo() {
 	if ( document.getElementById('tokinfo') ) {
 		document.getElementById('tokinfo').style.display = 'none';
 	};
+	if ( typeof(hlbar) != "undefined" ) {
+		hlbar.style.display = 'none';
+	};
 };
 
 function mouseEvent(evt) { 
@@ -43,11 +46,12 @@ function mouseEvent(evt) {
 	if ( element.parentNode.parentNode && element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; };
 	
 	showtokinfo(evt, element);
+	highlightbb(element);
+	
 };
 	
 function showtokinfo(evt, element, poselm) {
 	var shownrows = 0;
-	// if ( element.attributes.length == 1 && !element.hasChildNodes() ) { console.log('nothing to show'); return -1; };
 	var tokinfo = document.getElementById('tokinfo');
 	if ( !tokinfo ) { return -1; };
     if ( element.tagName == "TOK" || element.tagName == "DTOK" ) {
@@ -75,7 +79,6 @@ function showtokinfo(evt, element, poselm) {
     	var done = [];
     	for ( i=0; i<children.length; i++ ) {
     		var child = children[i];
-    		// console.log(child);
     		if ( child.tagName == "DTOK" && !done[child.getAttribute('id')] ) {
     			shownrows = 1;
     			done[child.getAttribute('id')] = 1;
@@ -90,7 +93,7 @@ function showtokinfo(evt, element, poselm) {
 					};
 				}; 
 				tokinfo.innerHTML += '<hr><table width=\'100%\'>' + tablerows + '</table>';
-    		}; // else { console.log('Unknown child ' +i + ' of ' + element.childNodes.length + ' : ' + child.tagName + ' - ' + element ); };
+    		}; 
 		};
 		    	   	
 		if ( shownrows )  { tokinfo.style.display = 'block'; };
@@ -101,9 +104,6 @@ function showtokinfo(evt, element, poselm) {
 		tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth ) + 'px'; 
 		tokinfo.style.top = ( foffset.top + element.offsetHeight + 4 ) + 'px';
 
-    }
-    else {
-    	// console.log(element.tagName);
     };
  
 	function offset(elem) {
@@ -120,4 +120,56 @@ function showtokinfo(evt, element, poselm) {
 		return { left: x, top: y };
 	}    
 } 
+
+function highlightbb (elm) {
+
+	// Find the bbox we need
+	if ( elm.getAttribute('bbox') == null ) {
+		var mtch = document.evaluate("ancestor::*[@bbox]", elm, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); 
+		if ( mtch.snapshotLength == 0 ) {
+			mtch = document.evaluate("preceding::lb", elm, null, XPathResult.ANY_TYPE, null);
+		};
+		var tmpe = mtch.iterateNext(); 
+		while ( tmpe != null )  { elm = tmpe; tmpe = mtch.iterateNext(); };				
+	};
+	if ( elm.getAttribute('bbox') == null ) { return -1; };
+
+	// Find the image div we need
+	var mtch = document.evaluate("preceding::div[div[@class='hlbar']]", elm, null, XPathResult.ANY_TYPE, null); 
+	var facsdiv;
+	var tmpe = mtch.iterateNext(); 
+	while ( tmpe != null )  { facsdiv = tmpe; tmpe = mtch.iterateNext(); };		
+	if ( typeof(facsdiv) == "undefined" ) { return -1; };
+	
+	// Determine the hlbar and scale of the image div
+	hlbar = facsdiv.getElementsByClassName('hlbar').item(0);
+	var facsimg = facsdiv.getElementsByTagName('img').item(0);
+	var orgImg = new Image(); orgImg.src = facsimg.src; 
+	
+	var imgscale = facsimg.width/orgImg.width;
+
+	var bb = elm.getAttribute('bbox').split(' ');
+	hlbar.style.display = 'block';
+	hlbar.style['background-color'] = '#ffff00';
+	hlbar.style['z-index'] = '100';
+	hlbar.style['position'] = 'absolute';
+	hlbar.style['opacity'] = '0.5';
+	
+	facsleft = facsimg.offsetLeft; obj = facsimg; while ( obj.offsetParent ) { obj = obj.offsetParent; facsleft += obj.offsetLeft; };
+	facstop = facsimg.offsetTop; obj = facsimg; while ( obj.offsetParent ) { obj = obj.offsetParent; facstop += obj.offsetTop; };
+	
+	hlleft = ( bb[0] * imgscale ) + facsleft;
+	hltop = ( bb[1] * imgscale ) + facstop;
+	hlwidth = (bb[2] - bb[0])  * imgscale;
+	hlheight = (bb[3] - bb[1])  * imgscale;
+
+	
+	hlbar.style.left = hlleft + 'px';
+	hlbar.style.top = hltop + 'px';
+	hlbar.style.width = hlwidth + 'px';
+	hlbar.style.height = hlheight + 'px';
+	
+};
+
+
 

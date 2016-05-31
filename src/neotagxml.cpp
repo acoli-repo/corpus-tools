@@ -475,7 +475,7 @@ pugi::xpath_node_set getLexProb ( string word ) {
 };
 
 float getCaseProb ( wordtoken word  ) {
-	
+	// TODO: deal with contractions
 	string wcase;
 	wcase = word.wcase; if ( wcase.length() == 0 ) { wcase = formcase(word.form); };
 	if ( debug > 4 ) { cout << "  Calculating case probability for : " << word.form << "/" << word.tag  << "/" << wcase << endl; };
@@ -708,11 +708,15 @@ class tokpath {
 				it--; 
 				lasttag2 = (*it).tag + "#" + toklist.back().tag;
 			} else { lasttag2 = "***"; }; // Consider the last tag impossible (should that be FS?)
-			float transitionprob1 = getTransProb(lasttag1+"."+newword.tag); // transition probabilities, smoothed if so desired
-			float transitionprob = transitionprob1 + transitionsmooth; // transition probabilities, smoothed if so desired
+			string newtag = newword.tag;
+			if ( newtag.find('.') != -1 ) {
+				newtag = newtag.substr(0,newtag.find('.'));
+			};
+			float transitionprob1 = getTransProb(lasttag1+"."+newtag); // transition probabilities
+			float transitionprob = transitionprob1 + transitionsmooth; // smoothed if so desired
 			// add for each longer context to the transition probability
 			float caseprob1;
-			if ( lasttag1 == finalstop ) {
+			if ( lasttag1 == finalstop || newword.lexitem ) {
 				caseprob1 = 1;
 			} else {
 				// caseprob1 = caseProb[newword.tag][newword.wcase]; 
@@ -721,15 +725,17 @@ class tokpath {
 			// prob thusfar, the newword prob, the transition prob, the prob based on the case of the word
 			float newprob = prob * newword.prob * pow(transitionprob,transitionfactor) * caseprob1; 
 			if ( debug > 3 ) { 
-				cout << " -- considering path: " << str() << " + " << newword.form << "/" << newword.tag  << "/" << newword.lemma << endl
+				cout << " -- considering path: " << str() << " + " << newword.form << "/" << newtag  << "/" << newword.lemma << endl
 					<< "     path likelihood: " << newprob << " = " << prob <<  " (old path) * " << newword.prob <<  " (lex prob) " 
 					<< " * " << transitionprob << " (trans prob) = "
-					<< transitionprob1 << " (" << lasttag1 << "." << newword.tag << ") ";
+					<< transitionprob1 << " (" << lasttag1 << "." << newtag << ") ";
+					
 				// TODO: currently only n=1 context
 // 				for ( int i=2; i<=contextlength; i++ ) {
 // 					cout << " + " <<  ( pow(contextfactor,i) * transitionProbs2[i][lasttag2][newword.tag]) << " (context " << i << ") for " << lasttag2;
 // 				};
 //				cout << " + " << transitionsmooth << " (trans smoothing)";
+
 				cout	<< " * " << caseprob1  << " (case prob " << newword.wcase << "/" << newword.tag << ")" 
 					<< endl; 
 			};
@@ -1104,6 +1110,7 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 			insertword.prob = atof((*it).node().attribute("cnt").value());
 			insertword.lexitem = (*it).node();
 			// When there are @nform like forms in the corpus, check if those match the lexicon or partially discard
+			// TODO: what is checkfld atm?
 			if ( checkfld != "" ) {
 				string checkform = calcform(insertword.lexitem, checkfld); // we cannot do a simple check since there is no @form in the lexitem
 				if ( debug > 4 ) { cout << "Check if " << checkfld << " matches: " << checkform << " , " << calcform(parseword.token, checkfld) << endl; };
@@ -1130,6 +1137,7 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 				insertword.lexitem = (*it).node();
 				insertword.source = "corpus:" + NumberToString(tmp.size());
 				// When there are @nform like forms in the corpus, check if those match
+				// TODO: what is checkfld atm?
 				if ( checkfld != "" ) {
 					if ( calcform(insertword.lexitem, checkfld) != calcform(parseword.token, checkfld) ) {
 						insertword.prob = insertword.prob / 1000; // divide by much to make it very unlikely but not impossible

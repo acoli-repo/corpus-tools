@@ -132,14 +132,17 @@ void treatnode ( pugi::xpath_node node ) {
 		tagform = node.node().attribute(getfld.c_str()).value();
 	};
 	
-	// Calculate the tag for this node
-	tagtag = calctag(node.node()); 
 	// Add tags for all dtoks (separated by a dot)
+	sep =  "";
 	for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
-		string tmp2 =  ".";
 		string tmp3 =  calctag(dtoken); 
-		tagtag = tagtag + tmp2 + tmp3;
+		tagtag = tagtag + sep + tmp3;
+		sep = ".";
 	}; 
+	if ( tagtag == "" ) {
+		// Calculate the tag for this node if there are no dtoks
+		tagtag = calctag(node.node()); 
+	};
 
 	if ( debug > 1 ) node.node().print(std::cout);
 
@@ -181,6 +184,7 @@ void treatnode ( pugi::xpath_node node ) {
 			if ( node.node().attribute(t.c_str()) != NULL ) tok.append_attribute(t.c_str()) = node.node().attribute(t.c_str()).value();
 		}
 
+
 	   
 	    // Add lemma-level attributes
 	   	if ( lemTags.size() ) {
@@ -188,16 +192,11 @@ void treatnode ( pugi::xpath_node node ) {
 			{
 			}
 	   	};
-	   	
+
 	   	// Add dtoks to the item
         for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") )
         {
 			pugi::xml_node dtok = tok.append_child("dtok");
-				string tmp1 = tok.attribute("key").value();
-				string tmp2 =  ".";
-				string tmp3 =  dtoken.attribute(tagpos.c_str()).value(); 
-				string tmp4 = tmp1 + tmp2 + tmp3;
-				tok.attribute("key") = tmp4.c_str();
 			for (pugi::xml_attribute attr = dtoken.first_attribute(); attr; attr = attr.next_attribute())
 			{
 				if ( strcmp(attr.name(), "id") ) dtok.append_attribute(attr.name()) = attr.value();
@@ -210,6 +209,7 @@ void treatnode ( pugi::xpath_node node ) {
 		};
 	   
 	};
+
 		
 	if (debug > 1) lexitem.print(std::cout);
 

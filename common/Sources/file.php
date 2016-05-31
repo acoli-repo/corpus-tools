@@ -689,6 +689,7 @@
 				var username = '$username';
 				var formdef = $jsonforms;
 				var transl = $jsontrans;
+				var hlbar;
 				var orgtoks = new Object();
 				var attributelist = Array($attlisttxt);
 				$attnamelist

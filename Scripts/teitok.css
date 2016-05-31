@@ -12,3 +12,10 @@
 
 /* Allow hiding non-used elements in the teiHeader display */
 #teiheader *[id=""] { display: none; }
+
+/* Highlighting bar over a facsimile image */
+.hlbar { 
+	opacity: 0.5; background-color: #ffff00; position: absolute; 
+	top: 0px; width: 150px; height: 20px; left: 5px; /* these will be modified */
+	display: none; 
+}

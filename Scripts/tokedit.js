@@ -38,7 +38,6 @@ function setbut (id) {
 			it.style.background = '#FFFFFF';
 		};
 	};
-	// console.log('ID of thing to set: ' + id);
 	if ( document.getElementById(id) ) {
 		document.getElementById(id).style.background = '#eeeecc';
 	};
@@ -96,7 +95,6 @@ function formify () {
 		if ( typeof(it) != 'object' ) { continue; };
 		if ( it.innerText != '' && it.innerText != undefined ) { 
 			it.setAttribute('rend', it.innerText);
-			// console.log(it.getAttribute('n') + ' = ' + (new XMLSerializer()).serializeToString(it));
 		};
 	};
 	
@@ -180,10 +178,16 @@ function formify () {
 				imgsrc = baseurl + 'Facsimile/' + imgsrc;
 			};
 			var cropside = pb.getAttribute('crop');
-			if ( cropside ) {
+			if ( cropside || 1==1 ) {
 				var imgelm = document.createElement("div");
+
+				var imghl = document.createElement("div");
+				imghl.setAttribute('class', 'hlbar');
+				imgelm.appendChild(imghl);
+				
 				var rlimg = document.createElement("img");
 				imgelm.appendChild(rlimg);
+
 				var pbcopy = pb.getAttribute('copy');
 				if ( !pbcopy && typeof(facscopy) != "undefined" ) pbcopy = facscopy; 
 				if ( pbcopy ) {
@@ -198,7 +202,11 @@ function formify () {
 				
 				imgelm.setAttribute('src', imgsrc);
 				rlimg.src = imgsrc;
-				rlimg.style.width = '200%';
+				if ( cropside ) {
+					rlimg.style.width = '200%';
+				} else {
+					rlimg.style.width = '100%';
+				};
 				if ( cropside == "left" ) {
 					rlimg.style['cssFloat'] = 'left';
 				} else if ( cropside == "right" ) {
@@ -216,6 +224,7 @@ function formify () {
 				imgelm.style.border = '3px solid #992000'; 
 				imgelm.title = 'Not shown to visitors due to copyright restrictions'; 
 			};
+			imgelm.setAttribute('facs', '1'); // Mark explicitly as a facsimile image
 			imgelm.style.width = '40%';
 			imgelm.style['cssFloat'] = 'right';
 			imgelm.style['clear'] = 'right';
@@ -283,7 +292,6 @@ function toggletag (tag) { // Show or hide empty elements
 		but.style.background = '#eeeecc';
 	};
 	document.cookie = 'labels='+labels.join();
-	// console.log(labels.join(', '));
 	setForm(showform);
 };
 
@@ -364,7 +372,6 @@ function setview () {
 			if ( pb.getAttribute('show') ) { pid = '' + pb.getAttribute('show'); } else 
 			if ( pb.getAttribute('n') ) { pid = '' + pb.getAttribute('n'); } 
 			else { pid = '<span style="opacity: 0.5;">'+a+'</span>'; };
-			// console.log(a+','+pb.getAttribute('id')+','+pid);
 			pb.innerHTML += '<span style="color: #4444ff; font-size: 12px;">['+pid+']</span>';
 		};
 	};
@@ -404,12 +411,8 @@ function setview () {
 				} else {
 					it.innerHTML += '<div style="display: inline-block; color: #eeeeee; font-size: 12px; width: 50px;">-</div> ';
 				};
-			// } else if ( lid ) {
-			//	it.innerHTML += '<div style="display: inline-block; color: #4444ff; font-size: 12px;">[l.'+lid+']</div>';
 			} else if ( !it.getAttribute('rend') || it.getAttribute('rend') != "none" ) {
 				it.innerHTML += '<div style="display: inline-block; color: #4444ff; font-size: 14px;">|</div>';
-			} else {
-				console.log('No break');
 			};
 			if ( it.firstChild && it.getAttribute('id') && username != '' ) {
 				it.firstChild.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.parentNode.getAttribute('id'), '_top'); };
@@ -433,7 +436,6 @@ function showempties () {
 
 function setbd (bd) {
 	basedirection = bd;
-	console.log('basedir: ' + bd);
 };
 
 function setForm ( type ) {
@@ -448,7 +450,6 @@ function setForm ( type ) {
 			document.getElementById('mtxt').style['direction'] = formdir[type];
 			document.getElementById('mtxt').direction = formdir[type];
 		} else if ( basedirection ) {
-			console.log('set to basedir for ' + type);
 			document.getElementById('mtxt').style['direction'] = basedirection;
 		} else if ( typeof(formdir) != 'undefined' && formdir['pform'] ) {
 			document.getElementById('mtxt').style['direction'] = formdir['pform'];
@@ -506,9 +507,11 @@ function setForm ( type ) {
 				var done = []; var sep = ""; var dtxt = "";
 				for ( i=0; i<children.length; i++ ) {
 					var child = children[i];
-					// console.log(child);
 					if ( child.tagName == "DTOK" && !done[child.getAttribute('id')] ) {
-						if ( child.getAttribute(label) != null ) { dtxt += sep + child.getAttribute(label); sep = "+"; };
+						if ( child.getAttribute(label) != null ) { 
+							dtxt += sep + child.getAttribute(label); sep = "+"; 
+							done[child.getAttribute('id')] = 1;
+						};
 					};
 				};
 				if ( ltxt != null && dtxt != "" && dtxt != null ) { ltxt += ":" + dtxt; };
@@ -783,3 +786,4 @@ function diffcalc ( fform, form ) {
 		return diplo;
 	};
 };
+
