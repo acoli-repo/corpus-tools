@@ -14,10 +14,11 @@
 
 	$maintext .= "<table id=mtxt>";
 	foreach ( $ttxml->xml->xpath("//lb") as $lb ) {
-	
+		$nr++;
+		
 		// Parse the actual line
 		$lbxml = $lb->asXML(); $linexml = htmlentities($lbxml);
-		$linenr = $lb['n'] or $linenr = "[{$lib['id']}]";
+		$linenr = $lb['n'] or $linenr = "[$nr]";
 
 		// Get the line text 
 		$linetxt = ""; $lineimg = "";
@@ -46,7 +47,7 @@
 			
 				// Get the size of the original image and create crop measurements
 				list($imgwidth, $imgheight, $imgtype, $imgattr) = getImageSize($imgsrc);
-				$divwidth = 600;
+				$divwidth = 800;
 				$divheight = $divwidth*($cropheight/$cropwidth);
 				$imgscale = $divwidth/$cropwidth;
 				$setwidth = $imgscale*$imgwidth;
@@ -60,7 +61,7 @@
 				<img style='width: {$setwidth}px; height: {$setheight}px; margin-top: -{$topoffset}px; margin-left: -{$leftoffset}px;' src='$imgsrc'/>
 				</div>";
 		};
-		$maintext .= "\n<tr><th>$linenr<td>$lineimg$linetxt";
+		$maintext .= "\n<tr><th title=\"{$lb['id']}\">$linenr<td>$lineimg$linetxt";
 	};
 	$maintext .= "</table>";
 	
