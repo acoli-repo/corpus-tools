@@ -703,6 +703,7 @@ class tokpath {
 			prob = newword.prob;
 		} else { 
 			string lasttag1 = toklist.back().tag;
+			// TODO: This should take only the last part of a (lexical) contraction
 			string lasttag2;
 			list<wordtoken>::iterator it = toklist.end(); it--; if (it != toklist.begin()) { 
 				it--; 

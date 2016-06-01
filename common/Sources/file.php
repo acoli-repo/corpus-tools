@@ -524,9 +524,13 @@
 		} else {
 			$moreactions .= "\n				setbut('but-pal');";
 		};
+		// Set a default writing direction when defined
 		if ( $settings['xmlfile']['basedirection'] ) {
-			// for the correct order, abuse attnamelist 
+			// Defined in the settings
 			$attnamelist .= "\n				setbd('".$settings['xmlfile']['basedirection']."');";
+		} else if ( $textdir = $xpath("//language/@dir") ) {
+			// Defined in the teiHeader for mixed-writing corpora
+			$attnamelist .= "\n				setbd('".$textdir."');";
 		};
 
 		# See if there is a sound to display
