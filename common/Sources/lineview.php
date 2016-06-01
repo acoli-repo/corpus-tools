@@ -61,8 +61,9 @@
 		// Get the line text 
 		$linetxt = ""; $lineimg = "";
 		$linepos = strpos($ttxml->rawtext, $lbxml);
-		$lineend = strpos($ttxml->rawtext, "<lb", $linepos+1);
-		if ( !$lineend ) $lineend = strpos($ttxml->rawtext, "<pb", $linepos+1);
+		$nextlb = strpos($ttxml->rawtext, "<lb", $linepos+1);
+		$nextpb = strpos($ttxml->rawtext, "<pb", $linepos+1);
+		$lineend = min($nextlb, $nextpb);
 		if ( !$lineend ) $lineend = strpos($ttxml->rawtext, "</text", $linepos+1);
 		$linetxt = substr($ttxml->rawtext, $linepos, $lineend-$linepos);
 
