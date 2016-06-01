@@ -2,6 +2,7 @@
 	// Line view with bounding box images
 	// splits text into non-XML elements based on <lb/>
 	// and adds crops of facsimile images
+	// provisional - likely to be integrated into file.php
 	// (c) Maarten Janssen, 2016
 	
 	require ("../common/Sources/ttxml.php");
@@ -12,7 +13,44 @@
 	$maintext .= "<h1>".$ttxml->title()."</h1>";
 	$maintext .= $ttxml->tableheader();
 
-	$maintext .= "<table id=mtxt>";
+	$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
+	$jsontrans = array2json($settings['transliteration']);
+	#Build the view options	
+	foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+		$formcol = $item['color'];
+		# Only show forms that are not admin-only
+		if ( $username || !$item['admin'] ) {	
+			if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+			$ikey = $item['inherit'];
+			if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract'] 
+				$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+				$fbc++;
+			};
+			if ( $key != "pform" ) { 
+				if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+				$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+			};
+		};
+	};
+	foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+		$val = $item['display'];
+		if ( preg_match("/ $key=/", $editxml) ) {
+			if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
+			if ( !$item['admin'] || $username ) {
+				if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+				$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
+				$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+				$pcolor = $item['color'];
+				$tagstxt .= " <button id='tbt-$key' style='background-color: #$bc; color: $pcolor;$bgcol' onClick=\"toggletag('$key')\">{%$val}</button>";
+			};
+		} else if ( is_array($labarray) && ($akey = array_search($key, $labarray)) !== false) {
+			unset($labarray[$akey]);
+		};
+	};
+
+	$maintext .= "
+		<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
+		<table id=mtxt>";
 	foreach ( $ttxml->xml->xpath("//lb") as $lb ) {
 		$nr++;
 		
@@ -47,7 +85,7 @@
 			
 				// Get the size of the original image and create crop measurements
 				list($imgwidth, $imgheight, $imgtype, $imgattr) = getImageSize($imgsrc);
-				$divwidth = 800;
+				$divwidth = 600;
 				$divheight = $divwidth*($cropheight/$cropwidth);
 				$imgscale = $divwidth/$cropwidth;
 				$setwidth = $imgscale*$imgwidth;
@@ -63,6 +101,20 @@
 		};
 		$maintext .= "\n<tr><th title=\"{$lb['id']}\">$linenr<td>$lineimg$linetxt";
 	};
-	$maintext .= "</table>";
+	$maintext .= "</table>
+					<script language=Javascript src='$jsurl/tokedit.js'></script>
+					<script language=Javascript src='$jsurl/tokview.js'></script>
+					<script language=Javascript>
+						var username = '$username';
+						var formdef = $jsonforms;
+						var orgtoks = new Object();
+						var attributelist = Array($attlisttxt);
+						$attnamelist
+						formify(); 
+						var orgXML = document.getElementById('mtxt').innerHTML;
+						setForm('pform');
+					</script>
+
+	<hr><p><a href='index.php?action=file&cid={$_GET['cid']}'>{%Back to text view}</a>";
 	
 ?>
