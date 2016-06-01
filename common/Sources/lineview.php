@@ -2,7 +2,7 @@
 	// Line view with bounding box images
 	// splits text into non-XML elements based on <lb/>
 	// and adds crops of facsimile images
-	// provisional - likely to be integrated into file.php
+	// experimental - likely to be integrated into file.php
 	// (c) Maarten Janssen, 2016
 	
 	require ("../common/Sources/ttxml.php");

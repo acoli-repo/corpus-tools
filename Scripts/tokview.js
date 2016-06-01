@@ -127,7 +127,7 @@ function highlightbb (elm) {
 	if ( elm.getAttribute('bbox') == null ) {
 		var mtch = document.evaluate("ancestor::*[@bbox]", elm, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); 
 		if ( mtch.snapshotLength == 0 ) {
-			mtch = document.evaluate("preceding::lb", elm, null, XPathResult.ANY_TYPE, null);
+			mtch = document.evaluate("ancestor-or-self::tok/preceding::lb", elm, null, XPathResult.ANY_TYPE, null);
 		};
 		var tmpe = mtch.iterateNext(); 
 		while ( tmpe != null )  { elm = tmpe; tmpe = mtch.iterateNext(); };				
