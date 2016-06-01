@@ -528,9 +528,15 @@
 		if ( $settings['xmlfile']['basedirection'] ) {
 			// Defined in the settings
 			$attnamelist .= "\n				setbd('".$settings['xmlfile']['basedirection']."');";
-		} else if ( $textdir = $xpath("//language/@dir") ) {
-			// Defined in the teiHeader for mixed-writing corpora
-			$attnamelist .= "\n				setbd('".$textdir."');";
+		} else {
+			$dirxpath = $settings['xmlfile']['direction'];
+			if ( $dirxpath ) {
+				$textdir = current($xml->xpath($dirxpath));
+			};
+			if ( $textdir ) {
+				// Defined in the teiHeader for mixed-writing corpora
+				$attnamelist .= "\n				setbd('".$textdir."');";
+			};
 		};
 
 		# See if there is a sound to display
