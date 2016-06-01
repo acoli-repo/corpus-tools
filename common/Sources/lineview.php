@@ -63,7 +63,7 @@
 		$linepos = strpos($ttxml->rawtext, $lbxml);
 		$nextlb = strpos($ttxml->rawtext, "<lb", $linepos+1);
 		$nextpb = strpos($ttxml->rawtext, "<pb", $linepos+1);
-		$lineend = min($nextlb, $nextpb);
+		$lineend = min($nextlb, $nextpb) or $lineend = $nextlb or $lineend = $nextpb;
 		if ( !$lineend ) $lineend = strpos($ttxml->rawtext, "</text", $linepos+1);
 		$linetxt = substr($ttxml->rawtext, $linepos, $lineend-$linepos);
 
