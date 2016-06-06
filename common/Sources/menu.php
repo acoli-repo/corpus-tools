@@ -2,7 +2,7 @@
 	// Script to display the menubar
 	// (c) Maarten Janssen, 2015
 
-	if ( is_array($settings['languages']['options']) ) {
+	if ( is_array($settings['languages']['options']) && count($settings['languages']['options']) > 1 ) {
 		$sep = "";
 		foreach ( $settings['languages']['options'] as $key => $item ) {
 			if ( $item['menu'] == "" ) continue;

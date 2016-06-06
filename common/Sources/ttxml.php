@@ -226,6 +226,19 @@ class TTXML
 		return $context;
 	}
 
+	function save() {
+		# First - make a once-a-day backup
+		$date = date("Ymd"); 
+		$buname = preg_replace ( "/\.xml/", "-$date.xml", $this->filename );
+		$buname = preg_replace ( "/.*\//", "", $buname );
+		if ( !file_exists("backups/$buname") ) {
+			copy ( "xmlfiles/{$this->filename}", "backups/$buname");
+		};
+		
+		# Now, make a safe XML text out of this and save it to file
+		file_put_contents("xmlfiles/{$this->fileid}", $this->xml->asXML());
+	}
+	
 };
 
 ?>

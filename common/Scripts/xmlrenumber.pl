@@ -19,7 +19,10 @@ use XML::LibXML;
 	eval {
 		$tmpdoc = $parser->load_xml(location => $filename, load_ext_dtd => 0 );
 	};
-	if ( !$tmpdoc ) { print "Unable to parse\n"; print $tagtxt; exit; };
+	if ( !$tmpdoc ) { 
+		print "Unable to parse\n"; print $@;
+		exit;
+	};
 	$tmpdoc->setEncoding('UTF-8');
 
 	# Define default namespace as "tei" - does still not parse

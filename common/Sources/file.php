@@ -195,10 +195,10 @@
 		$maintext .= "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
 		$editxml = substr($editxml, $bidx, $span);
 		
-	} else if ( $_GET['sentence'] ) {
+	} else if ( $_GET['elm'] ) {
 	
 		# Show sentence view
-		$stype = $_GET['sentence'] or $stype = "s";
+		$stype = $_GET['elm'] or $stype = "s";
 		if ( $stype == "1" ) $stype = "s";
 		$result = $xml->xpath("//$stype"); 
 		if ( $result > 100 ) { 
@@ -208,7 +208,7 @@
 			$stxt = $sent->asXML(); 
 			$sentid = $sent['n'] or $sentid = $sent['id'];
 			$treelink = ""; 
-			if ( $psdx ) {
+			if ( $psdx  && $stype == "s" ) {
 				$editxml .= "
 					<div style='display: inline-block; float: left; margin: 0px; padding: 0px; width: 80px;'>
 					<table style='width: 100%; table-layout:fixed;'><tr><td style='width: 25px;font-size: 10pt; '>";
@@ -234,7 +234,7 @@
 			$editxml .= "
 				<div style='width: 90%; border-bottom: 1px solid #66aa66; padding-left: $pl; margin-bottom: 6px; padding-bottom: 6px;'>
 				$stxt";
-			foreach ( $settings['xmlfile']['sattributes'] as $item ) {
+			foreach ( $settings['xmlfile']['sattributes'][$stype] as $item ) {
 				$key = $item['key'];
 				$atv = preg_replace("/\/\//", "<lb/>", $sent[$key]);	
 				if ($item['color']) { $scol = "style='color: {$item['color']}'"; } else { $scol = "class='s-$key'"; };
@@ -267,6 +267,8 @@
 			$pidx = $matches[0][1];
 		};
 		if ( !$pidx || $pidx == -1 ) { fatal ("No such $pbelm in XML: {$_GET['page']} {$_GET['pageid']}"); };
+
+		// TODO: when pbelm != pb, grab the <pb/> from just before the milestone
 		
 		# Find the next page/chapter (for navigation, and to cut off editXML)
 		$nidx = strpos($editxml, "<$pbelm", $pidx+1); 
@@ -332,6 +334,7 @@
 		$editxml = "<text></text>";
 
 	};
+	$pageid = $_GET['pageid'];
 	
 	// Show a header above files that are only partially shown (to users) 
 	if ( $restricted && $username ) { 
@@ -717,7 +720,7 @@
 					};
 					element = document.getElementById(jmpar[0])
 					alignWithTop = true;
-					element.scrollIntoView(alignWithTop);
+					if ( typeof(element) != null ) { element.scrollIntoView(alignWithTop); };
 				};
 				document.getElementById('jsoptions').style.display = 'block';
 				document.getElementById('nojs').style.display = 'none';
@@ -740,19 +743,27 @@
 		};
 		
 		$sep = "<hr style='clear: both; margin-top: 10px;'><p>";
-		if ( $settings['download']['admin'] != "1" || $username ) {
+		if ( ( $settings['download']['admin'] != "1" && $settings['download']['disabled'] != "1" ) || $username ) {
 			$maintext .= "$sep<a href='index.php?action=getxml&cid=$fileid'>{%Download XML}</a> &bull; ";
 			$sep = "";
 		};
 		if ( $settings['download']['disabled'] != "1" ) 
 			$maintext .= "$sep<a onClick='exporttxt();' style='cursor: pointer;'>{%Download current view as TXT}</a>
 			";
-			
-		if ( !$_GET['sentence'] && strstr($editxml, "<s ") ) {
-			if ( !$_GET['id'] ) { $cidu = "&id=$fileid"; };
-			$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}$cidu&sentence=s'>{%Sentence view}</a>";
-		} else if ( strstr($editxml, "<s ") ) {
-			$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}&sentence=0'>{%Text view}</a>";
+	
+		// Show s-attribute level views
+		foreach ( $settings['xmlfile']['sattributes'] as $lvl => $item ) {		
+			if ( $_GET['elm'] != $lvl && $lvl == "lb" ) {
+				$lvltxt = $item['display'] or $lvltxt = "Sentence";
+				$maintext .= " &bull; <a href='index.php?action=lineview&cid=$fileid&pageid=$pageid'>{%{$lvltxt} view}</a>";
+			} else if ( $_GET['elm'] != $lvl && strstr($editxml, "<$lvl ") ) {
+				if ( !$_GET['id'] ) { $cidu = "&id=$fileid"; };
+				$lvltxt = $item['display'] or $lvltxt = "Sentence";
+				$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}$cidu&elm=$lvl'>{%{$lvltxt} view}</a>";
+			}; 
+		};
+		if ( $_GET['elm'] ) {
+			$maintext .= " &bull; <a href='index.php?action=$action&cid=$fileid&pageid={$_GET['pageid']}'>{%Text view}</a>";
 		};
 		
 		if ( $settings['annotations'] ) {

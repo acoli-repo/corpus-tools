@@ -24,8 +24,11 @@
 		$result = $xml->xpath("//*[@id='$sentid']"); 
 		$sent = $result[0]; # print_r($token); exit;
 		if ( !$sent ) fatal ( "Sentence not found: $sentid" );
+		$stf = $sent->getName();
 		
-		$maintext .= "<h1>Edit Sentence $sentid</h1>
+		$sentname = $sentatts[$stf]['display'] or $sentname = "Sentence";
+		
+		$maintext .= "<h1>Edit {$sentname} $sentid</h1>
 			<div>Full text: <div id=mtxt style='inlinde-block;'>".$sent->asXML()."</div></div>
 			
 			<p>
@@ -34,11 +37,12 @@
 			<input type=hidden name=tid value='$sentid'>
 			<input type=hidden name=stype value='$stype'>
 			<table>";
+			
 
 		// Show all the defined attributes
-		foreach ( $sentatts as $key => $val ) {
+		foreach ( $sentatts[$stf] as $key => $val ) {
 			$atv = $sent[$key]; 
-			$maintext .= "<tr><th>$key<td>{$val['display']}<td><textarea style='width: 600px' name=atts[$key] id='f$key'>$atv</textarea>";
+			if ( is_array($val) ) $maintext .= "<tr><th>$key<td>{$val['display']}<td><textarea style='width: 600px' name=atts[$key] id='f$key'>$atv</textarea>";
 		};
 
 		$result = $xml->xpath($mtxtelement); 
