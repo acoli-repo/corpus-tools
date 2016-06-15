@@ -71,27 +71,17 @@ class TTTAGS
 		global $lang;
 		$optionarray = array ();
 		foreach ( $this->tagset['positions'] as $key => $val ) {
-			$parts = explode(",", $val['maintag']);
-			$tmparray = array();
-			array_shift($parts);
-			$name = $val['lang-'.$lang] or $name = "{%".$val['display']."}";
-			$tmparray[$key] = $name;
-			while ( $part = array_shift($parts) ) {
-				$tmp = $val[$part];  
-				$oo = $tmparray; $tmparray = array();
-				foreach ( $oo as $letters => $name ) {
-					foreach ( $tmp as $key2 => $val2 ) {
-						if ( is_array($val2) ) {
-							$pname = $val2['lang-'.$lang] or $pname = "{%".$val2['display']."}";
-							$nn = $name.", ".$pname; 
-							$nl = $letters.$val2['key'];
-							$tmparray[$nl] = $nn;
-						};
-					};
+			if ( $val['multi'] ) {
+				foreach ( $val['multi'] as $key2 => $val2 ) {
+					$pname = $val2['lang-'.$lang] or $pname = "{%".$val2['display']."}";
+					$optionarray[$key2] = $pname;
 				};
+			} else {
+				$pname = $val['lang-'.$lang] or $pname = "{%".$val['display']."}";
+				$optionarray[$key] = $pname;
 			};
-			$optionarray = array_merge($optionarray, $tmparray);
 		};
+		asort($optionarray);
 		return $optionarray;
 	}
 	

@@ -23,7 +23,10 @@
 		$ttxml->save();
 		header("location:index.php?action=$action&cid={$ttxml->fileid}&pageid={$_POST['pid']}");
 		exit;
+
 	} else {
+	
+		if ( $settings['xmlfile']['l'] == "nolb" || $_GET['elm'] == "lb" ) $onlylb = 1;
 	
 		$maintext .= "<h2>{%Facsimile Lines}</h2>";
 		$maintext .= "<h1>".$ttxml->title()."</h1>";
@@ -50,7 +53,8 @@
 			$nxp = " and following::pb[@id='{$next['id']}']"; 
 			$nnav = "<a href='index.php?action=$action&act=$act&cid=$fileid&pageid={$next['id']}'>> [{$next['id']}]</a> ";
 		};
-		if ( $settings['xmlfile']['l'] != "nolb" ) $lbxpath = "//lb[preceding::pb[@id='{$curr['id']}']$nxp] | //l[preceding::pb[@id='{$curr['id']}']$nxp]"; 
+		
+		if ( !$onlylb ) $lbxpath = "//lb[preceding::pb[@id='{$curr['id']}']$nxp] | //l[preceding::pb[@id='{$curr['id']}']$nxp]"; 
 		else $lbxpath = "//lb[preceding::pb[@id='{$curr['id']}']$nxp]"; 
 	
 		$prev = current($curr->xpath("preceding::pb"));
@@ -114,7 +118,11 @@
 					$lineend = min($nextlb, $nextpb) or $lineend = $nextlb or $lineend = $nextpb;
 					if ( !$lineend ) $lineend = strpos($ttxml->rawtext, "</text", $linepos+1);
 					$linetxt = substr($ttxml->rawtext, $linepos, $lineend-$linepos);
-					if (  $settings['xmlfile']['l'] != "nolb" ) $linetxt = preg_replace("/<l .*/smi", "", $linetxt);
+					if ( $onlylb ) {
+						$linetxt = preg_replace("/<l [^>]+>/smi", "", $linetxt);
+						$linetxt = preg_replace("/<lg[^>]*>/smi", "", $linetxt);
+						$linetxt = preg_replace("/<p [^>]+>/smi", "", $linetxt);
+					} else $linetxt = preg_replace("/<l .*/smi", "", $linetxt);
 				};
 				
 				$lbi++;
@@ -191,7 +199,11 @@
 					$lineend = min($nextlb, $nextpb) or $lineend = $nextlb or $lineend = $nextpb;
 					if ( !$lineend ) $lineend = strpos($ttxml->rawtext, "</text", $linepos+1);
 					$linetxt = substr($ttxml->rawtext, $linepos, $lineend-$linepos);
-					if (  $settings['xmlfile']['l'] != "nolb" ) $linetxt = preg_replace("/<l .*/smi", "", $linetxt);
+					if ( $onlylb ) {
+						$linetxt = preg_replace("/<l [^>]+>/smi", "", $linetxt);
+						$linetxt = preg_replace("/<lg[^>]*>/smi", "", $linetxt);
+						$linetxt = preg_replace("/<p [^>]+>/smi", "", $linetxt);
+					} else $linetxt = preg_replace("/<l .*/smi", "", $linetxt);
 				};
 				
 				// If there are bounding box data, proceed to crop

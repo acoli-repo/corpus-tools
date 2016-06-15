@@ -62,14 +62,16 @@ function showtokinfo(evt, element, poselm) {
     	} else { textvalue = element.textContent; };
     	if ( textvalue == "null" ) { textvalue = ""; };
     	tablerows = '<tr><th colspan=2><b>' + textvalue + '</b></th></tr>';
-    	for ( i=0; i<attributelist.length; i++ ) {
-    		var att = attributelist[i];
+    	for ( ia=0; ia<attributelist.length; ia++ ) {
+    		var att = attributelist[ia];
 			var attname = attributenames[att];
 			if ( !attname ) { attname = att; };
-    		if (element.getAttribute(att)) {
+    		if ( element.getAttribute(att) && ( !formdef[att] || ( !formdef[att]['admin'] || username ) ) ) {
     			shownrows = 1;
+    			var rowval = element.getAttribute(att);
+    			if ( tagdef && tagdef[att] && tagdef[att]['type'] == 'pos' ) { rowval = treatpos(element, att, 'full'); }; 
 	    		tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + 
-	    			element.getAttribute(att) + '</td></tr>';
+	    			rowval + '</td></tr>';
 	    	};
     	}; 
     	tokinfo.innerHTML = '<table width=\'100%\'>' + tablerows + '</table>';
@@ -89,7 +91,9 @@ function showtokinfo(evt, element, poselm) {
 					var attname = attributenames[att2];
 					if ( !attname ) { attname = att2; };
 					if (child.getAttribute(att2)) {
-						tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + child.getAttribute(att2) + '</td></tr>';
+						var rowval = child.getAttribute(att2);
+		    			if ( tagdef && tagdef[att2] && tagdef[att2]['type'] == 'pos' ) { rowval = treatpos(child, att2, 'full'); }; 
+						tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + rowval + '</td></tr>';
 					};
 				}; 
 				tokinfo.innerHTML += '<hr><table width=\'100%\'>' + tablerows + '</table>';

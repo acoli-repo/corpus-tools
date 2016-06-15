@@ -502,6 +502,7 @@ function setForm ( type ) {
 			for ( var ab = 0; ab<labels.length; ab++ ) {
 				label = labels[ab];
 				var ltxt = tok.getAttribute(label); 
+    			if ( tagdef && tagdef[label]['type'] == 'pos' ) { ltxt = treatpos(tok, label, 'main'); }; 
 				// Add dtoks to the view
 				var children = tok.childNodes;
 				var done = []; var sep = ""; var dtxt = "";
@@ -509,13 +510,15 @@ function setForm ( type ) {
 					var child = children[i];
 					if ( child.tagName == "DTOK" && !done[child.getAttribute('id')] ) {
 						if ( child.getAttribute(label) != null ) { 
-							dtxt += sep + child.getAttribute(label); sep = "+"; 
+							var labtxt;
+			    			if ( tagdef && tagdef[label]['type'] == 'pos' ) { labtxt = treatpos(child, label, 'main'); } else { labtxt = child.getAttribute(label); };
+							dtxt += sep + labtxt; sep = "+"; 
 							done[child.getAttribute('id')] = 1;
 						};
 					};
 				};
-				if ( ltxt != null && dtxt != "" && dtxt != null ) { ltxt += ":" + dtxt; };
-				if ( ltxt == null && dtxt != "" && dtxt != null ) { ltxt = dtxt; };
+				if ( ltxt != null && ltxt != "" && dtxt != "" && dtxt != null ) { ltxt += ":" + dtxt; };
+				if ( ( ltxt == null || ltxt == "" ) && dtxt != "" && dtxt != null ) { ltxt = dtxt; };
 				if ( pattcolors[label] ) { 
 					lcol = pattcolors[label]; 
 				} else { lcol = "#999999"; };
@@ -533,6 +536,70 @@ function setForm ( type ) {
 		setview();
 	};
 };
+
+function getlang ( node, type ) {
+	if ( !node ) { return ""; };
+	var langtext;
+	if ( lang && type != "full" ) { langtext = node.getAttribute('short-'+lang); };
+	if ( !langtext && lang ) { langtext = node.getAttribute('display-'+lang); };
+	if ( !langtext && type != "full" ) { langtext = node.getAttribute('short'); };
+	if ( !langtext ) { langtext = node.getAttribute('display'); };
+	return langtext;
+};
+
+function treatpos ( tok, label, type ) {
+	tag = tok.getAttribute(label);
+	if ( !tag ) { return ''; };
+	var tagset = document.getElementById('tagset');
+	if ( tagset ) {
+		// Show the main pos name of a position-based tagset
+		var mainpos = tag.substring(0,1); 
+		var xpath = "//item[@key='"+mainpos+"' and @maintag]"
+		var tmp = document.evaluate(xpath, tagset, null, XPathResult.ANY_TYPE, null); 
+		var tagdef = tmp.iterateNext();
+		if ( tagdef ) {
+			var maintext;
+			if ( tagdef.getAttribute('maintag') == 0 ) {
+				maintext = getlang(tagdef, type);
+			} else {
+				var posprt = tag.substr(0,1+parseInt(tagdef.getAttribute('maintag')));
+				var xpath = ".//item[@key='"+posprt+"']"
+				var tmp = document.evaluate(xpath, tagdef, null, XPathResult.ANY_TYPE, null); 
+				var mtagdef = tmp.iterateNext();
+				maintext = getlang(mtagdef, type);
+			};
+			if ( type == "main" ) { return maintext; };
+			if ( type == "full" ) {
+				var mfs; var sep; 
+				sep = ''; mfs= '';
+				var mychildren = tagdef.childNodes;
+				for ( ilc=0; ilc<mychildren.length; ilc++ ) {
+					var posdef = mychildren[ilc];
+					if ( posdef.tagName == "ITEM" ) {
+						var posnr = parseInt(posdef.getAttribute('pos'));
+						if ( posnr <= parseInt(tagdef.getAttribute('maintag')) ) { continue; };
+						var posprt = tag.substring(posnr,1+posnr);
+						if ( posprt != "" && posprt != "0" ) {
+							var xpath = "item[@key='"+posprt+"']";
+							var tmp = document.evaluate(xpath, posdef, null, XPathResult.ANY_TYPE, null); 
+							var valdef = tmp.iterateNext();
+							if ( valdef ) {
+								var postxt;
+								postxt = valdef.getAttribute('display');
+								mfs += sep + postxt; 
+								sep = '; ';
+							};
+						};
+					};
+				};
+				var fulltext = maintext + ' (' + tag+ ')' + '<br>' + mfs;
+				return fulltext;				
+			};
+		};
+	};
+	
+	return tag;
+}
 
 function tagshow () {
 	var toks = document.getElementsByTagName("tok");

@@ -200,6 +200,7 @@
 		# Show sentence view
 		$stype = $_GET['elm'] or $stype = "s";
 		if ( $stype == "1" ) $stype = "s";
+		$stype = str_replace("|", "| //", $stype);
 		$result = $xml->xpath("//$stype"); 
 		if ( $result > 100 ) { 
 			$result = array_slice($result, 0, 100);
@@ -687,10 +688,21 @@
 		$hltit = $_POST['hltit'] or $hltit = $_GET['hltit'];
 		if ( $hltit ) $pagenav .= "<p>{$hltit}<hr>";
 
-		$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
+		$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
+		$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
 		$jsontrans = array2json($settings['transliteration']);
 					
 		$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'];	
+
+		// Load the tagset 
+		require ( "../common/Sources/tttags.php" );
+		$tttags = new TTTAGS("", false);
+		if ( $tttags->tagset['positions'] ) {
+			$tmp = $tttags->xml->asXML();
+			$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);
+			$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
+		};
+
 		$maintext .= "
 			<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 			$pagenav
@@ -700,7 +712,8 @@
 			<script language=Javascript src='$jsurl/tokview.js'></script>
 			<script>
 				var username = '$username';
-				var formdef = $jsonforms;
+				var lang = '$lang';
+				$settingsdefs;
 				var transl = $jsontrans;
 				var hlbar;
 				var orgtoks = new Object();
@@ -750,13 +763,14 @@
 		if ( $settings['download']['disabled'] != "1" ) 
 			$maintext .= "$sep<a onClick='exporttxt();' style='cursor: pointer;'>{%Download current view as TXT}</a>
 			";
-	
+		
 		// Show s-attribute level views
-		foreach ( $settings['xmlfile']['sattributes'] as $lvl => $item ) {		
+		foreach ( $settings['xmlfile']['sattributes'] as $key => $item ) {	
+			$lvl = $item['level'];	
 			if ( $_GET['elm'] != $lvl && $lvl == "lb" ) {
 				$lvltxt = $item['display'] or $lvltxt = "Sentence";
 				$maintext .= " &bull; <a href='index.php?action=lineview&cid=$fileid&pageid=$pageid'>{%{$lvltxt} view}</a>";
-			} else if ( $_GET['elm'] != $lvl && strstr($editxml, "<$lvl ") ) {
+			} else if ( $_GET['elm'] != $lvl && strstr($editxml, "<$key ") ) {
 				if ( !$_GET['id'] ) { $cidu = "&id=$fileid"; };
 				$lvltxt = $item['display'] or $lvltxt = "Sentence";
 				$maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}$cidu&elm=$lvl'>{%{$lvltxt} view}</a>";

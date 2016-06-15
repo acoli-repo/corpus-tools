@@ -85,6 +85,8 @@
 		
 			$maintext .= "<h2>Lexicon item: {$_GET['key']}</h2>";
 		
+			$restfiles = ""; // TODO: get to only those files that this parameter set relates to
+		
 			if ( $tmp ) {
 				if ( $tmp[0]->getName() == "tok" ) {
 					$maintext .= "<table>
@@ -94,7 +96,8 @@
 						if ( $settings['tagset']['tagtype']['positions'] ) {
 							$tagval = "<a href=\"index.php?action=tagset&act=analyze&tag={$val['key']}\">{$val['key']}</a>";
 						} else $tagval = $val['key'];
-						$maintext .= "<tr><td>{$val['cnt']}<td>$form<td>$tagval<td>".htmlentities($val->asXML());
+						$lcql = urlencode("[word=\"$form\" & pos=\"{$val['key']}\"] $restfiles ");
+						$maintext .= "<tr><td><a href=\"index.php?action=cqp&cql=$lcql\">{$val['cnt']}</a><td>$form<td>$tagval<td>".htmlentities($val->asXML());
 					};
 				} else if ( $tmp[0]->getName() == "item" ) {
 					$maintext .= "<table>
@@ -125,9 +128,10 @@
 		
 		$exec = $settings['bin']['neotag'] or $exec = "/usr/local/bin/neotagxml";
 		
-		if ( $params['pid'] ) $pid = "--pid='{$params['pid']}'";
+		if ( $params['pid'] ) $moreopt .= " --pid='{$params['pid']}'";
+		if ( $params['tagsrc'] ) $moreopt .= " --tagsrc";
 
-		$cmd = "$exec --xmlfile=$cid --verbose $pid";
+		$cmd = "$exec --xmlfile=$cid --verbose $moreopt";
 
 		$response = shell_exec($cmd);
 		

@@ -222,7 +222,7 @@
 				if ( $key == "project" ) $cvlt = $settings['projects'][$cvl]['name'];
 				else if ( $val['type'] == "kselect" || $val['translate'] ) $cvlt = "{%$key-$cvl}"; 
 				else $cvlt = $cvl;
-				if ( $cvl ) $maintext .= "<tr><th>$cvlt<td style='text-align: right; padding-left: 10px;'>".number_format($cnt);
+				if ( $cvl && !$val['noshow'] ) $maintext .= "<tr><th>$cvlt<td style='text-align: right; padding-left: 10px;'>".number_format($cnt);
 			};
 			$maintext .= "</table>";
 		};		
