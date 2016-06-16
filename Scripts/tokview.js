@@ -69,7 +69,7 @@ function showtokinfo(evt, element, poselm) {
     		if ( element.getAttribute(att) && ( !formdef[att] || ( !formdef[att]['admin'] || username ) ) ) {
     			shownrows = 1;
     			var rowval = element.getAttribute(att);
-    			if ( tagdef && tagdef[att] && tagdef[att]['type'] == 'pos' ) { rowval = treatpos(element, att, 'full'); }; 
+    			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['type'] == 'pos' ) { rowval = treatpos(element, att, 'full'); }; 
 	    		tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + 
 	    			rowval + '</td></tr>';
 	    	};

@@ -502,7 +502,7 @@ function setForm ( type ) {
 			for ( var ab = 0; ab<labels.length; ab++ ) {
 				label = labels[ab];
 				var ltxt = tok.getAttribute(label); 
-    			if ( tagdef && tagdef[label]['type'] == 'pos' ) { ltxt = treatpos(tok, label, 'main'); }; 
+    			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[label]['type'] == 'pos' ) { ltxt = treatpos(tok, label, 'main'); }; 
 				// Add dtoks to the view
 				var children = tok.childNodes;
 				var done = []; var sep = ""; var dtxt = "";
