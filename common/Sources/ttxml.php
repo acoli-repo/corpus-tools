@@ -24,12 +24,12 @@ class TTXML
 		$this->fileid = $fileid;
 		if ( !preg_match("/\./", $fileid) && $fileid ) $fileid .= ".xml";
 		
-		if ( !$fileid  && $fatal ) { 
+		if ( !$this->fileid  && $fatal ) { 
 			fatal ( "No XML file selected." );  
 		};
 
-		if ( !file_exists("$xmlfolder/$fileid") && substr($fileid,-4) != ".xml" ) { 
-			$fileid .= ".xml";
+		if ( !file_exists("$xmlfolder/".$this->fileid) && substr($this->fileid,-4) != ".xml" ) { 
+			$this->fileid .= ".xml";
 		};
 	
 		if ( !file_exists("$xmlfolder/$fileid") ) { 
@@ -44,6 +44,10 @@ class TTXML
 				fatal("No such XML File: {$oid}"); 
 			};
 			$this->fileid = $fileid;
+		};
+
+		if ( !file_exists("$xmlfolder/".$this->fileid) && substr($this->fileid,-4) != ".xml" ) { 
+			$this->fileid .= ".xml";
 		};
 
 		$this->filename = preg_replace ( "/.*\//", "", $fileid );
@@ -236,7 +240,8 @@ class TTXML
 		};
 		
 		# Now, make a safe XML text out of this and save it to file
-		file_put_contents("xmlfiles/{$this->fileid}", $this->xml->asXML());
+		if ( $this->fileid ) $filetosave = $this->fileid;
+		file_put_contents("xmlfiles/$filetosave", $this->xml->asXML());
 	}
 	
 };

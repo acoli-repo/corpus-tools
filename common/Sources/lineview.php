@@ -20,7 +20,7 @@
 				print "<p>$key: lb not found (failing to save)";			
 			};
 		};
-		$ttxml->save();
+		$ttxml->save(); 
 		header("location:index.php?action=$action&cid={$ttxml->fileid}&pageid={$_POST['pid']}");
 		exit;
 

@@ -798,10 +798,20 @@ function diffcalc ( fform, form ) {
 		// calculate the difference between two form and bracket them
 		// Step 1 - match all the letter on the end
 		var beginning = ""; var end = ""; var middle = "";
+		// Skip over abbreviation marks in form
+		if ( form.substr(-1,1) == "̃" && form.substr(-1,1) != fform.substr(-1,1) ) { 
+			form = form.substr(0,form.length-1);
+		};
 		while ( form.substr(-1,1) == fform.substr(-1,1) ) {
 			end = form.substr(form.length-1,1)+end;
 			form = form.substr(0,form.length-1);
 			fform = fform.substr(0,fform.length-1);
+			
+			// Skip over abbreviation marks in form
+			if ( form.substr(-1,1) == "̃" && form.substr(-1,1) != fform.substr(-1,1) ) { 
+				form = form.substr(0,form.length-1);
+			};
+			
 		};
 
 		// Step 2 - match all the letter at the beginning
@@ -809,9 +819,14 @@ function diffcalc ( fform, form ) {
 			beginning = beginning+form.substr(0,1);
 			form = form.substr(1);
 			fform = fform.substr(1);
+
+			// Skip over abbreviation marks in form
+			if ( form.substr(0,1) == "̃" && form.substr(0,1) != fform.substr(0,1) ) { 
+				form = form.substr(1);
+			};
 		};
 	
-		// Now, if there still is more left in the form... uhm
+		// Now, if there still is more left in the form - dump the rest in expanded form
 		if ( form == '' ) {
 			middle = lex+fform+rex;
 		} else {
@@ -826,7 +841,6 @@ function diffcalc ( fform, form ) {
 			};
 			if ( form != fform ) {
 				// Something went wrong - just return the form since we don't know what else to do
-				// To many nestings?
 				// mleft = '['+form+'/'+fform+']'; 
 				return oform;
 			} else {
@@ -837,18 +851,7 @@ function diffcalc ( fform, form ) {
 	
 		diplo = beginning+middle+end;
 
-		// where relevant, try to put the tags back in the form
-		// this seems to be too slow - so assume expanded forms not to have XML
-// 		if ( oform.search("<hi>") > -1 ) {
-// 			var tags = oform.match(/<[^>]+>(.*?)<\/[^>]+>/);
-// 			var wth = tags[0];
-// 			var wto = tags[1];
-// 			if ( diplo.search(wto) == tags['index'] ) {
-// 				diplo = diplo.substr(0,tags['index']) + wth + diplo.substr(wto.length + 	tags['index']);
-// 			} else if (wto.length > 1) {
-// 				diplo = diplo.replace(wto, wth); // try to just replace the first occurrence if string is long enough
-// 			};
-// 		};
+		// TODO: see if we can return XML tags inside the diplomatic form (fast enough)
 		
 		return diplo;
 	};

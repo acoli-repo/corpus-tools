@@ -205,9 +205,10 @@
 		if ( $result > 100 ) { 
 			$result = array_slice($result, 0, 100);
 		};
+		$sentnr = 1;
 		foreach ( $result as $sent ) {
 			$stxt = $sent->asXML(); 
-			$sentid = $sent['n'] or $sentid = $sent['id'];
+			$sentid = $sent['n'] or $sentid = "[".$sentnr++."]";
 			$treelink = ""; 
 			if ( $psdx  && $stype == "s" ) {
 				$editxml .= "
@@ -767,8 +768,8 @@
 		// Show s-attribute level views
 		foreach ( $settings['xmlfile']['sattributes'] as $key => $item ) {	
 			$lvl = $item['level'];	
-			if ( $_GET['elm'] != $lvl && $lvl == "lb" ) {
-				$lvltxt = $item['display'] or $lvltxt = "Sentence";
+			if ( $_GET['elm'] != $lvl && $key == "lb" ) {
+				$lvltxt = $item['display'] or $lvltxt = "Manuscript Line";
 				$maintext .= " &bull; <a href='index.php?action=lineview&cid=$fileid&pageid=$pageid'>{%{$lvltxt} view}</a>";
 			} else if ( $_GET['elm'] != $lvl && strstr($editxml, "<$key ") ) {
 				if ( !$_GET['id'] ) { $cidu = "&id=$fileid"; };

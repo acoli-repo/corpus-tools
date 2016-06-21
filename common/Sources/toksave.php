@@ -46,6 +46,11 @@
 			$maintext .= "<h1>Save Token</h1>
 				<h2>Token value ($tokid): ".$token."</h2>";
 
+			// If we have XML in the pform and no form (or auto form), generate it
+			if ( strpos($_POST['word'], "<", 1) && ( !$_POST['atts']['form'] || $settings['xmlfiles']['pattributes']['forms']['form']['noedit'] ) ) {
+				$_POST['atts']['form'] = killxml($_POST['word']);
+			};
+
 			if ( $_POST['atts'] )
 			foreach ( $_POST['atts'] as $key => $val ) {
 				
@@ -127,6 +132,20 @@
 	
 	} else {
 		print "Oops"; exit;
+	};
+	
+	function killxml ( $word ) {
+		// Create form from pform (remove del and xml)
+		
+		$clean = $word;
+		$clean = preg_replace("/<del [^>]+>.*?<\/del>/", "", $clean);
+		$clean = preg_replace("/<del>.*?<\/del>/", "", $clean);
+		$clean = preg_replace("/-<lb/", "<lb", $clean);
+		$clean = preg_replace("/<expan>.*?<\/expan>/", "", $clean); # This is wrong in PS
+		$clean = preg_replace("/<ex>.*?<\/ex>/", "", $clean);
+		$clean = preg_replace("/<[^>]+>/", "", $clean);
+
+		return $clean;
 	};
 	
 ?>
