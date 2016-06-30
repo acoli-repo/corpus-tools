@@ -440,7 +440,10 @@ int main(int argc, char *argv[])
 	tagsettings = trainlog.first_child().append_child("settings");	
 	trainstats = trainlog.first_child().append_child("stats");	
 
+
 	paramfile.append_child("neotag");
+
+	pugi::xml_node paramsettings = paramfile.first_child().append_child("settings");
 	lexicon = paramfile.first_child().append_child("lexicon");
 	transitions = paramfile.first_child().append_child("transitions");
 
@@ -510,7 +513,7 @@ int main(int argc, char *argv[])
 		return -1;
 	} else if ( verbose ) {
 		cout << "- Using parameters: " << parameters.attribute("pid").value() << " - restriction: " << parameters.attribute("restriction").value() << endl;
-		paramfile.first_child().append_attribute("restriction") = parameters.attribute("restriction").value();	
+		// paramfile.first_child().append_attribute("restriction") = parameters.attribute("restriction").value();	
 	};
 
 	// Place all neotag parameter settings from the settings.xml into the tagsettings
@@ -752,6 +755,13 @@ int main(int argc, char *argv[])
 		
 				
 	};
+	
+	// copy the relevant tagsettings to the parameter file
+    for (pugi::xml_attribute_iterator ait = tagsettings.attributes_begin(); ait != tagsettings.attributes_end(); ++ait) {
+		if ( strcmp(ait->name(), "debug") && strcmp(ait->name(), "verbose") && strcmp(ait->name(), "folder") && strcmp(ait->name(), "params") && strcmp(ait->name(), "training") && strcmp(ait->name(), "pid") && strcmp(ait->name(), "log") ) {
+			paramsettings.append_attribute(ait->name()) = ait->value();
+		};
+    };
 	
 	// clean up the dtokparts
 	pattlist = lexicon.select_nodes("//dtoks/dtok/sibling");

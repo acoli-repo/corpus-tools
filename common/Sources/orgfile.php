@@ -58,8 +58,8 @@
 		
 	} else if ( file_exists($filename) ) {
 	
-		$rawtxt = file_get_contents($filename);
-		$rawtxt = "<pre>".htmlentities($rawtxt)."</pre>";
+		$tmp = file_get_contents($filename);
+		$rawtxt = "<pre>".htmlentities($tmp)."</pre>";
 
 	} else if ( file_exists($filename.".Z") ) {
 		# compressed file

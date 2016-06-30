@@ -542,6 +542,7 @@ function getlang ( node, type ) {
 	var langtext;
 	if ( lang && type != "full" ) { langtext = node.getAttribute('short-'+lang); };
 	if ( !langtext && lang ) { langtext = node.getAttribute('display-'+lang); };
+	if ( !langtext && lang ) { langtext = node.getAttribute('lang-'+lang); }; // backward compatibility
 	if ( !langtext && type != "full" ) { langtext = node.getAttribute('short'); };
 	if ( !langtext ) { langtext = node.getAttribute('display'); };
 	return langtext;
@@ -562,9 +563,15 @@ function treatpos ( tok, label, type ) {
 			if ( tagdef.getAttribute('maintag') == 0 ) {
 				maintext = getlang(tagdef, type);
 			} else {
-				var posprt = tag.substr(0,1+parseInt(tagdef.getAttribute('maintag')));
-				var xpath = ".//item[@key='"+posprt+"']"
-				var tmp = document.evaluate(xpath, tagdef, null, XPathResult.ANY_TYPE, null); 
+				var prtlen = 2+parseInt(tagdef.getAttribute('maintag');
+				var tmp = false;
+				while ( !tmp && posprt > 0 ) {
+					prtlen--;
+					var posprt = tag.substr(0,prtlen);
+					var xpath = ".//item[@key='"+posprt+"']"
+					var tmp = document.evaluate(xpath, tagdef, null, XPathResult.ANY_TYPE, null); 
+				};
+				if ( !mtagdef ) { mtagdef = tagdef; }; // Default to main tag definition
 				var mtagdef = tmp.iterateNext();
 				maintext = getlang(mtagdef, type);
 			};

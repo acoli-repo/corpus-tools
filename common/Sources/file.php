@@ -239,7 +239,7 @@
 			foreach ( $settings['xmlfile']['sattributes'][$stype] as $item ) {
 				$key = $item['key'];
 				$atv = preg_replace("/\/\//", "<lb/>", $sent[$key]);	
-				if ($item['color']) { $scol = "style='color: {$item['color']}'"; } else { $scol = "class='s-$key'"; };
+				if ( $item && $item['color']) { $scol = "style='color: {$item['color']}'"; } else { $scol = "class='s-$key'"; };
 				if ( $atv && ( !$item['admin'] || $username ) ) {
 					if ( $item['admin'] ) $scol .= " class='adminpart'";
 					$editxml .= "<div $scol title='{$item['display']}'>$atv</div>"; 
@@ -270,7 +270,6 @@
 		};
 		if ( !$pidx || $pidx == -1 ) { fatal ("No such $pbelm in XML: {$_GET['page']} {$_GET['pageid']}"); };
 
-		// TODO: when pbelm != pb, grab the <pb/> from just before the milestone
 		
 		# Find the next page/chapter (for navigation, and to cut off editXML)
 		$nidx = strpos($editxml, "<$pbelm", $pidx+1); 
@@ -299,9 +298,20 @@
 			else $bnav = "<a href='index.php?action=$action&cid=$fileid&page=$bpag'>$bpag <</a>";
 			if ( !$firstpage ) { $bnav = "<a href='index.php?action=pages&cid=$fileid$pbsel'>{%index}</a> &nbsp; $bnav"; };
 		};
+
+		// when pbelm != pb, grab the <pb/> from just before the milestone
+		if ( $pb && $pbelm != "pb") {
+ 			if ( strpos($editxml, "<tok", $pidx) < strpos($editxml, "<pb", $pidx) ) {
+ 				$bpb1 = rstrpos($editxml, "<pb ", $pidx-1); 
+ 				$bpb2 = strpos($editxml, ">", $bpb1);
+ 				$len = ($bpb2-$bpb1)+1;
+				$facspb = substr($editxml, $bpb1, $len); 
+ 			};
+		};		
 		
 		$span = $nidx-$pidx;
-		$editxml = substr($editxml, $pidx, $span); 
+		$editxml = $facspb.substr($editxml, $pidx, $span); 
+
 		
 		if ( $_GET['page'] ) $folionr = $_GET['page']; // deal with pageid
 		else if ( $_GET['pageid'] ) {

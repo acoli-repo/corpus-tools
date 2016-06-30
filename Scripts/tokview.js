@@ -92,7 +92,7 @@ function showtokinfo(evt, element, poselm) {
 					if ( !attname ) { attname = att2; };
 					if (child.getAttribute(att2)) {
 						var rowval = child.getAttribute(att2);
-		    			if ( tagdef && tagdef[att2] && tagdef[att2]['type'] == 'pos' ) { rowval = treatpos(child, att2, 'full'); }; 
+		    			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att2] && tagdef[att2]['type'] == 'pos' ) { rowval = treatpos(child, att2, 'full'); }; 
 						tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + rowval + '</td></tr>';
 					};
 				}; 
@@ -133,7 +133,8 @@ function highlightbb (elm) {
 		if ( mtch.snapshotLength == 0 ) {
 			mtch = document.evaluate("ancestor-or-self::tok/preceding::lb", elm, null, XPathResult.ANY_TYPE, null);
 		};
-		var tmpe = mtch.iterateNext(); 
+		var tmpe;
+		if ( mtch != null ) { tmpe = mtch.iterateNext(); };
 		while ( tmpe != null )  { elm = tmpe; tmpe = mtch.iterateNext(); };				
 	};
 	if ( elm.getAttribute('bbox') == null ) { return -1; };

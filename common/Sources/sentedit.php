@@ -11,7 +11,7 @@
 	$sentid = $_POST['sid'] or $sentid = $_GET['sid'];
 	
 	if ( $fileid ) { 
-		$stype = $_GET['sentence'] or $stype = "s";
+		$stype = $_GET['sentence'] or $stype = $_GET['elm'] or $stype = "s";
 	
 		if ( !file_exists("$xmlfolder/$fileid") ) { 
 			print "No such XML File: $xmlfolder/$fileid"; 
@@ -20,6 +20,10 @@
 		
 		$file = file_get_contents("$xmlfolder/$fileid"); 
 		$xml = simplexml_load_string($file);
+		if ( !$xml ) { 
+			print "Failed to load XML File: $xmlfolder/$fileid"; 
+			exit;
+		};
 
 		$result = $xml->xpath("//*[@id='$sentid']"); 
 		$sent = $result[0]; # print_r($token); exit;
