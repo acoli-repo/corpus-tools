@@ -563,7 +563,7 @@ function treatpos ( tok, label, type ) {
 			if ( tagdef.getAttribute('maintag') == 0 ) {
 				maintext = getlang(tagdef, type);
 			} else {
-				var prtlen = 2+parseInt(tagdef.getAttribute('maintag');
+				var prtlen = 2+parseInt(tagdef.getAttribute('maintag'));
 				var tmp = false;
 				while ( !tmp && posprt > 0 ) {
 					prtlen--;
@@ -571,8 +571,12 @@ function treatpos ( tok, label, type ) {
 					var xpath = ".//item[@key='"+posprt+"']"
 					var tmp = document.evaluate(xpath, tagdef, null, XPathResult.ANY_TYPE, null); 
 				};
-				if ( !mtagdef ) { mtagdef = tagdef; }; // Default to main tag definition
-				var mtagdef = tmp.iterateNext();
+				var mtagdef;
+				if ( !tmp ) { 
+					mtagdef = tagdef; ; // Default to main tag definition
+				} else { 
+					mtagdef = tmp.iterateNext();
+				};
 				maintext = getlang(mtagdef, type);
 			};
 			if ( type == "main" ) { return maintext; };
