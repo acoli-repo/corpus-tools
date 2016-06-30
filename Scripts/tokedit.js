@@ -565,17 +565,17 @@ function treatpos ( tok, label, type ) {
 			} else {
 				var prtlen = 2+parseInt(tagdef.getAttribute('maintag'));
 				var tmp = false;
-				while ( !tmp && posprt > 0 ) {
+				while ( !tmp && prtlen > 0 ) {
 					prtlen--;
 					var posprt = tag.substr(0,prtlen);
 					var xpath = ".//item[@key='"+posprt+"']"
 					var tmp = document.evaluate(xpath, tagdef, null, XPathResult.ANY_TYPE, null); 
 				};
 				var mtagdef;
-				if ( !tmp ) { 
-					mtagdef = tagdef; ; // Default to main tag definition
-				} else { 
+				if ( tmp ) { 
 					mtagdef = tmp.iterateNext();
+				} else { 
+					mtagdef = tagdef; // Default to main tag definition
 				};
 				maintext = getlang(mtagdef, type);
 			};
