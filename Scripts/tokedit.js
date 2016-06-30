@@ -560,20 +560,20 @@ function treatpos ( tok, label, type ) {
 		var tagdef = tmp.iterateNext();
 		if ( tagdef ) {
 			var maintext;
-			if ( tagdef.getAttribute('maintag') == 0 ) {
+			prtlen = 1+parseInt(tagdef.getAttribute('maintag'));
+			if ( prtlen == 1 ) {
 				maintext = getlang(tagdef, type);
 			} else {
-				var prtlen = 2+parseInt(tagdef.getAttribute('maintag'));
-				var tmp = false;
-				while ( !tmp && prtlen > 0 ) {
-					prtlen--;
+				var tmp;
+				do { // Get the longest defined match
 					var posprt = tag.substr(0,prtlen);
-					var xpath = ".//item[@key='"+posprt+"']"
-					var tmp = document.evaluate(xpath, tagdef, null, XPathResult.ANY_TYPE, null); 
-				};
+					var xpath = ".//multi/item[@key='"+posprt+"']"
+					var tmp = document.evaluate(xpath, tagdef, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); 
+					prtlen--;
+				} while ( !tmp.snapshotLength && prtlen > 0 );
 				var mtagdef;
-				if ( tmp ) { 
-					mtagdef = tmp.iterateNext();
+				if ( tmp.snapshotLength ) { 
+					mtagdef = tmp.snapshotItem(0);
 				} else { 
 					mtagdef = tagdef; // Default to main tag definition
 				};
