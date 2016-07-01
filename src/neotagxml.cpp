@@ -29,9 +29,11 @@ vector<wordtoken> morphoParse( string word, wordtoken insertword );
 pugi::xml_document taglog;
 pugi::xml_node tagsettings;
 pugi::xml_node tagstats;
+
 map < string, string > inherit;
 pugi::xpath_node_set pattlist; 
 pugi::xml_document parameters;
+pugi::xml_document lexicon;
 
 vector<string> formTags;
 	string tagfld;
@@ -470,6 +472,17 @@ pugi::xpath_node_set getLexProb ( string word ) {
 		string xpath = "item[@key=\""+xpescape(word)+"\"]/tok";
 		pugi::xpath_node_set tmp = parameters.first_child().child("lexicon").select_nodes(xpath.c_str());
 		posProbs[word] = tmp;
+		return tmp;
+	};
+};
+
+pugi::xpath_node_set getLexiconProb ( string word ) {
+	if ( !lexiconProbs[word].empty() ) {
+		return lexiconProbs[word];
+	} else {
+		string xpath = "item[@key=\""+xpescape(word)+"\"]/tok";
+		pugi::xpath_node_set tmp = lexicon.select_nodes(xpath.c_str());
+		lexiconProbs[word] = tmp;
 		return tmp;
 	};
 };
@@ -1161,25 +1174,26 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 	};
 	
 	// step 3: see if it happens to be in the external lexicon
-	// TODO: this should become XML as well probably
-// 	if ( lexiconProbs[word].size() > 0  && ( wordParse.size() == 0 || lexsmooth > 0 ) ) {
-// 		// word found in the external lexicon, copy to wordParses
-// 		if ( debug > 1 ) { cout << " - found in lexicon " << lexiconProbs[word].size() << endl; };
-// 		map<string,wordtoken>::iterator pos;
-// 		for (pos = lexiconProbs[word].begin(); pos != lexiconProbs[word].end(); ++pos) {
-// 			if ( debug > 2 ) { cout << "   -  " << pos->first << endl; };
-// 			insertword = pos->second;
-// 			insertword.id = parseword.id;
-// 			insertword.setform(word);
-// 			insertword.settag(pos->first);
-// 			insertword.prob = 1;
-// 			insertword.token = parseword.token;
-// 			insertword.source = "lexicon";
-// 			insertword.lemrule = "";
-// 			wordParse.push_back(insertword);
-//  			totprob += insertword.prob;
-//  		};
-// 	};
+ 	if ( wordParse.size() == 0 || lexsmooth > 0  ) {
+		tmp = getLexiconProb(word); 
+		if ( !tmp.empty() ) {
+			if ( debug > 1 ) { cout << " - " << tmp.size() << " lowercase occurrence(s) found in lexicon " << endl; };
+			for (pugi::xpath_node_set::const_iterator it = tmp.begin(); it != tmp.end(); ++it) {
+				insertword.settag((*it).node().attribute("key").value());
+				insertword.prob = atof((*it).node().attribute("cnt").value());
+				insertword.lexitem = (*it).node();
+				insertword.source = "lexicon:" + NumberToString(tmp.size());
+				if ( checkfld != "" ) {
+					if ( calcform(insertword.lexitem, checkfld) != calcform(parseword.token, checkfld) ) {
+						insertword.prob = insertword.prob / 1000; // divide by much to make it very unlikely but not impossible
+					};
+				}; 
+				if ( debug > 2 ) { (*it).node().print(std::cout); };
+				wordParse.push_back(insertword);
+				totprob += insertword.prob;
+			};
+		};
+ 	};
 		
 	// step 4: use the end of the word to determine POS
 	// when have not yet found the word, or when we want to lexically smooth
@@ -1471,7 +1485,7 @@ int main (int argc, char * const argv[]) {
 	// Read in the source XML file to tag
     pugi::xml_document doc;
     if ( !doc.load_file(tagsettings.attribute("xmlfile").value(), (pugi::parse_ws_pcdata | pugi::parse_declaration | pugi::parse_doctype ) & ~pugi::parse_wconv_attribute & ~pugi::parse_escapes ) ) { // pugi::parse_default | 
-        cout << "Failed to load XML file: " << tagsettings.attribute("featuretags").value() << endl;
+        cout << "Failed to load XML file: " << tagsettings.attribute("xmlfile").value() << endl;
     	return -1;
     };
 	taglog.first_child().append_attribute("filename") = realpath(tagsettings.attribute("xmlfile").value(), NULL);
@@ -1587,6 +1601,13 @@ int main (int argc, char * const argv[]) {
 		};
 	};
 
+	// If there is an external lexicon, load it
+	if ( tagsettings.attribute("lexicon") != NULL ) {
+		if ( !lexicon.load_file(tagsettings.attribute("lexicon").value(), (pugi::parse_ws_pcdata | pugi::parse_declaration | pugi::parse_doctype ) & ~pugi::parse_wconv_attribute & ~pugi::parse_escapes ) ) { // pugi::parse_default | 
+			cout << "Failed to load lexicon: " << tagsettings.attribute("lexicon").value() << endl;
+			return -1;
+		};
+	};
 	
 	outstream = &std::cout;
 	tofile = false;

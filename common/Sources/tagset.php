@@ -69,10 +69,25 @@
 		
 		$maintext .= "<table>";
 		foreach ( $tagset  as $key => $val ) {
-			$valname = $val['lang-'.$lang] or $valname = "{%{$val['display']}}";
+			$valname = $val['lang-'.$lang] or $valname = $val['display-'.$lang] or $valname = "{%{$val['display']}}";
+			if ( $val['short-'.$lang] ) $valname .= " ({$val['short-'.$lang]})"; 
+			else if ( $val['short'] ) $valname .= " ({$val['short']})"; 
 			$maintext .= "<tr><th style='padding-left: 10px; padding-right: 10px; font-weight: bold; text-align: center; '>$key<th colspan=2 style='text-align: center;'>$valname";
 			foreach ( $val as $pos => $attr ) {
-				if ( is_array($attr) ) {
+				if ( $pos == "multi" ) {
+					$maintext .= "<tr><td><th style='padding-left: 5px; padding-right: 5px;' colspan=2><table>";
+					foreach ( $attr as $key2 => $val2 ) {
+						if ( is_array($val2) ) {
+							if ( $val2['lang-'.$lang] ) $key2val = $val2['lang-'.$lang]; 
+								else if ( $val2['display-'.$lang] ) $key2val = "{%{$val2['display-'.$lang]}}"; 
+								else $key2val = "{%{$val2['display']}}"; 
+							if ( $val2['short-'.$lang] ) $key2val .= " ({$val2['short-'.$lang]})"; 
+								else if ( $val2['short'] ) $key2val .= " ({$val2['short']})"; 
+							$maintext .= "<tr><td style=' width: 25px; text-align: center; border-right: 1px solid #aaaaaa;'><b>$key2</b><td style=' padding-left: 5px;' >$key2val";
+						};
+					};
+					$maintext .= "</table>";
+				} else if ( is_array($attr) ) {
 					$attrname = $attr['lang-'.$lang] or $attrname = "{%{$attr['display']}}";
 					$maintext .= "<tr><td>$pos<th style='padding-left: 5px; padding-right: 5px;'>$attrname<td style='border-bottom: 1px solid #aaaaaa;'><table>";
 					foreach ( $attr as $key2 => $val2 ) {
