@@ -83,7 +83,7 @@ map<string, map<string,wordtoken> > endingProbs; 	// the word-end driven probabi
 map<string, float > transitionProbs; 	// the transition probabilities
 map<string, pugi::xpath_node_set  > posProbs; 		// the training set lexical probabilities
 map<string, pugi::xpath_node_set  > endProbs; 		// the training set ending probabilities
-map<string, map<string,wordtoken> > lexiconProbs; 	// the lexical probabilities in the external lexicon
+map<string, pugi::xpath_node_set  > lexiconProbs; 		// the training set lexical probabilities
 map<string, map<string,int> > lemmaProbs; 			// the lexical probabilities in the external lemmalist
 map<string, map<string,float> > caseProb; 			// the case probabilities (% of tag in case)
 map<string, map<string,int> > homPairs; 			// homograph pairs, used for lexical smoothing
