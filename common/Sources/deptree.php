@@ -84,7 +84,7 @@
 		$treetxt = "";
 		global $xpos;
 		$xpos = 0;
-		foreach ( $node->xpath(".//mtok | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok") as $tok ) {
+		foreach ( $node->xpath(".//mtok[not(.//dtok)] | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok") as $tok ) {
 		
 			$text = $tok['form'] or $text = $tok."";
 			$tokid = $tok['id']."";
@@ -103,7 +103,7 @@
 
 		$treetxt .= "\n";
 
-		foreach ( $node->xpath(".//mtok | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok") as $tok ) {
+		foreach ( $node->xpath(".//mtok[not(.//dtok)] | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok") as $tok ) {
 			if ( $tok['head'] ) {
 				$x1 = $mid[$tok['id'].""]; $x2 = $mid[$tok['head'].""];
 				$y1 = 25;
