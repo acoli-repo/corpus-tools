@@ -705,8 +705,8 @@ function highlight ( id, color, dtokcolor ) {
 		var element = document.getElementById(id);
 		
 		// Move up to TOK when we are trying to highlight a DTOK
-		if ( element.parentNode.tagName == "TOK" ) { element = element.parentNode; color = dtokcolor; };
-		if ( element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; color = dtokcolor; };
+		if ( element.parentNode.tagName == "TOK" || element.parentNode.tagName == "MTOK" ) { element = element.parentNode; color = dtokcolor; };
+		if ( element.parentNode.parentNode.tagName == "TOK" || element.parentNode.parentNode.tagName == "MTOK" ) { element = element.parentNode.parentNode; color = dtokcolor; };
 		
 		element.style['background-color'] = color;
 		element.style.backgroundColor= color; 

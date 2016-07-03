@@ -59,8 +59,19 @@ function showtokinfo(evt, element, poselm) {
     	var tokid = element.getAttribute('id');
     	if ( typeof(orgtoks) != "undefined" ) { 
     		textvalue = orgtoks[tokid];
-    	} else { textvalue = element.textContent; };
-    	if ( textvalue == "null" ) { textvalue = ""; };
+    		console.log('orgtok: ' + textvalue);
+    		if ( textvalue == "" ) { 
+    			textvalue = orgtoks[tokid].getAttribute('form'); 
+    		};
+    	} else { 
+    		textvalue = element.textContent; 
+    		if ( textvalue.trim() == "" ) { 
+    			textvalue = element.getAttribute('form'); 
+    		};
+    	};
+    	if ( textvalue == "null" ) { 
+    		textvalue = ""; 
+    	};
     	tablerows = '<tr><th colspan=2><b>' + textvalue + '</b></th></tr>';
     	for ( ia=0; ia<attributelist.length; ia++ ) {
     		var att = attributelist[ia];
@@ -105,6 +116,7 @@ function showtokinfo(evt, element, poselm) {
 		if ( typeof(poselm) == "object" ) {
 			var foffset = offset(poselm);
 		};
+		console.log(foffset);
 		tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth ) + 'px'; 
 		tokinfo.style.top = ( foffset.top + element.offsetHeight + 4 ) + 'px';
 
@@ -115,6 +127,12 @@ function showtokinfo(evt, element, poselm) {
 
 		var x = elem.offsetLeft;
 		var y = elem.offsetTop;
+
+		if ( typeof(x) == "undefined" ) {
+			bbr = elem.getBoundingClientRect();
+			x = bbr.left;
+			y = bbr.top;
+		};
 
 		while (elem = elem.offsetParent) {
 			x += elem.offsetLeft;
