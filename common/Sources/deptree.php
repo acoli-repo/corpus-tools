@@ -24,14 +24,20 @@
 		$graph = drawgraph($sent);
 		$width = $xpos + 50;
 	
-		$maintext .= "\n\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"$width\" height=\"300\">
-			  <defs>
+		$maintext .= "\n
+<script language=\"Javascript\" src=\"$jsurl/tokview.js\"></script>
+<script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
+<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"$width\" height=\"300\">
+	<defs>
 		<marker id=\"arrow\" markerWidth=\"10\" markerHeight=\"10\" refx=\"0\" refy=\"3\" orient=\"auto\" markerUnits=\"strokeWidth\">
-		  <path d=\"M0,0 L0,6 L9,3 z\" fill=\"#f00\" />
+			<path d=\"M0,0 L0,6 L9,3 z\" fill=\"#f00\" />
 		</marker>
-	  </defs>
-	  $graph
-	  </svg>\n</div>";
+	</defs>
+	$graph
+</svg>
+</div>
+<script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>
+";
 		# $maintext .= "<div id=svg>".drawgraph($sent)."</div><hr>";
 
 	} else {
@@ -54,7 +60,7 @@
 		$treetxt = "";
 		global $xpos;
 		$xpos = 0;
-		foreach ( $node->xpath(".//tok[not(dtok)] | .//dtok") as $tok ) {
+		foreach ( $node->xpath(".//mtok | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok") as $tok ) {
 		
 			$text = $tok['form'] or $text = $tok."";
 			$tokid = $tok['id']."";
@@ -62,8 +68,8 @@
 			if ( $text != "" ) { 		
 				
 				# $bbox = imagettfbbox(12, 0, "tmp/Arial.ttf", $text);
-				$treetxt .= "\n\t<text x=\"$xpos\" y=\"20\" font-family=\"Courier\" font-size=\"12\">$text</text> ";
-				$width = 6.2*(mb_strlen($text));
+				$treetxt .= "\n\t<text tokid=\"$tokid\" x=\"$xpos\" y=\"20\" font-family=\"Courier\" font-size=\"12\">$text</text> ";
+				$width = 6.9*(mb_strlen($text));
 				$mid[$tokid] = $xpos + ($width/2) + 2;
 				$xpos = $xpos+12+$width;
 			
@@ -73,7 +79,7 @@
 
 		$treetxt .= "\n";
 
-		foreach ( $node->xpath(".//tok[not(@dtok)] | .//dtok") as $tok ) {
+		foreach ( $node->xpath(".//mtok | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok") as $tok ) {
 			if ( $tok['head'] ) {
 				$x1 = $mid[$tok['id'].""]; $x2 = $mid[$tok['head'].""];
 				$y1 = 25;

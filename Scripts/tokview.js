@@ -54,7 +54,7 @@ function showtokinfo(evt, element, poselm) {
 	var shownrows = 0;
 	var tokinfo = document.getElementById('tokinfo');
 	if ( !tokinfo ) { return -1; };
-    if ( element.tagName == "TOK" || element.tagName == "DTOK" ) {
+    if ( element.tagName == "TOK" || element.tagName == "DTOK" || element.tagName == "MTOK" ) {
     	var atts = element.attributes;
     	var tokid = element.getAttribute('id');
     	if ( typeof(orgtoks) != "undefined" ) { 

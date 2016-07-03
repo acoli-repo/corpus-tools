@@ -683,8 +683,16 @@ function unhighlight () {
 	for ( var a = 0; a<toks.length; a++ ) {
 		var tok = toks[a];
 		if ( tok.style ) { 
-			tok.style['background-color'] = "#ffffff"; 
-			tok.style.backgroundColor= "#ffffff"; 
+			tok.style['background-color'] = ""; 
+			tok.style.backgroundColor= ""; 
+		};
+	};
+	var toks = document.getElementsByTagName("mtok");
+	for ( var a = 0; a<toks.length; a++ ) {
+		var tok = toks[a];
+		if ( tok.style ) { 
+			tok.style['background-color'] = ""; 
+			tok.style.backgroundColor= ""; 
 		};
 	};
 };
