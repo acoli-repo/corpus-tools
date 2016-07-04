@@ -59,7 +59,6 @@ function showtokinfo(evt, element, poselm) {
     	var tokid = element.getAttribute('id');
     	if ( typeof(orgtoks) != "undefined" ) { 
     		textvalue = orgtoks[tokid];
-    		console.log('orgtok: ' + textvalue);
     		if ( textvalue == "" ) { 
     			textvalue = orgtoks[tokid].getAttribute('form'); 
     		};
@@ -116,8 +115,7 @@ function showtokinfo(evt, element, poselm) {
 		if ( typeof(poselm) == "object" ) {
 			var foffset = offset(poselm);
 		};
-		console.log(foffset);
-		tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth ) + 'px'; 
+		tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
 		tokinfo.style.top = ( foffset.top + element.offsetHeight + 4 ) + 'px';
 
     };
@@ -129,16 +127,20 @@ function showtokinfo(evt, element, poselm) {
 		var y = elem.offsetTop;
 
 		if ( typeof(x) == "undefined" ) {
+
 			bbr = elem.getBoundingClientRect();
-			x = bbr.left;
-			y = bbr.top;
+			x = bbr.left + window.pageXOffset;
+			y = bbr.top + window.pageYOffset;
+
+		} else {
+
+			while (elem = elem.offsetParent) {
+				x += elem.offsetLeft;
+				y += elem.offsetTop;
+			}
+		
 		};
-
-		while (elem = elem.offsetParent) {
-			x += elem.offsetLeft;
-			y += elem.offsetTop;
-		}
-
+		
 		return { left: x, top: y };
 	}    
 } 
