@@ -60,6 +60,13 @@
 	$graph
 </svg>
 </div>
+<style>
+.toktext { 
+    text-decoration: underline;
+    -moz-text-decoration-color: red; 
+    text-decoration-color: red;
+}
+</style>
 <script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>
 ";
 		# $maintext .= "<div id=svg>".drawgraph($sent)."</div><hr>";
@@ -87,12 +94,13 @@
 		foreach ( $node->xpath(".//mtok[not(.//dtok)] | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok[not(ancestor::tok/ancestor::mtok)]") as $tok ) {
 		
 			$text = $tok['form'] or $text = $tok."";
+			# $text = str_replace(" ", "_", $text);
 			$tokid = $tok['id']."";
 			
 			if ( $text != "" ) { 		
 				
 				# $bbox = imagettfbbox(12, 0, "tmp/Arial.ttf", $text);
-				$treetxt .= "\n\t<text tokid=\"$tokid\" x=\"$xpos\" y=\"20\" font-family=\"Courier\" font-size=\"12\">$text</text> ";
+				$treetxt .= "\n\t<text class='toktext' tokid=\"$tokid\" x=\"$xpos\" y=\"20\" font-family=\"Courier\" font-size=\"12\">$text</text> ";
 				$width = 6.9*(mb_strlen($text));
 				$mid[$tokid] = $xpos + ($width/2) + 2;
 				$xpos = $xpos+12+$width;
