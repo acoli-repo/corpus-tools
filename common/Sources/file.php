@@ -205,11 +205,15 @@
 		if ( $result > 100 ) { 
 			$result = array_slice($result, 0, 100);
 		};
-		$sentnr = 1;
+		$sentnr = 1; $ewd = 25;
 		foreach ( $result as $sent ) {
 			$stxt = $sent->asXML(); 
 			$sentid = $sent['n'] or $sentid = "[".$sentnr++."]";
 			$treelink = ""; 
+			if ( $sent->xpath(".//tok[@head]") ) { 
+				$treelink .= "<a href='index.php?action=deptree&cid=$fileid&sid={$sent['id']}' title='dependency tree'>tree</a>"; 
+				$ewd = 50;
+			};
 			if ( $psdx  && $stype == "s" ) {
 				$editxml .= "
 					<div style='display: inline-block; float: left; margin: 0px; padding: 0px; width: 80px;'>
@@ -227,7 +231,7 @@
 					<td style='width: 30px;font-size: 10pt;  text-align: right;'>$sentid </table></div>";
 			}  else {
 				$editxml .= "
-					<div style='display: inline-block; float: left; margin: 0px; padding: 0px; padding-top: 6px; width: 25px; font-size: 10pt;'>
+					<div style='display: inline-block; float: left; margin: 0px; padding: 0px; padding-top: 6px; width: {$ewd}px; font-size: 10pt;'>
 						<a href='index.php?action=sentedit&cid=$fileid&sid={$sent['id']}'>$sentid</a>
 						$treelink
 					</div>";

@@ -35,7 +35,7 @@
 		
 		$pagenav = "<table style='width: 100%'><tr> <!-- /<$pbelm [^>]*id=\"{$_GET['pageid']}\"[^>]*n=\"(.*?)\"/ -->
 						<td style='width: 33%' align=left>$bnav
-						<td style='width: 33%' align=center>{%sentence} $sid
+						<td style='width: 33%' align=center>{%sentence} <a href='index.php?action=file&cid={$ttxml->fileid}&jmp=$sid'>$sid</a>
 						<td style='width: 33%' align=right>$nnav
 						</table>
 						<hr>
@@ -46,7 +46,7 @@
 
 		$graph = drawgraph($sent);
 		$width = $xpos + 50;
-		$height = $width/3;
+		$height = $width/2.5;
 	
 		$maintext .= "\n
 <script language=\"Javascript\" src=\"$jsurl/tokview.js\"></script>
@@ -83,7 +83,8 @@
 				<td>".$sent->asXML();
 			
 		};
-		$maintext .= "</table>";
+		$maintext .= "</table>
+		<hr><p><a href='index.php?action=file&cid={$ttxml->fileid}'>{%Text view}</a>";
 	
 	};	
 
@@ -91,18 +92,19 @@
 		$treetxt = "";
 		global $xpos;
 		$xpos = 0;
-		foreach ( $node->xpath(".//mtok[not(.//dtok)] | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok[not(ancestor::tok/ancestor::mtok)]") as $tok ) {
+		foreach ( $node->xpath(".//mtok[not(./dtok)] | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok[not(ancestor::tok/ancestor::mtok)]") as $tok ) {
 		
 			$text = $tok['form'] or $text = $tok."";
 			# $text = str_replace(" ", "_", $text);
 			$tokid = $tok['id']."";
 			
-			if ( $text != "" ) { 		
+			if ( $text != "" || $tok['head'] ) { 		
 				
-				# $bbox = imagettfbbox(12, 0, "tmp/Arial.ttf", $text);
+				if ( $text == "" ) $text = "∅";				
+				
 				$treetxt .= "\n\t<text class='toktext' tokid=\"$tokid\" x=\"$xpos\" y=\"20\" font-family=\"Courier\" font-size=\"12\">$text</text> ";
 				$width = 6.9*(mb_strlen($text));
-				$mid[$tokid] = $xpos + ($width/2) + 2;
+				$mid[$tokid] = $xpos + ($width/2);
 				$xpos = $xpos+12+$width;
 			
 			};
@@ -111,21 +113,24 @@
 
 		$treetxt .= "\n";
 
-		foreach ( $node->xpath(".//mtok[not(.//dtok)] | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok[not(ancestor::tok/ancestor::mtok)]") as $tok ) {
-			if ( $tok['head'] ) {
+		foreach ( $node->xpath(".//mtok[not(./dtok)] | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok[not(ancestor::tok/ancestor::mtok)]") as $tok ) {
+			if ( $tok['head'] && $tok['drel'] != "0" ) {
+				$in++;
 				$x1 = $mid[$tok['id'].""]; $x2 = $mid[$tok['head'].""];
 				$y1 = 25;
 				$w = $x2-$x1; 
-				$h = floor(abs($w/2.5));  $os = floor($w/8);
+				$h = floor(abs($w/2));  $os = floor($w/8);
 				$y2 = $y1 + $h;
 				$r1 = $x1+$os; $r2 = $x2-$os;
-				$treetxt .= "\n\t<path title=\"{$tok['deps']}\" d=\"M$x1 $y1 C $r1 $y2, $r2 $y2, $x2 $y1\" stroke=\"black\" fill=\"transparent\" marker-end=\"url(#arrow)\"/>";
+				$treetxt .= "\n\t<path title=\"{$tok['deps']}\" d=\"M$x1 $y1 C $r1 $y2, $r2 $y2, $x2 $y1\" stroke=\"black\" fill=\"transparent\"/>"; #  marker-end=\"url(#arrow)\"
 				$treetxt .= "<circle cx=\"$x1\" cy=\"$y1\" r=\"2\" stroke=\"black\" stroke-width=\"1\" fill=\"black\" />";
-// 				if ( $tok['deps'] ) {
-// 					$lx = $x1 + $w/2;
-// 					$ly = $y2;
-// 					$treetxt .= "\n\t<text x=\"$lx\" y=\"$ly\" font-family=\"Courier\" font-size=\"12\">{$tok['deps']}</text> ";
-// 				};
+
+ 				if ( $tok['deps'] ) {
+ 					$lw = 5.8*(mb_strlen($tok['deps']));
+ 					$lx = $x1 + $w/2 - ($lw/2);
+ 					$ly = $y1 + $h*0.75 - 5;
+ 					$treetxt .= "\n\t<text x=\"$lx\" y=\"$ly\" font-family=\"Courier\" fill=\"#aa2000\" font-size=\"10\">{$tok['deps']}</text> ";
+ 				};
 			};
 		};
 				

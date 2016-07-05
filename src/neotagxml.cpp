@@ -481,7 +481,7 @@ pugi::xpath_node_set getLexiconProb ( string word ) {
 		return lexiconProbs[word];
 	} else {
 		string xpath = "item[@key=\""+xpescape(word)+"\"]/tok";
-		pugi::xpath_node_set tmp = lexicon.select_nodes(xpath.c_str());
+		pugi::xpath_node_set tmp = lexicon.child("neotag").child("lexicon").select_nodes(xpath.c_str());
 		lexiconProbs[word] = tmp;
 		return tmp;
 	};
@@ -1606,6 +1606,8 @@ int main (int argc, char * const argv[]) {
 		if ( !lexicon.load_file(tagsettings.attribute("lexicon").value(), (pugi::parse_ws_pcdata | pugi::parse_declaration | pugi::parse_doctype ) & ~pugi::parse_wconv_attribute & ~pugi::parse_escapes ) ) { // pugi::parse_default | 
 			cout << "Failed to load lexicon: " << tagsettings.attribute("lexicon").value() << endl;
 			return -1;
+		} else {
+			if ( verbose ) { cout << "External lexicon: " << tagsettings.attribute("lexicon").value() << endl; };
 		};
 	};
 	
