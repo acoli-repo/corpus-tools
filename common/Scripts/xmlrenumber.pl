@@ -48,12 +48,19 @@ use XML::LibXML;
 		};
 	}; 
 	# warn " - number of tokens: $cnt\n";
-	
+
 	# Number the paragraphs
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//p")) {
 		$cnt++;
 		$ttnode->setAttribute('id', "p-$cnt");
+	}; 
+	
+	# Number the paragraphs
+	$cnt = 0;
+	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//div")) {
+		$cnt++;
+		$ttnode->setAttribute('id', "div-$cnt");
 	}; 
 	
 	# Number the sentences
@@ -79,9 +86,17 @@ use XML::LibXML;
 	
 	# Number the footnotes
 	$cnt = 0;
+	if ( $debug ) { print "Finding toks : $mtxtelem//note\n"; };
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//note")) {
 		$cnt++;
 		$ttnode->setAttribute('id', "ftn-$cnt");
+	}; 
+	
+	# Number the critical elements
+	$cnt = 0;
+	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//app")) {
+		$cnt++;
+		$ttnode->setAttribute('id', "app-$cnt");
 	}; 
 	
 	$teitext = $tmpdoc->toString;
@@ -92,7 +107,7 @@ if ( $debug ) {
 	# binmode ( STDOUT, ":utf8" );
 	print $teitext;
 } else {
-	open FILE, ">$filename" or die ("no such file: $file");
+	open FILE, ">$filename" or die ("no such file: $filename");
 	# binmode ( FILE, ":utf8" );
 	print FILE $teitext;
 	close FILE;

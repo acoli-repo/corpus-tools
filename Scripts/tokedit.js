@@ -126,6 +126,7 @@ function formify () {
 			it.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
 	};
 
+	// Make <note> into roll-over numbers (optional, can be turned off)
 	if ( typeof(floatnotes) != "undefined" && floatnotes ) {
 		var its = mtxt.getElementsByTagName("note");
 		for ( var a = 0; a<its.length; a++ ) {
@@ -143,6 +144,23 @@ function formify () {
 			if ( it.getAttribute('id') && username != '' )
 				it.onclick = function() { window.open('index.php?action=noteedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
 		};
+	};
+
+	var its = mtxt.getElementsByTagName("app");
+	for ( var a = 0; a<its.length; a++ ) {
+		var it = its[a];  
+		if ( typeof(it) != 'object' ) { continue; };
+		var itnr = it.getAttribute('n');
+		if (!itnr) { itnr = parseInt(a)+1; };
+		var itid = it.getAttribute('id');
+		if ( !footnotes[itid] ) { footnotes[itid] = it.innerHTML; };
+		it.innerHTML = '['+itnr+']';
+		it.style.display = 'inline';
+		// Make this node roll-over
+		it.onmouseover = function() { shownote(this.getAttribute('id')); };
+		it.onmouseout = function() { hidenote(); };
+		// if ( it.getAttribute('id') && username != '' )
+		//	it.onclick = function() { window.open('index.php?action=noteedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
 	};
 	
 	var its = mtxt.getElementsByTagName("deco");

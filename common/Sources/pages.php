@@ -45,21 +45,41 @@
 	};
 	if ( !$settings['xmlfile']['index'] ) $settings['xmlfile']['index'] = array ( "chapter" => array ( "display" => "Chapter List" ));
 	foreach ( $settings['xmlfile']['index'] as $key => $val ) {
-		if ( count($ttxml->xml->xpath("//milestone[@type=\"$key\"]")) > 0 ) {
-			$lpnr = "";
-			$maintext .= "<td valign=top><h2>{%{$val['display']}}</h2>";
-			# Build the list of pages
-			$result = $ttxml->xml->xpath("//milestone[@type=\"$key\"]"); $tmp = 0;
-			foreach ($result as $cnt => $node) {
-				$pid = $node['id'] or $pid = "cnt[$cnt]";
-				$pnr = $node['n'] or $pnr = "cnt[$cnt]";
-				if ( $lpnr ) {
-					$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&pageid=$lpid&pbtype=$key\">$lpnr</a>";
+		if ( $val['div'] ) {
+			$divxp = "//{$val['div']}[@type=\"$key\"]";
+			if ( count($ttxml->xml->xpath($divxp)) > 0 ) {
+				$lpnr = "";
+				$maintext .= "<td valign=top><h2>{%{$val['display']}}</h2>";
+				# Build the list of pages
+				$result = $ttxml->xml->xpath($divxp); $tmp = 0;
+				foreach ($result as $cnt => $node) {
+					$pid = $node['id'] or $pid = "cnt[$cnt]";
+					$pnr = $node['n'] or $pnr = "cnt[$cnt]";
+					if ( $lpnr ) {
+						$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&div=$lpid&divtype={$val['div']}\">$lpnr</a>";
+					};
+					$lpnr = $pnr; $lpid = $pid;
 				};
-				$lpnr = $pnr; $lpid = $pid;
+				$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&div=$pid&divtype={$val['div']}\">$pnr</a>";
+				$maintext .= "</td>";
 			};
-			$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&pageid=$pid&pbtype=$key\">$pnr</a>";
-			$maintext .= "</td>";
+		} else {
+			if ( count($ttxml->xml->xpath("//milestone[@type=\"$key\"]")) > 0 ) {
+				$lpnr = "";
+				$maintext .= "<td valign=top><h2>{%{$val['display']}}</h2>";
+				# Build the list of pages
+				$result = $ttxml->xml->xpath("//milestone[@type=\"$key\"]"); $tmp = 0;
+				foreach ($result as $cnt => $node) {
+					$pid = $node['id'] or $pid = "cnt[$cnt]";
+					$pnr = $node['n'] or $pnr = "cnt[$cnt]";
+					if ( $lpnr ) {
+						$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&pageid=$lpid&pbtype=$key\">$lpnr</a>";
+					};
+					$lpnr = $pnr; $lpid = $pid;
+				};
+				$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&pageid=$pid&pbtype=$key\">$pnr</a>";
+				$maintext .= "</td>";
+			};
 		};
 	};
 	$maintext .= "</tr></table>";

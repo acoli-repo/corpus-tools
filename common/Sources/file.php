@@ -71,7 +71,7 @@
 	if ( $title == "" ) $title = "<i>{%Without Title}</i>";
 
 	# In paged texts, always jump to a page
-	if ( $settings['xmlfile']['paged'] && !$_GET['page'] && !$_GET['pageid'] ) {
+	if ( $settings['xmlfile']['paged'] && !$_GET['page'] && !$_GET['pageid'] && !$_GET['div'] ) {
 		# We will by default jump to the page containing the tok we are looking for
 		# IF there are multiple tokens, jump to the first one
 		$tokids = $_GET['tid'] or $tokids = $_GET['jmp'];
@@ -315,7 +315,6 @@
 		
 		$span = $nidx-$pidx;
 		$editxml = $facspb.substr($editxml, $pidx, $span); 
-
 		
 		if ( $_GET['page'] ) $folionr = $_GET['page']; // deal with pageid
 		else if ( $_GET['pageid'] ) {
@@ -337,6 +336,19 @@
 						<hr>
 						";
 
+	} else if ( $_GET['div'] ) {
+		$divtype = $_GET['divtype'] or $divtype = "tei:div";
+		$mtxtelement = "//*[name() = '$divtype' and @id='{$_GET['div']}']";
+		// TODO: Grab the pb/@facs just above the <div>
+		// TODO: Create a navigation bar
+
+		$result = $xml->xpath($mtxtelement); 
+		if ( $result ) {
+			$txtxml = $result[0]; 
+			$editxml = $txtxml->asXML();
+		} else {
+			fatal ("Display element not found: $mtxtelement");
+		};
 	} else if ( $mtxtelement ) {
 		$result = $xml->xpath($mtxtelement); 
 		if ( $result ) {
