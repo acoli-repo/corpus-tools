@@ -71,6 +71,23 @@
 					};
 				};
 			};
+
+			// Save mtok data
+			if ( $_POST['matts'] ) {
+			foreach ( $_POST['matts'] as $key => $val ) {
+				list ( $mtid, $mkey ) = explode ( ":", $key );
+				$mtok = $mtoks[$mtid];
+				if ( !$mtok ) {
+					$result = $xml->xpath("//mtok[@id='$mtid']"); 
+					$mtok = $result[0]; 
+					$mtoks[$mtid] = $mtok;
+				};
+				
+				if ( $val != "" || $mtok[$mkey] != "" ) {
+					$mtok[$mkey] = $val;
+				};
+			};
+			};
 		};		
 
 		# Removing trailing and leading whitespaces (which should not be there anyway)

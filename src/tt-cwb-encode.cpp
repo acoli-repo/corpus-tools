@@ -101,7 +101,10 @@ void write_range ( int pos1, int pos2, string tagname ) {
 		if ( debug > 0 ) { cout << "negative range - not writing" << endl; };
 		return; 
 	}; // We can never have negative ranges
-		
+	
+	if ( files[tagname]["rng"] == NULL ) {
+		cout << "fatal error: no range file for rng of " << tagname << " - probably no <text> level defined in settings.xml" << endl;
+	};
 	write_network_number(pos1, files[tagname]["rng"]);
 	write_network_number(pos2, files[tagname]["rng"]);
 };
@@ -112,6 +115,9 @@ void write_range_value ( int pos1, int pos2, string tagname, string attname, str
 	
 	string formkey = tagname + "_" + attname;
 	
+	if ( files[formkey]["rng"] == NULL ) {
+		cout << "fatal error: no range file for rng of " << formkey << endl;
+	};
 	write_network_number(pos1, files[formkey]["rng"]);
 	write_network_number(pos2, files[formkey]["rng"]);
 
@@ -141,7 +147,12 @@ void treatnode ( pugi::xpath_node node ) {
 	pugi::xml_node lexitem;
 	pugi::xml_node tok;
 	
-	if ( debug > 1 ) node.node().print(std::cout);
+	if ( debug > 3	 ) node.node().print(std::cout);
+
+	if ( node.node().attribute("id") == NULL ) { 
+		if ( debug > 1 ) { cout << "Skipping - node without an ID: " << node.node().attribute("id").value() << endl; };
+		return;
+	};
 
 	if ( !strcmp( node.node().attribute("form").value(), "--" ) ) { 
 		if ( debug > 1 ) { cout << "Skipping - empty string: " << node.node().attribute("id").value() << endl; };
@@ -150,6 +161,7 @@ void treatnode ( pugi::xpath_node node ) {
 
 	// We have a valid token - handle it
 	tokcnt++;
+	if ( debug > 1 ) { cout << "Token " << tokcnt << " : " << node.node().attribute("id").value()  << " = " << calcform(node.node(), "form") << endl; };
 
 	// Write the .lexicon, .lexicon.idx and .corpus files
 	string formkey; string formval; pugi::xpath_node xres;
@@ -167,7 +179,8 @@ void treatnode ( pugi::xpath_node node ) {
 			};
 		} else {
 			if ( formkey == "word" ) { // we NEED a word in CQP
-				if ( !strcmp(node.node().name(), "dtok") ) {
+				// TODO: find a better solution for @fform in dtok
+				if ( !strcmp(node.node().name(), "dtok") && inherit.find("fform") != inherit.end() ) {
 					formval = calcform(node.node(), "fform");
 				} else {
 					formval = calcform(node.node(), "form");
@@ -237,11 +250,20 @@ void treatfile ( string filename ) {
 		return;
 	};
 
-	char tokxpath [50];
-	if ( cqpsettings.attribute("tokxpath") != NULL ) { strcpy(tokxpath, cqpsettings.attribute("tokxpath").value()); } 
-		else { strcpy(tokxpath, "//tok"); };
-	if ( debug > 3 ) cout << "- treating all: " << tokxpath << endl;
-	    
+	char tokxpath [50]; string toktype;
+	if ( cqpsettings.attribute("toktype") != NULL ) {
+		toktype = cqpsettings.attribute("toktype").value();
+	} else {
+		toktype = "mtd";
+	};
+	
+	if ( cqpsettings.attribute("tokxpath") != NULL ) { 
+		strcpy(tokxpath, cqpsettings.attribute("tokxpath").value()); 
+	} else {
+		strcpy(tokxpath, "//tok"); 
+	};
+	if ( debug > 1 ) cout << "- treating all: " << tokxpath << " - toktype: " << toktype << endl;
+	
     // Go through the toks
 	pugi::xpath_node_set toks = doc.select_nodes(tokxpath);
 	map<string, int> id_pos;
@@ -249,28 +271,40 @@ void treatfile ( string filename ) {
 	int pos1 = tokcnt;
 	for (pugi::xpath_node_set::const_iterator it = toks.begin(); it != toks.end(); ++it)
 	{
-		pugi::xpath_node node = *it;
-		
-		if ( node.node().child("dtok") && cqpsettings.attribute("nodtoks") == NULL ) {
-			// Go through the dtoks
-			id_pos[it->node().attribute("id").value()] = tokcnt; // Use the first <dtok> as ref for the whole <tok> for stand-off purposes
-	        for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
+		pugi::xml_node node = it->node();
+
+		// If we have an enclosing <mtok>, use that one (when using mtoks)
+		// TODO: this currently only looks at the direct parent
+		if ( toktype.find("m") != std::string::npos && !strcmp(node.parent().name(), "mtok") ) {
+			if ( id_pos.find(node.parent().attribute("id").value()) == id_pos.end() ) {
+				// use the mtok instead of this tok
+				if ( debug > 3 ) { cout << "Using mtok: " << node.parent().attribute("id").value() << " instead of " << node.attribute("id").value() << endl; };
+				node = node.parent();
+			} else {
+				// we have already done this mtok
+				if ( debug > 3 ) { cout << "Skipping mtok: " << node.parent().attribute("id").value() << " for " << node.attribute("id").value() <<  " (already done)" << endl; };
+				continue;
+			};
+		};
+
+		// If we have child <dtok>, use that one (when using mtoks)
+		if ( toktype.find("d") != std::string::npos && node.child("dtok") ) {
+			id_pos[node.attribute("id").value()] = tokcnt; // Use the first <dtok> as ref for the whole <tok> for stand-off purposes
+	        for ( pugi::xml_node dtoken = node.child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
 				id_pos[dtoken.attribute("id").value()] = tokcnt;
 		
 				treatnode(dtoken);
 
 	    	};
 		} else {
-			id_pos[it->node().attribute("id").value()] = tokcnt;
+			id_pos[node.attribute("id").value()] = tokcnt;
 		
 			treatnode(node);
-		};
-			
+		};			
 	}
 	int pos2 = tokcnt-1;
 
 	string idname;
-	// idname = doc.select_single_node("//text/@id").attribute().value();
 	idname = filename;
 	
 	// Add the default attributes for <text>
@@ -283,12 +317,12 @@ void treatfile ( string filename ) {
 	write_range_value (pos1, pos2, "text", "id", idname);
 		if ( debug > 4 ) { cout << "  - written to text_id" << endl; };
 
-
-
 	// add the sattributes for all levels
 	string formkey; string formval; 
 	string rel_tokxpath = tokxpath;
-		rel_tokxpath = "." + rel_tokxpath;
+	// TODO: Make this make a proper relative XPath, since //tok//dtok would currently become .//tok.//dtok
+	replace_all(rel_tokxpath, "//", ".//");
+		if ( debug > 4 ) { cout << "  - looking for the tokens inside this range: " << rel_tokxpath << endl; };
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
 		string tagname = taglevel.attribute("key").value();
 		if ( tagname == "text" ) {
@@ -405,7 +439,8 @@ void treatfile ( string filename ) {
 	};
 
 	// add the stand-off annotations
-	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("annotations").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
+	if ( xmlsettings.first_child().child("cqp").child("annotations") ) {
+		for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("annotations").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
 		string tagname = taglevel.attribute("key").value();
 		string annotationfile = "Annotations/" + tagname + "_" + fileid+ ".xml";
 		if ( debug > 2 ) { cout << " - Looking for stand-off: " << annotationfile << endl; };
@@ -439,6 +474,8 @@ void treatfile ( string filename ) {
 			};	
 		};
 	};
+	};
+
 };
 
 
@@ -483,6 +520,7 @@ int treatdir (string dirname) {
 		} else {
 		   treatfile(ffname);
 		};
+		
     };
 
     closedir(dp);

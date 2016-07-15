@@ -56,6 +56,13 @@ use XML::LibXML;
 		$ttnode->setAttribute('id', "p-$cnt");
 	}; 
 	
+	# Number the mtoks
+	$cnt = 0;
+	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//mtok")) {
+		$cnt++;
+		$ttnode->setAttribute('id', "m-$cnt");
+	}; 
+	
 	# Number the paragraphs
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//div")) {

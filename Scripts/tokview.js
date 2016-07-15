@@ -68,7 +68,7 @@ function showtokinfo(evt, element, poselm) {
     			textvalue = element.getAttribute('form'); 
     		};
     	};
-    	if ( textvalue == "null" ) { 
+    	if ( textvalue == "null" || typeof(textvalue) == "undefined" ) { 
     		textvalue = ""; 
     	};
     	tablerows = '<tr><th colspan=2><b>' + textvalue + '</b></th></tr>';

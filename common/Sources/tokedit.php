@@ -296,15 +296,15 @@
 			<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=lb'>linebreak</a>";
 		
 		if ( $dtk ) {
-			$maintext .= "&bull;
+			$maintext .= " &bull;
   				add: <a href='index.php?action=retok&node=dtok&cnt=1&cid=$fileid&tid=$tokid'>dtok</a>";
   		} else {
-			$maintext .= "&bull;
+			$maintext .= " &bull;
   				split in dtoks: <a href='index.php?action=retok&node=dtok&cnt=2&cid=$fileid&tid=$tokid'>2</a> ;
   					<a href='index.php?action=retok&node=dtok&cnt=3&cid=$fileid&tid=$tokid'>3</a>";
   		};
 
-		$maintext .= "&<br><a href='index.php?action=contextedit&cid=$fileid&tid=$tokid'>edit</a> context XML";
+		$maintext .= "<br><a href='index.php?action=contextedit&cid=$fileid&tid=$tokid'>edit</a> context XML";
 
 		$tmp = $token->xpath('preceding-sibling::tok');
 		if ( $tmp ) {
@@ -314,6 +314,10 @@
 		};
 
 		
+		$mtok = current($token->xpath('ancestor::mtok'));
+		if ( !$mtok && $prevtok ) {
+			$maintext .= " &bull; create mtok left: <a href='index.php?action=makemtok&cid=$fileid&tid=$tokid&num=1'>1</a> ; <a href='index.php?action=makemtok&cid=$fileid&tid=$tokid&num=2'>2</a>";
+		};
 
 		# Similar tokens only works on tokens that are displayed here - which no longer works if we clip 
 		$maintext .= "<br>
@@ -322,6 +326,63 @@
 			<div id='simtoks'></div>
 		
 		";
+		
+		
+		# In case this is part of an <mtok>, show that as well
+		if ( $mtok ) {
+			$mtokid = $mtok['id'];
+
+			$maintext .= "<hr><h2>Multi-token value ({$mtok['id']}): {$mtok['form']}</h2>
+				<table>";
+			
+			// Show all the defined forms and make them editable
+			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+				$atv = $mtok[$key]; 
+				$val = $item['display'];
+				if ( $key != "pform" && !$item['noedit'] ) { // the raw XML is not an attribute, and some attribute are set to be non-editable
+					$atv = str_replace("'", "&#039;", $atv); // protect the HTML field
+					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=matts[$mtokid:$key] id='f$key' value='$atv' $chareqfn>";
+				};
+			};
+			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+				$atv = $mtok[$key]; 
+				$val = $item['display'];
+				if ( $key != "pform" ) {
+					// if ( $attype[$key] == "select" || $attype[$key] == "eselect" || $attype[$key] == "mselect" ) {
+					if ( $item['type'] == "Select" || $item['type'] == "ESelect" || $item['type'] == "MSelect" ) {
+						$tmp = file_get_contents("cqp/$key.lexicon"); $optarr = array();
+						foreach ( explode ( "\0", $tmp ) as $kval ) { 
+							if ( $kval ) {
+								if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
+								if ( ( $attype[$key] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) $optarr[$kval] = "<option value='$kval' $seltxt>$kval</option>"; 
+							};
+						};
+						sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+				
+						if ( $item['type'] == "ESelect" ) {
+							$maintext .= "<tr><td>$key<td>$val
+										<td><select name=matts[$mtokid:$key]><option value=''>[select]</option>$optlist</select>";
+							$maintext .= "<input type=checkbox>new value: <span id='newat'><input size=30 name=newatt[$key] id='f$key' value=''></span>";
+						} else if ( $item['type'] == "Select" ) {
+							$maintext .= "<tr><td>$key<td>$val
+										<td><select name=matts[$mtokid:$key]><option value=''>[select]</option>$optlist</select>";
+						} else if ( $item['type'] == "MSelect" ) {
+							$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
+							$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=matts[$mtokid:$key] id='f$key' value='$atv'>
+								add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
+						} else {
+							$maintext .= "<tr><td>$key<td>$val
+										<td><select name=matts[$mtokid:$key]><option value=''>[select]</option>$optlist</select>";
+						};
+					 
+					} else {
+						$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=matts[$mtokid:$key] id='f$key' value='$atv'>";
+					};
+				};
+			};
+			$maintext .= "</table>";
+
+		};
 		
 		# Delimit the context where needed
 		if ( $settings['xmlfile']['paged'] ) {
