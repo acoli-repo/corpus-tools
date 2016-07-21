@@ -28,7 +28,12 @@
 	} else if ( $act == "check" ) {
 		check_login();
 		$tagfld = $tagset->tagset['fulltag'] or $tagfld = "pos";
-		$maintext .= "<h2>Tag-consistency check on CQP: $tagfld</h2>";
+		$maintext .= "<p>Below is a verification of the POS tags used in the CQP corpus (field $tagfld) against
+			the definition of the tagset. 
+			It will display both errors in the tags (values used in positions that are not defined), and values
+			that should occur according to the tagset, but are not in fact used in the corpus. For the erroneous tags, 
+			you can click on the tags to find the occurrences in the corpus. Corrections will only show after 
+			regenerating the CQP corpus.</p>";
 
 		// Check if the CQP corpus has only valid POS tags
 		$tmp = file_get_contents("cqp/$tagfld.lexicon"); unset($optarr); $optarr = array();
@@ -44,10 +49,12 @@
 		$tagcheck = $tags; 
 		
 		foreach ( $tags as $main => $val ) {
+			$maintxt = $tagset[$main]['display'];
 			foreach ( $val as $posi => $val2 ) {
+				$postxt = $tagset[$main][$posi]['display'];
 				foreach ( $val2 as $value => $tags ) {
 					if ( $posi > 0 && !$tagset[$main][$posi][$value] ) {
-						$maintext .= "<p>Undefined value $value for position $posi of $main<br> - used in: ";
+						$maintext .= "<p>Undefined value <b>$value</b> for position $posi ($postxt) of $main ($maintxt)<br> - used in: ";
 						foreach ( explode(",", $tags ) as $tag ) {
 							if ( $tag ) { $maintext .= "<a target=edit href='index.php?action=cqp&cql=[pos=\"$tag\"]'>$tag</a> "; };
 						};
@@ -62,16 +69,19 @@
 		foreach ( $tagset as $main => $val ) {
 			// $maintext .= "<p>$main: {$val['display']}";
 			foreach ( $val as $posi => $val2 ) {
+				$postxt = $val2['display'];
 				foreach ( $val2 as $value => $val3 ) {
 					$value .= ""; $main .= ""; $posi += 0;
 					if ( $posi > 0 && is_array($val3) && !$tags[$main][$posi][$value] ) {
-						$maintext .= "<p>Unused value $value ({$val3['display']}) for position $posi of $main ({$val['display']})";
+						$valtxt = $val3['display'] or $valtxt = "<i style='color: #aaaaaa'>does not apply</i>";
+						$maintext .= "<p>Unused value $value ($valtxt) for position $posi ($postxt) of $main ({$val['display']})";
 					} else if ( $posi > 0 && is_array($val3) ) {
 						// $maintext .= "<p>Used value $value ({$val3['display']}) for position $posi of $main ({$val['display']}) - ".$tags[$main][$posi][$value];
 					};
 				};
 			};
 		};
+		$maintext .= "<hr><p><a href='index.php?action=$action'>{%Back to tagset}</a>";
 		
 	} else if ( $act == "checkfile" ) {
 		check_login();
@@ -151,6 +161,10 @@
 			};
 		};
 		$maintext .= "</table><hr><p><a href='index.php?action=$action&act=analyze'>{%Analyze a specific POS tag}</a>";
+		
+		if ( $username )	
+			$maintext .= " &bull; <a href='index.php?action=$action&act=check'>{%Check tagset consistency}</a>";
+		
 	};
 
 ?>
