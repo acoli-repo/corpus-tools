@@ -25,6 +25,54 @@
 			$maintext .= "<hr><p><a href='index.php?action=$action'>{%To tagset description}</a>";
 			if ( $warnings ) $maintext .= "<div style='margin-top: 20px; font-weight: bold; color: #992000' class=adminpart>$warnings</div>";
 
+	} else if ( $act == "check" ) {
+		check_login();
+		$tagfld = $tagset->tagset['fulltag'] or $tagfld = "pos";
+		$maintext .= "<h2>Tag-consistency check on CQP: $tagfld</h2>";
+
+		// Check if the CQP corpus has only valid POS tags
+		$tmp = file_get_contents("cqp/$tagfld.lexicon"); unset($optarr); $optarr = array();
+		foreach ( explode ( "\0", $tmp ) as $kva ) { 
+			$main = substr($kva,0,1);
+			for ( $i = 0; $i<strlen($kva); $i++ ) {
+				$let = substr($kva,$i,1);
+				$tags[$main][$i][$let] .= ",$kva";
+			};
+		};
+		
+		$maintext .= "<hr><h2>Undefined positions</h2>";
+		$tagcheck = $tags; 
+		
+		foreach ( $tags as $main => $val ) {
+			foreach ( $val as $posi => $val2 ) {
+				foreach ( $val2 as $value => $tags ) {
+					if ( $posi > 0 && !$tagset[$main][$posi][$value] ) {
+						$maintext .= "<p>Undefined value $value for position $posi of $main<br> - used in: ";
+						foreach ( explode(",", $tags ) as $tag ) {
+							if ( $tag ) { $maintext .= "<a target=edit href='index.php?action=cqp&cql=[pos=\"$tag\"]'>$tag</a> "; };
+						};
+					};
+				};
+			};
+		};
+		
+		$tags = $tagcheck;
+		$maintext .= "<hr><h2>Unused values</h2>";
+
+		foreach ( $tagset as $main => $val ) {
+			// $maintext .= "<p>$main: {$val['display']}";
+			foreach ( $val as $posi => $val2 ) {
+				foreach ( $val2 as $value => $val3 ) {
+					$value .= ""; $main .= ""; $posi += 0;
+					if ( $posi > 0 && is_array($val3) && !$tags[$main][$posi][$value] ) {
+						$maintext .= "<p>Unused value $value ({$val3['display']}) for position $posi of $main ({$val['display']})";
+					} else if ( $posi > 0 && is_array($val3) ) {
+						// $maintext .= "<p>Used value $value ({$val3['display']}) for position $posi of $main ({$val['display']}) - ".$tags[$main][$posi][$value];
+					};
+				};
+			};
+		};
+		
 	} else if ( $act == "checkfile" ) {
 		check_login();
 		

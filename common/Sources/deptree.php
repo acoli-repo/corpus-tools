@@ -53,8 +53,8 @@
 <script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
 <svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"$width\" height=\"$height\">
 	<defs>
-		<marker id=\"arrow\" markerWidth=\"10\" markerHeight=\"10\" refx=\"0\" refy=\"3\" orient=\"auto\" markerUnits=\"strokeWidth\">
-			<path d=\"M0,0 L0,6 L9,3 z\" fill=\"#f00\" />
+		<marker id=\"arrow\" markerWidth=\"10\" markerHeight=\"8\" refx=\"0\" refy=\"3\" orient=\"auto\" markerUnits=\"strokeWidth\">
+			<path d=\"M0,0 L0,6 L9,3 z\" fill=\"#000\" />
 		</marker>
 	</defs>
 	$graph
@@ -116,19 +116,24 @@
 		foreach ( $node->xpath(".//mtok[not(./dtok)] | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok[not(ancestor::tok/ancestor::mtok)]") as $tok ) {
 			if ( $tok['head'] && $tok['drel'] != "0" ) {
 				$in++;
-				$x1 = $mid[$tok['id'].""]; $x2 = $mid[$tok['head'].""];
-				$y1 = 25;
-				$w = $x2-$x1; 
-				$h = floor(abs($w/2));  $os = floor($w/8);
-				$y2 = $y1 + $h;
-				$r1 = $x1+$os; $r2 = $x2-$os;
+				$x1 = $mid[$tok['id'].""]; 
+				$x2 = $mid[$tok['head'].""];
+				# if ( $x1 > $x2 ) { $x1 -= 5; } else { $x1 += 5; }; // This puts the arrow next to each other..
+				$y1 = 25; // Y of the arch
+				$w = $x2-$x1; // width of the arch
+				$h = floor(abs($w/2));  // height of the arch 
+				$y2 = $y1 + $h; // top of the arch
+				$os = floor($w/8); // curve point distance
+				$r1 = $x1+$os; $r2 = $x2-$os; // curve points
+				// place the arch
 				$treetxt .= "\n\t<path title=\"{$tok['deps']}\" d=\"M$x1 $y1 C $r1 $y2, $r2 $y2, $x2 $y1\" stroke=\"black\" fill=\"transparent\"/>"; #  marker-end=\"url(#arrow)\"
+				// place a dot on the end (better than arrow)
 				$treetxt .= "<circle cx=\"$x1\" cy=\"$y1\" r=\"2\" stroke=\"black\" stroke-width=\"1\" fill=\"black\" />";
 
  				if ( $tok['deps'] ) {
  					$lw = 5.8*(mb_strlen($tok['deps']));
- 					$lx = $x1 + $w/2 - ($lw/2);
- 					$ly = $y1 + $h*0.75 - 5;
+ 					$lx = $x1 + $w/2 - ($lw/2); // X of the text
+ 					$ly = $y1 + $h*0.75 - 5; // Y of the text
  					$treetxt .= "\n\t<text x=\"$lx\" y=\"$ly\" font-family=\"Courier\" fill=\"#aa2000\" font-size=\"10\">{$tok['deps']}</text> ";
  				};
 			};
