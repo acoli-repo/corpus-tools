@@ -8,6 +8,7 @@
 	$fileid = $_POST['cid'] or $fileid = $_GET['cid'] or $fileid = $_GET['id'] or $fileid = $_GET['fileid'];
 	$oid = $fileid;
 	$tokid = $_POST['tid'] or $tokid = $_GET['tid'];
+	$tokid = preg_replace("/r-\d+_/", "", $tokid); // for row-driven ids
 	
 	if ( !strstr( $fileid, '.xml') ) { $fileid .= ".xml"; };
 	

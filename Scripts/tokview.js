@@ -17,8 +17,12 @@ function clickEvent(evt) {
 	if ( element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; };
 
     if (element.tagName == "TOK" ) {
-    	// console.log(evt); 
     	if ( username ) {
+    		if ( typeof(tid) == "undefined" ) { // For KWIC rows
+				var mtch = document.evaluate("ancestor::tr[@tid]", element, null, XPathResult.ANY_TYPE, null); 
+				var mitm = mtch.iterateNext();
+				tid = mitm.getAttribute('tid');
+    		};
     		window.open('index.php?action=tokedit&cid='+tid+'&tid='+element.getAttribute('id'), 'edit');
     	};
     };
