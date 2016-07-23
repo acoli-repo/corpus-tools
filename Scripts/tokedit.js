@@ -615,8 +615,10 @@ function treatpos ( tok, label, type ) {
 							if ( valdef ) {
 								var postxt;
 								postxt = valdef.getAttribute('display');
-								mfs += sep + postxt; 
-								sep = '; ';
+								if ( postxt != "" ) {
+									mfs += sep + postxt; 
+									sep = '; ';
+								};
 							};
 						};
 					};

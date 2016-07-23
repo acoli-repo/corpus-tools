@@ -21,9 +21,11 @@ function clickEvent(evt) {
     		if ( typeof(tid) == "undefined" ) { // For KWIC rows
 				var mtch = document.evaluate("ancestor::tr[@tid]", element, null, XPathResult.ANY_TYPE, null); 
 				var mitm = mtch.iterateNext();
-				tid = mitm.getAttribute('tid');
+				jumpid = mitm.getAttribute('tid');
+    		} else {
+    			jumpid = tid;
     		};
-    		window.open('index.php?action=tokedit&cid='+tid+'&tid='+element.getAttribute('id'), 'edit');
+    		window.open('index.php?action=tokedit&cid='+jumpid+'&tid='+element.getAttribute('id'), 'edit');
     	};
     };
 };
