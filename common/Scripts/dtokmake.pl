@@ -1,5 +1,5 @@
-# Script to check whether there are any "redundant" forms
-# Where the explicit value matches the inherited value
+# Script to automatically change <tok> with a + in @pos 
+# into the corresponding <dtok>
 
 use XML::LibXML;
 $filename = shift;
@@ -52,13 +52,13 @@ foreach $ttnode ($xml->findnodes("//tok[contains(\@pos,'+')]")) {
 			$newchild->setAttribute("form", "#".$tokform );
 		};
 		
-		# Remove the plus nodes from the tok
-		foreach $att ( keys %plusatts ) {
-			$ttnode->removeAttribute($att);
-		};
 
 		print $newchild->toString; 
 		
+	};
+	# Remove the plus nodes from the tok
+	foreach $att ( keys %plusatts ) {
+		$ttnode->removeAttribute($att);
 	};
 
 	print;
