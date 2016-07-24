@@ -23,7 +23,7 @@
 		$cmd = preg_replace ( "/\[id\]/", "$id", $cmd );
 		
 		# print $cmd; exit;
-		$res = shell_exec($cmd);
+		$res = htmlentities(shell_exec($cmd));
 		$maintext .= "<h1>Script Done</h1><p>Script successfully executed. Result:
 		 <hr><PRE>$res</PRE><hr>
 		 
