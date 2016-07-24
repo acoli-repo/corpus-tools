@@ -69,4 +69,10 @@ foreach $ttnode ($xml->findnodes("//tok[contains(\@pos,'+')]")) {
 	print FILE $xml->toString;
 	close FILE;
 
+	$scriptname = $0;
+	( $renum = $scriptname ) =~ s/xmltokenize/xmlrenumber/;
+
+	# Finally, run the renumber command over the same file
+	$cmd = "/usr/bin/perl $renum --filename=$filename";
+	`$cmd`;
 
