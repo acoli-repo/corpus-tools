@@ -209,7 +209,12 @@
 		$result2 = $token->xpath("dtok"); $dtk = 0;
 		foreach ( $result2 as $dtoken ) {
 			$did = $dtoken['id']; $dtk++; 
-			if ( !$did ) { $did = $token['id'].'-'.$dtk; };
+			if ( !$did ) { 
+				$warning = "<div class=warning>TOK or DTOK without @is, which will not allow TEITOK 
+					tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$cid\">here</a> to renumber the XML file
+					which will provide all TOK and DTOK with an @id.</div>";
+				$did = $token['id'].'-'.$dtk; 
+			};
 			$dform = $dtoken['form'];
 			$totform .= $dform;
 			$rawdxml = $dtoken->asXML();

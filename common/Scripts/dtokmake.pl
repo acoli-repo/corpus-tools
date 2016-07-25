@@ -30,7 +30,9 @@ foreach $ttnode ($xml->findnodes("//tok[contains(\@pos,'+')]")) {
 
 	$tokform = $ttnode->getAttribute("form") or $tokform = $ttnode->textContent;
 
-	print $ttnode->getAttribute("id"), $ttnode->getAttribute("pos"), $tokform;
+	$id = $ttnode->getAttribute("id");
+
+	print $id, $ttnode->getAttribute("pos"), $tokform;
 
 	for ( $i=0; $i<$num; $i++ ) {
 		$newchild = XML::LibXML::Element->new( "dtok" );
@@ -52,6 +54,8 @@ foreach $ttnode ($xml->findnodes("//tok[contains(\@pos,'+')]")) {
 			$newchild->setAttribute("form", "#".$tokform );
 		};
 		
+		( $newid = $id."-".($i+1) ) =~ s/w-/d-/;
+		$newchild->setAttribute("id", $newid );
 
 		print $newchild->toString; 
 		
