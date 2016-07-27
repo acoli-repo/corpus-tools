@@ -161,7 +161,7 @@
 			$atv = $token[$key]; 
 			$val = $item['display'];
 			if ( $item['noedit'] ) {
-				if ( $val ) $maintext .= "<tr><td>$key<td>$val<td>$atv";
+				if ( $val && $atv ) $maintext .= "<tr><td>$key<td>$val<td>$atv";
 				continue;
 			};
 			if ( $key != "pform" ) {
@@ -268,7 +268,7 @@
 				};
 			};
 			$maintext .= "</table>";
-			$maintext .= "<p><ul><li><a href='index.php?action=toksave&act=delete&cid=$fileid&tid=$did'>delete</a> this dtok</ul>"; 
+			if ( !$warning ) $maintext .= "<p><ul><li><a href='index.php?action=toksave&act=delete&cid=$fileid&tid=$did'>delete</a> this dtok</ul>"; 
 		};
 		
 		# Check if there is no XML in toks without a @form

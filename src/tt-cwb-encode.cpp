@@ -325,7 +325,8 @@ void treatfile ( string filename ) {
 		if ( debug > 4 ) { cout << "  - looking for the tokens inside this range: " << rel_tokxpath << endl; };
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
 		string tagname = taglevel.attribute("key").value();
-		if ( tagname == "text" ) {
+		string taglvl = taglevel.attribute("level").value();
+		if ( taglvl == "text" ) {
 			// This is the <text> level
 			if ( !(pos2>pos1) ) { continue; }; // This will crash on texts without any tokens inside; do not add to CQP for now (but they should be added as indexes)
 			for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
@@ -384,13 +385,19 @@ void treatfile ( string filename ) {
 				write_range_value (pos1, pos2, "text", formkey, formval);
 			};	
 		} else {
-			if ( debug > 2 ) { cout << "Looking for " << tagname << endl; };
+			if ( debug > 2 ) { cout << "Looking for " << taglvl << endl; };
 			// Add non-text level attributes
-			string xpath = "//text//" + tagname;
+			string xpath = "//text//" + taglvl;
 			// Loop through the actual items
 			pugi::xpath_node_set elmres = doc.select_nodes(xpath.c_str());
 			for (pugi::xpath_node_set::const_iterator it = elmres.begin(); it != elmres.end(); ++it) {
-				pugi::xpath_node_set rel_toks = it->node().select_nodes(rel_tokxpath.c_str());
+				string tmpxpath;
+				if ( taglvl == "tok[dtok]" ) {
+					tmpxpath = "dtok";
+				} else {
+					tmpxpath = rel_tokxpath;
+				}
+				pugi::xpath_node_set rel_toks = it->node().select_nodes(tmpxpath.c_str());
 				if ( rel_toks.empty() ) { continue; };
 				string toka = rel_toks[0].node().attribute("id").value();
 				string tokb = rel_toks[rel_toks.size()-1].node().attribute("id").value();
@@ -424,6 +431,10 @@ void treatfile ( string filename ) {
 						} else {
 							formval = xres.node().child_value();
 						};
+					} else if ( taglvl == "tok[dtok]" ) {
+						// calculate the form
+						formval = calcform(it->node(), formkey);
+						if ( debug > 3 ) { cout << " -- calculating form for " << tagname << " - " << formkey << " = " << formval << endl; };
 					} else { 
 						formval = it->node().attribute(formfld.attribute("key").value()).value();
 					};
