@@ -13,9 +13,10 @@ $parser = XML::LibXML->new();
 GetOptions (
             'csvfile=s' => \$csvfile,
             'teiheader=s' => \$teiheader,
-            'xmlfolder=s' => \$xmlfolder,
-            'debug' => \$debug,
-            'notext' => \$notext,
+            'xmlfolder=s' => \$xmlfolder, # Which folder to use
+            'debug' => \$debug, 
+            'notext' => \$notext, # Do not create anything below <TEI> for new files
+            'nocreate' => \$nocreate, # Do no create non-existing files
             'template=s' => \$template,
             'queries=s' => \$xpathqueries,
             'header' => \$header, # Whether the CSV file has a (non XPath) header row
@@ -27,6 +28,15 @@ if ( !$csvfile ) { $csvfile = shift; };
 if ( !$csvfile ) { print "Usage: csv2tei [options] csvfile"; exit; };
 if ( !-e $csvfile ) { print "No such file: $csvfile"; exit; }; 
 
+$orgfile = $csvfile.".org";
+if ( -e $orgfile ) {
+	open FILE, $orgfile;
+	$/ = undef;
+	@orglines = split ( "\n", <FILE> );
+	close FILE;
+	$/ = "\n";
+};
+
 # Open the CSV file
 open FILE, $csvfile;
 binmode ( FILE, ":utf8" );
@@ -34,6 +44,7 @@ binmode ( FILE, ":utf8" );
 # read the header line(s)
 if ( $header ) { 
 	$headerrow = <FILE>; chomp($headerrow); 
+	$orgheader = shift(@orglines);
 	@namefields = split ( "\t", $headerrow );
 	if ( $debug ) { print "Field names:\n".join ( "\n", @namefields); };
 };
@@ -51,7 +62,12 @@ if ( $xpathqueries ) {
 } else {
 	$xprow = <FILE>; chomp($xprow);
 	@xpfields = split ( "\t", $xprow );
+	$orgfields = shift(@orglines);
 	if ( $debug ) { print "Xpath definitions:\n".join ( "\n", @xpfields); };
+	if ( $orgfields && $orgfields ne $xprow ) {
+		print " - Error: header of original file not matching: ".$checkheader;
+		exit;
+	};
 };
 
 $filecnt = 0;
@@ -60,8 +76,19 @@ $filecnt = 0;
 while ( <FILE> ) {
 	chomp; $line++; $fn = ""; undef(%toset);
 	$filecnt++;
+	$linetxt = $_;
+	if ( $linetxt eq '' ) { next; };
 	@row = split ( "\t" );
+	
+	
+		
 	if ( $debug ) { print "Line $line"; };
+
+	$orgline = shift(@orglines);
+	if ( $orgline && $orgline eq $linetxt ) {
+		if ( $debug ) { print " = $linetxt\n - non-modified line - skipping"; };
+		next;
+	};
 	
 	# See what we need to do with this row
 	for ( $i=0; $i<scalar @row; $i++ ) {
@@ -89,7 +116,7 @@ while ( <FILE> ) {
 	
 	print "Treating: $fn";
 	# See if the file exists or create a new TEI XML
-	if ( -e $fn) {
+	if ( -e $fn ) {
 		eval {
 			$xml = $parser->load_xml(location => $fn);
 		};
@@ -110,6 +137,12 @@ while ( <FILE> ) {
 		$xml = $parser->load_xml(string => $tei);
 	};	
 
+	# Check whether we should create a new file
+	if ( !-e $fn && $nocreate ) { 
+		if ( $debug ) { print " - not creating non-existing file: $fn"; };
+		next; 
+	};
+	
 	# Now load the actual values into the XML
 	while ( ( $xpath, $xval ) = each ( %toset ) ) {
 		xpathset ( $xpath, $xml, $xval );

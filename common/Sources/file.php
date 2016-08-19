@@ -209,15 +209,15 @@
 		foreach ( $result as $sent ) {
 			$stxt = $sent->asXML(); 
 			$sentid = $sent['n'] or $sentid = "[".$sentnr++."]";
-			$treelink = ""; 
+			$treelink = ""; $nrblock = "";
 			if ( $sent->xpath(".//tok[@head]") ) { 
 				$treelink .= "<a href='index.php?action=deptree&cid=$fileid&sid={$sent['id']}' title='dependency tree'>tree</a>"; 
 				$ewd = 50;
 			};
-			if ( $psdx  && $stype == "s" ) {
-				$editxml .= "
+			if ( $psdx  && $stype == "s" ) { // Allow a direct link to a PSDX tree 
+				$nrblock = "
 					<div style='display: inline-block; float: left; margin: 0px; padding: 0px; width: 80px;'>
-					<table style='width: 100%; table-layout:fixed;'><tr><td style='width: 25px;font-size: 10pt; '>";
+					<table style='width: 100%; table-layout:fixed; margin: 0px;'><tr><td style='width: 25px;font-size: 10pt; '>";
 				if ( $psdx->xpath("//forest[@sentid=\"$sentid\"]") ) {
 					$editxml .= "<a href='index.php?action=psdx&cid=$xmlid&sentence=$sentid'>tree</a>";
 				};
@@ -227,18 +227,20 @@
 						<td style='width: 25px;font-size: 10pt; '><a href='index.php?action=sentedit&cid=$fileid&sid={$sent['id']}'>edit</a>";
 					$pl = "100px";
 				};
-				$editxml .= " 
+				$nrblock .= " 
 					<td style='width: 30px;font-size: 10pt;  text-align: right;'>$sentid </table></div>";
 			}  else {
-				$editxml .= "
-					<div style='display: inline-block; float: left; margin: 0px; padding: 0px; padding-top: 6px; width: {$ewd}px; font-size: 10pt;'>
+				$nrblock = "
+					<div style='display: inline-block; float: left; margin: 0px; padding: 0px; padding-top: 0px; width: {$ewd}px; font-size: 10pt;'>
 						<a href='index.php?action=sentedit&cid=$fileid&sid={$sent['id']}'>$sentid</a>
 						$treelink
 					</div>";
 				$pl = "50px";
 			};
 			$editxml .= "
-				<div style='width: 90%; border-bottom: 1px solid #66aa66; padding-left: $pl; margin-bottom: 6px; padding-bottom: 6px;'>
+				<div style='width: 90%; border-bottom: 1px solid #66aa66; margin-bottom: 6px; padding-bottom: 6px;'>
+				$nrblock
+				<div style='padding-left: $pl;'>
 				$stxt";
 			foreach ( $settings['xmlfile']['sattributes'][$stype] as $item ) {
 				$key = $item['key'];
@@ -249,7 +251,7 @@
 					$editxml .= "<div $scol title='{$item['display']}'>$atv</div>"; 
 				}
 			};
-			$editxml .= "</div>";
+			$editxml .= "</div></div>";
 		};
 		
 	} else if ( ( $_GET['page'] || $_GET['pageid'] ) && $_GET['page'] != "all" ) {

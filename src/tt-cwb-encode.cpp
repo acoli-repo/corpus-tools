@@ -431,8 +431,8 @@ void treatfile ( string filename ) {
 						} else {
 							formval = xres.node().child_value();
 						};
-					} else if ( taglvl == "tok[dtok]" ) {
-						// calculate the form
+					} else if ( !strcmp(formfld.attribute("xpath").value(), "form") ) {
+						// calculate the form for form-type tags (on mtok and tok[dtok])
 						formval = calcform(it->node(), formkey);
 						if ( debug > 3 ) { cout << " -- calculating form for " << tagname << " - " << formkey << " = " << formval << endl; };
 					} else { 
