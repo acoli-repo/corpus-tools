@@ -90,9 +90,9 @@
 		if ( $settings['cqp']['corpus'] ) {
 			$maintext .= "<li><a href='index.php?action=recqp'>(re)generate the CQP corpus</a> (or only 
 				<a href='index.php?action=recqp&check=1'>check</a> the status)";
-			if ( $user['permissions'] == "admin" ) { 
-				$maintext .= "<ul><li>  <a href='index.php?action=recqp&force=1'>regenerate</a> the script to regenerate the CQP corpus (after changing CQP settings)</ul>";
-			};
+			# if ( $user['permissions'] == "admin" ) { 
+			#	$maintext .= "<ul><li>  <a href='index.php?action=recqp&force=1'>regenerate</a> the script to regenerate the CQP corpus (after changing CQP settings)</ul>";
+			# };
 		};
 		if ( $settings['neotag'] ) {
 				$maintext .= "<li>  <a href='index.php?action=neotag'>check or update</a> the NeoTag parameter set(s)";

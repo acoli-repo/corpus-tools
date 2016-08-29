@@ -326,6 +326,7 @@ void treatfile ( string filename ) {
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
 		string tagname = taglevel.attribute("key").value();
 		string taglvl = taglevel.attribute("level").value();
+		if ( taglvl.length == 0 ) { taglvl = tagname; };
 		if ( taglvl == "text" ) {
 			// This is the <text> level
 			if ( !(pos2>pos1) ) { continue; }; // This will crash on texts without any tokens inside; do not add to CQP for now (but they should be added as indexes)

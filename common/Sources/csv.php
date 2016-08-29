@@ -48,7 +48,7 @@ if ( $act == "export" && $_POST['queries']  ) {
 	
 	<hr>
 	<form action='index.php?action=$action&act=export' method=post>
-	<io
+
 	<h2>Fields</h2>
 	<p>Define xpath queries for the fields from each XML file you want to export (or select from the teiHeader-edit template)
 	<p><input name=queries id=queries size=100> 
@@ -213,6 +213,7 @@ if ( $act == "export" && $_POST['queries']  ) {
 			<td><a href='index.php?action=$action&act=view&file=$file'>view</a>
 			<td>$name";
 	};
+	if ( !$tmp ) $maintext .= "<p><i> -- no CSV files yet</i>";
 	$maintext .= "</table>
 		<hr><p><a href='index.php?action=$action'>back to module index</a>";
 	
@@ -234,7 +235,8 @@ if ( $act == "export" && $_POST['queries']  ) {
 	$maintext .= "<p>The changes in $filename are being applied to the corresponding XML files - transcript is below<hr>";
 
 	$maintext .= "<pre>".shell_exec($cmd)."</pre>
-		<hr><p><a href='index.php?action=$action'>back to module index</a>";
+		<hr><p><a href='index.php?action=$action'>back to module index</a>
+			&bull; <a href='index.php?action=$action&act=export'>create a new CSV</a>";
 	
 } else {
 

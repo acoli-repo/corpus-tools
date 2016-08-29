@@ -42,8 +42,10 @@
 				<tr><th>Edit<th>View<th>Column name";
 		
 		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			if ( $key == "pform" ) $editform = ""; // Turned off editing of pfrom in verticalized view since it deletes internal nodes (or gets complicated)
+			else $editform = "<input type=checkbox name='edit[$key]' value=1> ";
 			$maintext .= "<tr>
-				<td><input type=checkbox name='edit[$key]' value=1> 
+				<td>$editform
 				<td><input type=checkbox name='view[$key]' value=1> 
 				<td>{$item['display']}
 			";
@@ -162,7 +164,7 @@
 					};
 					if ( is_array($editfields) )
 					foreach ( $editfields as $fld ) {
-						if ( $fld == "pform" ) $val = $node."";
+						if ( $fld == "pform" ) $val = $node->asXML(); // This is ... not ideal
 						else $val = $node[$fld]; 
 						$nid = $node['id'];
 						$maintext .= "<td><input name='{$fld}[{$nid}]' value=\"$val\">";
