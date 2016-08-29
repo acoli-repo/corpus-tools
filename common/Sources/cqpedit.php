@@ -20,7 +20,7 @@
 			
 			<h2>Define Query</h2>
 			<form action='index.php?action=$action' method=post>
-			<p>CQP Query: <input name=cql size=30>
+			<p>CQP Query: <input name=cql size=80>
 			<input type=hidden name=lineedit value=1>
 			
 			<h2>Define which fields to edit</h2>";
@@ -307,6 +307,7 @@
 
 		if ( $lineedit ) {
 			foreach ( $_POST['fld'] as $fld => $tmp ) {
+				if ( $fld == "form" ) $fld = "word"; # TODO: This should go when we add "form" as just an additional pattribute
 				$more .= ", $tarmat $fld";
 			};
 			$lineedit = "<input name=lineedit type=hidden value=1>";
