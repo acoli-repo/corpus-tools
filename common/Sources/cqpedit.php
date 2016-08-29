@@ -8,7 +8,54 @@
 	include ("../common/Sources/cwcqp.php");
 	check_login();
 
-	if ( $_POST['selected'] && $settings['cqp']['defaults']['background'] ) {
+	$cql = $_GET['cql'] or $cql = $_POST['cql'] ;
+	
+	if ( $_POST['lineedit'] ) $settings['cqp']['defaults']['background'] = false; # Does not (yet) work for lineedit
+	
+	if ( !$cql && !$_POST['selected'] ) { 
+		
+		$maintext .= "
+			<h1>CQP Edit</h1>
+			<p>Here you can define a CQP query and edit the resulting matches directly. 
+			
+			<h2>Define Query</h2>
+			<form action='index.php?action=$action' method=post>
+			<p>CQP Query: <input name=cql size=30>
+			<input type=hidden name=lineedit value=1>
+			
+			<h2>Define which fields to edit</h2>";
+
+		$maintext .= "
+			<form action='index.php?action=$action&act=edit&cid=$fileid' method=post>
+				<table>";
+		
+		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			if ( $key == "pform" ) $editform = ""; // Turned off editing of pfrom in verticalized view since it deletes internal nodes (or gets complicated)
+			else {
+				$editform = "<input type=checkbox name='fld[$key]' value=1> ";
+				$maintext .= "<tr>
+					<td>$editform
+					<td>{$item['display']}
+				";
+			};
+		};
+		$maintext .= "<tr><td colspan=10><hr>";	
+		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+			$maintext .= "<tr>
+				<td><input type=checkbox name='fld[$key]' value=1> 
+				<td>{$item['display']}
+			";
+		};
+		$maintext .= "</table>";	
+
+			
+		$maintext .= "
+			<hr>			<input type=submit value=Search>
+
+			</form>
+			";
+		
+	} else if ( $_POST['selected'] && $settings['cqp']['defaults']['background'] ) {
 	
 		# Run the actual changes in a background Perl script
 		$pid = time();
@@ -58,14 +105,16 @@
 
 		$maintext .= "<h1>Executing multi-token edit</h1>";
 		
-		$maintext .= "<h2>Changes to be made</h2>";		
-		foreach ( $_POST['atts'] as $key => $val ) {
-			if ( $val != "" ) { 
-				$maintext .= "   - Change $key to $val";
-				$changes[$key] = $val; 
+		if ( !$_POST['lineedit'] ) {
+			$maintext .= "<h2>Changes to be made</h2>";		
+			foreach ( $_POST['atts'] as $key => $val ) {
+				if ( $val != "" ) { 
+					$maintext .= "   - Change $key to $val";
+					$changes[$key] = $val; 
+				};
 			};
+			if ( !$changes )  { fatal('Nothing to change'); };
 		};
-		if ( !$changes )  { fatal('Nothing to change'); };
 		
 		$maintext .= "<h2>Tokens to process</h2>";		
 		foreach ( $_POST['selected'] as $fileid => $toklist ) {
@@ -97,6 +146,11 @@
 		
 			foreach ( $toklist as $tokid => $val2 ) {
 				
+				if ( $_POST['lineedit'] ) {
+					$changes = $_POST['vals'][$fileid][$tokid];
+					$checks = $_POST['checks'][$fileid][$tokid];
+				};
+								
 				@$result = $xml->xpath("//tok[@id='$tokid'] | //dtok[@id='$tokid']"); 
 				$token = $result[0];
 				if ( !$token ) { $maintext .= " ! token $tokid not found"; next; };
@@ -109,7 +163,12 @@
 				foreach ( $changes as $chkey => $chval ) {
 					# $maintext .= "<p>   - setting $chkey to $chval";
 					$token[$chkey] = $chval;
-					$changed = 1;
+					if ( $chval != $checks[$chkey] || !$checks ) {
+						$changed = 1;
+						if ( $_POST['lineedit'] ) {
+							$maintext .= "<p>   -- Changing $chkey to $chval";
+						};
+					};
 				};
 				
 			};
@@ -139,81 +198,86 @@
 
 
 		$maintext .= "<h1>Multiple token edit via CQP Search</h1>";
+		if ( $_POST['lineedit'] ) $lineedit = 1;
 
-		$maintext .= "<p>Define below which features you want to change in this search, 
-			and select all the tokens for which you want that change to be made. 
-			Leaving a feature empty will not eliminate it's value, but just ignore that 
-			feature in the edit.
-			
-			<p style='color: #aa2000; font-weight: bold'>The CQP corpus can become disaligned wrt the XML 
-				files after editing tokens. 
-				<br>Therefore, always regenerate the CQP corpus 
-				before using this function!
-			<hr>
-			
-			<form action='' method=post>
-			<table>";
-		# $maintext .= "<tr><td>XML<td>Raw XML value<td><input size=60 name=word id='word' value='$xmlword'>";
 
-		// Show all the defined forms
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
-			$atv = $token[$key]; 
-			$val = $item['display'];
-			if ( $key != "pform" && !$item['noedit'] ) {
-				$atv = str_replace("'", "&#039;", $atv);
-				$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
-			};
-		};
-		$maintext .= "<tr><td colspan=10><hr>";
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
-			$atv = $token[$key]; 
-			$val = $item['display'];
-			if ( $item['noedit'] ) {
-				if ( $val ) $maintext .= "<tr><td>$key<td>$val<td>$atv";
-				continue;
-			};
-			if ( $key != "pform" ) {
-				// if ( $attype[$key] == "select" || $attype[$key] == "eselect" || $attype[$key] == "mselect" ) {
-				if ( $item['type'] == "Select" || $item['type'] == "ESelect" || $item['type'] == "MSelect" ) {
-					$tmp = file_get_contents("cqp/$key.lexicon"); $optarr = array();
-					foreach ( explode ( "\0", $tmp ) as $kval ) { 
-						if ( $kval ) {
-							if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
-							if ( ( $attype[$key] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) $optarr[$kval] = "<option value='$kval' $seltxt>$kval</option>"; 
-						};
-					};
-					sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
-				
-					if ( $item['type'] == "ESelect" ) {
-						$maintext .= "<tr><td>$key<td>$val
-									<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
-						$maintext .= "<input type=checkbox>new value: <span id='newat'><input size=30 name=newatt[$key] id='f$key' value=''></span>";
-					} else if ( $item['type'] == "Select" ) {
-						$maintext .= "<tr><td>$key<td>$val
-									<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
-					} else if ( $item['type'] == "MSelect" ) {
-						$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
-						$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>
-							add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
-					} else {
-						$maintext .= "<tr><td>$key<td>$val
-									<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
-					};
-					 
-				} else {
+		if ( !$lineedit ) {
+			$maintext .= "<p>Define below which features you want to change in this search, 
+				and select all the tokens for which you want that change to be made. 
+				Leaving a feature empty will not eliminate it's value, but just ignore that 
+				feature in the edit.
+			
+				<p style='color: #aa2000; font-weight: bold'>The CQP corpus can become disaligned wrt the XML 
+					files after editing tokens. 
+					<br>Therefore, always regenerate the CQP corpus 
+					before using this function!
+				<hr>
+			
+				<form action='' method=post>
+				<table>";
+			# $maintext .= "<tr><td>XML<td>Raw XML value<td><input size=60 name=word id='word' value='$xmlword'>";
+
+			// Show all the defined forms
+			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+				$atv = $token[$key]; 
+				$val = $item['display'];
+				if ( $key != "pform" && !$item['noedit'] ) {
+					$atv = str_replace("'", "&#039;", $atv);
 					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
 				};
 			};
-		};
+			$maintext .= "<tr><td colspan=10><hr>";
+			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+				$atv = $token[$key]; 
+				$val = $item['display'];
+				if ( $item['noedit'] ) {
+					if ( $val ) $maintext .= "<tr><td>$key<td>$val<td>$atv";
+					continue;
+				};
+				if ( $key != "pform" ) {
+					// if ( $attype[$key] == "select" || $attype[$key] == "eselect" || $attype[$key] == "mselect" ) {
+					if ( $item['type'] == "Select" || $item['type'] == "ESelect" || $item['type'] == "MSelect" ) {
+						$tmp = file_get_contents("cqp/$key.lexicon"); $optarr = array();
+						foreach ( explode ( "\0", $tmp ) as $kval ) { 
+							if ( $kval ) {
+								if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
+								if ( ( $attype[$key] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) $optarr[$kval] = "<option value='$kval' $seltxt>$kval</option>"; 
+							};
+						};
+						sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+				
+						if ( $item['type'] == "ESelect" ) {
+							$maintext .= "<tr><td>$key<td>$val
+										<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
+							$maintext .= "<input type=checkbox>new value: <span id='newat'><input size=30 name=newatt[$key] id='f$key' value=''></span>";
+						} else if ( $item['type'] == "Select" ) {
+							$maintext .= "<tr><td>$key<td>$val
+										<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
+						} else if ( $item['type'] == "MSelect" ) {
+							$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
+							$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>
+								add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
+						} else {
+							$maintext .= "<tr><td>$key<td>$val
+										<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
+						};
+					 
+					} else {
+						$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
+					};
+				};
+			};
 
-		$maintext .= "</table><hr>";
+			$maintext .= "</table><hr>";
+		} else {
+			$maintext .= "
+				<form action='' method=post>
+				";
+		};
 
 		$cqp = new CQP();
 		$cqp->exec($settings['cqp']['corpus']); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
-		$cql = $_GET['cql'] or $cql = $_POST['cql'] ;
-		
-		if ( !$cql ) { fatal ('no query specified'); };
 		
 		$cqpquery = "Matches = $cql";
 		$results = $cqp->exec($cqpquery);
@@ -235,13 +299,21 @@
 		$showform = "word";
 
 		if ( strstr($cql, '@') ) { 
-			$withtarget = ", target $showform, target id";
+			$tarmat = "target";
 			$matchh = "<th>Target word";
-		};
+		} else $tarmat = "match";
+		
+			$withtarget = ", $tarmat $showform, $tarmat id";
 
-		$cqpquery = "tabulate Matches $start $end match text_id, match[-$context]..match[-1] $showform, matchend[1]..matchend[$context] $showform, match .. matchend id, match .. matchend $showform $withtarget";
+		if ( $lineedit ) {
+			foreach ( $_POST['fld'] as $fld => $tmp ) {
+				$more .= ", $tarmat $fld";
+			};
+			$lineedit = "<input name=lineedit type=hidden value=1>";
+		};
+		
+		$cqpquery = "tabulate Matches $start $end match text_id, match[-$context]..match[-1] $showform, matchend[1]..matchend[$context] $showform, match .. matchend id, match .. matchend $showform $withtarget $more";
 		$results = $cqp->exec($cqpquery);
-		# $maintext .= "<P>TABULATE: $cqpquery";
 
 		if ( $debug ) $maintext .= "<p>$cqpquery<PRE>$results</PRE>";
 
@@ -256,25 +328,48 @@
 			};
 		};
 		$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
-			<table>
-			<tr><th>File ID<th>Sel.<th style='text-align: right'>Left context<th style='text-align: center'>Match<th>Right context$matchh";
+			$lineedit
+			<table>";
+			
+		if ( $lineedit ) {
+			$maintext .= "<tr><th>File ID<th style='text-align: right'>Left context<th style='text-align: center'>Match<th>Right context";
+			foreach ( $_POST['fld'] as $fld => $tmp ) {
+				$fldname = $settings['xmlfile']['pattributes']['forms'][$fld]['display']
+				or 
+				$fldname = $settings['xmlfile']['pattributes']['tags'][$fld]['display']
+				or 
+				$fldname = $fld;				
+				$maintext .= "<th>".$fldname;
+			};
+			$maintext .= $matchh;
+		} else 
+			$maintext .= "<tr><th>File ID<th>Sel.<th style='text-align: right'>Left context<th style='text-align: center'>Match<th>Right context$matchh";
 		
 		foreach ( $resarr as $line ) {
 			if ( $line == "" ) continue;
-			$tmp = explode ( "\t", $line );
-			list ( $fileid, $lcontext, $rcontext, $tid, $word, $targetword, $targetid ) = $tmp;
+			$linevals = explode ( "\t", $line );
+			list ( $fileid, $lcontext, $rcontext, $tid, $word, $targetword, $targetid ) = $linevals;
 
 				$tidarray = explode (" ", $tid );
 				$tid = $targetid or $tid = $tidarray[0]; 
 				$match = $targetword or $match = $word;
 
-			$refname = $fileid;
+			if ( $lineedit ) {
+				$refname = "context";
+			} else {
+				$refname = $fileid;
+			};		
 			
 			if ( count($tidarray) == 1 || $targetid ) {
-				$checkbox = "<input type=checkbox value='treat' name='selected[$fileid][$tid]'>
-					<input type=hidden name='orgform[$fileid][$tid]' value='$match'>";
+				if ( $lineedit ) {
+					$checkbox = "<input type=hidden value='treat' name='selected[$fileid][$tid]'>
+						<input type=hidden name='orgform[$fileid][$tid]' value='$match'>";
+				} else {
+					$checkbox = "<td><input type=checkbox value='treat' name='selected[$fileid][$tid]'>
+						<input type=hidden name='orgform[$fileid][$tid]' value='$match'>";
+				};
 			} else {
-				$checkbox = "<span style='color: #ff9999' title='multiword match'>&block;</span>";
+				$checkbox = "<td><span style='color: #ff9999' title='multiword match'>&block;</span>";
 			};
 			
 			if ( $match != "" && substr($line,0,1) != "#" ) 
@@ -284,17 +379,34 @@
 					<td align=right>$lcontext<td align=center><b>$word</b><td>$rcontext";
 				else $maintext .= "<tr>
 					<td><a target=check style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=edit&cid=$fileid&jmp=$tid'$target>$refname</a>
-					<td>$checkbox
-					<td align=right>$lcontext<td align=center><b>$word</b><td>$rcontext
-					<td><b style='color: #992000;'>$targetword</b>";
+					$checkbox
+					<td align=right>$lcontext<td align=center><b>$word</b><td>$rcontext";
 			 # else $maintext .= "<p>?? $match, $line";
+			 
+			 if ( $lineedit ) {
+			 	$i = 0;
+			 	foreach ( $_POST['fld'] as $fld => $tmp ) {
+			 		$fldval = $linevals[$i+7]; $i++;
+			 		$maintext .= "<td>
+			 			<input name=vals[$fileid][$tid][$fld] title=$fld size=10 value='$fldval'>
+			 			<input name=checks[$fileid][$tid][$fld] title=$fld type=hidden value='$fldval'>			 		
+			 		";
+			 	};
+			 };
+			 if ( $matchh ) $maintext .= "<td><b style='color: #992000;'>$targetword</b>";
 			 
 		};
 		$maintext = str_replace('__UNDEF__', '', $maintext);
-		$maintext .= "</table><hr><p><input type=submit value='Change selected'> 
-			<span onClick='selectalltoks();'>select all</span>
-			&bull; <a href='index.php?action=cqp'>back to search</a>
-			</form>
+		
+		if ( $lineedit ) 
+			$maintext .= "</table><hr><p><input type=submit value='Save changes'> 
+				&bull; <a href='index.php?action=cqpedit'>back to search</a>";
+		else 
+			$maintext .= "</table><hr><p><input type=submit value='Change selected'> 
+				<span onClick='selectalltoks();'>select all</span>
+				&bull; <a href='index.php?action=cqp'>back to search</a>";
+			
+		$maintext .= "</form>
 			<script language=Javascript>
 			function selectalltoks () {
 				var its = document.getElementsByTagName(\"input\");
