@@ -12,7 +12,7 @@
 	
 	if ( $_POST['lineedit'] ) $settings['cqp']['defaults']['background'] = false; # Does not (yet) work for lineedit
 	
-	if ( !$cql && !$_POST['selected'] ) { 
+	if ( $act == "define" || ( !$cql && !$_POST['selected'] ) ) { 
 		
 		$maintext .= "
 			<h1>CQP Edit</h1>
@@ -20,7 +20,7 @@
 			
 			<h2>Define Query</h2>
 			<form action='index.php?action=$action' method=post>
-			<p>CQP Query: <input name=cql size=80>
+			<p>CQP Query: <input name=cql size=80 value='$cql'>
 			<input type=hidden name=lineedit value=1>
 			
 			<h2>Define which fields to edit</h2>";
@@ -268,7 +268,7 @@
 				};
 			};
 
-			$maintext .= "</table><hr>";
+			$maintext .= "</table><hr><p>Click <a href='index.php?action=$action&act=define&cql=$cql'>here</a> to enter individual values for each result<hr>";
 		} else {
 			$maintext .= "
 				<form action='' method=post>
