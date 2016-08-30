@@ -39,22 +39,19 @@
 			<form action='index.php?action=$action&act=edit&cid=$fileid' method=post>
 				<table>";
 		
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+		foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
 			if ( $key == "pform" ) $editform = ""; // Turned off editing of pfrom in verticalized view since it deletes internal nodes (or gets complicated)
 			else {
 				$editform = "<input type=checkbox name='fld[$key]' value=1> ";
+				$display = $item['display'] 
+					or $display = $settings['xmlfile']['pattributes']['forms'][$key]['display'] 
+					or $display = $settings['xmlfile']['pattributes']['tags'][$key]['display'] 
+					or $display = $key;
 				$maintext .= "<tr>
 					<td>$editform
-					<td>{$item['display']}
+					<td>$display
 				";
 			};
-		};
-		$maintext .= "<tr><td colspan=10><hr>";	
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
-			$maintext .= "<tr>
-				<td><input type=checkbox name='fld[$key]' value=1> 
-				<td>{$item['display']}
-			";
 		};
 		$maintext .= "</table>";
 		
