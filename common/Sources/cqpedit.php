@@ -171,16 +171,27 @@
 				# Now check if this is the right token
 				$orgform = $_POST['orgform'][$fid][$tokid];
 				if ( $orgform == "" || ( $token['form'] != $orgform && $token."" != $orgform ) ) {$maintext .= "<p> !! token $tokid does not seem to be the right token: $orgform expected, $token found - XML got modified?"; next;  };
-				$maintext .= "<p> - modifying <a target=check href='index.php?action=file&cid=$fileid&tid=$tokid'>".$token['id']."</a> in $fileid";
+				if ( !$_POST['lineedit'] ) {
+					$maintext .= "<p> - modifying <a target=check href='index.php?action=file&cid=$fileid&tid=$tokid'>".$token['id']."</a> in $fileid";
+				};
 				
+				$marked = 0;
 				foreach ( $changes as $chkey => $chval ) {
 					# $maintext .= "<p>   - setting $chkey to $chval";
-					$token[$chkey] = $chval;
-					if ( $chval != $checks[$chkey] || !$checks ) {
-						$changed = 1;
+					$token[$chkey] = $chval; $inherited = 0;
+					if ( $_POST['lineedit'] && $settings['xmlfile']['pattributes']['forms'] ) {
+						# Check that this is not an inherited value
+						if ( $chval == forminherit($token, $chkey) ) {
+							$inherited = 1;
+							$maintext .= "<p>   -- Not changing $chkey: inherited value";
+						};
+					};
+					if ( !$inherited && ( $chval != $checks[$chkey] || !$checks ) ) {
 						if ( $_POST['lineedit'] ) {
+							if ( !$marked ) $maintext .= "<p> - modifying <a target=check href='index.php?action=file&cid=$fileid&tid=$tokid'>".$token['id']."</a> in $fileid";
 							$maintext .= "<p>   -- Changing $chkey to $chval";
 						};
+						$changed = 1; $marked = 1;
 					};
 				};
 				
