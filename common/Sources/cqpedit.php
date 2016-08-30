@@ -15,13 +15,23 @@
 	if ( $act == "define" || ( !$cql && !$_POST['selected'] ) ) { 
 		
 		$maintext .= "
-			<h1>CQP Edit</h1>
+			<h1>Multi-token edit via CQP Search</h1>
 			<p>Here you can define a CQP query and edit the resulting matches directly. 
-			
+			<br>Type in the CQP query 
+				directly here, or define it first in the <a href='index.php?action=cqp&act=advanced'>advanced search</a>.
+
+				<p style='color: #aa2000; font-weight: bold'>The CQP corpus can become disaligned wrt the XML 
+					files after editing tokens. 
+					<br>Therefore, always regenerate the CQP corpus 
+					before using this function!
+			<hr>
+						
 			<h2>Define Query</h2>
 			<form action='index.php?action=$action' method=post>
 			<p>CQP Query: <input name=cql size=80 value='$cql'>
 			<input type=hidden name=lineedit value=1>
+			
+			<hr>
 			
 			<h2>Define which fields to edit</h2>";
 
@@ -46,7 +56,13 @@
 				<td>{$item['display']}
 			";
 		};
-		$maintext .= "</table>";	
+		$maintext .= "</table>";
+		
+		if ( $user['permissions'] == "admin" ) $maintext .= "<hr><h2>Systematic Changes</h2> 
+			<p>For making structural changes, you can define a regular expression to apply to all values (not recommendable when changing more than one field).
+			<p>Regular expression: s/ <input name=refrom size=10> /
+			<input name=reto size=10> /g
+			";	
 
 			
 		$maintext .= "
@@ -271,6 +287,11 @@
 			$maintext .= "</table><hr><p>Click <a href='index.php?action=$action&act=define&cql=$cql'>here</a> to enter individual values for each result<hr>";
 		} else {
 			$maintext .= "
+				<p style='color: #aa2000; font-weight: bold'>The CQP corpus can become disaligned wrt the XML 
+					files after editing tokens. 
+					<br>Therefore, always regenerate the CQP corpus 
+					before using this function!
+				<hr>
 				<form action='' method=post>
 				";
 		};
@@ -386,10 +407,15 @@
 			 
 			 if ( $lineedit ) {
 			 	$i = 0;
+			 	
 			 	foreach ( $_POST['fld'] as $fld => $tmp ) {
 			 		$fldval = $linevals[$i+7]; $i++;
+					$fldvalto = $fldval;
+					if ( $_POST['refrom'] ) {
+						$fldvalto = preg_replace("/{$_POST['refrom']}/", $_POST['reto'], $fldvalto);
+					};
 			 		$maintext .= "<td>
-			 			<input name=vals[$fileid][$tid][$fld] title=$fld size=10 value='$fldval'>
+			 			<input name=vals[$fileid][$tid][$fld] title=$fld size=10 value='$fldvalto'>
 			 			<input name=checks[$fileid][$tid][$fld] title=$fld type=hidden value='$fldval'>			 		
 			 		";
 			 	};
