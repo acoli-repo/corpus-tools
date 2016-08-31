@@ -16,8 +16,9 @@
 		
 		$maintext .= "
 			<h1>Multi-token edit via CQP Search</h1>
-			<p>Here you can define a CQP query and edit the resulting matches directly. 
-			<br>Type in the CQP query 
+			<p>Here you can define a CQP query and edit the resulting matches directly. Given that this edit works via
+				the CQP corpus, only pattributes and tokens that are exported to CQP can be edited here.
+			Type in the CQP query 
 				directly here, or define it first in the <a href='index.php?action=cqp&act=advanced'>advanced search</a>.
 
 				<p style='color: #aa2000; font-weight: bold'>The CQP corpus can become disaligned wrt the XML 
@@ -39,6 +40,7 @@
 			<form action='index.php?action=$action&act=edit&cid=$fileid' method=post>
 				<table>";
 		
+		$settings['cqp']['pattributes']['form'] = array ( "key" => "form" ); 
 		foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
 			if ( $key == "pform" ) $editform = ""; // Turned off editing of pfrom in verticalized view since it deletes internal nodes (or gets complicated)
 			else {
