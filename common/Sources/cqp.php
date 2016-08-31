@@ -20,6 +20,9 @@
 		";
 	};
 
+	# Determine which form to search on by default 
+	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "form";
+
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "/usr/local/share/cwb/registry/";
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
@@ -241,7 +244,7 @@
 			$simple = $cql; $cql = "";
 			foreach ( explode ( " ", $simple ) as $swrd ) {
 				$swrd = preg_replace("/(?!\.\])\*/", ".*", $swrd);
-				$cql .= "[word=\"$swrd\"] ";
+				$cql .= "[$wordfld=\"$swrd\"] ";
 			};
 		};
 		
@@ -611,7 +614,7 @@
 			};
 
 			$showform = $_POST['showform'] or $showform = $_GET['showform'] or $showform = 'form';
-			if ( $showform == "word" ) $showform = "form";
+			if ( $showform == "word" ) $showform = $wordfld;
 
 			# Only show text options if there is more than one form to show
 			if ( $fbc > 1 ) $viewoptions .= "<p>{%Text}: $formbuts"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
@@ -778,7 +781,8 @@
 		};
 
 		# $tokatts['word'] = $tokatts['form'] or $tokatts['word'] = "Written form"; --> how to do this?
-		array_unshift($cqpcols, 'word' ); // Add word as a search option
+		# array_unshift($cqpcols, 'word' ); // Add word as a search option - no longer desirable, "word" is now redundant
+		if ( !in_array($cqpcols, $wordfld) )  array_unshift($cqpcols, $wordfld ); # We need the wordfld as a search option
 				
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
@@ -1099,7 +1103,7 @@
 
 	function pattname ( $key ) {
 		global $settings;
-		if ( $key == "word" ) $key = "form";
+		if ( $key == "word" ) $key = $wordfld;
 		$val = $settings['xmlfile']['pattributes']['forms'][$key]['display'];
 		if ( $val ) return $val;
 		$val = $settings['xmlfile']['pattributes']['tags'][$key]['display'];

@@ -27,8 +27,7 @@ list<string> formTags;
 
     pugi::xml_document doc;
 
-string tagfld;
-string tagpos;
+string wordfld; // field to use for the "word" attribute
 string lemmafld;
 string filename;
 string corpusfolder;
@@ -154,14 +153,14 @@ void treatnode ( pugi::xpath_node node ) {
 		return;
 	};
 
-	if ( !strcmp( node.node().attribute("form").value(), "--" ) ) { 
-		if ( debug > 1 ) { cout << "Skipping - empty string: " << node.node().attribute("id").value() << endl; };
+	if ( !strcmp( node.node().attribute(wordfld.c_str()).value(), "--" ) ) { 
+		if ( debug > 1 ) { cout << "Skipping - empty value for " << wordfld <<  ": " << node.node().attribute("id").value() << endl; };
 		return;
 	};
 
 	// We have a valid token - handle it
 	tokcnt++;
-	if ( debug > 1 ) { cout << "Token " << tokcnt << " : " << node.node().attribute("id").value()  << " = " << calcform(node.node(), "form") << endl; };
+	if ( debug > 1 ) { cout << "Token " << tokcnt << " : " << node.node().attribute("id").value()  << " = " << calcform(node.node(), wordfld) << endl; };
 
 	// Write the .lexicon, .lexicon.idx and .corpus files
 	string formkey; string formval; pugi::xpath_node xres;
@@ -178,13 +177,8 @@ void treatnode ( pugi::xpath_node node ) {
 				formval = xres.node().child_value();
 			};
 		} else {
-			if ( formkey == "word" ) { // we NEED a word in CQP
-				// TODO: find a better solution for @fform in dtok
-				if ( !strcmp(node.node().name(), "dtok") && inherit.find("fform") != inherit.end() ) {
-					formval = calcform(node.node(), "fform");
-				} else {
-					formval = calcform(node.node(), "form");
-				};
+			if ( formkey == "word" ) { // for "word" use the tag field
+				formval = calcform(node.node(), wordfld);
 			} else {
 				formval = calcform(node.node(), formkey);
 			};
@@ -215,12 +209,6 @@ void treatnode ( pugi::xpath_node node ) {
 	// write the //text/@id to text_id.idx
 	write_network_number(lexidx["text_id"], files["text_id"]["idx"]);
 
-};
-
-// Determine the main pos
-string getmainpos ( pugi::xml_node tok ) { 
-	string pos = tok.attribute(tagpos.c_str()).value();
-	return pos.substr(0,1);
 };
 
 void treatfile ( string filename ) {
@@ -326,7 +314,7 @@ void treatfile ( string filename ) {
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
 		string tagname = taglevel.attribute("key").value();
 		string taglvl = taglevel.attribute("level").value();
-		if ( taglvl.length == 0 ) { taglvl = tagname; };
+		if ( taglvl.length() == 0 ) { taglvl = tagname; };
 		if ( taglvl == "text" ) {
 			// This is the <text> level
 			if ( !(pos2>pos1) ) { continue; }; // This will crash on texts without any tokens inside; do not add to CQP for now (but they should be added as indexes)
@@ -386,18 +374,19 @@ void treatfile ( string filename ) {
 				write_range_value (pos1, pos2, "text", formkey, formval);
 			};	
 		} else {
-			if ( debug > 2 ) { cout << "Looking for " << taglvl << endl; };
 			// Add non-text level attributes
 			string xpath = "//text//" + taglvl;
+			if ( debug > 2 ) { cout << "Looking for " << taglvl  << " = " << xpath << endl; };
 			// Loop through the actual items
 			pugi::xpath_node_set elmres = doc.select_nodes(xpath.c_str());
 			for (pugi::xpath_node_set::const_iterator it = elmres.begin(); it != elmres.end(); ++it) {
 				string tmpxpath;
-				if ( taglvl == "tok[dtok]" ) {
+				if ( taglvl == "tok[dtok]" ) { 
 					tmpxpath = "dtok";
 				} else {
 					tmpxpath = rel_tokxpath;
 				}
+				if ( debug > 4 ) { cout << " - Relative xpath: " << tmpxpath << endl; };
 				pugi::xpath_node_set rel_toks = it->node().select_nodes(tmpxpath.c_str());
 				if ( rel_toks.empty() ) { continue; };
 				string toka = rel_toks[0].node().attribute("id").value();
@@ -421,6 +410,7 @@ void treatfile ( string filename ) {
 
 				for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 					formkey = formfld.attribute("key").value(); 
+					if ( debug > 4 ) { cout << " - Looking for: " << formkey << endl; };
 					if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
 					formval = "";
 					xpath = formfld.attribute("xpath").value();
@@ -432,7 +422,7 @@ void treatfile ( string filename ) {
 						} else {
 							formval = xres.node().child_value();
 						};
-					} else if ( !strcmp(formfld.attribute("xpath").value(), "form") ) {
+					} else if ( !strcmp(formfld.attribute("type").value(), "form") ) {
 						// calculate the form for form-type tags (on mtok and tok[dtok])
 						formval = calcform(it->node(), formkey);
 						if ( debug > 3 ) { cout << " -- calculating form for " << tagname << " - " << formkey << " = " << formval << endl; };
@@ -496,7 +486,7 @@ int treatdir (string dirname) {
     DIR *dp;
 
 	if ( verbose ) {
-		cout << "- Treating " << dirname << endl; 
+		cout << "- Treating folder " << dirname << endl; 
 	};
  
  	// We need kill any *.xml at the end, since we are treating folders, not a glob
@@ -599,12 +589,14 @@ int main(int argc, char *argv[])
     if ( xmlsettings.load_file(settingsfile.c_str())) {
     	if ( verbose ) { cout << "- Using settings from " << settingsfile << endl;   }; 	
     };
+
+
 	
-	pugi::xml_node parameters = xmlsettings.select_single_node("//cqp").node();
+	pugi::xml_node parameters = xmlsettings.select_single_node("/ttsettings/cqp").node();
 	if ( parameters == NULL ) {
 		cout << "- No parameters for CQP found" << endl;
 		return -1;
-	};
+	}; 
 
 	// Place all cqp parameter settings from the settings.xml into the cqpsettings
 	for (pugi::xml_attribute_iterator it = parameters.attributes_begin(); it != parameters.attributes_end(); ++it)
@@ -617,9 +609,17 @@ int main(int argc, char *argv[])
 	for (pugi::xml_attribute_iterator it = parameters.parent().parent().attributes_begin(); it != parameters.parent().parent().attributes_end(); ++it)
 	{
 		if ( cqpsettings.attribute((*it).name()) == NULL ) { 
+			if ( debug > 1 ) { cout << "XML Setting: "<< (*it).value() << endl; };
 			cqpsettings.append_attribute((*it).name()) =  (*it).value();
 		};
 	};
+
+	if ( cqpsettings.attribute("wordfld") != NULL ) { 
+		wordfld = cqpsettings.attribute("wordfld").value();
+	} else {
+		wordfld = "form"; // By default, use @form for the word
+	}
+    if ( verbose ) { cout << "- Using base word form: " << wordfld << endl;   }; 	
 	
 	// Determine some default settings
 	if ( cqpsettings.attribute("corpusfolder") != NULL ) { corpusfolder = cqpsettings.attribute("corpusfolder").value(); } 
