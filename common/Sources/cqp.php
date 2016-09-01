@@ -781,8 +781,7 @@
 		};
 
 		# $tokatts['word'] = $tokatts['form'] or $tokatts['word'] = "Written form"; --> how to do this?
-		# array_unshift($cqpcols, 'word' ); // Add word as a search option - no longer desirable, "word" is now redundant
-		if ( !in_array($cqpcols, $wordfld) )  array_unshift($cqpcols, $wordfld ); # We need the wordfld as a search option
+		if ( !in_array($wordfld, $cqpcols) )  array_unshift($cqpcols, $wordfld ); # We need the wordfld as a search option
 				
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 

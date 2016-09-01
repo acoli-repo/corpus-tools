@@ -35,6 +35,7 @@ list<string> formTags;
 list<string> lemTags;
 int contextlength = 1;
 int endlen = 4;
+string dtokform;
 int tokcnt;
 
 list<string> tagHist;
@@ -546,6 +547,12 @@ int main(int argc, char *argv[])
 	};
 	split(formTags, tmp, is_any_of(",")); 
 
+	if ( tagsettings.attribute("dtokform") != NULL ) { 
+		dtokform = tagsettings.attribute("wordfld").value();
+	} else {
+		dtokform = "dtokform"; // By default, use @form for the word
+	}
+
 	string sep;
 
 	// Now we need to read the inheritance tree
@@ -576,7 +583,7 @@ int main(int argc, char *argv[])
 		treatdir ( "xmlfiles" ); 
 	};
 
-	if ( verbose ) { cout << "- Calculating additional data" << endl; };
+	if ( verbose ) { cout << "Calculating from lexicon" << endl; };
 
 	// Now that we have our full lexicon, start counting the classes
 	pugi::xml_node tagset;
@@ -621,13 +628,18 @@ int main(int argc, char *argv[])
 
 	// Add the dtok lexicon
 	pugi::xml_node dtoklex;
-	dtoklex = paramfile.first_child().append_child("dtoks");
-	pugi::xml_node dtokitm;
 	map<string, map<string, pugi::xml_node> > dtoks; // keep track of the existing dtoks
+	dtoklex = paramfile.first_child().append_child("dtoks");
 	pattlist = lexicon.select_nodes("//tok[dtok]");
-	string position;
+	string position; string dtag; string dform;
 	for (pugi::xpath_node_set::const_iterator it = pattlist.begin(); it != pattlist.end(); ++it) {
 		int oc1 = -1; int oc2 = -1; int i = -1; int cc = -1;
+		pugi::xml_node token = (*it).node();
+		string tokform = token.parent().attribute("key").value();
+		if ( debug > 3 ) { 
+			cout << " - Checking productive dtoks on: " << tokform << endl;
+		};
+
 		vector<pugi::xml_node> dtoklist;
 		// First determine where, if at all, the open classed dtok(s) are
         for ( pugi::xml_node dtoken = (*it).node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
@@ -639,119 +651,109 @@ int main(int argc, char *argv[])
         		oc2 = i;
         	} else { cc++; };
 		};
-		if ( oc1 == -1 || cc == -1 ) { 
-			continue; 
-		}; // With no open-class dtok, this is a lexicalized contraction // with no close-class dtok, this contr wrong
 		
-		string tokform = (*it).node().parent().attribute("key").value();
-		// Now go through the dtoks again and check if they are to be added
-        for ( int i=0; i < dtoklist.size(); i++ ) {
-        	pugi::xml_node dtoken = dtoklist.at(i);
-			// if ( dtoken.attribute("form") == NULL ) { continue; }; // We cannot do anything with dtoks that do not have a form
-			string dform = calcform(dtoken, tagfld);
-			
-			if ( dform == "" ) { continue; }; // We cannot do anything with dtoks that do not have a tagform
-			
-        	
-			string dtag = dtoken.attribute(tagpos.c_str()).value();
-			// Determine the position and the left/right context - skip when not is_open_class
-			string sibform; string sibpos;
-			if ( i<oc1 && dtoklist.at(i+1) ) { 
-				position = "left"; 
-				sibpos = dtoklist.at(i+1).attribute(tagpos.c_str()).value();
-				sibform = calcform(dtoklist.at(i+1), tagfld);
-			} else if ( i>oc2 && dtoklist.at(i-1) ) { 
-				position = "right"; 
-				sibpos = dtoklist.at(i-1).attribute(tagpos.c_str()).value();
-				sibform = calcform(dtoklist.at(i-1), tagfld);
-			} else { 
-				continue; // If a closed-class part is squeezed between open-class ones, skip it (too complicated and maybe impossible)
-			};
+		
+		// store the part to the left of oc1
+		if ( oc1 > 0 ) {
+			//determine the position of the oc1
+	        pugi::xml_node octoken = dtoklist.at(oc1);
+	        pugi::xml_node proddtok;
+	        string ocform = calcform(octoken, tagfld);
+	        int ocpos = tokform.find(ocform);
+	        if ( ocpos != string::npos && ocpos > 0 ) {
 
-
-			// When tagfld is say @nform, we need to do some checks
-			if ( tagfld != "form" && dform.length() < tokform.length() ) {
-				if ( debug > 0 ) { 
-					cout << "Checking ending for " << dform << " against " << tokform  
-						<< " - parts: " << tokform.substr(tokform.length()-dform.length()-1, 1) << " . " 
-						<<  tokform.substr(tokform.length()-dform.length()) << endl; 
+				string formpart = tokform.substr(0, ocpos);
+				if ( debug > 3 ) { 
+					cout << " - occurrence of oc1 = " << ocform << ": " << formpart << endl;
+				};
+			
+				// gather the form parts
+				dtag = ""; dform = ""; 
+				string sep = ""; proddtok.set_name("item");
+				for ( int i=0; i<oc1; i++ ) {
+					pugi::xml_node dtoken = dtoklist.at(i);
+					dtag += sep; sep = ".";
+					dtag += dtoken.attribute(tagpos.c_str()).value();
+					proddtok.append_copy(dtoken);
 				};
 
-				if ( position == "right" ) {
-					// Check if tok/@nform ends in dtok/@nform
-					if ( tokform.substr(tokform.length()-dform.length()) == dform ) {
-		        		// Check if tok/@nform ends in [::isPunct].dtok/@nform
-		        		string prevchar = tokform.substr(tokform.length()-dform.length()-1, 1);
-						if ( debug > 0 ) { cout << "Check is_punct for " << prevchar << endl; };
-		        		if ( is_punct(prevchar) ) {
-		        			dform = prevchar + dform;
-		        		};
-		        	} else {
-		        		// see if tok/@nform ends in dtok/@form 
-		        		string rawdform = calcform(dtoken, "form");
-						if ( tokform.substr(tokform.length()-rawdform.length()) == rawdform ) {
-			        		// this is tricky...
-							dform = rawdform;
-						} else {
-							// we cannot deal with this string
-							continue;
-						};
-		        	};
-		        } else if ( position == "left" ) {
-		        	// Check if tok/@nform starts with dtok/@nform.[::isPunct]
-		        	// Check if tok/@nform starts with dtok/@nform
-		        };
-			};        	
-			
-			// Store in the XML if we reached a (potentially) productive dtok
-			string dtpf = dform + '.' + dtag + '.' + position;
-			if ( dtoks[dtpf][""] ) {
-				dtokitm = dtoks[dtpf][""];
-				dtokitm.attribute("cnt") = atoi(dtokitm.attribute("cnt").value()) + 1; // atoi((*it).node().attribute("cnt").value());
-				if ( dtoks[dtpf][sibpos] ) {
-					pugi::xml_node sibling = dtoks[dtpf][sibpos];
-					sibling.attribute("cnt") = atoi(sibling.attribute("cnt").value()) + 1; // atoi((*it).node().attribute("cnt").value());
-					string cfrm = sibling.attribute("form").value();
-					if ( cfrm.size() > 0 && cfrm != sibform ) {
-						if ( position == "right" ) {
-							int j = 0; 
-							while ( cfrm.substr(j,1) == sibform.substr(j,1) && j<cfrm.size() ) { j++; };
-							cfrm = cfrm.substr(0,j);
-						} else {
-							int j = 1; 
-							while ( cfrm.substr(cfrm.size()-j,1) == sibform.substr(sibform.size()-j,1) 
-								&& j<cfrm.size() 
-								&& j<sibform.size() ) { j++; };
-							cfrm = cfrm.substr(j, cfrm.size()-j);
- 						};
- 						if ( !utf8_is_valid(cfrm) ) { cfrm = ""; }; 
-						sibling.attribute("form") = cfrm.c_str();
-					};
+				string dtpf = formpart + ':' + dtag; 
+				pugi::xml_node dtokitm;
+				if ( dtoks[dtpf][""] ) {
+					dtokitm = dtoks[dtpf][""];
+					dtokitm.attribute("cnt") = atoi(dtokitm.attribute("cnt").value()) + 1; // atoi((*it).node().attribute("cnt").value());
 				} else {
-					pugi::xml_node sibling = dtokitm.append_child("sibling");
-						sibling.append_attribute("key") = sibpos.c_str();
-						sibling.append_attribute("form") = sibform.c_str();
-						sibling.append_attribute("cnt") = 1; // (*it).node().attribute("cnt").value();
-					dtoks[dtpf][sibpos] = sibling;
+					dtokitm = dtoklex.append_child("item");
+					dtokitm.append_attribute("key") = dtpf.c_str();
+					dtokitm.append_attribute("formpart") = formpart.c_str();
+					dtokitm.append_attribute("position") = "left";
+					dtokitm.append_attribute("cnt") = 1; // (*it).node().attribute("cnt").value();
+					for ( int i=0; i<oc1; i++ ) {
+						pugi::xml_node dtoken = dtoklist.at(i);
+						dtag += sep; sep = ".";
+						dtag += dtoken.attribute(tagpos.c_str()).value();
+						dtokitm.append_copy(dtoken);
+					};
+					dtoks[dtpf][""] = dtokitm;
 				};
+				if ( debug >2 ) { dtokitm.print(std::cout); };
 			} else {
-				dtokitm = dtoklex.append_child("dtok");
-				dtokitm.append_attribute("key") = dtpf.c_str();
-				dtokitm.append_attribute("form") = dform.c_str();
-				dtokitm.append_attribute("lemma") = dtoken.attribute("lemma").value();
-				dtokitm.append_attribute(tagpos.c_str()) = dtag.c_str();
-				dtokitm.append_attribute("position") = position.c_str();
-				dtokitm.append_attribute("cnt") = 1; // (*it).node().attribute("cnt").value();
-				pugi::xml_node sibling = dtokitm.append_child("sibling");
-					sibling.append_attribute("key") = sibpos.c_str();
-					sibling.append_attribute("form") = sibform.c_str();
-					sibling.append_attribute("cnt") = 1; // (*it).node().attribute("cnt").value();
-				if ( dtoken.attribute("fform") != NULL ) { dtokitm.append_attribute("fform") = dtoken.attribute("fform").value(); };
-				dtoks[dtpf][""] = dtokitm;
-				dtoks[dtpf][sibpos] = sibling;
+				if ( debug > 0 ) { 
+					cout << " - ignoring dtok part - " << ocform << " not found in " << tokform << endl;
+				};
 			};
-			if ( debug >2 ) { dtokitm.print(std::cout); };
-		};		
+		};
+
+		if ( oc2 > -1 && oc2 < dtoklist.size() ) {
+			//determine the position of the oc1
+	        pugi::xml_node octoken = dtoklist.at(oc2);
+	        pugi::xml_node proddtok;
+	        string ocform = calcform(octoken, tagfld);
+	        int ocpos = tokform.find(ocform);
+	        if ( ocpos != string::npos && ocpos < tokform.length()-1 ) {
+	        	ocpos += ocform.length();
+
+				string formpart = tokform.substr(ocpos);
+				if ( debug > 3 ) { 
+					cout << " - occurrence of oc2 = " << ocform << ": " << formpart << endl;
+				};
+			
+				// gather the form parts
+				dtag = ""; dform = ""; 
+				string sep = ""; proddtok.set_name("item");
+				for ( int i=oc1+1; i<dtoklist.size(); i++ ) {
+					pugi::xml_node dtoken = dtoklist.at(i);
+					dtag += sep; sep = ".";
+					dtag += dtoken.attribute(tagpos.c_str()).value();
+					proddtok.append_copy(dtoken);
+				};
+
+				string dtpf = formpart + ':' + dtag; 
+				pugi::xml_node dtokitm;
+				if ( dtoks[dtpf][""] ) {
+					dtokitm = dtoks[dtpf][""];
+					dtokitm.attribute("cnt") = atoi(dtokitm.attribute("cnt").value()) + 1; // atoi((*it).node().attribute("cnt").value());
+				} else {
+					dtokitm = dtoklex.append_child("item");
+					dtokitm.append_attribute("key") = dtpf.c_str();
+					dtokitm.append_attribute("formpart") = formpart.c_str();
+					dtokitm.append_attribute("position") = "right";
+					dtokitm.append_attribute("cnt") = 1; // (*it).node().attribute("cnt").value();
+					for ( int i=oc1+1; i<dtoklist.size(); i++ ) {
+						pugi::xml_node dtoken = dtoklist.at(i);
+						dtag += sep; sep = ".";
+						dtag += dtoken.attribute(tagpos.c_str()).value();
+						dtokitm.append_copy(dtoken);
+					};
+					dtoks[dtpf][""] = dtokitm;
+				};
+				if ( debug >2 ) { dtokitm.print(std::cout); };
+			} else {
+				if ( debug > 0 ) { 
+					cout << " - ignoring dtok part - " << ocform << " not found in " << tokform << endl;
+				};
+			};
+		};
 		
 				
 	};

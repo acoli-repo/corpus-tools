@@ -313,11 +313,17 @@ class wordtoken {
 	
 	void adddtok (wordtoken newdtok) {
 		// Flatten the list of dtoks to have a flat list
-		// or should we make this allow nested DTOK? Nesting is fine/nice but might not be intended
 		if ( newdtok.dtoks.size() > 0 ) {
 			// flatten the dtok list by recursive adding
 			for (list<wordtoken>::iterator it2 = newdtok.dtoks.begin(); it2 != newdtok.dtoks.end(); it2++) {
 				adddtok (*it2);
+			};
+		} else if ( newdtok.lexitem.child("dtok") ) {
+			for ( pugi::xml_node dtoken = newdtok.lexitem.child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
+				wordtoken tmp;
+				tmp.lexitem = dtoken;
+				tmp.setform(dtoken.attribute("form").value());
+				dtoks.push_back(tmp);
 			};
 		} else {
 			dtoks.push_back(newdtok);
@@ -421,10 +427,14 @@ class wordtoken {
  			if ( dtoks.size() > 0 ) {
 				for (list<wordtoken>::const_iterator it = dtoks.begin(); it != dtoks.end(); ++it) {
 					if ( debug > 2 ) { cout << "    Generated dtok: " << it->form << endl; };
-					pugi::xml_node dtoken = token.append_child("dtok");
-					setpos(dtoken, it->tag);
-					if ( it->lexitem.attribute("lemma") != NULL ) { dtoken.append_attribute("lemma") =  it->lexitem.attribute("lemma").value(); };
+					if ( it->lexitem ) {
+						pugi::xml_node dtoken = token.append_copy(it->lexitem);
+					} else {
+						pugi::xml_node dtoken = token.append_child("dtok");
+						setpos(dtoken, it->tag);
+						if ( it->lexitem.attribute("lemma") != NULL ) { dtoken.append_attribute("lemma") =  it->lexitem.attribute("lemma").value(); };
 					if ( debug > 1 ) { cout << "dtoken added: " << endl; };
+				};
 				};
 			};
 		};
@@ -1035,10 +1045,10 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 	string word = parseword.form;
 	
 	// loop though all the possible clitics
-	pattlist = parameters.first_child().child("dtoks").select_nodes("dtok");
+	pattlist = parameters.first_child().child("dtoks").select_nodes("item");
 	for (pugi::xpath_node_set::const_iterator it = pattlist.begin(); it != pattlist.end(); ++it) {
 		wordtoken insertword = parseword;	
-		string ccform = it->node().attribute("form").value();
+		string ccform = it->node().attribute("formpart").value();
 		string cctag = it->node().attribute(tagpos.c_str()).value();
 		if ( ccform == "" ) { return; }; // Why would we ever reach a non-form clitic?
 		float ccprob = atof(it->node().attribute("cnt").value()); // TODO: this should become prob
@@ -1065,17 +1075,20 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 				if ( debug > 5 ) { cout << "    base word: " << cb.form << " : " << cb.tag << " = " << cb.prob << endl; };
 				
 				// check if this base word tag occurs with the clitic
-				string tmp = ".//sibling[@key=\""+cb.tag+"\"]";
-				if ( it->node().select_nodes(tmp.c_str()).empty() ) { 
-					if ( debug > 4 ) { cout << "    This base tag never appear with this clitic ~ " << tmp << endl; };
-					continue;
+				if ( it->node().child("sibling") ) {
+					string tmp = ".//sibling[@key=\""+cb.tag+"\"]";
+					if ( it->node().select_nodes(tmp.c_str()).empty() ) { 
+						if ( debug > 4 ) { cout << "    This base tag never appear with this clitic ~ " << tmp << endl; };
+						continue;
+					};
 				};
-				
+								
 				insertword.prob = ccprob * cb.prob;
 				insertword.source = "contractions: " + cb.source;
 				insertword.dtoks.clear();
 				wordtoken cctok; 
-				cctok.setform(ccform); cctok.settag(cctag); 
+				cctok.setform(ccform); // This seems no longer good
+				cctok.settag(cctag); 
 				cctok.lexitem = it->node(); cctok.source = "contractions";
 				cb.lemmatize();
 				if ( !strcmp(it->node().attribute("position").value(), "left") ) {

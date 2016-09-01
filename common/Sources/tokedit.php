@@ -277,13 +277,15 @@
 			$maintext .= "<hr><p style='background-color: #ffaaaa; padding: 5px; font-weight: bold'>Every token with XML inside should ALWAYS have a @form - consider correcting</p>";
 		};
 		
-		# Check if the join of all @form of the dtoks equals the @form of the tok
 		$totform = preg_replace("/[|]./", "", $totform);
-		if ( $totform != "" && $totform != $tokform ) { 
-			$maintext .= "<hr><p style='background-color: #ffaaaa; padding: 5px; font-weight: bold'>
-				The join of the @form of the &lt;dtok&gt; does not match the @form of the &lt;tok&gt; - consider revising
-				</p>";
-		};
+
+		# Check if the join of all @form of the dtoks equals the @form of the tok
+		# This check no longer holds given the new treatment of <dtok/>
+		#if ( $totform != "" && $totform != $tokform ) { 
+		#	$maintext .= "<hr><p style='background-color: #ffaaaa; padding: 5px; font-weight: bold'>
+		#		The join of the @form of the &lt;dtok&gt; does not match the @form of the &lt;tok&gt; - consider revising
+		#		</p>";
+		#};
 		
 		
 		# Allow adding/deleting tokens 
