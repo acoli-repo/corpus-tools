@@ -586,6 +586,9 @@ int main(int argc, char *argv[])
 	if ( verbose ) { cout << "Calculating from lexicon" << endl; };
 
 	// Now that we have our full lexicon, start counting the classes
+	if ( verbose ) {
+		cout << "Counting class frequencies" << endl;
+	};
 	pugi::xml_node tagset;
 	tagset = paramfile.first_child().append_child("tags");
 	map<string, map<string, pugi::xml_node> > wordends; // wordend items
@@ -627,10 +630,14 @@ int main(int argc, char *argv[])
 	};
 
 	// Add the dtok lexicon
+	if ( verbose ) {
+		cout << "Creating a lexicon of productive clitics" << endl;
+	};
 	pugi::xml_node dtoklex;
 	map<string, map<string, pugi::xml_node> > dtoks; // keep track of the existing dtoks
+	map<string, int> ignored; // Keep track of lexical items we ignored since those should be ignored in the counts as well
 	dtoklex = paramfile.first_child().append_child("dtoks");
-	pattlist = lexicon.select_nodes("//tok[dtok]");
+	pattlist = lexicon.select_nodes("//lexicon//tok[dtok]");
 	string position; string dtag; string dform;
 	for (pugi::xpath_node_set::const_iterator it = pattlist.begin(); it != pattlist.end(); ++it) {
 		int oc1 = -1; int oc2 = -1; int i = -1; int cc = -1;
@@ -658,9 +665,11 @@ int main(int argc, char *argv[])
 			//determine the position of the oc1
 	        pugi::xml_node octoken = dtoklist.at(oc1);
 	        pugi::xml_node proddtok;
-	        string ocform = calcform(octoken, tagfld);
+	        string ocform;
+	        ocform = octoken.attribute("formpart").value();
+	        if ( ocform == "" ) { ocform = calcform(octoken, tagfld); };
 	        int ocpos = tokform.find(ocform);
-	        if ( ocpos != string::npos && ocpos > 0 ) {
+	        if ( ocpos != string::npos && ocpos > 0 && ocform.length() > 0 ) {
 
 				string formpart = tokform.substr(0, ocpos);
 				if ( debug > 3 ) { 
@@ -677,27 +686,35 @@ int main(int argc, char *argv[])
 					proddtok.append_copy(dtoken);
 				};
 
-				string dtpf = formpart + ':' + dtag; 
-				pugi::xml_node dtokitm;
-				if ( dtoks[dtpf][""] ) {
-					dtokitm = dtoks[dtpf][""];
-					dtokitm.attribute("cnt") = atoi(dtokitm.attribute("cnt").value()) + 1; // atoi((*it).node().attribute("cnt").value());
-				} else {
-					dtokitm = dtoklex.append_child("item");
-					dtokitm.append_attribute("key") = dtpf.c_str();
-					dtokitm.append_attribute("formpart") = formpart.c_str();
-					dtokitm.append_attribute("position") = "left";
-					dtokitm.append_attribute("cnt") = 1; // (*it).node().attribute("cnt").value();
-					for ( int i=0; i<oc1; i++ ) {
-						pugi::xml_node dtoken = dtoklist.at(i);
-						dtag += sep; sep = ".";
-						dtag += dtoken.attribute(tagpos.c_str()).value();
-						dtokitm.append_copy(dtoken);
+				pugi::xml_node dtokfrm = dtoks[formpart][""];
+				if ( dtag != "" )  {
+					if ( dtokfrm == NULL ) {
+						dtokfrm = dtoklex.append_child("item");
+						dtokfrm.append_attribute("key") = formpart.c_str();
+						dtokfrm.append_attribute("lexcnt") = 0;
+						dtokfrm.append_attribute("position") = "left";
+						dtoks[formpart][""] = dtokfrm;
 					};
-					dtoks[dtpf][""] = dtokitm;
+					pugi::xml_node dtokitm = dtoks[formpart][dtag];
+					if ( dtokitm == NULL ) {
+						dtokitm = dtokfrm.append_child("item");
+						dtokitm.append_attribute("key") = dtag.c_str();
+						dtokitm.append_attribute("cnt") = 0;
+						dtoks[formpart][dtag] = dtokitm;
+						for ( int i=0; i<oc1; i++ ) {
+							pugi::xml_node dtoken = dtoklist.at(i);
+							dtag += sep; sep = ".";
+							dtag += dtoken.attribute(tagpos.c_str()).value();
+							dtokitm.append_copy(dtoken);
+						};
+					};
+				
+					dtokitm.attribute("cnt") = atoi(dtokitm.attribute("cnt").value()) + 1; // atoi((*it).node().attribute("cnt").value());
+					if ( debug >2 ) { dtokitm.print(std::cout); };
 				};
-				if ( debug >2 ) { dtokitm.print(std::cout); };
+
 			} else {
+				ignored[tokform] = 1;
 				if ( debug > 0 ) { 
 					cout << " - ignoring dtok part - " << ocform << " not found in " << tokform << endl;
 				};
@@ -708,9 +725,11 @@ int main(int argc, char *argv[])
 			//determine the position of the oc1
 	        pugi::xml_node octoken = dtoklist.at(oc2);
 	        pugi::xml_node proddtok;
-	        string ocform = calcform(octoken, tagfld);
+	        string ocform;
+	        ocform = octoken.attribute("formpart").value();
+	        if ( ocform == "" ) { ocform = calcform(octoken, tagfld); };
 	        int ocpos = tokform.find(ocform);
-	        if ( ocpos != string::npos && ocpos < tokform.length()-1 ) {
+	        if ( ocpos != string::npos && ocpos < tokform.length()-1  && ocform.length() > 0 ) {
 	        	ocpos += ocform.length();
 
 				string formpart = tokform.substr(ocpos);
@@ -728,27 +747,35 @@ int main(int argc, char *argv[])
 					proddtok.append_copy(dtoken);
 				};
 
-				string dtpf = formpart + ':' + dtag; 
-				pugi::xml_node dtokitm;
-				if ( dtoks[dtpf][""] ) {
-					dtokitm = dtoks[dtpf][""];
-					dtokitm.attribute("cnt") = atoi(dtokitm.attribute("cnt").value()) + 1; // atoi((*it).node().attribute("cnt").value());
-				} else {
-					dtokitm = dtoklex.append_child("item");
-					dtokitm.append_attribute("key") = dtpf.c_str();
-					dtokitm.append_attribute("formpart") = formpart.c_str();
-					dtokitm.append_attribute("position") = "right";
-					dtokitm.append_attribute("cnt") = 1; // (*it).node().attribute("cnt").value();
-					for ( int i=oc1+1; i<dtoklist.size(); i++ ) {
-						pugi::xml_node dtoken = dtoklist.at(i);
-						dtag += sep; sep = ".";
-						dtag += dtoken.attribute(tagpos.c_str()).value();
-						dtokitm.append_copy(dtoken);
+				pugi::xml_node dtokfrm = dtoks[formpart][""];
+				if ( dtag != "" )  {
+					if ( dtokfrm == NULL ) {
+						dtokfrm = dtoklex.append_child("item");
+						dtokfrm.append_attribute("key") = formpart.c_str();
+						dtokfrm.append_attribute("lexcnt") = 0;
+						dtokfrm.append_attribute("position") = "right";
+						dtoks[formpart][""] = dtokfrm;
 					};
-					dtoks[dtpf][""] = dtokitm;
+					pugi::xml_node dtokitm = dtoks[formpart][dtag];
+					if ( dtokitm == NULL ) {
+						dtokitm = dtokfrm.append_child("item");
+						dtokitm.append_attribute("key") = dtag.c_str();
+						dtokitm.append_attribute("cnt") = 0;
+						dtoks[formpart][dtag] = dtokitm;
+						for ( int i=oc2+1; i<dtoklist.size(); i++ ) {
+							pugi::xml_node dtoken = dtoklist.at(i);
+							dtag += sep; sep = ".";
+							dtag += dtoken.attribute(tagpos.c_str()).value();
+							dtokitm.append_copy(dtoken);
+						};
+					};
+				
+					dtokitm.attribute("cnt") = atoi(dtokitm.attribute("cnt").value()) + 1; // atoi((*it).node().attribute("cnt").value());
+					if ( debug >2 ) { dtokitm.print(std::cout); };
 				};
-				if ( debug >2 ) { dtokitm.print(std::cout); };
+
 			} else {
+				ignored[tokform] = 1;
 				if ( debug > 0 ) { 
 					cout << " - ignoring dtok part - " << ocform << " not found in " << tokform << endl;
 				};
@@ -756,6 +783,36 @@ int main(int argc, char *argv[])
 		};
 		
 				
+	};
+
+	// Now count the relative frequency of each productive dtok
+	pattlist = lexicon.select_nodes("//lexicon/item");
+	if ( verbose ) {
+		cout << "Checking productivity of clitics" << endl;
+	};
+	for( map<string, map<string, pugi::xml_node> >::const_iterator it2 = dtoks.begin(); it2 != dtoks.end(); ++it2 ) {
+		map<string, pugi::xml_node> tmp = it2->second;
+		pugi::xml_node dnode = tmp[""];
+		string dform = dnode.child("dtok").attribute("form").value();
+		string dtokform = dnode.attribute("key").value();
+		string pos = dnode.attribute("position").value();
+		if ( dnode.attribute("lexcnt") == NULL ) { dnode.append_attribute("lexcnt"); };
+		for (pugi::xpath_node_set::const_iterator it = pattlist.begin(); it != pattlist.end(); ++it) {
+			string tokform = it->node().attribute("key").value();
+	    	string check;
+	    	if ( dtokform.length() > tokform.length() || ignored[tokform] == 1 ) {
+	    		check = "";
+	    	} else if ( pos == "left" ) {
+	    		check = tokform.substr(0,dtokform.length());
+	    	} else  {
+	    		check = tokform.substr(tokform.length()-dtokform.length());
+	    	};
+			if ( check == dtokform ) {
+				pugi::xpath_node_set tmp = it->node().select_nodes("tok"); 
+				int tagcnt = tmp.size();
+				dnode.attribute("lexcnt") = atoi(dnode.attribute("lexcnt").value()) + tagcnt;
+			};
+	    };
 	};
 	
 	// copy the relevant tagsettings to the parameter file

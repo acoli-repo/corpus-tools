@@ -326,6 +326,9 @@ class wordtoken {
 				dtoks.push_back(tmp);
 			};
 		} else {
+			if ( !strcmp(newdtok.lexitem.name(), "tok") ) {
+				newdtok.lexitem.set_name("dtok");
+			};
 			dtoks.push_back(newdtok);
 		};
 	};
@@ -1045,19 +1048,22 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 	string word = parseword.form;
 	
 	// loop though all the possible clitics
-	pattlist = parameters.first_child().child("dtoks").select_nodes("item");
+	pattlist = parameters.first_child().child("dtoks").select_nodes("item/item");
 	for (pugi::xpath_node_set::const_iterator it = pattlist.begin(); it != pattlist.end(); ++it) {
 		wordtoken insertword = parseword;	
-		string ccform = it->node().attribute("formpart").value();
-		string cctag = it->node().attribute(tagpos.c_str()).value();
+		string ccform = it->node().parent().attribute("key").value();
+		string cctag = it->node().attribute("key").value();
+		string ccpos = it->node().parent().attribute("position").value();
+		float cccnt = atof(it->node().parent().attribute("lexcnt").value()); // TODO: this should become prob
+		float ccprob = atof(it->node().attribute("cnt").value()) / cccnt; // TODO: this should become prob
+		if ( debug > 5 ) { cout << " -- checking clitic: " << ccform << "/" << cctag << " = " << ccprob << endl; };
 		if ( ccform == "" ) { return; }; // Why would we ever reach a non-form clitic?
-		float ccprob = atof(it->node().attribute("cnt").value()); // TODO: this should become prob
 		string base = "";
-		if ( !strcmp(it->node().attribute("position").value(), "left") && word.substr(0, ccform.size()) == ccform && word.size() > ccform.size() ) {
+		if ( ccpos == "left" && word.substr(0, ccform.size()) == ccform && word.size() > ccform.size() ) {
 			// a pre"clitic"
 			base = word.substr(ccform.size());
 			if ( debug > 2 ) { cout << " -- possible pre-clitic of " << word << " : " << ccform << "/" << cctag << " = " << ccprob << " + " << base << endl; };
-		} else if ( !strcmp(it->node().attribute("position").value(), "right") && word.size() > ccform.size() && word.substr(word.size()-ccform.size()) == ccform && word.size() > ccform.size() ) {
+		} else if ( ccpos ==  "right" && word.size() > ccform.size() && word.substr(word.size()-ccform.size()) == ccform && word.size() > ccform.size() ) {
 			// a post"clitic"
 			base = word.substr(0,word.size()-ccform.size());
 			if ( debug > 2 ) { cout << " -- possible post-clitic of " << word << " : " << base << " + " << ccform << "/" << cctag << " = " << ccprob << endl; };

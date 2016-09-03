@@ -9,6 +9,8 @@
 	$oid = $fileid;
 	$tokid = $_POST['tid'] or $tokid = $_GET['tid'];
 	$tokid = preg_replace("/r-\d+_/", "", $tokid); // for row-driven ids
+
+	$tagform = $settings['xmlfile']['formpart'] or $tagform = "form";
 	
 	if ( !strstr( $fileid, '.xml') ) { $fileid .= ".xml"; };
 	
@@ -205,6 +207,7 @@
 
 		$maintext .= "</table>";
 
+
 		// Show all the DTOKS
 		$result2 = $token->xpath("dtok"); $dtk = 0;
 		foreach ( $result2 as $dtoken ) {
@@ -216,13 +219,17 @@
 				$did = $token['id'].'-'.$dtk; 
 			};
 			$dform = $dtoken['form'];
-			$totform .= $dform;
+			$dpart = $dtoken['formpart'] or $dpart = $dtoken['form'];
+			$totform .= $dpart;
 			$rawdxml = $dtoken->asXML();
 			$rawdxml = preg_replace("/'/", "&#039;", $rawdxml ); # We need to protect apostrophs in the HTML form
 			$maintext .= "<hr style='background-color: #aaaaaa;'><h2>D-Token</h2> 
 				<input type=hidden name='dtok[$did]' size=70 value='$rawdxml'>
 				<table>
 				";
+			if ( $settings['xmlfile']['formpart'] ) {
+					$maintext .= "<tr><td>formpart<td>Part of token $tagform<td><input size=60 name=datts[$did:formpart] id='fformpart' value='{$dtoken['formpart']}'>";
+			};
 			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
 				$atv = $dtoken[$key]; 
 				$val = $item['display'];
@@ -279,13 +286,12 @@
 		
 		$totform = preg_replace("/[|]./", "", $totform);
 
-		# Check if the join of all @form of the dtoks equals the @form of the tok
-		# This check no longer holds given the new treatment of <dtok/>
-		#if ( $totform != "" && $totform != $tokform ) { 
-		#	$maintext .= "<hr><p style='background-color: #ffaaaa; padding: 5px; font-weight: bold'>
-		#		The join of the @form of the &lt;dtok&gt; does not match the @form of the &lt;tok&gt; - consider revising
-		#		</p>";
-		#};
+		# Check if the join of all @formpart of the dtoks equals the @form of the tok (when using formpart)
+		if ( $totform != "" && $totform != forminherit($token, $tagform) && $settings['xmlfile']['formpart'] ) { 
+			$maintext .= "<hr><p style='background-color: #ffaaaa; padding: 5px; font-weight: bold'>
+				The join of the @formpart of the &lt;dtok&gt; does not match the @$tagform of the &lt;tok&gt; - consider revising
+				</p>";
+		};
 		
 		
 		# Allow adding/deleting tokens 
