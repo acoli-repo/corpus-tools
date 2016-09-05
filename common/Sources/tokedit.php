@@ -10,7 +10,7 @@
 	$tokid = $_POST['tid'] or $tokid = $_GET['tid'];
 	$tokid = preg_replace("/r-\d+_/", "", $tokid); // for row-driven ids
 
-	$tagform = $settings['xmlfile']['formpart'] or $tagform = "form";
+	$partform = $settings['xmlfile']['formpart'] or $partform = "form"; // 
 	
 	if ( !strstr( $fileid, '.xml') ) { $fileid .= ".xml"; };
 	

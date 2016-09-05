@@ -21,7 +21,7 @@
 	};
 
 	# Determine which form to search on by default 
-	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "form";
+	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "/usr/local/share/cwb/registry/";
 
