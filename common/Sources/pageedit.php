@@ -41,6 +41,9 @@
 		$id = $_GET['id'];
 		if ( !file_exists( "Pages/$id.html" ) ) { fatal("<p>No such HTML page: $id"); };
 		
+		if ( !file_exists("Trash") ) mkdir("Trash");
+		if ( !file_exists("Trash") ) { fatal ("Unable to create Trash folder"); };
+		
 		rename("Pages/$id.html", "Trash/$id.html");		
 				
 		print "<p>File moved to Trash. Reloading.

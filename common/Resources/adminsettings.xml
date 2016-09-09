@@ -97,9 +97,21 @@
 		<att key="corpus" display="CQP corpus ID"/>
 		<att key="searchfolder" display="Folders to use for the corpus"/>
 		<att key="searchmethod" display="Default search method"/>	
-		<att key="nodtoks" display="Export tokens even if there are dtoks" default="0">	
-			<val key="1" display="Always export toks"/>
-			<val key="0" display="Export dtoks when they exist"/>
+		<att key="wrdfld" default="form" display="Which pattribute to use as the CQP word (and default CQP search attribute)"/>	
+		<att key="nodtoks" display="Export tokens even if there are dtoks" default="0" deprecated="1"/>	
+		<att key="tokxpath" display="Which XML elements to export as tokens" default="//tok"/>	
+		<att key="toktype" display="How to export mtok and dtok" default="td" >	
+			<desc>
+				TEITOK can contain not only tokens, but also grammatical words (dtok) and multi-word expressions (mtok). Here
+				you can indicate which of those you want to export to the CQP corpus as tokens.
+				In principle, it would be possible (and more flexible) to use tokxpath to define which items to export as tokens,
+				where the default would be: (//tok[not(parent::mtok) and not(dtok)] | //mtok[not(dtok)] | //dtok[not(parent::tok[parent::mtok])])
+				But PugiXML does not properly handle multiple joins in XPath and exports the resulting tokens in the wrong order.
+			</desc>	
+			<val key="mtd" display="Export mtok, tok, and dtok"/>
+			<val key="td" display="Export tok and dtok (treat mtok as sattribute)"/>
+			<val key="mt" display="Export only mtok and tok (collect dtok pattributes)"/>
+			<val key="t" display="Export only tok (treat mtok as sattribute, collect dtok pattributes)"/>
 		</att>
 		<item key="defaults" display="Default values">
 			<att key="searchtype" display="Default type of search" default="kwic">
@@ -316,6 +328,11 @@
 			settings for the tagger, which can either be incorporated from an existing project,
 			or trained on the current project corpus itself.
 		</desc>
+		<att key="tagform" display="Word form to tag from"/> 
+		<att key="tagpos" display="Attribute name for the POS tag"/> 
+		<att key="formtags" display="Attributes to assign while tagging"/> 
+		<att key="lemmatize" display="Attributes that should be lemmatized"/> 
+		<att key="normalize" display="Attributes that should be normalize (not yet implemented)"/> 
 		<item key="parameters" display="List of NeoTag parameter definitions">
 			<list>
 	    		<att key="pid" display="ID for the settings"/> 

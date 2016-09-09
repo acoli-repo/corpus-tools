@@ -66,23 +66,40 @@
 		if ( !$xpath ) { fatal("No node indicated"); };
 		$tmp = $settingsxml->xpath($xpath); $valnode = $tmp[0];
 		
-		$defnode = findnode($xpath);
+		$defnode = findnode($xpath); $deftxt = "";
+
+		if ( $defnode->xpath("desc") ) {
+			$descnode = current($defnode->xpath("desc")); 
+			$deftxt .= "<div style='color: #339933'>$descnode</div>";
+		};
 		
 		if ( $defnode['default'] ) { 
 			$defval = $defnode['default'];
 			$tmp = $defnode->xpath("val[@key=\"$defval\"]"); $defdis = $tmp[0]['display'];
-			$deftxt = "<p>Default value: $defval = $defdis"; 
+			$deftxt .= "<p>Default value: $defval";
+			if ( $defdis ) $deftxt .= " = ".$defdis; 
 		};
+
+			$tmp = $defnode->xpath("ancestor::item[parent::ttsettings]"); 
+			$section = $tmp[0]['key'];
+		
 		
 		$xptxt = "".$xpath;
 		$valtxt = addslashes($valnode);
+
+		if ( $valtxt ) { 
+			$tmp = $defnode->xpath("val[@key=\"$valtxt\"]"); $defdis = $tmp[0]['display'];
+			$valdef = $valtxt." = ".$tmp[0]['display'];
+		} else {
+			$valdef = "(none)";
+		};
 		if ( !$valtxt ) $valtxt = $defnode['default']."";
 
 		$maintext .= "<h1>Edit settings</h1>
 			<p>Settings node: $xpath
 			<p style='color: #666666;'>{$defnode['display']}
 			$deftxt 
-			<p>Current value: <b>$valnode</b>
+			<p>Current value: <b>$valdef</b>
 			<form action=\"index.php?action=$action&act=save\" method=post>
 			<textarea style='display: none;' type=hidden name=xpath>$xptxt</textarea>
 			";
@@ -98,7 +115,10 @@
 			$maintext .= "<p>New value: <input name=newval size=60 value=\"$valtxt\">";
 		};
 		$maintext .= "
-			<input type=submit value=Save></form>";
+			<input type=submit value=Save> 
+			&bull; <a href='index.php?action=$action&section=$section'>cancel</a>
+			</form>
+			";
 
 	} else if ( $act == "addelm" ) {
 		

@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     	return -1;
 	}; // We can only treat XML files and assume those always end on .xml
 	if ( begin == "" ) {
-        cout << "  No being node given" << endl;
+        cout << "  No start node given" << endl;
     	return -1;
 	}; 
 	if ( expand == "" ) {
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 				return -1;
 			};
 		} else {
-			if ( debug ) { cout << "not yet the beginnode..." << endl; };
+			if ( debug ) { cout << "not yet the begin node..." << endl; };
 		};
 	};	
 }
