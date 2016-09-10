@@ -127,6 +127,12 @@
 			<p>For help on admin functions see the <a href='http://teitok.corpuswiki.org/site/index.php?action=help'>Help</a> section online.
 			";
 	
+		if ( file_exists("../common/Resources/version.xml") ) {
+			$tmp = simplexml_load_file("../common/Resources/version.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
+			$version = $tmp[0];
+			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
+		};
+	
 		# $maintext .= "<p>Screen type detected: ".screentype();
 
 	};

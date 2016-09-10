@@ -80,8 +80,8 @@
 			if ( $defdis ) $deftxt .= " = ".$defdis; 
 		};
 
-			$tmp = $defnode->xpath("ancestor::item[parent::ttsettings]"); 
-			$section = $tmp[0]['key'];
+		$tmp = $defnode->xpath("ancestor::item[parent::ttsettings]"); 
+		$section = $tmp[0]['key'];
 		
 		
 		$xptxt = "".$xpath;

@@ -390,6 +390,11 @@ void treatfile ( string filename ) {
 
 };
 
+template <typename T> string tostr(const T& t) { 
+   ostringstream os; 
+   os<<t; 
+   return os.str(); 
+} 
 
 int treatdir (string dirname) {
     struct dirent *entry;
@@ -787,9 +792,11 @@ int main(int argc, char *argv[])
 
 	// Now count the relative frequency of each productive dtok
 	pattlist = lexicon.select_nodes("//lexicon/item");
+	pugi::xpath_node_set dti = lexicon.select_nodes("//dtoks/item/item");
 	if ( verbose ) {
 		cout << "Checking productivity of clitics" << endl;
 	};
+	// Count how many occurrence of words ending on this clitic there are
 	for( map<string, map<string, pugi::xml_node> >::const_iterator it2 = dtoks.begin(); it2 != dtoks.end(); ++it2 ) {
 		map<string, pugi::xml_node> tmp = it2->second;
 		pugi::xml_node dnode = tmp[""];
@@ -813,8 +820,32 @@ int main(int argc, char *argv[])
 				dnode.attribute("lexcnt") = atoi(dnode.attribute("lexcnt").value()) + tagcnt;
 			};
 	    };
+	    int count = 0;
+		for (pugi::xpath_node_set::const_iterator it = dti.begin(); it != dti.end(); ++it) {
+			string clitform = it->node().parent().attribute("key").value();
+	    	string check;
+	    	if ( dtokform.length() > clitform.length() && dtokform.length() > 0 ) {
+	    		check = "";
+	    	} else if ( pos == "left" ) {
+	    		check = clitform.substr(0,dtokform.length());
+	    	} else  {
+	    		check = clitform.substr(clitform.length()-dtokform.length());
+	    	};
+			if ( check == dtokform ) {
+				cout << dtokform << " part of " << clitform << " >> " << count << endl;
+				count = count + atoi(it->node().attribute("cnt").value());
+			};
+		};
+		if ( atoi(dnode.attribute("lexcnt").value()) > 0 ) {
+			float clitprob = (float)count/atoi(dnode.attribute("lexcnt").value());
+			if ( dnode.attribute("clitprob") == NULL ) { dnode.append_attribute("clitprob"); };
+			dnode.attribute("clitprob") = clitprob;
+			cout << "setting prob for " << dtokform << " to " << count << "/" << atoi(dnode.attribute("lexcnt").value()) << " = " << clitprob << endl;
+		} else {
+			cout << "skipping " << dtokform << " : lexcnt = " << atoi(dnode.attribute("lexcnt").value()) << endl;
+		};
 	};
-	
+		
 	// copy the relevant tagsettings to the parameter file
     for (pugi::xml_attribute_iterator ait = tagsettings.attributes_begin(); ait != tagsettings.attributes_end(); ++ait) {
 		if ( strcmp(ait->name(), "debug") && strcmp(ait->name(), "verbose") && strcmp(ait->name(), "folder") && strcmp(ait->name(), "params") && strcmp(ait->name(), "training") && strcmp(ait->name(), "pid") && strcmp(ait->name(), "log") ) {

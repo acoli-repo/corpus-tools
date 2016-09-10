@@ -1055,6 +1055,7 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 		string cctag = it->node().attribute("key").value();
 		string ccpos = it->node().parent().attribute("position").value();
 		float cccnt = atof(it->node().parent().attribute("lexcnt").value()); // TODO: this should become prob
+		float clitprob = atof(it->node().parent().attribute("clitprob").value()); // TODO: this should become prob
 		float ccprob = atof(it->node().attribute("cnt").value()) / cccnt; // TODO: this should become prob
 		if ( debug > 5 ) { cout << " -- checking clitic: " << ccform << "/" << cctag << " = " << ccprob << endl; };
 		if ( ccform == "" ) { return; }; // Why would we ever reach a non-form clitic?
@@ -1106,7 +1107,11 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 				};
 				wordParse->push_back(insertword);
 			};
-			if ( ccprob < 1 ) { partialclitic = 1; }; // if this is not always a clitic, force to search on
+			if ( clitprob < 1 ) { 
+ 				// if this is not always a clitic, force to search on
+ 				partialclitic = 1; 
+				if ( debug > 4 ) { cout << "    This ending is not always used as a clitic - chance = " << clitprob << endl; };
+			};
 		};
 	};
 };
