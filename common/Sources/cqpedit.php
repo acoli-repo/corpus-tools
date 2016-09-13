@@ -348,6 +348,9 @@
 		$results = $cqp->exec($cqpquery);
 
 		if ( $debug ) $maintext .= "<p>$cqpquery<PRE>$results</PRE>";
+		if ( $_POST['refrom'] ) {
+			$maintext .= "<p>Systematic change: s/<b>{$_POST['refrom']}</b>/<b>{$_POST['reto']}</b>/g;";
+		};
 
 		$resarr = explode ( "\n", $results ); $scnt = count($resarr);
 		$maintext .= "<p>$cnt {%results} for $cql";

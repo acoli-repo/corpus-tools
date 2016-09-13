@@ -270,6 +270,10 @@
     		that generate a downloadable XML file. The most simple script is "cat [fn]" 
     		which will simply make the XML file itself downloadable without modifications.
     	</desc>
+    	<att key="disabled" display="Disable download altogether" default="0">
+					<val key="1" display="Download of XML is disabled"/>
+					<val key="0" display="Download of the XML is allowed (or any other download options listed below)"/>
+    	</att>
         <item key="options" display="Option list">
             <list>
 				<att key="key" display="ID for the option"/>

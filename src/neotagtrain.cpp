@@ -832,7 +832,7 @@ int main(int argc, char *argv[])
 	    		check = clitform.substr(clitform.length()-dtokform.length());
 	    	};
 			if ( check == dtokform ) {
-				cout << dtokform << " part of " << clitform << " >> " << count << endl;
+				if ( debug > 2 ) { cout << dtokform << " part of " << clitform << " >> " << count << endl; };
 				count = count + atoi(it->node().attribute("cnt").value());
 			};
 		};
