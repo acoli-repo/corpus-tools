@@ -274,6 +274,7 @@
 					<val key="1" display="Download of XML is disabled"/>
 					<val key="0" display="Download of the XML is allowed (or any other download options listed below)"/>
     	</att>
+    	<att key="restriction" display="XML downloadable only if this condition is met"/>
         <item key="options" display="Option list">
             <list>
 				<att key="key" display="ID for the option"/>

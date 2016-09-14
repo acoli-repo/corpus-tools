@@ -68,6 +68,8 @@
 		
 		$defnode = findnode($xpath); $deftxt = "";
 
+		if ( !$defnode ) { fatal ( "Node not found: $xpath" ); };
+
 		if ( $defnode->xpath("desc") ) {
 			$descnode = current($defnode->xpath("desc")); 
 			$deftxt .= "<div style='color: #339933'>$descnode</div>";

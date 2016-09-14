@@ -97,7 +97,7 @@
 		
 		if ( $xpath == "" ) { 
 			$test = 1; 
-			$xpath = $settings['psdx']['default'] or $xpath = '//eTree[@Label="IP-SUB" and .//eTree[@Label="ADV"]]';
+			$xpath = $_GET['query'] or $xpath = $settings['psdx']['default'] or $xpath = '//eTree[@Label="IP-SUB" and .//eTree[@Label="ADV"]]';
 		};
 		
 		$maintext .= "<div style='position: absolute; top: 70px; right: 20px'><a href='index.php?action=xpathhelp'>{%help}</a></div>";
@@ -405,6 +405,7 @@
 	} else if ( $act == "nodesave" ) {
 		check_login();
 		$cid = $_POST['cid'];
+		$psdxfile = "Annotations/$cid.psdx";
 
 		$file = file_get_contents($psdxfile);
 		$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
@@ -436,15 +437,17 @@
 		check_login();
 		$cid = $_POST['cid'];
 		$treeid = $_POST['treeid'];
+		$psdxfile = "Annotations/$cid.psdx";
 
 		if ($_POST['newxml']) {
 			$file = file_get_contents($psdxfile);
 			$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$forestxml ) { print "Forest not found: $cid<hr>"; print $file; exit; };
 
+
 			$result = $forestxml->xpath("//forest[@id=\"$treeid\"]"); 
 			$forest = $result[0]; 
-			if ( !$forest ) { fatal ("Forest not found: $treeid"); }; # print "Node not found: <hr>//forest[@id=\"$treeid\"]//*[@id=\"$nid\"]<hr>".htmlentities($forestxml->asXML()); exit; };
+			if ( !$forest ) { fatal ("Tree not found: $treeid"); }; # print "Node not found: <hr>//forest[@id=\"$treeid\"]//*[@id=\"$nid\"]<hr>".htmlentities($forestxml->asXML()); exit; };
 			
 			$forest[0] = "##INSERT##";
 			
