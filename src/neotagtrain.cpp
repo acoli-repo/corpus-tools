@@ -840,9 +840,9 @@ int main(int argc, char *argv[])
 			float clitprob = (float)count/atoi(dnode.attribute("lexcnt").value());
 			if ( dnode.attribute("clitprob") == NULL ) { dnode.append_attribute("clitprob"); };
 			dnode.attribute("clitprob") = clitprob;
-			cout << "setting prob for " << dtokform << " to " << count << "/" << atoi(dnode.attribute("lexcnt").value()) << " = " << clitprob << endl;
+			if ( debug > 1 ) { cout << "setting prob for " << dtokform << " to " << count << "/" << atoi(dnode.attribute("lexcnt").value()) << " = " << clitprob << endl; };
 		} else {
-			cout << "skipping " << dtokform << " : lexcnt = " << atoi(dnode.attribute("lexcnt").value()) << endl;
+			if ( debug > 1 ) { cout << "skipping " << dtokform << " : lexcnt = " << atoi(dnode.attribute("lexcnt").value()) << endl; };
 		};
 	};
 		
