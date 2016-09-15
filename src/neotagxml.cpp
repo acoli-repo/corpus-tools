@@ -1226,7 +1226,12 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 	// TODO: word end or word beginning
 	if ( wordParse.size() == 0 || lexsmooth  || partialclitic ) {
 		int fnd = 0; float smoothfactor = 1;
-		int endretry = 5;
+		int endretry;
+		if ( tagsettings.attribute("endretry") != NULL ) { 
+			endretry = atoi(tagsettings.attribute("endretry").value());
+		} else {
+			endretry = 5;
+		};
 		string smoothtxt = "";
 		if ( lexsmooth ) { 
 			smoothfactor = lexsmooth;
