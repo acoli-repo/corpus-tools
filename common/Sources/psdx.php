@@ -10,6 +10,8 @@
 		$test = array_merge(glob("Annotations/$cid.psdx"), glob("Annotations/*/$cid.psdx"), glob("Annotations/*/*/$cid.psdx"), glob("Annotations/*/*/*/$cid.psdx")); 
 		$psdxfile = array_pop($test); 
 	};
+
+	if ( !is_array($_POST['atts']) ) $_POST['atts'] = $_GET['atts'];
 	
 	$treestyle = $_GET['treestyle'] or $treestyle = $_POST['treestyle'] or $treestyle = $_COOKIE['treestyle']  or $treestyle = $_SESSION['treestyle'] or $treestyle = $settings['psdx']['treestyle'] or $treestyle = "horizontal";
 	$_COOKIE['treestyle'] = $_SESSION['treestyle'] = $_GET['treestyle'];
