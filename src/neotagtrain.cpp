@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
 				};
 
 				pugi::xml_node dtokfrm = dtoks[formpart][""];
-				if ( dtag != "" )  {
+				if ( dtag != "" && formpart != "" )  {
 					if ( dtokfrm == NULL ) {
 						dtokfrm = dtoklex.append_child("item");
 						dtokfrm.append_attribute("key") = formpart.c_str();
@@ -792,7 +792,7 @@ int main(int argc, char *argv[])
 				};
 
 				pugi::xml_node dtokfrm = dtoks[formpart][""];
-				if ( dtag != "" )  {
+				if ( dtag != ""  && formpart != "" )  {
 					if ( dtokfrm == NULL ) {
 						dtokfrm = dtoklex.append_child("item");
 						dtokfrm.append_attribute("key") = formpart.c_str();
