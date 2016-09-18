@@ -28,8 +28,8 @@ pugi::xml_document paramfile;
 pugi::xml_node lexicon;
 pugi::xml_node transitions;
 
-string tagfld;
-string tagpos;
+string tagfld; // The field to use for tagging
+string tagpos; // 
 string lemmafld;
 list<string> formTags;
 list<string> lemTags;
@@ -295,7 +295,7 @@ string pos_type ( string mainpos ) {
 		if ( mainpos == "A" || mainpos == "N" || mainpos == "V" || mainpos == "E" ) { 
 			return "open"; 
 		};
-		if ( mainpos == "F" || mainpos == "X" ) { 
+		if ( mainpos == "F" || mainpos == "X" || mainpos == "Z" ) { 
 			return "nonword"; 
 		};
 		return "closed"; 
@@ -669,6 +669,14 @@ int main(int argc, char *argv[])
 		bool nonword = false;
 		if ( debug > 3 ) { 
 			cout << " - Checking productive dtoks on: " << tokform << endl;
+		};
+
+		// Skip productive dtoks if the token is normalized (works only if nform is one of the tagforms)
+		if ( token.attribute("nform") != NULL && tagfld != "nform" ) { 
+			if ( debug > 3 ) { 
+				cout << " - Skipping token with normalized orthography: " << tokform << " = " << token.attribute("nform").value() << endl;
+			};
+			continue; 
 		};
 
 		vector<pugi::xml_node> dtoklist; string tokpos = "";
