@@ -526,6 +526,53 @@
 						<script language=Javascript src=\"$jsurl/psdxedit.js\"></script>
 					";
 
+	} else if ( $act == "nodedelete" && $_GET['nid'] && $_GET['treeid'] ) {
+	
+		check_login();
+		if ( !is_writable($psdxfile)  ) {
+			fatal ("File Annotations/$cid.psdx is not writable - please contact admin"); 
+		};
+		
+		$file = file_get_contents($psdxfile);
+		$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		if ( !$forestxml ) { fatal ("Failed to load PSDX file: Annotations/$cid.psdx"); }; # print "Node not found: <hr>//forest[@id=\"$treeid\"]//*[@id=\"$nid\"]<hr>".htmlentities($forestxml->asXML()); exit; };
+		$nid = $_GET['nid'];
+		
+		$result = $forestxml->xpath("//forest[@id=\"$treeid\"]"); 
+		$forest = $result[0]; 
+		if ( !$forest ) { fatal ("Forest not found: $treeid"); }; # print "Node not found: <hr>//forest[@id=\"$treeid\"]//*[@id=\"$nid\"]<hr>".htmlentities($forestxml->asXML()); exit; };
+	
+		$result = $forest->xpath(".//*[@id=\"$nid\"]"); 
+		$node = $result[0]; 
+		if ( !$node ) { fatal ("Node not found: $nid"); }; # print "Node not found: <hr>//forest[@id=\"$treeid\"]//*[@id=\"$nid\"]<hr>".htmlentities($forestxml->asXML()); exit; };
+
+		if ( ( $node['Text'] != "" || $node['tokid'] != "" ) && !$_GET['force'] ) { 
+			$maintext .= "<h2>Warning</h2>
+				<p>You are about to delete a node which has a non-empty @Text - are you sure you want to do this?
+				<p><pre>".htmlentities($node->asXML())."</pre>
+				<p><a href='index.php?action=$action&act=nodedelete&cid=$cid&nid=$nid&treeid=$treeid&force=1'>confirm delete</a>
+				";
+		} else {
+			print "<p>Deleting node: <pre>".htmlentities($node->asXML())."</pre>"; 
+			$todel = current($node->xpath("parent::*"));
+			unset($node[0][0]);
+			// Remove empty parent nodes as well
+			while ( $todel && count($todel->children()) == 0 ) {
+				print "<p>Deleting empty parent: <pre>".htmlentities($todel->asXML())."</pre>"; 
+				$tmp = current($todel->xpath("parent::*"));
+				unset($todel[0][0]);
+				$todel = $tmp;
+			};
+			unset($node[0][0]);
+
+			renumber($forestxml);
+
+			file_put_contents($psdxfile, $forestxml->asXML());
+			print "Changes have been saved
+				<script language=Javascript>top.location='index.php?action=$action&cid=$cid&treeid=$treeid&node=$nid';</script>"; exit;
+			exit;
+		};
+
 	} else if ( $act == "nodeedit" && $_GET['nid'] && $treeid ) {
 		check_login();
 		if ( !is_writable($psdxfile)  ) {
@@ -567,7 +614,8 @@
 			$maintext .= "<tr><th>{$val['display']}<td><input name='vals[$key]' value='{$node[$key]}'>";
 		};
 		$maintext .= "</table>
-			<p><input type=submit value=Save>
+			<p><input type=submit value=Save> &bull; 
+				<a href='index.php?action=$action&act=nodedelete&cid=$cid&nid=$nid&treeid=$treeid'>delete this node</a>
 			</form>";
 					
 	} else if ( $cid && file_exists($psdxfile) ) {

@@ -77,6 +77,7 @@
 			<li><a href='index.php?action=pageedit'>edit HTML files</a>
 			<li><a href='index.php?action=i18n'>edit internationalization</a> (i18n)
 			<li><a href='index.php?action=upload'>upload files</a>
+			<li><a href='index.php?action=csv'>batch-edit XML using CSV</a>
 			";
 			//<li><a href='index.php?action=progcheck'>check progress on XML files</a>
 			//<li><a href='index.php?action=find'>find files</a> (using XPath)

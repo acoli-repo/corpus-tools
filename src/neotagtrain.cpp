@@ -188,6 +188,7 @@ void treatnode ( pugi::xpath_node node ) {
 
 	   
 	    // Add lemma-level attributes
+	    // TODO: implement
 	   	if ( lemTags.size() ) {
 			BOOST_FOREACH(string t, lemTags )
 			{
@@ -195,13 +196,21 @@ void treatnode ( pugi::xpath_node node ) {
 	   	};
 
 	   	// Add dtoks to the item
+	   	// TODO: make this copy only the attributes that are to be tagged
+	   	// TODO: ignore the dtoks (from this example) if there are nforms in the dtok
         for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") )
         {
 			pugi::xml_node dtok = tok.append_child("dtok");
-			for (pugi::xml_attribute attr = dtoken.first_attribute(); attr; attr = attr.next_attribute())
+			BOOST_FOREACH(string t, formTags )
 			{
-				if ( strcmp(attr.name(), "id") ) dtok.append_attribute(attr.name()) = attr.value();
-			}        
+				if ( dtoken.attribute(t.c_str()) != NULL ) dtok.append_attribute(t.c_str()) = dtoken.attribute(t.c_str()).value();
+			}
+			// If we are not tagging from form, make sure the <dtok> has a form
+			if ( tagfld != "form" && ( dtok.attribute("form") == NULL || !strcmp(dtok.attribute("form").value(), "") ) ) {
+				string dform = calcform(dtoken, tagfld);
+				if ( debug > 1 ) { cout << "Adding @form for <dtok> from " << tagfld << " : " <<  dform << endl; };
+				dtok.append_attribute("form") = dform.c_str();
+			};
         }
 
 		lexitems[tagform][""] = lexitem;
@@ -279,11 +288,20 @@ string getmainpos ( pugi::xml_node tok ) {
 };
 
 // Check whether mainpos is an open-class type (adjective, noun, verb, adverb)
-bool is_open_class ( string mainpos ) {
-	// TODO make this actually reasonable
-	if ( mainpos == "ADJ" || mainpos == "A" || mainpos == "N" || mainpos == "V" ) { return true; };
+bool positiontags = true;
+string pos_type ( string mainpos ) {
+	// TODO make this more reasonable
+	if ( positiontags ) {
+		if ( mainpos == "A" || mainpos == "N" || mainpos == "V" || mainpos == "E" ) { 
+			return "open"; 
+		};
+		if ( mainpos == "F" || mainpos == "X" ) { 
+			return "nonword"; 
+		};
+		return "closed"; 
+	};
 
-	return false;
+	return "unk";
 };
 
 // Check whether a character is a punctuation mark 
@@ -648,22 +666,35 @@ int main(int argc, char *argv[])
 		int oc1 = -1; int oc2 = -1; int i = -1; int cc = -1;
 		pugi::xml_node token = (*it).node();
 		string tokform = token.parent().attribute("key").value();
+		bool nonword = false;
 		if ( debug > 3 ) { 
 			cout << " - Checking productive dtoks on: " << tokform << endl;
 		};
 
-		vector<pugi::xml_node> dtoklist;
+		vector<pugi::xml_node> dtoklist; string tokpos = "";
 		// First determine where, if at all, the open classed dtok(s) are
         for ( pugi::xml_node dtoken = (*it).node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
         	i++;
         	dtoklist.push_back(dtoken);
         	string dtmainpos = getmainpos(dtoken);
-        	if ( is_open_class(dtmainpos) ) { 
+        	tokpos = tokpos + dtmainpos;
+        	if ( pos_type(dtmainpos) == "nonword" ) { 
+        		nonword = true;
+        	};
+        	if ( pos_type(dtmainpos) == "open" ) { 
         		if ( oc1 == -1 ) { oc1 = i; };
         		oc2 = i;
-        	} else { cc++; };
+        	} else { 
+        		cc++; 
+        	};
 		};
 		
+		if ( nonword ) { 
+			if ( debug > 3 ) { 
+				cout << " - Skipping token with non-word parts: " << tokform << " = " << tokpos << endl;
+			};
+			continue; 
+		};
 		
 		// store the part to the left of oc1
 		if ( oc1 > 0 ) {
@@ -838,6 +869,7 @@ int main(int argc, char *argv[])
 		};
 		if ( atoi(dnode.attribute("lexcnt").value()) > 0 ) {
 			float clitprob = (float)count/atoi(dnode.attribute("lexcnt").value());
+			if  ( clitprob > 1 ) { clitprob = 1; }; // Just a safety measure
 			if ( dnode.attribute("clitprob") == NULL ) { dnode.append_attribute("clitprob"); };
 			dnode.attribute("clitprob") = clitprob;
 			if ( debug > 1 ) { cout << "setting prob for " << dtokform << " to " << count << "/" << atoi(dnode.attribute("lexcnt").value()) << " = " << clitprob << endl; };

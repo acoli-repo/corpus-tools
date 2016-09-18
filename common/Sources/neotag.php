@@ -79,11 +79,11 @@
 			if ( $_GET['xpath'] ) {
 				$xquery = $query;
 			} else { 
-				$xquery = "//lexicon/item[@key=\"{$query}\"]/tok";
+				$xquery = "//lexicon/item[@key=\"{$query}\"]/tok | //dtoks/item[@key=\"{$query}\"]/item";
 			};
 			$tmp = $paramsxml->xpath($xquery); 
 		
-			$maintext .= "<h2>Lexicon item: {$_GET['key']}</h2>";
+			$maintext .= "<h2>Lexicon item(s): {$_GET['key']}</h2>";
 		
 			$restfiles = ""; // TODO: get to only those files that this parameter set relates to
 		
@@ -97,7 +97,25 @@
 							$tagval = "<a href=\"index.php?action=tagset&act=analyze&tag={$val['key']}\">{$val['key']}</a>";
 						} else $tagval = $val['key'];
 						$lcql = urlencode("[word=\"$form\" & pos=\"{$val['key']}\"] $restfiles ");
-						$maintext .= "<tr><td><a href=\"index.php?action=cqp&cql=$lcql\">{$val['cnt']}</a><td>$form<td>$tagval<td>".htmlentities($val->asXML());
+						$rawxml = htmlentities($val->asXML());
+						$maintext .= "<tr><td><a href=\"index.php?action=cqp&cql=$lcql\">{$val['cnt']}</a><td>$form<td>$tagval<td><pre>$rawxml</pre>";
+					};
+				} else if ( $tmp[0]->getName() == "item" && $tmp[0]->xpath("ancestor::dtoks") ) {
+					$maintext .= "<p>Productive contraction parts<table>
+						<tr><th>Count<th>Form<th>Tag<th>XML";
+					foreach ( $tmp as $key => $val ) {
+						$tmp2 = $val->xpath("ancestor::item"); $form = $tmp2[0]['key'];
+						if ( $settings['tagset']['tagtype']['positions'] ) {
+							$tagval = "";  $sep = ""; $lcql = "";
+							foreach ( explode ( ".", $val['key'] ) as $pp ) {
+								$tagval .= "$sep<a href=\"index.php?action=tagset&act=analyze&tag=$pp\">$pp</a>";
+								$sep = "+";
+							};
+						} else {
+							$tagval = $val['key'];
+						};
+						$rawxml = htmlentities($val->asXML());
+						$maintext .= "<tr><td>{$val['cnt']}<td>$form<td>$tagval<td><pre>$rawxml</pre>";
 					};
 				} else if ( $tmp[0]->getName() == "item" ) {
 					$maintext .= "<table>

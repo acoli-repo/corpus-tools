@@ -1079,6 +1079,10 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 			vector<wordtoken> baseParse = morphoParse(base, insertword);
 			for ( int j=0; j<baseParse.size(); j++) {
 				wordtoken cb = baseParse.at(j);
+				if ( cb.prob == 0 ) { 
+					if ( debug > 5 ) { cout << "    impossible base word: " << cb.form << " : " << cb.tag << " = " << cb.prob << endl; };
+					continue; 
+				};
 				if ( debug > 5 ) { cout << "    base word: " << cb.form << " : " << cb.tag << " = " << cb.prob << endl; };
 				
 				// check if this base word tag occurs with the clitic
