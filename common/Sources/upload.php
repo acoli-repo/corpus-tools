@@ -9,7 +9,7 @@
 	# If not defined in settings, predefine which files go where
 	if ( !$settings['files'] ) {
 		$settings['files'] = array (
-			// "facsimile" => array ( "display" => "Facsimile Images", "folder" => "Facsimile", "extension" => "*.jpg", "description" => "Facsimile images of XML pages (best done <a href='index.php?action=images'>here</a>)" ),
+			"facsimile" => array ( "display" => "Facsimile Images", "folder" => "Facsimile", "extension" => "*.jpg", "description" => "Facsimile images of XML pages (best done <a href='index.php?action=images'>here</a>)" ),
 			"image" => array ( "display" => "Site Images", "folder" => "Images", "extension" => "*.jpg,*.png,*.gif,*.jpeg", "description" => "Image files used for the site design" ),
 			"audio" => array ( "display" => "Audio files", "folder" => "Audio", "extension" => "*.wav,*.mp3", "description" => "Sound files for XML files" ),
 			"xml" => array ( "display" => "TEI XML Files", "folder" => "xmlfiles", "extension" => "*.xml", "description" => "Externally generated TEI files" ),

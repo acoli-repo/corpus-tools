@@ -123,6 +123,7 @@
 			<p><input type=submit value=Search>";
 
 		if ( $xpath && !$test ) {
+			require_once ("../common/Sources/cwcqp.php"); 
 			$maintext .= "</form>";
 			$sep = "";
 			## Check if there is a CQP query to run first
@@ -160,7 +161,7 @@
 						$docsel .= "$attname = $val; ";
 					};
 				
-					include ("../common/Sources/cwcqp.php"); $xmllist = array();
+					$xmllist = array();
 					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 					$cqp = new CQP();
 					$cqp->exec($cqpcorpus); // Select the corpus
