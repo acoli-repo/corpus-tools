@@ -1,11 +1,8 @@
-# use utf8;
-use encoding 'utf8';
 use Encode qw(decode encode);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use HTML::Entities;
 use XML::LibXML;
 use Getopt::Long;
-use encoding 'utf8';
 
 $scriptname = $0;
 
@@ -201,7 +198,7 @@ foreach $line ( split ( "\n", $tagtxt ) ) {
 		
 		# Check unmatched start tags
 		$chkcnt = 0;
-		while ( $m =~ /<([^\/ >]+) ([^>\/]*)>/g ) { 
+		while ( $m =~ /<([^\/ >]+) ([^>]*)>/g ) { 
 			if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
 			$tn = $1; $tv = $2; 
 			$tm = $&; $rc = $'; $lc = $`;
@@ -224,6 +221,10 @@ foreach $line ( split ( "\n", $tagtxt ) ) {
 					# Move out when at the beginning
 					$m =~ s/^<$tn[^>]+>//;
 					$a .= "<$tn $tv>";
+				} elsif ( $rc eq "" ) {
+					# Move out when at the end
+					$m =~ s/<$tn[^>]+>$//;
+					$b = "<$tn $tv>".$b;
 				} else {
 					# Duplicate otherwise
 					$m .= "<\/$tn>";
@@ -313,6 +314,14 @@ foreach $line ( split ( "\n", $tagtxt ) ) {
 	$line =~ s/(<tok[^>]*>)(<([a-z0-9]+) [^>]*>)((.(?!<\/\3>))*.)<\/\3><\/tok>/\2\1\4<\/tok><\/\3>/gi;
 	# This has to be done multiple time in principle since there might be multiple
 	$line =~ s/(<tok[^>]*>)(<([a-z0-9]+) [^>]*>)((.(?!<\/\3>))*.)<\/\3><\/tok>/\2\1\4<\/tok><\/\3>/gi;
+
+	# Split off the punctuation marks again (in case we moved out end tags)
+	while ( $line =~ /(?<!<tok>)(\p{isPunct}<\/tok>)/ ) {
+		$line =~ s/(?<!<tok>)(\p{isPunct}<\/tok>)/<\/tok><tok>\1/g;
+	};
+	while ( $line =~ /(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
+		$line =~ s/(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tok>/g;
+	};
 
 	# Unprotect all MWE and other space-crossing or punctuation-including tokens
 	while ( $line =~ /x#\{x[^\}]*%/ ) {

@@ -1,5 +1,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
 #include "pugixml.hpp"
 #include <iostream>
 #include <fstream>  
@@ -29,6 +30,7 @@ vector<wordtoken> morphoParse( string word, wordtoken insertword );
 pugi::xml_document taglog;
 pugi::xml_node tagsettings;
 pugi::xml_node tagstats;
+string nform; // the form to normalize (if any)
 
 map < string, string > inherit;
 pugi::xpath_node_set pattlist; 
@@ -386,7 +388,6 @@ class wordtoken {
 			// This is a known word - copy from the lexicon
 			if ( debug > 4 ) { lexitem.print(std::cout); };
 			lemma = lexitem.attribute("lemma").value();
-			// TODO: this should listen to formtags - although the parameters already listened to that...
 			for (pugi::xml_attribute_iterator it = lexitem.attributes_begin(); it != lexitem.attributes_end(); ++it) {
 				if ( !strcmp((*it).name(), "key") || !strcmp((*it).name(), "cnt")) { continue; };
 				if ( token.attribute((*it).name()) == NULL ) { 
@@ -730,15 +731,22 @@ class tokpath {
 		} else { 
 			string lasttag1 = toklist.back().tag;
 			// TODO: This should take only the last part of a (lexical) contraction
+			if ( lasttag1.find('.') != -1 ) {
+				lasttag1 = lasttag1.substr(lasttag1.find_last_of('.')+1);
+			};
+			
 			string lasttag2;
 			list<wordtoken>::iterator it = toklist.end(); it--; if (it != toklist.begin()) { 
 				it--; 
 				lasttag2 = (*it).tag + "#" + toklist.back().tag;
 			} else { lasttag2 = "***"; }; // Consider the last tag impossible (should that be FS?)
 			string newtag = newword.tag;
+			
+			// For tags from contractions, take only the first new tag
 			if ( newtag.find('.') != -1 ) {
 				newtag = newtag.substr(0,newtag.find('.'));
 			};
+			
 			float transitionprob1 = getTransProb(lasttag1+"."+newtag); // transition probabilities
 			float transitionprob = transitionprob1 + transitionsmooth; // smoothed if so desired
 			// add for each longer context to the transition probability
@@ -749,6 +757,7 @@ class tokpath {
 				// caseprob1 = caseProb[newword.tag][newword.wcase]; 
 				caseprob1 = getCaseProb(newword);
 			};
+						
 			// prob thusfar, the newword prob, the transition prob, the prob based on the case of the word
 			float newprob = prob * newword.prob * pow(transitionprob,transitionfactor) * caseprob1; 
 			if ( debug > 3 ) { 
@@ -1128,6 +1137,26 @@ string NumberToString ( T Number )
 	return ss.str();
 }
 
+// Check whether a partially tagged token matches a lexical item
+bool tagsmatch ( pugi::xml_node lexitem, pugi::xml_node token, string ignore="" ) {
+	BOOST_FOREACH(string t, formTags )
+	{
+		string tokform = calcform(token, t);
+		string lexform = lexitem.attribute(t.c_str()).value();
+		if ( lexform == "" ) { lexform =  lexitem.parent().attribute("key").value(); };
+		
+		if ( ignore == t && tokform != lexform  ) {
+			if ( debug > 1 ) {  cout << "  - Discarding non-matching " << t << " : " << lexform << " != " << tokform << endl;  };
+			return false;
+		};
+		if ( ignore != t && token.attribute(t.c_str()) != NULL && strcmp(lexitem.attribute(t.c_str()).value(), token.attribute(t.c_str()).value()) ) {
+			if ( debug > 1 ) { cout << "  - Discarding non-matching existing tag " << t << " : " << lexitem.attribute(t.c_str()).value() << " != " << token.attribute(t.c_str()).value()  << endl; };
+			return false;
+		};
+	};
+	return true;
+};
+
 // Morphological analysis
 vector<wordtoken> morphoParse( string word, wordtoken parseword ) {	
 	// calculate emission probabilities for word and return set of analyses
@@ -1151,14 +1180,10 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 			insertword.settag((*it).node().attribute("key").value());
 			insertword.prob = atof((*it).node().attribute("cnt").value());
 			insertword.lexitem = (*it).node();
-			// When there are @nform like forms in the corpus, check if those match the lexicon or partially discard
-			// TODO: what is checkfld atm?
-			if ( checkfld != "" ) {
-				string checkform = calcform(insertword.lexitem, checkfld); // we cannot do a simple check since there is no @form in the lexitem
-				if ( debug > 4 ) { cout << "Check if " << checkfld << " matches: " << checkform << " , " << calcform(parseword.token, checkfld) << endl; };
-				if ( checkform != "" && checkform != calcform(insertword.lexitem, "form") && strtolower(checkform) != strtolower(calcform(parseword.token, checkfld)) ) { // <tok> in the lexicon does not have a @form
-					insertword.prob = insertword.prob / 1000; // divide by much to make it very unlikely but not impossible
-					if ( debug > 2 ) { cout << checkfld << " does not match: " << checkform << " =/= " << calcform(parseword.token, checkfld) << endl;  insertword.lexitem.print(std::cout); };
+			if ( tagsettings.attribute("overwrite") == NULL ) {
+				// When there are already partial information on this token (pos, nform, etc.) only use matching items
+				if ( !tagsmatch((*it).node(), parseword.token ) ) {
+					continue;
 				};
 			}; 
 			insertword.source = "corpus:" + NumberToString(tmp.size());
@@ -1178,11 +1203,10 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 				insertword.prob = atof((*it).node().attribute("cnt").value());
 				insertword.lexitem = (*it).node();
 				insertword.source = "corpus:" + NumberToString(tmp.size());
-				// When there are @nform like forms in the corpus, check if those match
-				// TODO: what is checkfld atm?
-				if ( checkfld != "" ) {
-					if ( calcform(insertword.lexitem, checkfld) != calcform(parseword.token, checkfld) ) {
-						insertword.prob = insertword.prob / 1000; // divide by much to make it very unlikely but not impossible
+				if ( tagsettings.attribute("overwrite") == NULL ) {
+					// When there are already partial information on this token (pos, nform, etc.) only use matching items
+					if ( !tagsmatch((*it).node(), parseword.token ) ) {
+						continue;
 					};
 				}; 
 				if ( debug > 2 ) { (*it).node().print(std::cout); };
@@ -1192,13 +1216,42 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 		};
 	};	
 	
+	// step 1c: if this form is normalized, see if we do not have the normalized form
+	// TODO: should we also check for other words with this @nform instead of just the nform as token?
+	if ( wordParse.size() == 0 && nform != "" && parseword.token.attribute(nform.c_str()) != NULL ) {
+		if ( debug > 3 ) { cout << "Checking for normalized form: " << parseword.token.attribute(nform.c_str()).value() << endl; };
+		tmp = getLexProb(parseword.token.attribute(nform.c_str()).value()); 
+		if ( !tmp.empty() ) {
+			if ( debug > 1 ) { cout << " - " << tmp.size() << " normalized occurrence(s) found in training corpus " << endl; };
+			for (pugi::xpath_node_set::const_iterator it = tmp.begin(); it != tmp.end(); ++it) {
+				insertword.settag((*it).node().attribute("key").value());
+				insertword.prob = atof((*it).node().attribute("cnt").value());
+				insertword.lexitem = (*it).node();
+				insertword.source = "corpus:" + NumberToString(tmp.size());
+				if ( tagsettings.attribute("overwrite") == NULL ) {
+					// When there are already partial information on this token (pos, nform, etc.) only use matching items
+					if ( !tagsmatch((*it).node(), parseword.token, nform ) ) {
+						continue;
+					};
+				}; 
+				if ( debug > 2 ) { (*it).node().print(std::cout); };
+				wordParse.push_back(insertword);
+				totprob += insertword.prob;
+			};
+		};
+	};	
+		
 	// step 2: see if it happens to be a clitic/contracted word
 	partialclitic = 0; // word that start with st which is sometimes a clitic should be treated as both
 	if ( parameters.first_child().child("dtoks") != NULL && wordParse.size() == 0 ) { // && dtoksout
 		wordtoken checkword; 
 		checkword = insertword;
+		if ( nform != "" ) {
+			string normalized = calcform(parseword.token, nform);
+			checkword.setform(normalized);
+		};
 		clitic_check ( checkword, &wordParse);
-		if ( debug > 3 ) { cout << "   Checked clitic on " << word << " : " << wordParse.size()  << " found " << endl; };
+		if ( debug > 3 ) { cout << "   Checked clitic on " << checkword.form << " : " << wordParse.size()  << " found " << endl; };
 	};
 	
 	// step 3: see if it happens to be in the external lexicon
@@ -1222,6 +1275,15 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 			};
 		};
  	};
+		
+	// Before moving to non-lexical attempts, switch to nform where available		
+	if ( nform != "" ) {
+		string normalized = calcform(parseword.token, nform);
+		if ( word != normalized ) {
+			word = normalized;
+			if ( debug > 1 ) { cout << "Switched to normalized form: " << word << endl; };
+		};
+	};
 		
 	// step 4: use the end of the word to determine POS
 	// when have not yet found the word, or when we want to lexically smooth
@@ -1257,6 +1319,13 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 					insertword.settag(pos->first);
 					insertword.prob = pos->second.prob * pow ( 5, 0-fnd) * smoothfactor; // count each shorter ending match by a power less
 					insertword.lemmatizations = pos->second.lemmatizations;
+
+					if ( tagsettings.attribute("overwrite") == NULL ) { 
+						if ( parseword.token.attribute(tagpos.c_str()) != NULL && strcmp(parseword.token.attribute(tagpos.c_str()).value(), pos->first.c_str()) ) {
+							if ( debug > 1 ) { cout << " - Discarding non-matching pos: " << pos->first << " != " << parseword.token.attribute(tagpos.c_str()).value() << endl; };
+							continue;
+						};
+					};
 
 					if ( lemmaProbs.size() > 0 ) {
 						// insertword.tag2pos(); // calculate the pos of this word
@@ -1321,6 +1390,19 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 		};
 	};
 	
+	// If we happen to have a tag already, use only that
+	if ( tagsettings.attribute("overwrite") == NULL ) { 
+		if ( parseword.token.attribute(tagpos.c_str()) != NULL ) {
+
+			if ( debug > 1 ) { cout << " - Using the existing tag without further info: " << parseword.token.attribute(tagpos.c_str()).value() << endl; };
+			insertword.settag(parseword.token.attribute(tagpos.c_str()).value());
+			insertword.prob = 1;
+			insertword.source = "existing tag";
+			wordParse.push_back(insertword);
+			totprob += insertword.prob;
+		};
+	};
+
 	
 	// almost complete failure - try with raw POS frequencies 
 	if ( wordParse.size() == 0 ) {
@@ -1377,6 +1459,7 @@ void treatWord ( wordtoken insertword ) {
 		cout << wordnr << ". "  << word << " - from input file: " << calcform(insertword.token,"form") << "/"  << calcform(insertword.token,checkfld) << "/" << insertword.token.attribute(tagpos.c_str()).value()  << "/" << insertword.token.attribute("lemma").value() << endl; 
 	};
 	if ( debug > 3 ) { cout << "-----------------------------------------" << endl; };
+	
 	wordParse = morphoParse( word, insertword );
 	totparses += wordParse.size();
 	if ( wordParse[0].source.substr(0,6) == "corpus" ) {
@@ -1387,6 +1470,7 @@ void treatWord ( wordtoken insertword ) {
 
 
 	// if we want lexical smoothing by homographs, furthermore add all homograph pairs for this word....
+	// TODO: check if this still works
 	if ( ( wordParse[0].source.substr(0,6) == "corpus" && homsmooth > 0 ) 
 	  || ( ( wordParse[0].source.substr(0,6) == "corpus" || wordParse[0].source == "lemmalist" ) && ( homsmooth && neologisms ) ) ) {
 		wordtoken smoothWord;
@@ -1459,6 +1543,24 @@ void help() {
 	cout << "Options:" << endl;
 	cout << "  -?, --help\tThis help file" << endl;
 	exit(1);
+};
+
+void treatToken( pugi::xml_node token ) {
+	wordtoken insertword;
+
+	insertword.id = token.attribute("id").value(); 
+
+	// Determine which form to tag on
+	// which can be inherited
+	insertword.form = calcform(token, tagfld);
+	
+	if ( insertword.form == "--" ) { return; }; // Ignore words explicitly set to NULL 
+	
+	insertword.token = token;
+	
+	if ( insertword.form.size() == 0 ) { return; }; // ignore empty lines		
+	
+	treatWord ( insertword );
 };
 
 // Main 
@@ -1542,7 +1644,14 @@ int main (int argc, char * const argv[]) {
 	for (pugi::xpath_node_set::const_iterator it = pattlist.begin(); it != pattlist.end(); ++it)
 	{
 		if ( debug > 3 ) cout << "  XML checking against " << (*it).node().attribute("restriction").value() << endl;
-		if ( (*it).node().attribute("restriction") == NULL 
+		if ( tagsettings.attribute("pid") != NULL ) {
+			if ( !strcmp(tagsettings.attribute("pid").value(), (*it).node().attribute("pid").value()) ) {
+				if ( debug > 3 ) cout << "  Selected parameters: " << (*it).node().attribute("pid").value() << endl;
+				parameter = (*it).node();
+			} else {
+				if ( debug > 3 ) cout << "  Not the selected parameters: " << (*it).node().attribute("pid").value() << endl;
+			};
+		} else if ( (*it).node().attribute("restriction") == NULL 
 				|| doc.select_single_node((*it).node().attribute("restriction").value()) != NULL ) {
 			parameter = (*it).node();
 			if ( debug > 2 ) cout << "  Applicable parameters restriction: " << (*it).node().attribute("restriction").value() << endl;
@@ -1603,6 +1712,8 @@ int main (int argc, char * const argv[]) {
 	split(formTags, tmp2, is_any_of(",")); 
 	
 	if ( tagsettings.attribute("help") != NULL ) { help(); };
+
+	if ( tagsettings.attribute("normalize") != NULL ) { nform = tagsettings.attribute("normalize").value(); };
 	
 	// These need to read a specific set of parameters!!
 	if ( tagsettings.attribute("featuretags") != NULL  ) { featuretags = true; };
@@ -1638,7 +1749,6 @@ int main (int argc, char * const argv[]) {
 	if ( tagsettings.attribute("lexicon") != NULL ) {
 		if ( !lexicon.load_file(tagsettings.attribute("lexicon").value(), (pugi::parse_ws_pcdata | pugi::parse_declaration | pugi::parse_doctype ) & ~pugi::parse_wconv_attribute & ~pugi::parse_escapes ) ) { // pugi::parse_default | 
 			cout << "Failed to load lexicon: " << tagsettings.attribute("lexicon").value() << endl;
-			return -1;
 		} else {
 			if ( verbose ) { cout << "External lexicon: " << tagsettings.attribute("lexicon").value() << endl; };
 		};
@@ -1683,22 +1793,24 @@ int main (int argc, char * const argv[]) {
 		pugi::xpath_node node = *it;
 		pugi::xml_node token = node.node();
 
-		wordtoken insertword;
-
-		insertword.id = token.attribute("id").value(); 
-
-		// Determine which form to tag on
-		// which can be inherited
-		insertword.form = calcform(node.node(), tagfld);
-		
-		if ( insertword.form == "--" ) { continue; }; // Ignore words explicitly set to NULL 
-		
-		insertword.token = token;
-		
-		if ( insertword.form.size() == 0 ) { continue; }; // ignore empty lines		
-		
-		treatWord ( insertword );
-
+		if ( token.child("dtok") ) {
+			if ( tagsettings.attribute("overwrite") != NULL ) { // raze the dtokens
+				while ( pugi::xml_node dtoken = token.child("dtok") ) {
+					dtoken.parent().remove_child(dtoken);
+				};
+				if ( debug > 0 ) {
+					cout << "Removed all existing dtoks - new token: " << endl;
+					token.print(cout);
+				};
+				treatToken(token);
+			} else {
+				for ( pugi::xml_node dtoken = token.child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
+					treatToken(dtoken);
+				};
+			};
+		} else {
+			treatToken(token);
+		};
 	};
 	pathList.best().print();
 
