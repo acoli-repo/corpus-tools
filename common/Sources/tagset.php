@@ -6,7 +6,7 @@
 	require ( "../common/Sources/tttags.php" );
 
 	$maintext .= "<h1>{%Tagset}</h1>";
-	$tttags = new TTTAGS("", false);
+	$tttags = new TTTAGS($tagsetfile, false);
 	$tagset = $tttags->tagset['positions'];
 	if ( !$tagset ) { fatal("Tagset not position-based or positions not defined"); };
 		
@@ -121,11 +121,14 @@
 		// Get the description text when available
 		$descriptionpage = getlangfile("tagsettext");
 		if ( $descriptionpage ) $maintext .= $descriptionpage;
-		else {	
+		else if ( $tttags->xml->xpath("//description") ) {
+			$descriptiontext = current($tttags->xml->xpath("//description"))->asXML();
+			$maintext .= "<div style='margin-bottom: 20px;'>$descriptiontext</div>";		
+		} else {	
 			$maintext .= "<h2>{%Description}</h2>";
 		};
 		
-		$maintext .= "<table>";
+		$maintext .= "<table id=\"tagset\">";
 		foreach ( $tagset  as $key => $val ) {
 			$valname = $val['lang-'.$lang] or $valname = $val['display-'.$lang] or $valname = "{%{$val['display']}}";
 			if ( $val['short-'.$lang] ) $valname .= " ({$val['short-'.$lang]})"; 

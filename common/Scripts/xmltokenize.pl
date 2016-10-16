@@ -174,6 +174,10 @@ foreach $line ( split ( "\n", $tagtxt ) ) {
 	$line =~ s/<tokk>(<ntn [^>]+>)/\1<tokk>/g;
 	$line =~ s/(<ntn [^>]+>)<\/tok>/<\/tok>\1/g;
 
+	# Always move <p> out
+	$line =~ s/<tokk>(<p [^>]+>)/\1<tokk>/g;
+	$line =~ s/(<p [^>]+>)<\/tok>/<\/tok>\1/g;
+
 	if ( $debug ) {
 		print "AP|| $line\n";
 	};
@@ -183,9 +187,8 @@ foreach $line ( split ( "\n", $tagtxt ) ) {
 	
 	# Go through all the tokens
 	while ( $line =~ /<tokk>(.*?)<\/tok>/ ) {
-		$a = ""; $b = "";
+		$a = ""; $b = ""; undef(%added);
 		$m = $1; $n = $&;
-		#print $m;
 
 		if ( $debug ) {
 			print "TOK | $m";
@@ -198,69 +201,76 @@ foreach $line ( split ( "\n", $tagtxt ) ) {
 		
 		# Check unmatched start tags
 		$chkcnt = 0;
-		while ( $m =~ /<([^\/ >]+) ([^>]*)>/g ) { 
+		while ( !$tokxml && ( $m =~ /^<([^>]+)>/ || $m =~ /<([^>]+)>$/) ) { 
 			if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
-			$tn = $1; $tv = $2; 
-			$tm = $&; $rc = $'; $lc = $`;
-			if ( $debug ) {
-				print "TAG | $tn $tv / $lc + $tm + $rc";
-			};
-			if ( $tv =~ /\/$/ ) { 
-				# Move monotags at the rim outside
-				if ( $m =~ /^\Q$tm\E/ ) {
+			if ( $m =~ /^<([^>]+)>/ ) {
+				# Leftmost 
+				$tm = $&; $ti = $1; $rc = $';
+				( $tn = $ti ) =~ s/ .*//;
+				if ( $ti =~ /\/$/ || $ti =~ /^\// || $rc !~ /^((?<!<$tn ).)+<\/$tn>/ ) { 
+					# Move out
 					$m =~ s/^\Q$tm\E//;
 					$a .= $tm;
-				} elsif ( $m =~ /\Q$tm\E$/ ) {
+				} else {
+					# Mark as non-movable
+					$m = "#".$m;
+				};
+			} elsif ( $m =~ /<([^>]+)>$/ ) {
+				# Rightmost
+				$tm = $&; $ti = $1; $lc = $`;
+				( $tn = $ti ) =~ s/ .*//;
+				( $tv = $ti ) =~ s/^[^ ]+ //;
+				if ( $ti =~ /\/$/ || $ti !~ /^\// || $lc !~ /<$tn [^>\/]*>(.(?!<\/$tn>))+$/ ) { 
+					# Move out
 					$m =~ s/\Q$tm\E$//;
 					$b = $tm.$b;
-				};
-			} elsif ( $rc !~ /^((?<!<$tn ).)+<\/$tn>/  # Was $rc !~ /<\/$tn>
-				&& !$tokxml # Only repair if this is invalid XML
-				) { 
-				if ( $lc eq "" ) {
-					# Move out when at the beginning
-					$m =~ s/^<$tn[^>]+>//;
-					$a .= "<$tn $tv>";
-				} elsif ( $rc eq "" ) {
-					# Move out when at the end
-					$m =~ s/<$tn[^>]+>$//;
-					$b = "<$tn $tv>".$b;
 				} else {
-					# Duplicate otherwise
-					$m .= "<\/$tn>";
-					$b = "<$tn rpt=\"1\" $tv>".$b;
-				}
-				if ( $debug ) {
-					print "CTK | $m";
+					# Mark as non-movable
+					$m = $m."#";
 				};
 			};
-		};
-
-		# Check unmatched end tags
-		$chkcnt = 0;
-		while ( $m =~ /<\/([^>]+)>/g ) { 
-			if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
-			$tn = $1; 
-			$tm = $&; $rc = $'; $lc = $`;
 			if ( $debug ) {
-				print "TAG | /$tn $tv / $lc + $tm + $rc";
+				print "CTK1 | ($a) $m ($b)";
 			};
-			if ( $lc !~ /<$tn [^>\/]*>(.(?!<\/$tn>))+$/ # Was $lc !~ /<$tn/
-				&& !$tokxml # Only repair if this is invalid XML
-				) { 
-				if ( $rc eq "" || $rc =~ /^(<[^>]+>)+$/ ) {
-					# Move out when at the end
-					$m =~ s/<\/$tn>((<[^>]+>)*)$/\1/;
-					$b = $b."</$tn>";
-				} else {
-					# Duplicate otherwise
+			# Check whether <tok> is valid XML
+			$parser = XML::LibXML->new(); $tokxml = "";
+			eval { $tokxml = $parser->load_xml(string => "<tok>$m</tok>"); };
+			$chcnt++;
+		};
+		$m =~ s/^#|#$//g;
+		
+		# If there are unmatched tags in the middle...
+		if ( !$tokxml ) {
+			$chkcnt = 0; $checkm = $m; $onto = "";
+			while ( $checkm =~ /<([^\/ ]+) (.(?!<\/\1>))+$/ ) {
+				if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
+				$tn = $1;
+				$onto = "<\/$tn>".$onto;
+				$b .= "<$tn rpt=\"1\">";
+				if ( $debug ) {
+					print "CTK2 | ($a) $m/$onto ($b)";
+				};
+				$chcnt++; $checkm = $m.$onto;
+			}; $m = $m.$onto;
+			# Check whether <tok> is valid XML
+			$parser = XML::LibXML->new(); $tokxml = "";
+			eval { $tokxml = $parser->load_xml(string => "<tok>$m</tok>"); };
+			$chcnt++;
+		};
+		if ( !$tokxml ) {
+			$chkcnt = 0;
+			while ( $m =~ /<\/([^>]+)>/g ) {
+				if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
+				$lc = $`; $tn = $1;
+				if ( $lc !~ /<$tn [^>\/]*>(.(?!<\/$tn>))+$/ ) {
 					$a .= "<\/$tn>";
 					$m = "<$tn rpt=\"1\">".$m;
-				}
-				if ( $debug ) {
-					print "CTK | $m";
 				};
-			};			
+				if ( $debug ) {
+					print "CTK3 | ($a) $m ($b)";
+				};
+				$chcnt++;
+			};
 		};
 
 		

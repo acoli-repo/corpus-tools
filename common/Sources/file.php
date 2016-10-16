@@ -725,7 +725,7 @@
 
 		// Load the tagset 
 		require ( "../common/Sources/tttags.php" );
-		$tttags = new TTTAGS("", false);
+		$tttags = new TTTAGS($tagsetfile, false);
 		if ( $tttags->tagset['positions'] ) {
 			$tmp = $tttags->xml->asXML();
 			$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);

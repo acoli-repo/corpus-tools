@@ -18,10 +18,13 @@
 			};
 			$sep = " | ";
 		};
-		$menu .= "<div stle='margin-top: 0px; margin-bottom: 20px;'>$langstxt</div>";	
+		if ( $settings['languages']['position'] ) {
+			$smarty->assign($settings['languages']['position'], $langstxt);
+		} else $menu .= "<div stle='margin-top: 0px; margin-bottom: 20px;'>$langstxt</div>";	
 	};
 
-	$menu .= "<p>{%Main Menu}</p>";
+	if ( $settings['menu']['title'] ) $menu .= "<p>{%{$settings['menu']['title']}}</p>";
+	else $menu .= "<p>{%Main Menu}</p>";
 	
     $menu .= "<ul style='text-align: left'>";
         	

@@ -1,8 +1,14 @@
 # Script to automatically change <tok> with a + in @pos 
 # into the corresponding <dtok>
 
+use Getopt::Long;
 use XML::LibXML;
 $filename = shift;
+
+ GetOptions ( ## Command line options
+            'debug' => \$debug, # debugging mode
+            'forceform' => \$forceform, # whether or not to put probs in the XML
+            );
 
 $\ = "\n"; $, = "\t";
 
@@ -50,7 +56,7 @@ foreach $ttnode ($xml->findnodes("//tok[contains(\@pos,'+')]")) {
 		};
 		
 		# Set the form to the tokform when there is no dtok form
-		if ( !$newchild->getAttribute("form") ) {
+		if ( !$newchild->getAttribute("form") && $forceform ) {
 			$newchild->setAttribute("form", "#".$tokform );
 		};
 		

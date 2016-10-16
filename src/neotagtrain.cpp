@@ -494,6 +494,15 @@ int main(int argc, char *argv[])
 		};		
 	};
 
+	if ( tagsettings.attribute("help") != NULL ) {
+		cout << "Usage: neotagtrain [options] xmlfile" << endl << endl;
+		cout << "Optional arguments:" << endl;
+		cout << "--help            show this help message and exit" << endl;
+		cout << "--verbose         run in verbose mode" << endl;
+		cout << "--settings        location of the settings file" << endl;
+		return -1;
+	};
+	
 	// Some things we want as accessible variables
 	if ( tagsettings.attribute("debug") != NULL ) { debug = atoi(tagsettings.attribute("debug").value()); };
 	if ( tagsettings.attribute("test") != NULL ) { test = true; verbose = true; };

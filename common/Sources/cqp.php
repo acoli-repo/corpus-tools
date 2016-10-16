@@ -12,9 +12,11 @@
 
 	include ("../common/Sources/cwcqp.php");
 
+	$outfolder = $settings['cqp']['folder'] or $outfolder = "cqp";
+
 	// This version of CQP relies on XIDX - check whether program and file exist
 	$xidxcmd = $settings['bin']['tt-cwb-xidx'] or $xidxcmd = "/usr/local/bin/tt-cwb-xidx";
-	if ( !file_exists($xidxcmd) || !file_exists("cqp/xidx.rng") ) {
+	if ( !file_exists($xidxcmd) || !file_exists("$outfolder/xidx.rng") ) {
 		print "<p>This CQP version works only with XIDX
 			<script language=Javascript>top.location='index.php?action=cqpraw';</script>
 		";
@@ -511,7 +513,7 @@
 				$m2 = end($idlist); 
 				
 
-				$cmd = "$xidxcmd --filename=$fileid $expand $leftpos $rightpos";
+				$cmd = "$xidxcmd --filename=$fileid --cqp='$outfolder' $expand $leftpos $rightpos";
 				$resxml = shell_exec($cmd);
 				if ( $debug ) $maintext .= "<pre>$cmd\n".htmlentities($xidxres)."</pre>";
 				
@@ -833,7 +835,7 @@
 				};
 				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
 			} else if ( substr($coldef['type'], -6) == "select" ) {
-				$tmp = file_get_contents("cqp/$col.lexicon"); unset($optarr); $optarr = array();
+				$tmp = file_get_contents("$corpusfolder/$col.lexicon"); unset($optarr); $optarr = array();
 				foreach ( explode ( "\0", $tmp ) as $kva ) { 
 					if ( $kva ) {
 						if ( $coldef['values'] == "multi" ) {
@@ -978,7 +980,7 @@
 						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
 					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
 						# Read this index file
-						$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
+						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
 						foreach ( explode ( "\0", $tmp ) as $kva ) { 
 							if ( $kva ) {
 								if ( $item['values'] == "multi" ) {
@@ -1036,7 +1038,7 @@
 						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
 					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
 						# Read this index file
-						$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
+						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
 						foreach ( explode ( "\0", $tmp ) as $kva ) { 
 							if ( $kva ) {
 								if ( $item['values'] == "multi" ) {

@@ -32,6 +32,7 @@ string lemmafld;
 string filename;
 string corpusfolder;
 
+
 int tokcnt = 0;
 
 list<string> tagHist;
@@ -623,7 +624,7 @@ int main(int argc, char *argv[])
 	
 	// Determine some default settings
 	if ( cqpsettings.attribute("corpusfolder") != NULL ) { corpusfolder = cqpsettings.attribute("corpusfolder").value(); } 
-		else { corpusfolder = "cqp/"; };
+		else { corpusfolder = "cqp"; };
 
 	// Check whether the corpusfolder exists, or create it, or fail
 	// TODO: Using Boost seems redundant, since TEITOK is not very Windows in any case
@@ -655,8 +656,17 @@ int main(int argc, char *argv[])
 	};
 
 	// Write the registry file
-	string corpusname = xmlsettings.select_single_node("//cqp/@corpus").attribute().value();
-	string corpuslong = xmlsettings.select_single_node("//title/@display").attribute().value();
+	string corpusname;
+	if ( cqpsettings.attribute("corpus") != NULL ) { corpusname = cqpsettings.attribute("corpus").value(); }
+	else {
+		corpusname = xmlsettings.select_single_node("//cqp/@corpus").attribute().value();
+	};
+	if ( corpusname == "" ) { cout << "Error: no corpus name indicated!" << endl; return -1; };
+	string corpuslong;
+	if ( cqpsettings.attribute("name") != NULL ) { corpuslong = cqpsettings.attribute("name").value(); }
+	else {
+		corpuslong = xmlsettings.select_single_node("//title/@display").attribute().value();
+	};
 	corpusname = strtolower(corpusname);
 	string registryfile = "/usr/local/share/cwb/registry/" + corpusname;
 	if ( verbose ) { cout << "Writing registry data to: " << registryfile << endl; };
@@ -668,8 +678,8 @@ int main(int argc, char *argv[])
 
 	registry << "NAME \"" << corpuslong << "\"" << endl;
 	registry << "ID " << corpusname << endl;
-	registry << "HOME " << realpath("cqp", NULL) << endl;
-	registry << "INFO " << realpath("cqp", NULL) << "/.info" << endl;
+	registry << "HOME " << realpath(corpusfolder.c_str(), NULL) << endl;
+	registry << "INFO " << realpath(corpusfolder.c_str(), NULL) << "/.info" << endl;
 	
 	// Go through the pattributes
 	registry << endl << "## Positional attributes on <tok>" << endl;
@@ -686,11 +696,11 @@ int main(int argc, char *argv[])
 		if ( debug > 0 ) { cout << "Creating files for: " << formkey << endl; };
 		
 		// Open the files
-		filename = corpusfolder+formkey+".lexicon";
+		filename = corpusfolder+"/"+formkey+".lexicon";
 		streams[formkey]["lexicon"] = new ofstream(filename.c_str());
-		filename = corpusfolder+formkey+".lexicon.idx";
+		filename = corpusfolder+"/"+formkey+".lexicon.idx";
 		files[formkey]["idx"] = fopen(filename.c_str(), "wb"); 
-		filename = corpusfolder+formkey+".corpus";
+		filename = corpusfolder+"/"+formkey+".corpus";
 		files[formkey]["corpus"] = fopen(filename.c_str(), "wb"); 
 	};		
 	
@@ -706,9 +716,9 @@ int main(int argc, char *argv[])
 			if ( debug > 0  ) { cout << "Creating files level: " << tagname << endl; };
 		registry << endl << "## Structural attributes on <" << tagname << ">" << endl;
 		registry << "STRUCTURE " << tagname << endl;
-		filename = corpusfolder+tagname+".rng";
+		filename = corpusfolder+"/"+tagname+".rng";
 		files[tagname]["rng"] = fopen(filename.c_str(), "wb"); 
-		filename = corpusfolder+tagname+"_xidx.rng";
+		filename = corpusfolder+"/"+tagname+"_xidx.rng";
 		files[tagname+"_xidx"]["rng"] = fopen(filename.c_str(), "wb"); 
 		for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 			formkey = formfld.attribute("key").value(); 
@@ -718,12 +728,12 @@ int main(int argc, char *argv[])
 			registry << "STRUCTURE " << tagname << "_" << formkey << "  # " << longname << endl;
 
 			if ( debug > 0  ) { cout << "Creating attribute files for: " << formkey << endl; };
-			filename = corpusfolder+tagname+"_"+formkey+".avs";
+			filename = corpusfolder+"/"+tagname+"_"+formkey+".avs";
 			streams[tagname+"_"+formkey]["avs"] = new ofstream(filename.c_str());
-			filename = corpusfolder+tagname+"_"+formkey+".avx";
+			filename = corpusfolder+"/"+tagname+"_"+formkey+".avx";
 			lexidx[tagname+"_"+formkey] = 0; lexpos[tagname+"_"+formkey] = 0;
 			files[tagname+"_"+formkey]["avx"] = fopen(filename.c_str(), "wb"); 
-			filename = corpusfolder+tagname+"_"+formkey+".rng";
+			filename = corpusfolder+"/"+tagname+"_"+formkey+".rng";
 			files[tagname+"_"+formkey]["rng"] = fopen(filename.c_str(), "wb"); 
 		};
 	};
@@ -731,16 +741,16 @@ int main(int argc, char *argv[])
 	registry << "STRUCTURE text_id" << endl;
 	if ( streams["text_id"]["avs"] == NULL ) {
 		if ( debug > 4 ) { cout << "Creating text_id" << endl; };
-		filename = corpusfolder+"text_id.avs";
+		filename = corpusfolder+"/"+"text_id.avs";
 		streams["text_id"]["avs"] = new ofstream(filename.c_str());
-		filename = corpusfolder+"text_id.avx";
+		filename = corpusfolder+"/"+"text_id.avx";
 		lexidx["text_id"] = 0; lexpos["text_id"] = 0;
 		files["text_id"]["avx"] = fopen(filename.c_str(), "wb"); 
-		filename = corpusfolder+"xidx.rng";
+		filename = corpusfolder+"/"+"xidx.rng";
 		files["xidx"]["rng"] = fopen(filename.c_str(), "wb"); 
-		filename = corpusfolder+"text_id.rng";
+		filename = corpusfolder+"/"+"text_id.rng";
 		files["text_id"]["rng"] = fopen(filename.c_str(), "wb"); 
-		filename = corpusfolder+"text_id.idx";
+		filename = corpusfolder+"/"+"text_id.idx";
 		files["text_id"]["idx"] = fopen(filename.c_str(), "wb"); 
 	};
 	
@@ -768,9 +778,9 @@ int main(int argc, char *argv[])
 				
 		registry << endl << "## Stand-off annotations of type " << tagname << endl;
 		registry << "STRUCTURE " << tagname << endl;
-		filename = corpusfolder+tagname+".rng";
+		filename = corpusfolder+"/"+tagname+".rng";
 		files[tagname]["rng"] = fopen(filename.c_str(), "wb"); 
-		filename = corpusfolder+tagname+"_xidx.rng";
+		filename = corpusfolder+"/"+tagname+"_xidx.rng";
 		files[tagname+"_xidx"]["rng"] = fopen(filename.c_str(), "wb"); 
 		for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 			formkey = formfld.attribute("key").value(); 
@@ -780,19 +790,23 @@ int main(int argc, char *argv[])
 			registry << "STRUCTURE " << tagname + "_" + formkey << "  # " << longname << endl;
 
 			if ( debug > 0  ) { cout << "Creating attribute files for: " << formkey << endl; };
-			filename = corpusfolder+tagname+"_" + formkey+".avs";
+			filename = corpusfolder+"/"+tagname+"_" + formkey+".avs";
 			streams[tagname+"_" + formkey]["avs"] = new ofstream(filename.c_str());
-			filename = corpusfolder+tagname+"_" + formkey+".avx";
+			filename = corpusfolder+"/"+tagname+"_" + formkey+".avx";
 			lexidx[tagname+"_"+formkey] = 0; lexpos[tagname+"_"+formkey] = 0;
 			files[tagname+"_" + formkey]["avx"] = fopen(filename.c_str(), "wb"); 
-			filename = corpusfolder+tagname+"_" + formkey+".rng";
+			filename = corpusfolder+"/"+tagname+"_" + formkey+".rng";
 			files[tagname+"_" + formkey]["rng"] = fopen(filename.c_str(), "wb"); 
 		};
 
 	};
 		
 	// This does not listen to the command line at the moment, should be reverted back to cqpsettings
-	string dofolders = xmlsettings.select_single_node("//cqp/@searchfolder").attribute().value();
+	string dofolders;
+	if ( cqpsettings.attribute("folder") != NULL ) { dofolders = cqpsettings.attribute("folder").value(); }
+	else {
+		dofolders = xmlsettings.select_single_node("//cqp/@searchfolder").attribute().value();
+	};
 	if ( dofolders != "" ) {
 		if ( verbose ) cout << "- Indexing folder(s): " << dofolders << endl;
 		char_separator<char> sep(" ");

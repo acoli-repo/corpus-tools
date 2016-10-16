@@ -71,6 +71,7 @@ if ( $xpathqueries ) {
 };
 
 $filecnt = 0;
+if ( $debug )  { print "--------------------"; };
 
 # Read the actual lines
 while ( <FILE> ) {

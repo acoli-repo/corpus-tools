@@ -47,7 +47,7 @@
 				<h2>Token value ($tokid): ".$token."</h2>";
 
 			// If we have XML in the pform and no form (or auto form), generate it
-			if ( strpos($_POST['word'], "<", 1) && ( !$_POST['atts']['form'] || $settings['xmlfiles']['pattributes']['forms']['form']['noedit'] ) ) {
+			if ( ( strpos($_POST['word'], "<", 1) && !strpos($_POST['word'], "<tok>", 1) ) && ( !$_POST['atts']['form'] || $settings['xmlfiles']['pattributes']['forms']['form']['noedit'] ) ) {
 				$_POST['atts']['form'] = killxml($_POST['word']);
 			};
 

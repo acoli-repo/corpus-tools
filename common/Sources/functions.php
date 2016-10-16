@@ -113,7 +113,7 @@
 				$result = $xml->xpath($xquery); 
 				$tmp = $result[0];
 				if ( !$result ) $to = "";
-				else if ( $tmp->children() ) $to = $tmp->asXML();
+				else if ( $tmp->xpath('child::*') ) $to = $tmp->asXML();
 				else $to = $tmp."";
 			};
 			$to = str_replace('"', '&quot;', $to);

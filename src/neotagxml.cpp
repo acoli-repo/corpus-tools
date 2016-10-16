@@ -1557,6 +1557,7 @@ void treatToken( pugi::xml_node token ) {
 	if ( insertword.form == "--" ) { return; }; // Ignore words explicitly set to NULL 
 	
 	insertword.token = token;
+	if ( debug > 4 ) { cout << "Form used for tagging (" << tagfld << "): " << insertword.form << endl; };
 	
 	if ( insertword.form.size() == 0 ) { return; }; // ignore empty lines		
 	
@@ -1784,6 +1785,8 @@ int main (int argc, char * const argv[]) {
 	};
 	endT = clock();
 	
+	if ( debug > 2 ) { cout << " -- tagging all XPath: " << tokxpath << endl;  };
+	
 	// keep reading <tok> from filename (XML)
 	// parse each word in turn calculating all optimal paths
 	// printout whenever an unambiguous state is reached
@@ -1792,6 +1795,7 @@ int main (int argc, char * const argv[]) {
 		
 		pugi::xpath_node node = *it;
 		pugi::xml_node token = node.node();
+		if ( debug > 4 ) { token.print(cout);  };
 
 		if ( token.child("dtok") ) {
 			if ( tagsettings.attribute("overwrite") != NULL ) { // raze the dtokens
