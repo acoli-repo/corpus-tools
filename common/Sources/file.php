@@ -149,6 +149,7 @@
 			};
 		};
 		if ( file_exists("Resources/teiHeader-edit.tpl") && $username ) $maintext .= " &bull; <a href='index.php?action=header&act=edit&cid=$fileid&tpl=teiHeader-edit.tpl' class=adminpart>edit teiHeader</a>";
+		if ( $username ) $maintext .= " &bull; <a href='index.php?action=header&act=rawview&cid=$fileid' class=adminpart>view teiHeader</a>";
 		$maintext .= "</ul><hr>";
 	} else {
 		foreach ( $headershow as $hq => $hn ) {

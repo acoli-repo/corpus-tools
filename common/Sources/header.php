@@ -14,7 +14,8 @@
 
 	if ( !file_exists("Resources/$tplfile") ) fatal ("No such header template: $tplfile");
 	$text = file_get_contents("Resources/$tplfile");
-	$maintext .= "<h2>$fileid</h2><h1>$title </h1><h2>Template: $tplfile</h2>";
+	$maintext .= "<h2>$fileid</h2><h1>$title </h1>";
+	if ( $act != "rawview" ) $maintext .= "<h2>Template: $tplfile</h2>";
 
 	if ( $act == "save" ) {
 		check_login();
@@ -67,8 +68,16 @@
 		header("location:index.php?action=file&id=$fileid");
 		print "<script language=Javascript>top.location='index.php?action=file&id=$fileid';</script>";
 		exit;
+
+	} else if ( $act == "rawview" ) {
+		check_login();
+		
+		$teiheader = current($xml->xpath("//teiHeader"));
+		$maintext .= showxml($teiheader);
+		$maintext .= "<hr><p><a href='index.php?action=file&cid=$fileid'>text view</a>";
 		
 	} else if ( $act == "edit" ) {
+	
 		check_login();
 		
 		preg_match_all ( "/\{#([^\}]+)\}/", $text, $matches );		
@@ -144,6 +153,22 @@
 		
 		$maintext .= $text;
 
+	};
+
+	function showxml ( $xml, $ident = 0 ) {
+		$showxml = "";
+		$inds = str_repeat("&nbsp;", $ident*5);
+		
+		$atts = "";
+		foreach ( $xml->attributes() as $key => $val ) { $atts .= " <span style='color: #000099;'>$key=\"$val\"<span>"; }
+		$showxml .= "<br>$inds&lt;".$xml->getName().$atts."&gt;";
+		if ( preg_replace("/\s/", "", $xml."") != "" ) $showxml .= "<br>".str_repeat("&nbsp;", ($ident+1)*5)."<span style='color: #992000;'>".$xml."</span>";		
+		foreach ( $xml->children() as $child ) {
+			$showxml .= showxml($child, $ident+1);
+		};
+		$showxml .= "<br>$inds&lt;/".$xml->getName()."&gt;";
+		
+		return $showxml;
 	};
 
 	function createnode ($xml, $xquery) {
