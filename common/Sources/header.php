@@ -156,17 +156,16 @@
 	};
 
 	function showxml ( $xml, $ident = 0 ) {
-		$showxml = "";
 		$inds = str_repeat("&nbsp;", $ident*5);
 		
-		$atts = "";
-		foreach ( $xml->attributes() as $key => $val ) { $atts .= " <span style='color: #000099;'>$key=\"$val\"<span>"; }
-		$showxml .= "<br>$inds&lt;".$xml->getName().$atts."&gt;";
-		if ( preg_replace("/\s/", "", $xml."") != "" ) $showxml .= "<br>".str_repeat("&nbsp;", ($ident+1)*5)."<span style='color: #992000;'>".$xml."</span>";		
+		$atts = ""; $unit = "em";
+		foreach ( $xml->attributes() as $key => $val ) { $atts .= " <span style='color: #aa0000;'>$key=\"$val\"<span>"; }
+		$showxml .= "\n<div style='margin-left: {$ident}$unit;'><span style='color: #0000dd;'>&lt;".$xml->getName().$atts."&gt;</span></div>";
+		if ( preg_replace("/\s/", "", $xml."") != "" ) $showxml .= "\n<div style='margin-left: {$ident}$unit; padding-left: 1$unit;'><span style='color: black;'>".$xml."</span></div>";		
 		foreach ( $xml->children() as $child ) {
 			$showxml .= showxml($child, $ident+1);
 		};
-		$showxml .= "<br>$inds&lt;/".$xml->getName()."&gt;";
+		$showxml .= "\n<div style='margin-left: {$ident}$unit;'><span style='color: #0000dd;'>&lt;/".$xml->getName()."&gt;</span></div>";
 		
 		return $showxml;
 	};
