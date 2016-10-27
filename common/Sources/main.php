@@ -3,6 +3,9 @@
 	// called directly from index.php
 	// (c) Maarten Janssen, 2015
 
+	# Lower error reporting
+	error_reporting(E_ERROR | E_PARSE);
+
 	header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page!
 	include ( "../common/Sources/functions.php" ); # Global functions
 

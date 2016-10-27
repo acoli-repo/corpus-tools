@@ -411,7 +411,7 @@
 				$match = "(empty)"; $word = "&lt;ee/&gt;";
 			};
 			
-			if ( $match != "" ) && substr($line,0,1) != "#" ) 
+			if ( $match != "" && substr($line,0,1) != "#" ) 
 				if ( !$fileid ) $maintext .= "<tr style='color: #aaaaaa'>
 					<td>(no id)
 					<td>
