@@ -141,7 +141,7 @@
 	$menu = i18n($menu);
 
 	# Add the TEITOK footer
-	$menu .=  "<hr style='background-color: #aaaaaa; margin-top: 40px;'><p style='opacity: 0.5; font-size: smaller;' onClick=\"window.open('http://teitok.corpuswiki.org/site/index.php', 'teitok');\">Powered by TEITOK<br>&copy; Maarten Janssen, 2014</p>";
+	$menu .=  "<hr style='opacity: 0.5; margin-top: 40px;'><p style='opacity: 0.5; font-size: smaller;' onClick=\"window.open('http://teitok.corpuswiki.org/site/index.php', 'teitok');\">Powered by TEITOK<br>&copy; Maarten Janssen, 2014</p>";
 
 	// Load smarty content
 	if ( !isset($pagetitle) ) $pagetitle = $pagetitles[$action] or $pagetitle = $settings['defaults']['title']['display'];

@@ -33,8 +33,7 @@
 	foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
 		if ( $username || !$item['admin'] ) array_push($cqpcols, $key); 
 	}; 
-	
-	
+		
 	# Check whether the registry file exists
 	if ( !file_exists($registryfolder.strtolower($cqpcorpus)) ) {
 		fatal ( "Corpus $cqpcorpus has no registry file" );
@@ -557,6 +556,14 @@
 				
 				# Somehow, the XML fragment is too long sometimes, repaired that here for now
 				$resxml = preg_replace ( "/<$/", "", $resxml);
+
+				if ( $settings['xmlfile']['basedirection'] == "rtl" ) {
+					$direc = " style='direction: rtl;'";
+					$tba = " align=right";
+					$lca = "left"; $rca = "right";
+				} else {
+					$lca = "right"; $rca = "left";
+				};
 				
 				$resstyle = "";
 				if ( $showstyle == "context" ) {
@@ -567,8 +574,8 @@
 					// Show as KWIC
 					$rescol = "#ffffaa";
 					$resxml = preg_replace ( "/(<tok[^>]*id=\"$m1\")/", "</td><td style='text-align: center; font-weight: bold;'>\\1", $resxml);
-					$resxml = preg_replace ( "/(id=\"$m2\".*?<\/tok>)/smi", "\\1</td><td>", $resxml);
-					$resstyle = "style='text-align: right;'";
+					$resxml = preg_replace ( "/(id=\"$m2\".*?<\/tok>)/smi", "\\1</td><td style='text-align: $rca;'>", $resxml);
+					$resstyle = "style='text-align: $lca;'";
 					$moreactions .= "\nhllist('$match', 'r-$i', '#ffffff'); ";
 				};
 				
@@ -625,13 +632,13 @@
 				$jsontrans = array2json($settings['transliteration']);
 
 				if ( $tagstxt ) $showoptions .= "<p>{%Tags}: $tagstxt ";
-			
+						
 			$maintext .= "
 					$viewoptions $showoptions
 					<hr>
 				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 				$countrow
-				<div id='mtxt'><text><table>$editxml</table></text></div>
+				<div id='mtxt'$tba><text><table $direc>$editxml</table></text></div>
 
 					<script language=Javascript src='$jsurl/tokedit.js'></script>
 					<script language=Javascript src='$jsurl/tokview.js'></script>
