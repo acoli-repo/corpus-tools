@@ -6,9 +6,10 @@
 	require ( "../common/Sources/tttags.php" );
 
 	$maintext .= "<h1>{%Tagset}</h1>";
-	$tttags = new TTTAGS($tagsetfile, false);
+	$ttfile = $_GET['tagset'] or $ttfile = $tagsetfile;
+	$tttags = new TTTAGS($ttfile, false);
 	$tagset = $tttags->tagset['positions'];
-	if ( !$tagset ) { fatal("Tagset not position-based or positions not defined"); };
+	if ( !$tagset ) { fatal("Tagset $ttfile not position-based or positions not defined"); };
 		
 	if ( $act == "analyze" ) {
 		$tag = $_GET['tag'];

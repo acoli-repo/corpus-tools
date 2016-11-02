@@ -15,6 +15,8 @@ $scriptname = $0;
             'debug' => \$debug, # debugging mode
             'verbose' => \$verbose, # verbose mode
             'pid=s' => \$pid, # choose a specific neotag parameter set (if there is more than one)
+            'lang=s' => \$lang, # choose a specific neotag parameter set based on lang ISO
+            'lexiconfile=s' => \$lexiconfile, # choose the lexiconfile by hand
             'folder=s' => \$folder, # choose a folder to process
             'file=s' => \$file, # choose a file to process
             );
@@ -39,13 +41,21 @@ my $settings = XML::LibXML->load_xml(
 
 if ( $pid ) { $pidr = "[\@pid=\"$pid\"]"; };
 
-print "//neotag/parameters/item$pidr/\@lexicon";
-if ( $settings->findnodes("//neotag/parameters/item$pidr/\@lexicon") ) {
-	$lexiconfile = $settings->findnodes("//neotag/parameters/item$pidr/\@lexicon")->item(0)->textContent;
-} else {
-	$lexiconfile = $settings->findnodes("//neotag/parameters/item$pidr/\@params")->item(0)->textContent;
+if ( $lexiconfile ) {
+	if ( !-e $lexiconfile ) {
+		if ( -e "neotag/$lexiconfile" ) { $lexiconfile = "neotag/$lexiconfile"; };
+		elsif ( -e "Resources/$lexiconfile" ) { $lexiconfile = "Resources/$lexiconfile"; };
+	};
 };
 
+if ( $lexiconfile eq "" ) {
+	print "//neotag/parameters/item$pidr/\@lexicon";
+	if ( $settings->findnodes("//neotag/parameters/item$pidr/\@lexicon") ) {
+		$lexiconfile = $settings->findnodes("//neotag/parameters/item$pidr/\@lexicon")->item(0)->textContent;
+	} else {
+		$lexiconfile = $settings->findnodes("//neotag/parameters/item$pidr/\@params")->item(0)->textContent;
+	};
+};
 print "Using lexicon: $lexiconfile";
 # Read the parameter data for back processing
 my $lexicon = XML::LibXML->load_xml(

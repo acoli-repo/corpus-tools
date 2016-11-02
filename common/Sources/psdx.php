@@ -166,10 +166,11 @@
 					$cqp = new CQP();
 					$cqp->exec($cqpcorpus); // Select the corpus
 					$cqp->exec("Matches = <text> [] :: ".$cql);
+					# print $cql;
 					$cwbresults = $cqp->exec("tabulate Matches 0 5000 match text_id");
 					if ( $cwbresults ) {
 						$wrapper = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> <xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"> <xsl:output method=\"xml\"/> <xsl:template match=\"/\"> <xsl:for-each select='\"'\"'##'\"'\"'> <forest> <xsl:attribute name=\"File\"> <xsl:value-of select=\"./ancestor::forest/@File\"/> </xsl:attribute> <xsl:attribute name=\"Location\"> <xsl:value-of select=\"./ancestor::forest/@Location\"/> </xsl:attribute> <xsl:attribute name=\"sentid\"> <xsl:value-of select=\"./ancestor::forest/@sentid\"/> </xsl:attribute>  <xsl:attribute name=\"id\"> <xsl:value-of select=\"./ancestor::forest/@id\"/> </xsl:attribute> <xsl:copy-of select=\".\"/> </forest> </xsl:for-each> </xsl:template> </xsl:stylesheet>";
-						$searchfiles = ""; $sep = "";
+						$searchfiles = ""; $xsep = "";
 						$results = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><results>";
 						// This is not efficient
 						$resultarray = explode ( "\n", $cwbresults );

@@ -155,25 +155,6 @@
 
 	};
 
-	function showxml ( $xml, $ident = 0 ) {
-		$inds = str_repeat("&nbsp;", $ident*5);
-		$atts = ""; $unit = "em";
-		
-		if ( !$xml->children() && count($xml->attributes()) < 2 && strlen($xml."") < 50 ) {
-			$showxml .= "\n<div style='margin-left: {$ident}$unit;'><span style='color: #0000dd;'>&lt;".$xml->getName()."&gt;</span><span style='color: black;'>$xml</span><span style='color: #0000dd;'>&lt;/".$xml->getName()."&gt;</span></div>";					
-		} else {
-			foreach ( $xml->attributes() as $key => $val ) { $atts .= " <span style='color: #aa0000;'>$key=\"$val\"<span>"; }
-			$showxml .= "\n<div style='margin-left: {$ident}$unit;'><span style='color: #0000dd;'>&lt;".$xml->getName().$atts."&gt;</span></div>";
-			if ( preg_replace("/\s/", "", $xml."") != "" ) $showxml .= "\n<div style='margin-left: {$ident}$unit; padding-left: 1$unit;'><span style='color: black;'>".$xml."</span></div>";		
-			foreach ( $xml->children() as $child ) {
-				$showxml .= showxml($child, $ident+1);
-			};
-			$showxml .= "\n<div style='margin-left: {$ident}$unit;'><span style='color: #0000dd;'>&lt;/".$xml->getName()."&gt;</span></div>";
-		};
-				
-		return $showxml;
-	};
-
 	function createnode ($xml, $xquery) {
 		# See if XML has a node matching the XPath, if not - create it
 		global $verbose;
