@@ -18,10 +18,10 @@
 	
 	foreach ( $ttxml->xml->xpath("//s") as $sent ) {
 		$maintext .= "<table id=$sid><tr><td style='border-right: 1px solid #bbaabb;'>";
-		$maintext .= "<div class='floatbox' id='$sid' style='font-weight: bold; padding-right: 5px;'>Word";
+		$maintext .= "<div class='floatbox' id='$sid' style='padding-right: 5px;'>Word";
 		$maintext .= "<table style='margin: 0;'>";
 		foreach ( $settings['annotations']['morph'] as $item ) {
-			if (is_array($item)) $maintext .= "<tr><td style='color:{$item['color']}; font-weight: bold;'>".$item['display'];
+			if (is_array($item)) $maintext .= "<tr><td style='color:{$item['color']};'>".$item['display'];
 		};
 		$maintext .= "</table></div><td style='padding-left: 5px;'>";		
 		

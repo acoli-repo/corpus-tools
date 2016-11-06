@@ -226,7 +226,7 @@
 				if ( $key == "project" ) $cvlt = $settings['projects'][$cvl]['name'];
 				else if ( $val['type'] == "kselect" || $val['translate'] ) $cvlt = "{%$key-$cvl}"; 
 				else $cvlt = $cvl;
-				if ( $cvl && !$val['noshow'] ) $maintext .= "<tr><th>$cvlt<td style='text-align: right; padding-left: 10px;'>".number_format($cnt);
+				if ( $cvl && !$val['noshow'] ) $maintext .= "<tr><th span='row'>$cvlt<td style='text-align: right; padding-left: 10px;'>".number_format($cnt);
 			};
 			$maintext .= "</table>";
 		};		
@@ -426,7 +426,7 @@
 					# Ignore year if there also is a date
 				} else if ( $key != "id" ) {
 					$moreatts .= ", match $xkey";
-					$moreth .= "<th>$val";
+					$moreth .= "<th span='row'>$val";
 				};
 				$acnt++;
 				$atttit[$acnt] = $val;
@@ -898,9 +898,9 @@
 		foreach ( $cqpcols as $col ) {
 			$colname = pattname($col);
 			if ( $settings['cqp']['pattributes'][$col]['admin'] == "1" ) {
-				$maintext .= "<tr><th>$col<td class=adminpart>{%$colname}</tr>";				
+				$maintext .= "<tr><th span='row'>$col<td class=adminpart>{%$colname}</tr>";				
 			} else {
-				$maintext .= "<tr><th>$col<td>{%$colname}</tr>";
+				$maintext .= "<tr><th span='row'>$col<td>{%$colname}</tr>";
 			};
 		};
 		$maintext .= "</table></div>
@@ -984,7 +984,7 @@
 				} else {
 					if ( $item['nosearch'] ) $a = 1; # Ignore this in search 
 					else if ( $item['type'] == "range" ) 
-						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
+						$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
 					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
 						# Read this index file
 						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
@@ -1020,9 +1020,9 @@
 							$multiselect = ""; $msarr = "";
 							$mstext = "select";
 						};
-						$maintext .= "<tr><th>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
+						$maintext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
 					} else 
-						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey] value='' size=40>";
+						$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' size=40>";
 				};
 			};
 			$maintext .= "</table>"; 
@@ -1042,7 +1042,7 @@
 				} else {
 					if ( $item['nosearch'] ) $a = 1; # Ignore this in search 
 					else if ( $item['type'] == "range" ) 
-						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
+						$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
 					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
 						# Read this index file
 						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
@@ -1078,9 +1078,9 @@
 							$multiselect = ""; $msarr = "";
 							$mstext = "select";
 						};
-						$maintext .= "<tr><th>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
+						$maintext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
 					} else 
-						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey] value='' size=40>";
+						$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' size=40>";
 				};
 			};
 			$maintext .= "</table></div>"; 

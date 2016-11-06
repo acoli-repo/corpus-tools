@@ -109,7 +109,7 @@ function showtokinfo(evt, element, poselm) {
 					if (child.getAttribute(att2)) {
 						var rowval = child.getAttribute(att2);
 		    			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att2] && tagdef[att2]['type'] == 'pos' ) { rowval = treatpos(child, att2, 'full'); }; 
-						tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + rowval + '</td></tr>';
+						tablerows += '<tr><th style=\'font-size: small;\' span="row">' + attname + '</th><td>' + rowval + '</td></tr>';
 					};
 				}; 
 				tokinfo.innerHTML += '<hr><table width=\'100%\'>' + tablerows + '</table>';
