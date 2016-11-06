@@ -30,7 +30,7 @@
 				if ( !is_array($item) ) continue;
 				$maintext .= "<tr>";
 				foreach ( $tok->xpath(".//morph") as $morph ) {
-					$txt = $morph[$item['key']]; if ( $txt eq '' ) { $txt = "&nbsp;"; };
+					$txt = $morph[$item['key']]; if ( $txt == '' ) { $txt = "&nbsp;"; };
 					$maintext .= "<td align=center title='{$item['display']}'  style='color: {$item['color']};'>$txt</td>";
 				};
 			};
