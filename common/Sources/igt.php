@@ -18,19 +18,20 @@
 	
 	foreach ( $ttxml->xml->xpath("//s") as $sent ) {
 		$maintext .= "<table id=$sid><tr><td style='border-right: 1px solid #bbaabb;'>";
-		$maintext .= "<div class='floatbox' id='$sid' style='font-weight: bold; padding-right: 5px;'>Word<table>";
+		$maintext .= "<div class='floatbox' id='$sid' style='font-weight: bold; padding-right: 5px;'>Word<table style='margin: 0;'>";
 		foreach ( $settings['annotations']['morph'] as $item ) {
 			if (is_array($item)) $maintext .= "<tr><td style='color:{$item['color']}; font-weight: bold;'>".$item['display'];
 		};
 		$maintext .= "</table></div><td style='padding-left: 5px;'>";		
 		
 		foreach ( $sent->xpath(".//tok") as $tok ) {
-			$maintext .= "<div class=floatbox id=$sid>".$tok->asXML()."<table>";
+			$maintext .= "<div class=floatbox id=$sid>".$tok->asXML()."<table style='margin: 0;'>";
 			foreach ( $settings['annotations']['morph'] as $item ) {
 				if ( !is_array($item) ) continue;
 				$maintext .= "<tr>";
 				foreach ( $tok->xpath(".//morph") as $morph ) {
-					$maintext .= "<td align=center title='{$item['display']}'  style='color: {$item['color']};'>".$morph[$item['key']];
+					$txt = $morph[$item['key']] or $txt = "&nbsp;";
+					$maintext .= "<td align=center title='{$item['display']}'  style='color: {$item['color']};'>$txt</td>";
 				};
 			};
 			$maintext .= "</table></div>";		
