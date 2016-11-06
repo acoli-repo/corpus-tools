@@ -820,7 +820,7 @@
 				} else if ( $val['type'] == "psdx" && file_exists("Annotations/$xmlid.psdx") ) {
 					$maintext .= " &bull; <a href='index.php?action=psdx&cid=$xmlid'>{%{$val['display']}}</a>";
 				} else if ( $val['type'] == "morph" && strstr($editxml, "<morph") ) {
-					$maintext .= " &bull; <a href='index.php?action=morph&cid=$xmlid'>{%{$val['display']}}</a>";
+					$maintext .= " &bull; <a href='index.php?action=igt&cid=$xmlid'>{%{$val['display']}}</a>";
 				};
 			}; 
 		};
