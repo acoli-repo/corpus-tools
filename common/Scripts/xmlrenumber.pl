@@ -46,6 +46,12 @@ use XML::LibXML;
 			if ( $debug ) { print "\n  - $dcnt\t".$ddnode->getAttribute('form'); };
 			$ddnode->setAttribute('id', "d-$cnt-$dcnt");
 		};
+		$dcnt = 0;
+		foreach $ddnode ( $ttnode->findnodes("morph") ) {
+			$dcnt++;
+			if ( $debug ) { print "\n  - $dcnt\t".$ddnode->getAttribute('form'); };
+			$ddnode->setAttribute('id', "dm-$cnt-$dcnt");
+		};
 	}; 
 	# warn " - number of tokens: $cnt\n";
 

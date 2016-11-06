@@ -561,6 +561,7 @@
 		// Set a default writing direction when defined
 		if ( $settings['xmlfile']['basedirection'] ) {
 			// Defined in the settings
+			
 			$attnamelist .= "\n				setbd('".$settings['xmlfile']['basedirection']."');";
 		} else {
 			$dirxpath = $settings['xmlfile']['direction'];
@@ -818,6 +819,8 @@
 					$maintext .= " &bull; <a href='index.php?action=annotation&act=edit&annotation=$key&cid=$xmlid.xml'>Create {%{$val['display']}}</a>";
 				} else if ( $val['type'] == "psdx" && file_exists("Annotations/$xmlid.psdx") ) {
 					$maintext .= " &bull; <a href='index.php?action=psdx&cid=$xmlid'>{%{$val['display']}}</a>";
+				} else if ( $val['type'] == "morph" && strstr($editxml, "<morph") ) {
+					$maintext .= " &bull; <a href='index.php?action=morph&cid=$xmlid'>{%{$val['display']}}</a>";
 				};
 			}; 
 		};

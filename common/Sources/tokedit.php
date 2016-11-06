@@ -42,8 +42,8 @@
 		$rawtok = preg_replace( "/<\/?tok[^>]*>/", "", $token->asXML() );
 
 	if ( !$token['id'] || $token->xpath(".//dtok[not(@id)]") ) {
-		$warning = "<div class=warning>TOK or DTOK without @is, which will not allow TEITOK 
-			tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$cid\">here</a> to renumber the XML file
+		$warning = "<div class=warning>TOK or DTOK without @id, which will not allow TEITOK 
+			tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$fileid\">here</a> to renumber the XML file
 			which will provide all TOK and DTOK with an @id.</div>";
 	}
 
@@ -137,14 +137,15 @@
 			<form action='index.php?action=toksave' method=post name=tagform id=tagform>
 			<input type=hidden name=cid value='$fileid'>
 			<input type=hidden name=tid value='$tokid'>
-			$warning
+
 			<table>";
 
 
 		// show the innerHTML
 		$xmlword = $token->asXML(); 
-		$xmlword = preg_replace("/<\/?d?tok[^>]*>/", "", $xmlword); 
-					$xmlword = str_replace("'", "&#039;", $xmlword);
+		$xmlword = preg_replace("/<\/?d?tok[^>]*>/", "", $xmlword); // Remove all dtoks from the raw XML - will be edited separately
+		$xmlword = preg_replace("/<\/?morph[^>]*>/", "", $xmlword); // Remove all morph from the raw XML - will be edited separately
+		$xmlword = str_replace("'", "&#039;", $xmlword); // Protect quotes
 		$maintext .= "<tr><td>XML<td>Raw XML value<td><input size=60 name=word id='word' value='$xmlword'>";
 
 		// Show all the defined forms and make them editable
@@ -213,8 +214,8 @@
 		foreach ( $result2 as $dtoken ) {
 			$did = $dtoken['id']; $dtk++; 
 			if ( !$did ) { 
-				$warning = "<div class=warning>TOK or DTOK without @is, which will not allow TEITOK 
-					tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$cid\">here</a> to renumber the XML file
+				$warning = "<div class=warning>TOK or DTOK without @id, which will not allow TEITOK 
+					tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$fileid\">here</a> to renumber the XML file
 					which will provide all TOK and DTOK with an @id.</div>";
 				$did = $token['id'].'-'.$dtk; 
 			};
@@ -278,6 +279,67 @@
 			if ( !$warning ) $maintext .= "<p><ul><li><a href='index.php?action=toksave&act=delete&cid=$fileid&tid=$did'>delete</a> this dtok</ul>"; 
 		};
 		
+
+		// Show all the Morphemes
+		if ( $settings['annotations']['morph'] ) {
+			$result2 = $token->xpath("morph"); $dtk = 0;
+			foreach ( $result2 as $dtoken ) {
+				$did = $dtoken['id']; $dtk++; 
+				if ( !$did ) { 
+					$warning = "<div class=warning>MORPH without @id, which will not allow TEITOK 
+						tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$fileid\">here</a> to renumber the XML file
+						which will provide all TOK, DTOK, and MORPH with an @id.</div>";
+					$did = $token['id'].'-'.$dtk; 
+				};
+				$dform = $dtoken['form'];
+				$rawdxml = $dtoken->asXML();
+				$rawdxml = preg_replace("/'/", "&#039;", $rawdxml ); # We need to protect apostrophs in the HTML form
+				$maintext .= "<hr style='background-color: #aaaaaa;'><h2>Morpheme</h2> 
+					<input type=hidden name='dtok[$did]' size=70 value='$rawdxml'>
+					<table>
+					";
+				foreach ( $settings['annotations']['morph'] as $key => $item ) {
+					if ( !is_array($item) ) continue;
+					$atv = $dtoken[$key]; 
+					$val = $item['display'];
+					if ( $key != "pform" ) {
+						// if ( $attype[$key] == "select" || $attype[$key] == "eselect" || $attype[$key] == "mselect" ) {
+						if ( $item['type'] == "Select" || $item['type'] == "ESelect" || $item['type'] == "MSelect" ) {
+							$tmp = file_get_contents("cqp/$key.lexicon"); $optarr = array();
+							foreach ( explode ( "\0", $tmp ) as $kval ) { 
+								if ( $kval ) {
+									if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
+									if ( ( $attype[$key] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) $optarr[$kval] = "<option value='$kval' $seltxt>$kval</option>"; 
+								};
+							};
+							sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+				
+							if ( $item['type'] == "ESelect" ) {
+								$maintext .= "<tr><td>$key<td>$val
+											<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
+								$maintext .= "<input type=checkbox>new value: <span id='newat'><input size=30 name=newatt[$key] id='f$key' value=''></span>";
+							} else if ( $item['type'] == "Select" ) {
+								$maintext .= "<tr><td>$key<td>$val
+											<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
+							} else if ( $item['type'] == "MSelect" ) {
+								$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
+								$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=datts[$did:$key] id='f$key' value='$atv'>
+									add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
+							} else {
+								$maintext .= "<tr><td>$key<td>$val
+											<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
+							};
+					 
+						} else {
+							$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=datts[$did:$key] id='f$key' value='$atv'>";
+						};
+					};
+				};
+				$maintext .= "</table>";
+				if ( !$warning ) $maintext .= "<p><ul><li><a href='index.php?action=toksave&act=delete&cid=$fileid&tid=$did'>delete</a> this morpheme</ul>"; 
+			};
+		};		
+
 		# Check if there is no XML in toks without a @form
 		# Which for now is any end of tag inside
 		if ( preg_match("/<\/.*<\/tok>/", $token->asXML()) && $token['form'] == "" ) {
@@ -297,6 +359,7 @@
 		# Allow adding/deleting tokens 
 		$maintext .= "
 		<hr>
+			$warning
 		<!-- <a href=''>join to previous token</a> &bull;  -->
 			insert tok after:
 			<a href='index.php?action=retok&dir=after&cid=$fileid&tid=$tokid&pos=left'>attached</a> /
