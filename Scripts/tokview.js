@@ -86,7 +86,7 @@ function showtokinfo(evt, element, poselm) {
     			shownrows = 1;
     			var rowval = element.getAttribute(att);
     			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['type'] == 'pos' ) { rowval = treatpos(element, att, 'full'); }; 
-	    		tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + 
+	    		tablerows += '<tr><th style=\'font-size: small;\' span="row">' + attname + '</th><td>' + 
 	    			rowval + '</td></tr>';
 	    	};
     	}; 

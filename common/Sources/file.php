@@ -211,7 +211,7 @@
 			$stxt = $sent->asXML(); 
 			$sentid = $sent['n'] or $sentid = "[".$sentnr++."]";
 			$treelink = ""; $nrblock = "";
-			if ( $sent->xpath(".//tok[@head]") ) { 
+			if ( $sent->xpath(".//tok[@head and @head != \"\"]") ) { 
 				$treelink .= "<a href='index.php?action=deptree&cid=$fileid&sid={$sent['id']}' title='dependency tree'>tree</a>"; 
 				$ewd = 50;
 			};

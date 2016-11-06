@@ -18,7 +18,8 @@
 	
 	foreach ( $ttxml->xml->xpath("//s") as $sent ) {
 		$maintext .= "<table id=$sid><tr><td style='border-right: 1px solid #bbaabb;'>";
-		$maintext .= "<div class='floatbox' id='$sid' style='font-weight: bold; padding-right: 5px;'>Word<table style='margin: 0;'>";
+		$maintext .= "<div class='floatbox' id='$sid' style='font-weight: bold; padding-right: 5px;'>Word";
+		$maintext .= "<table style='margin: 0;'>";
 		foreach ( $settings['annotations']['morph'] as $item ) {
 			if (is_array($item)) $maintext .= "<tr><td style='color:{$item['color']}; font-weight: bold;'>".$item['display'];
 		};
@@ -40,7 +41,7 @@
 			if ( !is_array($item) ) continue;
 	 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>{$item['short']}</td><td style='padding-left: 5px; color: {$item['color']}'> ".$sent[$item['key']]."</td>";
 		};
-		$maintext .= "</div>";
+		$maintext .= "</div><hr>";
 	};
 	$maintext .= "</table></div><hr>";
 			$maintext .= "<a href='index.php?action=edit&cid=$cid&jmp=$sentid'>{%to text mode}</a> $options</p><br>";
