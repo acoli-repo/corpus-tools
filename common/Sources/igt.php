@@ -30,7 +30,7 @@
 		$maintext .= "</div><td style='padding-left: 5px;'>";		
 		
 		foreach ( $sent->xpath(".//tok") as $tok ) {
-			$maintext .= "<div class=floatbox id=$sid style=\"text-align: center;\">".$tok->asXML();
+			$maintext .= "<div class=floatbox id='$sid' style='text-align: center;'>".$tok->asXML();
 			if ( $morphed ) {
 				$maintext .= "<hr><table style='margin: 0;'>";
 				foreach ( $settings['annotations']['morph'] as $item ) {
