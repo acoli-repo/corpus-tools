@@ -13,7 +13,56 @@
 	# Display the teiHeader data as a table
 	$maintext .= $ttxml->tableheader(); 
 
-	$maintext .= "<div id=mtxt>";
+			#Build the view options	
+			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+				$formcol = $item['color'];
+				# Only show forms that are not admin-only
+				if ( $username || !$item['admin'] ) {	
+					if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+					$ikey = $item['inherit'];
+					if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract'] 
+						$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+						$fbc++;
+					};
+					if ( $key != "pform" ) { 
+						if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+						$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+					};
+				};
+			};
+			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+				$val = $item['display'];
+				if ( preg_match("/ $key=/", $editxml) ) {
+					if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
+					if ( !$item['admin'] || $username ) {
+						if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+						$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
+						$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+						$pcolor = $item['color'];
+						$tagstxt .= " <button id='tbt-$key' style='background-color: #$bc; color: $pcolor;$bgcol' onClick=\"toggletag('$key')\">{%$val}</button>";
+					};
+				} else if ( is_array($labarray) && ($akey = array_search($key, $labarray)) !== false) {
+					unset($labarray[$akey]);
+				};
+			};
+
+	$maintext .= "
+		<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
+		<div id=mtxt>
+			<script language=Javascript src='$jsurl/tokedit.js'></script>
+			<script language=Javascript src='$jsurl/tokview.js'></script>
+			<script language=Javascript>
+				makeunique();
+				var username = '$username';
+				var formdef = $jsonforms;
+				var orgtoks = new Object();
+				var attributelist = Array($attlisttxt);
+				$attnamelist
+				formify(); 
+				var orgXML = document.getElementById('mtxt').innerHTML;
+				setForm('$showform');
+			</script>
+		";
 	$maintext .= "<style>.floatbox { float: left; margin-right: 10px; }</style>";
 	
 	foreach ( $ttxml->xml->xpath("//s") as $sent ) {
