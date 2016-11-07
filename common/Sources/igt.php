@@ -19,9 +19,9 @@
 	foreach ( $ttxml->xml->xpath("//s") as $sent ) {
 		$morphed = 0; if ( $sent->xpath(".//morph") ) { $morphed = 1; };
 		$maintext .= "<table id=$sid><tr><td style='border-right: 1px solid #bbaabb;'>";
-		$maintext .= "<div class='floatbox' id='$sid' style='padding-right: 5px; text-align: center;'>Word<hr>";
+		$maintext .= "<div class='floatbox' id='$sid' style='padding-right: 5px;'>Word";
 		if ( $morphed ) {
-			$maintext .= "<table style='margin: 0;'>";
+			$maintext .= "<hr><table style='margin: 0;'>";
 			foreach ( $settings['annotations']['morph'] as $item ) {
 				if (is_array($item)) $maintext .= "<tr><td style='color:{$item['color']};'>".$item['display'];
 			};
@@ -30,9 +30,9 @@
 		$maintext .= "</div><td style='padding-left: 5px;'>";		
 		
 		foreach ( $sent->xpath(".//tok") as $tok ) {
-			$maintext .= "<div class=floatbox id=$sid>".$tok->asXML();
+			$maintext .= "<div class=floatbox id=$sid style=\"text-align: center;\">".$tok->asXML();
 			if ( $morphed ) {
-				$maintext .= "<table style='margin: 0;'>";
+				$maintext .= "<hr><table style='margin: 0;'>";
 				foreach ( $settings['annotations']['morph'] as $item ) {
 					if ( !is_array($item) ) continue;
 					$maintext .= "<tr>";
