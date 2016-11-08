@@ -12,20 +12,29 @@ $parser = XML::LibXML->new();
 
 GetOptions (
             'csvfile=s' => \$csvfile,
+            'delim=s' => \$delim,
             'teiheader=s' => \$teiheader,
             'xmlfolder=s' => \$xmlfolder, # Which folder to use
             'debug' => \$debug, 
+            'verbose' => \$verbose, 
             'notext' => \$notext, # Do not create anything below <TEI> for new files
             'nocreate' => \$nocreate, # Do no create non-existing files
             'template=s' => \$template,
             'queries=s' => \$xpathqueries,
+            'help' => \$help,
             'header' => \$header, # Whether the CSV file has a (non XPath) header row
             );
 
 # Check whether the conditions are met
 if ( !$xmlfolder ) { $xmlfolder = "xmlfiles"; };
 if ( !$csvfile ) { $csvfile = shift; };
-if ( !$csvfile ) { print "Usage: csv2tei [options] csvfile"; exit; };
+if ( !$csvfile || $help ) { print "Usage: csv2tei [options] csvfile
+
+Options:
+--queries     specify file containing xpath defnition for each column, or a comma separated list
+--csvfile     specify the CSV file to use
+--xmlfolder   specify the folder where the XML files are located"; 
+exit; };
 if ( !-e $csvfile ) { print "No such file: $csvfile"; exit; }; 
 
 $orgfile = $csvfile.".org";
@@ -50,13 +59,18 @@ if ( $header ) {
 };
 
 if ( $xpathqueries ) {
+	$i = 1;
 	open XFILE, $xpathqueries; 
-	binmode ( XFILE, ":utf8" );
-	$xpathqueries = <XFILE>;
-	chop ( $xpathqueries );
+	binmode ( XFILE, ":utf8" ); 
+	while ( <XFILE> ) {
+		chop;
+		( $xp, $xpdef ) = split ( "\t" );
+		push(@xpfields, $xp);
+		push(@namefields, $xpdef);
+		if ( $xp eq '[fn]' ) { $fnfld = $i }; $i++;
+	};
 	close XFILE;
-	@xpfields = split ( ",", $xpathqueries ); 
-	unshift(@xpfields, "[fn]");
+	if ( !$fnfld ) { unshift(@xpfields, "[fn]"); };
 	if ( $debug ) { print "Xpath definitions:\n".join ( "\n", @xpfields); };
 } elsif ( $teiheader ) {
 } else {
@@ -76,6 +90,7 @@ if ( $debug )  { print "--------------------"; };
 # Read the actual lines
 while ( <FILE> ) {
 	chomp; $line++; $fn = ""; undef(%toset);
+	s/[\n\r]//g;
 	$filecnt++;
 	$linetxt = $_;
 	if ( $linetxt eq '' ) { next; };
@@ -96,12 +111,17 @@ while ( <FILE> ) {
 		$xpath = $xpfields[$i];
 		if ( $xpath eq "[fn]" ) { 
 			$fn = $row[$i];
+			if ( $debug || $verbose ) { print "FILE: $fn"; };
+			if ( !-e $fn ) { 
+				print "No such file: $fn"; 
+				next; 
+			};
 		} elsif ( $xpath =~ /^\// ) {
 			if ( $row[$i] ne ''  ) {
 				$toset{$xpath} = $row[$i];
 				if ( $debug ) { print $row[$i], $xpath; };
 			};
-		} else {
+		} elsif ( $xpath ) {
 			print " -- Unparsable definition: $xpath"; exit;
 		};
 	};

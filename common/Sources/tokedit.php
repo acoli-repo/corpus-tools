@@ -78,8 +78,8 @@
 		$maintext .= "<h1>Edit Token</h1>
 		
 				<table>
-				<tr><th>Filename</th><td>$fileid</td></tr>
-				<tr><th>Title</th><td>$title</td></tr>
+				<tr><th span='row'>Filename</th><td>$fileid</td></tr>
+				<tr><th span='row'>Title</th><td>$title</td></tr>
 				</table>
 				<hr>
 		

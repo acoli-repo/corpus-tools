@@ -54,10 +54,10 @@
 			<script language=Javascript src='$jsurl/tokedit.js'></script>
 			<script language=Javascript src='$jsurl/tokview.js'></script>
 			<script language=Javascript>
-				makeunique();
 				var username = '$username';
 				var formdef = $jsonforms;
 				var orgtoks = new Object();
+				var tid = '$cid'; 
 				var attributelist = Array($attlisttxt);
 				$attnamelist
 				formify(); 
