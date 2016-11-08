@@ -167,6 +167,7 @@
 				$maintext .= "<tr><td><a href='index.php?action=$action&id=$key'>$key</a><td>$val";
 			};
 		};
+		$maintext .= "</table>";
 		
 	};
 	
