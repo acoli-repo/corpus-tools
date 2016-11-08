@@ -28,7 +28,7 @@
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "/usr/local/share/cwb/registry/";
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-	$cqpfolder = $settings['cqp']['searchfolder'];
+	if ( !$cqpfolder ) $cqpfolder = "cqp";
 	$cqpcols = array();
 	foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
 		if ( $username || !$item['admin'] ) array_push($cqpcols, $key); 
