@@ -30,10 +30,16 @@
         	
     foreach ( $settings['menu']['itemlist'] as $key => $item ) { 	
     	$link = "{$tlpr}index.php?action=$key";
-    	if ( $key == $action ) $scl = " class='selected active' id='current'"; else $scl = "";
+    	if ( $key == $action ) {
+    		$scl = " class='selected'"; 
+    		$scli = " class='active'"; 
+    	} else {
+    		$scl = "";
+    		$scli = "";
+    	};
     	if ( $item['admin'] ) {
     		if ( $item['admin'] == 1 || $user['permissions'] == "admin" ) {
-	    		$adminitems .= "<ul style='text-align: left'><li><a href='$link'>{%".$item['display']."}</a></ul>";
+	    		$adminitems .= "<ul style='text-align: left'><li $scli><a href='$link'>{%".$item['display']."}</a></ul>";
 	    	};
     	} else {
     		$menu .= "<li><a href='$link'$scl>{%".$item['display']."}</a>";
