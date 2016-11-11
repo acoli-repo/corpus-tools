@@ -167,7 +167,7 @@
 		$maintext .= "$dirlist";
 		if ( $dirlist && $filelist ) $maintext .= "<hr>";
 		$maintext .= "$filelist<hr>$cnt files$showing";
-		if ( !$filelist ) $maintext .= "<p><i>There are no XML files in this folder (yet)</i>";
+		if ( !$filelist && !$dirlist ) $maintext .= "<p><i>There are no XML files in this folder (yet)</i>";
 		if ($username) $maintext .= " &bull; <a href='index.php?action=$action&act=mkdir'>create new folder</a>";
 		if ($username) $maintext .= " &bull; <a href='index.php?action=create'>create new XML file</a>";
 	};

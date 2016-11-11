@@ -49,8 +49,10 @@
 	
   	if ( $username ) {
   		$menu .= "<hr>user: <a href='index.php?action=user'>{$user['short']}</a><hr>";
-  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=admin'>Admin</a></ul>";
-  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files'>XML Files</a></ul>";
+  		$tmp = ""; if ( $action == "admin" ) $tmp = "class=\"selected\""; 
+  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=admin' $tmp>Admin</a></ul>";
+  		$tmp = ""; if ( $action == "files" ) $tmp = "class=\"selected\""; 
+  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
   		if (file_exists("Resources/filelist.xml")) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=filelist'>File repository</a></ul>";
   		$menu .= $adminitems;
 	} else {

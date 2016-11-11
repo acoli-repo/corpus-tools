@@ -356,14 +356,17 @@
 			};
 		
 		} else {
-			$maintext .= "<hr><h3>{%Predefined Queries}</h3>
-				<p>{%Click on one of the named queries below to copy it to the search window}";
+
+			# Display potential pre-defined queries
 			if ($settings['psdx']['queries']) {
+				$maintext .= "<hr><h3>{%Predefined Queries}</h3>
+					<p>{%Click on one of the named queries below to copy it to the search window}";
 				foreach ( $settings['psdx']['queries'] as $key => $item ) { 
 					$maintext .= "<p class=\"list\"><a onclick=\"document.getElementById('xpathfield').value=this.firstChild.innerHTML; document.getElementById('xpathfield').focus();\"><span style='display: none;'>{$key}</span>{%{$item['display']}}</a></p>";
 				};
 			};
 		
+			# Display text-level restrictions
 			if ( $settings['psdx']['cqp'] ) {
 			
 				$cqpatts = $settings['cqp']['sattributes'];
@@ -686,6 +689,8 @@
 					";
 				} else if ( $treestyle == "svg"  ) {	
 					$maintext .= "\n".makesvgtree($forest);
+				} else if ( $treestyle == "bracketstring" ) {
+					$maintext .=  "<div id=tree>".bracketstring($forest)."</div>";
 				} else if ( $treestyle == "table" ) {
 					$maintext .= "\n<div id=tree>".drawtree($forest)."</div>";
 				};
