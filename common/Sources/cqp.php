@@ -523,6 +523,15 @@
 				$m1 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m1 );
 				$m2 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m2 );
 
+				if ( $audiofile ) {
+					if ( preg_match("/start=\"([^\"]*)\"/", $resxml, $matches ) ) $strt = $matches[1]; else $strt = 0;
+					if ( preg_match("/end=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1]; else $stp = 0;
+					if ( $settings['default']['playbutton'] ) $playimg = $settings['default']['playbutton'];
+					else  if ( file_exists("Images/playbutton.gif") ) $playimg = "Images/playbutton.gif";
+					else $playimg = "http://alfclul.clul.ul.pt/teitok/site/Images/playbutton.gif";
+					$audiobut = "<td><img src=\"$playimg\" width=\"14\" height=\"14\" style=\"margin-right: 5px;\" onClick=\"playpart('$audiofile', $strt, $stp, this );\"></img></td>"; 
+				};
+
 				# Now, clean the resulting XML in various ways to make it display better
 				
 				# XMLIDX does not work perfectly, so if we just missed the <tok>, repair it
@@ -547,14 +556,6 @@
 				$resxml = preg_replace ( "/<\/?(table|tr|td|div|font)[^>]*\/>/", "", $resxml);
 				
 				
-				if ( $audiofile ) {
-					if ( preg_match("/start=\"([^\"]*)\"/", $resxml, $matches ) ) $strt = $matches[1]; else $strt = 0;
-					if ( preg_match("/end=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1]; else $stp = 0;
-					if ( $settings['default']['playbutton'] ) $playimg = $settings['default']['playbutton'];
-					else  if ( file_exists("Images/playbutton.gif") ) $playimg = "Images/playbutton.gif";
-					else $playimg = "http://alfclul.clul.ul.pt/teitok/site/Images/playbutton.gif";
-					$audiobut = "<td><img src=\"$playimg\" width=\"14\" height=\"14\" style=\"margin-right: 5px;\" onClick=\"playpart('$audiofile', $strt, $stp, this );\"></img></td>"; 
-				};
 				
 				# Somehow, the XML fragment is too long sometimes, repaired that here for now
 				$resxml = preg_replace ( "/<$/", "", $resxml);
