@@ -671,7 +671,8 @@
 				<script language=Javascript src=\"$jsurl/tokedit.js\"></script>
 				<script language=Javascript>var tid = '$cid';</script>
 				<div id='mtxt' style='margin-bottom: 20px;'>$sentence</div>
-				<hr><p><i>{%Move your mouse over the leaves in the tree to get info from the corresponding word in the sentence.}</i></p>";
+				<hr>";
+			if ( $treestyle != "bracketstring" ) $maintext .= "<p><i>{%Move your mouse over the leaves in the tree to get info from the corresponding word in the sentence.}</i></p>";
 			if ( $username ) $maintext .= "<p class=adminpart><i>Click on a node below or a word above to edit its content - use <a href='index.php?action=$action&act=treeedit&cid=$cid&treeid=$treeid'>tree edit</a> to edit the layout</i></p>";
 			if ($forest) {
 				if ( $treestyle == "vertical" ) {	

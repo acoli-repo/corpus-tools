@@ -23,7 +23,9 @@
 		} else $menu .= "<div stle='margin-top: 0px; margin-bottom: 20px;'>$langstxt</div>";	
 	};
 
-	if ( $settings['menu']['title'] ) $menu .= "<p>{%{$settings['menu']['title']}}</p>";
+	if ( $settings['menu']['name'] ) $menu .= "<p style='title'>{%{$settings['menu']['name']}}</p>";
+
+	if ( $settings['menu']['title'] ) $menu .= "<p style='header'>{%{$settings['menu']['title']}}</p>";
 	else $menu .= "<p>{%Main Menu}</p>";
 	
     $menu .= "<ul style='text-align: left'>";

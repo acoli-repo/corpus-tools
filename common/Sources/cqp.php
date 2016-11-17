@@ -428,7 +428,7 @@
 					# Ignore year if there also is a date
 				} else if ( $key != "id" ) {
 					$moreatts .= ", match $xkey";
-					$moreth .= "<th span='row'>$val";
+					$moreth .= "<th>$val";
 				};
 				$acnt++;
 				$atttit[$acnt] = $val;

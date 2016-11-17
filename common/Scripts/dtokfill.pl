@@ -12,6 +12,7 @@ use Getopt::Long;
 $scriptname = $0;
 
  GetOptions ( ## Command line options
+            'help' => \$help, # help
             'debug' => \$debug, # debugging mode
             'verbose' => \$verbose, # verbose mode
             'pid=s' => \$pid, # choose a specific neotag parameter set (if there is more than one)
@@ -32,18 +33,37 @@ if ( !$folder ) {
 	$folder = "xmlfiles";
 };
 
+
 binmode ( STDOUT, ":utf8" );
 
 # Read the parameter set
-my $settings = XML::LibXML->load_xml(
-    location => "Resources/settings.xml",
-); if ( !$settings ) { print "Not able to parse settings.xml"; };
+if ( -e "Resources/settings.xml" ) {
+	my $settings = XML::LibXML->load_xml(
+		location => "Resources/settings.xml",
+	); if ( !$settings ) { print "Not able to parse settings.xml"; };
+};
+
+if ( $help ) {
+	print "Usage: perl dtokfill.pl [options] {folder}
+----
+Options:
+--help         help
+--debug        debugging mode
+--verbose      verbose mode
+--pid          choose a specific neotag parameter set (if there is more than one)
+--lang         choose a specific neotag parameter set based on lang ISO
+--lexiconfile  choose the lexiconfile by hand
+--folder       choose a folder to process
+--file         choose a file to process
+";
+exit;
+};
 
 if ( $pid ) { $pidr = "[\@pid=\"$pid\"]"; };
 
 if ( $lexiconfile ) {
 	if ( !-e $lexiconfile ) {
-		if ( -e "neotag/$lexiconfile" ) { $lexiconfile = "neotag/$lexiconfile"; };
+		if ( -e "neotag/$lexiconfile" ) { $lexiconfile = "neotag/$lexiconfile"; }
 		elsif ( -e "Resources/$lexiconfile" ) { $lexiconfile = "Resources/$lexiconfile"; };
 	};
 };
@@ -57,7 +77,7 @@ if ( $lexiconfile eq "" ) {
 	};
 };
 print "Using lexicon: $lexiconfile";
-# Read the parameter data for back processing
+# Read the parameter data for back processing	
 my $lexicon = XML::LibXML->load_xml(
     location => $lexiconfile,
 ); if ( !$lexicon ) { print "Not able to parse lexicon: $lexiconfile"; };
