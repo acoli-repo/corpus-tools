@@ -52,7 +52,79 @@
 		header("location:index.php?action=file&cid=$fileid");
 		
 		exit;
+	
+	
+	} else if ( $act == "cutoff" ) {
+	
+		# Cut off parts (of the beginning and end) of a sound file
+		$audiofile = $_GET['audio'];
+		$filename = preg_replace("/^Audio\//", "", $audiofile);
+
+		if ( !file_exists("Audio/$filename") ) fatal ("$audiofile does not exist or is not a local file");
+		
+		copy("Audio/$filename", "backups/$filename");
+		$start = $_POST['start']; $end = $_POST['end'];
+		$length = $end-$start;
+		if ( $length <= 0 ) fatal ("negative length");
+		$cmd = "sox backups/$filename Audio/$filename trim $start $length";
+		exec($cmd);
+
+		$maintext .= "<hr><p>The sound file has been trimmed (there is a backup of the old file); reloading";
+		header("location:index.php?action=file&cid=$fileid");
+		exit;
+	
+	} else if ( $act == "cut" ) {
+	
+		$audiofile = $_GET['audio'];
+		if ( !$audio ) $audiofile = current($xml->xpath("//media[1]/@url")).""; 
+
+		$filename = $audiofile;
+		if ( !strstr($filename, "/") ) $filename = "Audio/$filename";
+
+		if ( !file_exists($filename) ) fatal ("$audiofile does not exist or is not a local file");
+		
+		$maintext .= "<script language=Javascript src=\"$jsurl/audiocontrol.js\"></script>";
+		$maintext  .= "<h1>Crop Audio File</h1>
+		
+			<p>Below you can crop the audio file $audiofile in case there is sound at the beginning or
+			end of the file that should not be made available online.  Cutting off is done by sox, which
+			hence has to be installed on your server.
+			It is best to do this before any
+			alignment with the text since although the system will make an attempt to correct the time
+			indices if they exist, this process is not fully reliable.</p>
+			
+			<div><audio id=\"track\" src=\"$audiofile\" controls ontimeupdate=\"checkaudio();\" onload=\"document.audiofrm.end.value = 4\">
+					<source  src=\"$audiofile\">
+				</audio>
+			</div>
+			
+			<p><form id=audiofrm name=audiofrm action='index.php?action=$action&act=cutoff&cid=$fileid&audio=$audiofile' method=post>
+				<table>
+				<tr><td>Start index: <td><input name=start value='0' onChange='mins(this);'>
+				<tr><td>End index: <td><input name=end value='' onChange='mins(this);' onFocus=\"if (this.value=='') { this.value=audio.duration;}; \">
+				</table>
+			<script>
+				var audio = document.getElementById('track');
+				function mins ( e ) {
+					var time = e.value;
+					if ( time.indexOf(':') != -1 ) {
+						res = time.split(':');
+						time = 60*parseInt(res[0]) + parseInt(res[1]);
+						e.value = time;
+					};
+				};
+			</script>
+			<p><input type='Submit' value='Trim'></p>
+			</form>
+			
+			<p onClick=\"endtime = document.audiofrm.end.value; playpart('$audiofile', document.audiofrm.start.value, document.audiofrm.end.value, '')\">listen to cropped sound</p>
+			<p><a href='index.php?action=file&cid=$fileid'>cancel</a></p>
+				"; 
+
+			
+	
 	} else {
+	
 		# Determine the alignment level
 		if ( $_GET['tag'] ) $tagname = $_GET['tag'];
 		else {

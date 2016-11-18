@@ -585,7 +585,7 @@
 					$audiourl = $medianode['url'];
 					if ( !strstr($audiourl, 'http') ) {
 						if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
-						else $audiourl = "$baseurl/Audio/$audiourl"; 
+						else $audiourl = $baseurl."Audio/$audiourl"; 
 					}
 					if ( preg_match ( "/MSIE|Trident/i", $_SERVER['HTTP_USER_AGENT']) ) {	
 						// IE does not do sound - so just put up a warning
