@@ -61,11 +61,31 @@
 		$filename = preg_replace("/^Audio\//", "", $audiofile);
 
 		if ( !file_exists("Audio/$filename") ) fatal ("$audiofile does not exist or is not a local file");
-		
+
 		copy("Audio/$filename", "backups/$filename");
 		$start = $_POST['start']; $end = $_POST['end'];
 		$length = $end-$start;
 		if ( $length <= 0 ) fatal ("negative length");
+		
+
+		# TODO: Now adjust the @start and @end by $start in the XML
+		if ( $_POST['correct'] && $start != 0 )  { 
+			foreach ( $xml->xpath("//text//*[@start]") as $node ) {
+				$id = $node['id'];
+				$t1 = $node['start']."";
+				# if ( $t1 == "" ) { $t1 = $node['end']; };
+				$newt1 = max(0,$t1 - $start);
+				$node['start'] = $newt1;
+				$t2 = $node['end']."";
+				# if ( $t2 == "" ) { $t2 = $node['start']; };
+				$newt2 = max(0,$t2 - $end);
+				$node['end'] = $newt2;
+				
+				saveMyXML($xml->asXML(), $fileid);
+			};
+		};
+
+
 		$cmd = "sox backups/$filename Audio/$filename trim $start $length";
 		exec($cmd);
 
@@ -82,6 +102,9 @@
 		if ( !strstr($filename, "/") ) $filename = "Audio/$filename";
 
 		if ( !file_exists($filename) ) fatal ("$audiofile does not exist or is not a local file");
+		
+		$tmp = current($xml->xpath("//text//*[@start]"));
+		$first = $tmp['start'];
 		
 		$maintext .= "<script language=Javascript src=\"$jsurl/audiocontrol.js\"></script>";
 		$maintext  .= "<h1>Crop Audio File</h1>
@@ -100,11 +123,12 @@
 			
 			<p><form id=audiofrm name=audiofrm action='index.php?action=$action&act=cutoff&cid=$fileid&audio=$audiofile' method=post>
 				<table>
-				<tr><td>Start index: <td><input name=start value='0' onChange='mins(this);'>
+				<tr><td>Start index: <td><input name=start value='0' onChange='mins(this);'> - first aligned element: $first
 				<tr><td>End index: <td><input name=end value='' onChange='mins(this);' onFocus=\"if (this.value=='') { this.value=audio.duration;}; \">
 				</table>
 			<script>
 				var audio = document.getElementById('track');
+				var firstidx = parseInt('$first');
 				function mins ( e ) {
 					var time = e.value;
 					if ( time.indexOf(':') != -1 ) {
@@ -112,9 +136,17 @@
 						time = 60*parseInt(res[0]) + parseInt(res[1]);
 						e.value = time;
 					};
+					if ( time > firstidx ) {
+						alert('new start of sound fragment seems to be before the first aligned segment (' + firstidx + ') - consider revising; all starts before ' + time + ' will be rounded up to 0;');
+					};
 				};
-			</script>
-			<p><input type='Submit' value='Trim'></p>
+			</script>";
+			
+			if (  $xml->xpath("//text//*[@start]") ) {			
+				$maintext .= "<p><input type=checkbox name=correct checked> Modify aligned segments to (hopefully) match new audio file";	
+			};
+			
+			$maintext .= "<p><input type='Submit' value='Trim'></p>
 			</form>
 			
 			<p onClick=\"endtime = document.audiofrm.end.value; playpart('$audiofile', document.audiofrm.start.value, document.audiofrm.end.value, '')\">listen to cropped sound</p>
@@ -181,6 +213,9 @@
 		if ( !$result ) fatal ( "No existing nodes for tagname $tagname" );
 
 		$maintext .= "<p>Edit sound alignment at the level of: &lt;$tagname&gt;";
+	
+		$maintext .= "<p>Click <a href='index.php?action=$action&cid=$fileid&act=cut'>here</a> if you need to trim the sound file (best done before aligning)";
+		
 	
 		$maintext .= "
 			<form action='index.php?action=$action&act=save' method=post id=audioform name=audioform>
