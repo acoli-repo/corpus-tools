@@ -58,7 +58,7 @@
 	# Determine which language to use
 	$deflang = $settings['languages']['default'] or $deflang = "en";
 	if ( $_GET['lang'] ) $lang = $_GET['lang'];
-	else if ( preg_match ( "/\/(..)\/index\.php/", $_SERVER['REQUEST_URI'], $matches ) ) {
+	else if ( preg_match ( "/\/(...?)\/index\.php/", $_SERVER['REQUEST_URI'], $matches ) ) {
 		$lang = $matches[1];
 	} else if ( $_COOKIE['lang'] ) $lang = $_COOKIE['lang'];
 	else $lang = $deflang;

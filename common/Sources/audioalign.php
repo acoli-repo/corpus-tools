@@ -68,7 +68,7 @@
 		if ( $length <= 0 ) fatal ("negative length");
 		
 
-		# TODO: Now adjust the @start and @end by $start in the XML
+		# Now adjust the @start and @end by $start in the XML
 		if ( $_POST['correct'] && $start != 0 )  { 
 			foreach ( $xml->xpath("//text//*[@start]") as $node ) {
 				$id = $node['id'];
@@ -105,6 +105,9 @@
 		
 		$tmp = current($xml->xpath("//text//*[@start]"));
 		$first = $tmp['start'];
+		if ( $first ) {
+			$firsttxt = "- first aligned element: $first";
+		}:
 		
 		$maintext .= "<script language=Javascript src=\"$jsurl/audiocontrol.js\"></script>";
 		$maintext  .= "<h1>Crop Audio File</h1>
@@ -123,12 +126,12 @@
 			
 			<p><form id=audiofrm name=audiofrm action='index.php?action=$action&act=cutoff&cid=$fileid&audio=$audiofile' method=post>
 				<table>
-				<tr><td>Start index: <td><input name=start value='0' onChange='mins(this);'> - first aligned element: $first
+				<tr><td>Start index: <td><input name=start value='0' onChange='mins(this);'> $firsttxt
 				<tr><td>End index: <td><input name=end value='' onChange='mins(this);' onFocus=\"if (this.value=='') { this.value=audio.duration;}; \">
 				</table>
 			<script>
 				var audio = document.getElementById('track');
-				var firstidx = parseInt('$first');
+				var firstidx = parseFloat('$first');
 				function mins ( e ) {
 					var time = e.value;
 					if ( time.indexOf(':') != -1 ) {
