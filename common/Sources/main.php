@@ -152,6 +152,11 @@
 	$smarty->assign("header", $pagetitle);
 	$smarty->assign("menu", $menu);
 	$smarty->assign("maintext", $maintext);
+
+	// if more smarty variables were defined, load them
+	foreach ( $moresmarty as $key => $val ) {
+		$smarty->assign($key, $val);	
+	};
 	
 	// load the template
 	if ( !isset($template) ) {

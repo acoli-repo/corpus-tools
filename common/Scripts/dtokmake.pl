@@ -3,21 +3,41 @@
 
 use Getopt::Long;
 use XML::LibXML;
-$filename = shift;
 
  GetOptions ( ## Command line options
             'debug' => \$debug, # debugging mode
+            'pos=s' => \$pos, # the form used for detecting split tokens
+            'file' => \$filename, # the form used for detecting split tokens
             'forceform' => \$forceform, # whether or not to put probs in the XML
             );
 
 $\ = "\n"; $, = "\t";
 
+if ( $pos eq '' ) { $pos = "pos"; };
+
 binmode (STDOUT, ":utf8" );
+
+if ( !$filename ) {
+	$filename = shift;
+};
+
+if ( !$filename ) {
+	print "Usage: perl dtokmake.pl [options] file
+
+options:
+--debug		verbose mode
+--pos=xxx  	tag used for detecting splits
+--forceform 	when creating dtok without a form, add # + tokform as dtokform
+";
+	exit;
+};
 
 $parser = XML::LibXML->new();
 eval {
 	$xml = $parser->load_xml(location => $filename);
 };
+
+
 
 if ( !$xml ) {
 	print "Unable to parse $filename";
@@ -25,20 +45,20 @@ if ( !$xml ) {
 };
 
 # Remove CONTR from @pos
-foreach $ttnode ($xml->findnodes("//tok[\@pos='CONTR']")) {
-	$ttnode->removeAttribute("pos");
+foreach $ttnode ($xml->findnodes("//tok[\@$pos='CONTR']")) {
+	$ttnode->removeAttribute($pos);
 };
 
-foreach $ttnode ($xml->findnodes("//tok[contains(\@pos,'+')]")) {
+foreach $ttnode ($xml->findnodes("//tok[contains(\@$pos,'+')]")) {
 	
-	@parts = split ( "[+]", $ttnode->getAttribute("pos") );
+	@parts = split ( "[+]", $ttnode->getAttribute($pos) );
 	$num = scalar @parts;
 
 	$tokform = $ttnode->getAttribute("form") or $tokform = $ttnode->textContent;
 
 	$id = $ttnode->getAttribute("id");
 
-	print $id, $ttnode->getAttribute("pos"), $tokform;
+	print $id, $ttnode->getAttribute($pos), $tokform;
 
 	for ( $i=0; $i<$num; $i++ ) {
 		$newchild = XML::LibXML::Element->new( "dtok" );
@@ -74,15 +94,16 @@ foreach $ttnode ($xml->findnodes("//tok[contains(\@pos,'+')]")) {
 	print;
 };
 
-	open FILE, ">$filename" or die ("no such file: $filename");
+	open FILE, ">$filename" or die ("unable to write file: $filename");
 	# binmode ( FILE, ":utf8" );
 	print FILE $xml->toString;
 	close FILE;
 
 	$scriptname = $0;
-	( $renum = $scriptname ) =~ s/xmltokenize/xmlrenumber/;
+	( $renum = $scriptname ) =~ s/dtokmake/xmlrenumber/;
 
 	# Finally, run the renumber command over the same file
-	$cmd = "/usr/bin/perl $renum --filename=$filename";
-	`$cmd`;
-
+	if ( -e $renum ) {
+		$cmd = "/usr/bin/perl $renum --filename=$filename";
+		`$cmd`;
+	};
