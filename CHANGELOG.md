@@ -39,7 +39,7 @@ of the cqp folder
 * Improved used a text-direction in CQP results
 * Corrected some lingering uses of `word`
 * Improved use of regular expressions in multi-edit
-* Made te "TEITOK" statement in the menu less prominent
+* Made the "TEITOK" statement in the menu less prominent
 * Trash folder is now created when it does not exist
 * Removed the now redundant warning if the sum of dtok/@form does not match tok/@form
 * Splitting token by adding &lt;/tok&gt;&lt;tok&gt; now works correctly
@@ -50,7 +50,27 @@ of the cqp folder
 
 ### Improvements 
 
-* `word` is no longer used as a crucial attribute in the CQP corpus 
+* Instead of using the required `word` attribute in CQP as a renaming of `form`, `word` is now a largely redundant attribute, and `form` shows
+as such in CQP just like all other attributes leading to less confusion; it is also possible to indicate which form attribute is search by default
+when no form is explicitly indicated
+* In multiedit, you can now select to not change all search results in the same way, but rather to show an HTML table in which each result
+can be edited individually; it it even possible to use a regex transformation to pre-change all results in a systematic way  
+* Added a script dtokmake.pl that allows creating dtoks in an easier way: by putting multiple POS in the `@pos` tag separated by a +, 
+the corresponding dtoks are automatically created by this scripts; this allows creating dtoks in verticalized views and multiedit mode.
+* Removed the option to regenerate the script to create the CQP file, since it leads to undesired results when accidentally clicked
+* There is now a TEITOK interface to the csv2tei and tei2csv scripts, which allow you to create a CSV of a specific field in all XML file, change
+them in one go and save them back to their individual XML files; this allow you to work with metadata that are distributed over the XML files
+as if they were in an Excell table
+
+### Bug fixes
+
+* Corrected an error in rollover visualisation in XML files
+* Corrected an error that made some tokens not link to tokedit correctly	
+* Made tei2csv.pl more reliable
+* Added links to the PSDX trees from with the XML view
+* Made the visualisation of the output of scripts better
+* Made it impossible to edit (d)tokens without an ID - which used to look like it worked, but did not
+* Turned off the option to edit the pform in verticalised view, since it killed the XML inside
 
 ## [Version 1.0](https://gitlab.com/maartenes/TEITOK/tags/v1.0) (Jul 22, 2016) 
 
