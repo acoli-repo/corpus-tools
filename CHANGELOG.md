@@ -97,7 +97,31 @@ shown in various languages based on the selected languages (provided the tagset.
 
 ### Improvements 
 
+* Added bounding boxes, allowing to align parts of the transcription to part of a facsimile image
+* Added a global teitok.css that defines some default visualizations
+* It is now possible to use only a part of the facsimile image for a pb - mostly for 2-up images
+* dtoks are now shown on rollover in the file view
+* Added a configuration check to check whether the setup of TEITOK is correct (and safe) - both to myproject and to admin
+* Added a lineview mode that shows lines of the transription next to parts of the facsimile image (using the bboxes)
+* orgfile can now show the original of an XML file in multiple formats
+* XML files are now backed up when saving via ttxml
+* The neotag C++ module now deals with form inheritance (recompilation required)
 
+### Bug fixes
+
+* Completed parts of the adminsettings.xml
+* Added two scripts csv2tei.pl and tei2csv.pl that import and export from the various XML files into a CSV file allowing to easily modify all teiHeaders 
+of all the XML files
+* Parsing errors in xmlrenumber.pl are now displayed
+* Corrected a bug in the annotations module
+* Multiedit queries can now be set to run in the background, preventing timeouts for large files or huge numbers of files
+* Replaced split by explode, which is no longer supported in newer PHP versions
+* Made it possible to have the smarty class in various locations
+* Added comments to the PHP source
+* Language switch is no longer shown if there is only one interface language
+* Corrected an error when saving sentences
+* Updated the installation instructions for src
+* Corrected some errors in the skeleton myproject
 
 ## [Version 0.8](https://gitlab.com/maartenes/TEITOK/tags/v0.8) (Apr 29, 2016) 
 
