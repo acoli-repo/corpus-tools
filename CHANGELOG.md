@@ -1,27 +1,27 @@
 # Change Log
 
-[Version 1.3](https://gitlab.com/maartenes/TEITOK/tags/v1.3) (Nov 20, 2016)
+## [Version 1.3](https://gitlab.com/maartenes/TEITOK/tags/v1.3) (Nov 20, 2016)
 
-## Improvements 
+### Improvements 
 
 * It is now possible to clip sound files in time-aligned audio files, while keeping the alignment intact 
 
-[Version 1.2](https://gitlab.com/maartenes/TEITOK/tags/v1.2) (Nov 6, 2016) 
+## [Version 1.2](https://gitlab.com/maartenes/TEITOK/tags/v1.2) (Nov 6, 2016) 
 
-## Improvements 
+### Improvements 
 
-* It is now possible to add ~morph~ tags to the tokens in the XML files providing a morphological analysis; 
+* It is now possible to add `morph` tags to the tokens in the XML files providing a morphological analysis; 
 when present, this will allow viewing the text in an Interlinear Glossed Text (IGT) format 
 
-[Version 1.1](https://gitlab.com/maartenes/TEITOK/tags/v1.1) (Aug 31, 2016) 
+## [Version 1.1](https://gitlab.com/maartenes/TEITOK/tags/v1.1) (Aug 31, 2016) 
 
-## Improvements 
+### Improvements 
 
-* ~word~ is no longer used as a crucial attribute in the CQP corpus 
+* `word` is no longer used as a crucial attribute in the CQP corpus 
 
-[Version 1.0](https://gitlab.com/maartenes/TEITOK/tags/v1.0) (Jul 22, 2016) 
+## [Version 1.0](https://gitlab.com/maartenes/TEITOK/tags/v1.0) (Jul 22, 2016) 
 
-## Improvements 
+### Improvements 
 
 * Tokens in the CQP results are now clickable, allowing editing errors directly from the search results
 
