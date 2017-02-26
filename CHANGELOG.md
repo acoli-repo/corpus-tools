@@ -5,6 +5,14 @@
 ### Improvements 
 
 * It is now possible to clip sound files in time-aligned audio files, while keeping the alignment intact 
+* Improved dtokmake.pl - you can now indicate which tag is used to detect splits (by default `pos`)
+* It is now possible to define additional smarty variables to allow putting information in customized parts of the HTML
+
+### Bug fixes
+
+* Corrected an error that prevented the audio buttons in CQP results to work properly
+* Prevented the incorrect "there are no XML files yet" when there are only subfolders
+* Minor changes to CSS styling in the menu
 
 ## [Version 1.2](https://gitlab.com/maartenes/TEITOK/tags/v1.2) (Nov 6, 2016) 
 
