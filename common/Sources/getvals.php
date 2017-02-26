@@ -13,7 +13,7 @@
 		# Get the data from where they are said to be
 		print "Lexicon...";
 	} else if ( $settings['cqp'] ) {
-		include ("../common/Sources/cwcqp.php");
+		include ("$ttroot/common/Sources/cwcqp.php");
 		if ( $akey == "form" ) $akey = "word";
 		# If we don't know where to find a lexicon, ask CQP
 		$cqp = new CQP();

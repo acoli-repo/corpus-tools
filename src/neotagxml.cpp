@@ -1612,9 +1612,14 @@ int main (int argc, char * const argv[]) {
 	if ( tagsettings.attribute("debug") != NULL ) { debug = atoi(tagsettings.attribute("debug").value()); verbose = true; };
 	if ( tagsettings.attribute("test") != NULL ) { test = true; verbose = true; };
 	if ( tagsettings.attribute("verbose") != NULL ) { verbose = true; };
+
+	if ( tagsettings.attribute("version") != NULL ) { 
+		cout << "neotagxml version 1.0" << endl;
+		return -1; 
+	};
 	
 	if ( tagsettings.attribute("xmlfile") == NULL ) {
-        cout << "Usage: neotag --xmlfile=[fn] --params=[parameter folder]" << endl;
+        cout << "Usage: neotagxml --xmlfile=[fn] --params=[parameter folder]" << endl;
     	return -1;
 	};
 	

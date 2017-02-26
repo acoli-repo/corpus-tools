@@ -4,7 +4,7 @@
 	// shows image crops, or allows editing
 	// (c) Maarten Janssen, 2016
 	
-	require ("../common/Sources/ttxml.php");
+	require ("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML();
 	$fileid = $ttxml->fileid;
 

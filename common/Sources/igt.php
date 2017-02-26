@@ -3,7 +3,7 @@
 	# Basic support for IGT format, where morphemic data are stored in //tok/morph
 	# (c) Maarten Janssen, 2016
 
-	require ("../common/Sources/ttxml.php");
+	require ("$ttroot/common/Sources/ttxml.php");
 	
 	$ttxml = new TTXML();
 	$cid = $ttxml->fileid;

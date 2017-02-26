@@ -5,7 +5,7 @@
 	// Feature selections identical to tokedit.php
 	// (c) Maarten Janssen, 2015
 
-	include ("../common/Sources/cwcqp.php");
+	include ("$ttroot/common/Sources/cwcqp.php");
 	check_login();
 
 	$cql = $_GET['cql'] or $cql = $_POST['cql'] ;
@@ -113,7 +113,7 @@
 		file_put_contents("tmp/pid$pid.xml", $xml->asXML());
 
 		# Now start the process
-		$cmd = "perl ../common/Scripts/multichange.pl $pid > /dev/null &";
+		$cmd = "perl $ttroot/common/Scripts/multichange.pl $pid > /dev/null &";
 		exec($cmd);
 
 	} else if ( $_POST['selected'] ) {

@@ -31,6 +31,7 @@ string wordfld; // field to use for the "word" attribute
 string lemmafld;
 string filename;
 string corpusfolder;
+string registryfolder;
 
 
 int tokcnt = 0;
@@ -564,6 +565,11 @@ int main(int argc, char *argv[])
 	if ( cqpsettings.attribute("test") != NULL ) { test = true; verbose = true; };
 	if ( cqpsettings.attribute("verbose") != NULL ) { verbose = true; };
 
+	if ( cqpsettings.attribute("version") != NULL ) { 
+		cout << "tt-cwb-encode version 1.0" << endl;
+		return -1; 
+	};
+
 	// Output help information when so asked and quit
 	if ( cqpsettings.attribute("help") != NULL ) { 
 		cout << "Usage:  tt-cwb-encode [options]" << endl;
@@ -626,6 +632,9 @@ int main(int argc, char *argv[])
 	if ( cqpsettings.attribute("corpusfolder") != NULL ) { corpusfolder = cqpsettings.attribute("corpusfolder").value(); } 
 		else { corpusfolder = "cqp"; };
 
+	if ( cqpsettings.attribute("registryfolder") != NULL ) { registryfolder = cqpsettings.attribute("registryfolder").value(); } 
+		else { registryfolder = "/usr/local/share/cwb/registry/"; };
+
 	// Check whether the corpusfolder exists, or create it, or fail
 	// TODO: Using Boost seems redundant, since TEITOK is not very Windows in any case
 	if ( mkdir(corpusfolder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) ) {
@@ -668,7 +677,7 @@ int main(int argc, char *argv[])
 		corpuslong = xmlsettings.select_single_node("//title/@display").attribute().value();
 	};
 	corpusname = strtolower(corpusname);
-	string registryfile = "/usr/local/share/cwb/registry/" + corpusname;
+	string registryfile = registryfolder + corpusname;
 	if ( verbose ) { cout << "Writing registry data to: " << registryfile << endl; };
 	ofstream registry;
 	registry.open(registryfile.c_str());

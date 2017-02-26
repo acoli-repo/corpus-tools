@@ -54,7 +54,7 @@
 		$antxt = file_get_contents($filename);
 		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
 		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		require ("../common/Sources/ttxml.php");
+		require ("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML($fileid);
 
 		foreach ( $_POST['toks'] as $key => $val ) {
@@ -150,7 +150,7 @@
 
 	} else if ( $fileid && $act == "redit" ) {
 
-		require ("../common/Sources/ttxml.php");
+		require ("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML($fileid);
 		
 		$sid = $_GET['id'];
@@ -262,7 +262,7 @@
 		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
 		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 
-		require ("../common/Sources/ttxml.php");
+		require ("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
 
 		$maintext .= "<h1>{%{$andef['name']}}</h1>";

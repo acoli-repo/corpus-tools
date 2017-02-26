@@ -1,5 +1,20 @@
 <?php
 
+	function file_locate( $file ) {
+		if ( file_exists($file) ) return $file;
+		else {
+			# Use glob
+			$tmp = glob($file);
+			if ( $tmp ) return current($tmp);
+
+			# Use locate
+			$cmd = "ls -td \$(locate '$file')";
+			$tmp = explode("\n", shell_exec ( $cmd ));
+			if ( $tmp ) return current($tmp);
+		};
+		return false;
+	};
+
 	print "<div style='color: black;'>";
 	// Check whether Smarty exist
 
@@ -14,7 +29,8 @@
 		$smarty = '/usr/local/lib/smarty/libs/';
 	if ( !$smarty ) {
 		$smartypath = str_replace("Smarty.class.php", "", file_locate('Smarty.class.php'));
-		if ( $smartypath ) print "Smarty seems to be installed, but not in a location where TEITOK expects it. Please change the SMARTY_DIR definition in index.php to <b>$smartypath</b> and remove the slashes in front of the line.";
+		if ( $smartypath ) print "<p class=warn>Smarty seems to be installed, but not in a location where TEITOK expects it. 
+			Please change the SMARTY_DIR definition in index.php to <b>$smartypath</b> and remove the slashes in front of the line.";
 		print "<p class=wrong> Smarty engine not installed or not found, which is required by TEITOK.
 			Please install <a href='http://www.smarty.net/'>Smarty</a>.
 			 ";
@@ -34,11 +50,17 @@
 		print "<p class=right> CQP found, version: {$matches[1]}"; 
 	};
 
-	// Check whether main.php in common exists in the expected location
-	if ( !file_exists("../common/Sources/main.php") ) {
-		print "<p class=wrong> The common TEITOK files are missing or not in the folder directly above the project.
-			Please make sure that your project folder is next to the common folder of the TEITOK system.";
-		$critical = 1;
+	// Check whether TEITOK (main.php) in common exists in the expected location
+	if ( !file_exists("../common/Sources/tttags.php") || 1==1 ) {
+		$teitokpath = str_replace("/common/Sources/tttags.php", "", file_locate("common/Sources/tttags.php"));
+		if ( $teitokpath ) { 
+			print "<p class=warn>TEITOK seems to be installed, but not in a location where it can be found by default. 
+				Please change the \$ttroot definition in index.php to <b>$teitokpath</b>";
+		} else {
+			print "<p class=wrong> The common TEITOK files seem not to be installed or are not readable for Apache.
+				Please make the TEITOK common files available.";
+			$critical = 1;
+		};
 	} else {
 		print "<p class=right> Common TEITOK files found"; 
 	};
@@ -46,14 +68,30 @@
 	// Check whether relevant folders is writable
 	if ( !is_writable("Resources") ) {
 		print "<p class=wrong> The folder Resources/ should be writable for Apache or TEITOK will not be able to modify preferences";
-		$foldererror = 1;
+		$foldererrors = 1;
 	};
 	if ( !is_writable("Resources/userlist.xml") ) {
 		print "<p class=wrong> The userlist.xml should be writable for Apache or TEITOK will not be able to change users";
-		$foldererror = 1;
+		$foldererrors = 1;
 	};
 	if ( !$foldererrors ) {
 		print "<p class=right> All crucial files/folders are writable"; 
+	};
+	
+	// Check whether C++ modules are installed
+	$sep = "";
+	$cpps = array ('tt-cwb-encode', 'tt-cwb-xidx');
+	foreach ( $cpps as $cpp ) {
+		$cmd = "which $cpp";
+		if ( file_exists("/usr/local/bin/$cpp") ) {
+		} else {
+			$cpperrors .= $sep."$cpp.cpp"; $sep = ", ";
+		};
+	};
+	if ( !$cpperrors ) {
+		print "<p class=right> C++ modules compiled.";
+	} else {
+		print "<p class=warn> The following c++ programs were not found, they are recommended for use with CQP : $cpperrors .";
 	};
 	
 	// Check whether XML::LibXML is installed

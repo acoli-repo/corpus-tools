@@ -73,7 +73,7 @@
 		};
 
 		
-		require ( "../common/Sources/cwcqp.php" );
+		require ( "$ttroot/common/Sources/cwcqp.php" );
 		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
@@ -110,7 +110,7 @@
 
 		# Show the document selector when needed
 		if ( $cid ) {
-			require ("../common/Sources/ttxml.php");
+			require ("$ttroot/common/Sources/ttxml.php");
 			$ttxml = new TTXML($cid, false);
 			$maintext .= "<hr><h2>".$ttxml->title()."</h2>"; 
 			$maintext .= $ttxml->tableheader(); 
@@ -119,7 +119,7 @@
 			$maintext .= "<input type=hidden name=cid value=\"$cid\">";
 
 		} else {
-			require ( "../common/Sources/cwcqp.php" );
+			require ( "$ttroot/common/Sources/cwcqp.php" );
 			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 			$cqp = new CQP();
 			$cqp->exec($cqpcorpus); // Select the corpus
@@ -184,7 +184,7 @@
 			};
 			if ( $coldef['type'] == "mainpos" ) {
 				if ( !$tagset ) {
-					require ( "../common/Sources/tttags.php" );
+					require ( "$ttroot/common/Sources/tttags.php" );
 					$tagset = new TTTAGS("", false);
 				}; $optlist = "";
 				foreach ( $tagset->taglist() as $letters => $name ) {

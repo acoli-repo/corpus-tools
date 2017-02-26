@@ -2,7 +2,7 @@
 	// Script to list the <pb/> elements in an XML file - or <milestone/>
 	// (c) Maarten Janssen, 2015
 		
-	require ("../common/Sources/ttxml.php");
+	require ("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML();
 	$maintext .= "<h1>".$ttxml->title()."</h1>"; 
 	$maintext .= $ttxml->tableheader(); 

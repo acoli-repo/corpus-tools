@@ -305,7 +305,8 @@
 		if ( $settings['xmlfile']['linebreaks'] ) { $lbcmd = " --linebreaks "; };
 
 		# Build the UNIX command
-		$cmd = "/usr/bin/perl {$thisdir}/../common/Scripts/xmltokenize.pl --mtxtelm=$mtxtelm --filename='xmlfiles/$fileid' $lbcmd ";
+		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot"; };
+		$cmd = "/usr/bin/perl $scrrt/common/Scripts/xmltokenize.pl --mtxtelm=$mtxtelm --filename='xmlfiles/$fileid' $lbcmd ";
 		# print $cmd; exit;
 		$res = shell_exec($cmd);
 		for ( $i=0; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...

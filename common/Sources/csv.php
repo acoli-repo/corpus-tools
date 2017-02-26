@@ -18,7 +18,7 @@ if ( $act == "export" && $_POST['queries']  ) {
 	if ( $_POST['type'] ) $type = "_".$_POST['type'];
 
 	$filename = "export_{$date}$type.csv";
-	$cmd = "perl ../common/Scripts/tei2csv.pl --xmlfolder='{$_POST['xmlfolder']}' --restrfld='{$_POST['restrfld']}' --restrval='{$_POST['restrval']}' --queries='{$_POST['queries']}' --header --info --csvfile='tmp/$filename' > /dev/null 2>/dev/null &";
+	$cmd = "perl $ttroot/common/Scripts/tei2csv.pl --xmlfolder='{$_POST['xmlfolder']}' --restrfld='{$_POST['restrfld']}' --restrval='{$_POST['restrval']}' --queries='{$_POST['queries']}' --header --info --csvfile='tmp/$filename' > /dev/null 2>/dev/null &";
 	exec($cmd);
 	
 	$maintext .= "<p>You export is currently being created. Depending on the number of XML files in the folder you selected, 
@@ -231,7 +231,7 @@ if ( $act == "export" && $_POST['queries']  ) {
 	// import a modified CSV file
 	
 	$filename = $_GET['file'];
-	$cmd = "perl ../common/Scripts/csv2tei.pl --csvfile='$filename' --debug";
+	$cmd = "perl $ttroot/common/Scripts/csv2tei.pl --csvfile='$filename' --debug";
 	$maintext .= "<p>The changes in $filename are being applied to the corresponding XML files - transcript is below<hr>";
 
 	$maintext .= "<pre>".shell_exec($cmd)."</pre>

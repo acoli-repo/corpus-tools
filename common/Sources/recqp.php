@@ -2,6 +2,7 @@
 	check_login();
 			
 	$maintext .= "<h1>Regenerating the CQP Corpus</h1>";
+	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
 
 	if ( file_exists("tmp/recqp.log") ) {
 		$modtime = filemtime("tmp/recqp.log");
@@ -10,9 +11,11 @@
 	};
 
 	# Check whether registry file matches our corpus
-	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "/usr/local/share/cwb/registry/";
+	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "$thisdir/cqp";
+	
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$registryfile = $registryfolder.strtolower($cqpcorpus);
+	
 	if ( file_exists($registryfile) ) {
 		$registry = file_get_contents($registryfile);
 		if ( preg_match( "/HOME\s+(.*)/", $registry, $matches ) ) { $cqphome = $matches[1]; };
@@ -87,11 +90,17 @@
 	
 	} else {
 	
+		# Check whether recqp.pl is writable
+		if ( 
+			( !file_exists("Scripts/recqp.pl") && !is_writable("Scripts/") )
+			||
+			( file_exists("Scripts/recqp.pl") && !is_writable("Scripts/recqp.pl") )
+		) { fatal("Permission denied while trying to (re)generate recqp.pl - please contact admin"); };
+	
 		$maintext .= "<p>The generation script is currently being created (again).";
 	
 		# Create the script to regenerate the corpus and reload
 	
-		$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
 		ob_end_flush();
 		$cqpcorpus = $settings['cqp']['corpus'];
 		$cqpfolder = $settings['cqp']['searchfolder'];
@@ -129,16 +138,17 @@
 			# For simplicity, we do htmldecoding externally in Perl
 			$maintext .= "<p>Using tt-cwb-encode";
 			$exec = $settings['bin']['tt-cwb-encode'] or $exec = "/usr/local/bin/tt-cwb-encode";
-			$cmd = "$exec";
+			$cmd = "$exec -r $registryfolder/";
 			$script .= "\n\nprint FILE '----------------------';";
 			$script .= "\nprint FILE '(1) Encoding the corpus';";
 			$script .= "\nprint FILE 'command:\n$cmd';";
 			$script .= "\n`$cmd`;";
 		} else {
+			if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot/common"; };
 			if ( $settings['cqp']['verticalize']['type'] != "xslt" && file_exists("Resources/verticalize.xslt") ) {
 				# This should become a perl script or something - for which nothing is needed
 				$maintext .= "<p>Using verticalize";
-				$cmd = "../bin/verticalize | perl $thisdir/../common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
+				$cmd = "$ttroot/bin/verticalize | perl $scrt/common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
 			} else {
 				$maintext .= "<p>Using XSLT";
 				$xsltfile = $settings['cqp']['verticalize']['cmd'] or $xsltfile = "$thisdir/Resources/verticalize.xslt";
@@ -156,7 +166,7 @@
 				};
 		
 				# We need to dedoce entities for in case there are any
-				$cmd = "$pxslt --novalid $xsltfile $folderlist | perl $thisdir/../common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
+				$cmd = "$pxslt --novalid $xsltfile $folderlist | perl $scrt/common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
 			};
 		
 			$script .= "\n\nprint FILE '----------------------';";
@@ -174,7 +184,7 @@
 					if ( substr($key,0,4) != "fld-" && $key != "key" && $key != "level" && $key != "display" ) $pattlist .= "+$key"; 
 				};
 			};
-			$cmd = "$pxenc -d $thisdir/cqp -c utf8 -f $thisdir/cqp/corpus.vrt -R /usr/local/share/cwb/registry/".strtolower($cqpcorpus)." -P id $poscols $pattlist";
+			$cmd = "$pxenc -d $thisdir/cqp -c utf8 -f $thisdir/cqp/corpus.vrt -R $registryfolder".strtolower($cqpcorpus)." -P id $poscols $pattlist";
 
 			$script .= "\n\nprint FILE '----------------------';";
 			$script .= "\nprint FILE '(2) Encoding the corpus';";
@@ -185,7 +195,7 @@
 			
 		# Create the actual CQP corpus
 		$cmd = "export PATH=$PATH:/usr/local/bin; /usr/bin/which cwb-makeall "; $pxmal = chop(shell_exec($cmd)); if ( !$pxmal) { print "<p>Error: cwb-makeall not found"; exit; };
-		$cmd = "$pxmal  -r /usr/local/share/cwb/registry $cqpcorpus";
+		$cmd = "$pxmal  -r $registryfolder $cqpcorpus";
 
 		$script .= "\n\nprint FILE '----------------------';";
 		$script .= "\nprint FILE '(3) Creating the corpus';";

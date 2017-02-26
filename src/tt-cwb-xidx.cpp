@@ -332,6 +332,11 @@ int main (int argc, char *argv[]) {
 		} else { avls[x] = argm; x++; };	
 	};
 	
+	if ( clarg.find("version") != clarg.end() ) { 
+		cout << "tt-cwb-xidx version 1.0" << endl;
+		return -1; 
+	};
+	
 	if ( clarg.find("cqp") != clarg.end() ) { cqpfolder = clarg["cqp"];  } else { cqpfolder = "cqp"; };
 	if ( clarg.find("filename") != clarg.end() ) { xmlfile = clarg["filename"];  };
 	string patt = ""; if ( clarg.find("P") != clarg.end() ) { patt = clarg["P"];  };

@@ -123,7 +123,7 @@
 			<p><input type=submit value=Search>";
 
 		if ( $xpath && !$test ) {
-			require_once ("../common/Sources/cwcqp.php"); 
+			require_once ("$ttroot/common/Sources/cwcqp.php"); 
 			$maintext .= "</form>";
 			$sep = "";
 			## Check if there is a CQP query to run first
@@ -641,7 +641,7 @@
 			};
 		};
 
-		require ("../common/Sources/ttxml.php");
+		require ("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML($cid, false);
 		$maintext .= "<h2>".$ttxml->title()."</h2>"; 
 		$maintext .= $ttxml->tableheader(); 
@@ -968,7 +968,7 @@
 		$txtid = $forestxml['File'];
 		$sentid = $forestxml['sentid'];
 		if ( $txtlast != $txtid ) {	
-			require_once ("../common/Sources/ttxml.php");
+			require_once ("$ttroot/common/Sources/ttxml.php");
 			$ttxml = new TTXML($txtid, false);
 			$txtxml = $ttxml->xml;
 			$txtlast = $txtid;

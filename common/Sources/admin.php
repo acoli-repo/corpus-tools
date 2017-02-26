@@ -35,7 +35,7 @@
 		if ( !$foldererrors ) $maintext .= "<p class=right> All folders TEITOK needs to write to are writable";
 
 		// Check project folder permissions of common 
-		if ( is_writable("../common") ) {
+		if ( is_writable("$ttroot/common") ) {
 			$maintext .= "<p class=warn> The common folder of TEITOK had best not be writable";
 		};
 		
@@ -128,8 +128,8 @@
 			<p>For help on admin functions see the <a href='http://teitok.corpuswiki.org/site/index.php?action=help'>Help</a> section online.
 			";
 	
-		if ( file_exists("../common/Resources/version.xml") ) {
-			$tmp = simplexml_load_file("../common/Resources/version.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
+		if ( file_exists("$ttroot/common/Resources/version.xml") ) {
+			$tmp = simplexml_load_file("$ttroot/common/Resources/version.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
 			$version = $tmp[0];
 			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
 		};

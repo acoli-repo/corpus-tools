@@ -38,7 +38,7 @@
 
 		$maintext .= "<h1>teiHeader Template Creator</h1>";
 
-		$headerxml = simplexml_load_file("../common/Resources/teiHeader.xml");
+		$headerxml = simplexml_load_file("$ttroot/common/Resources/teiHeader.xml");
 
 		$filename = $deffiles[$_POST['tpl']];
 		
@@ -49,7 +49,7 @@
 		$newrows = 10;
 		
 		if ( $_POST['xml'] == "xmlfiles" && $_POST['localfile'] ) {
-			require ("../common/Sources/ttxml.php");
+			require ("$ttroot/common/Sources/ttxml.php");
 			$ttxml = new TTXML($_POST['localfile'], false);
 			$examplexml = $ttxml->xml;
 			$filesave = "<input type=hidden name='examplexml' value='".$ttxml->fileid."'>";

@@ -508,6 +508,11 @@ int main(int argc, char *argv[])
 	if ( tagsettings.attribute("test") != NULL ) { test = true; verbose = true; };
 	if ( tagsettings.attribute("verbose") != NULL ) { verbose = true; };
 
+	if ( tagsettings.attribute("version") != NULL ) { 
+		cout << "neotagtrain version 1.0" << endl;
+		return -1; 
+	};
+
 	if ( tagsettings.attribute("contextlength") != NULL ) { contextlength = atoi(tagsettings.attribute("contextlength").value()); } else contextlength = 1;
 	if ( tagsettings.attribute("endlen") != NULL ) { endlen = atoi(tagsettings.attribute("endlen").value()); };
 	

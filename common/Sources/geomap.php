@@ -17,7 +17,7 @@ $apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B
 
 if ( $act == "xml" ) {
 
-	require ("../common/Sources/ttxml.php");
+	require ("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML($cid, false);
 	$fileid = $ttxml->fileid;
 	
@@ -69,7 +69,7 @@ if ( $act == "xml" ) {
 		fatal ( "Geodistribution is only available with a <i>$geofld</i> attribute on &lt;text&gt; in CQP." );
 	};
 
-	include ("../common/Sources/cwcqp.php");
+	include ("$ttroot/common/Sources/cwcqp.php");
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
   
 	$cqp = new CQP();
@@ -114,7 +114,7 @@ if ( $act == "xml" ) {
 		fatal ( "Geodistribution is only available with a <i>$geofld</i> attribute on &lt;text&gt; in CQP." );
 	};
 	
-	include ("../common/Sources/cwcqp.php");
+	include ("$ttroot/common/Sources/cwcqp.php");
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
   
 	$cqp = new CQP();

@@ -82,7 +82,7 @@
 				$content = file_get_contents("Resources/$id");
 			} else {
 				$warning .= "<p>This file does not yet exist, using a default version of the file...";
-				$content = file_get_contents("../common/Resources/$id"); # Read the dummy variant of this file (if any)
+				$content = file_get_contents("$ttroot/common/Resources/$id"); # Read the dummy variant of this file (if any)
 			};
 			$maintext .= "<h1>Edit Resource file</h1>
 			<h2>Filename: $id</h2>$warning";

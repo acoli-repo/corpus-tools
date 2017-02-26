@@ -62,7 +62,7 @@
 			
 			$content = getlangfile($ffid, true, $fflang);
 			if ( $getlangfile_lastfile == "" ) $newfile = " - file to be created";
-			else if ( substr($getlangfile_lastfile,0,10) == "../common/" ) $newfile = " - file to be created from the default ".substr($getlangfile_lastfile,16);
+			else if ( substr($getlangfile_lastfile,0,10) == "$ttroot/common/" ) $newfile = " - file to be created from the default ".substr($getlangfile_lastfile,16);
 			else if ( $getlangfile_lastfile != "Pages/$id.html" ) $newfile = " - file to be created from $getlangfile_lastfile - ";
 
 			if ( file_exists("Pages/$id.html") && !is_writable("Pages/$id.html") ) {

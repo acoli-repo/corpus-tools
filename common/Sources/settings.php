@@ -9,7 +9,7 @@
 		$settingsxml = simplexml_load_string($file);
 	
 		if ( !$settingsxml ) {
-			$file = file_get_contents("../common/Resources/settings.xml");
+			$file = file_get_contents("$ttroot/common/Resources/settings.xml");
 			$settingsxml = simplexml_load_string($file);
 		}; 
 		

@@ -4,7 +4,7 @@
 
 	check_login();
 
-	$setdef = simplexml_load_file("../common/Resources/adminsettings.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+	$setdef = simplexml_load_file("$ttroot/common/Resources/adminsettings.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$setdef ) { fatal("Failed to load adminsettings.xml");};
 
 	$section = $_GET['section'];

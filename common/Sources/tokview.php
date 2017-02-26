@@ -6,7 +6,7 @@
 	$maintext .= "<h1>{%Token Details}</h1>";
 	
 	# Read the XML file
-	require ("../common/Sources/ttxml.php");
+	require ("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML($cid, false);
 	$maintext .= "<h2>".$ttxml->title()."</h2>"; 
 	$maintext .= $ttxml->tableheader(); 
@@ -40,7 +40,7 @@
 	$maintext .= "</table>";
 	
 	# Read the tagset
-	require ( "../common/Sources/tttags.php" );
+	require ( "$ttroot/common/Sources/tttags.php" );
 	$tttags = new TTTAGS("", false);
 	$tagset = $tttags->tagset['positions'];
 	# Display the tagset analysis
@@ -74,7 +74,7 @@
 			if ( file_exists("Resources/$cssfile") ) {
 				$maintext .= "\n<style type=\"text/css\"> @import url(\"Resources/$cssfile\"); </style>\n";
 			} else {
-				$css = file_get_contents("../common/Resources/dict.css");
+				$css = file_get_contents("$ttroot/common/Resources/dict.css");
 				$maintext .= "\n<style>\n$css\n</style>\n";
 			};
 

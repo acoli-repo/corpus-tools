@@ -9,9 +9,9 @@
 		fatal ( "Search is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
 	};
 
-	include ("../common/Sources/cwcqp.php");
+	include ("$ttroot/common/Sources/cwcqp.php");
 
-	$registryfolder = "/usr/local/share/cwb/registry/";
+	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$cqpfolder = $settings['cqp']['searchfolder'];
@@ -687,7 +687,9 @@
 								$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
 						};
 					};
-					sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+					
+					sort( $optarr, SORT_STRING | SORT_NATURAL | SORT_FLAG_CASE ); # Used to be SORT_LOCALE_STRING
+					$optlist = join ( "", $optarr );
 
 					$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
 
@@ -808,7 +810,8 @@
 						};
 						
 						if ( $item['sort'] == "numeric" ) sort( $optarr, SORT_NUMERIC ); 
-						else sort( $optarr, SORT_LOCALE_STRING ); 
+						else sort( $optarr, SORT_STRING | SORT_NATURAL | SORT_FLAG_CASE ); # Used to be SORT_LOCALE_STRING
+						
 						$optlist = join ( "", $optarr );
 						
 						$maintext .= "<tr><th>{%$val}<td><select name=atts[$xkey]><option value=''>{%[select]}</option>$optlist</select>";

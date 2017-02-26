@@ -15,7 +15,8 @@
 <p>Welcome to your new TEITOK project. 
 Below is a checklist to make sure the basic requirements for running TEITOK are in place; 
 there are additional checks later that can be run from within TEITOK. 
-If no checklist shows up at all then the PHP on the server is not working, or not set to execute PHP files. 
+If no checklist shows up at all then the PHP on the server is not working, or 
+the project folder is not set to execute PHP files.
 <hr>
 
 <div style='color: white;'>

@@ -158,7 +158,7 @@
 		if ( file_exists("Resources/$cssfile") ) {
 			$maintext .= "\n<style type=\"text/css\"> @import url(\"Resources/$cssfile\"); </style>\n";
 		} else {
-			$css = file_get_contents("../common/Resources/dict.css");
+			$css = file_get_contents("$ttroot/common/Resources/dict.css");
 			$maintext .= "\n<style>\n$css\n</style>\n";
 		};
 		
@@ -311,7 +311,7 @@
 				
 					$tmp = $xpath->query($posxpath, $entry); if ($tmp) $arp = $tmp->item(0)->textContent;
 				
-					include ("../common/Sources/cwcqp.php");
+					include ("$ttroot/common/Sources/cwcqp.php");
 					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
   
 					$cqp = new CQP();

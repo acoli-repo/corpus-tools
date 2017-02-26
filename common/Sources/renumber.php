@@ -75,7 +75,8 @@
 	} else if ( $cardid )  {
 
 		# Build the UNIX command
-		$cmd = "/usr/bin/perl {$thisdir}/../common/Scripts/xmlrenumber.pl --filename='xmlfiles/$fileid' ";
+		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot"; };
+		$cmd = "/usr/bin/perl $scrt/common/Scripts/xmlrenumber.pl --filename='xmlfiles/$fileid' ";
 		# print $cmd; exit;
 		$res = shell_exec($cmd);
 		for ( $i=0; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...

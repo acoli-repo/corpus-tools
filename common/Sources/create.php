@@ -23,7 +23,7 @@
 
 		# Use the empty XML template from the common folder if there is no local template
 		if ( !file_exists("$xmltemplate") ) {
-			$xmltemplate = "../common/Resources/xmltemplate.xml";
+			$xmltemplate = "$ttroot/common/Resources/xmltemplate.xml";
 			$xmltitle = "Create new empty XML file";
 		};
 	} else {

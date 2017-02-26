@@ -6,8 +6,10 @@
 	# Lower error reporting
 	error_reporting(E_ERROR | E_PARSE);
 
+	if ( $ttroot == "" ) $ttroot = "..";
+
 	header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page!
-	include ( "../common/Sources/functions.php" ); # Global functions
+	include ( "$ttroot/common/Sources/functions.php" ); # Global functions
 
 	// Determine the location of the Smarty scripts
 	if ( !defined(SMARTY_DIR) ) {
@@ -47,7 +49,7 @@
 	}
 
 	// Load the settings.xml file (via PHP)
-	include('../common/Sources/settings.php');
+	include("$ttroot/common/Sources/settings.php");
 	
 	# Determine the folder to set a folder-specific user cookie
 	if ( preg_match("/\/teitok\/(.*?)\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
@@ -110,7 +112,7 @@
 	
 	$xmlfolder = "xmlfiles";
 	$imagefolder = "Facsimile";
-	include('../common/Sources/menu.php');
+	include("$ttroot/common/Sources/menu.php");
 			
 	## Determine which action to perform
 	if ( file_exists( "Pages/$action-$lang.html" ) ) {
@@ -125,12 +127,12 @@
 	} else if ( file_exists( "Sources/$action.php" ) ) {
 		# Local script
 		include ( "Sources/$action.php" );
-	} else if ( file_exists( "../common/Pages/$action.html" ) ) {
+	} else if ( file_exists( "$ttroot/common/Pages/$action.html" ) ) {
 		# Common page
-		$maintext = file_get_contents ( "../common/Pages/$action.html" );
-	} else if ( file_exists( "../common/Sources/$action.php" ) ) {
+		$maintext = file_get_contents ( "$ttroot/common/Pages/$action.html" );
+	} else if ( file_exists( "$ttroot/common/Sources/$action.php" ) ) {
 		# Common script
-		include ( "../common/Sources/$action.php" );
+		include ( "$ttroot/common/Sources/$action.php" );
 	} else {
 		# Nothing appropriate
 		$maintext = getlangfile ( "notfound", true );

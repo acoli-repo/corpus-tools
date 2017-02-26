@@ -15,7 +15,8 @@
 	// Get a specific token from an XML file
 	function grab_token ( $fileid, $tid ) {
 		// First, get the XML token
-		$cmd = "xsltproc --novalid --stringparam id '$tid' ../common/Scripts/tok.xslt xmlfiles/merged/*/$fileid.xml";
+		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot/common"; };
+		$cmd = "xsltproc --novalid --stringparam id '$tid' $scrt/common/Scripts/tok.xslt xmlfiles/merged/*/$fileid.xml";
 		$toktxt = shell_exec($cmd);
 		
 		// Now, parse this xml
@@ -167,8 +168,8 @@
 		if ( strpos("{%", $text) == -1 ) return $text; # If there is nothing to translate - return to save time
 		
 		if ( !$i18n ) { # Read the translation defs - but do so only once
-			if ( file_exists("../common/Sources/i18n/i18n_$lang.php") ) {
-				include("../common/Sources/i18n/i18n_$lang.php");
+			if ( file_exists("$ttroot/common/Sources/i18n/i18n_$lang.php") ) {
+				include("$ttroot/common/Sources/i18n/i18n_$lang.php");
 			}
 
 			# Now read the local defs - which can override all global settings
@@ -220,11 +221,11 @@
 		} else if ( file_exists("Pages/{$ffid}-$deflang.html") ) {
 			$getlangfile_lastfile = "Pages/{$ffid}-$deflang.html";
 			return file_get_contents($getlangfile_lastfile);
-		} else if ( $common && file_exists("../common/Pages/{$ffid}-$flang.html") ) {
-			$getlangfile_lastfile = "../common/Pages/{$ffid}-$fflang.html";
+		} else if ( $common && file_exists("$ttroot/common/Pages/{$ffid}-$flang.html") ) {
+			$getlangfile_lastfile = "$ttroot/common/Pages/{$ffid}-$fflang.html";
 			return file_get_contents($getlangfile_lastfile);
-		} else if ( $common && file_exists("../common/Pages/{$ffid}.html") ) {
-			$getlangfile_lastfile = "../common/Pages/{$ffid}.html";
+		} else if ( $common && file_exists("$ttroot/common/Pages/{$ffid}.html") ) {
+			$getlangfile_lastfile = "$ttroot/common/Pages/{$ffid}.html";
 			return file_get_contents($getlangfile_lastfile);
 		};
 		return "";	

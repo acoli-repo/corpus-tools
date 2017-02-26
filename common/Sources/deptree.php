@@ -5,7 +5,7 @@
 	
 	$maintext .= "<h1>Dependency Tree</h1>"; 
 
-	require ("../common/Sources/ttxml.php");
+	require ("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML($cid, true);
 	
 	$maintext .= "<h2>".$ttxml->title()."</h2>"; 

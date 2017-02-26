@@ -14,7 +14,7 @@
 	};	
 	
 	# Load the tagset as well
-	require ( "../common/Sources/tttags.php" );
+	require ( "$ttroot/common/Sources/tttags.php" );
 	$tagset = new TTTAGS("", false);
 	$settings['tagset'] = $tagset->tagset;
 	

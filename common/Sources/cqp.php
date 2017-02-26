@@ -10,7 +10,7 @@
 		fatal ( "Search is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
 	};
 
-	include ("../common/Sources/cwcqp.php");
+	include ("$ttroot/common/Sources/cwcqp.php");
 
 	$outfolder = $settings['cqp']['folder'] or $outfolder = "cqp";
 
@@ -25,7 +25,7 @@
 	# Determine which form to search on by default 
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 
-	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "/usr/local/share/cwb/registry/";
+	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
 
 	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 
@@ -837,7 +837,7 @@
 			};
 			if ( $coldef['type'] == "mainpos" ) {
 				if ( !$tagset ) {
-					require ( "../common/Sources/tttags.php" );
+					require ( "$ttroot/common/Sources/tttags.php" );
 					$tagset = new TTTAGS("", false);
 				}; $optlist = "";
 				foreach ( $tagset->taglist() as $letters => $name ) {

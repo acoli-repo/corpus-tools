@@ -26,13 +26,18 @@
 	
 	# Determine the raw filename
 	if ( $_GET['cid'] ) {
-		require_once ("../common/Sources/ttxml.php");
+		require_once ("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML($_GET['cid'], true);
 		$ttheader .= "<h2>".$ttxml->title()."</h2>"; 
 		$ttheader .= $ttxml->tableheader(); 
-		$filename = current($ttxml->xml->xpath("//note[@n=\"orgfile\"]"))."";
+		$orgnode = current($ttxml->xml->xpath("//note[@n=\"orgfile\"]"));
+		$filename = $orgnode."";
+		
+		if ( !file_exists($filename) ) $filename = "Originals/$filename";
 	} else {
 		$filename = $_GET['id'];
+		
+		if ( !file_exists($filename) ) $filename = str_replace(".xml", ".txt");
 	};
 
 
@@ -59,7 +64,10 @@
 	} else if ( file_exists($filename) ) {
 	
 		$tmp = file_get_contents($filename);
-		$rawtxt = "<pre>".htmlentities($tmp)."</pre>";
+
+		$enc = $orgnode['encoding'] or $enc = "UTF-8";
+		$tmp = htmlentities($tmp, ENT_QUOTES, $enc);
+		$rawtxt = "<pre>$tmp</pre>";
 
 	} else if ( file_exists($filename.".Z") ) {
 		# compressed file
