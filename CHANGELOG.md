@@ -77,7 +77,21 @@ as if they were in an Excell table
 ### Improvements 
 
 * Tokens in the CQP results are now clickable, allowing editing errors directly from the search results
+* Dependency relation can now be visualised
+* With a position-based tagset, the tags can now be shown in long-form, showing the analysis instead of the tag; and the analysis can be 
+shown in various languages based on the selected languages (provided the tagset.xml contains the translations)
+* You can now create mtoks from within the interface (by selecting the last token of the mtok and create one to the left)
+* Made the selection of the parameters from within neotag work better
+* The index can now not only show chapters, but milestones of any type
+* sentedit can now be used to edit other types of entities as well (such as verse lines)
+* Added the option to check whether all tags used in the corpus are valid according to the tagset
+* mtoks now also show on rollover
+* Added the option to use an external lexicon in neotagxml (requires recompilation of neotagxml.cpp)
 
+### Bug fixes
+
+* Corrected various errors that did not make mtoks show correctly everywhere
+* Corrected an error that made the first facsimile image not show when showing a chapter
 
 ## [Version 0.9](https://gitlab.com/maartenes/TEITOK/tags/v0.9) (Jun 6, 2016) 
 
