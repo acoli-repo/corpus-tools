@@ -43,7 +43,7 @@
 			$oldname = $matches[2]; 
 		} else $oldname = $id;
 		
-		if ( file_exists("xmlfiles/$path") && substr($path,-4) == ".xml" ) { fatal("File already exists"); };
+		if ( file_exists("xmlfiles/$path") && substr($path,-4) == ".xml" && $where != "[Trash]" ) { fatal("File already exists"); };
 		
 		if ( preg_match("/^\[Trash\]\/([^\/]+\.xml)$/", $path, $matches )  ) {
 			$path = $matches[1];

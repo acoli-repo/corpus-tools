@@ -15,6 +15,7 @@ $scriptname = $0;
             'help' => \$help, # help
             'debug' => \$debug, # debugging mode
             'verbose' => \$verbose, # verbose mode
+            'pos=s' => \$posfld, # choose which field contains the POS tag
             'pid=s' => \$pid, # choose a specific neotag parameter set (if there is more than one)
             'lang=s' => \$lang, # choose a specific neotag parameter set based on lang ISO
             'lexiconfile=s' => \$lexiconfile, # choose the lexiconfile by hand
@@ -33,6 +34,7 @@ if ( !$folder ) {
 	$folder = "xmlfiles";
 };
 
+if ( !$posfld ) { $posfld = "pos"; };
 
 binmode ( STDOUT, ":utf8" );
 
@@ -128,7 +130,7 @@ sub treatfile ( $filename ) {
 
 		$contr = $dtok->parentNode->textContent;
 		$lemma = $dtok->getAttribute("lemma");
-		$pos = $dtok->getAttribute("pos");
+		$pos = $dtok->getAttribute($posfld);
 		$form = $dtok->getAttribute("form");
 		if ( $lemma eq '"' ) { $lemma="&quot;"; };
 		print "Checking: $lemma in $contr";
@@ -137,14 +139,14 @@ sub treatfile ( $filename ) {
 		if ( $forms{"$lemma.$pos"} ) {
 			$form = $forms{"$lemma.$pos"};
 		} else {
-			print "//lexicon//tok[\@lemma=\"$lemma\" and \@pos=\"$pos\"]";
-			@tmp = $lexicon->findnodes("//lexicon//tok[\@lemma=\"$lemma\" and \@pos=\"$pos\"]");
+			print "//lexicon//tok[\@lemma=\"$lemma\" and \@$posfld=\"$pos\"]";
+			@tmp = $lexicon->findnodes("//lexicon//tok[\@lemma=\"$lemma\" and \@$posfld=\"$pos\"]");
 			if ( $tmp[0] ) {
 				$form = lc($tmp[0]->parentNode->getAttribute("key"));
 				$forms{"$lemma.$pos"} = $form;
 			} else {
 				$form = "";
-				print "Not found: //lexicon//tok[\@lemma=\"$lemma\" and \@pos=\"$pos\"]";
+				print "Not found: //lexicon//tok[\@lemma=\"$lemma\" and \@$posfld=\"$pos\"]";
 			};
 		};
 		if ( $contr =~ /^[A-ZÁÉÓÚÍ]/ && $dtok->getAttribute("id") =~ /-1$/ ) {
