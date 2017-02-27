@@ -161,19 +161,48 @@ of all the XML files
 
 ### Improvements 
 
+* Added geomap which allows visualising geocoordinates of XML files onto Google maps
+* Added the Ace and TinyMCE to the repository to avoid version conflicts
+* Added the Javascript modules to the repository
+* It is now possible to see all backup files
+* Added a GUI module to edit teiHeader templates	
+
 ### Bug fixes
 
+* Minor corrections to the CQP search
+* Added cqpraw as the pre-XIDX search in case XIDX is not installed
+* Creating a new XML file no longer depends on having a template
+* Improvements to the C++ modules
 
 ## [Version 0.6](https://gitlab.com/maartenes/TEITOK/tags/v0.6) (Dec 15, 2015) 
 
 ### Improvements 
 
+* Added a configuration check to the admin module
+* Added the option to have the Javascripts in a customised location, allowing for serving them locally rather than pulling them for teitok.corpuswiki.org
+* PSDX files are now linked from within the XML display
+* Added the option to move pages and XML files to the Trash
+* Added CQP-based metadata search to PSDX
+* Added sentedit allowing sentence-level tags to be edited in TEITOK
+* Added myproject - a skeleton project to start with
+* Added an src folder containing C++ programs (NeoTag and CQP index) to the repository
+
 ### Bug fixes
 
+* Denied access to the common folder (.htaccess) for safety
+* Minor corrections to xmltokenize.pl
+* Added a check to see whether XML is valid before editing in several modules
+* Cleaned out redundant code from CQP search with XIDX
+* Made it possible to have smarty in various locations
+* Removed the XQuery option from PSDX since it was not fully worked out
+* Now shows the max file upload size in upload
+* Lowered the error reporting level since otherwise logs gets stuffed with warnings
 
 ## [Version 0.5](https://gitlab.com/maartenes/TEITOK/tags/v0.5) (Nov 9, 2015) 
 
 ### Improvements 
+
+* Added several folders to the repository: common pages, scripts, resources, etc.
 
 ### Bug fixes
 
