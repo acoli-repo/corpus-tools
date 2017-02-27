@@ -99,7 +99,6 @@ shown in various languages based on the selected languages (provided the tagset.
 
 * Added bounding boxes, allowing to align parts of the transcription to part of a facsimile image
 * Added a global teitok.css that defines some default visualizations
-* It is now possible to use only a part of the facsimile image for a pb - mostly for 2-up images
 * dtoks are now shown on rollover in the file view
 * Added a configuration check to check whether the setup of TEITOK is correct (and safe) - both to myproject and to admin
 * Added a lineview mode that shows lines of the transription next to parts of the facsimile image (using the bboxes)
@@ -122,29 +121,61 @@ of all the XML files
 * Corrected an error when saving sentences
 * Updated the installation instructions for src
 * Corrected some errors in the skeleton myproject
+* Improved display of 2-up images
 
 ## [Version 0.8](https://gitlab.com/maartenes/TEITOK/tags/v0.8) (Apr 29, 2016) 
 
 ### Improvements 
 
+* It is now possible to use only a part of the facsimile image for a pb - mostly for 2-up images
+* There now is a GUI to the settings.xml, with a adminsettings.xml file that lists and describes all possible settings
+* Added a script multichange.pl that can be used to run multiple changes in the background
+* As an admin user you can now go back after an error occurs (in case you correct the error outside of the interface)
+* Added highlight that allows highlighting all result of a CQP search on a single text  directly in the XML file
+* Annotation files are now linked from the bottom of the XML display
+* Added a module to display the progress of background processes
+* Added the option to show results of PSDX searches as text rather than as trees
+* CQP registry folder can now be located elsewhere
+* Added tokview that shows detailed information about a single token on a page
+* Added a search to xdxf
 
+### Bug fixes
+
+* Removed incorrected colours in geomap when there is a maximum of 1 file per location
+* Corrected some errors in the standoff module
+* Facsimile images located elsewhere are now treated correctly
+* Corrected a Javascript error when buttons that were supposed to be present were not there
+* Removed several non-finished Perl and PHP scripts from the repository
+* xmlrenumber now also numbers verse lines
+* Text search in CQP is no longer shown if there are no textual attributes, to allow "corpora" consisting of files only (images, sounds, etc.) and no text
+* Corrected some errors in paged display
+* Minor improvement to geomap
+* Improved display of the context in mergetoks
+* Improved display of the tagset, now using a dedicated tttags class
+* Corrected a display error with empty tags in the XML (interpreted as start tags by the DOM)
+* Corrected an error that made it impossible to save sentences
+* Added context restrictions to ttxml
+* Several bug fixes the C++ modules
 
 ## [Version 0.7](https://gitlab.com/maartenes/TEITOK/tags/v0.7) (Mar 15, 2016) 
 
 ### Improvements 
 
+### Bug fixes
 
 
 ## [Version 0.6](https://gitlab.com/maartenes/TEITOK/tags/v0.6) (Dec 15, 2015) 
 
 ### Improvements 
 
+### Bug fixes
 
 
 ## [Version 0.5](https://gitlab.com/maartenes/TEITOK/tags/v0.5) (Nov 9, 2015) 
 
 ### Improvements 
 
+### Bug fixes
 
 
 ## [Version 0.4](https://gitlab.com/maartenes/TEITOK/tags/v0.4) (Nov 9, 2015) 
