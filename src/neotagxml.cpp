@@ -1541,7 +1541,11 @@ void help() {
 	cout << "Usage: neotagxml [OPTIONS] [FILE]" << endl;
 	cout << "Tag FILE with Part-of-Speech tags, where FILE is an XML file" << endl << endl;
 	cout << "Options:" << endl;
-	cout << "  -?, --help\tThis help file" << endl;
+	cout << "  --help\tThis help file" << endl;
+	cout << "  --tagsrc\tPlace the source of the tag inside the tokens" << endl;
+	cout << "  --verbose\tVerbose mode" << endl;
+	cout << "  --debug=n\tDebugging level" << endl;
+	cout << "  --test\tDo not save but only test tagging, and provide performance data when already tagged" << endl;
 	exit(1);
 };
 
@@ -1756,7 +1760,7 @@ int main (int argc, char * const argv[]) {
 		if ( !lexicon.load_file(tagsettings.attribute("lexicon").value(), (pugi::parse_ws_pcdata | pugi::parse_declaration | pugi::parse_doctype ) & ~pugi::parse_wconv_attribute & ~pugi::parse_escapes ) ) { // pugi::parse_default | 
 			cout << "Failed to load lexicon: " << tagsettings.attribute("lexicon").value() << endl;
 		} else {
-			if ( verbose ) { cout << "External lexicon: " << tagsettings.attribute("lexicon").value() << endl; };
+			if ( verbose ) { cout << "- Using external lexicon: " << tagsettings.attribute("lexicon").value() << endl; };
 		};
 	};
 	
