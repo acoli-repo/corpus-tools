@@ -1095,6 +1095,7 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 				if ( debug > 5 ) { cout << "    base word: " << cb.form << " : " << cb.tag << " = " << cb.prob << endl; };
 				
 				// check if this base word tag occurs with the clitic
+				// TODO: This is too restrictive, so should be made optional, or deleted altogether
 				if ( it->node().child("sibling") ) {
 					string tmp = ".//sibling[@key=\""+cb.tag+"\"]";
 					if ( it->node().select_nodes(tmp.c_str()).empty() ) { 
@@ -1118,6 +1119,7 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 					insertword.adddtok(cb);
 					insertword.adddtok(cctok);
 				};
+				if ( debug > 5 ) { cout << "    added clitic token: " << insertword.form << " : " << insertword.tag << " = " << insertword.prob << endl; };
 				wordParse->push_back(insertword);
 			};
 			if ( clitprob < 1 ) { 
@@ -1261,7 +1263,7 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 			if ( debug > 1 ) { cout << " - " << tmp.size() << " lowercase occurrence(s) found in lexicon " << endl; };
 			for (pugi::xpath_node_set::const_iterator it = tmp.begin(); it != tmp.end(); ++it) {
 				insertword.settag((*it).node().attribute("key").value());
-				insertword.prob = atof((*it).node().attribute("cnt").value());
+				insertword.prob = 0.1; // TODO: this should become some meaningful number
 				insertword.lexitem = (*it).node();
 				insertword.source = "lexicon:" + NumberToString(tmp.size());
 				if ( checkfld != "" ) {

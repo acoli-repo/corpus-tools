@@ -37,6 +37,10 @@
 	}; 
 		
 	# Check whether the registry file exists
+	if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
+		# For backward compatibility, always check the central registry
+		$registryfolder = "/usr/local/share/cwb/registry/";
+	};
 	if ( !file_exists($registryfolder.strtolower($cqpcorpus)) ) {
 		fatal ( "Corpus $cqpcorpus has no registry file" );
 	};
