@@ -31,6 +31,11 @@ class CQP
     	if ( $registry == "" ) { 
 			$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
     	};
+		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
+			# For backward compatibility, always check the central registry
+			$registryfolder = "/usr/local/share/cwb/registry/";
+		};
 
         $this->active = true;
 

@@ -27,7 +27,6 @@
 
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
 
-	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$cqpfolder = $settings['cqp']['searchfolder'];
@@ -35,6 +34,8 @@
 	foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
 		if ( $username || !$item['admin'] ) array_push($cqpcols, $key); 
 	}; 
+
+	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 		
 	# Check whether the registry file exists
 	if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
@@ -171,7 +172,11 @@
 				if ( $fld == "text_id" ) $maintext .= "<td><a href=\"index.php?action=file&cid={$fields[0]}\">doc</a></td>";
 				else if ( $sattfld ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newcql)."'; document.newform.fileonly.value='1'; document.newform.submit();\">docs</a></td>";
 				foreach ( $fields as $key => $field ) {
-					if ( $newcql && $key == 0 ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newcql)."'; document.newform.submit();\">".preg_replace ( "/__UNDEF__/", "(none)", $fields[0])."</a></td>";
+					if ( $newcql && $key == 0 && strstr($fld, '_') ) {
+						// TODO: this does only work if the original CQL was "simple"
+						$recql = urlencode(str_replace(" within text", "", $cql)." :: match.$fld = \"{$fields[0]}\" within text");
+						$maintext .= "<td><a href=\"index.php?action=$action&cql=$recql\">".preg_replace ( "/__UNDEF__/", "(none)", $fields[0])."</a></td>";
+					} else if ( $newcql && $key == 0 ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newcql)."'; document.newform.submit();\">".preg_replace ( "/__UNDEF__/", "(none)", $fields[0])."</a></td>";
 					else if ( $key == $frf ) $maintext .= "<td align=right>$field</td>";
 					else $maintext .= "<td>".preg_replace ( "/__UNDEF__/", "(none)", $field )."</td>";
 				};

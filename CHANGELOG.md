@@ -1,5 +1,23 @@
 # Change Log
 
+## [Version 1.4](https://gitlab.com/maartenes/TEITOK/tags/v1.4) (Feb 26, 2017)
+
+### Improvements 
+
+* The common TEITOK folder no longer needs to be next to the project folder, but can now be loaded from anywhere (default is still one level up)
+* dtokmake.pl and dtokfill.pl can now start from any feature, not just form `@pos`
+
+### Bug fixes
+
+* Attributes in the token-popup are now named nodes to be able to style them with CSS
+* Made storing the registry in the project folder the default for CQP but with a back-out to the central repository for backward compatibility
+* Improved sort order of select pull downs in cqpraw
+* Made it possible to have three-letter languages codes in the URL
+* Additional smarty variables can now be loaded to the template
+* Corrected an error that made orgfile not always show the file
+* Made the checklist in myproject look for files on the server better
+* The C++ modules now can display a version number to allow checking compatibility between the tagset and the tagger
+
 ## [Version 1.3](https://gitlab.com/maartenes/TEITOK/tags/v1.3) (Nov 20, 2016)
 
 ### Improvements 

@@ -598,9 +598,37 @@
 							</audio>
 							"; 
 						$result = $medianode ->xpath("desc"); 
+						$audiobut = "Audio";
 						$desc = $result[0].'';
 						if ( $desc ) {
 							$audiobit .= "<br><span style='font-size: small;'>$desc</span>";
+						};
+					};
+				} else if ( $mtype == "video" ) {
+					# Determine the URL of the video fragment
+					$videourl = $medianode['url'];
+					if ( !strstr($videourl, 'http') ) {
+						if ( file_exists($videourl) ) $videourl =  "$baseurl/$videourl"; 
+						else $videourl = $baseurl."Video/$videourl"; 
+					}
+					if ( preg_match ( "/MSIE|Trident/i", $_SERVER['HTTP_USER_AGENT']) ) {	
+						// IE does not do video - so just put up a warning
+						$audiobit .= "
+								<p><i><a href='$audiourl'>{%Video fragment for this text}</a></i> - {%Consider using Chrome or Firefox for better video support}</p>
+							"; 
+					} else {
+						$audiobit .= "<video id=\"track\" src=\"$videourl\" controls ontimeupdate=\"checkstop();\">
+								<p><i><a href='{$medianode['url']}'>{%Video fragment for this text}</a></i></p>
+							</video>
+							<style>
+							#track { display: block; position: fixed; right: 0px; top: 0px; }
+							</style>
+							"; 
+						$result = $medianode ->xpath("desc"); 
+						$audiobut = "Video";
+						$desc = $result[0].'';
+						if ( $desc ) {
+							$videobit .= "<br><span style='font-size: small;'>$desc</span>";
 						};
 					};
 				};
@@ -610,7 +638,7 @@
 		# Check if there are sub-sounds to display
 		$result = $xml->xpath("//*[@start]"); 
 		if ( $result && $audiobit ) {
-			$showoptions .= " <button id='btn-audio' style='background-color: #ffffff;' onClick=\"toggleaudio();\">{%Audio}</button> ";
+			$showoptions .= " <button id='btn-audio' style='background-color: #ffffff;' onClick=\"toggleaudio();\">{%$audiobut}</button> ";
 			$moreactions .= "makeaudio();";
 		};
 

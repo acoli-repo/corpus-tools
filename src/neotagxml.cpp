@@ -1064,7 +1064,7 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 		string cctag = it->node().attribute("key").value();
 		string ccpos = it->node().parent().attribute("position").value();
 		float cccnt = atof(it->node().parent().attribute("lexcnt").value()); // TODO: this should become prob
-		float clitprob = atof(it->node().parent().attribute("clitprob").value()); // TODO: this should become prob
+		float clitprob = atof(it->node().parent().attribute("clitprob").value()); 
 		float ccprob = atof(it->node().attribute("cnt").value()) / cccnt; // TODO: this should become prob
 		if ( debug > 5 ) { cout << " -- checking clitic: " << ccform << "/" << cctag << " = " << ccprob << endl; };
 		if ( ccform == "" ) { return; }; // Why would we ever reach a non-form clitic?
@@ -1078,6 +1078,7 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 			base = word.substr(0,word.size()-ccform.size());
 			if ( debug > 2 ) { cout << " -- possible post-clitic of " << word << " : " << base << " + " << ccform << "/" << cctag << " = " << ccprob << endl; };
 		};
+		// Treat if we found a base word
 		if ( base != "" && base != word ) {
 			// In case of decontractions in normalized, kill spaces at the end of base word
 			if (  base.substr( base.length()-1, base.length()) == " " ) {
@@ -1085,7 +1086,10 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 				base = base.substr(0,base.length()-1);
 			};
 
-			vector<wordtoken> baseParse = morphoParse(base, insertword);
+			wordtoken baseword;
+			baseword.setform(base); 
+			vector<wordtoken> baseParse = morphoParse(base, baseword); // We used to pass on insertword, but that seems circular
+			
 			for ( int j=0; j<baseParse.size(); j++) {
 				wordtoken cb = baseParse.at(j);
 				if ( cb.prob == 0 ) { 
@@ -1119,7 +1123,7 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 					insertword.adddtok(cb);
 					insertword.adddtok(cctok);
 				};
-				if ( debug > 5 ) { cout << "    added clitic token: " << insertword.form << " : " << insertword.tag << " = " << insertword.prob << endl; };
+				if ( debug > 5 ) { cout << "    added complex token: " << insertword.form << " : " << insertword.tag << " = " << insertword.prob << endl; };
 				wordParse->push_back(insertword);
 			};
 			if ( clitprob < 1 ) { 
@@ -1128,6 +1132,8 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 				if ( debug > 4 ) { cout << "    This ending is not always used as a clitic - chance = " << clitprob << endl; };
 			};
 		};
+		if ( debug > 5 ) { cout << " -- checked clitic: " << ccform << "/" << cctag << " = " << ccprob << endl; };
+		
 	};
 };
 
@@ -1279,11 +1285,11 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
  	};
 		
 	// Before moving to non-lexical attempts, switch to nform where available		
-	if ( nform != "" ) {
+	if ( nform != "" && parseword.token != NULL ) {
 		string normalized = calcform(parseword.token, nform);
 		if ( word != normalized ) {
+			if ( debug > 1 ) { cout << "Switched to normalized form: " << word << " => " << normalized << endl; };
 			word = normalized;
-			if ( debug > 1 ) { cout << "Switched to normalized form: " << word << endl; };
 		};
 	};
 		
@@ -1314,7 +1320,7 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 			string wending = word.substr(i, word.size());
 			if ( endingProbs[wending].size() > 0 && fnd <= endretry ) {
 				fnd++; // We have some appropriate word-endings of length i
-				if ( debug > 1 ) { cout << " - found as ending " << word.size() - i << " = " << wending << " " << endingProbs[wending].size() << endl; };
+				if ( debug > 1 ) { cout << " - found as ending " << word.size() - i << " = " << wending << " " << endingProbs[wending].size() << " - retries remaining: " << (endretry-fnd) << endl; };
 				map<string,wordtoken>::iterator pos;
 				for (pos = endingProbs[wending].begin(); pos != endingProbs[wending].end(); ++pos) {
 					insertword.setform(word);
@@ -1417,7 +1423,7 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 				insertword.settag((*it).node().attribute("key").value());
 				insertword.prob = atof((*it).node().attribute("cnt").value());
 				insertword.source = "tagset";
-				if ( debug > 2 ) { (*it).node().print(std::cout); };
+				if ( debug > 7 ) { (*it).node().print(std::cout); };
 				wordParse.push_back(insertword);
 				totprob += insertword.prob;
 			};
