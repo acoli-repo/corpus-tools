@@ -9,12 +9,15 @@
 	if ( $act == "mkdir" && ( $_POST['name'] )  && $username ) {
 		
 		$path = $_POST['name'];
+		$path = preg_replace("/[+ '\"]+/", "_", $path); # Remove problematic characters from the name
+		
 		if ( is_dir("xmlfiles/$path") ) { fatal("Folder already exists"); };
 		if ( preg_match("/^(.*)\/([^\/]+)$/", $path, $matches ) ) { 
 			$where = $matches[1]; 
 			if ( !is_dir("xmlfiles/$where") ) { fatal ("Folder $where does not exist"); };
 			$foldername = $matches[2]; 
 		} else $foldername = $path;
+		
 		
 		mkdir ("xmlfiles/$path");
 		$maintext .= "<h1>Folder Created</h1>

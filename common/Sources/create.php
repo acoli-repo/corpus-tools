@@ -20,6 +20,7 @@
 		if ( !file_exists($xmltemplate) ) $xmltemplate = "Resources/$xmltemplate";
 	} else if ( !$settings['xmltemplates'] ) {
 		$xmltemplate = "Resources/xmltemplate.xml";
+		$xmltitle = "Create Empty XML File";
 
 		# Use the empty XML template from the common folder if there is no local template
 		if ( !file_exists("$xmltemplate") ) {
@@ -38,12 +39,17 @@
 		$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$xml ) { print "Failing to read/parse $xmltemplate<hr>"; print $file; exit; };
 		
+		
+		
 		$cardid = $_POST['fname'];
+		$cardid = preg_replace("/[+ '\"]+/", "_", $cardid); # Remove problematic characters from the name
+
 		if ( substr($cardid, -4) != ".xml" ) {
-			print "Filename should end on .xml instead of ".substr($cardid, -4); exit;
+			fatal("Filename ($cardid) should end on .xml");
 		} else if ( file_exists("$xmlfolder/$cardid") ) {
-			print "File already exists"; exit;
-		};
+			fatal("File $cardid already exists");
+		}; 
+		
 		
 		if ( preg_match("/([^\/.]+)\.xml/", $cardid, $matches) ) { $fileid = $matches[1]; };
 	
