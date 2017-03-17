@@ -19,6 +19,9 @@
 			"doc" => array ( 'mime' => 'application/msword',  
 				'helpers' => array ( 'textutil' => '-stdout -convert html {}' ), 
 			),
+			"rtf" => array ( 'mime' => 'application/rtf',  
+				'helpers' => array ( 'textutil' => '-stdout -convert html {}' ), 
+			),
 			"docx" => array ( 'mime' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
 				'helpers' => array ( 'textutil' => '-stdout -convert txt {}' ), 
 			),
@@ -72,7 +75,7 @@
 	} else if ( file_exists($filename.".Z") ) {
 		# compressed file
 		$filename .= ".Z";
-		$cmd = "/bin/zcat $filename";
+		$cmd = "/bin/zcat '$filename'";
 		$rawtxt = shell_exec($cmd);
 		$rawtxt = "<pre>".htmlentities($rawtxt)."</pre>";
 

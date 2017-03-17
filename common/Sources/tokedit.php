@@ -75,6 +75,35 @@
 		$chareqfn = "onkeyup=\"chareq(this);\"";
 	};			
 
+		if ( $token['bbox'] ) {
+			$curr = current($token->xpath("./preceding::pb[1]")); 
+			$imgsrc = $curr['facs']; 
+			if ( strpos($imgsrc, "http" ) === false ) $imgsrc = "Facsimile/$imgsrc";
+		
+			$bb = explode ( " ", $token['bbox'] );
+			$cropwidth = $bb[2]-$bb[0] + 10;
+			$cropheight = $bb[3]-$bb[1] + 10; 
+
+			list($imgwidth, $imgheight, $imgtype, $imgattr) = getImageSize($imgsrc);
+
+			$divwidth = 300;
+			$divheight = $divwidth*($cropheight/$cropwidth);
+			if ( $divheight > 150 ) {
+				$divheight = 120;
+				$divwidth = $divheight*($cropwidth/$cropheight);
+			};
+			$imgscale = $divwidth/$cropwidth;
+			$setwidth = $imgscale*$imgwidth;
+			$setheight = $imgscale*$imgheight;
+			$topoffset = ($bb[1]-5)*$imgscale;
+			$leftoffset = ($bb[0]-5)*$imgscale;
+				
+			// Add the data of the line
+			$bboxpart = "<div style='float: right; width: {$divwidth}px; height: {$divheight}px; overflow: hidden; margin: 3px;'>
+				<img style='width: {$setwidth}px; height: {$setheight}px; margin-top: -{$topoffset}px; margin-left: -{$leftoffset}px;' src='$imgsrc'/>
+				</div>";
+ 		};
+
 		$maintext .= "<h1>Edit Token</h1>
 		
 				<table>
@@ -84,6 +113,7 @@
 				<hr>
 		
 			<h2>Token value ($tokid): ".$rawtok."</h2>
+			$bboxpart
 			$chareqjs
 			<script language=Javascript>
 				function addvalue ( ak, sel ) {	

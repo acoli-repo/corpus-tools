@@ -422,13 +422,8 @@ class wordtoken {
 		} else {
 			if ( debug > 4 ) { lexitem.print(std::cout); };
 			// This is a new word - add calculated lemma and tag
-			if ( token.attribute(tagpos.c_str()) == NULL && tag != "" ) { 
-				setpos(token, tag);
-			};
-			if ( token.attribute("lemma") == NULL && lemma != "" ) { 
-				token.append_attribute("lemma") =  lemma.c_str();
-			};
  			if ( dtoks.size() > 0 ) {
+ 				// Either add the list of dtoks
 				for (list<wordtoken>::const_iterator it = dtoks.begin(); it != dtoks.end(); ++it) {
 					if ( debug > 2 ) { cout << "    Generated dtok: " << it->form << endl; };
 					if ( it->lexitem ) {
@@ -436,9 +431,19 @@ class wordtoken {
 					} else {
 						pugi::xml_node dtoken = token.append_child("dtok");
 						setpos(dtoken, it->tag);
-						if ( it->lexitem.attribute("lemma") != NULL ) { dtoken.append_attribute("lemma") =  it->lexitem.attribute("lemma").value(); };
-					if ( debug > 1 ) { cout << "dtoken added: " << endl; };
+						dtoken.append_attribute("form") = it->form.c_str();
+						// if ( it->lexitem.attribute("lemma") != NULL ) { dtoken.append_attribute("lemma") =  it->lexitem.attribute("lemma").value(); };
+						dtoken.append_attribute("lemma") = it->lemma.c_str();  // Does this always come as a string?
+						if ( debug > 1 ) { cout << "dtoken added: " << endl; dtoken.print(cout); };
+					};
 				};
+			} else {
+				// Or just add tag and lemma
+				if ( token.attribute(tagpos.c_str()) == NULL && tag != "" ) { 
+					setpos(token, tag);
+				};
+				if ( token.attribute("lemma") == NULL && lemma != "" ) { 
+					token.append_attribute("lemma") =  lemma.c_str();
 				};
 			};
 		};
@@ -753,6 +758,9 @@ class tokpath {
 			float caseprob1;
 			if ( lasttag1 == finalstop || newword.lexitem ) {
 				caseprob1 = 1;
+			} else if ( newword.dtoks.size() > 0 ) {
+				// In the case of contractions, do not take caseprob into account
+				caseprob1 = 1;
 			} else {
 				// caseprob1 = caseProb[newword.tag][newword.wcase]; 
 				caseprob1 = getCaseProb(newword);
@@ -1066,17 +1074,17 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 		float cccnt = atof(it->node().parent().attribute("lexcnt").value()); // TODO: this should become prob
 		float clitprob = atof(it->node().parent().attribute("clitprob").value()); 
 		float ccprob = atof(it->node().attribute("cnt").value()) / cccnt; // TODO: this should become prob
-		if ( debug > 5 ) { cout << " -- checking clitic: " << ccform << "/" << cctag << " = " << ccprob << endl; };
+		if ( debug > 5 ) { cout << "    -- checking clitic: " << ccform << "/" << cctag << " = " << ccprob << endl; };
 		if ( ccform == "" ) { return; }; // Why would we ever reach a non-form clitic?
 		string base = "";
 		if ( ccpos == "left" && word.substr(0, ccform.size()) == ccform && word.size() > ccform.size() ) {
 			// a pre"clitic"
 			base = word.substr(ccform.size());
-			if ( debug > 2 ) { cout << " -- possible pre-clitic of " << word << " : " << ccform << "/" << cctag << " = " << ccprob << " + " << base << endl; };
+			if ( debug > 2 ) { cout << "  -- possible pre-clitic of " << word << " : " << ccform << "/" << cctag << " = " << ccprob << " + " << base << endl; };
 		} else if ( ccpos ==  "right" && word.size() > ccform.size() && word.substr(word.size()-ccform.size()) == ccform && word.size() > ccform.size() ) {
 			// a post"clitic"
 			base = word.substr(0,word.size()-ccform.size());
-			if ( debug > 2 ) { cout << " -- possible post-clitic of " << word << " : " << base << " + " << ccform << "/" << cctag << " = " << ccprob << endl; };
+			if ( debug > 2 ) { cout << "  -- possible post-clitic of " << word << " : " << base << " + " << ccform << "/" << cctag << " = " << ccprob << endl; };
 		};
 		// Treat if we found a base word
 		if ( base != "" && base != word ) {
@@ -1111,6 +1119,7 @@ void clitic_check ( wordtoken parseword, vector<wordtoken> * wordParse ) {
 				insertword.prob = ccprob * cb.prob;
 				insertword.source = "contractions: " + cb.source;
 				insertword.dtoks.clear();
+				insertword.settag(cb.tag+'.'+cctag); 
 				wordtoken cctok; 
 				cctok.setform(ccform); // This seems no longer good
 				cctok.settag(cctag); 
@@ -1251,7 +1260,7 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 		
 	// step 2: see if it happens to be a clitic/contracted word
 	partialclitic = 0; // word that start with st which is sometimes a clitic should be treated as both
-	if ( parameters.first_child().child("dtoks") != NULL && wordParse.size() == 0 ) { // && dtoksout
+	if ( parameters.first_child().child("dtoks") != NULL && wordParse.size() == 0 &&  tagsettings.attribute("noclitics") == NULL ) { // --noclitics indicates the system should not look for potential clitics
 		wordtoken checkword; 
 		checkword = insertword;
 		if ( nform != "" ) {
@@ -1300,11 +1309,11 @@ vector<wordtoken> morphoParse( string word, wordtoken parseword ) {
 	// TODO: word end or word beginning
 	if ( wordParse.size() == 0 || lexsmooth  || partialclitic ) {
 		int fnd = 0; float smoothfactor = 1;
-		int endretry;
+		int endretry; // How many extra end characters to try if we have found a match
 		if ( tagsettings.attribute("endretry") != NULL ) { 
 			endretry = atoi(tagsettings.attribute("endretry").value());
 		} else {
-			endretry = 5;
+			endretry = 2;
 		};
 		string smoothtxt = "";
 		if ( lexsmooth ) { 
@@ -1461,14 +1470,16 @@ void treatWord ( wordtoken insertword ) {
 	
 	// do a morphological analysis of WORD to yield all possible tags
 	// this will internally deal with lexicon lookup and morphological analysis
-	// the result is a list of 
+	// the list of parses will be added to pathList
 	if ( debug > 3 ) { cout << "-----------------------------------------" << endl; };
 	if ( debug > 1 ) { 
 		cout << wordnr << ". "  << word << " - from input file: " << calcform(insertword.token,"form") << "/"  << calcform(insertword.token,checkfld) << "/" << insertword.token.attribute(tagpos.c_str()).value()  << "/" << insertword.token.attribute("lemma").value() << endl; 
 	};
 	if ( debug > 3 ) { cout << "-----------------------------------------" << endl; };
 	
+	// morphological analysis
 	wordParse = morphoParse( word, insertword );
+	// count how many parses we have
 	totparses += wordParse.size();
 	if ( wordParse[0].source.substr(0,6) == "corpus" ) {
 		// if the first parse comes from the corpus, they all (or at least some) do
@@ -1500,7 +1511,7 @@ void treatWord ( wordtoken insertword ) {
 	// printout the # of morphological analyses for the current word  
 	if ( debug > 1 ) { cout << " -- number of possible tags: " << wordParse.size() << endl; };
 	
-	// add the morphological option for this word to the path,
+	// add the morphological options for this word to the path,
 	// calculating the path likelihoods
 	pathList.addword(wordParse);
 	totpaths += pathList.pathlist.size();
@@ -1554,6 +1565,19 @@ void help() {
 	cout << "  --verbose\tVerbose mode" << endl;
 	cout << "  --debug=n\tDebugging level" << endl;
 	cout << "  --test\tDo not save but only test tagging, and provide performance data when already tagged" << endl;
+//	cout << "  --featuretags\tWhether the tagset is feature-based" << endl;
+//	cout << "  --positiontags\tWhether the tagset is position based" << endl;
+//	cout << "  --neologisms\tSmooth to account for grammatical neologisms" << endl;
+	cout << "  --dtoksout\tWhether to create dtoks or not" << endl;
+	cout << "  --noclitics\tDo not look for possible clitics (productive contraction parts)" << endl;
+//	cout << "  --endlen\tThe amount of characters at the end of the word looked at" << endl;
+//	cout << "  --homsmooth\tSmooth to account for grammatical neologisms" << endl;
+//	cout << "  --lexsmooth\tSmooth to account for OOV items" << endl;
+//	cout << "  --transsmooth\tSmooth to account for unseen transitions" << endl;
+//	cout << "  --transitionfactor\tThe weight assigned to transition probabilities" << endl;
+//	cout << "  --contextfactor\tThe relative weight assigned to longer contexts" << endl;
+//	cout << "  --contextlength\tThe length of the context to take into account" << endl;
+	cout << "  --outfile\tWhich file to write the output to (standardly inside infile)" << endl;
 	exit(1);
 };
 
@@ -1631,7 +1655,7 @@ int main (int argc, char * const argv[]) {
 	};
 	
 	if ( tagsettings.attribute("xmlfile") == NULL ) {
-        cout << "Usage: neotagxml --xmlfile=[fn] --params=[parameter folder]" << endl;
+		help(); // show help when no xmlfile is provided
     	return -1;
 	};
 	

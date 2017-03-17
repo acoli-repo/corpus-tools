@@ -964,7 +964,7 @@
 
 	function toxmltext ( $forestxml, $divid = "" ) {
 		# Turn the tree into text
-		global $txtlast; global $txtxml;
+		global $txtlast; global $txtxml; global $ttroot;
 		$txtid = $forestxml['File'];
 		$sentid = $forestxml['sentid'];
 		if ( $txtlast != $txtid ) {	

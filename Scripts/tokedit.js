@@ -16,6 +16,22 @@ var transt = [];
 var footnotes = [];
 var basedirection = "";
 
+// On paged views, keep the image always visible
+window.onscroll = function() { keepimage() };
+
+function keepimage() {
+	// TODO: implement this so that it works with the highlighting
+	if ( 1==2 ) {
+		var imgelm = document.getElementById("facsdiv");
+		var bb = imgelm.getBoundingClientRect();
+		if ( bb.top < 0 ) { 
+			imgelm.style.position = 'fixed'; 
+			imgelm.style.top = '0px'; 
+			imgelm.style.right = '10px'; 
+		};
+	}
+}
+
 function wsearch ( wrd ) {
 	unhighlight();
 	var toks = document.getElementsByTagName("tok");
@@ -198,6 +214,7 @@ function formify () {
 			var cropside = pb.getAttribute('crop');
 			if ( cropside || 1==1 ) {
 				var imgelm = document.createElement("div");
+				imgelm.setAttribute('id', 'facsdiv');
 
 				var imghl = document.createElement("div");
 				imghl.setAttribute('class', 'hlbar');
@@ -231,6 +248,7 @@ function formify () {
 					rlimg.style['cssFloat'] = 'right';
 				};
 				imgelm.style['overflow'] = 'hidden';
+				
 			} else {
 				var imgelm = document.createElement("img");
 				imgelm.src = imgsrc;
@@ -259,6 +277,7 @@ function formify () {
 			} else {
 				var tmp = pb.parentNode.insertBefore( imgelm, pb.nextSibling );
 			};
+						
 		};
 	};
 };

@@ -43,6 +43,11 @@
 		list($imgwidth, $imgheight, $imgtype, $imgattr) = getImageSize($imgsrc);
 		$divwidth = 500;
 		$divheight = $divwidth*($imgheight/$imgwidth);
+		
+		if ( $divheight > 300 ) {
+			$divheight = 200;
+			$divwidth = $divheight*($imgwidth/$imgheight);
+		};
 		$imgscale = $divwidth/$imgwidth;
 	
 		$next = current($curr->xpath("following::pb"));
@@ -179,7 +184,14 @@
 			$maintext .= "
 				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 				<table id=mtxt>";
-				
+
+			foreach ( $ttxml->xml->xpath($lbxpath) as $lb ) {
+				$bb = explode ( " ", $lb['bbox'] );
+				$cropwidth = $bb[2]-$bb[0];
+				if ( $cropwidth ) { $maxwidth = max($cropwidth, $maxwidth); };
+			}; 
+			if ( $maxwidth ) { $imgscale = (700/$maxwidth); };
+							
 			foreach ( $ttxml->xml->xpath($lbxpath) as $lb ) {
 				$nr++;
 		
@@ -215,23 +227,38 @@
 						$cropwidth = $bb[2]-$bb[0];
 						$cropheight = $bb[3]-$bb[1]; 
 			
-						// Get the size of the original image and create crop measurements
 						list($imgwidth, $imgheight, $imgtype, $imgattr) = getImageSize($imgsrc);
-						$divwidth = 600;
-						$divheight = $divwidth*($cropheight/$cropwidth);
-						$imgscale = $divwidth/$cropwidth;
-						$setwidth = $imgscale*$imgwidth;
-						$setheight = $imgscale*$imgheight;
-						$topoffset = $bb[1]*$imgscale;
-						$leftoffset = $bb[0]*$imgscale;
+						if ( $imgscale ) {							
+							$divwidth = $cropwidth*$imgscale;
+							$divheight = $divwidth*($cropheight/$cropwidth);
+							$setwidth = $imgscale*$imgwidth;
+							$setheight = $imgscale*$imgheight;
+							$topoffset = $bb[1]*$imgscale;
+							$leftoffset = $bb[0]*$imgscale;
+						} else {
+							// Get the size of the original image and create crop measurements
+							$divwidth = 600;
+							$divheight = $divwidth*($cropheight/$cropwidth);
+
+							if ( $divheight > 300  ) {
+								$divheight = 100;
+								$divwidth = $divheight*($cropwidth/$cropheight);
+							};
+						
+							$imgscale = $divwidth/$cropwidth;
+							$setwidth = $imgscale*$imgwidth;
+							$setheight = $imgscale*$imgheight;
+							$topoffset = $bb[1]*$imgscale;
+							$leftoffset = $bb[0]*$imgscale;
+						};
 					};
 						
 					// Add the data of the line
-					$lineimg = "<div style='width: {$divwidth}px; height: {$divheight}px; overflow: hidden'>
+					$lineimg = "<div style='width: {$divwidth}px; height: {$divheight}px; overflow: hidden; margin: 3px;'>
 						<img style='width: {$setwidth}px; height: {$setheight}px; margin-top: -{$topoffset}px; margin-left: -{$leftoffset}px;' src='$imgsrc'/>
 						</div>";
 				};
-				$maintext .= "\n<tr><th title=\"{$lb['id']}\">$linenr<td>$lineimg$linetxt";
+				$maintext .= "\n<tr><th title=\"{$lb['id']}\">$linenr<td>$lineimg<div style='padding: 3px; background-color: #eeeeee;'>$linetxt</div>";
 			};
 			$maintext .= "</table>
 							<script language=Javascript src='$jsurl/tokedit.js'></script>
