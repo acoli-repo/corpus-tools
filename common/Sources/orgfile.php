@@ -80,7 +80,7 @@
 		$rawtxt = "<pre>".htmlentities($rawtxt)."</pre>";
 
 	} else {
-		$rawtxt = "No such file";
+		$rawtxt = "No such file : $filename";
 	};
 	
 
@@ -98,6 +98,7 @@
 		print $rawtxt; exit;
 	} else {
 		# Show the raw source in-line
+		if ( $settings['scripts']['showorg']['dl'] && file_exists($filename) ) { $filename = "<a href='$filename'>$filename</a>"; };
 		$maintext .= "<h1>Raw source input file</h1>
 			$ttheader
 			<p>Filename: $filename</p>
