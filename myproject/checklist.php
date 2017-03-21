@@ -74,6 +74,11 @@
 		print "<p class=wrong> The userlist.xml should be writable for Apache or TEITOK will not be able to change users";
 		$foldererrors = 1;
 	};
+	if ( !is_writable("templates_c") ) {
+		print "<p class=wrong> The folder templates_c should be writable for Apache or Smarty will not work";
+		$foldererrors = 1;
+		$critical = 1;
+	};
 	if ( !$foldererrors ) {
 		print "<p class=right> All crucial files/folders are writable"; 
 	};
@@ -103,6 +108,11 @@
 	};
 	if ( !$perlerror ) {
 		print "<p class=right> Required Perl modules working.";
+	};
+	
+	if ( !function_exists('simplexml_load_string') ) {
+		print "<p class=wrong>XML is not installed in PHP, please install php-xml or php-xml-dev";
+		$critical = 1;
 	};
 	
 	// Check whether SESSION variables work (forget COOKIE - SESSION works with cookies, so that should be implied)
