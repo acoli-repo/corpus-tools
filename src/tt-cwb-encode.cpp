@@ -421,6 +421,7 @@ void treatfile ( string filename ) {
 						string external = formfld.attribute("external").value();
 						if ( external != "" ) {
 							string xext = it->node().attribute(external.c_str()).value();
+							if ( debug > 2 ) { cout << " - External lookup: " << xext << endl; };
 							string extxpath = "//*[@id="+xext+"]";
 							xres = it->node().select_single_node(extxpath.c_str());
 						} else {
