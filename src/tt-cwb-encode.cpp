@@ -418,7 +418,14 @@ void treatfile ( string filename ) {
 					xpath = formfld.attribute("xpath").value();
 					if ( xpath != "" ) {
 						pugi::xpath_node xres;
-						xres = it->node().select_single_node(xpath.c_str());
+						string external = formfld.attribute("external").value();
+						if ( external != "" ) {
+							string xext = it->node().attribute(external.c_str()).value();
+							string extxpath = "//*[@id="+xext+"]";
+							xres = it->node().select_single_node(extxpath.c_str());
+						} else {
+							xres = it->node().select_single_node(xpath.c_str());
+						};
 						if ( xres.attribute() ) {	
 							formval = xres.attribute().value();
 						} else {
