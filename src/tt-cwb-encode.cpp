@@ -633,7 +633,8 @@ int main(int argc, char *argv[])
 		else { corpusfolder = "cqp"; };
 
 	if ( cqpsettings.attribute("registryfolder") != NULL ) { registryfolder = cqpsettings.attribute("registryfolder").value(); } 
-		else { registryfolder = "/usr/local/share/cwb/registry/"; };
+		else { registryfolder = "cqp"; };
+		// else { registryfolder = "/usr/local/share/cwb/registry/"; };
 
 	// Check whether the corpusfolder exists, or create it, or fail
 	// TODO: Using Boost seems redundant, since TEITOK is not very Windows in any case

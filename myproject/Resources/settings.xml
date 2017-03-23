@@ -15,6 +15,11 @@
 			<item key="cqp" display="Search"/>
 		</itemlist>
 	</menu>
+
+	<defaults>
+	    <title display="My Project">My Project</title>
+	    <base javascript="/teitok/Scripts/"/>
+	</defaults>
 		
 	<!-- Definition of the CQP corpus created from the XML files -->
 	<cqp corpus="TT-MYPROJECT" searchfolder="xmlfiles">	

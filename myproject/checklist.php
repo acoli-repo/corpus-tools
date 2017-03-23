@@ -29,12 +29,16 @@
 		$smarty = '/usr/local/lib/smarty/libs/';
 	if ( !$smarty ) {
 		$smartypath = str_replace("Smarty.class.php", "", file_locate('Smarty.class.php'));
-		if ( $smartypath ) print "<p class=warn>Smarty seems to be installed, but not in a location where TEITOK expects it. 
+		if ( $smartypath ) {
+			# TODO: Write this to index-off.php
+			print "<p class=warn>Smarty seems to be installed, but not in a location where TEITOK expects it. 
 			Please change the SMARTY_DIR definition in index.php to <b>$smartypath</b> and remove the slashes in front of the line.";
-		print "<p class=wrong> Smarty engine not installed or not found, which is required by TEITOK.
-			Please install <a href='http://www.smarty.net/'>Smarty</a>.
-			 ";
-		$critical = 1;
+		} else {
+			print "<p class=wrong> Smarty engine not installed or not found, which is required by TEITOK.
+				Please install <a href='http://www.smarty.net/'>Smarty</a>.
+				 ";
+			$critical = 1;
+		};
 	} else {
 		print "<p class=right> Smarty engine found: $smarty"; 
 	};
@@ -54,8 +58,9 @@
 	if ( !file_exists("../common/Sources/tttags.php") || 1==1 ) {
 		$teitokpath = str_replace("/common/Sources/tttags.php", "", file_locate("common/Sources/tttags.php"));
 		if ( $teitokpath ) { 
+			# TODO: Write this to index-off.php
 			print "<p class=warn>TEITOK seems to be installed, but not in a location where it can be found by default. 
-				Please change the \$ttroot definition in index.php to <b>$teitokpath</b>";
+				Please change the \$ttroot definition in index-off.php to <b>$teitokpath</b>";
 		} else {
 			print "<p class=wrong> The common TEITOK files seem not to be installed or are not readable for Apache.
 				Please make the TEITOK common files available.";
@@ -95,8 +100,19 @@
 	};
 	if ( !$cpperrors ) {
 		print "<p class=right> C++ modules compiled.";
-	} else {
+	} else {	
 		print "<p class=warn> The following c++ programs were not found, they are recommended for use with CQP : $cpperrors .";
+		# Check whether boost is (properly) installed
+		if ( file_exists('/usr/local/include/boost/version.hpp')  ) {
+			# Proper installation
+		} else {
+			$boostpath = str_replace("Smarty.class.php", "", file_locate('boost/version.hpp'));
+			if ( $boostpath ) {
+				print "<p class=warn> These C++ programs rely on boost, which seems not to be linked properly, but installed under $boostpath";
+			} else {
+				print "<p class=warn> These C++ programs rely on boost, which does not seem to be installed";
+			};
+		};
 	};
 	
 	// Check whether XML::LibXML is installed
@@ -111,8 +127,8 @@
 	};
 	
 	if ( !function_exists('simplexml_load_string') ) {
-		print "<p class=wrong>XML is not installed in PHP, please install php-xml or php-xml-dev";
-		$critical = 1;
+		print "<p class=wrong>XML is not installed in PHP, please install php-xml";
+		$critical = 1; $phperror = 1;
 	};
 	
 	// Check whether SESSION variables work (forget COOKIE - SESSION works with cookies, so that should be implied)
