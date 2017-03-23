@@ -420,10 +420,12 @@ void treatfile ( string filename ) {
 						pugi::xpath_node xres;
 						string external = formfld.attribute("external").value();
 						if ( external != "" ) {
-							string xext = it->node().attribute(external.c_str()).value();
-							if ( debug > 2 ) { cout << " - External lookup: " << xext << endl; };
-							string extxpath = "//*[@id="+xext+"]";
-							xres = it->node().select_single_node(extxpath.c_str());
+							pugi::xpath_node tmp = it->node().select_single_node(external.c_str());
+							string tmp2 = tmp.attribute().value();
+							string extxpath = "//*[@id='"+tmp2+"']";
+							if ( debug > 3 ) { cout << " - External lookup: " << external << " = " << tmp2  << " => " << extxpath << " : " << xpath << endl; };
+							pugi::xpath_node xext = it->node().select_single_node(extxpath.c_str());
+							xres = xext.node().select_single_node(xpath.c_str());
 						} else {
 							xres = it->node().select_single_node(xpath.c_str());
 						};
