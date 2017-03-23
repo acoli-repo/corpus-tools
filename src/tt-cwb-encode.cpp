@@ -678,7 +678,7 @@ int main(int argc, char *argv[])
 		corpuslong = xmlsettings.select_single_node("//title/@display").attribute().value();
 	};
 	corpusname = strtolower(corpusname);
-	string registryfile = registryfolder + corpusname;
+	string registryfile = registryfolder + '/' + corpusname;
 	if ( verbose ) { cout << "Writing registry data to: " << registryfile << endl; };
 	ofstream registry;
 	registry.open(registryfile.c_str());
