@@ -624,7 +624,7 @@
 							#track { display: block; position: fixed; right: 0px; top: 0px; }
 							</style>
 							"; 
-						$result = $medianode ->xpath("desc"); 
+						$result = $medianode->xpath("desc"); 
 						$audiobut = "Video";
 						$desc = $result[0].'';
 						if ( $desc ) {

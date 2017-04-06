@@ -39,12 +39,13 @@
     		$scl = "";
     		$scli = "";
     	};
+		$itemtxt = $item['display'] or $itemtxt = $key;
     	if ( $item['admin'] ) {
     		if ( $item['admin'] == 1 || $user['permissions'] == "admin" ) {
-	    		$adminitems .= "<ul style='text-align: left'><li $scli><a href='$link'>{%".$item['display']."}</a></ul>";
+	    		$adminitems .= "<ul style='text-align: left'><li $scli><a href='$link'>{%$itemtxt}</a></ul>";
 	    	};
     	} else {
-    		$menu .= "<li><a href='$link'$scl>{%".$item['display']."}</a>";
+    		$menu .= "<li><a href='$link'$scl>{%$itemtxt}</a>";
     	};
 	};
    $menu .= "</ul>";

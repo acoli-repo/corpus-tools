@@ -196,7 +196,10 @@
 		if ( !$tmp ) { fatal ("No such node: $xpath"); };
 
 		# Create the section
-		$valnode->addChild("item");
+		$ni = 1;
+		while ( $valnode->xpath("./item[@key=\"new$ni\"]") ) { $ni++; };
+		$new = $valnode->addChild("item");
+		$new["key"] = "new$ni";
 		
 		# Save a backup copy
 		$date = date("Ymd"); 
@@ -208,7 +211,7 @@
 		# Now save the actual file
 		file_put_contents("Resources/settings.xml", $settingsxml->asXML());
 		print "<p>File saved. Reloading.
-			<script language=Javascript>top.location='index.php?action=adminsettings&act=edit&node={$xpath}/item[not(@key) or @key=\"\"]/@key';</script>
+			<script language=Javascript>top.location='index.php?action=adminsettings&act=edit&node={$xpath}/item[@key=\"new$ni\"]/@key';</script>
 			"; exit;
 
 	} else if ( $section ) {

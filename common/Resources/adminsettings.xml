@@ -74,7 +74,7 @@
 		<item key="itemlist" display="List of menu items">
 			<list>
 				<att key="key" display="link action (index.php?action=XX)"/>
-				<att key="display" display="link name"/>
+				<att key="display" req="1" display="link name"/>
 			</list>
 		</item>
 		<item key="admin" display="List of admin items (shown on the Admin page)">

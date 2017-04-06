@@ -127,7 +127,7 @@
 				<input type=hidden name=kn[$key] value=\"{$val['kn']}\">
 				<td>{%{$val['display']}}</td>
 				<td>
-					<select name=match[$key]><option value=\"contains\">{%contains}</option><option value=\"match\" $msel>{%matches}</option><option value=\"regex\" $msel>{%patterns}</option></select>
+					<select name=match[$key]><option value=\"contains\">{%contains}</option><option value=\"match\" $msel>{%matches}</option><option value=\"starts\" $msel>{%starts with}</option><option value=\"regex\" $msel>{%patterns}</option></select>
 				</td>
 				<td>
 					<input name=query[$key] value=\"$wordquery\">
@@ -188,6 +188,7 @@
 		$maintext .= "<form action='index.php'>{%Word} 
 			<select name=match>
 				<option value=\"contains\">{%contains}</option>
+				<option value=\"starts\">{%starts with}</option>
 				<option value=\"match\" $msel>{%matches}</option>
 			</select>
 			<input name=query value=\"$wordquery\">
@@ -229,9 +230,13 @@
 					$restr .= $sep; 
 					$match = $_POST['match'][$key] or $match = "contains";
 					$kn = $_POST['kn'][$key] or $kn = $hwxpath;
-					if ( $match == "match" ) $restr .= $kn."[.='$tq']"; // Match
-					else if ( $match == "contains" ) $restr .= $kn."[contains(.,'$tq')]"; // Contains
-					else if ( $match == "regex" ) { // Regexp - does not work
+					if ( $match == "match" ) {
+						$restr .= $kn."[.='$tq']"; // Match
+					} else if ( $match == "contains" ) {
+						$restr .= $kn."[contains(.,'$tq')]"; // Contains
+					} else if ( $match == "starts" ) {
+						$restr .= $kn."[starts-with(.,'$tq')]"; // Starts with
+					} else if ( $match == "regex" ) { // Regexp - does not work
 						$xpath->registerNamespace("php", "http://php.net/xpath");
 						$xpath->registerPHPFunctions();
 						$restr .= $kn."[php:functionString(\"preg_match\",\"/$tq/\",.)]";
