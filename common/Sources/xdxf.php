@@ -188,7 +188,7 @@
 		$maintext .= "<form action='index.php'>{%Word} 
 			<select name=match>
 				<option value=\"contains\">{%contains}</option>
-				<option value=\"starts\">{%starts with}</option>
+				<!-- <option value=\"starts\">{%starts with}</option> -->
 				<option value=\"match\" $msel>{%matches}</option>
 			</select>
 			<input name=query value=\"$wordquery\">
