@@ -376,7 +376,7 @@
 				# Deal with old-style pattributes as xattribute
 				# Deal with any additional level attributes (sentence, utterance)
 				foreach ( $settings['cqp']['sattributes'] as $xatts ) {
-					if ( !$xatts['display'] ) continue; 
+					if ( !$xatts['display'] || $xatts['key'] != "text" ) continue; # This only works for text-level queries
 					$maintext .= "$hr<h3>{%{$xatts['display']}}</h3><table>"; $hr = "<hr>";
 					foreach ( $xatts as $key => $item ) {
 						$xkey = "{$xatts['key']}_$key";
