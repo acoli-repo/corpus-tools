@@ -426,7 +426,7 @@
 			
 			# Document searches	
 
-			$acnt = 0;
+			$acnt = $bcnt = 0;
 			foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
 				if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
 				$val = $item['display']; # $val = $item['long'] or 
@@ -439,6 +439,7 @@
 				} else if ( $key != "id" ) {
 					$moreatts .= ", match $xkey";
 					$moreth .= "<th>{%$val}";
+					$atttik[$bcnt] = $key; $bcnt++;
 				};
 				$acnt++;
 				$atttit[$acnt] = $val;
@@ -467,6 +468,14 @@
 					$fidtxt = preg_replace("/^\//", "", $fid ); 
 				} else {
 					$fidtxt = preg_replace("/.*\//", "", $fid ); 
+				};
+				# Translate the columns where needed
+				foreach ( $fatts as $key => $fatt ) {
+					$attit = $atttik[$key];
+					$tmp = $settings['cqp']['sattributes']['text'][$attit]['type'];
+					if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" ) {
+						$fatts[$key] = "{%$attit-$fatt}";
+					};
 				};
 				$maintext .= "<tr><td><a href='index.php?action=file&cid={$fid}'>{$fidtxt}</a><td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>".join ( "<td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>", $fatts );
 			};
