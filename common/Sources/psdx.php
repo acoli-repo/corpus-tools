@@ -12,6 +12,8 @@
 	};
 
 	if ( !is_array($_POST['atts']) ) $_POST['atts'] = $_GET['atts'];
+
+	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 	
 	$treestyle = $_GET['treestyle'] or $treestyle = $_POST['treestyle'] or $treestyle = $_COOKIE['treestyle']  or $treestyle = $_SESSION['treestyle'] or $treestyle = $settings['psdx']['treestyle'] or $treestyle = "horizontal";
 	$_COOKIE['treestyle'] = $_SESSION['treestyle'] = $_GET['treestyle'];
@@ -384,26 +386,50 @@
 						} else {
 							if ( $item['nosearch'] ) $a = 1; # Ignore this in search 
 							else if ( $item['type'] == "range" ) 
-								$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
+								$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
 							else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
 								# Read this index file
-								$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
-								foreach ( explode ( "\0", $tmp ) as $kval ) { 
-									if ( $kval && $kval != "_" ) {
-										if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
-										$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+								$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
+								foreach ( explode ( "\0", $tmp ) as $kva ) { 
+									if ( $kva ) {
+										if ( $item['values'] == "multi" ) {
+											$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+											$kvl = explode ( $mvsep, $kva );
+										} else {
+											$kvl = array ( $kva );
+										}
+								
+										foreach ( $kvl as $kval ) {
+											if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
+											$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+										};
+									};
+									foreach ( $kvl as $kval ) {
+										if ( $kval && $kval != "_" ) {
+											if ( $item['type'] == "kselect" || $item['translate'] ) $ktxt = "{%$key-$kval}"; 
+												else $ktxt = $kval;
+											$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+										};
 									};
 								};
 								if ( $item['sort'] == "numeric" ) sort( $optarr, SORT_NUMERIC ); 
 								else sort( $optarr, SORT_LOCALE_STRING ); 
 								$optlist = join ( "", $optarr );
-								$maintext .= "<tr><th>{%$val}<td><select name=atts[$xkey]><option value=''>{%[select]}</option>$optlist</select>";
+								if ( $item['select'] == "multi" ) {
+									$multiselect = "multiple";  $msarr = "[]";
+									$mstext = "select choices";
+								} else {
+									$multiselect = ""; $msarr = "";
+									$mstext = "select";
+								};
+								$maintext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
 							} else 
-								$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey] value='' size=40>";
+								$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' size=40>";
 						};
 					};
 					$maintext .= "</table>"; 
 				};	
+
 			};
 		};
 		$maintext .= "</form>";
