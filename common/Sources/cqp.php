@@ -317,6 +317,7 @@
 			list ( $keytype, $keyname ) = explode ( "_", $xkey );
 			$attitem = $settings['cqp']['sattributes'][$keytype][$keyname]; 
 				$attname = $attitem['display']; $atttype = $attitem['type'];
+				$attname = "{%$attname}";
 
 			# Account for multiple select
 			if ( is_array($val) ) {
@@ -437,7 +438,7 @@
 					# Ignore year if there also is a date
 				} else if ( $key != "id" ) {
 					$moreatts .= ", match $xkey";
-					$moreth .= "<th>$val";
+					$moreth .= "<th>{%$val}";
 				};
 				$acnt++;
 				$atttit[$acnt] = $val;

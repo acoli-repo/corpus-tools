@@ -235,6 +235,7 @@
 					} else if ( $match == "contains" ) {
 						$restr .= $kn."[contains(.,'$tq')]"; // Contains
 					} else if ( $match == "starts" ) {
+						# TODO: this only shows the first item, make this actually work
 						$restr .= $kn."[starts-with(.,'$tq')]"; // Starts with
 					} else if ( $match == "regex" ) { // Regexp - does not work
 						$xpath->registerNamespace("php", "http://php.net/xpath");
