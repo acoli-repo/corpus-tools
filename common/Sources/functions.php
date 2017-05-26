@@ -3,12 +3,24 @@
 	// (c) Maarten Janssen, 2015
 	
 	// Check if we are logged in
-	function check_login ( $type = "user" ) {
-		global $user, $username;
-		if ( !$username ) { 
-			print "<p>This function is for editing users only
-				<script language=Javascript>top.location = 'index.php?action=notli&username=$username';</script>
-			"; exit;
+	$publicactions = "user,admin";
+	function check_login ( $checktype = "user" ) {
+		global $user, $username, $settings, $action, $publicactions;
+		$grouprec = $settings['permissions']['groups'][$user['group']];
+		if ( $user['permissions'] == "admin" ) return; # Always allow admin
+		if ( !in_array($user['permissions'], explode(",", $checktype)) ) { 
+			if ( $usergroups[$checktype]['message'] )
+				print "<p>".$usergroups[$checktype]['message'];
+			else 
+				print "<p>This function is for editing users only";
+			
+			print "<script language=Javascript>top.location = 'index.php?action=notli&type=$checktype';</script>"; 
+			exit;
+		} else if ( $grouprec['actions'] && !in_array($action, explode(",", $grouprec['actions'])) && !in_array($action, explode(",", $publicactions)) ) {
+			print "<p>This function is not allowed for your group";
+			
+			print "<script language=Javascript>top.location = 'index.php?action=notli&type=nogroup';</script>"; 
+			exit;
 		};
 	};
 
@@ -207,10 +219,10 @@
 	};
 	
 	function getlangfile ( $ffid, $common = false, $flang = null ) {
-		global $lang; global $settings; global $getlangfile_lastfile; 
+		global $lang; global $settings; global $getlangfile_lastfile;  global $ttroot;
 		if ( $flang === null ) $flang = $lang;
 		$deflang = $settings['languages']['default'] or $deflang = "en";
-		# print "Pages/{$ffid}-$flang.html"; exit;
+		# print "$ttroot/common/Pages/{$ffid}-$flang.html"; exit;
 		
 		if ( file_exists("Pages/{$ffid}-$flang.html") ) {
 			$getlangfile_lastfile = "Pages/{$ffid}-$flang.html";
@@ -222,13 +234,13 @@
 			$getlangfile_lastfile = "Pages/{$ffid}-$deflang.html";
 			return file_get_contents($getlangfile_lastfile);
 		} else if ( $common && file_exists("$ttroot/common/Pages/{$ffid}-$flang.html") ) {
-			$getlangfile_lastfile = "$ttroot/common/Pages/{$ffid}-$fflang.html";
+			$getlangfile_lastfile = "$ttroot/common/Pages/{$ffid}-$flang.html";
 			return file_get_contents($getlangfile_lastfile);
 		} else if ( $common && file_exists("$ttroot/common/Pages/{$ffid}.html") ) {
 			$getlangfile_lastfile = "$ttroot/common/Pages/{$ffid}.html";
 			return file_get_contents($getlangfile_lastfile);
 		};
-		return "";	
+		return "?? $ttroot/common/Pages/{$ffid}.html";	
 	};
 
 	function saveMyXML ( $xmltxt, $filename, $noempties = true ) {

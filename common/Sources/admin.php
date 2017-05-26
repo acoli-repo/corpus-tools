@@ -69,36 +69,45 @@
 		
 	} else {
 	
+		$grouprec = $settings['permissions']['groups'][$user['group']];
+		$adminmenulist = array (
+				"pageedit" => "edit HTML files",
+				"i18n" => "edit internationalization",
+				"upload" => "upload files",
+				"csv" => "batch-edit XML using CSV",
+			);
+			
+		if ( $grouprec['actions'] ) $grouptxt = "of your group ({$user['group']})";
 		$maintext .= "<h1>Admin Functions</h1>
 			
-			<p>These are the options available for editors of the corpus
+			<p>These are the options available for editors of the corpus $grouptxt
+
+			<ul>";
 		
-			<ul>
-			<li><a href='index.php?action=pageedit'>edit HTML files</a>
-			<li><a href='index.php?action=i18n'>edit internationalization</a> (i18n)
-			<li><a href='index.php?action=upload'>upload files</a>
-			<li><a href='index.php?action=csv'>batch-edit XML using CSV</a>
-			";
-			//<li><a href='index.php?action=progcheck'>check progress on XML files</a>
-			//<li><a href='index.php?action=find'>find files</a> (using XPath)
-			//<li><a href='index.php?action=find2'>find content</a> (using XPath)
-		
-		if ( $settings['xmltemplates'] || file_exists("Resources/xmltemplate.xml" ) )
-			$maintext .= "<li><a href='index.php?action=create'>create new XML from template</a>";
-		else 
-			$maintext .= "<li><a href='index.php?action=create'>create new XML file</a>";
-		
-		if ( $settings['cqp']['corpus'] ) {
+		foreach ( $adminmenulist as $key => $val ) {
+			if ( allowedforme($key) ) {
+				$maintext .= "			<li><a href='index.php?action=$key'>$val</a>";
+			};
+		};
+			
+		if ( allowedforme("create") ) {
+			if ( $settings['xmltemplates'] || file_exists("Resources/xmltemplate.xml" ) )
+				$maintext .= "<li><a href='index.php?action=create'>create new XML from template</a>";
+			else 
+				$maintext .= "<li><a href='index.php?action=create'>create new XML file</a>";
+		};
+				
+		if ( $settings['cqp']['corpus'] && allowedforme("recqp") ) {
 			$maintext .= "<li><a href='index.php?action=recqp'>(re)generate the CQP corpus</a> (or only 
 				<a href='index.php?action=recqp&check=1'>check</a> the status)";
 			# if ( $user['permissions'] == "admin" ) { 
 			#	$maintext .= "<ul><li>  <a href='index.php?action=recqp&force=1'>regenerate</a> the script to regenerate the CQP corpus (after changing CQP settings)</ul>";
 			# };
 		};
-		if ( $settings['neotag'] ) {
+		if ( $settings['neotag'] && allowedforme("neotag") ) {
 				$maintext .= "<li>  <a href='index.php?action=neotag'>check or update</a> the NeoTag parameter set(s)";
 		};
-		if ( file_exists("Resources/tagset.xml") || $settings['tagset'] ) {
+		if ( ( file_exists("Resources/tagset.xml") || $settings['tagset'] ) && allowedforme("tagset") ) {
 				$maintext .= "<li>  <a href='index.php?action=tagset'>check</a> the tagset";
 		};
 				
@@ -109,16 +118,17 @@
 			$maintext .= "<li><a href='index.php?action=headermake'>edit teiHeader files</a>";
 		};
 				
-		if ( $filelist || file_exists("Resources/filelist.xml" ) )
+		if ( ( $filelist || file_exists("Resources/filelist.xml" ) ) && allowedforme("filelist") )
 			$maintext .= "<li><a href='index.php?action=filelist'>view file repository</a>";
 				
-		if ( file_exists("Facsimile" ) )
+		if ( file_exists("Facsimile" ) && allowedforme("images") )
 			$maintext .= "<li><a href='index.php?action=images&act=check'>check facsimile images</a>";
 
 		if ( is_array($settings['menu']['admin']) )
 		foreach ( $settings['menu']['admin'] as $key => $item ) { 	
 			$link = "{$tlpr}index.php?action=$key";
-			$maintext .= "<li><a href='$link'>{%".$item['display']."}</a>";
+			if ( allowedforme($key) )
+				$maintext .= "<li><a href='$link'>{%".$item['display']."}</a>";
 		};
 				
 		$maintext .= "</ul>
@@ -136,6 +146,19 @@
 	
 		# $maintext .= "<p>Screen type detected: ".screentype();
 
+	};
+		
+	function allowedforme ( $checkaction ) {
+		global $user, $settings, $publicactions;
+		$grouprec = $settings['permissions']['groups'][$user['group']];
+		if ( $user['permissions'] == "admin" 
+				|| !$grouprec['actions'] 
+				|| in_array($checkaction, explode(",",$grouprec['actions']) ) 
+				|| in_array($checkaction, explode(",",$publicactions) ) 
+			) {
+			return 1;
+		};
+		return 0;
 	};
 		
 ?>

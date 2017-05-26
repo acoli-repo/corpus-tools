@@ -37,6 +37,7 @@
 			
 	} else {
 	
+		if ( $user['group'] ) $grouptxt = "<tr><th>Group:<td>{$user['group']}";
 		$maintext .= "
 		
 			<h1>User Profile</h1>
@@ -45,6 +46,7 @@
 			<tr><th>Email:<td>{$user['email']}
 			<tr><th>Short name:<td>{$user['short']}
 			<tr><th>Permissions:<td>{$user['permissions']}
+			$grouptxt
 			</table>
 			
 			<hr>

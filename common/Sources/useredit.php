@@ -29,6 +29,7 @@
 		$usr[0][0] = $_POST['name'];
 		$usr["permissions"] = $_POST['permissions'];
 		$usr["email"] = $_POST['email'];
+		$usr["group"] = $_POST['group'];
 		if ($_POST['password']) { 
 			$pwd = crypt("teiteitokencryptor", $_POST['password']);
 			$usr["password"] = $pwd;
@@ -65,6 +66,7 @@
 			<tr><th>Email<td><input name='email' value='{$usr['email']}' size=50> (used as login)
 			<tr><th>Password<td><input name='password' size=20> $chpwd
 			<tr><th>Permissions<td><input name='permissions' value='{$usr['permissions']}'> (user, admin, none)
+			<tr><th>Group<td><input name='group' value='{$usr['group']}'> (defined in settings)
 			</table>
 			<input type=submit value=Save> <a href='index.php?action=$action'>cancel</a>
 			</form>";

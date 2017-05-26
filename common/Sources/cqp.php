@@ -42,7 +42,7 @@
 		# For backward compatibility, always check the central registry
 		$registryfolder = "/usr/local/share/cwb/registry/";
 	};
-	if ( !file_exists($registryfolder.strtolower($cqpcorpus)) ) {
+	if ( !file_exists($registryfolder.'/'.strtolower($cqpcorpus)) ) {
 		fatal ( "Corpus $cqpcorpus has no registry file" );
 	};
 	
@@ -212,9 +212,10 @@
 		exit;
 
 	} else if ( $act == "distribute" ) {
-		# Old style distribution - made redundant by freq?
+		# Distribute over a bunch of different sattributes
 		
 		$maintext .= "<h1>{%Word Distribution}</h1>";
+		if ( file_exists("Page/distributetext.html") ) $maintext .= getlangfile("distributetext");
 
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
@@ -224,13 +225,22 @@
 		$cqpquery = "Matches = $cql";
 		$results = $cqp->exec($cqpquery);
 
-		foreach ( $settings['cqp']['sattributes']['text'] as $key => $val ) {	
+		$showlist = $settings['cqp']['distribute']
+			or $showlist = $settings['cqp']['sattributes']['text'];
+		foreach ( $showlist as $key => $val1 ) {	
+			$val = $settings['cqp']['sattributes']['text'][$key];
 			if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
 			if ( $val['type'] != "select" && $val['type'] != "kselect" ) continue;
 			$cqpquery = "group Matches matchend $xkey";
 			$results = $cqp->exec($cqpquery);
 
-			$maintext .= "<h2>{%Words by} {%".$val['display']."}</h2><table>";
+			$displaytxt = $val1['display'] or $displaytxt = "{%Words by} {%".$val['display']."}";
+			$maintext .= "<h2>$displaytxt</h2>";
+			if ( $val1['header'] ) {
+				$tmp = $val1['header'][$lang] or $tmp = $val1['header']["en"];
+				$maintext .= "<p>{$tmp}</p>";
+			};
+			$maintext .= "<table>";
 			foreach ( explode("\n", $results) as $line ) {
 				list ( $cvl, $cnt ) = explode ( "\t", $line );
 			

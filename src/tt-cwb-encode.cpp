@@ -665,7 +665,7 @@ int main(int argc, char *argv[])
 
 	// Now we need to read the inheritance tree
 	inherit["form"] = "pform"; // form ALWAYS inherits from pform
-	pattlist = xmlsettings.select_nodes("//xmlfile//pattributes//item");
+	pattlist = xmlsettings.select_nodes("//xmlfile//pattributes//item | //xmlfile//sattributes//item");
 	for (pugi::xpath_node_set::const_iterator it = pattlist.begin(); it != pattlist.end(); ++it)
 	{
 		pugi::xpath_node xmlfnode = *it;		

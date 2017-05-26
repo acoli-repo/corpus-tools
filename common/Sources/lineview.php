@@ -83,11 +83,13 @@
 		if ( $act == "edit" ) {
 		
 			check_login();
+		$divwidth = 500;
+		$divheight = $divwidth*($imgheight/$imgwidth);
 		
 			// A float makes that the items are not visible at the same time, while fixed would not work well for 2-up 
 			// and needs a different logic (scroll offset)
 			$maintext .= "
-				<div id=\"facsimg\" style='float: right; width: {$divwidth}px; height: {$divheight}px; background-image: url($imgsrc); background-size: 100% 100%;'>
+				<div id=\"facsimg\" style='position: fixed; right: 10px; top: 50px; width: {$divwidth}px; height: {$divheight}px; background-image: url($imgsrc); background-size: 100% 100%;'>
 				<div id='hlbar' class='hlbar' style='display: none;'></div>
 				</div>
 				<script language=Javascript src=\"$jsurl/bbox.js\"></script>
