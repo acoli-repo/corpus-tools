@@ -26,6 +26,8 @@
 			$flatxml[$atn] = $atv."";
 		};
 
+		if ( $xml.""  != "" ) { $flatxml['(text)'] = $xml.""; };
+
 		foreach ( $xml->children() as $node ) {
 			$chn = "".$node->getName();
 			if ( $node['id'] ) $key = $node['id']."";
