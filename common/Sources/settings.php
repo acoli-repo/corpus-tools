@@ -17,7 +17,7 @@
 
 	};	
 
-	function xmlflatten ( $xml ) {
+	function xmlflatten ( $xml, $int = 0 ) {
 		global $maintext; 
 		if ( !$xml ) return "";
 	
@@ -26,7 +26,7 @@
 			$flatxml[$atn] = $atv."";
 		};
 
-		if ( $xml.""  != "" ) { $flatxml['(text)'] = $xml.""; };
+		if ( $int && $xml.""  != "" ) { $flatxml['(text)'] = $xml.""; };
 
 		foreach ( $xml->children() as $node ) {
 			$chn = "".$node->getName();

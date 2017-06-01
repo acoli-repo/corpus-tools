@@ -151,7 +151,7 @@
 			$maintext .= file_get_contents("Pages/$xmlfile-text.txt");
 			$maintext .= "<hr>";
 		} else if ( $description ) {
-			$maintext .= $description;
+			$maintext .= "<p>$description</p>";
 			$maintext .= "<hr>";
 		};
 
