@@ -324,7 +324,7 @@
 				$markupcolor = $markcolor[$segment[$markfeat].""]; 
 				$rodata .= " markupcolor=\"$markupcolor\"";
 				$newrow = "<tr onMouseOver=\"markout(this)\" onMouseOut=\"unmarkout();\" $rodata class=\"segment\" toklist='$tokenlist'>";
-				$newrow .= "<td><a href='index.php?action=$action&annotation=$annotation&act=redit&sid=$sid&cid=$fileid'\"><span style=\"color: $markupcolor; font-size: large;\">&blacksquare;</span> ".$segment."</a>";
+				$newrow .= "<td><a href='index.php?action=$action&annotation=$annotation&act=redit&sid=$sid&cid=$fileid'\" style=\"text-decoration: none;\"><span style=\"color: $markupcolor; font-size: large;\">&blacksquare;</span> ".$segment."</a>";
 				$newrow .= "</tr>"; array_push($sortrows, $newrow);
 			};
 			natsort($sortrows); $annotations .= "<table>".join("\n", $sortrows)."</table>";
