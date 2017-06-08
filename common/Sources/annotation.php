@@ -1,62 +1,88 @@
 <?php
 	$annotation = $_GET['annotation'] or $annotation = $_SESSION['annotation'];
-	if ( $annotation ) {
-		$andef = simplexml_load_file("Annotations/{$annotation}_def.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		if ( ( !$settings['annotations'][$anid] || $settings['annotations'][$anid]['admin'] ) && !$username )  {
-			fatal ( "Annotation data for <i>{$andef['name']}</i> are not publicly accessible" );
-		};
-		if ( !$andef ) {
-			if ( $username ) 
-				fatal ( "Error reading annotation definition file Annotations/{$annotation}_def.xml" );
-			else
-				fatal ( "Annotation data for <i>{$andef['name']}</i> cannot be read" );
-		};
-		$result = $andef->xpath("//interp"); 
-		foreach ( $result as $tmp ) { 
-			$tagset[$tmp['key'].''] = $tmp;
-			if ( $tmp['type'] != "long" ) {
-				if ( $tmp['key'] == $dist ) $sel = "selected"; else $sel = "";
-				$distlist .= "<option value='{$tmp['key']}' $sel>{$tmp['long']}</option>"; 
-			};
-		};
-	};	
-	$fileid = $_GET['cid'];
-	if ( $fileid && !strstr($fileid, ".xml") ) $fileid .= ".xml";
-	$xmlid = preg_replace("/\.xml$/", "", $fileid);
-	$filename = "Annotations/{$annotation}_$fileid";
-
-	if ( $_GET['query'] ) {
-		list ( $fld, $val ) = explode ( ":", $_GET['query'] );
-		$sqtxt .= "<p>{$tagset[$fld]['long']} = '$val'";
-		$squery = "[@$fld=\"$val\"]";
-	};
-	
-	if ( $act && $act != "distribution" && !$username ) $act = ""; # Disable edit mode for non-users
+	$colorlist = array ( "#ff9999", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66");
 	
 	if ( !$annotation ) {
-	
-		$maintext .= "<h1>Annotations</h1>
-			";
-		foreach ( glob("Annotations/*_def.xml") as $filename ) {
-			$anid = preg_replace( "/.*\/(.*?)_def\.xml/", "\\1", $filename );
-			$andef = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-			$tit = $andef['name'];
-			if ( ( $settings['annotations'][$anid] && !$settings['annotations'][$anid]['admin'] ) || $username )  {
-				$maintext .= "<p><h2><a href='index.php?action=$action&annotation=$anid'>$tit</a></h2><p>".$andef->desc."</p>
-					<p><a href='index.php?action=$action&annotation=$anid'>{%select}</a></p>";
-				$some = 1; 
-			};
+		if ( is_array($settings['annotations']) && count($settings['annotations']) == 1 ) {
+			$annotation = join(";", array_keys($settings['annotations']));
+		} else {
+			fatal ( "No annotation selected" );
 		};
-		if ( !$some ) $maintext .= "<p><i>{%No annotation schemes found}</i>";
-	
-	} else if ( $act == "save" && $fileid ) {
-	
-		$antxt = file_get_contents($filename);
-		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
-		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		require ("$ttroot/common/Sources/ttxml.php");
-		$ttxml = new TTXML($fileid);
+	};
 
+	require ("$ttroot/common/Sources/ttxml.php");
+	$ttxml = new TTXML();
+	$fileid = $ttxml->fileid;
+
+
+	# Read the annotation definition
+	$andef = simplexml_load_file("Annotations/{$annotation}_def.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+	if ( ( !$settings['annotations'][$anid] || $settings['annotations'][$anid]['admin'] ) && !$username )  {
+		fatal ( "Annotation data for <i>{$andef['name']}</i> are not publicly accessible" );
+	};
+	if ( !$andef ) {
+		if ( $username ) 
+			fatal ( "Error reading annotation definition file Annotations/{$annotation}_def.xml" );
+		else
+			fatal ( "Annotation data for <i>{$andef['name']}</i> cannot be read" );
+	};
+	$headertxt = current($andef->xpath("desc")); 
+	if ( $headertxt ) $headertxt .= "<hr>";
+	$result = $andef->xpath("//interp"); 
+	if ( $andef['keepxml'] ) { $keepxml = 1; } else { $keepxml = 0; };
+	$moreactions .= "var keepxml = $keepxml; var interp = [];\n"; 
+	foreach ( $result as $tmp ) { 
+		$tagset[$tmp['key'].''] = $tmp;
+		if ( $tmp['type'] != "long" ) {
+			if ( $tmp['key'] == $dist ) $sel = "selected"; else $sel = "";
+			$distlist .= "<option value='{$tmp['key']}' $sel>{$tmp['long']}</option>"; 
+		};
+		 $i = 0;
+		if ( $tmp->xpath("option") ) {
+			$optionlist = "";
+			foreach ( $tmp->xpath("option") as $child ) {
+				$optionlist .= "<option value=\"{$child['value']}\">{$child}</option>";
+			};
+			$pulldowns[$tmp['key'].''] = $optionlist; 
+			$annotationrows .= "<tr><th>{$tmp['display']}<td><select name=news[$i][{$tmp['key']}]><option value=''>[{%select}]</option>$optionlist</select>";
+		} else {
+			$annotationrows .= "<tr><th>{$tmp['display']}<td><input name=news[$i][{$tmp['key']}] style='width: 100%'/>";
+		};
+		if ( $tmp['colored'] ) {
+			foreach ( $tmp->children() as $tmp2 ) {
+				$color = $tmp2['color']."";
+				if ( $color == "" ) $color = array_shift($colorlist);
+				$markfeat = $tmp['key'].""; 
+				$markcolor[$tmp2["value"].""] = $color; 
+				$markbuttons .= "<span style=\"border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '{$tmp2['value']}');\">{$tmp2['value']}</span> ";
+			};
+			if ( $markbuttons ) $annotations = "$markbuttons<hr>";
+		};
+		$moreactions .= "interp['{$tmp['key']}'] = '{$tmp['long']}';";
+	};
+
+	# Read the actual annotation for this file (if any)
+	$filename = "Annotations/{$annotation}_".$ttxml->fileid;
+	$antxt = file_get_contents($filename);
+	if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
+	$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+
+	# Make a clean version of the text
+	$cleaned = $ttxml->rawtext;
+	$cleaned = preg_replace("/.*<text[^>]*>/smi", "", $cleaned);
+	$cleaned = preg_replace("/<\/text>.*/smi", "", $cleaned);
+	if ( !$keepxml ) {
+		$cleaned = preg_replace("/<(?!\/?(d?tok|p))[^>]+>/", "", $cleaned);
+		$cleaned = preg_replace("/<\/tok>(\s+)/", " </tok>", $cleaned);
+	};
+
+	$maintext .= "<h1>{%{$andef['name']}}</h1>";
+
+	$maintext .= "<h2>".$ttxml->title()."</h2>"; 
+
+
+	if ( $act == "save" && $fileid ) {
+		
 		foreach ( $_POST['toks'] as $key => $val ) {
 			$sep = ""; $tt = "";
 			foreach ( $val as $key2 => $val2 ) {
@@ -81,9 +107,9 @@
 
 		foreach ( $_POST['news'] as $key => $val ) {
 			if ( $val['corresp'] == "" ) { continue; }
-			$segnode = $anxml->addChild('span', $val['text']); unset($val['text']);
+			$segnode = $anxml->addChild('span', trim($val['text'])); unset($val['text']);
 			foreach ( $val as $fk => $fv ) {
-				$segnode[$fk] = $fv;
+				$segnode[$fk] = trim($fv);
 			};
 		};
 		
@@ -150,14 +176,8 @@
 
 	} else if ( $fileid && $act == "redit" ) {
 
-		require ("$ttroot/common/Sources/ttxml.php");
-		$ttxml = new TTXML($fileid);
-		
-		$sid = $_GET['id'];
+		$sid = $_GET['sid'];
 
-		$antxt = file_get_contents($filename);
-		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
-		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		$result = $anxml->xpath("//span[@id=\"$sid\"]"); 
 		$segnode = $result[0];		
 		$result = $segnode->xpath(".."); 
@@ -254,145 +274,99 @@
 			};
 		$maintext .= "<hr>
 			<p><a href='index.php?action=$action&annotation=$annotation'>{%to annotation list}</a>";
-
-	} else if ( $fileid ) {
-		# Show a specific annotation on a file
 	
-		$antxt = file_get_contents($filename);
-		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
-		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+	} else if ( $act == "list"  || $act == "edit" ) {
 
-		require ("$ttroot/common/Sources/ttxml.php");
-		$ttxml = new TTXML();
-
-		$maintext .= "<h1>{%{$andef['name']}}</h1>";
-		$maintext .= "<h2>".$ttxml->title()."</h2>"; 
-		$maintext .= $ttxml->tableheader(); 
-		
-		$description = $andef->desc;
-		if ( $description ) $maintext .= "<p>$description</p><hr>";
- 
-		$maintext .= "
-			<table width='100%'><tr><td width='50%' valign=top>".$ttxml->mtxt(0);
-		$maintext .= "</td><td valign=top style='border-left: 1px solid #991000; padding-left: 20px;'>";
-		if ( $sqtxt ) { $sqtxt .= " (<a href=\"index.php?action=$action&annotation=$annotation&cid=$fileid&act=$act\">reset</a>)"; };
-		$maintext .= "$sqtxt
-			<p>{%Move your mouse over the rows to see the corresponding text in the file}<hr>";
-		if ( $act=="edit" ) $maintext .= "<form action='index.php?action=$action&annotation=$annotation&cid=$fileid&act=save' method=post>";
-		$maintext .= "<table><tr><th>Text";
-			foreach ( $tagset as $key => $val ) {
-				$maintext .= "<th>{%{$val['display']}}</th>";
-			};
-			
 		$xpath = "//span$squery";
 		$result = $anxml->xpath($xpath); $sortrows = array();
 		foreach ( $result as $segment ) {
 			$sid = $segment['id'];
 			$tokenlist = str_replace("#", "", $segment['corresp']);
-			$newrow = "<tr onMouseOver=\"markout('$tokenlist')\" onMouseOut=\"unhighlight();\")\">";
+			$newrow = "<tr>";
 			if ($username) 
-				$newrow .= "<td><a href='index.php?action=$action&annotation=$annotation&act=redit&id=$sid&cid=$fileid'>".$segment."</a>";
+				$newrow .= "<td><a href='index.php?action=$action&annotation=$annotation&act=redit&sid=$sid&cid=$fileid'>".$segment."</a>";
 			else 
 				$newrow .= "<td>".$segment;
 			foreach ( $tagset as $key => $val ) {
 				if ( $act == "edit" ) {
-					$newrow .= "<td><input name='sval[$sid][$key]' value='{$segment[$key]}'></td>";
+					if ( $pulldowns[$key] ) 
+						$newrow .= "<td><select name='sval[$sid][$key]'>{$pulldowns[$key]}</select></td>";
+					else
+						$newrow .= "<td><input name='sval[$sid][$key]' value='{$segment[$key]}'></td>";
 				} else {
 					$newrow .= "<td>{$segment[$key]}</td>";
 				};
 			};
 			$newrow .= "</tr>"; array_push($sortrows, $newrow);
 		};
-		natsort($sortrows); $maintext .= join("\n", $sortrows);
-		if ( $act == "edit" ) {
-			for ( $i=1; $i<11; $i++ ) {
-				$maintext .= "
-				
-					<tr style='display: none;' id='newrow-$i'>
-						<td><input type=hidden name=\"news[$i][corresp]\" id=\"news[$i][corresp]\">
-							<input name=\"news[$i][text]\" id=\"news[$i][text]\" style='border: none; font-size: 11pt;' readonly>";
-				foreach ( $tagset as $key => $val ) {
-					$maintext .= "<td><input name='news[$i][$key]' value=''></td>";
-				};
-				$maintext .= "</tr>";
-			};
-		};
-		$maintext .= "</table>";
-		if ( $act=="edit" ) $maintext .= "<input type=submit value=Save></form>
-			<hr><p>Click words to create a new annotation element</p>
-			<div id='newann' name='newann' style='display: none;'>
-				<input id='newann-toklist' name='newann-toklist' readonly style='border: none;'>
-				<input id='newann-wrdlist' name='newann-wrdlist' readonly style='border: none;'>
-				<br><button onClick='makenewann()'>Create annotation</button> <button onClick='clearnewann()'>Clear</button>
-			</div>
-			<script language=Javascript src='$jsurl/standoff.js'></script>
-			";
-		$maintext .= "</td></tr></table>
-		<hr>
-		<p><a href='index.php?action=file&cid=$fileid'>{%to text mode}</a> &bull; <a href='index.php?action=$action&annotation=$annotation'>{%to annotation list}</a>";
-		if ( $username && $act != "edit" ) $maintext .= " &bull; <span class=adminpart><a href='{$_SERVER['REQUEST_URI']}&act=edit'>{%edit mode}</a></span>"; 
+		natsort($sortrows); $maintext .= "<table>".join("\n", $sortrows)."</table>";
 		
-		$maintext .= "
-			<script language=Javascript>
-				function markout ( list) { 
-					var array = list.split(' ');
-					for ( var i=0; i<array.length; i++ ) {
-						highlight(array[i], '#ffcccc');
-					};
-				};
-			</script>
-		";
+		if ( $act == "edit" ) $maintext .= "<hr><p><a href='index.php?action=$action&annotation=$annotation&act=list&cid=$fileid'>{%back to list}</a>";
+		else {
+			$maintext .= "<hr><p>
+				<a href='index.php?action=$action&annotation=$annotation&act=edit&&cid=$fileid'>{%edit list}</a>
+				&bull;
+				<a href='index.php?action=$action&annotation=$annotation&act=&&cid=$fileid'>{%text view}</a>
+				";
+		};
 		
 	} else {
-		# Search though all the annotation files of the selected type
-		
-		$anfile = "<annotation>";
-		foreach (glob("Annotations/{$annotation}_*.xml") as $filename) {
-			$anffile = file_get_contents($filename);
-			$anffile = str_replace('<?xml version="1.0"?>', "", $anffile);
-			$anfile .= $anffile;
-		};
-		$anfile .= "</annotation>";
-		$anxml = simplexml_load_string($anfile, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-
-
-		$description = $andef->desc;
-		$maintext .= "<h1>{%{$andef['name']}}</h1>
-					<div>$description</div>";
-		if ( !$squery ) $maintext .= "<p>{%Click on the column values to restrict the selection of annotations}";
-		
-		$result = $anxml->xpath("//span$squery"); 
-		$maintext .= "$sqtxt<p>".count($result)." results</p>
-			<hr>
-			<table><tr><td><td><th>Text</th>";
-			foreach ( $tagset as $key => $val ) {
-				$maintext .= "<th>{%{$val['display']}}</th>";
-			};
-		foreach ( $result as $segment ) {
-			$tmp = $segment->xpath('..'); $sfid = $tmp[0]['id'];
-			$maintext .= "<tr>
-				<td><a href='index.php?action=$action&annotation=$annotation&cid=$sfid&query={$_GET['query']}'>{$sfid}</a>
-				<td><a href='index.php?action=$action&act=redit&annotation=$annotation&cid=$sfid&id={$segment['id']}'>edit</a>
-				<td>".$segment;
-			foreach ( $tagset as $key => $val ) {
-				$code = $segment[$key];
-				$tmp = $andef->xpath("//interp[@key='$key']/option[@value='$code']");
-				if ( $tmp ) {
-					$oval = $tmp[0]."";
-					if ( $oval == $code || !$oval) $codetxt = $oval; 
-					else $codetxt = "$code: $oval";
-				} else $codetxt = $code;
-				if ( $val['type'] == "long" ) {
-					$maintext .= "<td>$codetxt</td>";
-				} else {
-					$maintext .= "<td><a href='index.php?action=$action&annotation=$annotation&query=$key:{$segment[$key]}' style='color: black'>$codetxt</a></td>";
+		if ( $anxml ) {
+			$xpath = "//span$squery";
+			$result = $anxml->xpath($xpath); $sortrows = array();
+			foreach ( $result as $segment ) {
+				$sid = $segment['id'];
+				$tokenlist = str_replace("#", "", $segment['corresp']);
+				$rotitle = ""; $rodata = "";
+				foreach ( $tagset as $key => $val ) {
+					$rodata .= " $key=\"{$segment[$key]}\"";
 				};
+				$markupcolor = $markcolor[$segment[$markfeat].""]; 
+				$rodata .= " markupcolor=\"$markupcolor\"";
+				$newrow = "<tr onMouseOver=\"markout(this)\" onMouseOut=\"unmarkout();\" $rodata class=\"segment\" toklist='$tokenlist'>";
+				$newrow .= "<td><a href='index.php?action=$action&annotation=$annotation&act=redit&sid=$sid&cid=$fileid'\"><span style=\"color: $markupcolor; font-size: large;\">&blacksquare;</span> ".$segment."</a>";
+				$newrow .= "</tr>"; array_push($sortrows, $newrow);
 			};
+			natsort($sortrows); $annotations .= "<table>".join("\n", $sortrows)."</table>";
 		};
-		$maintext .= "</table><hr>";
-		$maintext .= "<a href='index.php?action=$action&act=distribution&annotation=$annotation'>{%view distribution}</a>";
-		$maintext .= " &bull; <a href='index.php?action=$action&act=tagset&annotation=$annotation'>{%view tagset}</a>";
-		if ( $squery ) $maintext .= " &bull; <a href='index.php?action=$action&annotation=$annotation'>{%reset selection}</a>";
-	};
+		if ( $username ) $annotations .= "<hr><p><a href='index.php?action=$action&annotation=$annotation&cid={$_GET['cid']}&act=list'>{%show as list}</a>";
+	
 
+
+		if ( $username ) {
+			$helptext = "<h2 style='margin-top: 0px;'>Help</h2><p>To edit the mark-up, select tokens in the text and fill in 
+					the annotation data in the popup. To select more words, hold down the Alt key. Any selection will automatically
+					snap to tokens.</p>";
+		};
+
+		$maintext .= "
+		
+			<div style=\"z-index: 200; text-align: right; position: fixed; top: 10px; right: 30px;\">
+				<span style='cursor: help;' onmouseover=\"show('help');\" onmouseout=\"hide('help');\">?</span>
+				<div id=help name=help style='width: 400px; display: none; text-align: left; border: 1px solid #992000; background-color: #ffffaa; margin-top: 30px; padding: 15px; padding-bottom: 5px;'>$helptext</div>
+			</div>
+
+			<div id=editform name=editform style=\"z-index: 100; display: none; width: 22%; position: fixed; top: 80px; right: 20px; border: 1px solid #992000; background-color: white; padding: 15px; \">
+				<h2 style='margin-top: 0px;'>Edit Annotation</h2>
+				<form action='index.php?action=$action&cid=$fileid&annotation=$annotation&act=save' method=post>
+				<p>Selection:<br>
+				<span id='selection' style='font-weight: bold; color: #200099;'></span>				
+				<input type=hidden name='news[0][text]' id='selectionf' style='font-weight: bold; color: #200099; border: none;'>
+				<p style='display: none;'>IDs: <input name=news[0][corresp] id=idlist style='border: none;'>
+				<table>
+				$annotationrows
+				</table>
+				<p><input type=submit value='Save'> <input type=button value='Cancel' onClick='killselection();'>
+				</form>
+			</div>
+					
+			<div id='tokinfo' style='z-index: 300; display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
+			<div style='vertical-align: top; width: 22%; float: right; overflow: scroll; position: fixed; top: 70px; right: 30px; ' id=annotations><h2>Annotations</h2>$annotations</div>
+			<div style='vertical-align: top; width: 70%; height: 80%; overflow: scroll;' onmouseup='makespan(event);'>$headertxt<div id=mtxt>$cleaned</div><hr><p><a href='index.php?action=file&cid=$fileid'>{%text view}</a></div>
+
+			<script language=Javascript>$moreactions</script>
+			<script src=\"$jsurl/annotation.js\"></script>
+			";
+	};
+	
 ?>

@@ -238,7 +238,6 @@ class TTXML
 		if ( !file_exists("backups/$buname") ) {
 			copy ( "xmlfiles/{$this->filename}", "backups/$buname");
 		};
-		
 		# Now, make a safe XML text out of this and save it to file
 		if ( $this->fileid ) $filetosave = $this->fileid;
 		file_put_contents("xmlfiles/$filetosave", $this->xml->asXML());
