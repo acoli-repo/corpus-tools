@@ -78,7 +78,7 @@
 
 	$maintext .= "<h1>{%{$andef['name']}}</h1>";
 
-	$maintext .= "<h2>".$ttxml->title()."</h2>"; 
+	$maintext .= "<h2 title=\"$filename\">".$ttxml->title()."</h2>"; 
 
 
 	if ( $act == "save" && $fileid ) {
