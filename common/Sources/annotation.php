@@ -12,7 +12,7 @@
 
 	require ("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML();
-	$fileid = $ttxml->fileid;
+	$fileid = preg_replace("/.*\//", "", $ttxml->fileid);
 
 
 	# Read the annotation definition
@@ -62,9 +62,9 @@
 	};
 
 	# Read the actual annotation for this file (if any)
-	$filename = "Annotations/{$annotation}_".$ttxml->fileid;
+	$filename = "Annotations/{$annotation}_".$fileid;
 	$antxt = file_get_contents($filename);
-	if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\" filename=\"$filename\"></spanGrp>";
+	if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
 	$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 
 	# Make a clean version of the text
