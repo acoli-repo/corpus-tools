@@ -17,7 +17,7 @@
 
 	# Read the annotation definition
 	$andef = simplexml_load_file("Annotations/{$annotation}_def.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-	if ( ( !$settings['annotations'][$anid] || $settings['annotations'][$anid]['admin'] ) && !$username )  {
+	if ( ( !$settings['annotations'][$annotation] || $settings['annotations'][$annotation]['admin'] ) && !$username )  {
 		fatal ( "Annotation data for <i>{$andef['name']}</i> are not publicly accessible" );
 	};
 	if ( !$andef ) {
