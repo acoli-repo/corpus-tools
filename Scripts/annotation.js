@@ -11,7 +11,9 @@ for ( var a = 0; a<segs.length; a++ ) {
 			// elm.style['text-decoration'] = 'underline'; 
 			// elm.style['text-decoration-color'] = seg.getAttribute('markupcolor'); 
 			elm.style.borderBottom = '2px solid #0000FF';
+			elm.style['borderBottom'] = '2px solid #0000FF';
 			elm.style.borderColor = seg.getAttribute('markupcolor'); 
+			elm.style['borderColor'] = seg.getAttribute('markupcolor'); 
 		};
 	};
 };
@@ -40,7 +42,7 @@ function hide ( id ) {
 	elm.style.display = "none";
 }
 
-function markout ( seg, withinfo = true ) { 
+function markout ( seg, withinfo ) { 
 
 	var array = seg.getAttribute('toklist').split(' ');
 	var tokid = array[0];
