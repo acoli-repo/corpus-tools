@@ -26,6 +26,7 @@ for ( var a = 0; a<toks.length; a++ ) {
 		var org = tok.innerText;
 		var form = tok.getAttribute('form');
 		if ( form == '--' ) { form = ''; };
+		console.log(org + '; ' + org.substring(org.length-1) + ';' ); 
 		if ( org.substring(org.length-1) == ' ' ) { form += ' '; };
 		tok.innerHTML = form; 
 	};
@@ -47,7 +48,7 @@ function markout ( seg, withinfo ) {
 	var array = seg.getAttribute('toklist').split(' ');
 	var tokid = array[0];
 	
-	newrow = '<h3>' + seg.innerText + '</h3><table>';
+	newrow = '<table width=100%><tr><th colspan=2><b>' + seg.innerText.substring(1) + '</b></th></tr>';
 	for ( var ak in interp ) {
 		var an = interp[ak]; var av = seg.getAttribute(ak);
 		newrow += '<tr><th>'+an+'</th><td>'+av+'</td></tr>';				
@@ -132,7 +133,7 @@ function markback ( tokid ) {
 			seg.style['background-color'] = seg.getAttribute('markupcolor');
 			seg.style.backgroundColor= seg.getAttribute('markupcolor'); 
 			
-			newrow = '<h3>' + seg.innerText + '</h3><table>';
+			newrow = '<table width=100%><tr><th colspan=2><b>' + seg.innerText.substring(1) + '</b></th></tr>';
 			for ( var ak in interp ) {
 				var an = interp[ak]; var av = seg.getAttribute(ak);
 				newrow += '<tr><th>'+an+'</th><td>'+av+'</td></tr>';				

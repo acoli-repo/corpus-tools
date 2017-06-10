@@ -48,6 +48,9 @@ if ( !$force && $rawxml =~ /<\/tok>/ ) {
 	print "Already tokenized"; exit;
 };
 
+# We cannot have xmlns in our XML
+$rawxml =~ s/xmlns=/xmlnsoff=/g;
+
 # We cannot have an XML tag span a line, so join them back on a single line
 $rawxwl =~ s/<([^>]+)[\n\r]([^>]+)>/<\1 \2>/g;
 
@@ -294,7 +297,8 @@ foreach $line ( split ( "\n", $tagtxt ) ) {
 					$frm =~ s/<\/?expan [^>]*>//g; 
 				}; # With <ex> - <expan> is no longer an expanded stretch
 				$ffrm = $frm;
-				$frm =~ s/<ex.*?<\/ex[^>]*>//g; # Delete expansions in form
+				$frm =~ s/<ex(?=[ >]).*?<\/ex[^>]*>//g; # Delete expansions in form
+				$ffrm =~ s/<am(?=[ >]).*?<\/am>//g; # Delete abbreviation markers in fform
 			};
 
 			# Remove all (other) tags
