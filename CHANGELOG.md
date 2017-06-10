@@ -4,13 +4,17 @@
 
 ### Improvements 
 
+* Added edit options to deptree
+* Complete redesign of annations for stand-off annotation
 
 ### Bug fixes
 
+* Fixed a new bug that incorrectly flattened XML
+* Fixed issues in the new xmlreader
 
 # Change Log
 
-## [Version 1.4](https://gitlab.com/maartenes/TEITOK/tags/v1.5) (Jun 01, 2017)
+## [Version 1.5](https://gitlab.com/maartenes/TEITOK/tags/v1.5) (Jun 01, 2017)
 
 ### Improvements 
 
