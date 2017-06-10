@@ -102,7 +102,7 @@ of the cqp folder
 * Improved use of regular expressions in multi-edit
 * Made the "TEITOK" statement in the menu less prominent
 * Trash folder is now created when it does not exist
-* Removed the now redundant warning if the sum of dtok/@form does not match tok/@form
+* Removed the now redundant warning if the sum of `dtok/@form` does not match `tok/@form`
 * Splitting token by adding &lt;/tok&gt;&lt;tok&gt; now works correctly
 * Turned on Facsimile image uploading by default
 * Corrected several errors in the C++ modules (require recompilation!)
