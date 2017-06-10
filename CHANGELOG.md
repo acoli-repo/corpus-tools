@@ -1,6 +1,6 @@
 # Change Log
 
-## [Version 1.4](https://gitlab.com/maartenes/TEITOK/tags/v1.6) (Jun 08, 2017)
+## [Version 1.6](https://gitlab.com/maartenes/TEITOK/tags/v1.6) (Jun 08, 2017)
 
 ### Improvements 
 
