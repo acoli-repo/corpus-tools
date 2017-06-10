@@ -24,7 +24,7 @@
 * Added support for videos for corpora with time-aligned audio
 * "Not logged in" messages can now be customized
 * Values in PSDX can now have multi-select
-* tokedit now show facsimile cut-out when there is a @bbox on the token allowing to see OCR/transcription errors quickly
+* tokedit now show facsimile cut-out when there is a `@bbox` on the token allowing to see OCR/transcription errors quickly
 * Added xmlreader, allowing for an easy interface to a spreadsheet-like XML database
 
 
