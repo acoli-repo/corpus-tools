@@ -37,15 +37,15 @@
 				
 				$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 				if ( !$xml ) { fatal("<p>Error opening XML file"); };
-				$mtxtelement = $xml->xpath($mtxtelement); 
-				if ( !$mtxtelement ) { fatal("<p>Error. There is no element $mtxtelement in this XML file"); };
+				$mtxtnode = $xml->xpath($mtxtelement); 
+				if ( !$mtxtnode ) { fatal("<p>Error. There is no element $mtxtelement in this XML file"); };
 				
-				if ( preg_match("/^<([^> ]+)/", $mtxtelement[0]->asXML(), $matches ) ) $tag = $matches[1]; else $tag = "text";
-				if ( strstr($mtxtelement[0]->asXML(), "<![CDATA[") && !strstr($savexml, "<![CDATA[") ) {
+				if ( preg_match("/^<([^> ]+)/", $mtxtnode[0]->asXML(), $matches ) ) $tag = $matches[1]; else $tag = "text";
+				if ( strstr($mtxtnode[0]->asXML(), "<![CDATA[") && !strstr($savexml, "<![CDATA[") ) {
 					$savexml = "<$tag><![CDATA[".$savexml."]]></$tag>";
 				};
 
-				$mtxtelement[0][0] = "#!XMLHERE!#";
+				$mtxtnode[0][0] = "#!XMLHERE!#";
 				$newfile = preg_replace( "/<[^>]+>#!XMLHERE!#<\/[^>]+>/", $savexml, $xml->asXML() );
 				
 			};
