@@ -16,6 +16,10 @@
 		# print_r($_POST); exit;
 		$file = file_get_contents("$xmlfolder/$cardid"); 
 
+		if ( !strstr($file, "<?xml") ) { 
+			# Turn off the namespaces
+			$file = preg_replace ( "/ xmlns=/", " xmlnsoff=", $file );	
+		};
 
 		$maintext .= "<h1>Save Raw XML</h1>";
 
@@ -32,8 +36,9 @@
 				$savexml = preg_replace ( "/&(?![a-z]+;)/", "&amp;", $savexml );
 				
 				$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+				if ( !$xml ) { fatal("<p>Error opening XML file"); };
 				$mtxtelement = $xml->xpath($mtxtelement); 
-				if ( !$mtxtelement ) { "<p>Error. There is no element $mtxtelement in this XML file"; exit; };
+				if ( !$mtxtelement ) { fatal("<p>Error. There is no element $mtxtelement in this XML file"); };
 				
 				if ( preg_match("/^<([^> ]+)/", $mtxtelement[0]->asXML(), $matches ) ) $tag = $matches[1]; else $tag = "text";
 				if ( strstr($mtxtelement[0]->asXML(), "<![CDATA[") && !strstr($savexml, "<![CDATA[") ) {

@@ -33,6 +33,7 @@
 	};
 	
 	# We need to turn of the xmlns here
+	# TODO: This should also turn off the internal things 
 	$file = preg_replace ( "/ xmlns=/", " xmlnsoff=", $file );	
 	
 	$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
