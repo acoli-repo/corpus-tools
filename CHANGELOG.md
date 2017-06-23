@@ -1,5 +1,48 @@
 # Change Log
 
+## [Version 1.6](https://gitlab.com/maartenes/TEITOK/tags/v1.6) (Jun 08, 2017)
+
+### Improvements 
+
+* Added edit options to deptree
+* Complete redesign of annations for stand-off annotation
+
+### Bug fixes
+
+* Fixed a new bug that incorrectly flattened XML
+* Fixed issues in the new xmlreader
+
+# Change Log
+
+## [Version 1.5](https://gitlab.com/maartenes/TEITOK/tags/v1.5) (Jun 01, 2017)
+
+### Improvements 
+
+* Facsimile images are now prevented from scrolling out of the window untill the page ends
+* Permissions can now have groups, allowing some groups only access to specific functions
+* In the CQP distribution you can now indicate which sattributes to include
+* Added support for videos for corpora with time-aligned audio
+* "Not logged in" messages can now be customized
+* Values in PSDX can now have multi-select
+* tokedit now show facsimile cut-out when there is a `@bbox` on the token allowing to see OCR/transcription errors quickly
+* Added xmlreader, allowing for an easy interface to a spreadsheet-like XML database
+
+
+### Bug fixes
+
+* New items in the settings can now be required to have a name
+* dtokfill can now have anything as its POS tag
+* Fixed some bugs that prevented locally stored CQP repositories from properly working
+* Prevented facsimile cut-outs in lineview to become too large
+* Fixed some bugs wrt filenames that include space, and made new files no longer accept spaces
+* Improved search for PSDX
+* Improved checklist in myproject
+* Improved treatment of dtoks in neotagxml
+* sattributes in tt-cwb-encode can now refer to external XML files
+
+
+# Change Log
+
 ## [Version 1.4](https://gitlab.com/maartenes/TEITOK/tags/v1.4) (Feb 26, 2017)
 
 ### Improvements 
@@ -59,7 +102,7 @@ of the cqp folder
 * Improved use of regular expressions in multi-edit
 * Made the "TEITOK" statement in the menu less prominent
 * Trash folder is now created when it does not exist
-* Removed the now redundant warning if the sum of dtok/@form does not match tok/@form
+* Removed the now redundant warning if the sum of `dtok/@form` does not match `tok/@form`
 * Splitting token by adding &lt;/tok&gt;&lt;tok&gt; now works correctly
 * Turned on Facsimile image uploading by default
 * Corrected several errors in the C++ modules (require recompilation!)
