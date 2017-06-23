@@ -5,7 +5,7 @@ for ( var a = 0; a<segs.length; a++ ) {
 	var seg = segs[a];
 	var array = seg.getAttribute('toklist').split(' ');
 	for ( var b=0; b < array.length; b++ ) {
-		var tokid = array[b]; console.log(tokid);
+		var tokid = array[b]; // console.log(tokid);
 		var elm = document.getElementById(tokid);
 		if ( elm ) {
 			// elm.style['text-decoration'] = 'underline'; 
@@ -26,7 +26,6 @@ for ( var a = 0; a<toks.length; a++ ) {
 		var org = tok.innerText;
 		var form = tok.getAttribute('form');
 		if ( form == '--' ) { form = ''; };
-		console.log(org + '; ' + org.substring(org.length-1) + ';' ); 
 		if ( org.substring(org.length-1) == ' ' ) { form += ' '; };
 		tok.innerHTML = form; 
 	};
@@ -46,8 +45,8 @@ function hide ( id ) {
 function markout ( seg, withinfo ) { 
 
 	var array = seg.getAttribute('toklist').split(' ');
-	var tokid = array[0];
-	
+	var tokid = array[0]; 
+	 
 	newrow = '<table width=100%><tr><th colspan=2><b>' + seg.innerText.substring(1) + '</b></th></tr>';
 	for ( var ak in interp ) {
 		var an = interp[ak]; var av = seg.getAttribute(ak);

@@ -66,8 +66,7 @@
 	$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$xml ) { fatal ( "Failing to read/parse $fileid" ); };
 			
-	$titlexpath = $settings['xmlfile']['title'] or $titlexpath = "//title";
-	$result = $xml->xpath($titlexpath); 
+	$result = $xml->xpath("//title"); 
 	$title = $result[0];
 	if ( $title == "" ) $title = "<i>{%Without Title}</i>";
 

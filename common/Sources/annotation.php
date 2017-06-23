@@ -29,7 +29,7 @@
 	$headertxt = current($andef->xpath("desc")); 
 	if ( $headertxt ) $headertxt .= "<hr>";
 	$result = $andef->xpath("//interp"); 
-	if ( $andef['keepxml'] || $_GET['keepxml'] ) { $keepxml = 1; } else { $keepxml = 0; };
+	if ( $andef['keepxml'] ) { $keepxml = 1; } else { $keepxml = 0; };
 	$moreactions .= "var keepxml = $keepxml; var interp = [];\n"; 
 	foreach ( $result as $tmp ) { 
 		$tagset[$tmp['key'].''] = $tmp;
@@ -54,12 +54,13 @@
 				if ( $color == "" ) $color = array_shift($colorlist);
 				$markfeat = $tmp['key'].""; 
 				$markcolor[$tmp2["value"].""] = $color; 
-				$markbuttons .= "<span style=\"cursor: pointer; border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '{$tmp2['value']}');\">{$tmp2['value']}</span> ";
+				$markbuttons .= "<span style=\"border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '{$tmp2['value']}');\">{$tmp2['value']}</span> ";
 			};
 			if ( $markbuttons ) $annotations = "$markbuttons<hr>";
 		};
-		$moreactions .= "interp['{$tmp['key']}'] = '{$tmp['long']}';";
+		$moreactions .= "interp['{$tmp['key']}'] = '{$tmp['long']}'; ";
 	};
+	$moreactions .= "var markfeat = '$markfeat'; ";
 
 	# Read the actual annotation for this file (if any)
 	$filename = "Annotations/{$annotation}_".$fileid;
@@ -323,7 +324,7 @@
 				};
 				$markupcolor = $markcolor[$segment[$markfeat].""]; 
 				$rodata .= " markupcolor=\"$markupcolor\"";
-				$newrow = "<tr onMouseOver=\"markout(this, true)\" onMouseOut=\"unmarkout();\" $rodata class=\"segment\" toklist='$tokenlist'>";
+				$newrow = "<tr onMouseOver=\"markout(this, 1)\" onMouseOut=\"unmarkout();\" $rodata class=\"segment\" toklist='$tokenlist'>";
 				$newrow .= "<td><a href='index.php?action=$action&annotation=$annotation&act=redit&sid=$sid&cid=$fileid'\" style=\"text-decoration: none;\"><span style=\"color: $markupcolor; font-size: large;\">&blacksquare;</span> ".$segment."</a>";
 				$newrow .= "</tr>"; array_push($sortrows, $newrow);
 			};

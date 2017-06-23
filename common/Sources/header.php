@@ -7,8 +7,7 @@
 	if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
 	$verbose = 1;
 
-	$titlexpath = $settings['xmlfile']['title'] or $titlexpath = "//title";
-	$result = $xml->xpath($titlexpath); 
+	$result = $xml->xpath("//title"); 
 	$title = $result[0];
 
 	$tplfile = $_POST['tpl'] or $tplfile = $_GET['tpl'] or $tplfile = "teiHeader-edit.tpl";

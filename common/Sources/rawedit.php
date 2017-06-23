@@ -32,6 +32,9 @@
 		$file = preg_replace ( "/ id=\".*?\"/", "", $file );
 	};
 	
+	# We need to turn of the xmlns here
+	$file = preg_replace ( "/ xmlns=/", " xmlnsoff=", $file );	
+	
 	$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
 
