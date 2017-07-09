@@ -16,10 +16,8 @@
 		# print_r($_POST); exit;
 		$file = file_get_contents("$xmlfolder/$cardid"); 
 
-		if ( !strstr($file, "<?xml") ) { 
-			# Turn off the namespaces
-			$file = preg_replace ( "/ xmlns=/", " xmlnsoff=", $file );	
-		};
+		# Turn off the namespaces
+		$file = preg_replace ( "/ xmlns=/", " xmlnsoff=", $file );	
 
 		$maintext .= "<h1>Save Raw XML</h1>";
 

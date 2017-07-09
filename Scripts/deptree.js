@@ -14,18 +14,24 @@ for ( var a = 0; a<toks.length; a++ ) {
 	};
 };
 
-if ( labelstxt != '' ) {
+if ( typeof(labelstxt) != "undefined" ) {
+	if ( labelstxt != '' ) {
 	document.getElementById('linktxt').innerText = "Edit mode: Select a node in the tree to attach it to a new head - or select a label to change it";
 
 	var sentxml = makeXML(document.getElementById('mtxt').innerHTML);
 	var senttxt = new XMLSerializer().serializeToString(sentxml);
 	document.getElementById('sentxml').value = senttxt;
+	};
 };
 
 function relabel ( clicked ) {
 
 		if ( selected != null ) {
-			selected.setAttribute('fill',  ''); 
+			if ( selected.getAttribute('type') == 'label' ) {
+				selected.setAttribute('fill',  '#ff8866'); 
+			} else {
+				selected.setAttribute('fill',  ''); 
+			};
 		};
 		
 		selected = clicked;
@@ -37,13 +43,12 @@ function relabel ( clicked ) {
 
 function setlabel ( clicked ) {
 
-	console.log(clicked);
-	console.log(selected);
 	if ( selected != null && selected.getAttribute('type') == 'label' ) {
 		var changenode = sentxml.getElementById(selected.getAttribute('baseid'));
-		changenode.setAttribute('deps', clicked.getAttribute('key'));
+		changenode.setAttribute('deprel', clicked.getAttribute('key'));
 		senttxt = new XMLSerializer().serializeToString(sentxml);
 		document.getElementById('sentxml').value = senttxt;
+		scriptedexit = true;
 		document.sentform.submit();
 	};
 	
@@ -51,9 +56,13 @@ function setlabel ( clicked ) {
 
 function relink ( clicked ) {
 	
-	if ( selected != null ) {
-		selected.setAttribute('fill',  ''); 
-	};
+		if ( selected != null ) {
+			if ( selected.getAttribute('type') == 'label' ) {
+				selected.setAttribute('fill',  '#ff8866'); 
+			} else {
+				selected.setAttribute('fill',  ''); 
+			};
+		};
 	
 	if ( selected == null || selected.getAttribute('type') != 'tok' ) {
 		
@@ -67,6 +76,7 @@ function relink ( clicked ) {
 		changenode.setAttribute('head', clicked.getAttribute('tokid'));
 		senttxt = new XMLSerializer().serializeToString(sentxml);
 		document.getElementById('sentxml').value = senttxt;
+		scriptedexit = true;
 		document.sentform.submit();
 		
 	};

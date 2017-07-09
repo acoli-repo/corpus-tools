@@ -19,3 +19,13 @@
 	top: 0px; width: 150px; height: 20px; left: 5px; /* these will be modified */
 	display: none; 
 }
+
+#rollovertable tr:hover {
+	background-color:#FFF3B8;
+}
+#rollovertable tr.even:hover {
+	background-color:#FFF3B8;
+}
+#rollovertable tr.even  {
+	background-color: #eaeaee;
+}

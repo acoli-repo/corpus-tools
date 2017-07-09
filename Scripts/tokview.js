@@ -82,7 +82,7 @@ function showtokinfo(evt, element, poselm) {
     		var att = attributelist[ia];
 			var attname = attributenames[att];
 			if ( !attname ) { attname = att; };
-    		if ( element.getAttribute(att) && ( !formdef[att] || ( !formdef[att]['admin'] || username ) ) ) {
+    		if ( element.getAttribute(att) && ( !formdef[att] || ( !formdef[att]['noshow'] && ( !formdef[att]['admin'] || username ) ) ) ) {
     			shownrows = 1;
     			var rowval = element.getAttribute(att);
     			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['type'] == 'pos' ) { rowval = treatpos(element, att, 'full'); }; 

@@ -10,6 +10,7 @@ $scriptname = $0;
             'debug' => \$debug, # debugging mode
             'force' => \$force, # tag even if already tagged
             'test' => \$test, # tokenize to string, do not change the database
+            'keepns' => \$test, # do not kill the xmlns
             'linebreaks' => \$linebreaks, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
             'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
@@ -46,6 +47,11 @@ if ( $rawxml eq '' ) {
 # Check if not already tokenized
 if ( !$force && $rawxml =~ /<\/tok>/ ) {
 	print "Already tokenized"; exit;
+};
+
+# Kill the xmlns
+if ( !$keepns ) {
+	$rawxml =~ s/ xmlns=/ xmlnsoff=/g;
 };
 
 # We cannot have an XML tag span a line, so join them back on a single line
@@ -105,6 +111,9 @@ while ( $tagtxt =~ /<(note|desc|gap|pb|fw|app)[^>]*(?<!\/)>.*?<\/\1>/gsmi )  {
 	$tagtxt =~ s/\Q$notetxt\E/<ntn $notecnt\/>/;
 	$notecnt++;
 };	
+
+# We need to remove linebreaks in the middle of a tag
+$tagtxt =~ s/<([^>\n\r]*)[\n\r]+\s*/<\1 /g;
 
 if ( $debug ) {
 	print "\n\n----------------\nBEFORE TOKENIZING\n----------------\n$tagtxt----------------\n";

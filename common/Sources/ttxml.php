@@ -15,7 +15,7 @@ class TTXML
 	var $rawtext;
 	var $title;
 	
-	function __construct($fileid = "", $fatal = 1) {	
+	function __construct($fileid = "", $fatal = 1, $options ) {	
 	
 		# Use $_GET to find the file
 		if ( !$xmlfolder ) $xmlfolder = "xmlfiles";
@@ -55,8 +55,10 @@ class TTXML
 
 		$this->rawtext = file_get_contents("$xmlfolder/$fileid"); 
 
-		$this->rawtext = namespacemake($this->rawtext);
-		
+		if ( !strstr("keepns", $options) ) {
+			$this->rawtext = namespacemake($this->rawtext);
+		};
+			
 		$this->xml = simplexml_load_string($this->rawtext);
 		if ( !$this->xml && $fatal ) { fatal ( "Failing to read/parse $fileid" ); };
 		
@@ -90,7 +92,8 @@ class TTXML
 				$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 			};
 		};
-		$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
+		$allatts = array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']);
+		$jsonforms = array2json($allatts);
 		$jsontrans = array2json($settings['transliteration']);
 		$header = "
 			<script language=Javascript src=\"$jsurl/tokview.js\"></script>

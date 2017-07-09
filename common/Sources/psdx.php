@@ -267,7 +267,8 @@
 						} else if ( $treestyle == "table" ) {
 							$maintext .=  "<div id=tree>".drawtree($forest, true)."</div>";
 						} else if ( $treestyle == "svg" ) {
-							$maintext .= "\n".makesvgtree($forest, true);
+							$svgtree = makesvgtree($forest, true);
+							$maintext .= "\n".$svgtree;
 						} else if ( $treestyle == "vertical" ) {	
 							$maintext .= "<link href='$jsurl/treeul.css' rel='stylesheet' type='text/css'/><div class=tree>".drawtree2($forest)."</div>";
 						} else {
@@ -715,7 +716,8 @@
 						<link href='$jsurl/psdx-hor.css' rel='stylesheet' type='text/css'/>
 					";
 				} else if ( $treestyle == "svg"  ) {	
-					$maintext .= "\n".makesvgtree($forest);
+					$svgtree = makesvgtree($forest);
+					$maintext .= "\n".$svgtree;
 				} else if ( $treestyle == "bracketstring" ) {
 					$maintext .=  "<div id=tree>".bracketstring($forest)."</div>";
 				} else if ( $treestyle == "table" ) {
