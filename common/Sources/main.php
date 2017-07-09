@@ -52,7 +52,7 @@
 	include("$ttroot/common/Sources/settings.php");
 	
 	# Determine the folder to set a folder-specific user cookie
-	if ( preg_match("/\/teitok\/(.*?)\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
+	if ( preg_match("/\/teitok\/([^\/]*?)\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
 		$foldername = $matches[1];
 	} else $foldername = "teitok";
 	$sessionvar = "teitok-$foldername";
@@ -62,6 +62,7 @@
 	if ( $_GET['lang'] ) $lang = $_GET['lang'];
 	else if ( preg_match ( "/\/(...?)\/index\.php/", $_SERVER['REQUEST_URI'], $matches ) ) {
 		if ( $matches[1] != $foldername ) $lang = $matches[1];
+		else $lang = $deflang;	
 	} else if ( $_COOKIE['lang'] ) $lang = $_COOKIE['lang'];
 	else $lang = $deflang;
 	if ( !$settings['languages']['prefixed'] ) setcookie("lang", $lang); # Store the language use in a session if not using prefixes
