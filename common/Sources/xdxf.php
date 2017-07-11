@@ -286,7 +286,9 @@
 					if ( $count == 1 ) $id = $arid; 
 				};
 				# TODO: sort seems to only distroy the right order
-				# natcasesort($sortarray);
+				if ( $settings['xdxf']['sort'] ) {
+					natcasesort($sortarray);
+				};
 				$maintext .= join ( "\n", $sortarray );
 			} else $maintext .= "<i>{%No results found}</i>";
 			
