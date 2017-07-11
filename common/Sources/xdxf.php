@@ -285,7 +285,8 @@
 					if ( $cnt++ > $max ) break;
 					if ( $count == 1 ) $id = $arid; 
 				};
-				natcasesort($sortarray);
+				# TODO: sort seems to only distroy the right order
+				# natcasesort($sortarray);
 				$maintext .= join ( "\n", $sortarray );
 			} else $maintext .= "<i>{%No results found}</i>";
 			
