@@ -12,6 +12,10 @@
 	
 	
 	// on "paged" display, determine what to show
+	if ( !$_GET['pbtype'] && defined($settings['xmlfile']['paged']['element']) ) { 
+		# pbtype can be defined in the settings
+		$_GET['pbtype'] = $settings['xmlfile']['paged']['element'];
+	};
 	if ( !$_GET['pbtype'] || $_GET['pbtype'] == "pb" ) { 
 		$pbelm = "pb";
 		$titelm = "Page";
@@ -22,9 +26,13 @@
 		$titelm = "Chapter";
 		$pbelm = "milestone";
 		$pbsel = "&pbtype={$_GET['pbtype']}";
+	} else if ( defined($settings['xmlfile']['paged']['closed']) ) {
+		$pbtype = $_GET['pbtype'];
+		$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($_GET['type']);
+		$pbelm = $_GET['pbtype'];
 	} else {
 		$pbtype = "milestone[@type=\"{$_GET['pbtype']}\"]";
-		$titelm = ucfirst($_GET['type']);
+		$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($_GET['type']);
 		$pbelm = "milestone";
 		$pbsel = "&pbtype={$_GET['pbtype']}";
 	};
