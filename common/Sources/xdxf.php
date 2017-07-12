@@ -290,6 +290,7 @@
 					natcasesort($sortarray);
 				};
 				$maintext .= join ( "\n", $sortarray );
+				if ( !$id ) $maintext .= "<hr><p><i>$count {%results}</i> $showing</p>\n";
 			} else $maintext .= "<i>{%No results found}</i>";
 			
 			$maintext .= "<script language=Javascript>
