@@ -276,7 +276,7 @@
 		$maintext .= "<hr>
 			<p><a href='index.php?action=$action&annotation=$annotation'>{%to annotation list}</a>";
 	
-	} else if ( $act == "list"  || $act == "edit" ) {
+	} else if ( $act == "list"  ) { #  || $act == "edit"
 
 		$xpath = "//span$squery";
 		$result = $anxml->xpath($xpath); $sortrows = array();
@@ -312,6 +312,7 @@
 		};
 		
 	} else {
+	
 		if ( $anxml ) {
 			$xpath = "//span$squery";
 			$result = $anxml->xpath($xpath); $sortrows = array();
