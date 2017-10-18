@@ -16,15 +16,23 @@
 	if ( $act == "save" ) {
 		$id = $_POST['id'];
 	
-		if (!$id) { fatal ("Nothing to save or no (short) ID"); };
+		if ( !$id ) { fatal ("Nothing to save or no (short) ID"); };
 	
 		if ( $id == "new" ) {
 			$usr = $userlist->addChild("user");
 			$usr["short"] = $_POST['short'];
+			if ( $usr["short"] == "" ) { # Make sure we always have a short ID
+				$i = 1; $tmpid = "usr$i";
+				while ( $userlist->xpath("//user[@short=\"$tmpid\"]") ) {
+					$i++; $tmpid = "usr$i";
+				};
+				$usr["short"] = $tmpid;
+			};
 		} else {
 			$result = $userlist->xpath("//user[@short=\"$id\"]");
 			$usr = $result[0];
 			# $usr["name"] = $_POST['name'];
+			$usr["short"] = $_POST['short'];
 		};
 		$usr[0][0] = $_POST['name'];
 		$usr["permissions"] = $_POST['permissions'];
@@ -45,8 +53,13 @@
 			<script language=Javascript>top.location='index.php?action=$action';</script>";
 		exit;
 			
-	} else if ( $id ) {
-		$result = $userlist->xpath("//user[@short=\"$id\"]");
+	} else if ( $id || $_GET['email'] ) {
+	
+		if ( $id ) {
+			$result = $userlist->xpath("//user[@short=\"$id\"]");
+		} else {
+			$result = $userlist->xpath("//user[@email=\"{$_GET['email']}\"]");		
+		};
 		$usr = $result[0];
 		$name = preg_replace("/^\s+|\s+$/", "", $usr."" );
 		
@@ -64,6 +77,7 @@
 			$idfld
 			<tr><th>Real Name<td><input name='name' value='{$name}' size=70>
 			<tr><th>Email<td><input name='email' value='{$usr['email']}' size=50> (used as login)
+			<tr><th>Short Name<td><input name='short' value='{$usr['short']}' size=10> (used in TEI/XML)
 			<tr><th>Password<td><input name='password' size=20> $chpwd
 			<tr><th>Permissions<td><input name='permissions' value='{$usr['permissions']}'> (user, admin, none)
 			<tr><th>Group<td><input name='group' value='{$usr['group']}'> (defined in settings)
@@ -76,8 +90,24 @@
 		$maintext .= "<h1>User Administration</h1>
 			<table><tr><th>ID<th>Email<th>Name<th>Status";
 		foreach ( $result as $usr ) {
+
+			$userid = $usr['short'];		
+			if ( $userid == "" ) {  
+				$userlink = "&email=".$usr['email'];
+			} else {
+				$userlink = "&id=$userid";
+			};
+			
+			$usrtxt = $usr."";
+			if ( $usrtxt == "" ) { 
+				$usralt = $usr['short'];
+				if ( $usralt == "" ) { $usralt = $usr['email']; };
+				$usrtxt = "<i>$usralt</i>"; 
+			};
+		
 			# Hide the MJXXSU user - which is the default user to allow the author of TEITOK access to help out
-			if ($usr['email'] != "maarten@clul.ul.pt") $maintext .= "<tr><td>{$usr['short']}<td>{$usr['email']}<td><a href='index.php?action=$action&id={$usr['short']}'>$usr</a><td>{$usr['permissions']}";
+			if ($usr['email'] != "maarten@clul.ul.pt") $maintext .= "<tr><td>{$usr['short']}<td>{$usr['email']}<td><a href='index.php?action=$action$userlink'>$usrtxt</a><td>{$usr['permissions']}";
+		
 		};  
 		$maintext .= "</table>
 		<p><a href='index.php?action=$action&id=new'>create new user</a>";
