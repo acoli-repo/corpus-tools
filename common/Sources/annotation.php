@@ -331,7 +331,7 @@
 				$newrow .= "<td><a href='index.php?action=$action&annotation=$annotation&act=redit&sid=$sid&cid=$fileid'\" style=\"text-decoration: none;\"><span style=\"color: $markupcolor; font-size: large;\">&blacksquare;</span> ".$segment."</a>";
 				$newrow .= "</tr>"; array_push($sortrows, $newrow);
 			};
-			natsort($sortrows); $annotations .= "<table>".join("\n", $sortrows)."</table>";
+			natsort($sortrows); $annotations .= "<table >".join("\n", $sortrows)."</table>";
 		};
 		if ( $username ) $annotations .= "<hr><p><a href='index.php?action=$action&annotation=$annotation&cid={$_GET['cid']}&act=list'>{%show as list}</a>";
 	
@@ -365,7 +365,7 @@
 			</div>
 					
 			<div id='tokinfo' style='z-index: 300; display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
-			<div style='vertical-align: top; width: 22%; float: right; overflow: scroll; position: fixed; top: 70px; right: 30px; ' id=annotations><h2>Annotations</h2>$annotations</div>
+			<div style='vertical-align: top; width: 22%; float: right; overflow: scroll; position: fixed; top: 0px; right: 30px; height: 100%; ' id=annotations><h2 style='margin-top: 70px'>Annotations</h2>$annotations</div>
 			<div style='vertical-align: top; width: 70%; height: 80%; overflow: scroll;' onmouseup='makespan(event);'>$headertxt<div id=mtxt>$cleaned</div><hr><p><a href='index.php?action=file&cid=$fileid'>{%text view}</a></div>
 
 			<script language=Javascript>$moreactions</script>
