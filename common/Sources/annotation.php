@@ -158,7 +158,7 @@
 		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		
 		$sid = $_GET['sid'];
-		$result = $anxml->xpath("//spanGrp[@id=\"$sid\"]"); 
+		$result = $anxml->xpath("//span[@id=\"$sid\"]"); 
 		$segnode = $result[0];	
 		if ( !$segnode ) fatal("No such segment: $sid");
 		unset($segnode[0][0]);
@@ -193,7 +193,7 @@
 			$tokid = "w-$i";
 			if ( in_array($tokid, $toklist) ) $checked = "checked"; else $checked = "";
 			$tmp = $ttxml->xml->xpath("//tok[@id=\"$tokid\"]"); $ttok = $tmp[0];
-			if ($ttok) $toklisttxt .= "<tr><td><input type=checkbox name=toks[$sid][$tokid] $checked value=1><td>$tokid<td>$ttok<td style='color: #888888;'>".htmlentities($ttok->asXML());
+			if ($ttok) $toklisttxt .= "<tr><td><input type=checkbox name=toks[$sid][$tokid] $checked value=1><td>$tokid<td>$ttok<td style='color: #888888;'>".htmlentities($ttok->asXML(), ENT_QUOTES, 'UTF-8');
 		};
 		$toklisttxt .= "</table>";
 		
