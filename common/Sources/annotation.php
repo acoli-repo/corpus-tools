@@ -151,12 +151,14 @@
 
 	} else if ( $fileid && $act == "delete" ) {
 
+		# TODO: This only works with spanGrp, should we make that customizable?
+		
 		$antxt = file_get_contents($filename);
 		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
 		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		
 		$sid = $_GET['sid'];
-		$result = $anxml->xpath("//segment[@id=\"$sid\"]"); 
+		$result = $anxml->xpath("//spanGrp[@id=\"$sid\"]"); 
 		$segnode = $result[0];	
 		if ( !$segnode ) fatal("No such segment: $sid");
 		unset($segnode[0][0]);
