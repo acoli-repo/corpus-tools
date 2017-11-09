@@ -239,7 +239,7 @@
 				$val = current($record->xpath($key));
 				if ( $fldrec["link"] ) {
 					$linkurl = current($record->xpath($fldrec["link"].""));
-					if ( $linkurl ) $val = "<a target=details href='$linkurl'>$val</a>";
+					if ( $linkurl || 1==1 ) $val = "<a target=details href='$linkurl'>$val</a>";
 				} else if ( $fldrec["select"] ) {
 					$vals = $sep = "";
 					$prevq = $_GET['q']; 
