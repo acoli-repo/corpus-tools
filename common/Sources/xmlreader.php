@@ -2,6 +2,13 @@
 
 	if ( !$xmlfile ) {
 		$xmlid = $_GET['xmlid'] or $xmlid = $_SESSION['xmlid'];
+		
+		# Use the one defined xmlreader definition if there is exactly one
+		if ( !$xmlid && $settings['xmlreader'] && count($settings['xmlreader']) == 1 ) {
+			$tmp = current($settings['xmlreader']);
+			$xmlid = $tmp['key'];
+		};
+		
 		$xrset = $settings['xmlreader'][$xmlid];
 	
 		if ( !$xrset ) 
@@ -29,7 +36,7 @@
 		$entryxml = simplexml_load_string($entry, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		$recname = $entryxml->getName(); 
 
-		$maintext .= "<h1>$title</h1>";
+		$maintext .= "<h1>{%$title}</h1>";
 		$id = $_GET['id'];
 	
 		if ( !$recname ) $recname = "entry";
@@ -68,7 +75,7 @@
 			$key = $fldrec->getName();
 			$val = $fldrec."" or $val = $key;
 			$fldval = current($record->xpath($key));
-			$maintext .= "<tr><th>$val<td><input name=$key value='$fldval' size=80>";
+			$maintext .= "<tr><th>{%$val}<td><input name=$key value='$fldval' size=80>";
 		}; 
 		$maintext .= "</table>
 		<p><input type=submit value=Save>
@@ -137,7 +144,7 @@
 			$val = current($entryxml->xpath($key))."" or $val = $key;
 			$fldval = current($record->xpath($key));
 			if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
-			$maintext .= "<tr><th>$val<td>$fldval";
+			$maintext .= "<tr><th>{%$val}<td>$fldval";
 		}; 
 		$maintext .= "</table>
 		<hr><p><a href='index.php?action=$action'>{%back to the list}</a>";
@@ -147,7 +154,7 @@
 	} else if ( $_GET['f'] ) {
 	
 		$f = $_GET['f'];
-		$maintext .= "<h1>Entries by {$txts[$f]}</h1>
+		$maintext .= "<h1>{%Entries by} {$txts[$f]}</h1>
 			
 			<style>
 				.private { color: #999999; };
@@ -231,7 +238,7 @@
 				$key = $fldrec->getName();
 				$val = current($record->xpath($key));
 				if ( $fldrec["link"] ) {
-					$linkurl = current($record->xpath($fldrec["link"]));
+					$linkurl = current($record->xpath($fldrec["link"].""));
 					if ( $linkurl ) $val = "<a target=details href='$linkurl'>$val</a>";
 				} else if ( $fldrec["select"] ) {
 					$vals = $sep = "";
@@ -254,7 +261,7 @@
 			if ( !$fldrec['list'] ) continue;
 			$key = $fldrec->getName();
 			$val = $fldrec."";
-			$maintext .= "<th><a href='index.php?action=$action&sort=$key' style='color: black'>$val</a>";
+			$maintext .= "<th><a href='index.php?action=$action&sort=$key' style='color: black'>{%$val}</a>";
 		}; $num = count($arraylines);
 		$maintext .= join("\n", $arraylines)."</table><hr><p>$num {%matches} - <i style='color: #aaaaaa'>{%click on a value to reduce selection}</i> - <i style='color: #aaaaaa'>{%click on a column to sort}</i>";
 	
