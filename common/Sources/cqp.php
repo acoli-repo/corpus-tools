@@ -454,7 +454,12 @@
 				$acnt++;
 				$atttit[$acnt] = $val;
 			};
-			$cqp->exec("sort Matches by match on text_year");
+			
+			# TODO: Sorting on structural attributes does not work in CQP - solution?
+// 			if ( !$sort ) $sort = "text_year";
+// 			$sortquery = "sort Matches by match on match $sort";
+// 			$cqp->exec($sortquery);
+// 			if ( $debug ) $maintext .= "<p>SORT COMMAND:<br>$sortquery";
 
 			if ( $debug ) $maintext .= "<p>$cqpquery<PRE>$results</PRE>";
 			

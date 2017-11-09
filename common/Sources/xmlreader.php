@@ -1,17 +1,53 @@
 <?php
+
+	if ( !$xmlfile ) {
+		$xmlid = $_GET['xmlid'] or $xmlid = $_SESSION['xmlid'];
+		$xrset = $settings['xmlreader'][$xmlid];
 	
-	$xml = simplexml_load_file("Resources/$xmlfile.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-	if ( !$xml ) fatal ( "Failed to load XML file" );
+		if ( !$xrset ) 
+			if ( $xmlid ) fatal("No settings have been defined for $xmlid");
+			else  fatal("No XML file selected");
+		$_SESSION['xmlid'] = $xmlid;
 
-	$entryxml = simplexml_load_string($entry, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-
-	$maintext .= "<h1>$title</h1>";
-	$id = $_GET['id'];
+		$xmlfile = $xrset["xmlfile"] or $xmlfile = $xmlid;
+		$title = $xrset["title"];
+		$itemtitle = $xrset["itemtitle"];
+		$defaultsort = $xrset["defaultsort"];
+		$recname = "project";
+		$defaultsort = "name";
 	
-	if ( !$recname ) $recname = "entry";
-	if ( !$defaultsort ) $defaultsort = "title";
+		$description = file_get_contents("Pages/$xmlfile-text.html");
+		if ( !$description && $username ) $description = "<p class=adminpart>There is no description for this XML file yet, click <a href='index.php?action=pageedit&id=new&name=lclist-text.html'>here</a> to add one.</p>";
+		$entry = file_get_contents("Resources/$xmlfile-entry.xml");
+	};
+	
+	if ( $xmlfile && file_exists("Resources/$xmlfile.xml") ) {
+		# Read XML file only when defined
+		$xml = simplexml_load_file("Resources/$xmlfile.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		if ( !$xml ) fatal ( "Failed to load XML file" );
 
-	if ( $act == "edit" && $id ) {
+		$entryxml = simplexml_load_string($entry, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		$recname = $entryxml->getName(); 
+
+		$maintext .= "<h1>$title</h1>";
+		$id = $_GET['id'];
+	
+		if ( !$recname ) $recname = "entry";
+		if ( !$defaultsort ) $defaultsort = "title";
+
+	} else if ( $xmlfile ) {
+		fatal("The XML file $xmlfile does not exist");
+	};
+
+	if ( !$xmlfile ) {
+	
+		if ( $settings['xmlreader'] ) {
+			# Select from the xmlreader settings
+		} else {
+			fatal("This function can only be called as a helper function");
+		};
+
+	} else if ( $act == "edit" && $id ) {
 	
 		check_login();
 		if ( !$entryxml ) fatal ("Failed to read entry specifications"); 
@@ -92,7 +128,7 @@
 		if ( current($record->xpath("status")) == "private" && !$username ) fatal("Private resource"); 
 		
 		$tmp = explode ( ",", $itemtitle );
-		while ( !$tit ) $tit = current($record->xpath(array_shift($tmp)));
+		while ( !$tit && $tmp ) {  $tit = current($record->xpath(array_shift($tmp))); };
 		$maintext .= "<h2>$tit</h2>
 		
 		<table>";
@@ -145,7 +181,8 @@
 		
 
 	} else {
-		
+
+
 
 		if ( file_exists("Pages/$xmlfile-text.txt") ) {
 			$maintext .= file_get_contents("Pages/$xmlfile-text.txt");
@@ -186,7 +223,8 @@
 							
 			$sortkey = current($record->xpath($sort));
 			$id = current($record->xpath("@id"));
-			$tableline = "<tr id='$sortkey'><td><a href='index.php?action=$action&id=$id' style='font-size: smaller;'>{%view}</a>";
+			$tableline = "<tr id='$sortkey'><td>";
+			if ( !$xrset["noview"] ) $tableline .= "<a href='index.php?action=$action&id=$id' style='font-size: smaller;'>{%view}</a>";
 
 			foreach ( $entryxml->children() as $fldrec ) {
 				if ( !$fldrec['list'] ) continue;
