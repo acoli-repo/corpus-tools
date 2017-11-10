@@ -55,7 +55,7 @@
   		$tmp = ""; if ( $action == "admin" ) $tmp = "class=\"selected\""; 
   		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=admin' $tmp>Admin</a></ul>";
   		$tmp = ""; if ( $action == "files" ) $tmp = "class=\"selected\""; 
-  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
+  		if ( file_exists("xmlfiles") ) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
   		if (file_exists("Resources/filelist.xml")) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=filelist'>File repository</a></ul>";
   		$menu .= $adminitems;
 	} else {
