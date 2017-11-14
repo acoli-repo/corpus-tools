@@ -413,11 +413,17 @@
 
 		$maintext .= "<br><a href='index.php?action=contextedit&cid=$fileid&tid=$tokid'>edit</a> context XML";
 
-		$tmp = $token->xpath('preceding-sibling::tok');
-		if ( $tmp ) {
-			$prevtok = array_pop($tmp);
-			$previd = $prevtok['id'];
-			$maintext .= "&bull; <a href='index.php?action=mergetoks&cid=$fileid&tid1=$previd&tid2=$tokid'>merge</a> left to $previd";
+		# Do not lookup word to the left in large files, since that is very slow
+		if ( substr($token['id'],2) < 2000 ) { 		
+			$tmp = $token->xpath('preceding-sibling::tok');
+			if ( $tmp ) {
+				$prevtok = array_pop($tmp);
+				$previd = $prevtok['id'];
+				$maintext .= "&bull; <a href='index.php?action=mergetoks&cid=$fileid&tid1=$previd&tid2=$tokid'>merge</a> left to $previd";
+			};
+		} else {
+			# TODO: make merge lookup the left word by itself when needed
+			# $maintext .= "&bull; <a href='index.php?action=mergetoks&cid=$fileid&tid1=-1&tid2=$tokid'>merge</a> left";
 		};
 
 		
@@ -434,6 +440,7 @@
 		
 		";
 		
+
 		
 		# In case this is part of an <mtok>, show that as well
 		if ( $mtok ) {

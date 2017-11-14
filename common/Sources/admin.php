@@ -2,50 +2,7 @@
 
 	check_login();
 
-	if ( $act == "recqp" ) {
-	
-		# No longer here - now just under recqp.php 
-
-	} else if ( $act == "configcheck" ) {
-
-		// Check whether TEITOK configuration is safe and working
-		$maintext .= "<h1>Configuration Check</h1>
-		
-		<p>Below is a list of checks to see whether your TEITOK project is installed properly, and whether
-		the set-up is secure.
-		<hr>
-			
-		<style>
-			.wrong { color: #aa2000; } .wrong::before { content:'✘ ' }
-			.warn { color: #aa8800; } .warn::before { content:'✣ ' }
-			.right { color: #209900; } .right::before { content:'✔ ' }
-		</style>";
-		
-		// Check project folder permissions
-		$writefolders = array ( "xmlfiles" => "Modify XML files", 
-			"Resources" => "Change settings", 
-			"backups" => "Make XML backups"
-			);	
-		foreach ( $writefolders as $fldr => $reason ) {
-			if ( !is_writable($fldr) ) {
-				$maintext .= "<p class=wrong> The folder $fldr/ should be writable for Apache, reason: $reason";
-				$foldererrors = 1;
-			};
-		}; 
-		if ( !$foldererrors ) $maintext .= "<p class=right> All folders TEITOK needs to write to are writable";
-
-		// Check project folder permissions of common 
-		if ( is_writable("$ttroot/common") ) {
-			$maintext .= "<p class=warn> The common folder of TEITOK had best not be writable";
-		};
-		
-
-	} else if ( $act == "serverdata" ) {
-
-		$maintext .= "<h1>_SERVER</h1>";
-		$maintext .= "<pre>".print_r($_SERVER, 1)."</pre>";
-
-	} else if ( $act == "shorthand" ) {
+	if ( $act == "shorthand" ) {
 
 		$shorthand = $_POST['shorthand'];
 		$maintext .= "<h1>Shorthand Test</h1>
@@ -138,13 +95,12 @@
 			<p>For help on admin functions see the <a href='http://teitok.corpuswiki.org/site/index.php?action=help'>Help</a> section online.
 			";
 	
+		# Display the TEITOK version
 		if ( file_exists("$ttroot/common/Resources/version.xml") ) {
 			$tmp = simplexml_load_file("$ttroot/common/Resources/version.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
 			$version = $tmp[0];
 			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
 		};
-	
-		# $maintext .= "<p>Screen type detected: ".screentype();
 
 	};
 		

@@ -23,8 +23,8 @@
 		$recname = "project";
 		$defaultsort = "name";
 	
-		$description = file_get_contents("Pages/$xmlfile-text.html");
-		if ( !$description && $username ) $description = "<p class=adminpart>There is no description for this XML file yet, click <a href='index.php?action=pageedit&id=new&name=lclist-text.html'>here</a> to add one.</p>";
+		$description = getlangfile("$xmlfile_text");
+		if ( !$description && $username ) $description = "<p class=adminpart>There is no description for this XML file yet, click <a href='index.php?action=pageedit&id=new&name=$xmlfile\_text.html'>here</a> to add one.</p>";
 		$entry = file_get_contents("Resources/$xmlfile-entry.xml");
 	};
 	
@@ -191,8 +191,9 @@
 
 
 
-		if ( file_exists("Pages/$xmlfile-text.txt") ) {
-			$maintext .= file_get_contents("Pages/$xmlfile-text.txt");
+		if ( file_exists("Pages/$xmlfile_text.txt") ) {
+			$description = getlangfile("$xmlfile_text");
+			$maintext .= $description;
 			$maintext .= "<hr>";
 		} else if ( $description ) {
 			$maintext .= "<p>$description</p>";
@@ -239,7 +240,8 @@
 				$val = current($record->xpath($key));
 				if ( $fldrec["link"] ) {
 					$linkurl = current($record->xpath($fldrec["link"].""));
-					if ( $linkurl != "" ) $val = "<a target=details href='$linkurl'>$val</a>";
+					if ( $fldrec["target"] ) $target = $fldrec["target"]; else $target = "details";
+					if ( $linkurl != "" ) $val = "<a target=$target href='$linkurl'>$val</a>";
 				} else if ( $fldrec["select"] ) {
 					$vals = $sep = "";
 					$prevq = $_GET['q']; 
