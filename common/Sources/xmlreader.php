@@ -23,7 +23,7 @@
 		$recname = "project";
 		$defaultsort = "name";
 	
-		$description = getlangfile("$xmlfile_text");
+		$description = getlangfile("$xmlfile\_text");
 		if ( !$description && $username ) $description = "<p class=adminpart>There is no description for this XML file yet, click <a href='index.php?action=pageedit&id=new&name=$xmlfile\_text.html'>here</a> to add one.</p>";
 		$entry = file_get_contents("Resources/$xmlfile-entry.xml");
 	};
@@ -191,8 +191,8 @@
 
 
 
-		if ( file_exists("Pages/$xmlfile_text.txt") ) {
-			$description = getlangfile("$xmlfile_text");
+		if ( file_exists("Pages/$xmlfile\_text.txt") ) {
+			$description = getlangfile("$xmlfile\_text");
 			$maintext .= $description;
 			$maintext .= "<hr>";
 		} else if ( $description ) {

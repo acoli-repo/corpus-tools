@@ -240,7 +240,8 @@
 			$getlangfile_lastfile = "$ttroot/common/Pages/{$ffid}.html";
 			return file_get_contents($getlangfile_lastfile);
 		};
-		return "?? $ttroot/common/Pages/{$ffid}.html";	
+		# return "?? $ttroot/common/Pages/{$ffid}.html";	
+		return "";
 	};
 
 	function saveMyXML ( $xmltxt, $filename, $noempties = true ) {
