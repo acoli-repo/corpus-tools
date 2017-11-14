@@ -265,7 +265,7 @@
 			$val = $fldrec."";
 			$maintext .= "<th><a href='index.php?action=$action&sort=$key' style='color: black'>{%$val}</a>";
 		}; $num = count($arraylines);
-		$maintext .= join("\n", $arraylines)."</table><hr><p>$num {%matches} - <i style='color: #aaaaaa'>{%click on a value to reduce selection}</i> - <i style='color: #aaaaaa'>{%click on a column to sort}</i>";
+		$maintext .= join("\n", $arraylines)."</table><hr><p>$num {%results} - <i style='color: #aaaaaa'>{%click on a value to reduce selection}</i> - <i style='color: #aaaaaa'>{%click on a column to sort}</i>";
 	
 	};
 	
