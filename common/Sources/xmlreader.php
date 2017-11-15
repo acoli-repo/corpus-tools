@@ -250,14 +250,14 @@
 		foreach ( $entryxml->children() as $fldrec ) {
 			$key = $fldrec->getName();
 			$val = $fldrec."" or $val = $key;
-			$fldsel .= "<option value='$key'>$val</option>";
+			$fldsel .= "<option value='$key'>{%$val}</option>";
 		}; 
 
 		$maintext .= "
 			<h2>{%Search}</h2>
 			
 			<form action='index.php?action=xmlreader&xmlid=$xmlid' method=post>
-			<p>Search: <select name=f>$fldsel</select> <input name=q size=50 value=''>
+			<p>{%Search}: <select name=f>$fldsel</select> <input name=q size=50 value=''>
 			<input type=submit value='{%Search}'>
 			</form>
 			";
