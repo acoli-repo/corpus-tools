@@ -20,7 +20,7 @@
 		$title = $xrset["title"];
 		$itemtitle = $xrset["itemtitle"];
 		$defaultsort = $xrset["defaultsort"];
-		$recname = "project";
+		$recname = "entry";
 		$defaultsort = "name";
 	
 		$description = getlangfile("{$xmlfile}_text");
@@ -34,7 +34,7 @@
 		if ( !$xml ) fatal ( "Failed to load XML file" );
 
 		$entryxml = simplexml_load_string($entry, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		$recname = $entryxml->getName(); 
+		$recname = $entryxml->getName().""; 
 
 		$maintext .= "<h1>{%$title}</h1>";
 		$id = $_GET['id'];
@@ -54,37 +54,95 @@
 			fatal("This function can only be called as a helper function");
 		};
 
+	} else if ( $act == "save" && $id ) {
+	
+		check_login();
+		if ( $id != "new" ) {
+			$result = $xml->xpath("//{$recname}[@id='$id']"); 
+			$record = current($result);
+			if ( !$record ) fatal ( "No such record: $id" );
+		} else {
+			$record = $xml->addChild($recname);
+			$newid = $_POST['newid'];
+			if ( $newid == "" ) {
+				$newnum = 1; 
+				while ( $xml->xpath("//{$recname}[@id='rec-$newnum']") ) { $newnum++; };
+				$newid = "rec-$newnum";
+			};
+			$record['id'] = $newid;
+		};
+			
+		foreach ( $_POST['newvals'] as $key => $val ) {
+			$fldval = current($record->xpath($key));
+			print "<p>$key: $fldval (".gettype($fldval).") => $val";
+			if ( $val != "" && gettype($fldval) != "object" ) { # When child does not exist
+				$fldval = $record->addChild($key);
+			};
+			$fldval[0] = $val;
+		};
+
+		
+		# Save a backup copy
+		$date = date("Ymd"); 
+		$buname = "$xmlfile-$date.xml";
+		if ( !file_exists("backups/$buname") ) {
+			copy ( "Resources/$xmlfile.xml", "backups/$buname");
+		};
+	
+		# Now save the actual file
+		file_put_contents("Resources/$xmlfile.xml", $xml->asXML());
+		
+		# Reload to view
+		print "<p>File saved. Reloading.
+			<script language=Javascript>top.location='index.php?action=$action&xmlid=$xmlid&id={$record['id']}';</script>
+			";
+		exit;
+
+			
 	} else if ( $act == "edit" && $id ) {
 	
 		check_login();
+		if ( !is_writable("Resources/$xmlfile.xml") ) {
+			fatal ("Due to file permissions, the file $xmlfile.xml cannot be edited, please contact the server administrator");
+		};
+
 		if ( !$entryxml ) fatal ("Failed to read entry specifications"); 
 	
-		$result = $xml->xpath("//{$recname}[@id='$id']"); 
-		$record = current($result);
-		if ( !$record ) fatal ( "No such record: $id" );
-		
-		if ( current($record->xpath("status")) == "private" && !$username ) fatal("Private resource"); 
-		
-		$tmp = explode ( ",", $itemtitle );
-		while ( !$tit && $tick++ < 100 ) $tit = current($record->xpath(array_shift($tmp)));
+		if ( $id != "new" ) {
+			$result = $xml->xpath("//{$recname}[@id='$id']"); 
+			$record = current($result);
+			if ( !$record ) fatal ( "No such record: $id" );
+
+			$tmp = explode ( ",", $itemtitle );
+			while ( !$tit && $tick++ < 100 ) $tit = current($record->xpath(array_shift($tmp)));
+		};
+						
 		$maintext .= "<h2>$tit</h2>
 		
 		<form action='index.php?action=$action&act=save&id=$id' method=post>
 		<table>";
+		if ( $id == "new" ) $maintext .= "<tr><th>Record ID<td><input name=newid value='' size=10>";
+ 
 		foreach ( $entryxml->children() as $fldrec ) {
 			$key = $fldrec->getName();
 			$val = $fldrec."" or $val = $key;
-			$fldval = current($record->xpath($key));
-			$maintext .= "<tr><th>{%$val}<td><input name=$key value='$fldval' size=80>";
+			if ( $record ) $fldval = current($record->xpath($key));
+			$maintext .= "<tr><th>{%$val}<td><input name=newvals[$key] value='$fldval' size=80>";
 		}; 
 		$maintext .= "</table>
 		<p><input type=submit value=Save>
 		</form>
-		<hr><p>
+		<hr>";
+		
+		if ( $id != "new" ) $maintext .= "
+			<p>
 			<a href='index.php?action=$action&id=$id'>{%back to view}</a>
-			 &bull; 
+			&bull; 
 			<a href='index.php?action=$action&act=raw&id=$id'>{%edit raw XML}</a>
 			";
+		else  $maintext .= "
+			<p>
+			<a href='index.php?action=$action'>{%back to list}</a>";
 	
 	} else if ( $act == "raw" && $id ) {
 	
@@ -105,7 +163,7 @@
 		$maintext .= "
 			<div id=\"editor\" style='width: 100%; height: 300px;'>".$editxml."</div>
 	
-			<form action=\"index.php?action=$action&act=save&id=$id\" id=frm name=frm method=post>
+			<form action=\"index.php?action=$action&act=rawsave&id=$id\" id=frm name=frm method=post>
 			<textarea style='display:none' name=rawxml></textarea>
 			<p><input type=button value=Save onClick=\"runsubmit();\"> 
 			&bull; <a href='index.php?action=$action&id=$id'>{%cancel}</a>
@@ -267,6 +325,7 @@
 		}; $num = count($arraylines);
 		$maintext .= join("\n", $arraylines)."</table><hr><p>$num {%results} - <i style='color: #aaaaaa'>{%click on a value to reduce selection}</i> - <i style='color: #aaaaaa'>{%click on a column to sort}</i>";
 	
+		if ( $username ) $maintext .= " - <a href='index.php?action=$action&xmlid=$xmlid&act=edit&id=new' class=adminpart>add new $recname</a>";
 	};
 	
 
