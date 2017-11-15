@@ -23,7 +23,7 @@
 		else if ( file_exists('/usr/local/lib/smarty/libs/Smarty.class.php') ) 
 			define('SMARTY_DIR', '/usr/local/lib/smarty/libs/');
 	};
-	if ( !file_exists(SMARTY_DIR . 'Smarty.class.php') ) {
+	if ( !file_exists(SMARTY_DIR . 'Smarty.class.php') && 1==2 ) {
 		# Locate any Smarty.class.php - too slow so throw an error anyway
 		$smartypath = str_replace("Smarty.class.php", "", file_locate('Smarty.class.php'));
 		if ( $smartypath ) print "Smarty found in non-standard location: <b>$smartypath</b>. Please indicate this path in index.php or install Smarty again.";
@@ -92,7 +92,9 @@
 	if ( $langloc ) setlocale(LC_ALL, $langloc);	
 
 	// Deal with GET variables	
-	$action = $_GET['action'] or $action = $_GET['page'] or $action = "home";
+	$action = $_GET['action'] or $action = $_GET['page'];
+	if ( $action == "" && preg_match("/([^\/]+)\.(html|php)/", $_SERVER['REQUEST_URI'], $matches ) ) $action = $matches[1];
+	if ( $action == "index" || $action == "" || $action == "main" ) $action = "home";
 	$act = $_GET['act'];
 	if ( $_GET['debug'] ) $debug = 1;
 
@@ -134,6 +136,10 @@
 	} else if ( file_exists( "$ttroot/common/Sources/$action.php" ) ) {
 		# Common script
 		include ( "$ttroot/common/Sources/$action.php" );
+	} else if ( $settings['xmlreader'][$action] ) {
+		# XML Reader file
+		$xmlid = $action;
+		include ( "$ttroot/common/Sources/xmlreader.php" );
 	} else {
 		# Nothing appropriate
 		$maintext = getlangfile ( "notfound", true );

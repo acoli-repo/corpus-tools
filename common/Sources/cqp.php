@@ -911,7 +911,7 @@
 			} else 
 				$maintext .= "<tr><td$tstyle>{%$colname}
 						      <td><select name=\"matches[$col]\"><option value='matches'>{%matches}</option><option value='startswith'>{%starts with}</option><option value='endsin'>{%ends in}</option><option value='contains'>{%contains}</option></select>
-						      <td><input name=vals[$col] size=50 $chareqfn>";
+						      <td><input name=vals[$col] size=40 $chareqfn>";
 		};
 		
 		$maintext .= "</table>$chareqtxt</div>

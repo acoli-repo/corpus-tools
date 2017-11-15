@@ -22,8 +22,11 @@
 	
 	if ( $act == "save" ) {
 
+		$target_folder = $settings['files'][$type]['folder'];
+		if ( !is_dir($target_folder) ) mkdir($target_folder); # Create the folder if needed
+
 		$type = $_POST['type'];
-		$target_file = $settings['files'][$type]['folder']."/".basename($_FILES["upfile"]["name"]);
+		$target_file = $target_folder."/".basename($_FILES["upfile"]["name"]);
 		print "<h1>Uploading File</h1><p>$target_file";
 		$uploadOk = 1;
 		$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);

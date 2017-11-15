@@ -447,6 +447,26 @@
         	<att key="path" display="full path of the executable"/>
         </list>
     </item>
+
+    <item key="xmlreader" display="Settings for the XML Reader">
+    	<desc>
+    		TEITOK provides the option to use a simple XML based database (for example XXX.xml), 
+    		located in the Resources folder, and display it as 
+    		a table, with the option to sort on each column and do simple searches. The definitions 
+    		for each record in the database should be defined in a file called XXX-entry.xml in Resources,
+    		and an explanatory text above the table can be defined in an HTML file XXX_text.html in Pages.
+    		The database can be accessed either via the xmlreader script, or used directly as a page:
+    		index.php?action=XXX
+    	</desc>
+        <list display="List of databases">
+        	<att key="key" display="name of the database file"/>
+        	<att key="title" display="Title to be displayed above the table."/>
+        	<att key="noview" display="Title to be displayed above the table.">
+				<val key="1" display="Do not show a view link"/>
+				<val key="0" display="Produce a link view to see more details about each record"/>
+        	</att>
+        </list>
+    </item>
 	
 	<!-- log (see CETAC) - not used anymore? -->
 

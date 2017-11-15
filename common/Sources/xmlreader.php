@@ -1,7 +1,7 @@
 <?php
 
 	if ( !$xmlfile ) {
-		$xmlid = $_GET['xmlid'] or $xmlid = $_SESSION['xmlid'];
+		if ( !$xmlid ) $xmlid = $_GET['xmlid'] or $xmlid = $_SESSION['xmlid'];
 		
 		# Use the one defined xmlreader definition if there is exactly one
 		if ( !$xmlid && $settings['xmlreader'] && count($settings['xmlreader']) == 1 ) {
@@ -66,7 +66,7 @@
 		if ( current($record->xpath("status")) == "private" && !$username ) fatal("Private resource"); 
 		
 		$tmp = explode ( ",", $itemtitle );
-		while ( !$tit ) $tit = current($record->xpath(array_shift($tmp)));
+		while ( !$tit && $tick++ < 100 ) $tit = current($record->xpath(array_shift($tmp)));
 		$maintext .= "<h2>$tit</h2>
 		
 		<form action='index.php?action=$action&act=save&id=$id' method=post>
@@ -232,7 +232,7 @@
 			$sortkey = current($record->xpath($sort));
 			$id = current($record->xpath("@id"));
 			$tableline = "<tr id='$sortkey'><td>";
-			if ( !$xrset["noview"] ) $tableline .= "<a href='index.php?action=$action&id=$id' style='font-size: smaller;'>{%view}</a>";
+			if ( !$xrset["noview"] || $username ) $tableline .= "<a href='index.php?action=$action&id=$id' style='font-size: smaller;'>{%view}</a>";
 
 			foreach ( $entryxml->children() as $fldrec ) {
 				if ( !$fldrec['list'] ) continue;

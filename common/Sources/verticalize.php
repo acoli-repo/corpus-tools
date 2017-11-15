@@ -164,7 +164,7 @@
 					};
 					if ( is_array($editfields) )
 					foreach ( $editfields as $fld ) {
-						if ( $fld == "pform" ) $val = $node->asXML(); // This is ... not ideal
+						if ( $fld == "pform" ) $val = $node->asXML(); // TODO: This is ... not ideal, better solution?
 						else $val = $node[$fld]; 
 						$nid = $node['id'];
 						$maintext .= "<td><input name='{$fld}[{$nid}]' value=\"$val\">";
