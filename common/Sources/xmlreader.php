@@ -245,9 +245,24 @@
 			<hr><p><a href='index.php?action=$action'>back to list</a>";
 		
 
+	} else if ( $act == "search" ) {
+
+		foreach ( $entryxml->children() as $fldrec ) {
+			$key = $fldrec->getName();
+			$val = $fldrec."" or $val = $key;
+			$fldsel .= "<option value='$key'>$val</option>";
+		}; 
+
+		$maintext .= "
+			<h2>{%Search}</h2>
+			
+			<form action='index.php?action=xmlreader&xmlid=$xmlid' method=post>
+			<p>Search: <select name=f>$fldsel</select> <input name=q size=50 value=''>
+			<input type=submit value='{%Search}'>
+			</form>
+			";
+
 	} else {
-
-
 
 		if ( file_exists("Pages/{$xmlfile}_text.txt") ) {
 			$description = getlangfile("{$xmlfile}_text");
@@ -278,6 +293,21 @@
 				$whichtxt .= "$sep<i>$fldtxt</i> = <b>$val</b>";
 				$sep = " and ";
 			};
+			$which = "[$which]";
+			$whichtxt = "<p>$whichtxt (<a href='index.php?action=$action'>reset</a>)</p>";
+		} else if ( $_POST['q'] ) {
+			$val = $_POST['q'];
+			$fld = $_POST['f'];
+			$fldtxt = current($entryxml->xpath($fld))."" or $fldtxt = $fld; 
+			$which = "[contains($fld/.,\"$val\")]";
+			$whichtxt = "<p><i>$fldtxt</i> = <b>$val</b> (<a href='index.php?action=$action'>reset</a>)</p>";
+		} else if ( $_POST['query'] ) {
+			foreach ( $_POST['query'] as $fld => $val ) {	
+				$which .= $sep."contains($fld/.,\"$val\")";
+				$fldtxt = current($entryxml->xpath($fld))."" or $fldtxt = $fld; 
+				$whichtxt .= "$sep<i>$fldtxt</i> = <b>$val</b>";
+				$sep = " and ";
+			};	
 			$which = "[$which]";
 			$whichtxt = "<p>$whichtxt (<a href='index.php?action=$action'>reset</a>)</p>";
 		};
@@ -323,7 +353,11 @@
 			$val = $fldrec."";
 			$maintext .= "<th><a href='index.php?action=$action&sort=$key' style='color: black'>{%$val}</a>";
 		}; $num = count($arraylines);
-		$maintext .= join("\n", $arraylines)."</table><hr><p>$num {%results} - <i style='color: #aaaaaa'>{%click on a value to reduce selection}</i> - <i style='color: #aaaaaa'>{%click on a column to sort}</i>";
+		$maintext .= join("\n", $arraylines)."</table><hr><p>$num {%results} 
+				- <i style='color: #aaaaaa'>{%click on a value to reduce selection}</i> 
+				- <i style='color: #aaaaaa'>{%click on a column to sort}</i>
+				- <a style='color: #aaaaaa' href='index.php?action=$action&xmlid=$xmlid&act=search'>{%search}</a>
+				";
 	
 		if ( $username ) $maintext .= " - <a href='index.php?action=$action&xmlid=$xmlid&act=edit&id=new' class=adminpart>add new $recname</a>";
 	};
