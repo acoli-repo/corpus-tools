@@ -164,6 +164,7 @@
 
 	// if more smarty variables were defined, load them
 	foreach ( $moresmarty as $key => $val ) {
+		if ( $seti18n{$key} ) $val = i18n($val); 
 		$smarty->assign($key, $val);	
 	};
 	

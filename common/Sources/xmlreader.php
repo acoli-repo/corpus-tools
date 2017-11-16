@@ -57,7 +57,7 @@
 		};
 
 	} else if ( $act == "save" && $id ) {
-	
+	print_r($_POST); exit;
 		check_login();
 		if ( $id != "new" ) {
 			$result = $xml->xpath("//{$recname}[@id='$id']"); 
@@ -151,7 +151,7 @@
 						
 		$maintext .= "<h2>$tit</h2>
 		
-		<form action='index.php?action=$action&act=save&id=$id' method=post>
+		<form action='index.php?action=$action&act=save&id=$id' id=frm name=frm method=post>
 		<table>";
 		if ( $id == "new" ) $maintext .= "<tr><th>Record ID<td><input name=newid value='' size=10>";
  
@@ -159,10 +159,15 @@
 			$key = $fldrec->getName();
 			$val = $fldrec."" or $val = $key;
 			if ( $record ) $fldval = current($record->xpath($key));
-			$maintext .= "<tr><th>{%$val}<td><input name=newvals[$key] value='$fldval' size=80>";
+			if ( $fldrec['type'] == "xml" )  {
+				$xmlnum++;
+				$xmlupdate .= "document.getElementById('frm$key').value = editor.getSession().getValue(); ";
+				$maintext .= "<tr><th>{%$val}<td><div id=\"editor\" style='width: 100%; height: 80px;'>".$fldval."</div><textarea name=newvals[$key] style='display:none'>$fldval</textarea>";
+			} else if ( $fldrec['type'] == "text" )  $maintext .= "<tr><th>{%$val}<td><textarea id='frm$key' name=newvals[$key] style='width: 100%; height: 50px;'>$fldval</textarea>";
+			else $maintext .= "<tr><th>{%$val}<td><input name=newvals[$key] value='$fldval' size=80>";
 		}; 
 		$maintext .= "</table>
-		<p><input type=submit value=Save>
+		<p><input type=submit value=Save  onClick=\"runsubmit();\">
 		</form>
 		<hr>";
 		
@@ -175,6 +180,20 @@
 		else  $maintext .= "
 			<p>
 			<a href='index.php?action=$action'>{%back to list}</a>";
+
+		if ( $xmlnum ) $maintext .= "
+			<script src=\"$jsurl/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+			<script>
+				var editor = ace.edit(\"editor\");
+				editor.setTheme(\"ace/theme/chrome\");
+				editor.getSession().setMode(\"ace/mode/xml\");
+				editor.renderer.setShowGutter(false);
+			
+				function runsubmit ( ) {
+					$xmlupdate
+					document.frm.submit();
+				};
+			</script>";
 	
 	} else if ( $act == "raw" && $id ) {
 	
@@ -201,7 +220,7 @@
 			&bull; <a href='index.php?action=$action&id=$id'>{%cancel}</a>
 			</form>
 		
-			<script src=\"http://alfclul.clul.ul.pt/teitok/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+			<script src=\"$jsurl/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
 			<script>
 				var editor = ace.edit(\"editor\");
 				editor.setTheme(\"ace/theme/chrome\");
