@@ -45,6 +45,8 @@
 	} else if ( $xmlfile ) {
 		fatal("The XML file $xmlfile does not exist");
 	};
+	
+	if ( $action == "xmlreader" ) $linkaction = "xmlreader&xmlid=$xmlid"; else $linkaction = $action; 
 
 	if ( !$xmlfile ) {
 	
@@ -94,7 +96,37 @@
 		
 		# Reload to view
 		print "<p>File saved. Reloading.
-			<script language=Javascript>top.location='index.php?action=$action&xmlid=$xmlid&id={$record['id']}';</script>
+			<script language=Javascript>top.location='index.php?action=$linkaction&id={$record['id']}';</script>
+			";
+		exit;
+
+	} else if ( $act == "rawsave" && $id ) {
+
+		$newentry = simplexml_load_string($_POST['rawxml'], NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		
+		$tmp = dom_import_simplexml($xml);
+		$newxml = new DOMDocument('1.0');
+		$tmp = $newxml->importNode($tmp, true);
+		$tmp = $newxml->appendChild($tmp);
+		$tmp = dom_import_simplexml($newentry);
+		$xpath = new DOMXPath($newxml);
+		$newelement = $newxml->importNode($tmp, true);
+		$element = $xpath->query("{$recname}[@id='$id']")->item(0);
+		$element->parentNode->replaceChild($newelement, $element); 
+
+		# Save a backup copy
+		$date = date("Ymd"); 
+		$buname = "$xmlfile-$date.xml";
+		if ( !file_exists("backups/$buname") ) {
+			copy ( "Resources/$xmlfile.xml", "backups/$buname");
+		};
+	
+		# Now save the actual file
+		file_put_contents("Resources/$xmlfile.xml", $newxml->saveXML());
+		
+		# Reload to view
+		print "<p>File saved. Reloading.
+			<script language=Javascript>top.location='index.php?action=$linkaction&id={$record['id']}';</script>
 			";
 		exit;
 
@@ -256,7 +288,7 @@
 		$maintext .= "
 			<h2>{%Search}</h2>
 			
-			<form action='index.php?action=xmlreader&xmlid=$xmlid' method=post>
+			<form action='index.php?action=$linkaction' method=post>
 			<p>{%Search}: <select name=f>$fldsel</select> <input name=q size=50 value=''>
 			<input type=submit value='{%Search}'>
 			</form>
@@ -312,9 +344,13 @@
 			$whichtxt = "<p>$whichtxt (<a href='index.php?action=$action'>reset</a>)</p>";
 		};
 		
+		$maxnum = $_GET['max'] or $maxnum = $xrset['max'] or $maxnum = 250;
+		
 		$result = $xml->xpath("//$recname$which"); 
 		$arraylines = array();
 		$sort = $_GET['sort'] or $sort = $defaultsort;
+		$totnum = count($result);
+		$result = array_slice($result,0,$maxnum);
 		foreach ( $result as $record ) { 
 							
 			$sortkey = current($record->xpath($sort));
@@ -353,13 +389,14 @@
 			$val = $fldrec."";
 			$maintext .= "<th><a href='index.php?action=$action&sort=$key' style='color: black'>{%$val}</a>";
 		}; $num = count($arraylines);
-		$maintext .= join("\n", $arraylines)."</table><hr><p>$num {%results} 
+		if ( $totnum > $num ) $showing = " - {%showing} 1-$maxnum";
+		$maintext .= join("\n", $arraylines)."</table><hr><p>$totnum {%results} $showing
 				- <i style='color: #aaaaaa'>{%click on a value to reduce selection}</i> 
 				- <i style='color: #aaaaaa'>{%click on a column to sort}</i>
-				- <a style='color: #aaaaaa' href='index.php?action=$action&xmlid=$xmlid&act=search'>{%search}</a>
+				- <a style='color: #aaaaaa' href='index.php?action=$linkaction&act=search'>{%search}</a>
 				";
 	
-		if ( $username ) $maintext .= " - <a href='index.php?action=$action&xmlid=$xmlid&act=edit&id=new' class=adminpart>add new $recname</a>";
+		if ( $username ) $maintext .= " - <a href='index.php?action=$linkaction&act=edit&id=new' class=adminpart>add new $recname</a>";
 	};
 	
 

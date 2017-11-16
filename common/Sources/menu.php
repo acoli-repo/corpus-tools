@@ -25,7 +25,11 @@
 
 	if ( $settings['menu']['name'] ) $menu .= "<p style='title'>{%{$settings['menu']['name']}}</p>";
 
-	if ( $settings['menu']['title'] ) $menu .= "<p style='header'>{%{$settings['menu']['title']}}</p>";
+	if ( $settings['menu']['title'] ) {
+		$menutitle = $settings['menu']['title'];
+		if ( $menutitle == "[title]" ) $menutitle = $settings['defaults']['title']['display']; 
+		$menu .= "<p style='header'>{%$menutitle}</p>";
+	}
 	else $menu .= "<p>{%Main Menu}</p>";
 	
     $menu .= "<ul style='text-align: left'>";
