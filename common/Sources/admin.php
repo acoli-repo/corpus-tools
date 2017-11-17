@@ -48,10 +48,8 @@
 		};
 			
 		if ( allowedforme("create") ) {
-			if ( $settings['xmltemplates'] || file_exists("Resources/xmltemplate.xml" ) )
-				$maintext .= "<li><a href='index.php?action=create'>create new XML from template</a>";
-			else 
-				$maintext .= "<li><a href='index.php?action=create'>create new XML file</a>";
+			#if ( $settings['xmltemplates'] || file_exists("Resources/xmltemplate.xml" ) ) $maintext .= "<li><a href='index.php?action=create'>create new XML from template</a>"; else 
+			$maintext .= "<li><a href='index.php?action=create'>create new XML file</a>";
 		};
 				
 		if ( $settings['cqp']['corpus'] && allowedforme("recqp") ) {

@@ -57,7 +57,7 @@
 		};
 
 	} else if ( $act == "save" && $id ) {
-	print_r($_POST); exit;
+
 		check_login();
 		if ( $id != "new" ) {
 			$result = $xml->xpath("//{$recname}[@id='$id']"); 
@@ -76,13 +76,30 @@
 			
 		foreach ( $_POST['newvals'] as $key => $val ) {
 			$fldval = current($record->xpath($key));
+			$fldrec = current($entryxml->xpath($key));
 			print "<p>$key: $fldval (".gettype($fldval).") => $val";
 			if ( $val != "" && gettype($fldval) != "object" ) { # When child does not exist
 				$fldval = $record->addChild($key);
 			};
-			$fldval[0] = $val;
+			if ( $fldrec['type'] == "xml" ) {
+				$somexml = 1;
+				$val = str_replace("<", "x(x", $val); # TODO: This should become an addChild	
+				$val = str_replace(">", "x)x", $val); # TODO: This should become an addChild	
+				$val = preg_replace("/^<[^>]+>|<[^>]+>$", "", $val); # TODO: This should become innerXML or replace	
+				$fldval[0] = $val;			
+			} else {
+				$fldval[0] = $val;
+			};
 		};
-
+		
+		if ($somexml) {
+			$textxml = $xml->asXML();
+			$textxml = str_replace("x(x", "<", $textxml);	
+			$textxml = str_replace("x)x", ">", $textxml); 
+			$xml = simplexml_load_string($textxml, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+			# Check whether we still have valid XML
+			if ( !$xml ) fatal ("Invalid XML");
+		};
 		
 		# Save a backup copy
 		$date = date("Ymd"); 
@@ -161,9 +178,9 @@
 			if ( $record ) $fldval = current($record->xpath($key));
 			if ( $fldrec['type'] == "xml" )  {
 				$xmlnum++;
-				$xmlupdate .= "document.getElementById('frm$key').value = editor.getSession().getValue(); ";
-				$maintext .= "<tr><th>{%$val}<td><div id=\"editor\" style='width: 100%; height: 80px;'>".$fldval."</div><textarea name=newvals[$key] style='display:none'>$fldval</textarea>";
-			} else if ( $fldrec['type'] == "text" )  $maintext .= "<tr><th>{%$val}<td><textarea id='frm$key' name=newvals[$key] style='width: 100%; height: 50px;'>$fldval</textarea>";
+				$xmlupdate .= "document.getElementById(\"frm$key\").value = editor.getSession().getValue(); ";
+				$maintext .= "\n<tr><th>{%$val}<td><div id=\"editor\" style='width: 100%; height: 80px;'>".htmlentities($fldval[1]->asXML())."</div><textarea id='frm$key' name=newvals[$key] style='display:none'>$fldval</textarea>";
+			} else if ( $fldrec['type'] == "text" )  $maintext .= "<tr><th>{%$val}<td><textarea  name=newvals[$key] style='width: 100%; height: 50px;'>$fldval</textarea>";
 			else $maintext .= "<tr><th>{%$val}<td><input name=newvals[$key] value='$fldval' size=80>";
 		}; 
 		$maintext .= "</table>
