@@ -16,9 +16,10 @@
 		$cardid = preg_replace("/[+ '\"]+/", "_", $cardid); # Remove problematic characters from the name
 		if ( $_POST['folder'] ) $filename = "{$_POST['folder']}/$cardid"; 
 		else $filename = $cardid;
-		if ( substr($cardid, -4) != ".xml" ) {
-			fatal("Filename ($cardid) should end on .xml");
-		} else if ( file_exists("$xmlfolder/$cardid") ) {
+		if ( substr($cardid, -4) != ".xml" ) { # Add .xml to the end of the filename
+			$filename .= ".xml";
+		};
+		if ( file_exists("$xmlfolder/$cardid") ) {
 			fatal("File $cardid already exists");
 		}; 
 	
@@ -128,7 +129,7 @@
 					<form action='index.php?action=$action' method=post  name=frm id=frm enctype=\"multipart/form-data\">
 
 		<h2>XML Filename</h2>
-		<p>XML id: <input name=fname size=30>
+		<p>XML id (filename): <input name=fname size=30>
 		";
 		
 		# Choose a folder
@@ -211,31 +212,44 @@
 		$maintext .= "<p><input checked type=radio name=body value='nobody' onChange='bodychoose(this);'> Leave empty";
 
 		# Paste as HTML
-		$maintext .= "<p><input type=radio name=body value='html' onChange='bodychoose(this);'> Paste as HTML
+		$maintext .= "<p><input type=radio name=body value='html' onChange='bodychoose(this);'> Create from HTML
 			<div id='html' style='display: none; padding-left: 40px;'>
-				<p><i>Here you can paste rich text, which will then be converted to TEI/XML. This conversion keeps only limited typesetting information, and can only be used for the initial creation of the XML file; it will not be possible to edit in the same WYSIWYG fashion once the TEI/XML file is created.</i></p>";
+				<p><i>Here you can write or paste rich text, which will then be converted to TEI/XML. This conversion keeps only limited typesetting information, and can only be used for the initial creation of the XML file; after the file is in TEI/XML this editor will no longer work.</i></p>";
 		$maintext .= '<script type="text/javascript" src="'.$jsurl.'/tinymce/tinymce.min.js"></script>
 			<script type="text/javascript">
 			tinymce.init({
 				selector: "textarea.wysiwyg",
-				convert_urls: false,
+  menu: {
+    edit: {title: "Edit", items: "undo redo | cut copy paste pastetext | selectall"},
+    insert: {title: "Insert", items: "charmap pagebreak"},
+    format: {title: "Format", items: "bold italic | formats | removeformat | code"},
+  },
+  				convert_urls: false,
 				plugins: [
-					 "lists charmap hr",
-					 "paste code"
+					 "lists charmap",
+					 "paste pagebreak code"
 			   ],
-			    paste_word_valid_elements: "b,strong,i,em,h1,h2",
+			    extended_valid_elements: "supplied,add,unclear,ex,hi[rend],b,i,b/strong,i/em",
+			    custom_elements: "supplied,add,unclear,ex,hi[rend]",
+			    valid_children : "+p[supplied|add|unclear|ex|hi]",
+			    paste_word_valid_elements: "b,i,b/strong,i/em,h1,h2,p",
 				content_css: "Resources/xmlstyles.css", 
 				toolbar: "undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent ", 
 			    width: "100%",
 			    height: 400,
+			    pagebreak_separator : "<pb/>",
 
-  style_formats: [
+    style_formats: [
     { title: "Expanded text", inline: "ex" },
     { title: "Deleted text", inline: "del" },
     { title: "Added text", inline: "add" },
     { title: "Unclear text", inline: "unclear" },
+    { title: "Supplied text", inline: "supplied" },
   ],
   formats: {
+    bold: { inline: "b" },
+    italic: { inline: "i" },  
+    strikethrough: { title: "deleted", inline: "del" },
   }			    
 			 });
 			</script>';
@@ -246,7 +260,7 @@
 		$maintext .= "</div>";
 
 		# Post as shorthand
-		$maintext .= "<p><input type=radio name=body value='shorthand' onChange='bodychoose(this);'> Paste as plain text (with shorthand)
+		$maintext .= "<p><input type=radio name=body value='shorthand' onChange='bodychoose(this);'> Create from plain text (with shorthand)
 			<div id='shorthand' style='display: none; padding-left: 40px;'>
 				<p>Paste text - double lines breaks will convert to paragraphs, and code can be used for (delete) and &lt;expand&gt;: <textarea name=shorthand style='height: 300px; width: 100%'></textarea>";
 		$maintext .= "</div>";
@@ -261,7 +275,7 @@
 		$maintext .= "\n\n<hr/><p><input type=submit value='Create XML File' onClick=\"return runsubmit();\"></form>
 			<script language=Javascript>
 			function runsubmit() {
-				if ( document.frm.fname.value == '' ) { alert('No XML name given!'); return false; };
+				if ( document.frm.fname.value == '' ) { alert('Please provide a valid XML id!'); return false; };
 				document.frm.submit();
 			};
 			</script>";
