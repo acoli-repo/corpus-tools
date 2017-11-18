@@ -24,8 +24,13 @@
 		}; 
 	
 		# Then, deal with the teiHeader or template
-		if ( $_POST['header'] == "template" ) {
-			$file = file_get_contents("$xmltemplate"); 
+		if ( $_POST['header'] == "template" || $_POST['withtemplate'] ) {
+			$xmltemplate = $_POST['template'] or $xmltemplate = $_POST['withtemplate'];
+			$file = file_get_contents("Resources/$xmltemplate"); 
+			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+			if ( !$xml ) { print "Failing to read/parse $xmltemplate<hr>"; print $file; exit; };			
+		} else if ( $_POST['header'] == "tei" ) {
+			$file = $_POST['tei']; 
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { print "Failing to read/parse $xmltemplate<hr>"; print $file; exit; };			
 		} else if ( $_POST['header'] == "existing" ) {
@@ -144,7 +149,7 @@
 
 		$maintext .= "\n\n<hr/><h2>Initial Metadata</h2>
 			<script language=Javascript>
-			metas = Array ('empty','existing', 'template','teiheader');
+			metas = Array ('empty','existing', 'template','teiheader','tei');
 			function metachoose(e) {
 				var fld = e.value;
 				for ( a in metas ) {
@@ -175,13 +180,6 @@
 				<div id='template' style='display: none; padding-left: 40px;'><p>Choose template file: <select name=template>$templatelist</select></div>";
 		};
 		
-		# Copy from an existing XML file
-		$maintext .= "<p><input type=radio name=header value='existing' onChange='metachoose(this);'> Use a existing XML file
-			<div id='existing' style='display: none; padding-left: 40px;'>
-				<p>Enter filename: <input name=fromfile size=50> <input type=checkbox value=1 name=keeptext> Keep text content as well"; 
-		$maintext .= "</div>";
-
-
 		# Fill in from teiHeader
 		if ( file_exists("Resources/teiHeader-edit.tpl") ) {
 			$text = file_get_contents("Resources/teiHeader-edit.tpl");
@@ -199,12 +197,32 @@
 				$to .= "<input type=hidden name='queries[$key]' value='$xquery'>";
 				$text = preg_replace("/$from/", "$to", $text);
 			};
+			if ( $settings['xmltemplates'] ) {
+				while ( list ( $key, $item ) = each ( $settings['xmltemplates'] ) ) {
+					$templatelist .= "<option value='$key'>{$item['display']}</option>";
+				};
+				$text .= "<p>Also use template file: <select name=withtemplate><option value=''>[none]</option>$templatelist</select></div>";
+			};
 			
 			$maintext .= "<p><input type=radio name=header value='teiheader' onChange='metachoose(this);'> Use teiHeader-edit
 				<div id='teiheader' style='display: none; padding-left: 40px;'>$text</div>";
 		};
 
+		# Paste an XML file
+		$maintext .= "<p><input type=radio name=header value='tei' onChange='metachoose(this);'> Paste a TEI/XML file (will keep text content as well)
+			<div id='tei' style='display: none; padding-left: 40px;'>
+				<p>Paste TEI/XML file below: <textarea name=tei style='width: 100%; height: 300px;'></textarea>"; 
+		$maintext .= "</div>";
+
+
 	
+		# Copy from an existing XML file
+		$maintext .= "<p><input type=radio name=header value='existing' onChange='metachoose(this);'> Use a existing XML file
+			<div id='existing' style='display: none; padding-left: 40px;'>
+				<p>Enter filename: <input name=fromfile size=50> <input type=checkbox value=1 name=keeptext> Keep text content as well"; 
+		$maintext .= "</div>";
+
+
 
 		$maintext .= "\n\n<hr/><h2>Initial Content</h2>";
 
@@ -220,13 +238,13 @@
 			tinymce.init({
 				selector: "textarea.wysiwyg",
   menu: {
-    edit: {title: "Edit", items: "undo redo | cut copy paste pastetext | selectall"},
+    edit: {title: "Edit", items: "undo redo | cut copy paste pastetext | searchreplace | selectall"},
     insert: {title: "Insert", items: "charmap pagebreak"},
     format: {title: "Format", items: "bold italic | formats | removeformat | code"},
   },
   				convert_urls: false,
 				plugins: [
-					 "lists charmap",
+					 "lists charmap searchreplace",
 					 "paste pagebreak code"
 			   ],
 			    extended_valid_elements: "supplied,add,unclear,ex,hi[rend],b,i,b/strong,i/em",
@@ -279,6 +297,11 @@
 				document.frm.submit();
 			};
 			</script>";
+			
+		if ( !file_exists("Resources/teiHeader-edit.tpl") ) $warnings .= "<li>You do not have a teiHeader template defined for editing; using such a template allows you to easily edit the metadata in an HTML form. You can create an edit template <a href='index.php?action=headermake'>here</a>";
+		if ( !$settings['xmltemplates'] ) $warnings .= "<li>You do not have an XML template defined; using such a template allows you to have your teiHeader pre-filled with data about concerning project, institute, etc. You can create an XML template <a href='index.php?action=templatemake'>here</a>";
+		if ( $warnings ) $maintext .= "<hr><h2>Provide more options</h2><ul>$warnings</ul>";
+		
 	};
 
 ?>

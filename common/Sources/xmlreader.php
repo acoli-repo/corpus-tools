@@ -85,7 +85,7 @@
 				$somexml = 1;
 				$val = str_replace("<", "x(x", $val); # TODO: This should become an addChild	
 				$val = str_replace(">", "x)x", $val); # TODO: This should become an addChild	
-				$val = preg_replace("/^<[^>]+>|<[^>]+>$", "", $val); # TODO: This should become innerXML or replace	
+					$val = preg_replace("/^<[^>]+>|<[^>]+>$", "", $val); # TODO: This should become innerXML or replace	
 				$fldval[0] = $val;			
 			} else {
 				$fldval[0] = $val;
