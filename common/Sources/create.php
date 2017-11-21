@@ -248,7 +248,7 @@
 					 "paste pagebreak code"
 			   ],
 			    extended_valid_elements: "supplied,add,unclear,ex,hi[rend],b,i,b/strong,i/em",
-			    custom_elements: "supplied,add,unclear,ex,hi[rend]",
+			    custom_elements: "~supplied,~add,~unclear,~ex,~hi[rend]",
 			    valid_children : "+p[supplied|add|unclear|ex|hi]",
 			    paste_word_valid_elements: "b,i,b/strong,i/em,h1,h2,p",
 				content_css: "Resources/xmlstyles.css", 
