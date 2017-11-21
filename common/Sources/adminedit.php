@@ -108,13 +108,16 @@
 			
 		if ( $filetype == "html" ) $protcontent = preg_replace( "/%/", "&#37;", $protcontent );
 			
+		if ( $filetype == "xml" ) $xmlcheck = "oDOM.documentElement.nodeName == 'parsererror'";
+		else $xmlcheck = "1==2";	
+			
 		$maintext .= "
 			<div id=\"editor\" style='width: 100%; height: 400px; color: white;'>".$protcontent."</div>
 
 			<form action=\"index.php?action=$action&act=save\" id=frm name=frm method=post>
 			$idfield
 			<textarea style='display:none' name=rawxml></textarea>
-			<p><input type=button value=Save onClick=\"runsubmit();\"> $switch
+			<p><input type=button value=Save onClick=\"return runsubmit();\"> $switch
 			</form>
 
 			<script src=\"$jsurl/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
@@ -125,8 +128,16 @@
 				$settabs
 			
 				function runsubmit ( ) {
-					document.frm.rawxml.value = editor.getSession().getValue();
-					document.frm.submit();
+					var rawxml = editor.getSession().getValue();
+					var oParser = new DOMParser();
+					var oDOM = oParser.parseFromString(rawxml, 'text/xml');
+					if ( $xmlcheck ) {
+						alert('Invalid XML - please revise before saving.'); 
+						return -1; 							
+					} else {
+						document.frm.rawxml.value = rawxml;
+						document.frm.submit();
+					};						
 				};
 				document.getElementById('editor').style['color'] = '#000000';
 			</script>

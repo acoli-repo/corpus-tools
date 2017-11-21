@@ -823,7 +823,7 @@
 		# Display the search screen (advanced search)
 			
 		if ( file_exists("Pages/searchhelp.html") ) {
-			$maintext .= "<div style='position: absolute; top: 70px; right: 20px'><a href='index.php?action=searchhelp'>{%help}</a></div>";
+			$maintext .= "<div id='helpbox' style='position: absolute; top: 70px; right: 20px'><a href='index.php?action=searchhelp'>{%help}</a></div>";
 		};
 
 		# $tokatts['word'] = $tokatts['form'] or $tokatts['word'] = "Written form"; --> how to do this?

@@ -83,7 +83,7 @@
 	
 		<form action=\"index.php?action=rawsave&cid=$fileid$type\" id=frm name=frm method=post>
 		<textarea style='display:none' name=rawxml></textarea>
-		<p><input type=button value=Save onClick=\"runsubmit();\"> $switch
+		<p><input type=button value=Save onClick=\"return runsubmit();\"> $switch
 		</form>
 		
 		<script src=\"$jsurl/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
@@ -93,8 +93,16 @@
 			editor.getSession().setMode(\"ace/mode/xml\");
 			
 			function runsubmit ( ) {
-				document.frm.rawxml.value = editor.getSession().getValue();
-				document.frm.submit();
+				var rawxml = editor.getSession().getValue();
+				var oParser = new DOMParser();
+				var oDOM = oParser.parseFromString(rawxml, 'text/xml');
+				if ( oDOM.documentElement.nodeName == 'parsererror' ) {
+					alert('Invalid XML - please revise before saving.'); 
+					return -1; 							
+				} else {
+					document.frm.rawxml.value = rawxml;
+					document.frm.submit();
+				};						
 			};
 		</script>
 	";
