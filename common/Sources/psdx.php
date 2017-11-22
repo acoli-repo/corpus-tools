@@ -179,7 +179,7 @@
 						$xslt = preg_replace("/##/", $xpath, $wrapper);
 						$fsize = 100; // size of the list of files to pass in 1 go to XSLTPROC
 						for ( $i=0; $i< count($resultarray); $i+=$fsize ) { 
-							$line = join(" ", array_splice($resultarray, $i, $fsize));
+							$line = join(" ", array_slice($resultarray, $i, $fsize));
 							$searchfiles = preg_replace("/( |^)[^ ]*?([^\/\. ]+)\.xml/", "\\1Annotations/\\2.psdx", $line);
 							$cmd = "echo '$xslt' | xsltproc --novalid - $searchfiles";
 							# print "<p>CMD: ".htmlentities($cmd);
