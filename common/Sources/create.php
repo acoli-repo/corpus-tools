@@ -201,7 +201,7 @@
 				while ( list ( $key, $item ) = each ( $settings['xmltemplates'] ) ) {
 					$templatelist .= "<option value='$key'>{$item['display']}</option>";
 				};
-				$text .= "<p>Also use template file: <select name=withtemplate><option value=''>[none]</option>$templatelist</select></div>";
+				$text .= "<p>Also use template file: <select name=withtemplate><option value=''>[none]</option>$templatelist</select></p>";
 			};
 			
 			$maintext .= "<p><input type=radio name=header value='teiheader' onChange='metachoose(this);'> Use teiHeader-edit

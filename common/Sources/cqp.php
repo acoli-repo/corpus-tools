@@ -765,8 +765,9 @@
 		};
 		
 		if ( !$fileonly && !$nomatch ) $maintext .= "					
-			<span onclick=\"document.cqlform.action = 'index.php?action=$action&act=download'; document.cqlform.submit();\">Download results as TXT</span></p>
+			<span onclick=\"document.cqlform.action = 'index.php?action=$action&act=download'; document.cqlform.submit();\">{%Download results as TXT}</span>
 			";
+		$maintext .= " - <a href='index.php?action=cqp&cql=".urlencode($cql)."'>{%Direct query URL}</a>";
 		$maintext .= "<!-- CQL: $cql -->";
 		# $maintext .= "<span onclick=\"this.style.display = 'none'; document.getElementById('freqopts').style.display='block';\">show frequency options</span>";
 		
