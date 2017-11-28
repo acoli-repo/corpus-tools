@@ -15,6 +15,7 @@
 		$record['short'] = $xrec['short'].''; 
 		$record['permissions'] = $xrec['permissions'].''; 
 		$record['group'] = $xrec['group'].''; 
+		$record['fullname'] = $xrec.''; 
 		
 		## Check whether the password is correct
 		if ( ( $_POST['password'] == $xrec['password'] 

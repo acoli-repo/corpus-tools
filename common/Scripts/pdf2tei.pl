@@ -1,58 +1,296 @@
-# Train a Neotag parameter set on all (tagged) XML files in --infiles
-# Save parameter set to --folder
-
-use encoding 'utf8';
-use Getopt::Long;
-use HTML::Entities;
 use XML::LibXML;
-use XML::XPath;
-use XML::XPath::XMLParser;
+use Getopt::Long;
 
-$\ = "\n"; $, = "\t";
+$parser = XML::LibXML->new(); 
 
-GetOptions (
-            'pdf=s' => \$pdffile,
-            'start=i' => \$start,
-            'end=i' => \$end,
-            'pagestyle=i' => \$pagestyle,
-            'teiname=s' => \$teiname, # Take words without pos into account
-            'debug' => \$debug,
+$\ = "\n"; $, = "\n";
+
+ GetOptions ( ## Command line options
+            'debug' => \$debug, # debugging mode
+            'lang=s' => \$langid, # language to use for OCR
+            'input=s' => \$input, # retreat an XML from HTML
+            'parse=s' => \$parsetype, # retreat an XML from HTML
+            'getimg=s' => \$gs, # retreat an XML from HTML
+            'pagtype=s' => \$pagtype, # retreat an XML from HTML
+            'offset=i' => \$offset, # How many initial pages to skip
             );
-            
-for ( $i=$start; $i<=$end; $i++ ) {
 
-	if ( $pagestyle == 2 ) {
-		$pagecnt = $i-$start+1;
-		$pagenr = int($pagecnt/2);
-		if ( $pagenr == $pagecnt/2 ) { 
-			$pageid = ($pagenr-0)."v";
-			$page = int($i/2)+0; $pageside = 1;
-			$crop = " -crop 50%x100%+0+0 ";
-		} else {
-			$pageid = ($pagenr+1)."r";
-			$page = int($i/2)-1; $pageside = 2;
-			$crop = "  -gravity East -crop 50%x100%+0+0 ";
-		}; 
+if ( !$input ) {
+	$input = shift;
+};
+
+if ( !defined($offset) ) { $offset = 1; };
+
+if ( !-e $input ) { 
+	if ( -e "Originals/$input" ) {
+		$input = "Originals/$input";
+	} elsif ( -e "pdf/$input" ) {
+		$input = "pdf/$input";
 	} else {
-		$pageid = $i;
+		print "No such file: $input"; exit; 
 	};
+};
 
-	$pagelist .= "$sep<pb n=\"$pageid\" facs=\"$teiname\_$pageid.jpg\"/>";
-	$sep = "\n";
-	$cmd = "convert pdf/$pdffile\[$page\] $crop Facsimile/$teiname\_$pageid.jpg";
-	print $i, $pageid, $page, $pageside, $cmd;
+if ( $parsetype eq "ocr" ) {
+	$pagetype = "pb";
+	$linetype = "lb";
+} elsif ( $parsetype eq "line" ) {
+	$pagetype = "page";
+	$linetype = "line";
+} elsif ( $parsetype eq "page" ) {
+	$pagetype = "page";
+	$linetype = "lb";
+} else {
+	$pagetype = "pb";
+	$linetype = "pb";
+};
+
+$filename = $input;
+$filename =~ s/\.pdf//;
+$filename =~ s/.*\///;
+
+$xmlfiles = "pagetrans";
+$xmlfile = "$xmlfiles/$filename.xml";
+
+# Convert the PDF to JPG images - 1 per page
+if ( !-e "Facsimile/$filename/$filename-001.jpg" || $force ) {
+	if ( !-d "Facsimile/$filename" ) { mkdir("Facsimile/$filename"); };
+	print "Converting to JPG images";
+	if ( $gs eq "gs" ) {
+		$cmd = "gs -dNOPAUSE -sDEVICE=jpeg -sOutputFile=Facsimile/$filename/$filename-%d.jpg -dJPEGQ=100 -r1000 $input -c quit ";
+	} else {
+		if ( !-d "Facsimile/$filename" ) { mkdir("Facsimile/$filename"); }; 
+		$cmd = "pdfimages -j  $input Facsimile/$filename/$filename ";
+	};
+	print $cmd;
 	`$cmd`;
 };
 
-$tei = "<TEI>
-<teiHeader>
-</teiHeader>
+if ( -e $xmlfile ) {
+	$/ = undef;
+	open FILE, $xmlfile;
+	$teistring = <FILE>;
+	close FILE;
+	print "Loaded skeletong $xmlfile";
+};
+if ( $teistring eq '' ) { $teistring = "<TEI>
+<teiHeader/>
 <text>
-$pagelist
 </text>
-</TEI>";
+</TEI>"; };
 
-open FILE, ">xmlfiles/$teiname.xml";
-print FILE $tei;
+$xml = $parser->load_xml(string => $teistring );
+$text = $xml->findnodes("//text")->item(0);
+
+$orgfile = makenode($xml, '/TEI/teiHeader/notesStmt/note[@n="orgfile"]');
+$orgfile->appendText($input);
+# print $xml->toString(); exit;
+
+# If we are making <page> XML, mark the <text> element as such
+if ( $pagetype eq "page" ) {
+	$text->setAttribute('type', 'pagetrans');
+};
+
+# Check how many pages we got
+$/ = undef;
+@tmp = <Facsimile/$filename/$filename-*.jpg>;
+$pages = scalar @tmp;
+
+if ( -e "Resources/tesseract.conf" ) { $config = "Resources/tesseract.conf"; };
+
+opendir(my $dh, "Facsimile/$filename") || die "Can't open directory: $!"; $i=0;
+while (readdir $dh) {
+	$jf = $_; 
+	if ( $jf =~ /^\./ ) { next; }; 
+	$i++;
+	if ( $i <= $offset ) { print "Skipping $_ ($i)"; next; }; # Skip x pages
+   	$jf = "Facsimile/$filename/$jf";
+	print $jf;
+	
+	if ( $parsetype eq "ocr" ) {
+		if ( !-e "tmp/$filename-1.hocr" || $force ) {
+			if ( !-d "tmp/$filename" ) { mkdir("tmp/$filename"); };
+			print "Running OCR";
+			# OCR the page
+			$cmd = "tesseract $jf tmp/$filename/$filename-$i hocr $config > /dev/null ";
+			# print $cmd;
+			`$cmd`;
+		};
+	
+		open FILE, "tmp/$filename/$filename-$i.hocr";
+		binmode(FILE, ":utf8");
+		$hx = <FILE>;
+		close FILE;
+	
+		$hx =~ s/<!DOCTYPE [^>]+>//gsmi;
+		$hx =~ s/xmlns="[^"]+"//gsmi;
+	
+		# Load the hOCR file
+		$hocr = $parser->load_xml(string => $hx);
+	
+		print "Converting to TEI";
+		foreach $node ( $hocr->findnodes("//span") ) { 
+			$class = $node->getAttribute('class'); 
+			$node->removeAttribute('id');
+		
+			if ( $class eq 'ocrx_word' ) {
+				# ocrx_word is a token, but without the punctuation marks split off
+				$node->setName("tok");
+				$node->removeAttribute('class');
+			} elsif ( $class eq 'ocr_line' ) {
+				# ocr_line is a lb, but a node, not an empty node
+				$node->setName("lb");
+				$node->removeAttribute('class');
+			};
+		
+			$title = $node->getAttribute('title'); 
+			foreach $part ( split ( " *; *", $title ) ) {
+				if ( $part =~ /([^ ]+) (.*)/ ) {
+					$an = $1; $av = $2;
+					$av =~ s/"//g;
+					$node->setAttribute($an, $av);
+				};
+			};
+			$node->removeAttribute('title');
+		};
+
+		foreach $node ( $hocr->findnodes("//div") ) { 
+			$class = $node->getAttribute('class'); 
+			$node->removeAttribute('id');
+		
+			if ( $class eq 'ocr_carea' ) {
+				# ocr_carea is just a div
+				$node->removeAttribute('class');
+			} elsif ( $class eq 'ocr_page' ) {
+				# ocr_page is a pb, but a node, not an empty node
+				$node->setName("pb");
+				$node->removeAttribute('class');
+			};
+		
+			$title = $node->getAttribute('title'); 
+			foreach $part ( split ( " *; *", $title ) ) {
+				if ( $part =~ /([^ ]+) (.*)/ ) {
+					$an = $1; $av = $2;
+					$av =~ s/"//g; 
+					if ( $an eq "image" ) { $an = "facs"; $av =~ s/Facsimile\///; };
+					if ( $an eq "ppageno" ) { $an = "n"; $av = $i; };
+					$node->setAttribute($an, $av);
+				};
+			};
+			$node->removeAttribute('title');
+		};
+	
+		foreach $node ( $hocr->findnodes("//p") ) { 
+			$class = $node->getAttribute('class'); 
+			$node->removeAttribute('id');
+			if ( $class eq 'ocr_par' ) {
+				$node->removeAttribute('class');
+			};
+
+			$title = $node->getAttribute('title'); 
+			foreach $part ( split ( " *; *", $title ) ) {
+				if ( $part =~ /([^ ]+) (.*)/ ) {
+					$an = $1; $av = $2;
+					$av =~ s/"//g; if ( $an eq "image" ) { $an = "facs"; $av = "$filename/$av"; };
+					$node->setAttribute($an, $av);
+				};
+			};
+			$node->removeAttribute('title');
+		};
+
+		foreach $node ( $hocr->findnodes("//em") ) { 
+			$node->setName("hi");
+			$node->setAttribute('rend', 'italic');
+		};
+
+		foreach $node ( $hocr->findnodes("//strong") ) { 
+			$node->setName("hi");
+			$node->setAttribute('rend', 'bold');
+		};
+
+		# Add all the pb to the TEI <text>	
+		foreach $node ( $hocr->findnodes("//pb") ) { 
+			$text->addChild($node);
+		};
+	} elsif ( $parsetype eq "line" ) {
+		# Now, recognize lines		
+	} else {
+		if ( $pagtype == "2" ) {
+			if ( $i > $offset+1 ) {
+				$node = $xml->createElement($pagetype);
+				$pn = ($i-$offset-1)."v";
+				$node->setAttribute("n", $pn);
+				$node->setAttribute("id", "page-$pn");
+				( $fi = $jf ) =~ s/^Facsimile\///;
+				$node->setAttribute("facs", "$fi");
+				$node->setAttribute("crop", "left");
+				$text->addChild($node);
+			};
+			
+			$node = $xml->createElement($pagetype);
+			$pn = ($i-$offset)."r";			
+			$node->setAttribute("n", $pn);
+			$node->setAttribute("id", "page-$pn");
+			( $fi = $jf ) =~ s/^Facsimile\///;
+			$node->setAttribute("facs", "$fi");
+			$node->setAttribute("crop", "right");
+			$text->addChild($node);
+		} else {
+			$node = $xml->createElement($pagetype);
+			$node->setAttribute("n", "$i");
+			$node->setAttribute("id", "page-$i");
+			( $fi = $jf ) =~ s/^Facsimile\///;
+			$node->setAttribute("facs", "$fi");
+			$text->addChild($node);
+		};
+	};		
+};
+
+$xmltxt = $xml->toString;
+
+# Change lb and pb into empty elements
+$xmltxt =~ s/<lb([^>]*)>/<lb\1\/>/g;
+$xmltxt =~ s/<\/lb>//g;
+
+$xmltxt =~ s/<page /\n<page /g;
+$xmltxt =~ s/<\/text>/\n<\/text>/g;
+
+$xmltxt =~ s/<pb([^>]*)>/<pb\1\/>/g;
+$xmltxt =~ s/<\/pb>//g;
+
+open FILE, ">$xmlfile";
+print FILE $xmltxt;
 close FILE;
+print "Saved file to $xmlfile";
 
+# This does not seem to work - and is it useful?
+# `perl ../common/Scripts/xmlrenumber.pl $xmlfiles/$filename.xml`;
+
+sub makenode( $rootxml, $xpath ) {
+	my ( $rootxml,  $xpath) = @_; 
+	
+	print "Looking for $xpath";
+	$test = $rootxml->findnodes($xpath);
+
+	if ( $test ) { return $test->item(0); };
+	
+	if ( $xpath =~ /^(.*)\/([^\/]+)$/  ) {  $pxp = $1; $newname{$pxp} = $2;  }
+	else { print "Unable to create node $xpath"; };
+	
+	$newparent{$pxp} = makenode($rootxml, $pxp);
+	print "Created node: for $pxp, $newname{$pxp} ".$newparent{$pxp}->toString();
+	
+	if ( $newname{$pxp} =~ /^(.*)\[(.*)\]$/ ) {
+		$newname{$pxp} = $1;
+		$newatts = $2;
+	};
+
+	print "Now creating in ".$pxp." a  ".$newname{$pxp};
+	$newnode = $xml->createElement($newname{$pxp});
+	while ( $newatts =~ /\@([^ \]"]+)=['"]([^"]+)['"]/g ) {
+		$newnode->setAttribute($1, $2);
+	};
+	$newparent{$pxp}->addChild($newnode);
+	
+	return $newnode;
+};

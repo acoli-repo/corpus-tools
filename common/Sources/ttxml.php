@@ -19,6 +19,7 @@ class TTXML
 	
 		# Use $_GET to find the file
 		if ( !$xmlfolder ) $xmlfolder = "xmlfiles";
+		if ( strstr($options, "pagetrans") != false ) {  $xmlfolder = "pagetrans"; };
 		
 		if (!$fileid) $fileid = $_POST['id'] or $fileid = $_GET['id'] or $fileid = $_GET['cid'];
 		$this->fileid = $fileid;
@@ -55,7 +56,7 @@ class TTXML
 
 		$this->rawtext = file_get_contents("$xmlfolder/$fileid"); 
 
-		if ( !strstr("keepns", $options) ) {
+		if ( strstr($options, "keepns") == false ) {
 			$this->rawtext = namespacemake($this->rawtext);
 		};
 			

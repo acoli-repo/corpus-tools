@@ -100,7 +100,18 @@
 				$pbef = strpos($file, "<text"); # Allow for non-paged XML files
 				$pblen = 500;
 			};
-			$tmp = substr($file, $pbef, $pblen); 
+			$tmp = substr($file, $pbef, $pblen); $cnt = 0;
+			while ( preg_match('/empty="1"/', $tmp) && $cnt++ < 100 ) {
+				# Jump over (explicit) empty pages
+				$pbef = strpos($file, "<$pbelm", $pbef+1);
+				$pbaf = strpos($file, ">", $pbef);
+				$pblen = $pbaf-$pbef+1;
+				if ( !$pbef ) {	
+					$pbef = strpos($file, "<text"); # Allow for non-paged XML files
+					$pblen = 500;
+				};
+				$tmp = substr($file, $pbef, $pblen); 
+			};
 			if ( preg_match("/<$pbelm [^>]*id=\"(.*?)\"/", $tmp, $matches) ) {
 				$_GET['pageid'] = $matches[1];
 			};
@@ -121,7 +132,13 @@
 		$warnings .= "<p style='background-color: #ffaaaa; padding: 5px;; font-weight: bold;'>Due to filepermissions, this file cannot be
 			modified by TEITOK - please contact the administrator of the server.</p>";
 	};
-
+	
+	# Warn on <page> type temp files
+	if ( $xml->xpath("//page") ) {
+		$warnings .= "<p style='background-color: #ffaaaa; padding: 5px;; font-weight: bold;'>This is not a pure TEI file,
+			but a temporary file for <a href='index.php?action=pagetrans&id=$xmlid'>page-by-page transcription</a>. Best use the appropriate function for that.</p>";
+	};
+	
 	$maintext .= $warnings;
 
 	# Show optional additional headers

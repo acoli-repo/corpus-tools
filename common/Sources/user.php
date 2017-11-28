@@ -43,6 +43,7 @@
 			<h1>User Profile</h1>
 			
 			<table>
+			<tr><th>Name:<td>{$user['fullname']}
 			<tr><th>Email:<td>{$user['email']}
 			<tr><th>Short name:<td>{$user['short']}
 			<tr><th>Permissions:<td>{$user['permissions']}

@@ -280,7 +280,7 @@
 		# Post as shorthand
 		$maintext .= "<p><input type=radio name=body value='shorthand' onChange='bodychoose(this);'> Create from plain text (with shorthand)
 			<div id='shorthand' style='display: none; padding-left: 40px;'>
-				<p>Paste text - double lines breaks will convert to paragraphs, and code can be used for (delete) and &lt;expand&gt;: <textarea name=shorthand style='height: 300px; width: 100%'></textarea>";
+				<p>Paste text - double lines breaks will convert to paragraphs"; # , and code can be used for (delete) and &lt;expand&gt;: <textarea name=shorthand style='height: 300px; width: 100%'></textarea>
 		$maintext .= "</div>";
 
 		# Convert from Word
