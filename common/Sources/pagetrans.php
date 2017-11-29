@@ -5,6 +5,9 @@
 
 	check_login();
 	
+	if ( !$_GET['cid'] ) $_GET['cid'] = $_POST['fileid'];	
+
+	
 	if ( $_GET['cid'] ) {
 		require ("$ttroot/common/Sources/ttxml.php");
 	
@@ -48,14 +51,14 @@
 		# Display the teiHeader data as a table
 		$maintext .= $ttxml->tableheader(); 
 			
-		$maintext .= "<form>
+		$maintext .= "<form action='index.php?action=$action&act=apply' method=post>
 			<input type=hidden name=fileid value='$ttxml->fileid'>
 			<h2>Treatment of lines</h2>
 			
-			<p><input type=radio name=line value='lb' checked> Treat each new line as an &lt;lb/&gt; (line beginning)
-			<p><input type=radio name=line value='plb'> Treat empty lines as new paragraphs and other line as an &lt;lb/&gt; (line beginning)
-			<p><input type=radio name=line value='p'> Treat empty lines as new paragraphs and ignore other lines
-			<p><input type=radio name=line value='none'> Ignore all lines
+			<p><input type=radio name=lines value='lb' checked> Treat each new line as an &lt;lb/&gt; (line beginning)
+			<p><input type=radio name=lines value='plb'> Treat empty lines as new paragraphs and other line as an &lt;lb/&gt; (line beginning)
+			<p><input type=radio name=lines value='p'> Treat empty lines as new paragraphs and ignore other lines
+			<p><input type=radio name=lines value='none'> Ignore all lines
 
 			<hr>
 			<h2>Conversions of codes</h2>
@@ -72,7 +75,7 @@
 			</form>";
 
 	} else if ( $act == "apply" && $_POST['fileid'] ) {
-	
+
 		$dom = dom_import_simplexml($ttxml->xml)->ownerDocument; 		
 		$xpath = new DOMXpath($dom);
 		
@@ -81,16 +84,17 @@
 		
 			# Convert document specific codes
 			if ( $_POST['convert'] ) {
-				foreach ( $settings['input']['replace'] as $key => $val ) {
-					$pagebody = str_replace($key, $val, $pagebody);
+				foreach ( $settings['input']['replace'] as $key => $item ) {
+					$pagebody = str_replace($key, $item['value'], $pagebody);
 				};
 			};
-					
+			
+			
 			# Convert linebreaks
 			if ( !$pagenode->getAttribute("empty") && $pagenode->textContent != "" ) {
 				if ( $_POST['lines'] == "lb" ) {
 					$pagebody = preg_replace("/^(<page[^>]+>)/", "\\1<lb/>", $pagebody);
-					$pagebody = preg_replace("/(&#13;|[\n\r])+/", "\n<lb/>", $pagebody);
+					$pagebody = preg_replace("/(\&#13;|[\n\r])+/", "\n<lb/>", $pagebody);
 					$pagebody = str_replace("|\n<lb/>", "<lb/>", $pagebody);
 					$pagebody = str_replace("|\n", "", $pagebody);
 				} else if ( $_POST['lines'] == "plb" ) {
@@ -114,9 +118,9 @@
 			};
 			
 			# Convert codes
-			if ( $_POST['code'] == "md" ) {
+			if ( $_POST['codes'] == "md" ) {
 				$pagebody = preg_replace("/\[([^\]]+):([^\]]*)\]/", "<\\1>\\2</\\1>", $pagebody);
-			} else if ( $_POST['code'] == "xml" ) {					
+			} else if ( $_POST['codes'] == "xml" ) {					
 				# Convert xml tags
 				$pagebody = str_replace("&lt;", "<", $pagebody);
 				$pagebody = str_replace("&gt;", ">", $pagebody);
@@ -231,10 +235,12 @@
 		else $pagexp = "//text/page[not(@empty) and not(@done)]";
 
 		$pagexml = current($ttxml->xml->xpath($pagexp));
+		if ( !$pagexml && !$_GET['page'] ) $pagexml = current($ttxml->xml->xpath("//page")); 
+		
 		if ( !$pagexml ) fatal ("Page not found: {$_GET['page']}");
 
 		if ( !$ttxml->xml->xpath("//text/page[not(@empty) and not(@done)]") ) {
-			$converttxt .= "All pages marked as done, click <a href='index.php?action=$action&cid=$fileid&act=convert'>here</a> to convert to TEI/XML";
+			$converttxt .= "All pages marked as done, click <a href='index.php?action=$action&cid=$fileid&act=convert'>here</a> to finish";
 		} else {
 			$noconvert = "- <a href='index.php?action=$action&cid=$fileid&act=convert'>Abandon page-by-page and convert to TEI/XML</a>";
 			if ( $pagexml['done'] ) $converttxt .= "click <a href='index.php?action=$action&cid=$fileid'>here</a> to jump to the first non-finished page";

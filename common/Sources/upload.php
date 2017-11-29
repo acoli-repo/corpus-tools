@@ -22,10 +22,11 @@
 	
 	if ( $act == "save" ) {
 
-		$target_folder = $settings['files'][$type]['folder'];
+		$type = $_POST['type']; if ( !$type ) fatal ("POST data incorrectly set");
+
+		$target_folder = $settings['files'][$type]['folder']; if ( !$type ) fatal ("Data folder not found");
 		if ( !is_dir($target_folder) ) mkdir($target_folder); # Create the folder if needed
 
-		$type = $_POST['type'];
 		$target_file = $target_folder."/".basename($_FILES["upfile"]["name"]);
 		print "<h1>Uploading File</h1><p>$target_file";
 		$uploadOk = 1;
@@ -68,7 +69,9 @@
 		$maintext .= "<h1>File Upload</h1>
 			<h2>{$typedef['display']}</h2>";
 		
-		$maxsize = ini_get("upload_max_filesize");
+		$maxsize = min(intval(ini_get("upload_max_filesize")), intval(ini_get("post_max_size")), intval(ini_get("memory_limit")));
+		if ( $maxsize < 20 ) $warning = "<i style='color: #888888;'> - ask system admistrator to increase upload_max_filesize, post_max_size, and memory_limit to upload larger files</i>";
+		$maxsize .= "Mb";
 		
 		if ( !is_dir($typedef['folder']) ) {
 			$maintext .= "<p style='font-weight: bold; color: #992000;'>Folder {$typedef['folder']} does not exist, please contact admin</p>";
@@ -77,7 +80,7 @@
 		} else {
 			$maintext .= "<p><form action='index.php?action=$action&act=save' method=post enctype=\"multipart/form-data\">
 				<p>Accepted extensions: <i>{$typedef['extension']}</i>
-				<p>Maximum file size: <i>$maxsize</i>
+				<p>Maximum file size: <i>$maxsize</i> $warning
 				<input type=hidden name=type value='$type'>
 				<p>Add new file: <input type=file name=upfile accept=\"$accept\"> <input type=submit value=Save name=submit> 
 				</form> ";
@@ -124,4 +127,11 @@
 	  $factor = floor((strlen($bytes) - 1) / 3);
 	  return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor];
 	}
+	
+	function parseint ($string) {
+	  $sz = 'BKMGTP';
+	  $exp = strpos($sz,substr($string,-1));
+	  if ( $exp != -1 ) { return intval($string)*pow(1024, $exp); }
+	  else return $string;
+	};
 ?>
