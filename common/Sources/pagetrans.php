@@ -119,6 +119,13 @@
 			
 			# Convert codes
 			if ( $_POST['codes'] == "md" ) {
+				# some special codes
+				$pagebody = preg_replace("/\[i:([^\]]*)\]/", "<hi rend=\"italics\">\\1</hi>", $pagebody);
+				$pagebody = preg_replace("/\[b:([^\]]*)\]/", "<hi rend=\"bold\">\\1</hi>", $pagebody);
+				$pagebody = preg_replace("/\[dc:([^\]]*)\]/", "<hi type=\"dropcap\">\\1</hi>", $pagebody);
+				# [tag@feature=value:content]
+				$pagebody = preg_replace("/\[([^\]]+)@([^\]]+)=([^\]]+):([^\]]*)\]/", "<\\1 \\2=\"\\3\">\\4</\\1>", $pagebody);
+				# [tag:content]
 				$pagebody = preg_replace("/\[([^\]]+):([^\]]*)\]/", "<\\1>\\2</\\1>", $pagebody);
 			} else if ( $_POST['codes'] == "xml" ) {					
 				# Convert xml tags
@@ -147,6 +154,8 @@
 		$newxml = str_replace("<page ", "<pb ", $newxml);
 		$newxml = preg_replace("/<pb([^>]+)(?<!\/)>/", "<pb\\1/>", $newxml);
 		$newxml = str_replace("</page>", "", $newxml);
+
+		$newxml = preg_replace("/\|\s*<pb/", "<pb", $newxml);
 		
 		rename("pagetrans/$ttxml->filename", "backups/$ttxml->fileid-pagetrans.xml");
 		saveMyXML($newxml, $ttxml->fileid);
