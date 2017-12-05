@@ -16,6 +16,13 @@
 
 
 	# Read the annotation definition
+	if ( $user['permissions'] == "admin" && !file_exists("Annotations/{$annotation}_def.xml") ) { 
+		print "<p>Definition file for $annotation does not exist - reloading to create file
+				<script language=Javascript>top.location='index.php?action=adminedit&folder=Annotations&id={$annotation}_def.xml&preload=annoation_def.xml';</script>
+		";
+		exit;
+	};
+	
 	$andef = simplexml_load_file("Annotations/{$annotation}_def.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( ( !$settings['annotations'][$annotation] || $settings['annotations'][$annotation]['admin'] ) && !$username )  {
 		fatal ( "Annotation data for <i>{$andef['name']}</i> are not publicly accessible" );

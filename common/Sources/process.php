@@ -1,4 +1,6 @@
 <?php
+	
+	# Small module to show the progress of a backgrounded process
 
 	$pid = $_GET['pid'];
 	

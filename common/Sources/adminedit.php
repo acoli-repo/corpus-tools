@@ -4,8 +4,9 @@
 	// and for certain files to admin only
 	// (c) Maarten Janssen, 2015
 
-	check_login();
+	check_login("admin");
 	$id = $_GET['id'];
+	$blessed = array("Annotations", "Resources");
 
 	$filedescs = array (
 		"htmlstyles.css" => "CSS definitions for the overall site layout",
@@ -31,6 +32,7 @@
 	if ( $act == "save" ) {
 		
 		$id = $_POST['id'];
+		$fldr = $_POST['folder']; if ( !in_array($fldr, $blessed) ) fatal("Not allowed: $fldr");
 		if ( $reserved[$id] && $user['permissions'] != "admin" ) { fatal("Not allow - superuser only"); };
 		if ( !$id ) {
 			$id = $_POST['newid'];
@@ -55,19 +57,24 @@
 			$buname = preg_replace ( "/\.xml/", "-$date.xml", $id );
 			$buname = preg_replace ( "/.*\//", "", $buname );
 			if ( !file_exists("backups/$buname") ) {
-				copy ( "Resources/$id", "backups/$buname");
+				copy ( "$fldr/$id", "backups/$buname");
 			};
 		
-			file_put_contents("Resources/$id", $_POST['rawxml']);
+			file_put_contents("$fldr/$id", $_POST['rawxml']);
 			
 			# Now save the actual file
 			print "<p>File saved. Reloading.
 				<script language=Javascript>top.location='index.php?action=$action';</script>
-				";
+				"; exit;
 
 		};
 		
 	} else if ( $id ) {
+		
+		$id = preg_replace ("/^[.\/]+/", "", $id);
+		
+		$fldr = "Resources";
+		if ( $_GET['folder'] && in_array($_GET['folder'], $blessed) ) $fldr = $_GET['folder'];
 		
 		if ( $id == "new" ) {
 			$content = "";
@@ -75,14 +82,14 @@
 			$id = "new.txt";
 			$idfield = "<p>Filename: <input name=newid value='' size=40>";
 		} else {
-			if ( file_exists("Resources/$id") ) {
-				if ( !is_writable("Resources/$id") ) {
+			if ( file_exists("$fldr/$id") ) {
+				if ( !is_writable("$fldr/$id") ) {
 					fatal ("Due to file permissions, the file $id cannot be edited, please contact the server administrator");
 				};
-				$content = file_get_contents("Resources/$id");
+				$content = file_get_contents("$fldr/$id");
 			} else {
 				$warning .= "<p>This file does not yet exist, using a default version of the file...";
-				$content = file_get_contents("$ttroot/common/Resources/$id"); # Read the dummy variant of this file (if any)
+				$content = file_get_contents("$ttroot/common/$fldr/$id"); # Read the dummy variant of this file (if any)
 			};
 			$maintext .= "<h1>Edit Resource file</h1>
 			<h2>Filename: $id</h2>$warning";
@@ -116,6 +123,7 @@
 
 			<form action=\"index.php?action=$action&act=save\" id=frm name=frm method=post>
 			$idfield
+			<input type=hidden name=folder value=\"$fldr\">
 			<textarea style='display:none' name=rawxml></textarea>
 			<p><input type=button value=Save onClick=\"return runsubmit();\"> $switch
 			</form>

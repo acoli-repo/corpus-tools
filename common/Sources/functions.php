@@ -666,6 +666,7 @@
 	function createnode ($xml, $xquery) {
 		# See if XML has a node matching the XPath, if not - create it
 		global $verbose;
+			if ( $verbose ) { print "\n<p>Creating node $xquery"; };
 	
 		$xpath = new DOMXpath($xml);
 
@@ -675,13 +676,20 @@
 			return $xml;
 		};
 		
-		if ( preg_match("/^(.*)\/(.*?)$/", $xquery, $matches) ) {
+		if ( preg_match("/^(.*)\/@([^\/]*?)$/", $xquery, $matches) ) {
+			$before = $matches[1];
+			$new = $matches[2]; 
+			$res = createnode($xml, $before); 
+			$res = $xpath->query($before)->item(0); 
+			$res->setAttribute($new, ""); 
+		} else if ( preg_match("/^(.*)\/(.*?)$/", $xquery, $matches) ) {
 		
 			// create the node type after the last / inside the xpath before that
 			// create the inner node again when needed
 			$before = $matches[1];
 			$new = $matches[2];
 			if ( $before == "/" ) { print "\n<p>Non-rooted node $xquery does not exist - cannot create"; return -1; };
+			if ( $before == "" ) { print "\n<p>Reached root node - cannot create"; return -1; };
 			$res = createnode($xml, $before);
 			if ( $res == -1 ) { return -1; };
 
@@ -717,7 +725,7 @@
 		} else {
 			if ( $verbose ) { print "\n<p>Failed to find a node to attach to $xquery - aborting"; };
 			return -1;
-		};
+		}; 
 		return $xml;
 	};
 	

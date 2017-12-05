@@ -96,6 +96,14 @@ function formify () {
 		if ( it.innerText != '' && it.innerText != undefined ) { 
 			it.setAttribute('rend', it.innerText);
 		};
+		
+		// Create internal element for rendering, numbering, and breaks
+		var lbrend = document.createElement("span"); // LB rendering (hyphen)
+		it.appendChild(lbrend);
+		var lbnum = document.createElement("span"); // LB number (empty)
+		it.appendChild(lbnum);
+		var lbhl = document.createElement("span"); // LB line
+		it.appendChild(lbhl);
 	};
 	
 	var toks = mtxt.getElementsByTagName("tok");
@@ -205,8 +213,9 @@ function formify () {
 				var imgelm = document.createElement("div");
 
 				var imghl = document.createElement("div");
-				imghl.setAttribute('class', 'hlbar');
+				imghl.setAttribute('class', 'hlbar'); // The highlight bar
 				imgelm.appendChild(imghl);
+				imgelm.setAttribute('class', 'imgdiv'); // The highlight bar
 				
 				var rlimg = document.createElement("img");
 				imgelm.appendChild(rlimg);
@@ -299,7 +308,7 @@ function toggletn (tag) { // Show or hide empty elements
 		showtag[tag] = true;
 		if  ( but != null ) but.style.background = '#eeeecc';
 	};
-	document.cookie = tag+'='+showee;
+	// document.cookie = tag+'='+showee;
 	setview();
 };
 
@@ -349,7 +358,7 @@ function toggleimg () { // Show or hide images
 	document.cookie = 'toggleimg='+showimg;
 
 	// Show/hide all IMG elements inside MTXT
-	var its = mtxt.getElementsByTagName("img");
+	var its = mtxt.getElementsByClassName("imgdiv");
 	for ( var a = 0; a<its.length; a++ ) {
 		var it = its[a];
 		if ( typeof(it) != 'object' ) { continue; };
@@ -415,31 +424,60 @@ function setview () {
 	};
 	
 	// Show the linebreaks
-	var its = mtxt.getElementsByTagName("lb");
+	var its = mtxt.getElementsByTagName("lb"); var lcnt = 0;
 	for ( var a = 0; a<its.length; a++ ) {
 		var it = its[a];
-		if ( typeof(it) != 'object' ) { continue; };
-		it.innerHTML = '';
+
+		if ( typeof(it) != 'object' ) { continue; }; // For just in case
+
+		// Handle the rendering element (innerHTML of the <lb/> or the @rend)
+		var lbrend = it.childNodes[0]; 
 		if ( showform == 'pform' && it.getAttribute('rend') != "none" && it.getAttribute('rend') != null ) {
-			it.innerHTML = it.getAttribute('rend');
+			lbrend.innerHTML = it.getAttribute('rend');
+		} else {
+			lbrend.innerHTML = '';
 		};
+
+		if ( it.getAttribute('n') && it.getAttribute('n') != "false" ) { 
+			lid = it.getAttribute('n'); 
+		} else if ( typeof(autonumber) != 'undefined' ) {
+			lcnt = lcnt + 1;
+			lid = lcnt;
+		} else {
+			lid = '';
+		};
+		
+		// Handle the linebreak child
+		var lbhl = it.childNodes[1]; 
 		if ( interpret ) {
-			it.innerHTML += '<br>';
+			lbhl.innerHTML = '<br>';
+		} else if ( ( showee || showtag['lb'] ) && lid != '' ) {
+			lbhl.innerHTML = '<span style="color: #4444ff; font-size: 14px;">['+lid+']</span>';
+		} else if ( showee || showtag['lb'] ) {
+			lbhl.innerHTML = '<span style="color: #4444ff; font-size: 14px;">|</span>';
+		} else {
+			lbhl.innerHTML = ''; lbrend.innerHTML = '';
 		};
+		
+		 // Handle the number child
+		var lbnum = it.childNodes[2];
 		if ( showee || showtag['lb'] ) {
-			if ( it.getAttribute('n') && it.getAttribute('n') != "false" ) { lid = ' ' + it.getAttribute('n'); } else { lid = ''; };
 			if ( interpret ) {
-				if ( lid ) {
-					it.innerHTML += '<div style="display: inline-block; color: #4444ff; font-size: 12px; width: 50px;">'+lid+'</div> ';
-				} else {
-					it.innerHTML += '<div style="display: inline-block; color: #eeeeee; font-size: 12px; width: 50px;">-</div> ';
+				if ( lid == '' ) { 
+					lid = '-'; 
 				};
-			} else if ( !it.getAttribute('rend') || it.getAttribute('rend') != "none" ) {
-				it.innerHTML += '<div style="display: inline-block; color: #4444ff; font-size: 14px;">|</div>';
+				lbnum.innerHTML = '<div style="display: inline-block; color: #4444ff; font-size: 12px; width: 30px;">'+lid+'</div> ';
+			} else {
+				lbnum.innerHTML = '';
 			};
-			if ( it.firstChild && it.getAttribute('id') && username != '' ) {
-				it.firstChild.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.parentNode.getAttribute('id'), '_top'); };
+			
+			// Make the line element clickable
+			if ( it.getAttribute('id') && username != '' ) {
+				lbnum.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.parentNode.getAttribute('id'), '_top'); };
+				lbhl.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.parentNode.getAttribute('id'), '_top'); };
 			};
+		} else {
+			lbnum.innerHTML = '';
 		};
 	};
 

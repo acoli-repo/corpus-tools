@@ -24,6 +24,42 @@
 			$maintext .= "<hr>".htmlentities(unshorthand($shorthand));
 		};
 		
+	} else if ( $act == "checksettings" ) {
+		check_login("admin");
+	
+		$projtit = $settings['defaults']['title']['display'] or $projtit = "<i>Not always used</i>";
+		$burl = $settings['defaults']['base']['url'] or $burl = "<i>Not always used</i>";
+		$maintext .= "<h1>Check Settings</h1>
+			<p>The folder where this project is located ($foldername) does not correspond to the
+				folder specified in the settings. This is typically due to the fact that
+				you moved your project, copied an existing project to create a new one,
+				 or that you recently updated TEITOK from before version 1.8. 
+				 In all those cases, you are asked to verify the settings below 
+				make sure they are accurate, and click 'confirm settings' when all necessary changes have
+				been made. If these settings do not belong to the current 
+				project, make sure to carefully revise the <a href='index.php?action=adminsettings'>settings</a>. Click a 
+				value to change it.
+				
+			<table>
+			<tr><th>Project name<td><a target=edit href='index.php?action=adminsettings&act=edit&node=/ttsettings/defaults/title/@display'>$projtit</a>
+			<tr><th>Corpus name<td><a target=edit href='index.php?action=adminsettings&act=edit&node=/ttsettings/cqp/@corpus'>{$settings['cqp']['corpus']}</a>
+			<tr><th>Base URL<td><a target=edit href='index.php?action=adminsettings&act=edit&node=/ttsettings/defaults/base/@url'>{$burl}</a>
+			</table>
+			<form action='index.php?action=adminsettings&act=save' method=post>
+			<textarea style='display: none;' type=hidden name=xpath>/ttsettings/defaults/base/@foldername</textarea>
+			<p><input name=newval  type=hidden value='$foldername'>
+			<input type=submit value='Confirm settings'></form>";
+				
+		if ( file_exists("Scripts/recqp.pl") ) {
+			$recqp = file_get_contents("Scripts/recqp.pl") ;
+			$maintext .= "<hr>
+				<p>You furthermore have a customized script to generate the CQP corpus. Check
+				this script, and modify it if necessary, or remove it completely if you do not
+				in fact have any customized features in your corpus
+				<pre>$recqp</pre>";
+				
+		};
+	
 	} else {
 	
 		$grouprec = $settings['permissions']['groups'][$user['group']];
@@ -85,12 +121,12 @@
 			if ( allowedforme($key) )
 				$maintext .= "<li><a href='$link'>{%".$item['display']."}</a>";
 		};
-				
+		
 		$maintext .= "</ul>
 		
 			<hr>
 			
-			<p>For help on admin functions see the <a href='http://teitok.corpuswiki.org/site/index.php?action=help'>Help</a> section online.
+			<p>For help on admin functions see the <a href='http://teitok.corpuswiki.org/site/index.php?action=help&project={$_SERVER['HTTP_HOST']}$baseurl'>Help</a> section online.
 			";
 	
 		# Display the TEITOK version

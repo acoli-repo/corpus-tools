@@ -54,9 +54,14 @@
 	# Determine the folder to set a folder-specific user cookie
 	if ( preg_match("/\/teitok\/([^\/]*?)\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
 		$foldername = $matches[1];
-	} else $foldername = "teitok";
-	$sessionvar = "teitok-$foldername";
-	
+	} else {
+		$foldername = $_SERVER['SCRIPT_FILENAME'];
+		$foldername = preg_replace("/.*\/www\/(html\/)?/", "", $foldername); # For /var/www/html
+		$foldername = preg_replace("/.*\/WebServer\/Documents\//", "", $foldername); # For MacOS
+		$foldername = preg_replace("/\/index\.php.*/", "", $foldername);
+	}; 
+	$sessionvar = "teitok-".preg_replace("/[^a-z0-9]/", "", $foldername); # Make the session relative to this project
+
 	# Determine which language to use
 	$deflang = $settings['languages']['default'] or $deflang = "en";
 	if ( $_GET['lang'] ) $lang = $_GET['lang'];
@@ -113,9 +118,18 @@
 	$user = $_SESSION[$sessionvar]; 
 	$username = $user['email'];
 	
+	# Some settings that used to be flexible, but now fixed
 	$xmlfolder = "xmlfiles";
 	$imagefolder = "Facsimile";
+	
 	include("$ttroot/common/Sources/menu.php");
+
+	# Check whether the settings actually belong to this project
+	if ( $user['permissions'] == "admin" && $foldername != $settings['defaults']['base']['foldername'] && $action != "admin" && $action != "adminsettings" && $action != "error" ) {
+		print "<script langauge=Javasript>top.location='index.php?action=admin&act=checksettings';</script>";
+		exit;
+	};
+	
 			
 	## Determine which action to perform
 	if ( file_exists( "Pages/$action-$lang.html" ) ) {
@@ -153,8 +167,10 @@
 	$menu = i18n($menu);
 
 	# Add the TEITOK footer
-	$menu .=  "<hr style='opacity: 0.5; margin-top: 40px;'><p style='opacity: 0.5; font-size: smaller;' onClick=\"window.open('http://teitok.corpuswiki.org/site/index.php', 'teitok');\">Powered by TEITOK<br>&copy; Maarten Janssen, 2014</p>";
-
+	if ( !$noteitokmessage ) {
+		$menu .=  "<hr style='opacity: 0.5; margin-top: 40px;'><p style='opacity: 0.5; font-size: smaller;' onClick=\"window.open('http://teitok.corpuswiki.org/site/index.php', 'teitok');\">Powered by TEITOK<br>&copy; Maarten Janssen, 2014</p>";
+	};
+	
 	// Load smarty content
 	if ( !isset($pagetitle) ) $pagetitle = $pagetitles[$action] or $pagetitle = $settings['defaults']['title']['display'];
 	$smarty->assign("title", $pagetitle);

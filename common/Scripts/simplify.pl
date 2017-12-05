@@ -64,7 +64,6 @@ foreach $node ( $tmpdoc->findnodes('//tok') ) {
 	
 
 };
-exit;
 
 open FILE, ">$filename";
 print FILE $tmpdoc->toString;

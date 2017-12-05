@@ -7,7 +7,8 @@
 			if ( $item['params'] == $paramsfile ) $params = $item;
 		};
 	} else if ( count($settings['neotag']['parameters']) == 0 ) {
-		print "<p>No neotag parameter settings"; exit;
+		print "<p>No neotag parameter settings - reloading to settigns
+			<script language=Javascript>top.location='index.php?action=adminsettings&section=neotag&showunused=1'</script>"; exit;
 	} else if ( count($settings['neotag']['parameters']) == 1 ) {
 		$params = array_shift($settings['neotag']['parameters']);
 		$paramsfile = $params['params'];

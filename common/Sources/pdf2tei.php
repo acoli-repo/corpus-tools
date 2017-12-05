@@ -211,6 +211,7 @@
 
 		<p><input type=radio name=postprocess value=page checked> Transcribe page-by-page in the interface
 		<p><input type=radio name=postprocess value=none> Only create an empty XML files with page breaks
+		<p><input type=radio name=postprocess value=ocr> Process with Tesseract OCR tool
 		<!-- <p><input type=radio name=postprocess value=line> Transcribe line-by-line in the interface -->
 		
 		<hr>

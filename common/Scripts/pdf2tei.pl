@@ -34,22 +34,25 @@ if ( !-e $input ) {
 if ( $parsetype eq "ocr" ) {
 	$pagetype = "pb";
 	$linetype = "lb";
+	$xmlfiles = "xmlfiles";
 } elsif ( $parsetype eq "line" ) {
 	$pagetype = "page";
 	$linetype = "line";
+	$xmlfiles = "pagetrans";
 } elsif ( $parsetype eq "page" ) {
 	$pagetype = "page";
 	$linetype = "lb";
+	$xmlfiles = "pagetrans";
 } else {
 	$pagetype = "pb";
 	$linetype = "pb";
+	$xmlfiles = "xmlfiles";
 };
 
 $filename = $input;
 $filename =~ s/\.pdf//;
 $filename =~ s/.*\///;
 
-$xmlfiles = "pagetrans";
 $xmlfile = "$xmlfiles/$filename.xml";
 
 # Convert the PDF to JPG images - 1 per page
@@ -60,7 +63,7 @@ if ( !-e "Facsimile/$filename/$filename-001.jpg" || $force ) {
 		$cmd = "gs -dNOPAUSE -sDEVICE=jpeg -sOutputFile=Facsimile/$filename/$filename-%d.jpg -dJPEGQ=100 -r1000 $input -c quit ";
 	} else {
 		if ( !-d "Facsimile/$filename" ) { mkdir("Facsimile/$filename"); }; 
-		$cmd = "pdfimages -j  $input Facsimile/$filename/$filename ";
+		$cmd = "pdfimages -all  $input Facsimile/$filename/$filename ";
 	};
 	print $cmd;
 	`$cmd`;
@@ -99,21 +102,22 @@ $pages = scalar @tmp;
 if ( -e "Resources/tesseract.conf" ) { $config = "Resources/tesseract.conf"; };
 
 opendir(my $dh, "Facsimile/$filename") || die "Can't open directory: $!"; $i=0;
-while (readdir $dh) {
+FACS: while (readdir $dh) {
 	$jf = $_; 
 	if ( $jf =~ /^\./ ) { next; }; 
 	$i++;
-	if ( $i <= $offset ) { print "Skipping $_ ($i)"; next; }; # Skip x pages
+	if ( $i <= $offset ) { print "Skipping $_ ($i)"; next FACS; }; # Skip x pages
    	$jf = "Facsimile/$filename/$jf";
 	print $jf;
 	
 	if ( $parsetype eq "ocr" ) {
-		if ( !-e "tmp/$filename-1.hocr" || $force ) {
+		print "tmp/$filename/$filename-1.hocr";
+		if ( !-e "tmp/$filename/$filename-1.hocr" || $force ) {
 			if ( !-d "tmp/$filename" ) { mkdir("tmp/$filename"); };
 			print "Running OCR";
 			# OCR the page
 			$cmd = "tesseract $jf tmp/$filename/$filename-$i hocr $config > /dev/null ";
-			# print $cmd;
+			if ( $debug ) { print $cmd; };
 			`$cmd`;
 		};
 	
@@ -131,6 +135,7 @@ while (readdir $dh) {
 		print "Converting to TEI";
 		foreach $node ( $hocr->findnodes("//span") ) { 
 			$class = $node->getAttribute('class'); 
+			if ( $debug ) { print "Treating $class: ".$node->getAttribute('id'); };
 			$node->removeAttribute('id');
 		
 			if ( $class eq 'ocrx_word' ) {
@@ -212,6 +217,7 @@ while (readdir $dh) {
 		foreach $node ( $hocr->findnodes("//pb") ) { 
 			$text->addChild($node);
 		};
+		if ( $debug ) { print "TEXT: ".$text->toString; };
 	} elsif ( $parsetype eq "line" ) {
 		# Now, recognize lines		
 	} else {

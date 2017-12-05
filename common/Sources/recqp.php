@@ -38,11 +38,10 @@
 		$maintext .= "<p>The current status of the process can be read below. The steps that have to be finished for the
 			corpus to complete are: 
 				<ol>
-					<li> Verticalize : create a one-word-per-line version of the XML files
-					<li> Encode : encode all the lines in the verticalized text in CWB format
+					<li> Encode : encode all the tokens in all the texts in the search folder in CWB format
 					<li> Make : create all the necessary files for the CQP corpus
 				</ol>
-			<p>Step 3 tends to be fast, while steps 1 and 2 (which are combined in tt-cwb-encode) can take several minutes. 
+			<p>Step 2 tends to be fast, while steps 1 can take several minutes. 
 		
 			<hr><pre>$logtxt</pre>
 			
@@ -53,8 +52,9 @@
 					}, 10 * 1000);
 				</script>";
 			
-	} else if ( file_exists("Scripts/recqp.pl") && !$_GET['check'] && !$_GET['force'] ) {
+	} else if ( ( file_exists("Scripts/recqp.pl") || file_exists("../common/Scripts/recqp.pl") ) && !$_GET['check'] && !$_GET['force'] ) {
 			
+		if ( file_exists("Scripts/recqp.pl") ) $scriptname = "Scripts/recqp.pl"; else $scriptname = "../common/Scripts/recqp.pl";	
 		$maintext .= "
 			<p>Currently, the CQP Corpus called {$settings['cqp']['corpus']} is regenerated based on the current
 				content of the XML files in ({$settings['cqp']['searchfolder']}).
@@ -68,7 +68,7 @@
 				</script>";
 				
 		# Start the perl script as a background process
-		exec("perl Scripts/recqp.pl > /dev/null &");
+		exec("perl $scriptname > /dev/null &");
 
 	} else if ( ( $_GET['check'] || $recentfile ) && file_exists("tmp/recqp.log")  && !$_GET['force'] ) {
 		

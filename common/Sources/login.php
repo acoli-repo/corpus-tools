@@ -64,7 +64,7 @@
 				<a href='$newurl'>here</a>.";
 			exit();
 	};
-	
+		
 	if ( $user['recid'] == "" ) { // && $action != "login" 
 		$action = "login";
 		$maintext .= "<h1>{%Login}</h1>";

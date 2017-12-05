@@ -22,6 +22,8 @@
 
 		$dom = dom_import_simplexml($xml)->ownerDocument;		
 		
+		# Check if dom exists
+		
 		print "\n<p>Saving TEIHEADER<hr>";
 		foreach ( $_POST['values'] as $key => $value ) {
 			$xquery = $_POST['queries'][$key];

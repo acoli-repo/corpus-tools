@@ -456,6 +456,10 @@
 		$moreactions .= "\n				toggleimg();";
 	};
 	
+	if ( $settings['xmlfile']['autonumber'] == "1" ) {
+		$moreactions .= "\n				var autonumber = 1;";
+	};
+	
 	if ( $shorthand ) {
 
 		if ( $username ) {

@@ -18,26 +18,17 @@
 		$valnode = $tmp[0];
 		
 		if ( !$tmp ) {
-			# Non-existing node (attribute) - create
-			$unused = "&showunused=1";
-			if ( preg_match("/^(.*)\/([^\/]+$)/", $xpath, $matches ) ) {
-				$parxp = $matches[1]; $thisnode = $matches[2];
-				$tmp = $settingsxml->xpath($parxp); $parnode = $tmp[0];
-				if ( !$tmp ) fatal("No parent node $parxp found");
-				if ( substr($thisnode,0,1) == "@" ) {
-					$attname = substr($thisnode,1);
-					$parnode[$attname] = "";
-				};
+			$dom = dom_import_simplexml($settingsxml)->ownerDocument; #->ownerDocument		
 			
-				$tmp = $settingsxml->xpath($xpath); $valnode = $tmp[0];
-			};
-			
+			createnode($dom, $xpath); 	
+			$tmp = $settingsxml->xpath($xpath); 
+			$valnode = $tmp[0];
+			if ( !$tmp ) { print fatal("Cannot create: $xpath"); };
 		};
 			
 		if ( !$tmp ) { 
 			fatal("Node not found and cannot be created: $xpath"); 
 		};
-
 		if ( preg_match ("/ttsettings\/([^\/]+)/", $xpath, $matches) ) $section = $matches[1];
 
 		if ( is_attribute($valnode) ) {
@@ -53,7 +44,6 @@
 			copy ( "Resources/settings.xml", "backups/$buname");
 		};
 	
-		
 		# Now save the actual file
 		file_put_contents("Resources/settings.xml", $settingsxml->asXML());
 		print "<p>File saved. Reloading.

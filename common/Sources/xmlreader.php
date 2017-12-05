@@ -28,6 +28,25 @@
 		$entry = file_get_contents("Resources/$xmlfile-entry.xml");
 	};
 	
+	if ( $entry == "" && $username ) {
+		# Not defined yet
+		if ( $xmlfile && file_exists("Resources/$xmlfile.xml") ) {
+			# Read XML file only when defined
+			$xml = simplexml_load_file("Resources/$xmlfile.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+			print "Loaded: ".count($xml->children());
+			$tmp = current($xml->children()); $tryentry = $tmp[0];
+			foreach ( $tryentry->children() as $child ) {
+				$child[0] = $child->getName();
+			};
+			$tryentry = $tryentry->asXML();
+		} else $tryentry = "<record></record>";
+		file_put_contents("Resources/$xmlfile-entry.xml", $tryentry);
+		print "<p>Definition file does not exist - reloading to generate
+			<script language=Javascript>top.location='index.php?action=adminedit&id=$xmlfile-entry.xml';</script>
+		";
+		exit;
+	};
+	
 	if ( $xmlfile && file_exists("Resources/$xmlfile.xml") ) {
 		# Read XML file only when defined
 		$xml = simplexml_load_file("Resources/$xmlfile.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
@@ -278,9 +297,11 @@
 		if ( $username ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&id={$_GET['id']}'>edit</a>";
 	
 	} else if ( $_GET['f'] ) {
-	
+		
 		$f = $_GET['f'];
-		$maintext .= "<h1>{%Entries by} {$txts[$f]}</h1>
+		$tittxt = current($entryxml->xpath("./$f")).""; 
+		if ( !$tittxt ) $tittxt = $f;
+		$maintext .= "<h2>{%Entries by} $tittxt</h2>
 			
 			<style>
 				.private { color: #999999; };
@@ -306,6 +327,8 @@
 			
 		};
 		$maintext .= "<table>";
+		
+		arsort($cnt);
 		foreach ( $cnt as $key => $val ) {
 			$maintext .= "<tr><td><a href='index.php?action=$action&q=$f:$key'>$key</a><td style='text-align: right; padding-left: 10px;'>$val";#.$ps[$key];
 		};
@@ -328,6 +351,9 @@
 			<p>{%Search}: <select name=f>$fldsel</select> <input name=q size=50 value=''>
 			<input type=submit value='{%Search}'>
 			</form>
+			
+			<hr>{%Get distribution by}: <select name=f onChange='dodist(this);'><option value=''>[{%select}]</option>$fldsel</select>
+			<script language=Javascript>function dodist (elm) { window.open('index.php?action=$action&act=freq&f='+elm.value, '_self'); };</script>
 			";
 
 	} else {
@@ -399,7 +425,15 @@
 				$key = $fldrec->getName();
 				$val = current($record->xpath($key));
 				if ( $fldrec["link"] ) {
-					$linkurl = current($record->xpath($fldrec["link"].""));
+					if ( substr($fldrec["link"],0,1) == "%" ) {
+						$linkurl = substr($fldrec["link"],1);
+						if ( preg_match_all("{#([^\}]+)}", $linkurl, $matches ) ) {
+							foreach ( $matches[1] as $xp ) {
+								$linkurl = str_replace("{#$xp}",  current($record->xpath($xp)), $linkurl);
+							};
+						};
+					} else 
+						$linkurl = current($record->xpath($fldrec["link"].""));
 					if ( $fldrec["target"] ) $target = $fldrec["target"]; else $target = "details";
 					if ( $linkurl != "" ) $val = "<a target=$target href='$linkurl'>$val</a>";
 				} else if ( $fldrec["select"] ) {

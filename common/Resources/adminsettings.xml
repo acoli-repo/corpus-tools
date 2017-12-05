@@ -30,6 +30,7 @@
 	    	<att key="display" display="Display name"/>
 		</item>
 	    <item key="base" display="HTML base setting for the site">
+		    <att key="foldername" display="Foldername of the project - used for session and to check these settings belong to this project"/> 
 		    <att key="url" display="Base URL for the site"/> 
 		    <att key="javascript" display="URL to the Javascript folder"/>
 		</item>
@@ -220,6 +221,7 @@
 		<att key="defaultview" display="Default view options"/>  
 		<att key="xpath" display="XPath to the text body (//text)"/> 
 		<att key="linebreaks" display="Interpret linebreaks as lb before tokenization (1/0)" default="0"/> 
+		<att key="autonumber" display="Automatically number lines (1/0)" default="0"/> 
 		<att key="paged" display="Show one page at a time (1/0)" default="0"/>
 		<item key="teiHeader" display="items from the teiHeader to display" deprecated="1"/>
 		<item key="pattributes" display="Positional attributes (token-level)">
@@ -288,14 +290,23 @@
     	<desc>
     		Especially historical corpora often contain characters that are not easy to produce
     		on a normal keyboard. To make it easier for users to search through the corpus, it
-    		is possible to define ascii sequences that correspond to special character, such
+    		is possible to define (simple) string that correspond to special character, such
     		as "^e" for "ê" - which means that typing an "e" after a "^" will automatically 
     		replace these two character by "ê". These shorthands will be used in various places throughout the system.
+    		Also, some characters are nice to keep in the (semi)palaeographic representation, but are
+    		useful to simplify in the textual representation; TEITOK can be asked to automatically
+    		change say the long s (ſ) to a normal s in the @form attribute 
     	</desc>
-        <item key="replace" display="List of character shorthands">
+        <item key="replace" display="List of hard-to-type string representations">
         	<list>
-				<att key="key" display="ASCII character sequence"/>
-				<att key="value" display="Translated character"/>
+				<att key="key" display="Shorthand string"/>
+				<att key="value" display="Translated string"/>
+        	</list>
+        </item>
+        <item key="simplify" display="List of characters to simplify in textual representation">
+        	<list>
+				<att key="key" display="Original string"/>
+				<att key="value" display="Simplified string"/>
         	</list>
         </item>
     </item>
@@ -461,6 +472,7 @@
         <list display="List of databases">
         	<att key="key" display="name of the database file"/>
         	<att key="title" display="Title to be displayed above the table."/>
+        	<att key="max" display="Number of records to show per page."/>
         	<att key="noview" display="Title to be displayed above the table.">
 				<val key="1" display="Do not show a view link"/>
 				<val key="0" display="Produce a link view to see more details about each record"/>
