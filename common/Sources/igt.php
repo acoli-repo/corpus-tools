@@ -69,7 +69,7 @@
 	
 	foreach ( $ttxml->xml->xpath("//s") as $sent ) {
 		$morphed = 0; if ( $sent->xpath(".//morph") ) { $morphed = 1; };
-		$maintext .= "<table id=$sid><tr><td style='border-right: 1px solid #bbaabb;'>";
+		$maintext .= "<table id=$sid><tr><td style='border-right: 1px solid #bbaabb;' valign=top>";
 		$maintext .= "<div class='floatbox' id='$sid' style='padding-right: 5px;'>Word";
 		if ( $morphed ) {
 			$maintext .= "<hr><table style='margin: 0;'>";
@@ -78,7 +78,7 @@
 			};
 			$maintext .= "</table>";
 		};
-		$maintext .= "</div><td style='padding-left: 5px;'>";		
+		$maintext .= "</div><td style='padding-left: 5px;' valign=top>";		
 		
 		foreach ( $sent->xpath(".//tok") as $tok ) {
 			$maintext .= "<div class=floatbox id='$sid' style='text-align: center;'>".$tok->asXML();
