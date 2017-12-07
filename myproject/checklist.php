@@ -55,7 +55,7 @@
 	};
 
 	// Check whether TEITOK (main.php) in common exists in the expected location
-	if ( !file_exists("../common/Sources/tttags.php") || 1==1 ) {
+	if ( !file_exists("../common/Sources/tttags.php") ) {
 		$teitokpath = str_replace("/common/Sources/tttags.php", "", file_locate("common/Sources/tttags.php"));
 		if ( $teitokpath ) { 
 			# TODO: Write this to index-off.php

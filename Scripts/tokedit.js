@@ -183,7 +183,7 @@ function formify () {
 		it.innerHTML = decotxt;
 	};
 		
-	// Make img for all pb facs
+	// Treat all pb elements
 	var pbs = mtxt.getElementsByTagName("pb");
 	// there should be no <c_pb> at this point
 	for ( var a = 0; a<pbs.length; a++ ) {
@@ -192,6 +192,14 @@ function formify () {
 		if ( pb.getAttribute('id') && username )
 			pb.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
 
+		// Create internal element for rendering, numbering, and breaks
+		var pbhl = document.createElement("span"); // LB line
+		pb.appendChild(pbhl);
+		var pbnum = document.createElement("span"); // LB number (empty)
+		pbnum.setAttribute('title', 'page number');
+		pb.appendChild(pbnum);
+
+		// Make img for all pb facs
 		if ( pb.getAttribute('facs') 
 				&& ( pb.getAttribute("admin") != "1" || username )
 				&& pb.getAttribute("img") != "yes" 
@@ -396,15 +404,21 @@ function setview () {
 	var pnr = 0;
 	for ( var a = 0; a<pbs.length; a++ ) {
 		var pb = pbs[a];
+		var pbhl = pb.childNodes[0]; 
 		if ( typeof(pb) != 'object' ) { continue; };
 		if ( interpret ) {	
-			if ( pb.innerHTML.indexOf('<hr') == -1 ) { pb.innerHTML = '<hr style="background-color: #cccccc; clear: both;">' + pb.innerHTML; };
+			pbhl.innerHTML = '<hr style="background-color: #cccccc; clear: both;">';
+		} else {
+			pbhl.innerHTML = '';
 		};
+		var pbnum = pb.childNodes[1]; 
 		if ( showee || showtag['pb'] ) {	
 			if ( pb.getAttribute('show') ) { pid = '' + pb.getAttribute('show'); } else 
 			if ( pb.getAttribute('n') ) { pid = '' + pb.getAttribute('n'); } 
 			else { pid = '<span style="opacity: 0.5;">'+a+'</span>'; };
-			pb.innerHTML += '<span style="color: #4444ff; font-size: 12px;">['+pid+']</span>';
+			pbnum.innerHTML = '<span style="color: #4444ff; font-size: 12px;">['+pid+']</span>';
+		} else{
+			pbnum.innerHTML = '';
 		};
 	};
 	var its = mtxt.getElementsByTagName("cb");
@@ -442,7 +456,7 @@ function setview () {
 			lid = it.getAttribute('n'); 
 		} else if ( typeof(autonumber) != 'undefined' ) {
 			lcnt = lcnt + 1;
-			lid = lcnt;
+			lid = '['+lcnt+']';
 		} else {
 			lid = '';
 		};

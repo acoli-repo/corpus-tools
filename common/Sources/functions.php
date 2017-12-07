@@ -662,6 +662,12 @@
 		return $content;
 	}
 	
+	function findnode ( $xml, $xquery) {
+		$dom = dom_import_simplexml($xml)->ownerDocument; #->ownerDocument		
+		$settingsdom = createnode($dom, $xquery);
+		$resnode = current($xml->xpath($xquery));	
+		return $resnode;
+	};
 	
 	function createnode ($xml, $xquery) {
 		# See if XML has a node matching the XPath, if not - create it
