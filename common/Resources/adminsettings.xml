@@ -14,6 +14,7 @@
 			<val key="1" display="Use a URL prefix"/>
 		</att>
 		<att key="default" display="default language" default="en"/>
+		<att key="position" display="smarty element where to display the language options"/>
 	    <item key="options" display="List of languages">
 			<list display="Language settings">
 				<att key="key" display="ID for the language"/>
@@ -72,6 +73,7 @@
 			as an action (that is, "home" will be translated to "index.php?action=home"), unless
 			it is a full URL (including http://)
 		</desc>
+		<att key="title" display="Title to be used in the menu bar"/>
 		<item key="itemlist" display="List of menu items">
 			<list>
 				<att key="key" display="link action (index.php?action=XX)"/>
@@ -98,9 +100,10 @@
 		<att key="corpus" display="CQP corpus ID"/>
 		<att key="searchfolder" display="Folders to use for the corpus"/>
 		<att key="searchmethod" display="Default search method"/>	
-		<att key="wrdfld" default="form" display="Which pattribute to use as the CQP word (and default CQP search attribute)"/>	
+		<att key="wordfld" default="form" display="Which pattribute to use as the CQP word (and default CQP search attribute)"/>	
 		<att key="nodtoks" display="Export tokens even if there are dtoks" default="0" deprecated="1"/>	
 		<att key="tokxpath" display="Which XML elements to export as tokens" default="//tok"/>	
+		<att key="multiseperator" display="Symbol used for separating multi-value sattributes" default=","/>	
 		<att key="toktype" display="How to export mtok and dtok" default="td" >	
 			<desc>
 				TEITOK can contain not only tokens, but also grammatical words (dtok) and multi-word expressions (mtok). Here
@@ -130,6 +133,7 @@
 			<list display="List of positional attributes">
 				<att key="key" display="CQP name of the value"/>
 				<att key="display" display="Title to be used"/>
+				<att key="nosearch" display="Don't show this in the advanced search"/>
 				<att key="xpath" display="XPath for the value lookup" default="@key"/>
 				<att key="type" display="Type of feature">
 					<val key="mainpos" display="Main part-of-speech tag"/>
@@ -193,6 +197,19 @@
 			<list display="List of annotations">
 				<att key="key" display="ID for the annotation"/>
 				<att key="tag" display="XML tag to be used in CQP (if not @key)"/>
+				<att key="admin" display="Administrator-only annotation"/>
+				<att key="filename" display="File prefix for the annotation files" deprecated="1"/>
+				<att key="type" display="Type of CQP attribute" default="match">
+					<val key="match" display="Match full value"/>
+					<val key="select" display="Create a pull-down list from existing values"/>
+					<val key="long" display="Search for substring"/>
+					<val key="range" display="Search range (min-max)"/>
+					<val key="kselect" display="Select + translate" deprecated="1"/>
+				</att>
+				<att key="translate" display="Make items in select pull-down internationalized" default="0">
+					<val key="1" display="translate pull-down items"/>
+					<val key="0" display="do not translate"/>
+				</att>
 				<att key="diplay" display="Name for the annotation"/>
 				<list display="List of attribues to be incorporated">
 					<att key="key" display="Attribute ID"/>
@@ -221,6 +238,8 @@
 		<att key="defaultview" display="Default view options"/>  
 		<att key="xpath" display="XPath to the text body (//text)"/> 
 		<att key="linebreaks" display="Interpret linebreaks as lb before tokenization (1/0)" default="0"/> 
+		<att key="l" display="How to interpret linebreaks" deprecated="1"/> 
+		<att key="textnotes" display="Note elements are part of the text"/> 
 		<att key="autonumber" display="Automatically number lines (1/0)" default="0"/> 
 		<att key="paged" display="Show one page at a time (1/0)" default="0"/>
 		<item key="teiHeader" display="items from the teiHeader to display" deprecated="1"/>
@@ -232,6 +251,10 @@
 					<att key="inherit" display="Form to inherit from when empty"/>
 					<att key="subtract" display="Form to subtract from when inheriting"/>
 					<att key="color" display="Colour to be used for the form"/>
+					<att key="noshow" display="Do not show this attribute"/>
+					<att key="noedit" display="Do not present in tokedit"/>
+					<att key="transliterate" display="Use this transliteration for this form"/>
+					<att key="direction" display="Text direction of this form" default="ltr"/>
 					<att key="admin" display="Admin" default="0">
 						<val key="1" display="Visible only for admin users"/>
 						<val key="0" display="Visible for everyone"/>
@@ -242,9 +265,13 @@
 				<list>
 					<att key="key" display="Attribute name of the tag"/>
 					<att key="display" display="Name of the tag"/>
+					<att key="short" display="Short name of the tag (for th)"/>
 					<att key="type" display="Type of tag (mselect)"/>
+					<att key="inherit" display="Form to inherit from when empty (for inheriting sattributes)"/>
 					<att key="translate" display="Internationalize (1/0)" default="0"/>
 					<att key="color" display="Colour to be used for the tag"/>
+					<att key="noshow" display="Do not show this attribute"/>
+					<att key="noedit" display="Do not present in tokedit"/>
 					<att key="form" display="Form that the tag is associated with"/>
 					<att key="admin" display="Admin" default="0">
 						<val key="1" display="Visible only for admin users"/>
@@ -257,7 +284,10 @@
 			<list display="List of sattributes for the level">
 				<att key="color" display="Colour for the tag value"/>
 				<att key="key" display="Attribute name of the tag"/>
+				<att key="level" display="XML tag"/>
+				<att key="noshow" display="Do not show this level" default="0"/>
 				<att key="display" display="Name of the tag"/>
+				<att key="short" display="Short name of the tag (for th)"/>
 				<att key="admin" display="Admin">
 					<val key="1" display="Only visible for admin users"/>
 					<val key="0" display="Visible for everyone"/>
@@ -277,6 +307,7 @@
 					<val key="0" display="Download of the XML is allowed (or any other download options listed below)"/>
     	</att>
     	<att key="restriction" display="XML downloadable only if this condition is met"/>
+    	<att key="admin" display="XML downloadable only for admin"/>
         <item key="options" display="Option list">
             <list>
 				<att key="key" display="ID for the option"/>
@@ -334,7 +365,12 @@
     	<list>
     		<att key="key" display="ID for the script"/> 
     		<att key="action" display="Script command"/>
+    		<att key="recond" display="Regular expression condition on the XML for this script to show"/>
+    		<att key="rerest" display="Regular expression restriction on the XML for this script to show"/>
+    		<att key="xpcond" display="XPath condition on the XML for this script to show"/>
+    		<att key="xprest" display="XPath restriction on the XML for this script to show"/>
     		<att key="display" display="Display title for the script"/>
+    		<att key="type" display="Type of script (perl/php)"/>
 		</list>
     </item>
 
@@ -353,6 +389,7 @@
 			<list>
 	    		<att key="pid" display="ID for the settings"/> 
 	    		<att key="restriction" display="XPath restriction for using this parameter set"/> 
+	    		<att key="condition" display="XPath condition for using this parameter set"/> 
 	    		<att key="params" display="Filename of the parameter file"/> 
 	    		<att key="training" display="Folders used for (re)training the parameter file"/> 
 	    		<att key="tagform" display="Word form to tag from"/> 
@@ -430,6 +467,7 @@
         	<att key="key" display="ID of the dictionary"/>
         	<att key="filename" display="Filename of the dictionary XML file"/>
         	<att key="title" display="Name of the dictionary"/>
+        	<att key="css" display="CSS file to use in this XDXF"/>
         	<item key="search" display="Search options">
         		<list>
 	                <att key="key" display="ID of the option"/> 
@@ -480,8 +518,21 @@
         </list>
     </item>
 	
-	<!-- log (see CETAC) - not used anymore? -->
+    <item key="log" display="Error log settings">
+    	<att key="key" display="ID of the log"/>
+    	<att key="filename" display="Filename for the error log file"/>
+    </item>
 
+    <item key="permissions" display="Detailed permission control">
+    	<item key="groups" display="Groups">
+    		<list display="List of groups">
+    			<att key="key" display="Name of the group"/>
+    			<att key="message" display="Error message for actions disallowed for this group"/>
+    			<att key="actions" display="List of actions allowed for this group"/>
+    		</list>
+    	</item>
+	</item>
+	
 	<!-- CDD (see PS) maybe not to be included here -->
 	<!-- Filelist (see PS) maybe not to be included here -->
 

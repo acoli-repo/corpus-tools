@@ -1,7 +1,7 @@
 <?php
 	# Module to conveniently edit the settings.xml file
 	if ( !$settingsxml ) { fatal("Failed to load settings.xml");};
-print "boe";
+
 	check_login();
 
 	$setdef = simplexml_load_file("$ttroot/common/Resources/adminsettings.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);

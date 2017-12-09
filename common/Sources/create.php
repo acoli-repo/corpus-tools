@@ -96,8 +96,8 @@
 		if ( $_POST['body'] == "shorthand" ) {
 			$text = $_POST['shorthand'];
 			$text = preg_replace("/\n\r?[\n\r]+/", "</p>\n\n<p>", $text);
-			$text = preg_replace("/<([^>]+)>/", "<ex>\\1</ex>", $text);
-			$text = preg_replace("/\(([^\)]+)\)/", "<del>\\1</del>", $text);
+			# $text = preg_replace("/<([^>]+)>/", "<ex>\\1</ex>", $text);
+			# $text = preg_replace("/\(([^\)]+)\)/", "<del>\\1</del>", $text);
 			$newtext = "<text>\n<p>$text</p>\n</text>";
 		} else if ( $_POST['body'] == "html" ) {
 			$text = $_POST['html'];
@@ -106,12 +106,19 @@
 			$newtext = "<text>\n$text\n</text>";
 		};
 
-		if ( $newtext ) {
+
+		if ( $newtext ) { 
+			$newtext = html_entity_decode($newtext);
+			if ( !$settings['newfile']['keepbr'] && !$_POST['keepbr']  ) { 
+				 # Interpret 2x <br/> as <p>, change <br/> to <lb/>
+				$newtext = preg_replace("/<br *\/><br *\/>/", "</p>\n\n<p>", $newtext);
+				$newtext = preg_replace("/<br *\/>/", "\n<lb/>", $newtext);
+			}; 
 			$newentry = simplexml_load_string($newtext, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			$tmp = dom_import_simplexml($newentry);
 			$xpath = new DOMXPath($dom);
 			$newelement = dom_import_simplexml($newentry);
-			$newelement = $dom->importNode($newelement, true);
+			$newelement = $dom->importNode($newelement, true);print "peep";
 			$element = $xpath->query("//text")->item(0);
 			$element->parentNode->replaceChild($newelement, $element); 
 		};			
@@ -280,7 +287,8 @@
 		# Post as shorthand
 		$maintext .= "<p><input type=radio name=body value='shorthand' onChange='bodychoose(this);'> Create from plain text (with shorthand)
 			<div id='shorthand' style='display: none; padding-left: 40px;'>
-				<p>Paste text - double lines breaks will convert to paragraphs"; # , and code can be used for (delete) and &lt;expand&gt;: <textarea name=shorthand style='height: 300px; width: 100%'></textarea>
+				<p>Paste text - double lines breaks will convert to paragraphs
+				<textarea name=shorthand style='height: 300px; width: 100%'></textarea>"; # , and code can be used for (delete) and &lt;expand&gt;: 
 		$maintext .= "</div>";
 
 		# Convert from Word
