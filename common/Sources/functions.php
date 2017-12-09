@@ -662,7 +662,7 @@
 		return $content;
 	}
 	
-	function findnode ( $xml, $xquery) {
+	function xpathnode ( $xml, $xquery) {
 		$dom = dom_import_simplexml($xml)->ownerDocument; #->ownerDocument		
 		$settingsdom = createnode($dom, $xquery);
 		$resnode = current($xml->xpath($xquery));	
