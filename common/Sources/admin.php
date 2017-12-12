@@ -62,7 +62,7 @@
 	
 	} else {
 	
-		$grouprec = $settings['permissions']['groups'][$user['group']];
+		if ( $settings['permissions']['groups'] )  $grouprec = $settings['permissions']['groups'][$user['group'].""];
 		$adminmenulist = array (
 				"pageedit" => "edit HTML files",
 				"i18n" => "edit internationalization",
