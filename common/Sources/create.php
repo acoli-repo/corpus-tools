@@ -118,7 +118,7 @@
 			$tmp = dom_import_simplexml($newentry);
 			$xpath = new DOMXPath($dom);
 			$newelement = dom_import_simplexml($newentry);
-			$newelement = $dom->importNode($newelement, true);print "peep";
+			$newelement = $dom->importNode($newelement, true);
 			$element = $xpath->query("//text")->item(0);
 			$element->parentNode->replaceChild($newelement, $element); 
 		};			

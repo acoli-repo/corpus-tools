@@ -6,7 +6,7 @@
 	$publicactions = "user,admin";
 	function check_login ( $checktype = "user" ) {
 		global $user, $username, $settings, $action, $publicactions;
-		$grouprec = $settings['permissions']['groups'][$user['group']];
+		$grouprec = $settings['permissions']['groups'][$user['group'].""];
 		if ( $user['permissions'] == "admin" ) return; # Always allow admin
 		if ( !in_array($user['permissions'], explode(",", $checktype)) ) { 
 			if ( $usergroups[$checktype]['message'] )

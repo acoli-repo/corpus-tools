@@ -11,6 +11,7 @@ $\ = "\n"; $, = "\n";
             'input=s' => \$input, # retreat an XML from HTML
             'parse=s' => \$parsetype, # retreat an XML from HTML
             'getimg=s' => \$gs, # retreat an XML from HTML
+            'useimg' => \$useimg, # Use already converted image files 
             'pagtype=s' => \$pagtype, # retreat an XML from HTML
             'offset=i' => \$offset, # How many initial pages to skip
             );
@@ -21,7 +22,7 @@ if ( !$input ) {
 
 if ( !defined($offset) ) { $offset = 1; };
 
-if ( !-e $input ) { 
+if ( !-e $input && !$useimg 	) { 
 	if ( -e "Originals/$input" ) {
 		$input = "Originals/$input";
 	} elsif ( -e "pdf/$input" ) {
@@ -121,6 +122,7 @@ FACS: while (readdir $dh) {
 			`$cmd`;
 		};
 	
+		if ( !-d "tmp" ) { mkdir("tmp"); };
 		open FILE, "tmp/$filename/$filename-$i.hocr";
 		binmode(FILE, ":utf8");
 		$hx = <FILE>;

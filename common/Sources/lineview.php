@@ -137,12 +137,14 @@
 				$maintext .= "\n<tr><th title=\"{$lb['id']}\">$linenr<td>$linetxt$bbox";
 
 			};
+			if ( $settings['xmlfile']['sattributes']['tok'] ) $facsview = " &bull; <a href='index.php?action=facsview&cid={$ttxml->fileid}&pageid={$_GET['pageid']}'>{%Facsimile view}</a>";
 			$maintext .= "</table>
 				<p><input type=submit value='Save'>
 				</form>
 
 			<hr><p>
-				<a href='index.php?action=file&cid={$ttxml->fileid}'>{%Text view}</a>
+				<a href='index.php?action=file&cid={$ttxml->fileid}&pageid={$_GET['pageid']}'>{%Text view}</a>
+				$facsview
 				&bull; <a href='index.php?action=lineview&cid={$ttxml->fileid}'>{%Line view}</a>
 				";
 				
@@ -278,6 +280,7 @@
 							</script>
 
 			<hr><p><a href='index.php?action=file&cid={$_GET['cid']}&pageid={$curr['id']}'>{%Text view}</a>";
+			if ( $settings['xmlfile']['sattributes']['tok'] ) $maintext .= " &bull; <a href='index.php?action=facsview&cid={$ttxml->fileid}&pageid={$_GET['pageid']}'>{%Facsimile view}</a>";
 
 			if ( $username ) 
 				$maintext .= " &bull;

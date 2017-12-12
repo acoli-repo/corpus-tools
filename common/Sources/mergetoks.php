@@ -95,6 +95,16 @@
 			if ( preg_match("/<tok /", $intertext) ) {
 				$maintext .= "<hr>Impossible to merge non-adjacent tokens"; 
 			} else {
+
+				# If both tokens have a @bbox, move them back down to bbox elements
+				if ( $token1['bbox'] && $token2['bbox'] ) {
+					if ( !$token1['form'] ) { $token1['form'] = preg_replace("/<[^>]+>/", "", $innerxml1); };
+					if ( !$token2['form'] ) { $token2['form'] = preg_replace("/<[^>]+>/", "", $innerxml2); };
+					$innerxml1 = "<gtok bbox=\"{$token1['bbox']}\">$innerxml1</gtok>";
+					$innerxml2 = "<gtok bbox=\"{$token2['bbox']}\">$innerxml2</gtok>";
+					unset($token1['bbox']); unset($token2['bbox']);
+					unset($token1['x_wconf']); unset($token2['x_wconf']);
+				};
 		
 				foreach ( $token2->attributes() as $key=>$val) {
 					if ( $key == "id" ) continue;
@@ -134,8 +144,8 @@
 					if ( !$token1['form'] ) { $token1['form'] = preg_replace("/<[^>]+>/", "", $innerxml1); };
 					$newdtok = preg_replace("/<tok([^>]+)>.*/", "<dtok\\1/>", $token1->asXML());
 					$innerxml1 .= $newdtok;
-				}
-				
+				};
+								
 				$innerxml = $innerxml1.$intertext.$innerxml2;
 
 				# Move all dtok to the end
