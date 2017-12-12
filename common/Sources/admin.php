@@ -140,7 +140,7 @@
 		
 	function allowedforme ( $checkaction ) {
 		global $user, $settings, $publicactions;
-		$grouprec = $settings['permissions']['groups'][$user['group']];
+		if ( $settings['permissions']['groups'] ) $grouprec = $settings['permissions']['groups'][$user['group']];
 		if ( $user['permissions'] == "admin" 
 				|| !$grouprec['actions'] 
 				|| in_array($checkaction, explode(",",$grouprec['actions']) ) 
