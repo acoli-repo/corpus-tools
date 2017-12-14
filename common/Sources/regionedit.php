@@ -204,7 +204,7 @@
 			var attributelist = Array($attlisttxt);
 		</script>
 		<script language=Javascript src='http://code.interactjs.io/v1.3.0/interact.min.js'></script>
-		<script language=Javascript src='$jsurl/Scripts/regionedit.js'></script>
+		<script language=Javascript src='$jsurl/regionedit.js'></script>
 		<br style='clear: both; margin-top: 10px; margin-top: 10px;'/>
 
 		";
