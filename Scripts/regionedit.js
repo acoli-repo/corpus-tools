@@ -5,7 +5,7 @@
 		
 		regsel = regs;
 		shiftx = 0; shifty = 10;
-		document.getElementById('autoplace').style.display = 'none';
+		if ( document.getElementById('autoplace') )  { document.getElementById('autoplace').style.display = 'none'; };
 
 		// Remove the old regions
 		var elms = imgdiv.getElementsByTagName('region');
@@ -37,6 +37,7 @@
 	function savexml () {
 		var saveform = document.getElementById('xmlsave');
 		saveform.rawxmlta.value = new XMLSerializer().serializeToString(xmlDoc);
+		window.onbeforeunload = null;
 		saveform.submit();
 	};
 	
@@ -138,6 +139,7 @@
   	};
   };
   
+  // Update an element after it has been dragged or resized
   function updateelm ( target ) {
     var tid = target.getAttribute('tid');
     var baseelm = xmlDoc.getElementById(tid);
@@ -160,8 +162,37 @@
     
     var newbb = newleft +' '+ newtop +' '+ newright + ' '+ newbottom;
     baseelm.setAttribute('bbox', newbb);
+	window.onbeforeunload = function () {
+		return 'Your XML has been change, unsaved changed will be lost.';
+	};
+
   };
   
+
+	function makelines ( ) {
+	    var bboxelm = xmlDoc.getElementById('lineblock');
+	    var bbox = bboxelm.getAttribute('bbox').split(' ');
+	    var pagenode = bboxelm.parentNode;
+	    var linecnt = document.getElementById('linecnt').value*1;
+	    var lineheight = (bbox[3]-bbox[1])/linecnt;
+		var mtxt = document.getElementById('mtxt');
+	    for ( var i=0; i<linecnt; i++ ) {
+			var newelm = document.createElement('line');
+			newelm.setAttribute('id', 'line-'+pagenode.getAttribute('id')+'-'+(i+1));
+			var newtop = bbox[1]*1 + i*lineheight;
+			newelm.setAttribute('bbox', bbox[0]+' '+newtop+' '+bbox[2]+' '+(newtop+lineheight*0.98));
+			pagenode.appendChild(newelm);
+			// Also add to the MTXT since that is where we grab our regions for display from
+			var newelm = document.createElement('line');
+			newelm.setAttribute('id', 'newline-'+(i+1));
+			var newtop = bbox[1]*1 + i*lineheight;
+			newelm.setAttribute('bbox', bbox[0]+' '+newtop+' '+bbox[2]+' '+(newtop+lineheight*0.98));
+			mtxt.appendChild(newelm);
+	    };
+	    pagenode.removeChild(bboxelm);
+	    console.log(pagenode);
+		showregions ('lb,l,line',0,0,255);
+	};
 
 
 // Below are the Interact drag / resize functions

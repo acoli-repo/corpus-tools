@@ -49,19 +49,7 @@
 			if ( !$pagexml && !$_GET['page'] ) $pagexml = current($xml->xpath("//page")); 
 		
 			if ( !$pagexml ) fatal ("Page not found: {$_GET['page']}");
-
-			if ( !$xml->xpath("//text/page[not(@empty) and not(@done)]") ) {
-				$converttxt .= "All pages marked as done, click <a href='index.php?action=$action&cid=$fileid&act=convert'>here</a> to finish";
-			} else {
-				$noconvert = "- <a href='index.php?action=$action&cid=$fileid&act=convert'>Abandon page-by-page and convert to TEI/XML</a>";
-				if ( $pagexml['done'] ) $converttxt .= "click <a href='index.php?action=$action&cid=$fileid'>here</a> to jump to the first non-finished page";
-			};
-
-			$imgheight = 600;
-			# This should become innerXML
 		
-			$oldcontent = preg_replace("/^<page[^>]*>|<\/page>$/", "", $pagexml->asXML());
-
 			$next = current($pagexml->xpath("following::page"));
 			if ( $next['n'] ) { 
 				$nxp = " and following::page[@id='{$next['id']}']"; 
@@ -222,21 +210,50 @@
 		$rawxml = $ttxml->rawtext;
 		if ( $tid ) $hltok = "tokhl('$highl', true);";
 
+		if ( $pagexml && preg_match("/<page[^>]*>\s*<\/page>|<page[^>]*\/>$/", $pagexml->asXML() ) ) {
+			$toolbar = "
+				<div id='makelines' style='padding: 5px; width: 100%; '>
+					<h2>Create Lines</h2>
+					<p>This page is still empty. To automatically generate lines, 
+					first drag the orange box around the text on the page, then indicate how many lines there
+					are on the page, and click generate; after that, you can adjust the exact position of the lines if needed.
+			
+					<p>Number of lines: <input size=4 name=linecnt id=linecnt value=20> <input type=button value='Generate' onClick='makelines();'>
+									<input type=button  onClick=\"savexml()\" value='Save'/>
+				</div>";
+				$pagid = $pagexml['id'];
+				$morescript = "
+					var newelm = document.createElement('lineblock');
+					newelm.setAttribute('id', 'lineblock');
+					newelm.setAttribute('bbox', (imgdiv.offsetWidth * 0.05)/imgscale+' '+(imgdiv.offsetHeight * 0.05)/imgscale+' '+(imgdiv.offsetWidth * 0.95)/imgscale+' '+(imgdiv.offsetHeight * 0.95)/imgscale);
+					var baseelm = xmlDoc.getElementById('$pagid');
+					baseelm.appendChild(newelm);
+					hlelm(newelm, 200,150,0)";
+		} else {
+			if ( $pagetrans ) { $pagetranslink = "<span style='float: right; display: inline-block;'><a href='index.php?action=pagetrans&cid=$ttxml->filename&pageid={$pageid}'>Go to page-by-page transcription</a></span>"; };
+			$toolbar = "
+			<div style='width: 100%; height: 50px;'>
+				<input type=button onClick=\"showregions('page,div,ab',255,255,0)\" value='Blocks' style='background-color: rgba(255,255,0,0.4);'/>
+				<input type=button onClick=\"showregions('p,tei:head,h1,h2,h3,h4',255,0,0)\" value='Paragraphs' style='background-color: rgba(255,0,0,0.4);'/>
+				<input type=button onClick=\"showregions('lb,l,line',0,0,255)\" value='Lines'  style='background-color: rgba(0,0,255,0.4);'/>
+				<input type=button onClick=\"showregions('tok,gtok',0,255,0)\" value='Words'  style='background-color: rgba(0,255,0,0.4);'/>
+				<input type=button style='float: right;' onClick=\"scale(1.2)\" value='Zoom in'/>
+				<input type=button style='float: right;' onClick=\"scale(0.8)\" value='Zoom out'/>
+				<input type=button style='float: right;' onClick=\"savexml()\" value='Save'/>
+			<p>
+				<span id='autoplace' style='display: none;'>Unplaced element are shown on the bottom of the screen - <a onclick=\"autoplace();\">auto distribute</a></span>
+			$pagetranslink
+			</p>	
+			</div>";
+		};
+
 			$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
 
 		$maintext .= "
 		<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 300;'></div>
 		$pagenav
-		<div style='width: 100%; height: 50px;'>
-			<input type=button onClick=\"showregions('page,div,ab',255,255,0)\" value='Blocks' style='background-color: rgba(255,255,0,0.4);'/>
-			<input type=button onClick=\"showregions('p,tei:head,h1,h2,h3,h4',255,0,0)\" value='Paragraphs' style='background-color: rgba(255,0,0,0.4);'/>
-			<input type=button onClick=\"showregions('lb,l,line',0,0,255)\" value='Lines'  style='background-color: rgba(0,0,255,0.4);'/>
-			<input type=button onClick=\"showregions('tok,gtok',0,255,0)\" value='Words'  style='background-color: rgba(0,255,0,0.4);'/>
-			<input type=button style='float: right;' onClick=\"scale(1.2)\" value='Zoom in'/>
-			<input type=button style='float: right;' onClick=\"scale(0.8)\" value='Zoom out'/>
-			<input type=button style='float: right;' onClick=\"savexml()\" value='Save'/>
-		<p id='autoplace' style='display: none;'>Unplaced element are shown on the bottom of the screen - <a onclick=\"autoplace();\">auto distribute</a></p>	
-		</div>
+		$toolbar
+		
 		<hr>
 		<img id=facs src='$img' style='display: none;'/>
 		<div id=mtxt style='display: none;'>$editxml</div>
@@ -253,6 +270,9 @@
 		#mtxt { color: rgba(0,0,0,0); }
 		</style>
 		<script language=Javascript>
+			var changedxml = 0;
+
+
 			var facshown = 1; var bboxshown = 1;
 			var imgdiv = document.getElementById('imgdiv');
 			var imgfacs = document.getElementById('facs');
@@ -272,8 +292,9 @@
 		<script language=Javascript src='http://code.interactjs.io/v1.3.0/interact.min.js'></script>
 		<script language=Javascript src='$jsurl/regionedit.js'></script>
 		<br style='clear: both; margin-top: 10px; margin-top: 10px;'/>
-
+		<script language=Javascript>$morescript</script>
 		";
+		
 	
 	};
 	

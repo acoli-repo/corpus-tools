@@ -21,8 +21,16 @@
 	if ( $act == "save" ) {
 	
 		$pagexml = current($ttxml->xml->xpath("//page[@id='{$_POST['pageid']}']"));
-		$pagexml[0] = $_POST['newcontent'];
-		
+		if ( $_POST['ta'] ) {
+			foreach ( $_POST['ta'] as $key => $val ) {
+				$linexml = current($pagexml->xpath(".//line[@id='$key']"));
+				$linexml[0] = $val;
+			};	
+		} else {
+			$pagexml = current($ttxml->xml->xpath("//page[@id='{$_POST['pageid']}']"));
+			$pagexml[0] = $_POST['newcontent'];
+		};
+			
 		if ( $_POST['done'] ) {
 			$pagexml['done'] = "1";
 			if ( $_POST['newcontent'] == "" ) $pagexml['empty'] = "1";
@@ -251,7 +259,7 @@
 		if ( !$ttxml->xml->xpath("//text/page[not(@empty) and not(@done)]") ) {
 			$converttxt .= "All pages marked as done, click <a href='index.php?action=$action&cid=$fileid&act=convert'>here</a> to finish";
 		} else {
-			$noconvert = "- <a href='index.php?action=$action&cid=$fileid&act=convert'>Abandon page-by-page and convert to TEI/XML</a>";
+			$noconvert = "- <a href='index.php?action=$action&cid=$fileid&act=convert'>convert to TEI/XML</a>";
 			if ( $pagexml['done'] ) $converttxt .= "click <a href='index.php?action=$action&cid=$fileid'>here</a> to jump to the first non-finished page";
 		};
 
@@ -288,51 +296,84 @@
 						<td style='width: 33%' align=right>$nnav
 						</table>
 						<hr>
+				<form action='index.php?action=$action&act=save&cid=$ttxml->xmlid' method=post>
+				<input type=hidden name=pageid value=\"{$pagexml['id']}\">
 						";
 		
-		if ( $pagexml['crop'] == "right"  ) 
-			$crop = "width: 200%; float: right;";
-		else if ( $pagexml['crop'] == "left"  ) 
-			$crop = "width: 200%; float: left;";
-		else 
-			$crop = "width: 100%";
-		$maintext .= "<p>
-			<div id='buttons' style='padding: 2px; height: 20px; z-index: 200; left: 5px; top: 5px; width: 50%;'>
-			<span onClick='togglefull();' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='fullscreen mode'>Fullscreen</span>
-			<span onClick='togglezoom();' id='zoomset' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='show zoom window'>Zoom</span>
-			<span onClick='fontchange(-1);' id='font1' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='decrease font size'>A-</span>
-			<span onClick='fontchange(1);' id='font2' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='increase font size'>A+</span>
-			<span onClick='toggleconv();' id='conv' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='convert symbols as you type'>$ → ¶</span>
-			$converttxt
-			</div>
-			<div id=transtab style='background-color: white;'>
-			<form action='index.php?action=$action&act=save&cid=$ttxml->xmlid' method=post>
-			<input type=hidden name=pageid value=\"{$pagexml['id']}\">
-			<div style='position: fixed; right: 5px; top: 5px; width: 300px; height: 300px; display: none; background-image: url(Facsimile/{$pagexml['facs']});' id='overlay'></div>
-			<table style='width: 100%;'><tr>
-			<td style='width: 50%'><div style='overflow: hidden;'><img id=facs src=\"Facsimile/{$pagexml['facs']}\" style=\"$crop\" onmousemove='zoomIn(event)' onmouseout='zoomOut();'/></div>
-			<td style='width: 50%; vertical-align: top;'><textarea id='textfld' name=newcontent onkeyup='chareq(this);' style='padding: 5px; width: 100%; height: {$imgheight}px; border: none; font-size: 16px;' >$oldcontent</textarea></table>
-			</div>
-	
-			<hr>
-			<p><input type='submit' value='Save page'> <input type=checkbox name=done value=1> Mark page as done</form>
-
-			$noconvert
-			- <a href='http://teitok.corpuswiki.org/site/index.php?action=help&id=pagetrans' target=help>Help</a>
-			- <a href='index.php?action=$action&cid=$ttxml->fileid&act=status'>Status</a>
-			- <a href='index.php?action=$action&act=conversions' target=help>Special characters</a>";
+		if ( $pagexml->xpath("line") ) {
+			$imgsrc = $pagexml['facs'];
+			if ( !strstr($imgsrc, "http") ) $imgsrc = "Facsimile/$imgsrc";
+			$maintext .= "<img src='$imgsrc' style='display: none;' id='facsimg'/>";
+			$maintext .= "<table style='width: 100%;' id='lines'>";
+			foreach ( $pagexml->xpath("line") as $line ) {
+				$nr++;
+		
+				$linetxt = $line->asXML();
+				$linetxt = preg_replace("/^<line[^>]*>|<\/line>$/", "", $linetxt);
+				$linenr = $line['n'] or $linenr = $line['id'];
 				
-		foreach ( $settings['input']['replace'] as $key => $item ) {
-			$val = $item['value'];
-			$chareqjs .= "$sep $key = $val"; 
-			$charlist .= "ces['$key'] = '$val';";
-			$sep = ",";
-		};
-		$maintext .= "<script language=Javascript>
-			var ces = {};
-			$charlist
+				$bb = explode ( " ", $line['bbox'] );
+				$divheight = $bb[3] - $bb[1];
+						
+				// Add the data of the line
+				$maintext .= "\n<tr><td>
+				<div bbox='{$line['bbox']}' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
+				<textarea style='width: 99%; height: 30px; margin-bottom: 20px;' name='ta[{$line['id']}]'>$linetxt</textarea>";
+			};
+			$maintext .= "</table>
+			<script language=Javascript>
+				var facsimg = document.getElementById('facsimg');
+				var linedivs = document.getElementById('lines').getElementsByTagName('div');
+				for ( var i=0; i<linedivs.length; i++ ) {
+					var linediv = linedivs[i];
+					var bbox = linediv.getAttribute('bbox').split(' ');
+
+					var biw = facsimg.naturalWidth*(linediv.offsetWidth/(bbox[2]-bbox[0]));
+					var bih = biw*(facsimg.naturalHeight/facsimg.naturalWidth);
+					var bix = bbox[0]*(linediv.offsetWidth/(bbox[2]-bbox[0]));
+					var biy = bbox[1]*(linediv.offsetWidth/(bbox[2]-bbox[0]));
+
+					linediv.style.height = linediv.offsetWidth*((bbox[3]-bbox[1])/(bbox[2]-bbox[0])) + 'px';
+					linediv.style['background-size'] = biw+'px '+bih+'px';
+					linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';
+
+				};
 			</script>";
-		$maintext .= "<script language=Javascript src='$jsurl/pagetrans.js'></script>";
+		} else {	
+			if ( $pagexml['crop'] == "right"  ) 
+				$crop = "width: 200%; float: right;";
+			else if ( $pagexml['crop'] == "left"  ) 
+				$crop = "width: 200%; float: left;";
+			else 
+				$crop = "width: 100%";
+			$maintext .= "<p>
+				<div id='buttons' style='padding: 2px; height: 20px; z-index: 200; left: 5px; top: 5px; width: 50%;'>
+				<span onClick='togglefull();' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='fullscreen mode'>Fullscreen</span>
+				<span onClick='togglezoom();' id='zoomset' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='show zoom window'>Zoom</span>
+				<span onClick='fontchange(-1);' id='font1' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='decrease font size'>A-</span>
+				<span onClick='fontchange(1);' id='font2' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='increase font size'>A+</span>
+				<span onClick='toggleconv();' id='conv' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='convert symbols as you type'>$ → ¶</span>
+				$converttxt
+				</div>
+				<div id=transtab style='background-color: white;'>
+				<div style='position: fixed; right: 5px; top: 5px; width: 300px; height: 300px; display: none; background-image: url(Facsimile/{$pagexml['facs']});' id='overlay'></div>
+				<table style='width: 100%;'><tr>
+				<td style='width: 50%'><div style='overflow: hidden;'><img id=facs src=\"Facsimile/{$pagexml['facs']}\" style=\"$crop\" onmousemove='zoomIn(event)' onmouseout='zoomOut();'/></div>
+				<td style='width: 50%; vertical-align: top;'><textarea id='textfld' name=newcontent onkeyup='chareq(this);' style='padding: 5px; width: 100%; height: {$imgheight}px; border: none; font-size: 16px;' >$oldcontent</textarea></table>
+				</div>";
+						
+			};
+			$maintext .="
+				<hr>
+				<p><input type='submit' value='Save page'> <input type=checkbox name=done value=1> Mark page as done
+
+				$noconvert
+				- <a href='http://teitok.corpuswiki.org/site/index.php?action=help&id=pagetrans' target=help>Help</a>
+				- <a href='index.php?action=$action&cid=$ttxml->fileid&act=status'>Status</a>
+				- <a href='index.php?action=$action&act=conversions' target=help>Special characters</a>
+				- <a href='index.php?action=regionedit&cid=$ttxml->filename&pageid={$pagexml['id']}'>Edit line regions</a>
+				</form>
+				";
 			
 	
 	} else {
