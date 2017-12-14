@@ -99,7 +99,7 @@ void write_network_number ( int towrite, FILE *stream ) {
 // Write a range to .rng
 void write_range ( int pos1, int pos2, string tagname ) {
 	if ( pos2 < pos1 ) { 
-		if ( debug > 0 ) { cout << "negative range for " << tagname << " = " << " << pos1 << " - " << pos2 << " - not writing" << endl; };
+		if ( debug > 0 ) { cout << "negative range for " << tagname << " = " << pos1 << " - " << pos2 << " - not writing" << endl; };
 		return; 
 	}; // We can never have negative ranges
 	
