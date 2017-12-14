@@ -257,6 +257,15 @@ void treatfile ( string filename ) {
     // Go through the toks
 	pugi::xpath_node_set toks = doc.select_nodes(tokxpath);
 	map<string, int> id_pos;
+	
+	if ( cqpsettings.attribute("withemptytext") && toks.size() == 0 ) {
+		// If we have no tokens in this file, but need to keep empty texts, create a single empty token inside this text
+		if ( debug > 1 ) cout << "- We have no tokens in this file (" << tokxpath << ") - but we want to keep it, so let's make one" << endl;
+		pugi::xml_node node = doc.append_child("tok"); // TODO: This should use tokxpath
+		node.append_attribute("id") = "w-1";
+		node.append_child(pugi::node_pcdata).set_value("--");
+		toks = doc.select_nodes(tokxpath);
+	};
 
 	int pos1 = tokcnt;
 	for (pugi::xpath_node_set::const_iterator it = toks.begin(); it != toks.end(); ++it)
