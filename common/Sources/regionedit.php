@@ -6,7 +6,8 @@
 
 
 	if ( $act == "save" ) {
-	
+		
+		$xmlfolder = $_POST['xmlfolder'];
 		saveMyXML($_POST['rawxmlta'], $_POST['fileid']);
 		print "<p>The file has been modified - reloading
 			<script language=Javascript>top.location='index.php?action=$action&cid={$_POST['fileid']}&pageid={$_GET['pageid']}';</script>";		
@@ -15,7 +16,9 @@
 	
 		require ("$ttroot/common/Sources/ttxml.php");
 	
-		$ttxml = new TTXML($cid, 0, 'keepns');
+		$cid = $_GET['cid'];
+		if ( !file_exists("xmlfiles/$cid") && file_exists("pagetrans/$cid") ) { $pagetrans = "pagetrans"; };
+		$ttxml = new TTXML($cid, 0, "keepns$pagetrans");
 	
 		$maintext .= "
 			<h1>Region Editor</h1>
@@ -27,13 +30,74 @@
 	
 		$fullwidth = 600;
 
-			$editxml = $ttxml->rawtext;
+		$editxml = $ttxml->rawtext;
 
 		$highl = $_GET['tid'] or $highl = $_GET['jmp'];
 		$tmp = explode(" ", $highl);
 		$tid = $tmp[0];	
 
-		if ( 1==1 ) { # Grab the page
+		$nons = namespacemake($editxml);
+		$xml = simplexml_load_string($nons);
+
+		# Find the page in the XML
+		if ( $xml->xpath("//page") ) {
+			$pageid = $_GET['page'] or $pageid = $_GET['page'] or $pageid = $_GET['pid'];
+			if ( $_GET['page']) $pagexp = "//text/page[@id='$pageid']";
+			else $pagexp = "//text/page[not(@empty) and not(@done)]";
+
+			$pagexml = current($xml->xpath($pagexp));
+			if ( !$pagexml && !$_GET['page'] ) $pagexml = current($xml->xpath("//page")); 
+		
+			if ( !$pagexml ) fatal ("Page not found: {$_GET['page']}");
+
+			if ( !$xml->xpath("//text/page[not(@empty) and not(@done)]") ) {
+				$converttxt .= "All pages marked as done, click <a href='index.php?action=$action&cid=$fileid&act=convert'>here</a> to finish";
+			} else {
+				$noconvert = "- <a href='index.php?action=$action&cid=$fileid&act=convert'>Abandon page-by-page and convert to TEI/XML</a>";
+				if ( $pagexml['done'] ) $converttxt .= "click <a href='index.php?action=$action&cid=$fileid'>here</a> to jump to the first non-finished page";
+			};
+
+			$imgheight = 600;
+			# This should become innerXML
+		
+			$oldcontent = preg_replace("/^<page[^>]*>|<\/page>$/", "", $pagexml->asXML());
+
+			$next = current($pagexml->xpath("following::page"));
+			if ( $next['n'] ) { 
+				$nxp = " and following::page[@id='{$next['id']}']"; 
+				$nnav = "<a href='index.php?action=$action&act=$act&cid=$fileid&page={$next['id']}'>> {$next['n']}</a> ";
+			} else	if ( $next['id'] ) { 
+				$nxp = " and following::page[@id='{$next['id']}']"; 
+				$nnav = "<a href='index.php?action=$action&act=$act&cid=$fileid&page={$next['id']}'>> [{$next['id']}]</a> ";
+			};
+		
+			if ( !$onlylb ) $lbxpath = "//lb[preceding::page[@id='{$pagexml['id']}']$nxp] | //l[preceding::page[@id='{$pagexml['id']}']$nxp]"; 
+			else $lbxpath = "//lb[preceding::page[@id='{$pagexml['id']}']$nxp]"; 
+	
+			$prev = array_pop($pagexml->xpath("preceding::page"));
+			if ( $prev['n'] ) { 
+				$bnav = "<a href='index.php?action=$action&act=$act&cid=$fileid&page={$prev['id']}'>{$prev['n']} <</a> ";
+			} else	if ( $prev['id'] ) { 
+				$bnav = "<a href='index.php?action=$action&act=$act&cid=$fileid&page={$prev['id']}'>[{$prev['id']}] <</a> ";
+			};
+
+			$folionr = $pagexml['n'] or $folionr = $pagexml['id'];
+
+			$img = $pagexml['facs'];
+			if ( !preg_match("/^(http|\/)/", $img) ) $img = "Facsimile/$img";
+			
+			$editxml = $pagexml->asXML();
+			
+			# Build the page navigation
+			$maintext .= "<table style='width: 100%'><tr> 
+							<td style='width: 33%' align=left>$bnav
+							<td style='width: 33%' align=center>{%Page} $folionr
+							<td style='width: 33%' align=right>$nnav
+							</table>
+							<hr>";
+		
+		} else {
+			# B
 			$pbelm = "pb";
 			$titelm = "Page";
 			$pbtype = "pb";
@@ -132,28 +196,28 @@
 							";
 		};
 
-			#Build the view options	
-			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
-				$formcol = $item['color'];
-				# Only show forms that are not admin-only
-				if ( $username || !$item['admin'] ) {
-					if ( !$bestform ) $bestform = $key; 
-					if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
-					$ikey = $item['inherit'];
-					if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract'] 
-						$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
-						$fbc++;
-					};
-					if ( $key != "pform" ) { 
-						if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
-						$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
-					};
-				} else if ( $showform == $key ) $showform = $bestform;
-			};
-			# Check whether we HAVE the form to show - or switch back
-			if ( !strstr($editxml, " $showform=") 
-				&& !$settings['xmlfile']['pattributes']['forms'][$showform]['subtract']
-				) { $showform = $bestform;};
+		#Build the view options	
+		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			$formcol = $item['color'];
+			# Only show forms that are not admin-only
+			if ( $username || !$item['admin'] ) {
+				if ( !$bestform ) $bestform = $key; 
+				if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+				$ikey = $item['inherit'];
+				if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract'] 
+					$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+					$fbc++;
+				};
+				if ( $key != "pform" ) { 
+					if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+					$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+				};
+			} else if ( $showform == $key ) $showform = $bestform;
+		};
+		# Check whether we HAVE the form to show - or switch back
+		if ( !strstr($editxml, " $showform=") 
+			&& !$settings['xmlfile']['pattributes']['forms'][$showform]['subtract']
+			) { $showform = $bestform;};
 	
 		$rawxml = $ttxml->rawtext;
 		if ( $tid ) $hltok = "tokhl('$highl', true);";
@@ -164,8 +228,9 @@
 		<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 300;'></div>
 		$pagenav
 		<div style='width: 100%; height: 50px;'>
+			<input type=button onClick=\"showregions('page,div,ab',255,255,0)\" value='Blocks' style='background-color: rgba(255,255,0,0.4);'/>
 			<input type=button onClick=\"showregions('p,tei:head,h1,h2,h3,h4',255,0,0)\" value='Paragraphs' style='background-color: rgba(255,0,0,0.4);'/>
-			<input type=button onClick=\"showregions('lb,l',0,0,255)\" value='Lines'  style='background-color: rgba(0,0,255,0.4);'/>
+			<input type=button onClick=\"showregions('lb,l,line',0,0,255)\" value='Lines'  style='background-color: rgba(0,0,255,0.4);'/>
 			<input type=button onClick=\"showregions('tok,gtok',0,255,0)\" value='Words'  style='background-color: rgba(0,255,0,0.4);'/>
 			<input type=button style='float: right;' onClick=\"scale(1.2)\" value='Zoom in'/>
 			<input type=button style='float: right;' onClick=\"scale(0.8)\" value='Zoom out'/>
@@ -176,7 +241,8 @@
 		<img id=facs src='$img' style='display: none;'/>
 		<div id=mtxt style='display: none;'>$editxml</div>
 		<form action='index.php?action=$action&act=save&pageid={$_GET['pageid']}' method=post id=xmlsave name=xmlsave>
-		<input type=hidden name=fileid value='$ttxml->filename'>
+		<input type=hidden name=fileid value='$cid'>
+		<input type=hidden name=xmlfolder value='$xmlfolder'>
 		<textarea style='display: none;' name='rawxmlta' id='rawxmlta'></textarea>
 		</form>
 		<div id=imgdiv style=\"position: relative; float: left; border: 1px solid #660000; background-image: url('$img'); background-size: cover; width: 100%;\">

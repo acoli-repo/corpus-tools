@@ -86,8 +86,8 @@
 		newelm.style.backgroundColor = 'rgba('+r+','+g+','+b+',0.4)';
 		newelm.style.color = 'rgba(0,0,0,0.4)';
 		newelm.classList.add('resize-drag');
-		newelm.setAttribute('title',elm.getAttribute('id')+': '+elm.innerText);
 		newelm.innerHTML = getinnertext(elm);
+		newelm.setAttribute('title',elm.getAttribute('id')+': '+newelm.innerText);
 		newelm.setAttribute('bbox',elm.getAttribute('bbox'));
 		imgdiv.appendChild(newelm);
 	};

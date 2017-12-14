@@ -6,7 +6,7 @@
 
 class TTXML
 {
-	public $filename; # The name of the file
+	public $filename; # The name of the file wrt $xmlfolder
 	public $xmlid; # The ID of the file
 	public $fileid; # Full path of the file (within xmlfiles)
 	public $xml; # The parsed XML
@@ -16,7 +16,8 @@ class TTXML
 	var $title;
 	
 	function __construct($fileid = "", $fatal = 1, $options ) {	
-	
+		global $xmlfolder;
+		
 		# Use $_GET to find the file
 		if ( !$xmlfolder ) $xmlfolder = "xmlfiles";
 		if ( strstr($options, "pagetrans") != false ) {  $xmlfolder = "pagetrans"; };
