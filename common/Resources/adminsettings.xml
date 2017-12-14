@@ -104,6 +104,7 @@
 		<att key="nodtoks" display="Export tokens even if there are dtoks" default="0" deprecated="1"/>	
 		<att key="tokxpath" display="Which XML elements to export as tokens" default="//tok"/>	
 		<att key="multiseperator" display="Symbol used for separating multi-value sattributes" default=","/>	
+		<att key="withemptytext" display="Whether to include texts with no tokens (0/1)" default="0" >	
 		<att key="toktype" display="How to export mtok and dtok" default="td" >	
 			<desc>
 				TEITOK can contain not only tokens, but also grammatical words (dtok) and multi-word expressions (mtok). Here

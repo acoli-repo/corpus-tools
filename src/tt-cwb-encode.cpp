@@ -112,7 +112,10 @@ void write_range ( int pos1, int pos2, string tagname ) {
 
 // Write a range to .rng, .avs, .avx
 void write_range_value ( int pos1, int pos2, string tagname, string attname, string formval ) {
-	if ( pos2 < pos1 ) { return; }; // We can never have negative ranges
+	if ( pos2 < pos1 ) { 
+		if ( debug > 0 ) { cout << "negative range for " << tagname << " / " << attname << " = " << pos1 << " - " << pos2 << " - not writing" << endl; };
+		return; 
+	}; // We can never have negative ranges
 	
 	string formkey = tagname + "_" + attname;
 	
@@ -258,12 +261,14 @@ void treatfile ( string filename ) {
 	pugi::xpath_node_set toks = doc.select_nodes(tokxpath);
 	map<string, int> id_pos;
 	
-	if ( cqpsettings.attribute("withemptytext") && toks.size() == 0 ) {
+	if ( cqpsettings.attribute("withemptytext") != NULL && toks.size() == 0 ) {
 		// If we have no tokens in this file, but need to keep empty texts, create a single empty token inside this text
 		if ( debug > 1 ) cout << "- We have no tokens in this file (" << tokxpath << ") - but we want to keep it, so let's make one" << endl;
-		pugi::xml_node node = doc.append_child("tok"); // TODO: This should use tokxpath
+		pugi::xml_node textdoc = doc.first_child().child("text");
+		pugi::xml_node node = textdoc.append_child("tok"); // TODO: This should use tokxpath
 		node.append_attribute("id") = "w-1";
 		node.append_child(pugi::node_pcdata).set_value("--");
+		textdoc.print(cout);
 		toks = doc.select_nodes(tokxpath);
 	};
 
@@ -328,7 +333,11 @@ void treatfile ( string filename ) {
 		if ( taglvl.length() == 0 ) { taglvl = tagname; };
 		if ( taglvl == "text" ) {
 			// This is the <text> level
-			if ( !(pos2>pos1) ) { continue; }; // This will crash on texts without any tokens inside; do not add to CQP for now (but they should be added as indexes)
+			if ( !(pos2+1>pos1) ) { 
+				// This will crash on texts without any tokens inside; do not add to CQP for now (but they should be added as indexes)
+				if ( debug > 4 ) { cout << "  - Emtpy range - skipping" << endl; };
+				continue; 
+			}; 
 			for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 				formkey = formfld.attribute("key").value(); 
 				if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
