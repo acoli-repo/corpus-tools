@@ -34,9 +34,27 @@
 		$xml = simplexml_load_string($file);
 
 		if ($_POST['newxml']) {
+
+		
 			$fullxml = $_POST['fullxml'];
 			$newxml = $_POST['newxml'];
+
+			if ( strpos($file, $fullxml) == false ) {
+				fatal("Replacement will fail - XML does not contain: <pre>".htmlentities($fullxml)."</pre>");
+			};
+
 			$file = str_replace($fullxml, $newxml, $file);
+
+				print "Replacement seems to have failed - XML still contains: <pre>".htmlentities($fullxml)."</pre>"; 
+				print "<hr>New: <pre>".htmlentities($newxml)."</pre>"; 
+				print "<hr>Replace: <pre>".htmlentities($file)."</pre>"; 
+				
+				exit;
+			
+			# Check whether we actually changed anything
+			if ( strpos($file, $fullxml) !== false ) {
+				fatal("Replacement seems to have failed - XML still contains: <pre>".htmlentities($fullxml)."</pre>");
+			};
 			
 			saveMyXML($file, $fileid);
 		
@@ -100,8 +118,8 @@
 				if ( $token1['bbox'] && $token2['bbox'] ) {
 					if ( !$token1['form'] ) { $token1['form'] = preg_replace("/<[^>]+>/", "", $innerxml1); };
 					if ( !$token2['form'] ) { $token2['form'] = preg_replace("/<[^>]+>/", "", $innerxml2); };
-					$innerxml1 = "<gtok bbox=\"{$token1['bbox']}\">$innerxml1</gtok>";
-					$innerxml2 = "<gtok bbox=\"{$token2['bbox']}\">$innerxml2</gtok>";
+					$innerxml1 = "<gtok id=\"{$token1['id']}.1\" bbox=\"{$token1['bbox']}\">$innerxml1</gtok>";
+					$innerxml2 = "<gtok id=\"{$token1['id']}.2\" bbox=\"{$token2['bbox']}\">$innerxml2</gtok>";
 					unset($token1['bbox']); unset($token2['bbox']);
 					unset($token1['x_wconf']); unset($token2['x_wconf']);
 				};

@@ -284,8 +284,8 @@
 
 			if ( $username ) 
 				$maintext .= " &bull;
-					<a href='index.php?action=$action&act=edit&cid={$ttxml->fileid}&pid={$curr['id']}'>{%Edit lines}</a>
-					";
+					<a href='index.php?action=regionedit&cid={$ttxml->fileid}&pageid={$curr['id']}'>{%Edit lines}</a>
+					"; // Used to be $action&act=edit, but regionedit is nicer
 		
 		};
 	};	

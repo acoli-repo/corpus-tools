@@ -17,6 +17,10 @@
 
 		$editxml = $ttxml->rawtext;
 
+	$highl = $_GET['tid'] or $highl = $_GET['jmp'];
+	$tmp = explode(" ", $highl);
+	$tid = $tmp[0];	
+
 	if ( 1==1 ) { # Grab the page
 		$pbelm = "pb";
 		$titelm = "Page";
@@ -26,10 +30,15 @@
 		if ( $_GET['pageid'] ) {
 			$pb = "<$pbelm id=\"{$_GET['pageid']}\"";
 			$pidx = strpos($editxml, $pb);
+		} else if ( $tid ) {
+			$tokidx = strpos($editxml, "id=\"$tid\"");
+			$pb = "<$pbelm";
+			$pidx = rstrpos($editxml, $pb, $tokidx);
 		} else {
 			$pb = "<$pbelm";
 			$pidx = strpos($editxml, $pb);
 		};
+		
 		if ( !$pidx || $pidx == -1 ) { 
 			# When @n is not the first attribute, we cannot use strpos - try regexp instead (slower)
 			if ( $_GET['pageid'] ) {
@@ -82,6 +91,8 @@
 		
 		$span = $nidx-$pidx;
 		$editxml = $facspb.substr($editxml, $pidx, $span); 
+
+		$editxml = preg_replace("/<lb([^>]+)\/>/", "<lb\\1></lb>", $editxml);
 		
 		if ( $_GET['page'] ) $folionr = $_GET['page']; // deal with pageid
 		else if ( $_GET['pageid'] ) {
@@ -132,7 +143,7 @@
 			&& !$settings['xmlfile']['pattributes']['forms'][$showform]['subtract']
 			) { $showform = $bestform;};
 	
-	if ($_GET['tid']) $hltok = "tokhl('{$_GET['tid']}');";
+	if ( $tid ) $hltok = "tokhl('$highl', true);";
 
 		$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
 
@@ -140,19 +151,21 @@
 	<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 300;'></div>
 	$pagenav
 	<img id=facs src='$img' style='display: none;'/>
-	<div id=imgdiv style=\"position: relative; float: left; border: 1px solid #660000; background-image: url('$img'); background-size: cover; width: 90%;\">
+	<div id=imgdiv style=\"position: relative; float: left; border: 1px solid #660000; background-image: url('$img'); background-size: cover; width: 100%;\">
 	<div id=mtxt $editxml</div>
 	</div>
 	<div style='display: block; position: inline; text-align: right; z-index: 600;'>
-		<!-- <input type=button onClick='togglefs()' value='Fullscreen'/> -->
+		<!-- <input type=button onClick='togglefs()' value='Fullscreen'/> 
 		<input type=button onClick='scale(1.2)' value='{%Larger}'/>
 		<br><input type=button onClick='scale(0.8)' value='{%Smaller}'/>
+		-->
 	</div>
 	<script language=Javascript src='$jsurl/tokedit.js'></script>
 	<script language=Javascript src='$jsurl/tokview.js'></script>
 	<style>
 	#mtxt tok:hover { background-color: rgba(220,220,0,0.4); text-shadow: none; }
 	#mtxt tok { color: rgba(0,0,0,0); cursor: pointer; }
+	#mtxt { color: rgba(0,0,0,0); }
 	</style>
 	<script language=Javascript>
 		var facshown = 1; var bboxshown = 1;
@@ -161,24 +174,45 @@
 		var facsimg = imgdiv.style.backgroundImage; 
 		var username = '$username';
 		var orgtoks = new Object();
-								formify(); 
-								var orgXML = document.getElementById('mtxt').innerHTML;		imgdiv.style.height = imgdiv.offsetWidth*(imgfacs.naturalHeight/imgfacs.naturalWidth) + 'px';
+		formify(); 
+		var orgXML = document.getElementById('mtxt').innerHTML;
+		imgdiv.style.height = imgdiv.offsetWidth*(imgfacs.naturalHeight/imgfacs.naturalWidth) + 'px';
 		$settingsdefs
 		var attributelist = Array($attlisttxt);
-		function tokhl ( tid ) { 	
-			var seltok = document.getElementById(tid);
-			seltok.style.backgroundColor = 'rgba(255,0,0,0.2)';
+		function tokhl ( tid, jump=false ) { 	
+			var list = tid.split(' ');
+			for (i = 0; i < list.length; i++) {
+				selid = list[i]; console.log(selid);
+				var seltok = document.getElementById(selid);
+				seltok.style.backgroundColor = 'rgba(255,220,4,0.3)';
+			};
+			if ( jump ) {
+				document.getElementById(list[0]).scrollIntoView(true);
+			};
 		};
 		var tokinfo = document.getElementById('tokinfo');
-		var toks = document.getElementsByTagName('tok');
 		var tid = '$fileid';
 		var imgscale = imgdiv.offsetWidth/imgfacs.naturalWidth;
 		var i; 
+
+		var toks = document.getElementsByTagName('tok');
 		for (i = 0; i < toks.length; i++) {
 			tok = toks[i]; 
 			if ( !tok ) { continue; };
+			placeelm(tok);
+		}; 
+		var gtoks = document.getElementsByTagName('gtok');
+		for (i = 0; i < gtoks.length; i++) {
+			gtok = gtoks[i]; 
+			if ( !gtok ) { continue; };
+			placeelm(gtok);
+		};
+		$hltok
+		function placeelm ( tok ) {
 			var tmp = tok.getAttribute('bbox');
-			if ( !tmp ) { continue; };
+			if ( !tmp ) { 
+				return -1; 
+			};
 			var bbox = tmp.split(' ');
 			tok.style.position = 'absolute';
 			tok.style.overflow = 'hidden';
@@ -191,7 +225,7 @@
 			tok.style.color = 'rgba(0,0,0,0)';
 			if ( username && !tok.getAttribute('form') ) { tok.setAttribute('form', tok.innerText); }; // Always show the form
 		};
-		$hltok
+		
 		function togglefs () {
 			var imgdiv = document.getElementById('imgdiv');
 			// Set DIV to full browser screen
@@ -224,7 +258,7 @@
 	</script>
 	<br style='clear: both; margin-top: 10px; margin-top: 10px;'/>
 	<hr>
-	<a href='index.php?action=file&cid=$fileid&tid={$_GET['tid']}&pageid={$_GET['pageid']}'>{%Text view}</a>
+	<a href='index.php?action=file&cid=$fileid&tid={$_GET['tid']}&pageid={$_GET['pageid']}&jmp=$tid'>{%Text view}</a>
 	";
 	
 ?>

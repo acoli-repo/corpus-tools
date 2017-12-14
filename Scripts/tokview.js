@@ -40,6 +40,7 @@ function hidetokinfo() {
 	};
 	if ( typeof(hlbar) != "undefined" ) {
 		hlbar.style.display = 'none';
+		var tmp = facsdiv.getElementsByClassName('hlbar'+hln);
 	};
 };
 
@@ -48,9 +49,9 @@ function mouseEvent(evt) {
 	if ( !element ) { element = evt.target; };
 	if ( !element ) { console.log('No element found - try Chrome or Firefox'); console.log(evt); return -1; };
 	// We might be hovering over a child of our TOK
-	if ( element.parentNode && element.parentNode.tagName == "TOK" ) { element = element.parentNode; };
-	if ( element.parentNode.parentNode && element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; };
-	
+	if ( element.parentNode && element.parentNode.tagName == "TOK" && element.tagName != "GTOK" ) { element = element.parentNode; };
+	if ( element.parentNode.parentNode && element.parentNode.parentNode.tagName == "TOK" && element.tagName != "GTOK" ) { element = element.parentNode.parentNode; };
+
 	showtokinfo(evt, element);
 	highlightbb(element);
 	
@@ -60,6 +61,8 @@ function showtokinfo(evt, element, poselm) {
 	var shownrows = 0;
 	var tokinfo = document.getElementById('tokinfo');
 	if ( !tokinfo ) { return -1; };
+	var showelement;
+	if ( element.tagName == "GTOK" ) { showelement = element; element = element.parentNode; } else { showelement = element; };
     if ( element.tagName == "TOK" || element.tagName == "DTOK" || element.tagName == "MTOK" ) {
     	var atts = element.attributes;
     	var tokid = element.getAttribute('id');
@@ -117,7 +120,7 @@ function showtokinfo(evt, element, poselm) {
 		};
 		    	   	
 		if ( shownrows )  { tokinfo.style.display = 'block'; };
-		var foffset = offset(element);
+		var foffset = offset(showelement);
 		if ( typeof(poselm) == "object" ) {
 			var foffset = offset(poselm);
 		};
@@ -151,17 +154,28 @@ function showtokinfo(evt, element, poselm) {
 	}    
 } 
 
-function highlightbb (elm) {
+function highlightbb (elm, hln=0) {
 
 	// Find the bbox we need
 	if ( elm.getAttribute('bbox') == null ) {
-		var mtch = document.evaluate("ancestor::*[@bbox]", elm, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); 
-		if ( mtch.snapshotLength == 0 ) {
-			mtch = document.evaluate("ancestor-or-self::tok/preceding::lb", elm, null, XPathResult.ANY_TYPE, null);
-		};
-		var tmpe;
-		if ( mtch != null ) { tmpe = mtch.iterateNext(); };
-		while ( tmpe != null )  { elm = tmpe; tmpe = mtch.iterateNext(); };				
+		var mtch = document.evaluate("./gtok[@bbox]", elm, null, XPathResult.ANY_TYPE, null);
+		if ( elm.tagName == "TOK"  ) {
+			var gtoks = [];
+			var tmpe = mtch.iterateNext(); 
+			while ( tmpe != null )  { gtoks.push(tmpe); tmpe = mtch.iterateNext(); };		
+			for (var i = 0; i < gtoks.length; i++) {
+				// TODO: This does not work, since there is only one hlbar
+				highlightbb(gtoks[i], i);
+			};
+		} else {
+			var mtch = document.evaluate("ancestor::*[@bbox]", elm, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); 
+			if ( mtch.snapshotLength == 0 ) {
+				mtch = document.evaluate("ancestor-or-self::tok/preceding::lb", elm, null, XPathResult.ANY_TYPE, null);
+			};
+			var tmpe;
+			if ( mtch != null ) { tmpe = mtch.iterateNext(); };
+			while ( tmpe != null )  { elm = tmpe; tmpe = mtch.iterateNext(); };		
+		};		
 	};
 	if ( elm.getAttribute('bbox') == null ) { return -1; };
 
@@ -173,7 +187,12 @@ function highlightbb (elm) {
 	if ( typeof(facsdiv) == "undefined" ) { return -1; };
 	
 	// Determine the hlbar and scale of the image div
-	hlbar = facsdiv.getElementsByClassName('hlbar').item(0);
+	hlbar = facsdiv.getElementsByClassName('hlbar').item(hln);
+	if ( !hlbar ) {
+		hlbar = document.createElement("div");
+		hlbar.setAttribute('class', 'hlbar'); // The highlight bar
+		facsdiv.appendChild(hlbar);
+	}; 
 	var facsimg = facsdiv.getElementsByTagName('img').item(0);
 	var orgImg = new Image(); orgImg.src = facsimg.src; 
 	

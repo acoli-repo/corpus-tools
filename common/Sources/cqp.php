@@ -10,6 +10,8 @@
 		fatal ( "Search is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
 	};
 
+	$fileview = $settings['defaults']['fileview'] or $fileview = "file";
+
 	include ("$ttroot/common/Sources/cwcqp.php");
 
 	$outfolder = $settings['cqp']['folder'] or $outfolder = "cqp";
@@ -169,7 +171,7 @@
 			if ( $fields[1] ) {
 				$maintext .= "<tr>";
 				$typecnt++;
-				if ( $fld == "text_id" ) $maintext .= "<td><a href=\"index.php?action=file&cid={$fields[0]}\">doc</a></td>";
+				if ( $fld == "text_id" ) $maintext .= "<td><a href=\"index.php?action=$fileview&cid={$fields[0]}\">doc</a></td>";
 				else if ( $sattfld ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newcql)."'; document.newform.fileonly.value='1'; document.newform.submit();\">docs</a></td>";
 				foreach ( $fields as $key => $field ) {
 					if ( $newcql && $key == 0 && strstr($fld, '_') ) {
@@ -492,7 +494,7 @@
 						$fatts[$key] = "{%$attit-$fatt}";
 					};
 				};
-				$maintext .= "<tr><td><a href='index.php?action=file&cid={$fid}'>{$fidtxt}</a><td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>".join ( "<td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>", $fatts );
+				$maintext .= "<tr><td><a href='index.php?action=$fileview&cid={$fid}'>{$fidtxt}</a><td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>".join ( "<td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>", $fatts );
 			};
 			$maintext .= "</table>";
 
@@ -575,7 +577,7 @@
 				$resxml = preg_replace("/^[^<>]+>/", "", $resxml); # A bit the end of a tag
 
 				# Replace block-type elements by vertical bars
-				$resxml = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<\\2>'>|</span> ", $resxml);
+				$resxml = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l|lg|div) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<\\2>'>|</span> ", $resxml);
 				$resxml = preg_replace ( "/(<(lb|br)[^>]*\/>\s*)+/", " <span style='color: #aaffaa' title='<p>'>|</span> ", $resxml);
 				$resxml = preg_replace ( "/(<sb[^>]*\/>\s*)+/", " <span style='color: #aaffaa' title='<p>'>|</span> ", $resxml); # non-standard section break
 				$resxml = preg_replace ( "/(<pb[^>]*\/>\s*)+/", " <span style='color: #ffaaaa' title='<p>'>|</span> ", $resxml);
@@ -616,7 +618,7 @@
 					$moreactions .= "\nhllist('$match', 'r-$i', '#ffffff'); ";
 				};
 				
-				if ( !$noprint ) $editxml .= "\n<tr id=\"r-$i\" tid=\"$fileid\"><td><a href='index.php?action=file&amp;cid=$fileid&amp;jmp=$m1' style='font-size: 10pt; padding-right: 5px;' title='$fileid' target=view>{%context}</a></td>
+				if ( !$noprint ) $editxml .= "\n<tr id=\"r-$i\" tid=\"$fileid\"><td><a href='index.php?action=$fileview&amp;cid=$fileid&amp;jmp=$match' style='font-size: 10pt; padding-right: 5px;' title='$fileid' target=view>{%context}</a></td>
 					$audiobut
 					<td $resstyle>$resxml</td></tr>";
 
