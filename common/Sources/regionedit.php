@@ -2,6 +2,7 @@
 	// Script to display bounding boxes 
 	// Indicates where in the @facs <tok> <l> etc. is located
 	// (c) Maarten Janssen, 2015
+	check_login();
 
 
 	if ( $act == "save" ) {
@@ -203,7 +204,7 @@
 			var attributelist = Array($attlisttxt);
 		</script>
 		<script language=Javascript src='http://code.interactjs.io/v1.3.0/interact.min.js'></script>
-		<script language=Javascript src='Scripts/regionedit.js'></script>
+		<script language=Javascript src='$jsurl/Scripts/regionedit.js'></script>
 		<br style='clear: both; margin-top: 10px; margin-top: 10px;'/>
 
 		";
