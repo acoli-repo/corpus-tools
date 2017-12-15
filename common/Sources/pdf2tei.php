@@ -9,7 +9,11 @@
 		set_time_limit(300);
 		
 		$fileid = $_POST['xmlid'];
-	
+		$fileid = preg_replace("/\.xml$/", "", $fileid);
+
+		$logfile = fopen("tmp/$fileid.create.log", 'w') or die('Cannot create log file');
+		fwrite($logfile, "Creating a file $fileid.xml\n");
+		
 		# Handle the PDF document
 		$target_file = "pdf/$fileid.pdf";
 		if (  $_POST['source'] == "file" ) {
@@ -17,6 +21,7 @@
 			if ( !move_uploaded_file($_FILES["pdffile"]["tmp_name"], $target_file) ) {
 				fatal ("File upload failed");
 			}
+			fwrite($logfile, "Using uploaded PDF $target_file\n");
 		} else if ( $_POST['source'] == "url" ) {
 			
 			$pdfurl = $_POST['pdfurl'];
@@ -25,15 +30,18 @@
 			if ( !file_exists($target_file) ) {
 				fatal ("File download failed");
 			};
+			fwrite($logfile, "Using downloaded PDF $target_file from $pdfurl\n");
 		};
 
 		if ( $_POST['postprocess'] == "page" ) {
 			$editaction = "pagetrans";
 			$savefolder = "pagetrans";
 			if ( !is_dir("pagetrans") ) mkdir("pagetrans");
+			fwrite($logfile, "Creating a page-by-page file in pagetrans\n");
 		} else {
 			$editaction = "file";
 			$savefolder = "xmlfiles";
+			fwrite($logfile, "Creating a TEI/XML file in xmlfiles\n");
 		};
 				 
 		# Create an XML document
@@ -42,11 +50,13 @@
 			$xmltemplate = $_POST['template'] or $xmltemplate = $_POST['withtemplate'];
 			$file = file_get_contents("Resources/$xmltemplate"); 
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-			if ( !$xml ) { print "Failing to read/parse $xmltemplate<hr>"; print $file; exit; };			
+			if ( !$xml ) { print "Failing to read/parse $xmltemplate<hr>"; print $file; exit; };
+			fwrite($logfile, "Incorporating header from template: $xmltemplate\n");
 		} else if ( $_POST['header'] == "tei" ) {
 			$file = $_POST['tei']; 
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { print "Failing to read/parse $xmltemplate<hr>"; print $file; exit; };			
+			fwrite($logfile, "Incorporating header from posted TEI/XML text\n");
 		} else if ( $_POST['header'] == "existing" ) {
 			$file = file_get_contents("xmlfiles/{$_POST['fromfile']}"); 
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
@@ -55,11 +65,13 @@
 				$result = current($xml->xpath("//text")); 
 				$result[0] = "";
 			};
+			fwrite($logfile, "Incorporating header from existing file: $file\n");
 		} else {
 			$file = "<TEI>
 <teiHeader/>
 <text/>
 </TEI>";
+			fwrite($logfile, "Generating empty header\n");
 		};
 		$xml = simplexml_load_string($file, NULL);
 		$dom = dom_import_simplexml($xml)->ownerDocument; #->ownerDocument		
@@ -87,6 +99,7 @@
 		$node = current($xml->xpath($xp));
 		$node[0] = "XML file created from PDF";
 		$node['when'] = date("Y-M-d");
+		fwrite($logfile, "Added creation metadata to teiHeader\n");
 		
 		while ( file_exists("$savefolder/$fileid$ext.xml" ) ) {
 			$ext = "_".$cnt++;
@@ -99,25 +112,55 @@
 		
 		$editurl = "index.php?action=$editaction&cid=$fileid";
 
-		if ( $_POST['postprocess'] == "page" && !$ghostscript ) {
-			# Run the pdf2tei.pl script
-			$cmd = "perl ../common/Scripts/pdf2tei.pl --parse={$_POST['postprocess']} --pagtype={$_POST['pagtype']} --offset={$_POST['offset']} --input=$fileid.pdf";
-			$done = shell_exec($cmd);
-
-			print "<p>New XML file has been created. Reloading to edit mode.
-				<script language=Javascript>top.location='index.php?action=pagetrans&cid=$fileid'</script>"; exit;
-		} else {
-			# Run the pdf2tei.pl script
-			$cmd = "perl ../common/Scripts/pdf2tei.pl --parse={$_POST['postprocess']} --pagtype={$_POST['pagtype']} --input=$fileid.pdf > /dev/null &";
-			$start = shell_exec($cmd);
-
-			$maintext .= "<h1>File being created</h1>
-			<p>$cmd</p>
-				<p>Your XML file ($savefolder/$fileid.xml) is being created, and getting filled with image files. Depending of the size of the
-				PDF file, this might take a while. Once it is done, you can edit the 
-				XML file <a href='$editurl'>here</a>";
+		if ( $_POST['pagetype'] == "gs" ) {
+			$ghostscript = 1; $_POST['pagetype'] = 1;
 		};
+
+		# Wait for a couple of seconds to avoid file conflicts
+		sleep(2);
+
+		# Run the pdf2tei.pl script in the background
+		$cmd = "perl ../common/Scripts/pdf2tei.pl --parse={$_POST['postprocess']} --pagtype={$_POST['pagtype']} --offset={$_POST['offset']} --input=$fileid.pdf > /dev/null &";
+		fwrite($logfile, "Running post-command:\n$cmd\n");
+		fclose($logfile);
+
+		$start = shell_exec($cmd); $bg = 1;
+
+		print "<p>New XML file has been created. Reloading to edit mode.
+			<script language=Javascript>top.location='index.php?action=$action&act=log&cid=$fileid&bg=$bg&na=$savefolder'</script>"; exit;
 			
+	} else if ( $act == "log" ) {
+	
+		$maintext .= "<h1>Manuscript PDF to TEI</h1>
+			<h2>Progress report</h2>";
+
+		if ( $_GET['na'] == "pagetrans" ) $newaction = "pagetrans"; else $newaction = "file";
+
+		$log = file_get_contents("tmp/{$_GET['cid']}.create.log");
+
+		if ( $log == "" ) {
+			$maintext .= "<p>The creation of your file seems not to have started properly.";
+		} else if ( !strstr($log, "(aborting)") && !strstr($log, "DONE") ) {
+			$maintext .= "<script type=\"text/javascript\">
+					setTimeout(function () { 
+					  location.reload();
+					}, 2 * 1000);
+				</script>";
+			$maintext .= "<p>The creation of your file is running in the background. You can see in the log file below. This page will reload until the process finishes.";
+		} else if ( !strstr($log, "DONE") ) {
+			$maintext .= "<p>The creation of your file seems to have gone wrong. You can see in the log file below where it failed.";
+		} else {
+			$maintext .= "<p>The creation of your file is finished, you can see
+				the creation log below, and you can open it <a href='index.php?action=$newaction&cid={$_GET['cid']}'>here</a>";
+			if ( !$_GET['stay'] ) {
+				print "<p>New XML file has been created. Reloading to edit mode.
+					<script language=Javascript>top.location='index.php?action=$newaction&cid={$_GET['cid']}'</script>"; exit;
+			};
+		};
+				
+		$maintext .= "<hr><pre>$log</pre>";
+		
+		
 	} else {
 		
 		$maintext .= "<h1>Manuscript PDF to TEI</h1>
@@ -129,7 +172,7 @@
 			
 		<hr>
 		
-		<form action=\"index.php?action=$action\" method=\"post\" enctype=\"multipart/form-data\">
+		<form action=\"index.php?action=$action\" id=pdfform name=pdfform method=\"post\" enctype=\"multipart/form-data\" onSubmit='return checkform();'>
 		<h2>XML Document</h2>
 		
 		<p>Provide an ID for the TEI document to be created: <input name=xmlid size=40>
@@ -153,6 +196,13 @@
 					if ( document.getElementById(bodies[a]) ) { document.getElementById(bodies[a]).style.display = 'none'; };
 				};
 				if ( document.getElementById(fld) ) { document.getElementById(fld).style.display = 'block'; };
+			};
+			function checkform() {
+				if ( document.forms['pdfform']['xmlid'].value == '' ) {
+					alert('Please provide an XML ID for this file');
+					return false;
+				};
+				return true;
 			};
 			</script>
 			";
@@ -187,7 +237,7 @@
 
 		$maintext .= "<!--
 		<p><input type=radio name=header value=file> Upload a metadata file <input type='file' name='metafile' filetype='pdf'>
-		<p><input type=radio name=header value=url> Download metadata form URL : <input name='metaurl'>
+		<p><input type=radio name=header value=url> Download metadata form URL : <input name='metaurl' size=70>
 		<p>Type of metadata document: <select name=metatype><option value=mard>MARC</option></select>
  		-->";
 		# None
@@ -197,22 +247,29 @@
 		$maintext .= "<hr><h2>Content</h2>
 			<h3>PDF Document</h3>
 		
-		<p>Uploading or downloading PDF files might take a considerable amount of time, so wait for the browser to finish...
+		<p>
+			For security, all images are uploaded as PDF - to upload images, please first combine them into a PDF, which 
+			you can do with various programs or sites such as <a href='http://jpg2pdf.com/' target=_new>jpg2pdf</a>.
+			Uploading or downloading PDF files can take a considerable amount of time, so wait for the browser to finish...
 		
 		<p><input type=radio name=source value=\"file\"> Upload a PDF file <input type='file' name=\"pdffile\" accept=\"application/pdf\">
-		<p><input type=radio name=source value=url> Download PDF form URL : <input name='pdfurl'>
+		<p><input type=radio name=source value=url> Download PDF form URL : <input name='pdfurl'  size=70>
 		
-		<p>Type of PDF document: <select name=pagtype><option value=1>1 folio per page</option><option value=2>2 folios per page</option></select>
+		<p>Type of PDF document: 
+			<select name=pagtype>
+				<option value=1>image-based, 1 folio per page</option>
+				<option value=2>image-based, 2 folios per page</option>
+				<option value='gs'>text-based, render with ghostscript</option>
+			</select>
 		<p>Number of initial pages to skip: <select name=offset><option value='0'>0</option><option value='1' selected>1</option><option value='2'>2</option><option value='3'>3</option><option value='4'>4</option></select>
 		";
 		
 		$maintext .= "<hr>
 		<h3>Post-processing</h3>
 
-		<p><input type=radio name=postprocess value=page checked> Transcribe page-by-page in the interface
-		<p><input type=radio name=postprocess value=none> Only create an empty XML files with page breaks
+		<p><input type=radio name=postprocess value=none> Create an empty XML files with page breaks
+		<p><input type=radio name=postprocess value=page checked> Create a file for page-by-page transcription
 		<p><input type=radio name=postprocess value=ocr> Process with Tesseract OCR tool
-		<!-- <p><input type=radio name=postprocess value=line> Transcribe line-by-line in the interface -->
 		
 		<hr>
 		<p><input type=submit value='Start processing'>

@@ -26,6 +26,10 @@
 				$linexml = current($pagexml->xpath(".//line[@id='$key']"));
 				$linexml[0] = $val;
 			};	
+			foreach ( $_POST['bb'] as $key => $val ) {
+				$linexml = current($pagexml->xpath(".//line[@id='$key']"));
+				$linexml['bbox'] = $val;
+			};
 		} else {
 			$pagexml = current($ttxml->xml->xpath("//page[@id='{$_POST['pageid']}']"));
 			$pagexml[0] = $_POST['newcontent'];
@@ -317,8 +321,10 @@
 						
 				// Add the data of the line
 				$maintext .= "\n<tr><td>
-				<div bbox='{$line['bbox']}' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
-				<textarea style='width: 99%; height: 30px; margin-bottom: 20px;' name='ta[{$line['id']}]'>$linetxt</textarea>";
+				<div bbox='{$line['bbox']}' class='resize' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
+				<textarea style='font-size: 14pt; width: 99%; height: 30px; margin-bottom: 20px;' name='ta[{$line['id']}]'>$linetxt</textarea>
+				<input type=hidden name=\"bb[{$line['id']}]\" id='bb-{$line['id']}' style='width: 100%;' value=\"{$line['bbox']}\"/>
+				";
 			};
 			$maintext .= "</table>
 			<script language=Javascript>
@@ -336,9 +342,63 @@
 					linediv.style.height = linediv.offsetWidth*((bbox[3]-bbox[1])/(bbox[2]-bbox[0])) + 'px';
 					linediv.style['background-size'] = biw+'px '+bih+'px';
 					linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';
+					linediv.setAttribute('orgbpos', '-'+bix+'px -'+biy+'px');
+					console.log(linediv);
 
 				};
-			</script>";
+			</script>
+			<script language=Javascript src='http://code.interactjs.io/v1.3.0/interact.min.js'></script>
+			<script language=Javascript>
+
+
+			interact('.resize')
+			  .resizable({
+				// resize from all edges and corners
+				edges: { left: true, right: true, bottom: true, top: true },
+
+			  })
+			  .on('resizemove', function (event) {
+				var target = event.target,
+					x = (parseFloat(target.getAttribute('data-x')) || 0),
+					y = (parseFloat(target.getAttribute('data-y')) || 0);
+
+				// update the element's style
+				target.style.width  = event.rect.width + 'px';
+				target.style.height = event.rect.height + 'px';
+
+				// translate when resizing from top or left edges
+				x += event.deltaRect.left;
+				y += event.deltaRect.top;
+	
+				console.log(event);
+
+				target.style.webkitTransform = target.style.transform =
+					'translate(' + x + 'px,' + y + 'px)';
+	
+				var bsize = target.style['background-size'].replace(/px/g,'').split(' ');
+				var imgscale = bsize[0]/document.getElementById('facsimg').naturalWidth;
+
+				bpos = target.getAttribute('orgbpos').replace(/px/g,'').split(' ');
+				bpos[0] = bpos[0]*1 - x*1;
+				bpos[1] = bpos[1]*1 - y*1;
+				target.style['margin-bottom'] = y+'px';
+				target.style['margin-top'] = (0-y)+'px';
+				target.style['background-position'] = bpos[0]+'px '+bpos[1]+'px';
+				var nl = (0-bpos[0])/imgscale;
+				var nt = (0-bpos[1])/imgscale;
+				var nr = nl + target.offsetWidth/imgscale;
+				var nb = nt + target.offsetHeight/imgscale;
+				var newbbox = nl+' '+nt+' '+nr+' '+nb;
+				document.getElementById('bb-'+target.getAttribute('tid')).value=newbbox;
+
+				target.setAttribute('data-x', x);
+				target.setAttribute('data-y', y);
+
+			  });
+
+			</script>	
+			<p>Drag the corners of the facsimile cut-out to adjust the line
+		";
 		} else {	
 			if ( $pagexml['crop'] == "right"  ) 
 				$crop = "width: 200%; float: right;";

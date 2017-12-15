@@ -301,6 +301,7 @@
 		$date = date("Ymd"); 
 		$buname = preg_replace ( "/\.xml/", "-$date.xml", $filename );
 		$buname = preg_replace ( "/.*\//", "", $buname );
+		if ( !file_exists("backups") ) { mkdir("backups"); };
 		if ( !file_exists("backups/$buname") ) {
 			copy ( "$xmlfolder/$filename", "backups/$buname");
 		};

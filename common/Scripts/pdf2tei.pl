@@ -7,6 +7,7 @@ $\ = "\n"; $, = "\n";
 
  GetOptions ( ## Command line options
             'debug' => \$debug, # debugging mode
+            'test' => \$test, # test mode
             'lang=s' => \$langid, # language to use for OCR
             'input=s' => \$input, # retreat an XML from HTML
             'parse=s' => \$parsetype, # retreat an XML from HTML
@@ -22,15 +23,16 @@ if ( !$input ) {
 
 if ( !defined($offset) ) { $offset = 1; };
 
-if ( !-e $input && !$useimg 	) { 
+if ( !-e $input && !$useimg ) { 
 	if ( -e "Originals/$input" ) {
 		$input = "Originals/$input";
 	} elsif ( -e "pdf/$input" ) {
 		$input = "pdf/$input";
 	} else {
-		print "No such file: $input"; exit; 
+		print "Error - no such file: $input (aborting)"; exit; 
 	};
 };
+
 
 if ( $parsetype eq "ocr" ) {
 	$pagetype = "pb";
@@ -54,20 +56,38 @@ $filename = $input;
 $filename =~ s/\.pdf//;
 $filename =~ s/.*\///;
 
+if ( -e "tmp/$filename.create.log" && !$debug ) {
+	open LOG, ">>tmp/$filename.create.log";
+	select LOG;
+	print "---------";
+};
+
 $xmlfile = "$xmlfiles/$filename.xml";
 
+@imgconv = ("/usr/local/bin/pdfimages", "/usr/bin/pdfimages");
 # Convert the PDF to JPG images - 1 per page
 if ( !-e "Facsimile/$filename/$filename-001.jpg" || $force ) {
 	if ( !-d "Facsimile/$filename" ) { mkdir("Facsimile/$filename"); };
-	print "Converting to JPG images";
+	print "Converting PDF to JPG images";
 	if ( $gs eq "gs" ) {
 		$cmd = "gs -dNOPAUSE -sDEVICE=jpeg -sOutputFile=Facsimile/$filename/$filename-%d.jpg -dJPEGQ=100 -r1000 $input -c quit ";
 	} else {
+		# Find the full path to a PDF to IMG converter
+		while ( $pdfimagecmd eq "" && scalar @imgconv > 0 ) {
+			$tryfile = shift(@imgconv);
+			if ( -e $tryfile ) { $pdfimagecmd = $tryfile; };
+		};
+		if ( !$pdfimagecmd ) { print "No converter PDF > Image found (aborting)"; exit; };
 		if ( !-d "Facsimile/$filename" ) { mkdir("Facsimile/$filename"); }; 
-		$cmd = "pdfimages -all  $input Facsimile/$filename/$filename ";
+		$cmd = "$pdfimagecmd -all  $input Facsimile/$filename/$filename ";
 	};
-	print $cmd;
+	if ( $debug ) { print $cmd; };
 	`$cmd`;
+};
+
+@imgcnt = <Facsimile/$filename/*>;
+if ( scalar @imgcnt == 0 ) {
+	print "Failed to create image files [$cmd] (aborting)"; exit;
 };
 
 if ( -e $xmlfile ) {
@@ -75,7 +95,7 @@ if ( -e $xmlfile ) {
 	open FILE, $xmlfile;
 	$teistring = <FILE>;
 	close FILE;
-	print "Loaded skeletong $xmlfile";
+	print "Loaded skeleton file $xmlfile";
 };
 if ( $teistring eq '' ) { $teistring = "<TEI>
 <teiHeader/>
@@ -107,12 +127,12 @@ FACS: while (readdir $dh) {
 	$jf = $_; 
 	if ( $jf =~ /^\./ ) { next; }; 
 	$i++;
-	if ( $i <= $offset ) { print "Skipping $_ ($i)"; next FACS; }; # Skip x pages
+	if ( $i <= $offset ) { print "Skipping the page $jf ($i)"; next FACS; }; # Skip x pages
    	$jf = "Facsimile/$filename/$jf";
-	print $jf;
+	print "Processing page: $jf";
 	
 	if ( $parsetype eq "ocr" ) {
-		print "tmp/$filename/$filename-1.hocr";
+		if ( $debug ) { print "tmp/$filename/$filename-1.hocr"; };
 		if ( !-e "tmp/$filename/$filename-1.hocr" || $force ) {
 			if ( !-d "tmp/$filename" ) { mkdir("tmp/$filename"); };
 			print "Running OCR";
@@ -134,7 +154,7 @@ FACS: while (readdir $dh) {
 		# Load the hOCR file
 		$hocr = $parser->load_xml(string => $hx);
 	
-		print "Converting to TEI";
+		print "Converting hOCR to TEI";
 		foreach $node ( $hocr->findnodes("//span") ) { 
 			$class = $node->getAttribute('class'); 
 			if ( $debug ) { print "Treating $class: ".$node->getAttribute('id'); };
@@ -266,10 +286,16 @@ $xmltxt =~ s/<\/text>/\n<\/text>/g;
 $xmltxt =~ s/<pb([^>]*)>/<pb\1\/>/g;
 $xmltxt =~ s/<\/pb>//g;
 
+if ( $test ) { 
+	print "Done - result:";
+	print $xmltxt;
+	exit;
+};
 open FILE, ">$xmlfile";
 print FILE $xmltxt;
 close FILE;
 print "Saved file to $xmlfile";
+print "DONE";
 
 # This does not seem to work - and is it useful?
 # `perl ../common/Scripts/xmlrenumber.pl $xmlfiles/$filename.xml`;
@@ -278,9 +304,9 @@ sub makenode( $rootxml, $xpath ) {
 	my ( $rootxml,  $xpath) = @_; 
 	
 	print "Looking for $xpath";
-	$test = $rootxml->findnodes($xpath);
+	$testxp = $rootxml->findnodes($xpath);
 
-	if ( $test ) { return $test->item(0); };
+	if ( $testxp ) { return $testxp->item(0); };
 	
 	if ( $xpath =~ /^(.*)\/([^\/]+)$/  ) {  $pxp = $1; $newname{$pxp} = $2;  }
 	else { print "Unable to create node $xpath"; };

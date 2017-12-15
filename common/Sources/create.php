@@ -298,7 +298,9 @@
 // 		$maintext .= "</div>";
 	
 	
-		$maintext .= "\n\n<hr/><p><input type=submit value='Create XML File' onClick=\"return runsubmit();\"></form>
+		$maintext .= "\n\n<hr/><p><input type=submit value='Create XML File' onClick=\"return runsubmit();\">
+			 - instead of the methods here, you can also create a new XML <a href='index.php?action=pdf2tei'>starting from a PDF document</a>
+			</form>
 			<script language=Javascript>
 			function runsubmit() {
 				if ( document.frm.fname.value == '' ) { alert('Please provide a valid XML id!'); return false; };

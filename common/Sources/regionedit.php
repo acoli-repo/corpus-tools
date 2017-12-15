@@ -4,13 +4,14 @@
 	// (c) Maarten Janssen, 2015
 	check_login();
 
+	$pageid = $_GET['pageid'] or $pageid = $_GET['page'] or $pageid = $_GET['pid'];
 
 	if ( $act == "save" ) {
 		
 		$xmlfolder = $_POST['xmlfolder'];
 		saveMyXML($_POST['rawxmlta'], $_POST['fileid']);
 		print "<p>The file has been modified - reloading
-			<script language=Javascript>top.location='index.php?action=$action&cid={$_POST['fileid']}&pageid={$_GET['pageid']}';</script>";		
+			<script language=Javascript>top.location='index.php?action=$action&cid={$_POST['fileid']}&pageid=$pageid';</script>";		
 	
 	} else {
 	
@@ -41,8 +42,8 @@
 
 		# Find the page in the XML
 		if ( $xml->xpath("//page") ) {
-			$pageid = $_GET['page'] or $pageid = $_GET['page'] or $pageid = $_GET['pid'];
-			if ( $_GET['page']) $pagexp = "//text/page[@id='$pageid']";
+			$pageid = $_GET['pageid'] or $pageid = $_GET['page'] or $pageid = $_GET['pid'];
+			if ( $pageid ) $pagexp = "//text/page[@id='$pageid']";
 			else $pagexp = "//text/page[not(@empty) and not(@done)]";
 
 			$pagexml = current($xml->xpath($pagexp));
