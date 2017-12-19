@@ -698,7 +698,7 @@
 			$before = $matches[1];
 			$new = $matches[2];
 			if ( $before == "/" ) { print "\n<p>Non-rooted node $xquery does not exist - cannot create"; return -1; };
-			if ( $before == "" ) { print "\n<p>Reached root node - cannot create"; return -1; };
+			# if ( $before == "" ) { print "\n<p>Reached root node - cannot create"; return -1; };
 			$res = createnode($xml, $before);
 			if ( $res == -1 ) { return -1; };
 

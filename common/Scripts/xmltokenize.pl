@@ -83,6 +83,9 @@ if ( $linebreaks ) {
 	$tagtxt =~ s/\n(?!<p>|\n|<\/text>)/\n<lb\/>/g; # This places <lb/> before tags that should not have one...
 };
 
+# Deal with |~ encode line endings
+$tagtxt =~ s/\s*\|~\s*((<[pl]b[^>]*>\s*?)*)\s*/\1/gsmi;
+
 # Do some preprocessing
 # decode will mess up encoded <> so htmlencode them
 $tagtxt =~ s/&lt;/&amp;lt;/g;

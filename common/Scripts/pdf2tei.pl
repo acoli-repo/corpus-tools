@@ -8,8 +8,9 @@ $\ = "\n"; $, = "\n";
  GetOptions ( ## Command line options
             'debug' => \$debug, # debugging mode
             'test' => \$test, # test mode
+            'force' => \$force, # force retreating
             'lang=s' => \$langid, # language to use for OCR
-            'input=s' => \$input, # retreat an XML from HTML
+            'input=s' => \$input, # name of the PDF file
             'parse=s' => \$parsetype, # retreat an XML from HTML
             'getimg=s' => \$gs, # retreat an XML from HTML
             'useimg' => \$useimg, # Use already converted image files 
@@ -137,9 +138,12 @@ FACS: while (readdir $dh) {
 			if ( !-d "tmp/$filename" ) { mkdir("tmp/$filename"); };
 			print "Running OCR";
 			# OCR the page
-			$cmd = "tesseract $jf tmp/$filename/$filename-$i hocr $config > /dev/null ";
+			if ( $langid ) {  $langopt = "-l $langid"; };
+			$cmd = "tesseract  $langopt $jf tmp/$filename/$filename-$i hocr $config > /dev/null ";
 			if ( $debug ) { print $cmd; };
 			`$cmd`;
+		} else {
+			if ( $debug ) { print "already OCR'ed: tmp/$filename/$filename-1.hocr"; };
 		};
 	
 		if ( !-d "tmp" ) { mkdir("tmp"); };
@@ -283,7 +287,7 @@ $xmltxt =~ s/<\/lb>//g;
 $xmltxt =~ s/<page /\n<page /g;
 $xmltxt =~ s/<\/text>/\n<\/text>/g;
 
-$xmltxt =~ s/<pb([^>]*)>/<pb\1\/>/g;
+$xmltxt =~ s/<pb([^>]*(?<!\/))>/<pb\1\/>/g;
 $xmltxt =~ s/<\/pb>//g;
 
 if ( $test ) { 

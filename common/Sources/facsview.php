@@ -148,9 +148,10 @@
 		$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
 
 	$maintext .= "
+	<script language=Javascript>var imgloaded = 0;</script>
 	<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 300;'></div>
 	$pagenav
-	<img id=facs src='$img' style='display: none;'/>
+	<img id=facs src='$img' style='display: none;' onload='imgloaded=1;'/>
 	<div id=imgdiv style=\"position: relative; float: left; border: 1px solid #660000; background-image: url('$img'); background-size: cover; width: 100%;\">
 	<div id=mtxt $editxml</div>
 	</div>
@@ -179,10 +180,15 @@
 		imgdiv.style.height = imgdiv.offsetWidth*(imgfacs.naturalHeight/imgfacs.naturalWidth) + 'px';
 		$settingsdefs
 		var attributelist = Array($attlisttxt);
-		function tokhl ( tid, jump=false ) { 	
+		function sleep(ms) {
+		  return new Promise(resolve => setTimeout(resolve, ms));
+		}		
+		async function tokhl ( tid, jump=false ) { 	
 			var list = tid.split(' ');
+			// Wait until the image is loaded
+			while ( !imgloaded ) { await sleep(10); };
 			for (i = 0; i < list.length; i++) {
-				selid = list[i]; console.log(selid);
+				selid = list[i]; 
 				var seltok = document.getElementById(selid);
 				seltok.style.backgroundColor = 'rgba(255,220,4,0.3)';
 			};
@@ -208,8 +214,9 @@
 			placeelm(gtok);
 		};
 		$hltok
-		function placeelm ( tok ) {
+		async function placeelm ( tok ) {
 			var tmp = tok.getAttribute('bbox');
+			while ( !imgloaded ) { await sleep(10); };
 			if ( !tmp ) { 
 				return -1; 
 			};

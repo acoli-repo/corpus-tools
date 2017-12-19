@@ -187,7 +187,7 @@
 
 			$maintext .= "
 				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
-				<table id=mtxt>";
+				<table id=mtxt style='width: 100%;'>";
 
 			foreach ( $ttxml->xml->xpath($lbxpath) as $lb ) {
 				$bb = explode ( " ", $lb['bbox'] );
@@ -221,50 +221,44 @@
 						$linetxt = preg_replace("/<p [^>]+>/smi", "", $linetxt);
 					} else $linetxt = preg_replace("/<l .*/smi", "", $linetxt);
 				};
+
+				$maintext .= "<img src='$imgsrc' style='display: none;' id='facsimg'/>";
 				
 				// If there are bounding box data, proceed to crop
 				if ( $lb['bbox'] ) {
-			
-					if ( $imgsrc ) { 
-						// Get the bounding box data for this line
-						$bb = explode ( " ", $lb['bbox'] );
-						$cropwidth = $bb[2]-$bb[0];
-						$cropheight = $bb[3]-$bb[1]; 
-			
-						list($imgwidth, $imgheight, $imgtype, $imgattr) = getImageSize($imgsrc);
-						if ( $imgscale ) {							
-							$divwidth = $cropwidth*$imgscale;
-							$divheight = $divwidth*($cropheight/$cropwidth);
-							$setwidth = $imgscale*$imgwidth;
-							$setheight = $imgscale*$imgheight;
-							$topoffset = $bb[1]*$imgscale;
-							$leftoffset = $bb[0]*$imgscale;
-						} else {
-							// Get the size of the original image and create crop measurements
-							$divwidth = 600;
-							$divheight = $divwidth*($cropheight/$cropwidth);
-
-							if ( $divheight > 300  ) {
-								$divheight = 100;
-								$divwidth = $divheight*($cropwidth/$cropheight);
-							};
-						
-							$imgscale = $divwidth/$cropwidth;
-							$setwidth = $imgscale*$imgwidth;
-							$setheight = $imgscale*$imgheight;
-							$topoffset = $bb[1]*$imgscale;
-							$leftoffset = $bb[0]*$imgscale;
-						};
-					};
+							
+					$bb = explode ( " ", $lb['bbox'] );
+					$divheight = $bb[3] - $bb[1];
 						
 					// Add the data of the line
-					$lineimg = "<div style='width: {$divwidth}px; height: {$divheight}px; overflow: hidden; margin: 3px;'>
-						<img style='width: {$setwidth}px; height: {$setheight}px; margin-top: -{$topoffset}px; margin-left: -{$leftoffset}px;' src='$imgsrc'/>
-						</div>";
+					$lineimg = "\n
+					<div bbox='{$lb['bbox']}' class='linediv' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
+					";
+
 				};
-				$maintext .= "\n<tr><th title=\"{$lb['id']}\">$linenr<td>$lineimg<div style='padding: 3px; background-color: #eeeeee;'>$linetxt</div>";
+				$maintext .= "\n<tr><th title=\"{$lb['id']}\">$linenr<td>$lineimg<div style='padding: 3px; margin-top: 5px; background-color: #eeeeee;'>$linetxt</div>";
 			};
 			$maintext .= "</table>
+							<script language=Javascript>
+								var facsimg = document.getElementById('facsimg');
+								var linedivs = document.getElementsByClassName('linediv');
+								for ( var i=0; i<linedivs.length; i++ ) {
+									var linediv = linedivs[i];
+									var bbox = linediv.getAttribute('bbox').split(' ');
+									// Never scale more than 50% up
+									var imgscale  = Math.min(1.2, linediv.offsetWidth/(bbox[2]-bbox[0]));
+
+									var biw = facsimg.naturalWidth*imgscale;
+									var bih = biw*(facsimg.naturalHeight/facsimg.naturalWidth);
+									var bix = bbox[0]*imgscale;
+									var biy = bbox[1]*imgscale;
+
+									linediv.style.height = (bbox[3]-bbox[1])*imgscale + 'px';
+									linediv.style['background-size'] = biw+'px '+bih+'px';
+									linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';
+
+								};
+							</script>
 							<script language=Javascript src='$jsurl/tokedit.js'></script>
 							<script language=Javascript src='$jsurl/tokview.js'></script>
 							<script language=Javascript>
@@ -279,7 +273,7 @@
 								setForm('pform');
 							</script>
 
-			<hr><p><a href='index.php?action=file&cid={$_GET['cid']}&pageid={$curr['id']}'>{%Text view}</a>";
+			<hr><p><a href='index.php?action=file&cid={$ttxml->fileid}&pageid={$curr['id']}'>{%Text view}</a>";
 			if ( $settings['xmlfile']['sattributes']['tok'] ) $maintext .= " &bull; <a href='index.php?action=facsview&cid={$ttxml->fileid}&pageid={$_GET['pageid']}'>{%Facsimile view}</a>";
 
 			if ( $username ) 

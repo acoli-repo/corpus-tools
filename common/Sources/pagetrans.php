@@ -7,7 +7,7 @@
 	
 	if ( !$_GET['cid'] ) $_GET['cid'] = $_POST['fileid'];	
 
-	
+
 	if ( $_GET['cid'] ) {
 		require ("$ttroot/common/Sources/ttxml.php");
 	
@@ -17,11 +17,28 @@
 		if ( !$ttxml->xml->xpath("//page") ) fatal("This is not a page-by-page edit XML file");
 		$fileid = $ttxml->xmlid;
 	};
+
+	if ( $fileid && $username && !is_writable("$xmlfolder/$fileid.xml") ) {
+		fatal ("The file $xmlfolder/$fileid.xml cannot be modified due to permission problems");
+	};
 	
 	if ( $act == "save" ) {
 	
 		$pagexml = current($ttxml->xml->xpath("//page[@id='{$_POST['pageid']}']"));
-		if ( $_POST['ta'] ) {
+		if ( $_POST['tok'] ) {
+			foreach ( $_POST['tok'] as $key => $val ) {
+				$tokxml = current($pagexml->xpath(".//tok[@id='$key']"));
+				if ( $tokxml ) $tokxml[0] = $val;
+			};	
+			foreach ( $_POST['bb'] as $key => $val ) {
+				$linexml = current($pagexml->xpath(".//line[@id='$key']"));
+				$linexml['bbox'] = $val;
+			};
+			foreach ( $_POST['status'] as $key => $val ) {
+				$linexml = current($pagexml->xpath(".//line[@id='$key']"));
+				$linexml['status'] = $val;
+			};
+		} else if ( $_POST['ta'] ) {
 			foreach ( $_POST['ta'] as $key => $val ) {
 				$linexml = current($pagexml->xpath(".//line[@id='$key']"));
 				$linexml[0] = $val;
@@ -30,13 +47,17 @@
 				$linexml = current($pagexml->xpath(".//line[@id='$key']"));
 				$linexml['bbox'] = $val;
 			};
+			foreach ( $_POST['status'] as $key => $val ) {
+				$linexml = current($pagexml->xpath(".//line[@id='$key']"));
+				$linexml['status'] = $val;
+			};
 		} else {
 			$pagexml = current($ttxml->xml->xpath("//page[@id='{$_POST['pageid']}']"));
 			$pagexml[0] = $_POST['newcontent'];
 		};
 			
 		if ( $_POST['done'] ) {
-			$pagexml['done'] = "1";
+			$pagexml['status'] = "2";
 			if ( $_POST['newcontent'] == "" ) $pagexml['empty'] = "1";
 		} else $pagejump = "&page={$_POST['pageid']}";
 		
@@ -48,8 +69,8 @@
 	
 	} else if ( $act == "convert" && $ttxml->fileid ) {
 	
-		if ( $ttxml->xml->xpath("//text/page[not(@empty) and not(@done)]") ) {	
-			$warning = "<p style='color: #cc0000; font-weight: bold;'>Not all your pages are marked as done yet!</p>";
+		if ( $ttxml->xml->xpath("//text/page[not(@empty) and not(@status=\"2\")]") ) {	
+			$warning = "<p style='color: #cc0000; font-weight: bold;'>Not all your pages are marked as verified yet!</p>";
 		};
 	
 		$maintext .= "<h1>Convert page-by-page to TEI/XML</h1>
@@ -64,16 +85,17 @@
 		$maintext .= $ttxml->tableheader(); 
 			
 		$maintext .= "<form action='index.php?action=$action&act=apply' method=post>
-			<input type=hidden name=fileid value='$ttxml->fileid'>
-			<h2>Treatment of lines</h2>
+			<input type=hidden name=fileid value='$ttxml->fileid'>";
+		
+		if ( !$ttxml->xml->xpath("//line") ) $maintext .= "<h2>Treatment of lines</h2>
 			
 			<p><input type=radio name=lines value='lb' checked> Treat each new line as an &lt;lb/&gt; (line beginning)
 			<p><input type=radio name=lines value='plb'> Treat empty lines as new paragraphs and other line as an &lt;lb/&gt; (line beginning)
 			<p><input type=radio name=lines value='p'> Treat empty lines as new paragraphs and ignore other lines
 			<p><input type=radio name=lines value='none'> Ignore all lines
 
-			<hr>
-			<h2>Conversions of codes</h2>
+			<hr>";
+		$maintext .= "<h2>Conversions of codes</h2>
 
 			<p><input type=checkbox name=convert value='1' checked> Convert <a href='index.php?action=$action&act=conversions' target=help>hard to type characters</a>
 			<br/>
@@ -101,6 +123,8 @@
 				};
 			};
 			
+			# Remove the Facsimile from the image name
+			$pagebody = preg_replace("/facs=\"Facsimile\//", "facs=\"", $pagebody);
 			
 			# Convert linebreaks
 			if ( !$pagenode->getAttribute("empty") && $pagenode->textContent != "" ) {
@@ -139,6 +163,7 @@
 				$pagebody = preg_replace("/\[([^\]]+)@([^\]]+)=([^\]]+):([^\]]*)\]/", "<\\1 \\2=\"\\3\">\\4</\\1>", $pagebody);
 				# [tag:content]
 				$pagebody = preg_replace("/\[([^\]]+):([^\]]*)\]/", "<\\1>\\2</\\1>", $pagebody);
+				# $pagebody = preg_replace("/\[([^\]]+)\]/", "<\\1/>", $pagebody); # This is too scary
 			} else if ( $_POST['codes'] == "xml" ) {					
 				# Convert xml tags
 				$pagebody = str_replace("&lt;", "<", $pagebody);
@@ -162,15 +187,25 @@
 		};
 		$newxml = $dom->saveXML();
 		
+		# Now change <line> into <lb/>
+		$newxml = str_replace("<line ", "\n<lb ", $newxml);
+		$newxml = preg_replace("/<lb([^>]+)(?<!\/)> */", "<lb\\1/> ", $newxml);
+		$newxml = str_replace("</line>", "", $newxml);
+
+		# This should actally be done in the tokenization
+		# $newxml = preg_replace("/\|\s*(<lb[^>]*>)\s*/", "\\1", $newxml);
+		
 		# Now change <page> into <pb/>
 		$newxml = str_replace("<page ", "<pb ", $newxml);
 		$newxml = preg_replace("/<pb([^>]+)(?<!\/)>/", "<pb\\1/>", $newxml);
 		$newxml = str_replace("</page>", "", $newxml);
 
-		$newxml = preg_replace("/\|\s*<pb/", "<pb", $newxml);
+		# This should actally be done in the tokenization
+		# $newxml = preg_replace("/\|\s*<pb/", "<pb", $newxml);
 		
-		rename("pagetrans/$ttxml->filename", "backups/$ttxml->fileid-pagetrans.xml");
+		$xmlfolder = "xmlfiles";
 		saveMyXML($newxml, $ttxml->fileid);
+		rename("pagetrans/$ttxml->filename", "backups/$ttxml->fileid-pagetrans.xml");
 		print "<p>Page-by-page file has been converted to TEI/XML. Reloading to view mode.
 			<script language=Javascript>top.location='index.php?action=file&cid=$fileid'</script>"; exit;
 
@@ -217,11 +252,14 @@
 			if ( $pagexml['empty'] == "1" ) {
 				$status = "empty";
 				$color = "#00bb00";
-			} else if ( $pagexml['done'] == "1" ) {
-				$status = "done";
+			} else if ( $pagexml['status'] == "2" ) {
+				$status = "verified";
 				$color = "#00bb00; font-weight: bold;";
+			} else if ( $pagexml."" != "" || $pagexml['status'] == "2" ) {
+				$status = "partially verified";
+				$color = "#666600";
 			} else if ( $pagexml."" != "" ) {
-				$status = "in progress";
+				$status = "to be verified";
 				$color = "#666666";
 			} else {
 				$status = "to be done";
@@ -253,18 +291,19 @@
 		
 		$pageid = $_GET['page'] or $pageid = $_GET['page'] or $pageid = $_GET['pid'];
 		if ( $_GET['page']) $pagexp = "//text/page[@id='$pageid']";
-		else $pagexp = "//text/page[not(@empty) and not(@done)]";
+		else $pagexp = "//text/page[not(@empty) and not(@status=\"2\")]";
 
 		$pagexml = current($ttxml->xml->xpath($pagexp));
 		if ( !$pagexml && !$_GET['page'] ) $pagexml = current($ttxml->xml->xpath("//page")); 
 		
 		if ( !$pagexml ) fatal ("Page not found: {$_GET['page']}");
 
-		if ( !$ttxml->xml->xpath("//text/page[not(@empty) and not(@done)]") ) {
-			$converttxt .= "All pages marked as done, click <a href='index.php?action=$action&cid=$fileid&act=convert'>here</a> to finish";
+		if ( !$ttxml->xml->xpath("//text/page[not(@empty) and not(@status=\"2\")]") ) {
+			$converttxt .= "All pages marked as verified, click <a href='index.php?action=$action&cid=$fileid&act=convert'>here</a> to finish";
 		} else {
-			$noconvert = "- <a href='index.php?action=$action&cid=$fileid&act=convert'>convert to TEI/XML</a>";
-			if ( $pagexml['done'] ) $converttxt .= "click <a href='index.php?action=$action&cid=$fileid'>here</a> to jump to the first non-finished page";
+			if ( $pagexml['status'] != "2" ) $noconvert .= "<input type=checkbox name=done value=1> Mark page as verified ";
+			$noconvert .= "- <a href='index.php?action=$action&cid=$fileid&act=convert'>convert to TEI/XML</a>";
+			if ( $pagexml['status'] == "2" ) $converttxt .= "click <a href='index.php?action=$action&cid=$fileid'>here</a> to jump to the first non-finished page";
 		};
 
 		$imgheight = 600;
@@ -304,27 +343,55 @@
 				<input type=hidden name=pageid value=\"{$pagexml['id']}\">
 						";
 		
-		if ( $pagexml->xpath("line") ) {
+		if ( $pagexml->xpath(".//line") ) {
 			$imgsrc = $pagexml['facs'];
+			$imgsrc = preg_replace("/^Facsimile\//", "" , $imgsrc );
 			if ( !strstr($imgsrc, "http") ) $imgsrc = "Facsimile/$imgsrc";
 			$maintext .= "<img src='$imgsrc' style='display: none;' id='facsimg'/>";
 			$maintext .= "<table style='width: 100%;' id='lines'>";
-			foreach ( $pagexml->xpath("line") as $line ) {
+			foreach ( $pagexml->xpath(".//line") as $line ) {
 				$nr++;
 		
-				$linetxt = $line->asXML();
-				$linetxt = preg_replace("/^<line[^>]*>|<\/line>$/", "", $linetxt);
 				$linenr = $line['n'] or $linenr = $line['id'];
-				
+								
 				$bb = explode ( " ", $line['bbox'] );
 				$divheight = $bb[3] - $bb[1];
+
+				$statbox = "<input type=hidden name=\"status[{$line['id']}]\" value=\"{$line['status']}\" id=\"linestat-{$line['id']}\"><span class=linestat  id=\"statbox-{$line['id']}\" tid=\"{$line['id']}\" style='cursor: pointer; width: 15px; height: 100%; background-color: #dddddd;' title='status: unverified' onClick=\"changestatus(this)\">&nbsp;</span> ";
+				if ( $line->xpath(".//tok") ) {
+					# Tokenize lines (probably via OCR)
+					$linetxt = $statbox;
+					foreach ( $line->xpath(".//tok") as $token ) {
+						$toktxt = $token."";
+						$boxlen = max(strlen($toktxt)+0, 2);
+						$toktxt = str_replace('"', "&quot;", $toktxt);
+						$linetxt .= "<input style='font-size: 16px; height: 30px; margin-bottom: 20px; margin-top: 5px;' name=\"tok[{$token['id']}]\" id='tok-{$token['id']}' size=$boxlen value=\"$toktxt\" onkeyup='chareq(this);'> ";
+					};
+
+					$helptxt = "Use || to split a token, and |~ at the end to merge it with the next";
+
+					// Add the data of the line
+					$maintext .= "\n<tr><td>
+					<div bbox='{$line['bbox']}' class='resize' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
+					$debug
+					<span tid='{$line['id']}'>$linetxt</span>
+					<input type=hidden name=\"bb[{$line['id']}]\" id='bb-{$line['id']}' style='width: 100%;' value=\"{$line['bbox']}\"/>
+					";
+				} else {
+					$linetxt = $line->asXML();
+					$linetxt = preg_replace("/^<line[^>]*>|<\/line>$/", "", $linetxt);
+
+					$helptxt = "Drag the corners of the facsimile cut-out to adjust the line";
+
+					// Add the data of the line
+					$maintext .= "\n<tr><td>
+					<div bbox='{$line['bbox']}' class='resize' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
+					<span style='margin-bottom: 20px;'>$statbox <textarea style='font-size: 16px; width: 96%; height: 30px;' name='ta[{$line['id']}]' id='line-{$line['id']}' onkeyup='chareq(this);' >$linetxt</textarea></span>
+					<input type=hidden name=\"bb[{$line['id']}]\" id='bb-{$line['id']}' style='width: 100%;' value=\"{$line['bbox']}\"/>
+					";
+
+				};
 						
-				// Add the data of the line
-				$maintext .= "\n<tr><td>
-				<div bbox='{$line['bbox']}' class='resize' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
-				<textarea style='font-size: 14pt; width: 99%; height: 30px; margin-bottom: 20px;' name='ta[{$line['id']}]'>$linetxt</textarea>
-				<input type=hidden name=\"bb[{$line['id']}]\" id='bb-{$line['id']}' style='width: 100%;' value=\"{$line['bbox']}\"/>
-				";
 			};
 			$maintext .= "</table>
 			<script language=Javascript>
@@ -333,18 +400,19 @@
 				for ( var i=0; i<linedivs.length; i++ ) {
 					var linediv = linedivs[i];
 					var bbox = linediv.getAttribute('bbox').split(' ');
+					// Never scale more than 50% up
+					var imgscale  = Math.min(1.5, linediv.offsetWidth/(bbox[2]-bbox[0]));
 
-					var biw = facsimg.naturalWidth*(linediv.offsetWidth/(bbox[2]-bbox[0]));
+					var biw = facsimg.naturalWidth*imgscale;
 					var bih = biw*(facsimg.naturalHeight/facsimg.naturalWidth);
-					var bix = bbox[0]*(linediv.offsetWidth/(bbox[2]-bbox[0]));
-					var biy = bbox[1]*(linediv.offsetWidth/(bbox[2]-bbox[0]));
+					var bix = bbox[0]*imgscale;
+					var biy = bbox[1]*imgscale;
 
-					linediv.style.height = linediv.offsetWidth*((bbox[3]-bbox[1])/(bbox[2]-bbox[0])) + 'px';
+					linediv.style.height = (bbox[3]-bbox[1])*imgscale + 'px';
 					linediv.style['background-size'] = biw+'px '+bih+'px';
 					linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';
 					linediv.setAttribute('orgbpos', '-'+bix+'px -'+biy+'px');
-					console.log(linediv);
-
+	
 				};
 			</script>
 			<script language=Javascript src='http://code.interactjs.io/v1.3.0/interact.min.js'></script>
@@ -370,8 +438,6 @@
 				x += event.deltaRect.left;
 				y += event.deltaRect.top;
 	
-				console.log(event);
-
 				target.style.webkitTransform = target.style.transform =
 					'translate(' + x + 'px,' + y + 'px)';
 	
@@ -397,7 +463,12 @@
 			  });
 
 			</script>	
-			<p>Drag the corners of the facsimile cut-out to adjust the line
+			<p>$helptxt
+			<span style='display: inline; float: right;'>
+				<span onClick='fontchange(-1);' id='font1' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='decrease font size'>A-</span>
+				<span onClick='fontchange(1);' id='font2' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='increase font size'>A+</span>
+				<span onClick='toggleconv();' id='conv' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='convert symbols as you type'>$ → ¶</span>
+			</span>
 		";
 		} else {	
 			if ( $pagexml['crop'] == "right"  ) 
@@ -423,11 +494,24 @@
 				</div>";
 						
 			};
+
+			foreach ( $settings['input']['replace'] as $key => $item ) {
+				$val = $item['value'];
+				$chareqjs .= "$sep $key = $val"; 
+				$charlist .= "ces['$key'] = '$val';";
+				$sep = ",";
+			};
+			$maintext .= "<script language=Javascript>
+				var ces = {};
+				$charlist
+				</script>";
+			$maintext .= "<script language=Javascript src='$jsurl/pagetrans.js'></script>";
+		
 			$maintext .="
 				<hr>
-				<p><input type='submit' value='Save page'> <input type=checkbox name=done value=1> Mark page as done
+				<p><input type='submit' value='Save page'> 
 
-				$noconvert
+				$noconvert $converttxt
 				- <a href='http://teitok.corpuswiki.org/site/index.php?action=help&id=pagetrans' target=help>Help</a>
 				- <a href='index.php?action=$action&cid=$ttxml->fileid&act=status'>Status</a>
 				- <a href='index.php?action=$action&act=conversions' target=help>Special characters</a>
@@ -449,7 +533,7 @@
 			if ( substr($file,0,1) != "." ) {
 				$done = 0; $tot = 0;
 				foreach ( explode("\n", shell_exec("grep '<page ' pagetrans/$file")) as $line ) {
-					if ( strstr($line, 'done="1"') != false ) $done++;
+					if ( strstr($line, 'status="2"') != false ) $done++;
 					$tot++;
 				};
 				$resp = shell_exec("grep 'n=\"transcription\"' pagetrans/$file");

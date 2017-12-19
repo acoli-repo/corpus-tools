@@ -261,13 +261,13 @@
 				<option value=2>image-based, 2 folios per page</option>
 				<option value='gs'>text-based, render with ghostscript</option>
 			</select>
-		<p>Number of initial pages to skip: <select name=offset><option value='0'>0</option><option value='1' selected>1</option><option value='2'>2</option><option value='3'>3</option><option value='4'>4</option></select>
+		<p>Number of initial pages to skip: <select name=offset><option value='0' selected>0</option><option value='1'>1</option><option value='2'>2</option><option value='3'>3</option><option value='4'>4</option></select>
 		";
 		
 		$maintext .= "<hr>
 		<h3>Post-processing</h3>
 
-		<p><input type=radio name=postprocess value=none> Create an empty XML files with page breaks
+		<p><input type=radio name=postprocess value=none> Create an empty TEI/XML files with page breaks
 		<p><input type=radio name=postprocess value=page checked> Create a file for page-by-page transcription
 		<p><input type=radio name=postprocess value=ocr> Process with Tesseract OCR tool
 		

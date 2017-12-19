@@ -40,7 +40,16 @@
 		window.onbeforeunload = null;
 		saveform.submit();
 	};
-	
+
+	function addlineblock(pagid) {
+		var newelm = document.createElement('lineblock');
+		newelm.setAttribute('id', 'newlb');
+		newelm.setAttribute('bbox', (imgdiv.offsetWidth * 0.05)/imgscale+' '+(imgdiv.offsetHeight * 0.05)/imgscale+' '+(imgdiv.offsetWidth * 0.95)/imgscale+' '+(imgdiv.offsetHeight * 0.95)/imgscale);
+		var baseelm = xmlDoc.getElementById(pagid);
+		baseelm.appendChild(newelm);
+		hlelm(newelm, 200,150,0);
+	};
+						
 	var shiftx = 0; var shifty = 10;
 	function hlelm ( elm, r, g, b ) {
 		var newelm = document.createElement('region');
@@ -170,27 +179,28 @@
   
 
 	function makelines ( ) {
-	    var bboxelm = xmlDoc.getElementById('lineblock');
+	    var bboxelm = xmlDoc.getElementById('newlb');
 	    var bbox = bboxelm.getAttribute('bbox').split(' ');
 	    var pagenode = bboxelm.parentNode;
+	    var lbid = 'lineb_'+xmlDoc.getElementsByTagName('lineblock').length;
+	    bboxelm.setAttribute('id', lbid);
 	    var linecnt = document.getElementById('linecnt').value*1;
 	    var lineheight = (bbox[3]-bbox[1])/linecnt;
 		var mtxt = document.getElementById('mtxt');
 	    for ( var i=0; i<linecnt; i++ ) {
 			var newelm = document.createElement('line');
-			newelm.setAttribute('id', 'line-'+pagenode.getAttribute('id')+'-'+(i+1));
+			newelm.setAttribute('id', lbid+'_'+(i+1));
 			var newtop = bbox[1]*1 + i*lineheight;
 			newelm.setAttribute('bbox', bbox[0]+' '+newtop+' '+bbox[2]+' '+(newtop+lineheight*0.98));
-			pagenode.appendChild(newelm);
+			bboxelm.appendChild(newelm);
 			// Also add to the MTXT since that is where we grab our regions for display from
 			var newelm = document.createElement('line');
-			newelm.setAttribute('id', 'newline-'+(i+1));
+			newelm.setAttribute('id', lbid+'_'+(i+1));
 			var newtop = bbox[1]*1 + i*lineheight;
 			newelm.setAttribute('bbox', bbox[0]+' '+newtop+' '+bbox[2]+' '+(newtop+lineheight*0.98));
 			mtxt.appendChild(newelm);
 	    };
-	    pagenode.removeChild(bboxelm);
-	    console.log(pagenode);
+	    // pagenode.removeChild(bboxelm);
 		showregions ('lb,l,line',0,0,255);
 	};
 

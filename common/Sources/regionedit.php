@@ -9,7 +9,8 @@
 	if ( $act == "save" ) {
 		
 		$xmlfolder = $_POST['xmlfolder'];
-		saveMyXML($_POST['rawxmlta'], $_POST['fileid']);
+		$newxml = preg_replace("/ xmlns=\"[^\"]*\"/", "", $_POST['rawxmlta']);
+		saveMyXML($newxml, $_POST['fileid']);		
 		print "<p>The file has been modified - reloading
 			<script language=Javascript>top.location='index.php?action=$action&cid={$_POST['fileid']}&pageid=$pageid';</script>";		
 	
@@ -211,27 +212,26 @@
 		$rawxml = $ttxml->rawtext;
 		if ( $tid ) $hltok = "tokhl('$highl', true);";
 
-		if ( $pagexml && preg_match("/<page[^>]*>\s*<\/page>|<page[^>]*\/>$/", $pagexml->asXML() ) ) {
+		if ( $_GET['morelines'] || ( $pagexml && preg_match("/<page[^>]*>\s*<\/page>|<page[^>]*\/>$/", $pagexml->asXML() ) ) ) {
+			if ( preg_match("/<page[^>]*>\s*<\/page>|<page[^>]*\/>$/", $pagexml->asXML() ))
+				 $newtext = "This page is still empty. To automatically generate lines, 					first drag the orange box around the text on the page, then indicate how many lines there
+					are on the page, and click generate; after that, you can adjust the exact position of the lines if needed.";
+			else $newtext = "To add another block of lines, drag the orange box around the text, select the number of lines in it, and click generate.  (<a href='index.php?action=$action&cid=$ttxml->filename&pageid={$pageid}'>Cancel</a>) ";
 			$toolbar = "
 				<div id='makelines' style='padding: 5px; width: 100%; '>
 					<h2>Create Lines</h2>
-					<p>This page is still empty. To automatically generate lines, 
-					first drag the orange box around the text on the page, then indicate how many lines there
-					are on the page, and click generate; after that, you can adjust the exact position of the lines if needed.
+					<p>$newtext  
 			
 					<p>Number of lines: <input size=4 name=linecnt id=linecnt value=20> <input type=button value='Generate' onClick='makelines();'>
 									<input type=button  onClick=\"savexml()\" value='Save'/>
 				</div>";
 				$pagid = $pagexml['id'];
-				$morescript = "
-					var newelm = document.createElement('lineblock');
-					newelm.setAttribute('id', 'lineblock');
-					newelm.setAttribute('bbox', (imgdiv.offsetWidth * 0.05)/imgscale+' '+(imgdiv.offsetHeight * 0.05)/imgscale+' '+(imgdiv.offsetWidth * 0.95)/imgscale+' '+(imgdiv.offsetHeight * 0.95)/imgscale);
-					var baseelm = xmlDoc.getElementById('$pagid');
-					baseelm.appendChild(newelm);
-					hlelm(newelm, 200,150,0)";
+				$morescript = " addlineblock('$pagid'); ";
 		} else {
-			if ( $pagetrans ) { $pagetranslink = "<span style='float: right; display: inline-block;'><a href='index.php?action=pagetrans&cid=$ttxml->filename&pageid={$pageid}'>Go to page-by-page transcription</a></span>"; };
+			if ( $pagetrans ) { $pagetranslink = "<span style='float: right; display: inline-block;'>
+				<a href='index.php?action=$action&cid=$ttxml->filename&pageid={$pageid}&morelines=1'>Add another block of lines</a> &bull;
+				<a href='index.php?action=pagetrans&cid=$ttxml->filename&pageid={$pageid}'>Go to page-by-page transcription</a>
+				</span>"; };
 			$toolbar = "
 			<div style='width: 100%; height: 50px;'>
 				<input type=button onClick=\"showregions('page,div,ab',255,255,0)\" value='Blocks' style='background-color: rgba(255,255,0,0.4);'/>
@@ -261,10 +261,10 @@
 		<form action='index.php?action=$action&act=save&pageid={$_GET['pageid']}' method=post id=xmlsave name=xmlsave>
 		<input type=hidden name=fileid value='$cid'>
 		<input type=hidden name=xmlfolder value='$xmlfolder'>
-		<textarea style='display: none;' name='rawxmlta' id='rawxmlta'></textarea>
-		</form>
 		<div id=imgdiv style=\"position: relative; float: left; border: 1px solid #660000; background-image: url('$img'); background-size: cover; width: 100%;\">
 		</div>
+		<textarea style='display: none; width: 100%; height: 400px; margin-top: 40px;' name='rawxmlta' id='rawxmlta'></textarea>
+		</form>
 		<style>
 		#mtxt tok:hover { background-color: rgba(220,220,0,0.4); text-shadow: none; }
 		#mtxt tok { color: rgba(0,0,0,0); cursor: pointer; }
