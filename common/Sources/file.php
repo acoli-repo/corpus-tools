@@ -865,10 +865,10 @@
 			$lvl = $item['level'];	
 			if ( $_GET['elm'] != $lvl && $key == "lb" ) {
 				$lvltxt = $item['display'] or $lvltxt = "Manuscript Line";
-				$maintext .= " &bull; <a href='index.php?action=lineview&cid=$fileid&pageid=$pageid'>{%{$lvltxt} view}</a>";
+				$maintext .= " &bull; <a href='index.php?action=lineview&cid=$fileid&pageid=$pageid&jmp={$_GET['jmp']}'>{%{$lvltxt} view}</a>";
 			} else if ( $_GET['elm'] != $lvl && $key == "tok" ) {
 				$lvltxt = $item['display'] or $lvltxt = "Facsimile Line";
-				$maintext .= " &bull; <a href='index.php?action=facsview&cid=$fileid&pageid=$pageid'>{%Facsimile view}</a>";
+				$maintext .= " &bull; <a href='index.php?action=facsview&cid=$fileid&pageid=$pageid&jmp={$_GET['jmp']}'>{%Facsimile view}</a>";
 			} else if ( $_GET['elm'] != $lvl && strstr($editxml, "<$key ") ) {
 				if ( !$_GET['id'] ) { $cidu = "&id=$fileid"; };
 				$lvltxt = $item['display'] or $lvltxt = "Sentence";

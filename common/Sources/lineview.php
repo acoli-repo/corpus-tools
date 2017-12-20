@@ -8,6 +8,10 @@
 	$ttxml = new TTXML();
 	$fileid = $ttxml->fileid;
 
+	$highl = $_GET['tid'] or $highl = $_GET['jmp'];
+	$tmp = explode(" ", $highl);
+	$tid = $tmp[0];	
+
 	if ( $act == "save" ) {
 		foreach ( $_POST['bbox'] as $key => $bbox ) {
 			$elm = current($ttxml->xml->xpath("//lb[@id='$key'] | //l[@id='$key']"));
@@ -32,64 +36,21 @@
 		$maintext .= "<h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();
 
-		$pbxpath = "//pb";
-		$pageid = $_GET['pageid'] or $pageid = $_GET['pid'];
-		if ( $pageid ) { $pbxpath .= "[@id='{$pageid}']"; };
-		$curr = current($ttxml->xml->xpath($pbxpath)); $pid = $curr['id'];
-
-		$imgsrc = $curr['facs']; 
-		if ( strpos($imgsrc, "http" ) === false ) $imgsrc = "Facsimile/$imgsrc";
-
-		list($imgwidth, $imgheight, $imgtype, $imgattr) = getImageSize($imgsrc);
-		$divwidth = 500;
-		$divheight = $divwidth*($imgheight/$imgwidth);
-		
-		if ( $divheight > 300 ) {
-			$divheight = 200;
-			$divwidth = $divheight*($imgwidth/$imgheight);
-		};
-		$imgscale = $divwidth/$imgwidth;
-	
-		$next = current($curr->xpath("following::pb"));
-		if ( $next['n'] ) { 
-			$nxp = " and following::pb[@id='{$next['id']}']"; 
-			$nnav = "<a href='index.php?action=$action&act=$act&cid=$fileid&pageid={$next['id']}'>> {$next['n']}</a> ";
-		} else	if ( $next['id'] ) { 
-			$nxp = " and following::pb[@id='{$next['id']}']"; 
-			$nnav = "<a href='index.php?action=$action&act=$act&cid=$fileid&pageid={$next['id']}'>> [{$next['id']}]</a> ";
-		};
-		
-		if ( !$onlylb ) $lbxpath = "//lb[preceding::pb[@id='{$curr['id']}']$nxp] | //l[preceding::pb[@id='{$curr['id']}']$nxp]"; 
-		else $lbxpath = "//lb[preceding::pb[@id='{$curr['id']}']$nxp]"; 
-	
-		$prev = current($curr->xpath("preceding::pb"));
-		if ( $prev['n'] ) { 
-			$bnav = "<a href='index.php?action=$action&act=$act&cid=$fileid&pageid={$prev['id']}'>{$prev['n']} <</a> ";
-		} else	if ( $prev['id'] ) { 
-			$bnav = "<a href='index.php?action=$action&act=$act&cid=$fileid&pageid={$prev['id']}'>[{$prev['id']}] <</a> ";
-		};
-
-		$folionr = $curr['n'] or $folionr = $curr['id'];
+		$editxml = $ttxml->page();
 
 		# Build the page navigation
-		$maintext .= "<table style='width: 100%'><tr> 
-						<td style='width: 33%' align=left>$bnav
-						<td style='width: 33%' align=center>{%Folio} $folionr
-						<td style='width: 33%' align=right>$nnav
-						</table>
-						<hr>
-						";
+		$maintext .= $ttxml->pagenav;
 
 		if ( $act == "edit" ) {
 		
 			check_login();
 		$divwidth = 500;
-		$divheight = $divwidth*($imgheight/$imgwidth);
+		$divheight = 200;
 		
 			// A float makes that the items are not visible at the same time, while fixed would not work well for 2-up 
 			// and needs a different logic (scroll offset)
 			$maintext .= "
-				<div id=\"facsimg\" style='position: fixed; right: 10px; top: 50px; width: {$divwidth}px; height: {$divheight}px; background-image: url($imgsrc); background-size: 100% 100%;'>
+				<div id=\"facsimg\" style='position: fixed; right: 10px; top: 50px; width: {$divwidth}px; height: {$divheight}px; background-image: url($ttxml->facsimg); background-size: 100% 100%;'>
 				<div id='hlbar' class='hlbar' style='display: none;'></div>
 				</div>
 				<script language=Javascript src=\"$jsurl/bbox.js\"></script>
@@ -143,7 +104,7 @@
 				</form>
 
 			<hr><p>
-				<a href='index.php?action=file&cid={$ttxml->fileid}&pageid={$_GET['pageid']}'>{%Text view}</a>
+				<a href='index.php?action=file&cid={$ttxml->fileid}&pageid={$_GET['pageid']}&jmp={$_GET['jmp']}'>{%Text view}</a>
 				$facsview
 				&bull; <a href='index.php?action=lineview&cid={$ttxml->fileid}'>{%Line view}</a>
 				";
@@ -185,59 +146,35 @@
 				};
 			};
 
+			$maintext .= "<img src='$ttxml->facsimg' style='display: none;' id='facsimg'/>";
 			$maintext .= "
 				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 				<table id=mtxt style='width: 100%;'>";
 
-			foreach ( $ttxml->xml->xpath($lbxpath) as $lb ) {
-				$bb = explode ( " ", $lb['bbox'] );
-				$cropwidth = $bb[2]-$bb[0];
-				if ( $cropwidth ) { $maxwidth = max($cropwidth, $maxwidth); };
-			}; 
-			if ( $maxwidth ) { $imgscale = (700/$maxwidth); };
-							
-			foreach ( $ttxml->xml->xpath($lbxpath) as $lb ) {
-				$nr++;
-		
-				// Parse the actual line
-				$lbxml = $lb->asXML(); $linexml = htmlentities($lbxml);
-				$linenr = $lb['n'] or $linenr = "[$nr]"; $lineimg = "";
-				
-				// Get the line text 
-				if ( $lb->getName() == "l" ) {
-					$linetxt = $lb->asXML();
-					$linetxt = preg_replace("/<lb .*/smi", "", $linetxt);
-				} else {
-					$linetxt = ""; $lineimg = "";
-					$linepos = strpos($ttxml->rawtext, $lbxml);
-					$nextlb = strpos($ttxml->rawtext, "<lb", $linepos+1);
-					$nextpb = strpos($ttxml->rawtext, "<pb", $linepos+1);
-					$lineend = min($nextlb, $nextpb) or $lineend = $nextlb or $lineend = $nextpb;
-					if ( !$lineend ) $lineend = strpos($ttxml->rawtext, "</text", $linepos+1);
-					$linetxt = substr($ttxml->rawtext, $linepos, $lineend-$linepos);
-					if ( $onlylb ) {
-						$linetxt = preg_replace("/<l [^>]+>/smi", "", $linetxt);
-						$linetxt = preg_replace("/<lg[^>]*>/smi", "", $linetxt);
-						$linetxt = preg_replace("/<p [^>]+>/smi", "", $linetxt);
-					} else $linetxt = preg_replace("/<l .*/smi", "", $linetxt);
-				};
+			# Display all the <lb> and/or <l> in this page
+			if ( $onlylb ) $lb = "<lb "; else $lb = "<lb? ";
+			preg_match_all("/$lb/", $editxml, $matches, PREG_OFFSET_CAPTURE);
+			foreach ( $matches[0] as $i => $tmp ) {
+				$cpos = $tmp[1]; $npos = $matches[0][$i+1][1];
+				$linetxt = substr($editxml, $cpos, $npos-$cpos);
 
-				$maintext .= "<img src='$imgsrc' style='display: none;' id='facsimg'/>";
+				if ( preg_match("/^[^>]+id=\"([^\"]+)\"/", $linetxt, $matches2 ) ) { $lineid = $matches2[1]; } else $lineid = "";
 				
-				// If there are bounding box data, proceed to crop
-				if ( $lb['bbox'] ) {
-							
-					$bb = explode ( " ", $lb['bbox'] );
+				if ( preg_match("/^[^>]+bbox=\"([^\"]+)\"/", $linetxt, $matches2 ) ) {
+					$bbox = $matches2[1];
+					$bb = explode ( " ", $bbox );
 					$divheight = $bb[3] - $bb[1];
-						
 					// Add the data of the line
 					$lineimg = "\n
-					<div bbox='{$lb['bbox']}' class='linediv' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
+					<div bbox='$bbox' class='linediv' id='reg_$lineid' tid='$lineid' style='width: 100%; height: {$divheight}px; background-image: url(\"$ttxml->facsimg\"); background-size: cover;'></div>
 					";
 
-				};
-				$maintext .= "\n<tr><th title=\"{$lb['id']}\">$linenr<td>$lineimg<div style='padding: 3px; margin-top: 5px; background-color: #eeeeee;'>$linetxt</div>";
-			};
+				} else $lineimg = "";
+				$maintext .= "\n<tr><th title=\"$lineid\">$linenr<td>$lineimg<div style='padding: 3px; margin-top: 5px; background-color: #eeeeee;'>$linetxt</div>";
+			}; 
+
+			if ( $highl ) $hltok = "highlight('$highl', true);";
+			
 			$maintext .= "</table>
 							<script language=Javascript>
 								var facsimg = document.getElementById('facsimg');
@@ -253,6 +190,7 @@
 									var bix = bbox[0]*imgscale;
 									var biy = bbox[1]*imgscale;
 
+									linediv.style.width = (bbox[2]-bbox[0])*imgscale + 'px'; // We might have made the div too wide
 									linediv.style.height = (bbox[3]-bbox[1])*imgscale + 'px';
 									linediv.style['background-size'] = biw+'px '+bih+'px';
 									linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';
@@ -271,10 +209,21 @@
 								formify(); 
 								var orgXML = document.getElementById('mtxt').innerHTML;
 								setForm('pform');
+								var jmps = '$highl'; var jmpid;
+								if ( jmps ) { 
+									var jmpar = jmps.split(' ');
+									for (var i = 0; i < jmpar.length; i++) {
+										var jmpid = jmpar[i];
+										highlight(jmpid, '$hlcol');
+									};
+									element = document.getElementById(jmpar[0])
+									alignWithTop = true;
+									if ( typeof(element) != null ) { element.scrollIntoView(alignWithTop); };
+								};
 							</script>
 
-			<hr><p><a href='index.php?action=file&cid={$ttxml->fileid}&pageid={$curr['id']}'>{%Text view}</a>";
-			if ( $settings['xmlfile']['sattributes']['tok'] ) $maintext .= " &bull; <a href='index.php?action=facsview&cid={$ttxml->fileid}&pageid={$_GET['pageid']}'>{%Facsimile view}</a>";
+			<hr><p><a href='index.php?action=file&cid={$ttxml->fileid}&pageid={$curr['id']}&jmp={$_GET['jmp']}'>{%Text view}</a>";
+			if ( $settings['xmlfile']['sattributes']['tok'] ) $maintext .= " &bull; <a href='index.php?action=facsview&cid={$ttxml->fileid}&pageid={$_GET['pageid']}&jmp={$_GET['jmp']}'>{%Facsimile view}</a>";
 
 			if ( $username ) 
 				$maintext .= " &bull;

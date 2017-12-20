@@ -38,7 +38,7 @@ function hidetokinfo() {
 	if ( document.getElementById('tokinfo') ) {
 		document.getElementById('tokinfo').style.display = 'none';
 	};
-	if ( typeof(hlbar) != "undefined" ) {
+	if ( typeof(hlbar) != "undefined" && typeof(facsdiv) != "undefined" ) {
 		hlbar.style.display = 'none';
 		var tmp = facsdiv.getElementsByClassName('hlbar'+hln);
 	};

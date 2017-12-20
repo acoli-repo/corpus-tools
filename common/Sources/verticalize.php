@@ -3,6 +3,7 @@
 	// (c) Maarten Janssen, 2015
 
 	check_login();
+	set_time_limit(60);
 	
 	$fileid = $_POST['id'] or $fileid = $_GET['id'] or $fileid = $_GET['cid'];	
 	$xml = getxmlfile($fileid);

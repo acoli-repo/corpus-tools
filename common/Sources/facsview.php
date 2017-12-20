@@ -21,104 +21,7 @@
 	$tmp = explode(" ", $highl);
 	$tid = $tmp[0];	
 
-	if ( 1==1 ) { # Grab the page
-		$pbelm = "pb";
-		$titelm = "Page";
-		$pbtype = "pb";
-		$pbsel = "&pbtype={$_GET['pbtype']}";
-
-		if ( $_GET['pageid'] ) {
-			$pb = "<$pbelm id=\"{$_GET['pageid']}\"";
-			$pidx = strpos($editxml, $pb);
-		} else if ( $tid ) {
-			$tokidx = strpos($editxml, "id=\"$tid\"");
-			$pb = "<$pbelm";
-			$pidx = rstrpos($editxml, $pb, $tokidx);
-		} else {
-			$pb = "<$pbelm";
-			$pidx = strpos($editxml, $pb);
-		};
-		
-		if ( !$pidx || $pidx == -1 ) { 
-			# When @n is not the first attribute, we cannot use strpos - try regexp instead (slower)
-			if ( $_GET['pageid'] ) {
-				preg_match("/<$pbelm [^>]*id=\"{$_GET['pageid']}\"/", $editxml, $matches, PREG_OFFSET_CAPTURE, 0);
-			} else {
-				preg_match("/<$pbelm [^>]*n=\"{$_GET['page']}\"/", $editxml, $matches, PREG_OFFSET_CAPTURE, 0);
-			};
-			$pidx = $matches[0][1];
-		};
-		if ( !$pidx || $pidx == -1 ) { fatal ("No such $pbelm in XML: {$_GET['page']} {$_GET['pageid']}"); };
-
-		
-		# Find the next page/chapter (for navigation, and to cut off editXML)
-		$nidx = strpos($editxml, "<$pbelm", $pidx+1); 
-		if ( !$nidx || $nidx == -1 ) { 
-			$nidx = strpos($editxml, "</text", $pidx+1); $nnav = "";
-		} else {
-			$nidy = strpos($editxml, ">", $nidx); 
-			$tmp = substr($editxml, $nidx, $nidy-$nidx ); 
-			 
-			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $npid = $matches[1]; };
-			if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) { $npag = $matches[1]; };
-			
-			if ( $npid ) $nnav = "<a href='index.php?action=$action&cid=$fileid&pageid=$npid&pbtype={$_GET['pbtype']}'>> $npag</a>";
-			else $nnav = "<a href='index.php?action=$action&cid=$fileid&pageid=$npag'>> $npag</a>";
-		};
-		
-		# Find the previous page/chapter (for navigation)
-		$bidx = rstrpos($editxml, "<$pbelm ", $pidx-1); 
-		if ( !$bidx || $bidx == -1 ) { 
-			$bidx = strpos($editxml, "<text", 0); $bnav = "<a href='index.php?action=pages&cid=$fileid$pbsel'>{%index}</a>";
-		} else {
-			$tmp = substr($editxml, $bidx, 150 ); 
-			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $bpid = $matches[1]; };
-			if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) { $bpag = $matches[1]; } else { $bpag = ""; };
-			if ( $bpid  )  $bnav = "<a href='index.php?action=$action&cid=$fileid&pageid=$bpid$pbsel'>$bpag <</a> ";
-			else $bnav = "<a href='index.php?action=$action&cid=$fileid&page=$bpag'>$bpag <</a>";
-			if ( !$firstpage ) { $bnav = "<a href='index.php?action=pages&cid=$fileid$pbsel'>{%index}</a> &nbsp; $bnav"; };
-		};
-
-		// when pbelm != pb, grab the <pb/> from just before the milestone
-		if ( $pb && $pbelm != "pb") {
- 			if ( strpos($editxml, "<tok", $pidx) < strpos($editxml, "<pb", $pidx) ) {
- 				$bpb1 = rstrpos($editxml, "<pb ", $pidx-1); 
- 				$bpb2 = strpos($editxml, ">", $bpb1);
- 				$len = ($bpb2-$bpb1)+1;
-				$facspb = substr($editxml, $bpb1, $len); 
- 			};
-		};		
-		
-		$span = $nidx-$pidx;
-		$editxml = $facspb.substr($editxml, $pidx, $span); 
-
-		$editxml = preg_replace("/<lb([^>]+)\/>/", "<lb\\1></lb>", $editxml);
-		
-		if ( $_GET['page'] ) $folionr = $_GET['page']; // deal with pageid
-		else if ( $_GET['pageid'] ) {
-			if ( preg_match("/<$pbelm [^>]*n=\"(.*?)\"[^>]*id=\"{$_GET['pageid']}\"/", $editxml, $matches ) 
-				|| preg_match("/<$pbelm [^>]*id=\"{$_GET['pageid']}\"[^>]*n=\"([^\"]+)\"/", $editxml, $matches ) ) 
-					$folionr = $matches[1];
-		} else if ( preg_match("/<$pbelm [^>]*n=\"(.*?)\"/", $tmp, $matches ) ) {
-			$folionr = $matches[1]; 
-		};
-
-		if ( preg_match("/<$pbelm [^>]*facs=\"(.*?)\"/", $editxml, $matches ) ) {
-			$img = $matches[1];
-			if ( !preg_match("/^(http|\/)/", $img) ) $img = "Facsimile/$img";
-		};
-		
-		if ( $pbelm == "pb" ) $foliotxt = "{%Folio}";
-		
-		# Build the page navigation
-		$pagenav = "<table style='width: 100%'><tr> <!-- /<$pbelm [^>]*id=\"{$_GET['pageid']}\"[^>]*n=\"(.*?)\"/ -->
-						<td style='width: 33%' align=left>$bnav
-						<td style='width: 33%' align=center>$foliotxt $folionr
-						<td style='width: 33%' align=right>$nnav
-						</table>
-						<hr> 
-						";
-	};
+	$editxml = $ttxml->page($_GET['pageid'], $tid);
 
 		#Build the view options	
 		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
@@ -150,9 +53,9 @@
 	$maintext .= "
 	<script language=Javascript>var imgloaded = 0;</script>
 	<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 300;'></div>
-	$pagenav
-	<img id=facs src='$img' style='display: none;' onload='imgloaded=1;'/>
-	<div id=imgdiv style=\"position: relative; float: left; border: 1px solid #660000; background-image: url('$img'); background-size: cover; width: 100%;\">
+	$ttxml->pagenav
+	<img id=facs src='$ttxml->facsimg' style='display: none;' onload='imgloaded=1;'/>
+	<div id=imgdiv style=\"position: relative; float: left; border: 1px solid #660000; background-image: url('$ttxml->facsimg'); background-size: cover; width: 100%;\">
 	<div id=mtxt $editxml</div>
 	</div>
 	<div style='display: block; position: inline; text-align: right; z-index: 600;'>
@@ -266,6 +169,8 @@
 	<br style='clear: both; margin-top: 10px; margin-top: 10px;'/>
 	<hr>
 	<a href='index.php?action=file&cid=$fileid&tid={$_GET['tid']}&pageid={$_GET['pageid']}&jmp=$tid'>{%Text view}</a>
+	&bull;
+	<a href='index.php?action=lineview&cid=$fileid&tid={$_GET['tid']}&pageid={$_GET['pageid']}&jmp=$tid'>{%Manuscript line view}</a>
 	";
 	
 ?>

@@ -120,7 +120,7 @@
 		sleep(2);
 
 		# Run the pdf2tei.pl script in the background
-		$cmd = "perl ../common/Scripts/pdf2tei.pl --parse={$_POST['postprocess']} --pagtype={$_POST['pagtype']} --offset={$_POST['offset']} --input=$fileid.pdf > /dev/null &";
+		$cmd = "perl ../common/Scripts/pdf2tei.pl --parse={$_POST['postprocess']} --retok --pagtype={$_POST['pagtype']} --offset={$_POST['offset']} --input=$fileid.pdf > /dev/null &";
 		fwrite($logfile, "Running post-command:\n$cmd\n");
 		fclose($logfile);
 

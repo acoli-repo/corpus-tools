@@ -64,6 +64,10 @@
 		$filename = "pagetrans/".$ttxml->filename;
 		file_put_contents($filename, $ttxml->xml->asXML());
 
+		if ( $_POST['tok'] ) {
+			shell_exec("perl $ttroot/common/Scripts/bboxretok.pl $filename");
+		};
+
 		print "Changes have been saved
 			<script language=Javascript>top.location='index.php?action=$action&cid=$ttxml->fileid$pagejump';</script>"; exit;
 	
@@ -384,9 +388,9 @@
 					$helptxt = "Drag the corners of the facsimile cut-out to adjust the line";
 
 					// Add the data of the line
-					$maintext .= "\n<tr><td>
-					<div bbox='{$line['bbox']}' class='resize' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
-					<span style='margin-bottom: 20px;'>$statbox <textarea style='font-size: 16px; width: 96%; height: 30px;' name='ta[{$line['id']}]' id='line-{$line['id']}' onkeyup='chareq(this);' >$linetxt</textarea></span>
+					$maintext .= "\n<tr><td style='padding-bottom: 20px;'>
+					<div bbox='{$line['bbox']}'  rotate='{$line['rotate']}' class='resize' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
+					<span style='margin-bottom: 20px;'>$statbox <textarea style='font-size: 16px; width: 96%; height: 30px; margin-top: 5px;' name='ta[{$line['id']}]' id='line-{$line['id']}' onkeyup='chareq(this);' >$linetxt</textarea></span>
 					<input type=hidden name=\"bb[{$line['id']}]\" id='bb-{$line['id']}' style='width: 100%;' value=\"{$line['bbox']}\"/>
 					";
 
@@ -408,6 +412,7 @@
 					var bix = bbox[0]*imgscale;
 					var biy = bbox[1]*imgscale;
 
+					linediv.style.width = (bbox[2]-bbox[0])*imgscale + 'px'; // We might have made the div too wide
 					linediv.style.height = (bbox[3]-bbox[1])*imgscale + 'px';
 					linediv.style['background-size'] = biw+'px '+bih+'px';
 					linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';

@@ -1,5 +1,10 @@
 <?php
 
+	# A tool to easily deploy a (non-nested) XML file as a table
+	# Provide sort, search, and select - customizable
+	# You can also add and edit items as admin
+	# (c) Maarten Janssen, 2017
+
 	if ( !$xmlfile ) {
 		if ( !$xmlid ) $xmlid = $_GET['xmlid'] or $xmlid = $_SESSION['xmlid'];
 		
@@ -440,7 +445,7 @@
 					$vals = $sep = "";
 					$prevq = $_GET['q']; 
 					foreach ( explode ( ", ", $val ) as $tmp ) { 
-						$vals .= $sep."<a class=black href='index.php?action=$action&q=$key:$tmp;$prevq'>$tmp</a>"; $sep = ", ";
+						$vals .= $sep."<a class='black' href='index.php?action=$action&q=$key:$tmp;$prevq'>$tmp</a>"; $sep = ", ";
 					};
 					$val = $vals;
 				};
@@ -457,7 +462,7 @@
 			if ( !$fldrec['list'] ) continue;
 			$key = $fldrec->getName();
 			$val = $fldrec."";
-			$maintext .= "<th><a href='index.php?action=$action&sort=$key' style='color: black'>{%$val}</a>";
+			$maintext .= "<th><a href='index.php?action=$action&sort=$key' class='black'>{%$val}</a>";
 		}; $num = count($arraylines);
 		if ( $totnum > $num ) $showing = " - {%showing} 1-$maxnum";
 		$maintext .= join("\n", $arraylines)."</table><hr><p>$totnum {%results} $showing

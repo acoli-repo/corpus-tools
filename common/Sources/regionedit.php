@@ -42,7 +42,7 @@
 		$xml = simplexml_load_string($nons);
 
 		# Find the page in the XML
-		if ( $xml->xpath("//page") ) {
+		if ( $xml->xpath(".//page") ) {
 			$pageid = $_GET['pageid'] or $pageid = $_GET['page'] or $pageid = $_GET['pid'];
 			if ( $pageid ) $pagexp = "//text/page[@id='$pageid']";
 			else $pagexp = "//text/page[not(@empty) and not(@done)]";

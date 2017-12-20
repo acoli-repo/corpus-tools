@@ -58,7 +58,7 @@
   		$menu .= "<hr>user: <a href='index.php?action=user'>{$user['short']}</a><hr>";
   		$tmp = ""; if ( $action == "admin" ) $tmp = "class=\"selected\""; 
   		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=admin' $tmp>Admin</a></ul>";
-  		$menu .= "<ul style='text-align: left'><li><a target=help href='http://teitok.corpuswiki.org/site/index.php?action=help' $tmp>Help</a></ul>";
+  		$menu .= "<ul style='text-align: left'><li><a target=help href='http://www.teitok.org/index.php?action=help' $tmp>Help</a></ul>";
   		if ( count(scandir("pagetrans")) > 2 ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=pagetrans'>Page-by-Page</a></ul>"; 
   		$tmp = ""; if ( $action == "files" ) $tmp = "class=\"selected\""; 
   		if ( file_exists("xmlfiles") ) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";

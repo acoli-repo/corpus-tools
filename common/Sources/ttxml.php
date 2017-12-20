@@ -15,6 +15,9 @@ class TTXML
 	var $rawtext;
 	var $title;
 	
+	public $pagnav; # The page navigation bar
+	public $facsimg; # The facsimile image for the page
+
 	function __construct($fileid = "", $fatal = 1, $options ) {	
 		global $xmlfolder;
 		
@@ -214,6 +217,7 @@ class TTXML
 	}
 	
 	function context( $tokid ) {
+		# Return a restricted part of the text
 		global $settings;
 		$tmp = $this->xml->xpath("//*[@id='$tokid']"); $token = $tmp[0];
 		if ( !$token ) return "";
@@ -233,6 +237,117 @@ class TTXML
 		};
 		
 		return $context;
+	}
+	
+	function page ( $pagid, $id ) {
+		global $action;
+		
+		$editxml = $this->rawtext;
+	
+		# Return the xml for a page of the text
+		$pbelm = "pb";
+		$titelm = "Page";
+		$pbtype = "pb";
+		$pbsel = "&pbtype={$_GET['pbtype']}";
+
+		if ( !$pagid ) $pagid = $_GET['pageid'];
+		if ( !$tid ) $tid = $_GET['tid'] or $tid = $_GET['jmp'];
+
+		if ( $pagid ) {
+			$pb = "<$pbelm id=\"$pagid\"";
+			$pidx = strpos($editxml, $pb);
+		} else if ( $tid ) {
+			$tokidx = strpos($editxml, "id=\"$tid\"");
+			$pb = "<$pbelm";
+			$pidx = rstrpos($editxml, $pb, $tokidx);
+		} else {
+			$pb = "<$pbelm";
+			$pidx = strpos($editxml, $pb);
+		};
+		
+		if ( !$pidx || $pidx == -1 ) { 
+			# When @n is not the first attribute, we cannot use strpos - try regexp instead (slower)
+			if ( $pagid ) {
+				preg_match("/<$pbelm [^>]*id=\"$pagid\"/", $editxml, $matches, PREG_OFFSET_CAPTURE, 0);
+			} else {
+				preg_match("/<$pbelm [^>]*n=\"{$_GET['page']}\"/", $editxml, $matches, PREG_OFFSET_CAPTURE, 0);
+			};
+			$pidx = $matches[0][1];
+		};
+		if ( !$pidx || $pidx == -1 ) { fatal ("No such $pbelm in XML: $pagid"); };
+
+		
+		# Find the next page/chapter (for navigation, and to cut off editXML)
+		$nidx = strpos($editxml, "<$pbelm", $pidx+1); 
+		if ( !$nidx || $nidx == -1 ) { 
+			$nidx = strpos($editxml, "</text", $pidx+1); $nnav = "";
+		} else {
+			$nidy = strpos($editxml, ">", $nidx); 
+			$tmp = substr($editxml, $nidx, $nidy-$nidx ); 
+			 
+			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $npid = $matches[1]; };
+			if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) { $npag = $matches[1]; };
+			
+			if ( $npid ) $nnav = "<a href='index.php?action=$action&cid=$this->fileid&pageid=$npid&pbtype=$pbtype'>> $npag</a>";
+			else $nnav = "<a href='index.php?action=$action&cid=$this->fileid&pageid=$npag'>> $npag</a>";
+		};
+		
+		# Find the previous page/chapter (for navigation)
+		$bidx = rstrpos($editxml, "<$pbelm ", $pidx-1); 
+		if ( !$bidx || $bidx == -1 ) { 
+			$bidx = strpos($editxml, "<text", 0); $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
+		} else {
+			$tmp = substr($editxml, $bidx, 150 ); 
+			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $bpid = $matches[1]; };
+			if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) { $bpag = $matches[1]; } else { $bpag = ""; };
+			if ( $bpid  )  $bnav = "<a href='index.php?action=$action&cid=$this->fileid&pageid=$bpid$pbsel'>$bpag <</a> ";
+			else $bnav = "<a href='index.php?action=$action&cid=$this->fileid&page=$bpag'>$bpag <</a>";
+			if ( !$firstpage ) { $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a> &nbsp; $bnav"; };
+		};
+
+		// when pbelm != pb, grab the <pb/> from just before the milestone
+		if ( $pb && $pbelm != "pb") {
+ 			if ( strpos($editxml, "<tok", $pidx) < strpos($editxml, "<pb", $pidx) ) {
+ 				$bpb1 = rstrpos($editxml, "<pb ", $pidx-1); 
+ 				$bpb2 = strpos($editxml, ">", $bpb1);
+ 				$len = ($bpb2-$bpb1)+1;
+				$facspb = substr($editxml, $bpb1, $len); 
+ 			};
+		};		
+		
+		$span = $nidx-$pidx;
+		$editxml = $facspb.substr($editxml, $pidx, $span); 
+
+		$editxml = preg_replace("/<lb([^>]+)\/>/", "<lb\\1></lb>", $editxml);
+		
+		if ( $_GET['page'] ) $folionr = $_GET['page']; // deal with pageid
+		else if ( $pagid ) {
+			if ( preg_match("/<$pbelm [^>]*n=\"(.*?)\"[^>]*id=\"$pagid\"/", $editxml, $matches ) 
+				|| preg_match("/<$pbelm [^>]*id=\"$pagid\"[^>]*n=\"([^\"]+)\"/", $editxml, $matches ) ) 
+					$folionr = $matches[1];
+		} else if ( preg_match("/<$pbelm [^>]*n=\"(.*?)\"/", $tmp, $matches ) ) {
+			$folionr = $matches[1]; 
+		};
+
+		if ( preg_match("/<$pbelm [^>]*facs=\"(.*?)\"/", $editxml, $matches ) ) {
+			$img = $matches[1];
+			if ( !preg_match("/^(http|\/)/", $img) ) $img = "Facsimile/$img";
+		};
+		
+		$this->facsimg = $img;
+		
+		if ( $pbelm == "pb" ) $foliotxt = "{%Folio}";
+		
+		# Build the page navigation
+		$this->pagenav = "<table style='width: 100%'><tr> <!-- /<$pbelm [^>]*id=\"$pagid\"[^>]*n=\"(.*?)\"/ -->
+						<td style='width: 33%' align=left>$bnav
+						<td style='width: 33%' align=center>$foliotxt $folionr
+						<td style='width: 33%' align=right>$nnav
+						</table>
+						<hr> 
+						";
+		
+		return $editxml;
 	}
 
 	function save() {

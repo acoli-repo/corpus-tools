@@ -9,6 +9,7 @@ $\ = "\n"; $, = "\n";
             'debug' => \$debug, # debugging mode
             'test' => \$test, # test mode
             'force' => \$force, # force retreating
+            'retok' => \$retok, # retokenize after OCR
             'lang=s' => \$langid, # language to use for OCR
             'input=s' => \$input, # name of the PDF file
             'parse=s' => \$parsetype, # retreat an XML from HTML
@@ -300,6 +301,10 @@ print FILE $xmltxt;
 close FILE;
 print "Saved file to $xmlfile";
 print "DONE";
+
+if ( $retok ) {
+	`perl xmlrenumber.pl $xmlfile`;
+};
 
 # This does not seem to work - and is it useful?
 # `perl ../common/Scripts/xmlrenumber.pl $xmlfiles/$filename.xml`;
