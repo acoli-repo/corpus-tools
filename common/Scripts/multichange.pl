@@ -35,6 +35,7 @@ print OUTFILE "\n<p>Process started: ".localtime."<hr>";
 
 foreach $file ( $changexml->findnodes("//files/file") ) {
 	$filename = $file->getAttribute("id");
+		print "Treating: $filename";
 	if ( $filename =~ /([^\/]+)\.xml/ ) { $fileid = $1; };
 	print OUTFILE "<p>File: <a href=\"index.php?action=file&cid=$fileid\">$filename</a>";
 	$xml = $parser->load_xml(location => $filename);
@@ -43,6 +44,7 @@ foreach $file ( $changexml->findnodes("//files/file") ) {
 	$changed = 0;
 	foreach $tok ( $file->findnodes("tok") ) {
 		$tokid = $tok->getAttribute("id");
+		print "Treating: $tokid";
 		@tmp = $xml->findnodes("//*[\@id=\"$tokid\"]"); 
 		if ( !@tmp ) { print OUTFILE "Token not found: $tokid"; next; }
 		$token = $tmp[0];
@@ -54,9 +56,12 @@ foreach $file ( $changexml->findnodes("//files/file") ) {
 			$token->setAttribute($ch->getAttribute("key"), $ch->getAttribute("val"));
 			$changed = 1;
 		};
-		foreach $ch ( $changexml->findnodes("change") ) {
+		foreach $ch ( $tok->findnodes("change") ) {
 			$token->setAttribute($ch->getAttribute("key"), $ch->getAttribute("val"));
 			$changed = 1;
+			print " - Changing: ".$ch->getAttribute("key")." = ".$ch->getAttribute("val");
+			
+			print OUTFILE "<p>    * ".$ch->getAttribute("key")." = ".$ch->getAttribute("val");
 		};
 		print OUTFILE "<p> - Token: <a href=\"index.php?action=file&cid=$fileid&jmp=$tokid\">$tokid</a>"; # = ".$token->toString;
 	};
