@@ -17,13 +17,18 @@ print OUTFILE "\n<h2>Multiple Token Edit Process</h2>";
 if ( !$changexml ) {  print OUTFILE "<p>Process failed: failed to load pid file: $pid"; close OUTFILE; exit; };
 
 $query = $changexml->findnodes("//query")."";
-print OUTFILE "\n<p>Underlying query: <a href='index.php?action=cqp&cql=$query'>$query</a>";
+if ( $query ne "" ) {
+	print OUTFILE "\n<p>Underlying query: <a href='index.php?action=cqp&cql=$query'>$query</a>";
 
-print OUTFILE "\n<p>Changes to be made:<ul>";
-foreach $ch ( $changexml->findnodes("//changes/tok") ) {
-	print OUTFILE "\n<li>Change <i>".$ch->getAttribute("key")."</i> to: ".$ch->getAttribute("val");
+	print OUTFILE "\n<p>Changes to be made:<ul>";
+	foreach $ch ( $changexml->findnodes("//changes/tok") ) {
+		print OUTFILE "\n<li>Change <i>".$ch->getAttribute("key")."</i> to: ".$ch->getAttribute("val");
+	};
+	print OUTFILE "\n</ul>";
+} else { 
+	print OUTFILE "\n<p>Changes made from verticalization";
 };
-print OUTFILE "\n</ul>";
+
 
 print OUTFILE "\n<p>Process started: ".localtime."<hr>";
 
@@ -46,6 +51,10 @@ foreach $file ( $changexml->findnodes("//files/file") ) {
 			next; 
 		};
 		foreach $ch ( $changexml->findnodes("//changes/tok") ) {
+			$token->setAttribute($ch->getAttribute("key"), $ch->getAttribute("val"));
+			$changed = 1;
+		};
+		foreach $ch ( $changexml->findnodes("change") ) {
 			$token->setAttribute($ch->getAttribute("key"), $ch->getAttribute("val"));
 			$changed = 1;
 		};
