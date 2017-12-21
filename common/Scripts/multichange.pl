@@ -65,7 +65,7 @@ foreach $file ( $changexml->findnodes("//files/file") ) {
 				$changes .= " $key = $val ; ";
 			};
 		};
-		if ( $changes != "" ) {
+		if ( $changes ne "" ) {
 			print OUTFILE "<p> - Token: <a href=\"index.php?action=file&cid=$fileid&jmp=$tokid\">$tokid</a> - $changes"; # = ".$token->toString;
 			$changed = 1;
 		};
