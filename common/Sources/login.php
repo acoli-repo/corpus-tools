@@ -5,7 +5,7 @@
 	# Read the userlist 
 	$ufile = file_get_contents ("Resources/userlist.xml");
 	$uxml = simplexml_load_string($ufile);
-	$sessionvar = "teitok-$foldername";
+	// $sessionvar = "teitok-$foldername";
 	
 	if ( $_POST["login"] ) {
 		# Lookup the data for this user in the STAFF database

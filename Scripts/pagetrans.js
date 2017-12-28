@@ -23,6 +23,58 @@ var zoomset = 0;
 var fontsize = 16;
 var full = false;
 
+var image = new Image(); var imgsrc;
+function cropbgimg ( divelm, bboxtxt, bgsrc = '', keep = 'width', maxscale = 1.2) {
+	if ( typeof(divelm) != "object" ) {
+		divelm = document.getElementById(divelm + '');
+	};
+	
+	var orgwidth = divelm.offsetWidth;
+
+	if ( bgsrc == "" ) { 
+		bgsrc = divelm.getAttribute('bgsrc'); 
+	};
+	
+	if ( bgsrc != '' ) { 
+		var bgimgtxt = 'url(\'' + bgsrc + '\')';
+		divelm.style.backgroundImage = bgimgtxt; 
+	} else {
+		bgsrc = divelm.style
+                      .backgroundImage
+                       .replace(/url\((['"])?(.*?)\1\)/gi, '$2')
+                        .split(',')[0];
+	};
+
+	if ( imgsrc != bgsrc ) {
+	    image = new Image();
+	    imgsrc = bgsrc;
+   		image.src = bgsrc;
+	};
+	
+	if ( bboxtxt == "" ) { 
+		bboxtxt = divelm.getAttribute('bbox'); 
+	};
+	
+	var bbox = bboxtxt.split(' ');
+	// Never scale more than 50% up
+	if ( keep == 'width' ){  	
+		var imgscale  = Math.min(maxscale, divelm.offsetWidth/(bbox[2]-bbox[0]));
+	} else {
+		var imgscale  = Math.min(maxscale, divelm.offsetHeight/(bbox[3]-bbox[1]));
+	};
+	
+	var biw = image.width*imgscale;
+	var bih = biw*(image.height/image.width);
+	var bix = bbox[0]*imgscale;
+	var biy = bbox[1]*imgscale;
+
+	divelm.style.width = (bbox[2]-bbox[0])*imgscale + 'px'; // We might have made the div too wide
+	divelm.style.height = (bbox[3]-bbox[1])*imgscale + 'px';
+	divelm.style['background-size'] = biw+'px '+bih+'px';
+	divelm.style['background-position'] = '-'+bix+'px -'+biy+'px';
+	divelm.setAttribute('orgbpos', '-'+bix+'px -'+biy+'px');  			
+};
+
 function changestatus(elm, status='', max='') {
 	// Change the status of a line (verified, unverified, ...)
 	var statcols = ['#dddddd', '#ffcc44', '#66ff66', '#ff0000'];
