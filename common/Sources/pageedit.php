@@ -82,9 +82,8 @@
 			$maintext .= "For language: $fflang"; 
 		};
 		
-		$maintext .= '
-			<script type="text/javascript" src="'.$jsurl.'/tinymce/tinymce.min.js"></script>
-			<script type="text/javascript">
+		$maintext .= "<script type=\"text/javascript\" src=\"$tinymceurl\"></script>";
+		$maintext .= '<script type="text/javascript">
 			tinymce.init({
 				selector: "textarea",
 				convert_urls: false,

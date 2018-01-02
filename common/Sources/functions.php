@@ -272,27 +272,6 @@
 			if ( $markers ) print "<p>The (first) conflicting line has been highlighted";
 	
 			print "<p>Click <a href='index.php?action=edit&cid=$filename'>here</a> to go (back) to view mode";
-	
-			print "
-				<div id=\"editor\" style='width: 100%; height: 300px;'>".$xmltxt."</div>
-			
-				<script src=\"ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
-				<style>.warning
-				{
-					background: rgba(255, 255, 50, 0.2);
-					position: absolute;
-					width: 100% !important;
-					left: 0 !important;
-				}</style>
-				<script>
-					var editor = ace.edit(\"editor\");
-					editor.setTheme(\"ace/theme/chrome\");
-					editor.getSession().setMode(\"ace/mode/xml\");
-					editor.setReadOnly(true);
-					var Range = ace.require(\"ace/range\").Range;
-					$markers
-				</script>
-			";
 
 			exit;
 		};

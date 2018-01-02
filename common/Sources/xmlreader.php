@@ -223,7 +223,7 @@
 			<a href='index.php?action=$action'>{%back to list}</a>";
 
 		if ( $xmlnum ) $maintext .= "
-			<script src=\"$jsurl/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+			<script src=\"$aceurl\" type=\"text/javascript\" charset=\"utf-8\"></script>
 			<script>
 				var editor = ace.edit(\"editor\");
 				editor.setTheme(\"ace/theme/chrome\");
@@ -261,7 +261,7 @@
 			&bull; <a href='index.php?action=$action&id=$id'>{%cancel}</a>
 			</form>
 		
-			<script src=\"$jsurl/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+			<script src=\"$aceurl\" type=\"text/javascript\" charset=\"utf-8\"></script>
 			<script>
 				var editor = ace.edit(\"editor\");
 				editor.setTheme(\"ace/theme/chrome\");

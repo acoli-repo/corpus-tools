@@ -16,6 +16,18 @@
 		$settings = xmlflatten($settingsxml);
 
 	};	
+	
+	
+	# Define where to get the JS libraries from - and in which version (if not defined in the settings)
+
+	# TinyMCE WYSIWYG editor
+	$tinymceurl = $settings['defaults']['src']['tinymce'] or $tinymceurl = "https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.4/tinymce.min.js";
+	if ( $tinymceurl == "local" ) $tinymceurl = "$jsurl/tinymce/tinymce.min.js";
+
+	# ACE code editor (XML)
+	$aceurl = $settings['defaults']['src']['ace'] or $aceurl = "http://cdnjs.cloudflare.com/ajax/libs/ace/1.2.9/ace.js";
+	if ( $aceurl == "local" ) $aceurl = "$jsurl/ace/ace.js";
+
 
 	function xmlflatten ( $xml, $int = 0 ) {
 		global $maintext; 

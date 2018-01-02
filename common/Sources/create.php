@@ -240,8 +240,8 @@
 		$maintext .= "<p><input type=radio name=body value='html' onChange='bodychoose(this);'> Create from HTML
 			<div id='html' style='display: none; padding-left: 40px;'>
 				<p><i>Here you can write or paste rich text, which will then be converted to TEI/XML. This conversion keeps only limited typesetting information, and can only be used for the initial creation of the XML file; after the file is in TEI/XML this editor will no longer work.</i></p>";
-		$maintext .= '<script type="text/javascript" src="'.$jsurl.'/tinymce/tinymce.min.js"></script>
-			<script type="text/javascript">
+		$maintext .= "<script type=\"text/javascript\" src=\"$tinymceurl\"></script>";
+		$maintext .= '<script type="text/javascript">
 			tinymce.init({
 				selector: "textarea.wysiwyg",
   menu: {

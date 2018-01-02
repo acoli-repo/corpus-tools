@@ -716,7 +716,7 @@
 
 			} else if ( $emptyxml && 1 == 2 )  {
 			 	# If the XML is empty, immediately show the edit mode
-			 	# This does not seem to be good in most cases
+			 	# TODO: this should probably be removed since it is hardly ever expected
 			 	
 				$maintext .= "<div class=adminpart>
  				<p>This XML file is empty. Please type or paste the text in the text box below, between the existing tags.
@@ -731,7 +731,7 @@
 					<p><input type=button value=Save onClick=\"runsubmit();\"> $switch
 					</form>
 		
-					<script src=\"$jsurl/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+					<script src=\"$aceurl\" type=\"text/javascript\" charset=\"utf-8\"></script>
 					<script>
 						var editor = ace.edit(\"editor\");
 						editor.setTheme(\"ace/theme/chrome\");
