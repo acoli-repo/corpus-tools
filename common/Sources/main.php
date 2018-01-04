@@ -52,7 +52,7 @@
 	include("$ttroot/common/Sources/settings.php");
 	
 	# Determine the folder to set a folder-specific user cookie
-	if ( preg_match("/\/teitok\/([^\/]*?)\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
+	if ( preg_match("/.*\/teitok\/([^\/]*?)\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
 		$foldername = $matches[1];
 	} else {
 		$foldername = $_SERVER['SCRIPT_FILENAME'];
