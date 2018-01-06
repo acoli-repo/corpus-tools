@@ -42,12 +42,13 @@ function drawChart(type='table') {
 	charttype = type;
 	var input; var fldnum = json[0].length - cntcols;
 	var svgbut = document.getElementById('svgbut');
+	var cntcol = fldnum;
 	if ( type == 'table' ) {
 		input = json;
 		svgbut.disabled = true;
 	} else {
 		// Merge cells unless we have a table
-		input = []; var cntcol;
+		input = []; 
 		if ( cnttype == 'wpm' && cntcols > 1 ) {
 			cntcol = fldnum+2;
 		} else {
@@ -66,6 +67,7 @@ function drawChart(type='table') {
 	};
 	
 	var data = google.visualization.arrayToDataTable(input, headrow);
+	data.sort({column: fldnum, desc: true}); 
 
 	if ( type == 'pie' ) {
 		var options = {

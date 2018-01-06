@@ -38,14 +38,14 @@
 			$headrow = "true"; $fldnum = 1;
 			if ( preg_match ( "/group Matches match ([^ ]+) by match ([^ ]+)/", $query, $matches )  ) {
 				$fld2 = $matches[1]; $fld = $matches[2];
-				$fldname = pattname($fld) or $fldname = $fld;
-				$fldname2 = pattname($fld2) or $fldname2 = $fld2;
-				$json = "[{label: '{%$fldname}', id:'$fld'}, {label: '{%$fldname2}', id:'$fld2'}, {label:'{%Count}', id:'count', type:'number'}],\n";
+				$fldname = '{%'.pattname($fld).'}' or $fldname = $fld;
+				$fldname2 = '{%'.pattname($fld2).'}' or $fldname2 = $fld2;
+				$json = "[{label: '$fldname', id:'$fld'}, {label: '$fldname2', id:'$fld2'}, {label:'{%Count}', id:'count', type:'number'}],\n";
 				$headrow = "false"; 
 			} else if ( preg_match ( "/group Matches match ([^ ]+)/", $query, $matches )  ) {
 				$fld = $matches[1];
-				$fldname = pattname($fld) or $fldname = $fld;
-				$json = "[{label: '{%$fldname}', id:'$fld'}, {label:'{%Count}', id:'count', type:'number'}],\n";
+				$fldname = '{%'.pattname($fld).'}' or $fldname = $fld;
+				$json = "[{label: '$fldname', id:'$fld'}, {label:'{%Count}', id:'count', type:'number'}],\n";
 				$headrow = "false";
 			};	$mainfld = $fld;
 	
@@ -133,7 +133,7 @@
 	
 	};
 
-	function pattname ( $key ) {
+	function pattname ( $key, $dolang = true ) {
 		global $settings;
 		if ( $key == "word" ) $key = $wordfld;
 		$val = $settings['xmlfile']['pattributes']['forms'][$key]['display'];
@@ -150,6 +150,7 @@
 			if ( $val ) return $val;
 		};
 		
+		if ( $dolang ) return $key;
 		return "<i>$key</i>";
 	};
 
