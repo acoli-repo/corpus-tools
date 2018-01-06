@@ -64,34 +64,43 @@
 			
 		};
 		
-		$maintext .= "
-			<hr>
-			<div id='linkfield' style='float: right; z-index: 100; cursor: pointer;'></div>
-			<p>
-			<button onClick=\"drawChart('table');\">{%Table}</button>
-			<button onClick=\"drawChart('pie');\">{%Pie}</button>
-			<button onClick=\"drawChart('piehole');\">{%Donut}</button>
-			<button onClick=\"drawChart('bars');\">{%Bar Chart}</button>
-			<button onClick=\"downloadCSV();\">{%Download CSV}</button>
-			</p>
-			<div style='width: 100%;' id=googlechart></div>
+	if ( $json ) {
+	
+				$maintext .= "
+					<hr>
+					<div id='linkfield' style='float: right; z-index: 100; cursor: pointer;'></div>
+					<p>
+					<button onClick=\"drawChart('table');\">{%Table}</button>
+					<button onClick=\"drawChart('pie');\">{%Pie}</button>
+					<button onClick=\"drawChart('piehole');\">{%Donut}</button>
+					<button onClick=\"drawChart('bars');\">{%Bar Chart}</button>
+					<button onClick=\"downloadSVG();\" id='svgbut'>{%Download SVG}</button>
+					<button onClick=\"downloadCSV();\">{%Download CSV}</button>
+					</p>
+					<div style='width: 100%;' id=googlechart></div>
+					";
+	
+	
+				# Create a pie-chart option
+				$maintext .= " 
+					<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>
+					<script type=\"text/javascript\" src=\"$jsurl/visualize.js\"></script>
+					<script type=\"text/javascript\">google.charts.load('current', {'packages':['corechart', 'table', 'bar']});
+
+		var json = [$json];
+		var cql = '$cql';
+		var chart; var charttype;
+		var headrow = $headrow;
+		google.charts.setOnLoadCallback(drawChart);
+
+		var viewport = document.getElementById('googlechart');
+		</script>
 			";
-		
-		
-		# Create a pie-chart option
-		$maintext .= " 
-		    <script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>
-		    <script type=\"text/javascript\" src=\"$jsurl/visualize.js\"></script>
-		    <script type=\"text/javascript\">google.charts.load('current', {'packages':['corechart', 'table', 'bar']});
-
-var json = [$json];
-var chart; var charttype;
-var headrow = $headrow;
-google.charts.setOnLoadCallback(drawChart);
-
-var viewport = document.getElementById('googlechart');
-</script>
-    ";
+	} else {
+	
+		$maintext .= "<p>No data to visualize";
+	
+	};
 
 	function pattname ( $key ) {
 		global $settings;

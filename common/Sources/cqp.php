@@ -84,11 +84,8 @@
 			var ces = {};
 			$charlist
 			function chareq (fld) {
-				// console.log(fld.value);
 				for(i in ces) {
-					console.log(i + ' = ' + ces[i]);
 					fld.value = fld.value.replace(i, ces[i]);
-					console.log(fld.value);
 				}
 			};
 			</script>
