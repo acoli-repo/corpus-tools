@@ -59,8 +59,9 @@
 					list ( $a, $b ) = explode ( "\t", $line );
 					$tots[$a] = $b;
 				};
-				$json = preg_replace("/\],\n$/", ", {id:'totcnt', label:'{%Total}'}, {id:'relcnt', label:'{%WPM}'}],\n", $json);
+				$json = preg_replace("/\],\n$/", ", {id:'totcnt', label:'{%Total}'}, {id:'relcnt', label:'{%WPM}', title:'{%Words per million}'}],\n", $json);
 				$cntcols = 3;
+				$withwpm = 1;
 			} else $cntcols = 1;
 			
 			foreach ( explode ( "\n", $results ) as $line ) {	
@@ -88,6 +89,8 @@
 			
 		};
 		
+	$cqltxt = str_replace("'", "&#039;", $cql);
+	if ( $withwpm ) $wpmsel = " | base: <select name='cntcol' onChange='setcnt(this.value);'><option value='count'>Count</option><option value='wpm'>WPM</option></select>";
 	if ( $json ) {
 	
 				$maintext .= "
@@ -95,11 +98,13 @@
 					<div id='linkfield' style='float: right; z-index: 100; cursor: pointer;'></div>
 					<p>
 					<button onClick=\"drawChart('table');\">{%Table}</button>
-					<button onClick=\"drawChart('pie');\">{%Pie} ({%Count})</button>
-					<button onClick=\"drawChart('piehole', 'wpm');\">{%Donut} ({%WPM})</button>
+					<button onClick=\"drawChart('pie');\">{%Pie}$cnttxt</button>
+					<button onClick=\"drawChart('piehole', 'wpm');\">{%Donut}$wpmtxt</button>
 					<button onClick=\"drawChart('bars');\">{%Bar Chart}</button>
-					<button onClick=\"downloadSVG();\" id='svgbut'>{%Download SVG}</button>
-					<button onClick=\"downloadCSV();\">{%Download CSV}</button>
+					$wpmsel
+					|
+					<button onClick=\"downloadSVG();\" id='svgbut' title='Download image as scalable vector graphics'>{%SVG}</button>
+					<button onClick=\"downloadCSV();\" title='Download data as comma-separated values'>{%CSV}</button>
 					</p>
 					<div style='width: 100%;' id=googlechart></div>
 					";
@@ -112,8 +117,9 @@
 					<script type=\"text/javascript\">google.charts.load('current', {'packages':['corechart', 'table', 'bar']});
 
 		var json = [$json];
-		var cql = '$cql';
+		var cql = '$cqltxt';
 		var chart; var charttype;
+		var cnttype = 'count';
 		var headrow = $headrow;
 		var cntcols = $cntcols;
 		google.charts.setOnLoadCallback(drawChart);

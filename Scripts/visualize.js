@@ -31,10 +31,16 @@ function downloadSVG() {
 	};
 };
 
-function drawChart(type='table', cnt='count') {
+function setcnt(input = 'count') {
+	cnttype = input;
+	if ( charttype != 'table' ) {
+		drawChart(charttype);
+	}; 
+};
 
+function drawChart(type='table') {
+	charttype = type;
 	var input; var fldnum = json[0].length - cntcols;
-	console.log(json);
 	var svgbut = document.getElementById('svgbut');
 	if ( type == 'table' ) {
 		input = json;
@@ -42,12 +48,11 @@ function drawChart(type='table', cnt='count') {
 	} else {
 		// Merge cells unless we have a table
 		input = []; var cntcol;
-		if ( cnt == 'wpm' && cntcols > 1 ) {
+		if ( cnttype == 'wpm' && cntcols > 1 ) {
 			cntcol = fldnum+2;
 		} else {
 			cntcol = fldnum;
 		};
-		console.log(cntcol);
 		for ( var i=0; i<json.length; i++ ) {
 			var row = json[i];
 			if ( row[0]['id'] ) {
@@ -63,14 +68,13 @@ function drawChart(type='table', cnt='count') {
 	var data = google.visualization.arrayToDataTable(input, headrow);
 
 	if ( type == 'pie' ) {
-		charttype = type;
 		var options = {
 			legend: { position: 'bottom',  },
 			sliceVisibilityThreshold: .03,
 			chartArea : { top: 0, left: 5 }
 		};
 
-		viewport.style.height = '80%';
+		viewport.style.height = '600px';
 		chart = new google.visualization.PieChart(viewport);
 		chart.draw(data, options);
 	} else if ( type == 'piehole' ) {
@@ -81,7 +85,7 @@ function drawChart(type='table', cnt='count') {
 			chartArea : { top: 15, left: 5 }
 		};
 
-		viewport.style.height = '80%';
+		viewport.style.height = '600px';
 		chart = new google.visualization.PieChart(viewport);
 		chart.draw(data, options);
 
