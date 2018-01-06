@@ -31,23 +31,30 @@ function downloadSVG() {
 	};
 };
 
-function drawChart(type='table') {
+function drawChart(type='table', cnt='count') {
 
-	var input; var fldnum = json[0].length -1;
+	var input; var fldnum = json[0].length - cntcols;
+	console.log(json);
 	var svgbut = document.getElementById('svgbut');
 	if ( type == 'table' ) {
 		input = json;
 		svgbut.disabled = true;
 	} else {
 		// Merge cells unless we have a table
-		input = [];
+		input = []; var cntcol;
+		if ( cnt == 'wpm' && cntcols > 1 ) {
+			cntcol = fldnum+2;
+		} else {
+			cntcol = fldnum;
+		};
+		console.log(cntcol);
 		for ( var i=0; i<json.length; i++ ) {
 			var row = json[i];
 			if ( row[0]['id'] ) {
 				var fldlabs = row.slice(0,fldnum).map(function(item) { return item['label']; });
-				input.push([fldlabs.join(' + '), json[i][fldnum]]);
+				input.push([fldlabs.join(' + '), json[i][cntcol]]);
 			} else {
-				input.push([json[i].slice(0,fldnum).join('+'), json[i][fldnum]]);
+				input.push([json[i].slice(0,fldnum).join('+'), json[i][cntcol]]);
 			};
 		};
 		svgbut.disabled = false;
@@ -108,7 +115,7 @@ function drawChart(type='table') {
 }
 
 function selectHandler(e) {
-	var fldnum = json[0].length -1;
+	var fldnum = json[0].length - cntcols;
 	var sel = chart.getSelection(); var val; 
 	if ( !sel[0] ) { return -1; };
 	var val = json[sel[0]['row']+1].slice(0,fldnum);

@@ -3,6 +3,7 @@
 		# Show Google Visualization for data
 		
 		$maintext .= "<h2>Data Visualization</h2>";
+		$cntcols = 1;
 
 		if ( $_GET['json'] or $_POST['json'] ) {
 		
@@ -39,26 +40,49 @@
 				$fld2 = $matches[1]; $fld = $matches[2];
 				$fldname = pattname($fld) or $fldname = $fld;
 				$fldname2 = pattname($fld2) or $fldname2 = $fld2;
-				$json = "[{label: '{%$fldname}', id:'$fld'}, {label: '{%$fldname2}', id:'$fld2'}, {label:'{%Count}', id:'{%count}', type:'number'}],\n";
+				$json = "[{label: '{%$fldname}', id:'$fld'}, {label: '{%$fldname2}', id:'$fld2'}, {label:'{%Count}', id:'count', type:'number'}],\n";
 				$headrow = "false"; 
 			} else if ( preg_match ( "/group Matches match ([^ ]+)/", $query, $matches )  ) {
 				$fld = $matches[1];
 				$fldname = pattname($fld) or $fldname = $fld;
-				$json = "[{label: '{%$fldname}', id:'$fld'}, {label:'{%Count}', id:'{%count}', type:'number'}],\n";
+				$json = "[{label: '{%$fldname}', id:'$fld'}, {label:'{%Count}', id:'count', type:'number'}],\n";
 				$headrow = "false";
-			};	
+			};	$mainfld = $fld;
 	
+			if ( preg_match("/_/", $mainfld) ) {
+				# For a relative query, pick up the total counts to calculate proportional measures
+				$query = "Tots = []";
+				$cqp->exec($query);
+				$query = "group Tots match $mainfld";
+				$results2 = $cqp->exec($query);
+				foreach ( explode ( "\n", $results2 ) as $line ) {	
+					list ( $a, $b ) = explode ( "\t", $line );
+					$tots[$a] = $b;
+				};
+				$json = preg_replace("/\],\n$/", ", {id:'totcnt', label:'{%Total}'}, {id:'relcnt', label:'{%WPM}'}],\n", $json);
+				$cntcols = 3;
+			} else $cntcols = 1;
 			
 			foreach ( explode ( "\n", $results ) as $line ) {	
 				$line = str_replace("'", "&#039;", $line);
 				$flds = explode("\t", $line); $flda = "";
 				if ( $line != "" && ( $flds[0] != ''  || $showempties) ) {
-					foreach ( $flds as $i => $fld ) {
-						if ( $i + 1 == count($flds) ) $flda .= "$fld"; else $flda .= "'$fld', ";
+					foreach ( $flds as $i => $fld ) {	
+						$rowval[$i] = $fld;
+						if ( $i + 1 == count($flds) ) {
+							$flda .= "$fld"; 
+							$rowcnt = $fld;
+						} else $flda .= "'$fld', ";
+					};
+					if ( $tots ) {
+						$valtot = $tots[$rowval[0]];
+						$relcnt = ($rowcnt/$valtot) * 1000000;
+						$flda .= ", $valtot, $relcnt";
 					};
 					$json .= "[$flda],\n";
 				};
 			};		
+
 			
 		} else {
 			
@@ -71,8 +95,8 @@
 					<div id='linkfield' style='float: right; z-index: 100; cursor: pointer;'></div>
 					<p>
 					<button onClick=\"drawChart('table');\">{%Table}</button>
-					<button onClick=\"drawChart('pie');\">{%Pie}</button>
-					<button onClick=\"drawChart('piehole');\">{%Donut}</button>
+					<button onClick=\"drawChart('pie');\">{%Pie} ({%Count})</button>
+					<button onClick=\"drawChart('piehole', 'wpm');\">{%Donut} ({%WPM})</button>
 					<button onClick=\"drawChart('bars');\">{%Bar Chart}</button>
 					<button onClick=\"downloadSVG();\" id='svgbut'>{%Download SVG}</button>
 					<button onClick=\"downloadCSV();\">{%Download CSV}</button>
@@ -91,6 +115,7 @@
 		var cql = '$cql';
 		var chart; var charttype;
 		var headrow = $headrow;
+		var cntcols = $cntcols;
 		google.charts.setOnLoadCallback(drawChart);
 
 		var viewport = document.getElementById('googlechart');
