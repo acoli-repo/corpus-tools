@@ -177,6 +177,7 @@
 					if ( $newcql && $key == 0 && strstr($fld, '_') ) {
 						// TODO: this does only work if the original CQL was "simple"
 						$recql = urlencode(str_replace(" within text", "", $cql)." :: match.$fld = \"{$fields[0]}\" within text");
+						$recql = str_replace("'", "&#039;", $recql);
 						$maintext .= "<td><a href=\"index.php?action=$action&cql=$recql\">".preg_replace ( "/__UNDEF__/", "(none)", $fields[0])."</a></td>";
 					} else if ( $newcql && $key == 0 ) $maintext .= "<td><a onclick=\"document.newform.cql.value='".preg_replace("/\"/", "&quot;", $newcql)."'; document.newform.submit();\">".preg_replace ( "/__UNDEF__/", "(none)", $fields[0])."</a></td>";
 					else if ( $key == $frf ) $maintext .= "<td align=right>$field</td>";
@@ -187,6 +188,8 @@
 		};
 			$maintext .= "
 				<tr>$td<td style='border-top: 1px solid #999999; color: #999999;' colspan=".count($fields).">$typecnt {%types}<td style='border-top: 1px solid #999999; text-align: right; color: #999999;'>".$size."</table>";
+		
+		
 		
 
 	} else if ( $act == "download" ) {
@@ -370,7 +373,7 @@
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
 
-		if ( !$fileonly || $user['permissions'] == "admin" ) $cqltxt = $cql; # Best not show the query for doc-only searches...
+		if ( !$fileonly || $user['permissions'] == "admin" ) $cqltxt = str_replace("'", "&#039;", $cql); # Best not show the query for doc-only searches...
 
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
@@ -748,7 +751,7 @@
 				";
 		};
 		
-		$cqlu = $cql;
+		$cqlu = $cqltxt;
 
 		$cqp->close();
 		$maintext .= "\n<hr>\n\n<p><form action='index.php?action=download' id=cqlform name=cqlform method=post>
@@ -769,7 +772,8 @@
 		if ( !$fileonly && !$nomatch ) $maintext .= "					
 			<span onclick=\"document.cqlform.action = 'index.php?action=$action&act=download'; document.cqlform.submit();\">{%Download results as TXT}</span>
 			";
-		$maintext .= " - <a href='index.php?action=cqp&cql=".urlencode($cql)."'>{%Direct query URL}</a>";
+		$cqll = str_replace("'", "&#039;", $cql);
+		$maintext .= " - <a href='index.php?action=cqp&cql=".urlencode($cqll)."'>{%Direct query URL}</a>";
 		$maintext .= "<!-- CQL: $cql -->";
 		# $maintext .= "<span onclick=\"this.style.display = 'none'; document.getElementById('freqopts').style.display='block';\">show frequency options</span>";
 		
@@ -791,14 +795,15 @@
 				foreach ( $freqopts as $key => $val ) {
 					if ( !$fileonly || preg_match("/text_/", $val['key']) ) $maintext .= "<p><a onclick=\"document.freqform.query.value = '{$val['key']}'; document.freqform.submit();\">{%{$val['display']}}</a>";
 				};
-					#<p><a onclick=\"document.freqform.query.value = 'group Matches match pos'; document.freqform.submit();\">Frequency by POS</a>
-					#<p><a onclick=\"document.freqform.query.value = 'group Matches match lemma'; document.freqform.submit();\">Frequency by lemma</a>
-					#<p><a onclick=\"document.freqform.query.value = 'group Matches match pos by match lemma'; document.freqform.submit();\">Frequency by POS+lemma</a>
-			
-			
+						
+				if ( $settings['cqp']['visualize'] == "cqp" ) {
+					$visaction = "cqp&act=freq";
+				} else {
+					$visaction = "visualize";
+				};
 				$maintext .= "<p>Or run an additional custom CQP command on the results above (Matches):
 			
-					<form action='index.php?action=$action&act=freq' id=freqform name=freqform method=post>
+					<form action='index.php?action=$visaction' id=freqform name=freqform method=post>
 						CQP Query:
 						<input type=hidden name=cql value='$cqlu' $chareqfn><input name='query' value='group Matches match lemma' size=70>
 						<input type=submit value='{%Apply}'>
