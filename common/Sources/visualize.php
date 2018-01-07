@@ -5,132 +5,165 @@
 		$maintext .= "<h2>Data Visualization</h2>";
 		$cntcols = 1;
 
-		if ( $_GET['json'] or $_POST['json'] ) {
+		if ( $act == "cql" ) {
 		
-			$json = $_GET['json'] or $json = $_POST['json'];
+				$maintext .= "<h1>CQP Statistics</h1>
 		
-		} else if ( $_GET['cql'] or $_POST['cql'] ) {
-
-			include ("$ttroot/common/Sources/cwcqp.php");
-			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-			$cqpfolder = $settings['cqp']['searchfolder'];
-			$cqpcols = array();
-		
-			$cqp = new CQP();
-			$cqp->exec($cqpcorpus); // Select the corpus
-			$cqp->exec("set PrettyPrint off");
-			$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "[]";
-
-			if ( substr($cql,0,6) == "<text>" ) $fileonly = 1;
-
-			$cqpquery = "Matches = $cql";
-			$cqp->exec($cqpquery);
-
-			$size =$cqp->exec("size Matches");
-
-			$maintext .= "<p>Search query: ".htmlentities($cql);
-
-			$query = $_POST['query'] or $query = $_GET['query'] or $query = "group Matches match word";
-			$results = $cqp->exec($query);
-
-			$maintext .= "<p>Group query: <b>$query</b>";
-
-			$headrow = "true"; $fldnum = 1;
-			if ( preg_match ( "/group Matches match ([^ ]+) by match ([^ ]+)/", $query, $matches )  ) {
-				$fld2 = $matches[1]; $fld = $matches[2];
-				$fldname = '{%'.pattname($fld).'}' or $fldname = $fld;
-				$fldname2 = '{%'.pattname($fld2).'}' or $fldname2 = $fld2;
-				$json = "[{label: '$fldname', id:'$fld'}, {label: '$fldname2', id:'$fld2'}, {label:'{%Count}', id:'count', type:'number'}],\n";
-				$headrow = "false"; 
-			} else if ( preg_match ( "/group Matches match ([^ ]+)/", $query, $matches )  ) {
-				$fld = $matches[1];
-				$fldname = '{%'.pattname($fld).'}' or $fldname = $fld;
-				$json = "[{label: '$fldname', id:'$fld'}, {label:'{%Count}', id:'count', type:'number'}],\n";
-				$headrow = "false";
-			};	$mainfld = $fld;
-	
-			if ( preg_match("/_/", $mainfld) ) {
-				# For a relative query, pick up the total counts to calculate proportional measures
-				$query = "Tots = []";
-				$cqp->exec($query);
-				$query = "group Tots match $mainfld";
-				$results2 = $cqp->exec($query);
-				foreach ( explode ( "\n", $results2 ) as $line ) {	
-					list ( $a, $b ) = explode ( "\t", $line );
-					$tots[$a] = $b;
-				};
-				$json = preg_replace("/\],\n$/", ", {id:'totcnt', label:'{%Total}'}, {id:'relcnt', label:'{%WPM}', title:'{%Words per million}'}],\n", $json);
-				$cntcols = 3;
-				$withwpm = 1;
-			} else $cntcols = 1;
+					<p>Below you can define a base query, and a grouping query
 			
-			foreach ( explode ( "\n", $results ) as $line ) {	
-				$line = str_replace("'", "&#039;", $line);
-				$flds = explode("\t", $line); $flda = "";
-				if ( $line != "" && ( $flds[0] != ''  || $showempties) ) {
-					foreach ( $flds as $i => $fld ) {	
-						$rowval[$i] = $fld;
-						if ( $i + 1 == count($flds) ) {
-							$flda .= "$fld"; 
-							$rowcnt = $fld;
-						} else $flda .= "'$fld', ";
-					};
-					if ( $tots ) {
-						$valtot = $tots[$rowval[0]];
-						$relcnt = ($rowcnt/$valtot) * 1000000;
-						$flda .= ", $valtot, $relcnt";
-					};
-					$json .= "[$flda],\n";
-				};
-			};		
-
-			
+					<form action='index.php?action=$action' method=post>
+						<p>Base query: <input size=70 name=cql value=\"{$_GET['cql']}\">
+						<p>Grouping query: <input size=70 name=query value=\"{$_GET['query']}\">
+						<hr>
+						<input type=submit value=Show>
+					</form>";
+					
 		} else {
-			
-		};
+			if ( $_GET['json'] or $_POST['json'] ) {
 		
-	$cqltxt = str_replace("'", "&#039;", $cql);
-	if ( $withwpm ) $wpmsel = " | base: <select name='cntcol' onChange='setcnt(this.value);'><option value='count'>Count</option><option value='wpm'>WPM</option></select>";
-	if ( $json ) {
-	
-				$maintext .= "
-					<hr>
-					<div id='linkfield' style='float: right; z-index: 100; cursor: pointer;'></div>
-					<p>
-					<button onClick=\"drawChart('table');\">{%Table}</button>
-					<button onClick=\"drawChart('pie');\">{%Pie}$cnttxt</button>
-					<button onClick=\"drawChart('piehole', 'wpm');\">{%Donut}$wpmtxt</button>
-					<button onClick=\"drawChart('bars');\">{%Bar Chart}</button>
-					$wpmsel
-					|
-					<button onClick=\"downloadSVG();\" id='svgbut' title='Download image as scalable vector graphics'>{%SVG}</button>
-					<button onClick=\"downloadCSV();\" title='Download data as comma-separated values'>{%CSV}</button>
-					</p>
-					<div style='width: 100%;' id=googlechart></div>
-					";
-	
-	
-				# Create a pie-chart option
-				$maintext .= " 
-					<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>
-					<script type=\"text/javascript\" src=\"$jsurl/visualize.js\"></script>
-					<script type=\"text/javascript\">google.charts.load('current', {'packages':['corechart', 'table', 'bar']});
+				$json = $_GET['json'] or $json = $_POST['json'];
+		
+			} else if ( $_GET['cql'] or $_POST['cql'] ) {
 
-		var json = [$json];
-		var cql = '$cqltxt';
-		var chart; var charttype;
-		var cnttype = 'count';
-		var headrow = $headrow;
-		var cntcols = $cntcols;
-		google.charts.setOnLoadCallback(drawChart);
+				include ("$ttroot/common/Sources/cwcqp.php");
+				$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+				$cqpfolder = $settings['cqp']['searchfolder'];
+				$cqpcols = array();
+		
+				$cqp = new CQP();
+				$cqp->exec($cqpcorpus); // Select the corpus
+				$cqp->exec("set PrettyPrint off");
+				$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "[]";
 
-		var viewport = document.getElementById('googlechart');
-		</script>
-			";
-	} else {
+				if ( substr($cql,0,6) == "<text>" ) $fileonly = 1;
+
+				$cqpquery = "Matches = $cql";
+				$cqp->exec($cqpquery);
+
+				$size =$cqp->exec("size Matches");
+
+				$maintext .= "<p>Search query: ".htmlentities($cql);
+
+				$query = $_POST['query'] or $query = $_GET['query'] or $query = "group Matches match word";
+				$results = $cqp->exec($query);
+
+				$maintext .= "<p>Group query: <b>$query</b>";
+
+				$headrow = "true"; $fldnum = 1;
+				if ( preg_match ( "/group Matches match ([^ ]+) by match ([^ ]+)/", $query, $matches )  ) {
+					$fld2 = $matches[1]; $fld = $matches[2];
+					$fldname = '{%'.pattname($fld).'}' or $fldname = $fld;
+					$fldname2 = '{%'.pattname($fld2).'}' or $fldname2 = $fld2;
+					$json = "[{label: '$fldname', id:'$fld'}, {label: '$fldname2', id:'$fld2'}, {label:'{%Count}', id:'count', type:'number'}],\n";
+					$headrow = "false"; 
+				} else if ( preg_match ( "/group Matches match ([^ ]+)/", $query, $matches )  ) {
+					$fld = $matches[1];
+					$fldname = '{%'.pattname($fld).'}' or $fldname = $fld;
+					$json = "[{label: '$fldname', id:'$fld'}, {label:'{%Count}', id:'count', type:'number'}],\n";
+					$headrow = "false";
+				};	$mainfld = $fld;
 	
-		$maintext .= "<p>No data to visualize";
+				if ( preg_match("/_/", $mainfld) ) {
+					# For a relative query, pick up the total counts to calculate proportional measures
+					$query = "Tots = []";
+					$cqp->exec($query);
+					$query = "group Tots match $mainfld";
+					$results2 = $cqp->exec($query);
+					foreach ( explode ( "\n", $results2 ) as $line ) {	
+						list ( $a, $b ) = explode ( "\t", $line );
+						$tots[$a] = $b;
+					};
+					$json = preg_replace("/\],\n$/", ", {id:'totcnt', label:'{%Total}'}, {id:'relcnt', label:'{%WPM}', title:'{%Words per million}'}],\n", $json);
+					$cntcols = 3;
+					$withwpm = 1;
+				} else $cntcols = 1;
+			
+				foreach ( explode ( "\n", $results ) as $line ) {	
+					$line = str_replace("'", "&#039;", $line);
+					$flds = explode("\t", $line); $flda = "";
+					if ( $line != "" && ( ( $flds[0] != '' && $flds[0] != '_' ) || $showempties) ) {
+						foreach ( $flds as $i => $fld ) {	
+							$rowval[$i] = $fld;
+							if ( $i + 1 == count($flds) ) {
+								$flda .= "$fld"; 
+								$rowcnt = $fld;
+							} else $flda .= "'$fld', ";
+						};
+						if ( $tots ) {
+							$valtot = $tots[$rowval[0]];
+							$relcnt = ($rowcnt/$valtot) * 1000000;
+							$flda .= ", $valtot, $relcnt";
+						};
+						$json .= "[$flda],\n";
+					};
+				};		
+
+			
+			} else {
+			
+			};
+
+		$apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B6JSu5Ne7WkNSE"; # Use our key when no other key is defined  
+			
+		$cqltxt = str_replace("'", "&#039;", $cql);
+		if ( $mainfld == "text_geo" ) { $maps = "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
+		if ( $withwpm ) $wpmsel = " | {%Base}: <select name='cntcol' onChange='setcnt(this.value);'><option value='count'>Count</option><option value='wpm'>WPM</option></select>";
+		if ( $json ) {
 	
+			if ( $_GET['charttype'] ) $inittype = "'{$_GET['charttype']}'";
+					$maintext .= " 
+						<hr>
+						<div id='linkfield' style='float: right; z-index: 100; cursor: pointer;'></div>
+						<p>
+						{%Graph}:
+						<select name=graph onChange=\"drawGraph(this.value);\">
+						<option value='table'>{%Table}</option>
+						<option value='pie'>{%Pie}</option>
+						<option value='piehole'>{%Donut}</option>
+						<option value='bars'>{%Bar Chart}</option>
+						<option value='lines'>{%Line Chart}</option>
+						<option value='scatter'>{%Scatter Chart}</option>
+						<option value='histogram'>{%Histogram}</option>
+						$maps
+						</select>
+						$wpmsel
+						|
+						{%Download}:
+						<select name=download onClick=\"downloadData(this.value);\">
+						<option value='svg' class='imgbut' title='Download image as Scalable Vector Graphics'>{%SVG}</option>
+						<option value='png' class='imgbut' title='Download image as Portable Network Graphics'>{%PNG}</option>
+						<option value='csv' title='Download data as Comma-Separated Values'>{%CSV}</option>
+						<option value='json' title='Download data in Javascript Object Notation'>{%JSON}</option>
+						</select>
+						</p>
+						<div style='width: 100%;' id=googlechart></div>
+						";
+	
+	
+					# Create a pie-chart option
+					$maintext .= " 
+						<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>
+						<script type=\"text/javascript\" src=\"$jsurl/visualize.js\"></script>
+						<script type=\"text/javascript\">google.charts.load('current', {'packages':['corechart', 'table', 'bar', 'line', 'scatter' $morel ] $moreo });
+
+			var json = [$json];
+			var cql = '$cqltxt'; var data; var options;
+			var chart; var charttype;
+			var cnttype = 'count';
+			var headrow = $headrow;
+			var cntcols = $cntcols;
+			var viewport = document.getElementById('googlechart');
+			google.charts.setOnLoadCallback(function() { drawGraph($inittype); });
+
+			</script>
+				";
+			
+
+		} else {
+	
+			$maintext .= "<p>No data to visualize";
+	
+		};
 	};
 
 	function pattname ( $key, $dolang = true ) {

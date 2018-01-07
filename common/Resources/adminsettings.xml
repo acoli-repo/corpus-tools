@@ -105,14 +105,6 @@
 		<att key="tokxpath" display="Which XML elements to export as tokens" default="//tok"/>	
 		<att key="multiseperator" display="Symbol used for separating multi-value sattributes" default=","/>	
 		<att key="withemptytext" display="Whether to include texts with no tokens (0/1)" default="0"/>	
-		<att key="visualize" display="What to use for data visualization" default="visualize">
-			<desc>
-				In TEITOK 1.9 a module for data visualization was introduced. In this field you can opt to use the
-				tabular server-side result list instead.
-			</desc>	
-			<val key="cqp" display="Use the traditional server-side table from the CQP results"/>
-			<val key="visualize" display="Use the new Google visualization module"/>
-		</att>	
 		<att key="toktype" display="How to export mtok and dtok" default="td" >	
 			<desc>
 				TEITOK can contain not only tokens, but also grammatical words (dtok) and multi-word expressions (mtok). Here
@@ -230,6 +222,14 @@
 			<att key="node" display="Node"/>
 		</item>
 		<item key="frequency" display="Default frequency searches">
+			<att key="visualize" display="What to use for data visualization" default="visualize">
+				<desc>
+					In TEITOK 1.9 a module for data visualization was introduced. In this field you can opt to use the
+					tabular server-side result list instead.
+				</desc>	
+				<val key="cqp" display="Use the traditional server-side table from the CQP results"/>
+				<val key="visualize" display="Use the new Google visualization module"/>
+			</att>	
 			<list>
 				<att key="key" display="Query"/>
 				<att key="display" display="Name of the query"/>
