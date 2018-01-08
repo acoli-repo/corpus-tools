@@ -42,27 +42,55 @@
 
 				$size =$cqp->exec("size Matches");
 
-				$maintext .= "<p>Search query: ".htmlentities($cql);
+				if ( preg_match("/\[([^\]]+)\](?: within .*)?$/", $cql, $matches) || preg_match("/\[([^\]]+)\] :: (.*?)(?: within .*)?$/", $cql, $matches) ) {
+					$pmatch = $matches[1]; $smatch = $matches[2];
+					foreach ( explode ( ' & ', $pmatch ) as $pmp ) {
+						if ( preg_match("/([^ ]+) *= *\"([^\"]*)\"/", $pmp, $matches) ) $cqlname .= "<p>{%".pattname($matches[1], false)."} = <b>".$matches[2]."</b>";
+						else $cqlname .= "<p>$pmp";
+					};
+					foreach ( explode ( ' & ', $smatch ) as $smp ) {
+						if ( preg_match("/match\.([^ ]+) *= *\"([^\"]*)\"/", $smp, $matches) ) $cqlname .= "<p>{%".pattname($matches[1])."} = <b>".$matches[2]."</b>";
+						else $cqlname .= "<p>$smp";
+					};
+				};
+				
+				if ( $cqlname ) {
+					$cqltxt = "<span title='".htmlentities($cql)."'>$cqlname</span>";
+				} else {
+					$cqltxt = htmlentities($cql);
+				};
 
-				$query = $_POST['query'] or $query = $_GET['query'] or $query = "group Matches match word";
-				$results = $cqp->exec($query);
+				$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match word";
+				$results = $cqp->exec($grquery);
 
-				$maintext .= "<p>Group query: <b>$query</b>";
 
 				$headrow = "true"; $fldnum = 1;
-				if ( preg_match ( "/group Matches match ([^ ]+) by match ([^ ]+)/", $query, $matches )  ) {
+				if ( preg_match ( "/group Matches match ([^ ]+) by match ([^ ]+)/", $grquery, $matches )  ) {
 					$fld2 = $matches[1]; $fld = $matches[2];
 					$fldname = '{%'.pattname($fld).'}' or $fldname = $fld;
 					$fldname2 = '{%'.pattname($fld2).'}' or $fldname2 = $fld2;
 					$json = "[{label: '$fldname', id:'$fld'}, {label: '$fldname2', id:'$fld2'}, {label:'{%Count}', id:'count', type:'number'}],\n";
 					$headrow = "false"; 
-				} else if ( preg_match ( "/group Matches match ([^ ]+)/", $query, $matches )  ) {
+					$grname = "{%Frequency by}: $fldname {%and} $fldname2";
+				} else if ( preg_match ( "/group Matches match ([^ ]+)/", $grquery, $matches )  ) {
 					$fld = $matches[1];
 					$fldname = '{%'.pattname($fld).'}' or $fldname = $fld;
 					$json = "[{label: '$fldname', id:'$fld'}, {label:'{%Count}', id:'count', type:'number'}],\n";
 					$headrow = "false";
+					$grname = "{%Frequency by}: $fldname";
 				};	$mainfld = $fld;
-	
+
+				if ( $grname ) {
+					$grtxt = "<span title='$grquery'>$grname</span>";
+				} else { 
+					$grtxt = $grquery;
+				};
+				
+				$maintext .= "<table>
+								<tr><th>{%Search query}:<td>$cqltxt</tr>
+								<tr><th>{%Group query}:<td>$grtxt</tr>
+							</table>";
+				
 				if ( preg_match("/_/", $mainfld) ) {
 					# For a relative query, pick up the total counts to calculate proportional measures
 					$query = "Tots = []";
@@ -138,6 +166,10 @@
 						</p>
 						<div style='width: 100%;' id=googlechart></div>
 						";
+
+			if ( $cql && !$_GET['cql'] ) {
+				$maintext .= "<hr><p><a href='index.php?action=$action&cql=".urlencode($cql)."&query=".urlencode($grquery)."'>Direct URL</a>";
+			};
 	
 	
 					# Create a pie-chart option
@@ -167,20 +199,20 @@
 	};
 
 	function pattname ( $key, $dolang = true ) {
-		global $settings;
-		if ( $key == "word" ) $key = $wordfld;
+		global $settings, $wordfld;
+		if ( $key == "word" && $wordfld ) $key = $wordfld;
 		$val = $settings['xmlfile']['pattributes']['forms'][$key]['display'];
-		if ( $val ) return $val;
+		if ( $val != "" ) return $val;
 		$val = $settings['xmlfile']['pattributes']['tags'][$key]['display'];
-		if ( $val ) return $val;
+		if ( $val != "" ) return $val;
 		
 		# Now try without the text_ or such
 		if ( preg_match ("/^(.*)_(.*?)$/", $key, $matches ) ) {
 			$key2 = $matches[2]; $keytype = $matches[1];
 			$val = $settings['cqp']['sattributes'][$key2]['display'];
-			if ( $val ) return $val;
+			if ( $val != "" ) return $val;
 			$val = $settings['cqp']['sattributes'][$keytype][$key2]['display'];
-			if ( $val ) return $val;
+			if ( $val != "" ) return $val;
 		};
 		
 		if ( $dolang ) return $key;

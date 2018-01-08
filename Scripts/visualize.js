@@ -87,6 +87,11 @@ function drawGraph(type='table') {
 		};
 		fldnum = 1; // We now have only 1 column left
 	};
+
+	if ( input.length == 0 || ( !headrow && input.length == 1 ) ) {
+		viewport.innerHTML = '<i>No data to show</i>';
+		return -1;
+	};
 	
 	data = google.visualization.arrayToDataTable(input, headrow);
 	data.sort({column: fldnum, desc: true}); 
