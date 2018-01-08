@@ -44,6 +44,7 @@
 
 				if ( preg_match("/\[([^\]]+)\](?: within .*)?$/", $cql, $matches) || preg_match("/\[([^\]]+)\] :: (.*?)(?: within .*)?$/", $cql, $matches) ) {
 					$pmatch = $matches[1]; $smatch = $matches[2];
+					if ( $smatch ) $srest = " :: $smatch"; # TODO : Check if we want to keep everything
 					foreach ( explode ( ' & ', $pmatch ) as $pmp ) {
 						if ( preg_match("/([^ ]+) *= *\"([^\"]*)\"/", $pmp, $matches) ) $cqlname .= "<p>{%".pattname($matches[1], false)."} = <b>".$matches[2]."</b>";
 						else $cqlname .= "<p>$pmp";
@@ -72,9 +73,12 @@
 					$json = "[{label: '$fldname', id:'$fld'}, {label: '$fldname2', id:'$fld2'}, {label:'{%Count}', id:'count', type:'number'}],\n";
 					$headrow = "false"; 
 					$grname = "{%Frequency by}: $fldname {%and} $fldname2";
+					$fldids = array ( $fld, $fld2 );
 				} else if ( preg_match ( "/group Matches match ([^ ]+)/", $grquery, $matches )  ) {
 					$fld = $matches[1];
 					$fldname = '{%'.pattname($fld).'}' or $fldname = $fld;
+					if ( $fldname == "{%text_id}" ) $fldname = "{%Text}";
+					$fldids = array ( $fld );
 					$json = "[{label: '$fldname', id:'$fld'}, {label:'{%Count}', id:'count', type:'number'}],\n";
 					$headrow = "false";
 					$grname = "{%Frequency by}: $fldname";
@@ -86,15 +90,11 @@
 					$grtxt = $grquery;
 				};
 				
-				$maintext .= "<table>
-								<tr><th>{%Search query}:<td>$cqltxt</tr>
-								<tr><th>{%Group query}:<td>$grtxt</tr>
-							</table>";
 				
 				if ( preg_match("/_/", $mainfld) ) {
 					# For a relative query, pick up the total counts to calculate proportional measures
-					$query = "Tots = []";
-					$cqp->exec($query);
+					$query1 = "Tots = [] $srest";
+					$cqp->exec($query1);
 					$query = "group Tots match $mainfld";
 					$results2 = $cqp->exec($query);
 					foreach ( explode ( "\n", $results2 ) as $line ) {	
@@ -105,6 +105,11 @@
 					$cntcols = 3;
 					$withwpm = 1;
 				} else $cntcols = 1;
+
+				$maintext .= "<table>
+								<tr><th>{%Search query}:<td>$cqltxt</tr>
+								<tr><th>{%Group query}:<td>$grtxt</tr>
+							</table>";
 			
 				foreach ( explode ( "\n", $results ) as $line ) {	
 					$line = str_replace("'", "&#039;", $line);
@@ -115,7 +120,10 @@
 							if ( $i + 1 == count($flds) ) {
 								$flda .= "$fld"; 
 								$rowcnt = $fld;
-							} else $flda .= "'$fld', ";
+							} else {
+								if ( $fldids[$i] == 'text_id' ) $fld = preg_replace("/.*\//", "", $fld); # For text_id fields
+								$flda .= "'$fld', ";
+							};
 						};
 						if ( $tots ) {
 							$valtot = $tots[$rowval[0]];
@@ -167,8 +175,9 @@
 						<div style='width: 100%;' id=googlechart></div>
 						";
 
+			$maintext .= "<hr><p><a target=help href='http://teitok.corpuswiki.org/site/index.php?action=help&id=visualize'>{%Help}</a>";
 			if ( $cql && !$_GET['cql'] ) {
-				$maintext .= "<hr><p><a href='index.php?action=$action&cql=".urlencode($cql)."&query=".urlencode($grquery)."'>Direct URL</a>";
+				$maintext .= " &bull; <a href='index.php?action=$action&cql=".urlencode($cql)."&query=".urlencode($grquery)."'>{%Direct URL}</a>";
 			};
 	
 	

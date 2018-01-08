@@ -430,10 +430,10 @@ void treatfile ( string filename ) {
 
 				for ( pugi::xml_node formfld = taglevel.child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 					formkey = formfld.attribute("key").value(); 
-					if ( debug > 4 ) { cout << " - Looking for: " << formkey << endl; };
 					if ( formkey == "" ) { continue; }; // This is a grouping label not an sattribute 
 					formval = "";
 					xpath = formfld.attribute("xpath").value();
+					if ( debug > 4 ) { cout << " - Looking for: " << formkey << " = " << xpath << endl; };
 					if ( xpath != "" ) {
 						pugi::xpath_node xres;
 						string external = formfld.attribute("external").value();
@@ -447,11 +447,8 @@ void treatfile ( string filename ) {
 						} else {
 							xres = it->node().select_single_node(xpath.c_str());
 						};
-						if ( xres.attribute() ) {	
-							formval = xres.attribute().value();
-						} else {
-							formval = xres.node().child_value();
-						};
+						formval = pugi::xpath_query(".").evaluate_string(xres);;
+
 					} else if ( !strcmp(formfld.attribute("type").value(), "form") ) {
 						// calculate the form for form-type tags (on mtok and tok[dtok])
 						formval = calcform(it->node(), formkey);
