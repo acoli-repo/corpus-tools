@@ -777,6 +777,11 @@
 		# Do not allow frequency counts if we already have a pre-select CQL
 		if ( !$precql && !$nomatch && !$fileonly ) { # We actually do want text-based searches
 			$maintext .= "<hr>";
+			if ( $settings['cqp']['visualize'] == "cqp" ) {
+				$visaction = "cqp&act=freq";
+			} else {
+				$visaction = "visualize";
+			};
  			if ( $minmatchlength == 1 || $fileonly ) {
 				$maintext .= "<div style='display: block;' id='freqopts' name='freqopts'>
 					<h2>Frequency Options</h2>
@@ -793,11 +798,6 @@
 					if ( !$fileonly || preg_match("/text_/", $val['key']) ) $maintext .= "<p><a onclick=\"document.freqform.query.value = '{$val['key']}'; document.freqform.submit();\">{%{$val['display']}}</a>";
 				};
 						
-				if ( $settings['cqp']['visualize'] == "cqp" ) {
-					$visaction = "cqp&act=freq";
-				} else {
-					$visaction = "visualize";
-				};
 				$maintext .= "<p>Or run an additional custom CQP command on the results above (Matches):
 			
 					<form action='index.php?action=$visaction' id=freqform name=freqform method=post>
@@ -812,7 +812,7 @@
 					<h2>Additional queries</h2>
 					<p>Use the query above to run an additional CQP command on the result (Matches):
 			
-					<form action='index.php?action=$action&act=freq' id=freqform name=freqform method=post>
+					<form action='index.php?action=$visaction' id=freqform name=freqform method=post>
 						CQP Query:
 						<input type=hidden name=cql value='$cqlu' $chareqfn><input name='query' value='group Matches matchend lemma' size=70>
 						<input type=submit value='{%Search}'>
