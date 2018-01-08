@@ -803,10 +803,12 @@
 				};
 			}; 
 			foreach ( $settings['cqp']['frequency'] as $key => $val ) {
-				if ( !is_array($val) ) continue;
+				if ( !is_array($val) || $val['type'] == "group" ) continue; # Skip attributes and separator TODO: keep separators in pulldown?
+				if ( $val['nosearch'] && !$val['freq'] ) continue; # Skip non-searchable fields (unless explicitly freqable) 
 				if ( ( !$fileonly || preg_match("/text_/", $val['key']) ) ) {
-					if ( $val['type'] == "freq" ) $freqopts .= "<option value=\"{$val['key']}\">{%{$val['display']}}</option>";
-					else $nofreqopts .= "<p><a onclick=\"document.freqform.query.value = '{$val['key']}'; document.freqform.submit();\">{%{$val['display']}}</a>";
+					$display = $val['long'] or $display = $val['display'];
+					if ( $val['type'] == "freq" ) $freqopts .= "<option value=\"{$val['key']}\">{%$display}</option>";
+					else $nofreqopts .= "<p><a onclick=\"document.freqform.query.value = '{$val['key']}'; document.freqform.submit();\">{%$display}</a>";
 				};
 			};
 			if ( !$freqlist['text_id'] ) $freqopts .= "<option value=\"text_id\">{%Text}</option>";
