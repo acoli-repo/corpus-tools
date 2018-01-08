@@ -789,13 +789,16 @@
 		
 			if ( !$fileonly && $minmatchlength == 1 ) 
 			 foreach ( $settings['cqp']['pattributes'] as $key => $att ) {
+				if ( ( $att['nosearch'] || $att['freq'] == "no" ) && $att['freq'] != "yes" ) continue; # Skip non-searchable fields (unless explicitly freqable) 
 				$pattname = pattname($key);
 				$freqlist[$key] = 1;
 				$freqopts .= "<option value=\"$key\">{%$pattname}</option>";
 			};
 			foreach ( $settings['cqp']['sattributes'] as $lvl => $tmp ) {
+				if ( !$tmp['display'] && $val['freq'] != "yes" ) continue; # Skip non-searchable levels (unless explicitly freqable) 
 				foreach ( $tmp as $key => $val ) {
 					if ( !is_array($val) ) continue;
+					if ( ( $val['nosearch'] || $val['freq'] == "no" ) && $val['freq'] != "yes" ) continue; # Skip non-searchable fields (unless explicitly freqable) 
 					$fkey = $lvl."_".$key;
 					$pattname = pattname($fkey);
 					$freqlist[$fkey] = 1;
@@ -804,7 +807,6 @@
 			}; 
 			foreach ( $settings['cqp']['frequency'] as $key => $val ) {
 				if ( !is_array($val) || $val['type'] == "group" ) continue; # Skip attributes and separator TODO: keep separators in pulldown?
-				if ( ( $val['nosearch'] || $val['freq'] == "no" ) && !$val['freq'] == "yes" ) continue; # Skip non-searchable fields (unless explicitly freqable) 
 				if ( ( !$fileonly || preg_match("/text_/", $val['key']) ) ) {
 					$display = $val['long'] or $display = $val['display'];
 					if ( $val['type'] == "freq" ) $freqopts .= "<option value=\"{$val['key']}\">{%$display}</option>";
