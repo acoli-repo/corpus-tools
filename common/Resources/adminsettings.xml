@@ -230,6 +230,15 @@
 				<val key="cqp" display="Use the traditional server-side table from the CQP results"/>
 				<val key="visualize" display="Use the new Google visualization module"/>
 			</att>	
+			<att key="relcnt" display="Relative count type" default="wpm">
+				<desc>
+					Relative counts (the raw frequency divided by the total number of occurrences of that
+					type) can be either shown in WPM (words per million, default measure in corpus linguistics)
+					or percentage (tokens per hundred, more familiar to the general user).
+				</desc>	
+				<val key="wpm" display="Words per million"/>
+				<val key="perc" display="Percentage (occurrences per 100 tokens)"/>
+			</att>	
 			<list>
 				<att key="key" display="Query"/>
 				<att key="display" display="Name of the query"/>

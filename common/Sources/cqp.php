@@ -782,44 +782,60 @@
 			} else {
 				$visaction = "visualize";
 			};
- 			if ( $minmatchlength == 1 || $fileonly ) {
-				$maintext .= "<div style='display: block;' id='freqopts' name='freqopts'>
-					<h2>Frequency Options</h2>
-					<p>Use the query above to calculate:";
-			
-				$freqopts = $settings['cqp']['frequency'] or 
-					$freqopts = array ( 
-						array ( 'key' => 'group Matches match pos', 'display' => 'Frequency by POS' ),
-						array ( 'key' => 'group Matches match lemma', 'display' => 'Frequency by lemma'),
-						array ( 'key' => 'group Matches match pos by match lemma', 'display' => 'Frequency by POS+lemma'),
-					);
-				
-				foreach ( $freqopts as $key => $val ) {
-					if ( !$fileonly || preg_match("/text_/", $val['key']) ) $maintext .= "<p><a onclick=\"document.freqform.query.value = '{$val['key']}'; document.freqform.submit();\">{%{$val['display']}}</a>";
-				};
-						
-				$maintext .= "<p>Or run an additional custom CQP command on the results above (Matches):
-			
-					<form action='index.php?action=$visaction' id=freqform name=freqform method=post>
-						CQP Query:
-						<input type=hidden name=cql value='$cqlu' $chareqfn><input name='query' value='group Matches match lemma' size=70>
-						<input type=submit value='{%Apply}'>
-					</form>
-					<br></div>
-					";
-			} else {
-				$maintext .= "<div style='display: block;' id='freqopts' name='freqopts'>
-					<h2>Additional queries</h2>
-					<p>Use the query above to run an additional CQP command on the result (Matches):
-			
-					<form action='index.php?action=$visaction' id=freqform name=freqform method=post>
-						CQP Query:
-						<input type=hidden name=cql value='$cqlu' $chareqfn><input name='query' value='group Matches matchend lemma' size=70>
-						<input type=submit value='{%Search}'>
-					</form>
-					<br></div>
-					";
+
+			$maintext .= "<div style='display: block;' id='freqopts' name='freqopts'>
+				<h2>Frequency Options</h2>
+				<p>Use the query above to calculate:";
+		
+			if ( !$fileonly && $minmatchlength == 1 ) 
+			 foreach ( $settings['cqp']['pattributes'] as $key => $att ) {
+				$pattname = pattname($key);
+				$freqlist[$key] = 1;
+				$freqopts .= "<option value=\"$key\">{%$pattname}</option>";
 			};
+			foreach ( $settings['cqp']['sattributes'] as $lvl => $tmp ) {
+				foreach ( $tmp as $key => $val ) {
+					if ( !is_array($val) ) continue;
+					$fkey = $lvl."_".$key;
+					$pattname = pattname($fkey);
+					$freqlist[$fkey] = 1;
+					$freqopts .= "<option value=\"$fkey\">{%$pattname}</option>";
+				};
+			}; 
+			foreach ( $settings['cqp']['frequency'] as $key => $val ) {
+				if ( !is_array($val) ) continue;
+				if ( ( !$fileonly || preg_match("/text_/", $val['key']) ) ) {
+					if ( $val['type'] == "freq" ) $freqopts .= "<option value=\"{$val['key']}\">{%{$val['display']}}</option>";
+					else $nofreqopts .= "<p><a onclick=\"document.freqform.query.value = '{$val['key']}'; document.freqform.submit();\">{%{$val['display']}}</a>";
+				};
+			};
+			if ( !$freqlist['text_id'] ) $freqopts .= "<option value=\"text_id\">{%Text}</option>";
+			$freqopts .= "<option value=\"custom\">Custom distribution</option>";
+			$maintext .= "<p>Frequency by: <select onchange=\"freqchoose(this.value);\">
+				$freqopts
+			</select>
+			<p>$nofreqopts</p>
+			<script language=Javascript>
+			function freqchoose (val) {
+				if ( val == 'custom') {
+					document.getElementById('customfreq').style.display = 'block';
+				} else {
+					document.freqform.query.value = 'group Matches match ' + val; document.freqform.submit();
+				};
+			};
+			</script>";
+			
+					
+			$maintext .= "<div id='customfreq' style='display: none;'><p>Specifiy additional custom CQP command on the results above (Matches):
+		
+				<form action='index.php?action=$visaction' id=freqform name=freqform method=post>
+					CQP Query:
+					<input type=hidden name=cql value='$cqlu' $chareqfn><input name='query' value='group Matches match lemma' size=70>
+					<input type=submit value='{%Apply}'>
+				</form>
+				</div>
+				<br></div>
+				";
 		};		
 		
 

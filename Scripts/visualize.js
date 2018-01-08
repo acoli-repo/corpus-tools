@@ -31,7 +31,6 @@ function downloadData ( dltype='csv' ) {
 			window.open(url, '_new');
 		} else {
 			console.log('No SVG found, table?');
-			console.log(document.getElementsByTagName('svg'));
 		};
 	};
 };
@@ -96,29 +95,39 @@ function drawGraph(type='table') {
 	data = google.visualization.arrayToDataTable(input, headrow);
 	data.sort({column: fldnum, desc: true}); 
 
-	if ( type == 'pie' ) {
+	if ( cntcols == 3 && charttype == "table" ) {
+		// Format WPM with two digits after the comma
+		var formatter1 = new google.visualization.NumberFormat({pattern:'###,###.00'});
+		formatter1.format(data, fldnum+2);
+	};
+
+	switch ( type  ) {
+	case 'pie' :
 		options = {
 			legend: { position: 'bottom',  },
 			sliceVisibilityThreshold: .03,
-			chartArea : { top: 0, left: 5 }
+			chartArea : { top: 0, left: 5 },
+			pieSliceText: 'label',
 		};
 
 		viewport.style.height = '600px';
 		chart = new google.visualization.PieChart(viewport);
-		chart.draw(data, options);
-	} else if ( type == 'piehole' ) {
+		break;
+
+	case 'piehole' :
 		options = {
 			legend: { position: 'right' },
 			pieHole: 0.5,
 			sliceVisibilityThreshold: .01,
-			chartArea : { top: 15, left: 5 }
+			chartArea : { top: 15, left: 5 },
+			pieSliceText: 'label',
 		};
 
 		viewport.style.height = '600px';
 		chart = new google.visualization.PieChart(viewport);
-		chart.draw(data, options);
+		break;
 
-	} else if ( type == 'table' ) {
+	case 'table' :
 		options = {
 			legend: 'none',
 		};
@@ -126,17 +135,18 @@ function drawGraph(type='table') {
 		viewport.style.height = 'auto';
 		chart = new google.visualization.Table(viewport);
 		chart.draw(data, options);
+		break;
 
-	} else if ( type == 'histogram' ) {
+	case 'histogram' :
 		options = {
 			legend: 'none',
 		};
 
 		viewport.style.height = '600px';
 		chart = new google.visualization.Histogram(viewport);
-		chart.draw(data, options);
+		break;
 
-	} else if ( type == 'lines' ) {
+	case 'lines' :
 		options = {
 			legend: 'none',
 			curveType: 'function',
@@ -145,9 +155,9 @@ function drawGraph(type='table') {
 
 		viewport.style.height = '600px';
 		chart = new google.charts.Line(viewport);
-		chart.draw(data, options);
+		break;
 
-	} else if ( type == 'scatter' ) {
+	case 'scatter' :
 		options = {
 			legend: 'none',
 			curveType: 'function',
@@ -156,23 +166,20 @@ function drawGraph(type='table') {
 
 		viewport.style.height = '600px';
 		chart = new google.charts.Scatter(viewport);
-		chart.draw(data, options);
+		break;
 
-	} else if ( type == 'geochart' ) {
-	
+	case 'geochart' :
 		options = {
 	        displayMode: 'markers',
 	        enableRegionInteractivity: true,
 			showZoomOut: true,
 		}; 
-		console.log(options);
 
 		viewport.style.height = '600px';
 		chart = new google.visualization.GeoChart(viewport);
-		chart.draw(data, options);
+		break;
 
-	} else if ( type == 'geomap' ) {
-	
+	case 'geomap' :
 		options = {
           showTooltip: true,
           showInfoWindow: true
@@ -180,10 +187,9 @@ function drawGraph(type='table') {
 
 		viewport.style.height = '600px';
 		chart = new google.visualization.Map(viewport);
-		chart.draw(data, options);
+		break;
 
-	} else if ( type == 'bars' ) {
-
+	case 'bars' :
 		var height = data.getNumberOfRows() * 30 + 60;
 		options = {
 			legend: null,
@@ -193,12 +199,12 @@ function drawGraph(type='table') {
 		};
 
 		viewport.style.height = 'auto';
-		var view = new google.visualization.DataView(data);
-		view.setColumns([0, 1]);
 		chart = new google.charts.Bar(viewport);
-		chart.draw(view, options);
+		break;
 
 	};
+
+	chart.draw(data, options);
 	google.visualization.events.addListener(chart, 'select', selectHandler);
 	google.visualization.events.addListener(chart, 'regionClick', regionClick);
 

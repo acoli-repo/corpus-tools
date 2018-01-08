@@ -101,9 +101,17 @@
 						list ( $a, $b ) = explode ( "\t", $line );
 						$tots[$a] = $b;
 					};
-					$json = preg_replace("/\],\n$/", ", {id:'totcnt', label:'{%Total}'}, {id:'relcnt', label:'{%WPM}', title:'{%Words per million}'}],\n", $json);
+					if ( $settings['cqp']['frequency']['relcnt'] == "perc" ) {
+						$withwpm = 100;
+						$wpmdesc = "Percentage (occurrences per 100 tokens)";
+						$wpmtxt = "Perc.";						
+					} else {
+						$withwpm = 1000000;
+						$wpmdesc = "Words per million";
+						$wpmtxt = "WPM";
+					};
+					$json = preg_replace("/\],\n$/", ", {id:'totcnt', label:'{%Total}'}, {id:'relcnt', label:'{%$wpmtxt}', title:'{%$wpmdesc}', format:'###,###.#', type:'number'}],\n", $json);
 					$cntcols = 3;
-					$withwpm = 1;
 				} else $cntcols = 1;
 
 				$maintext .= "<table>
@@ -127,7 +135,7 @@
 						};
 						if ( $tots ) {
 							$valtot = $tots[$rowval[0]];
-							$relcnt = ($rowcnt/$valtot) * 1000000;
+							$relcnt = ($rowcnt/$valtot) * $withwpm;
 							$flda .= ", $valtot, $relcnt";
 						};
 						$json .= "[$flda],\n";
@@ -143,7 +151,7 @@
 			
 		$cqltxt = str_replace("'", "&#039;", $cql);
 		if ( $mainfld == "text_geo" ) { $maps = "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
-		if ( $withwpm ) $wpmsel = " | {%Base}: <select name='cntcol' onChange='setcnt(this.value);'><option value='count'>Count</option><option value='wpm'>WPM</option></select>";
+		if ( $withwpm ) $wpmsel = " | {%Base}: <select name='cntcol' onChange='setcnt(this.value);'><option value='count' title='{%Raw frequency}'>Count</option><option value='wpm' title='{%$wpmdesc}'>$wpmtxt</option></select>";
 		if ( $json ) {
 	
 			if ( $_GET['charttype'] ) $inittype = "'{$_GET['charttype']}'";
