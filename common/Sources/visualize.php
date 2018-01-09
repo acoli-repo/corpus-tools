@@ -52,11 +52,11 @@
 
 				$size =$cqp->exec("size Matches");
 
-				if ( preg_match("/\[([^\]]+)\](?: within .*)?$/", $cql, $matches) || preg_match("/\[([^\]]+)\] :: (.*?)(?: within .*)?$/", $cql, $matches) ) {
+				if ( preg_match("/ *\[([^\]]+)\](?: *within .*)?$/", $cql, $matches) || preg_match("/ *\[([^\]]+)\] *:: *(.*?)(?: *within .*)?$/", $cql, $matches) ) {
 					$pmatch = $matches[1]; $smatch = $matches[2];
 					if ( $smatch ) $srest = " :: $smatch"; # TODO : Check if we want to keep everything
 					foreach ( explode ( ' & ', $pmatch ) as $pmp ) {
-						if ( preg_match("/([^ ]+) *= *\"([^\"]*)\"/", $pmp, $matches) ) $cqlname .= "<p>{%".pattname($matches[1], false)."} = <b>".$matches[2]."</b>";
+						if ( preg_match("/ *([^ ]+) *= *\"([^\"]*)\" */", $pmp, $matches) ) $cqlname .= "<p>{%".pattname($matches[1], false)."} = <b>".$matches[2]."</b>";
 						else $cqlname .= "<p>$pmp";
 					};
 					foreach ( explode ( ' & ', $smatch ) as $smp ) {
@@ -274,6 +274,7 @@
 		$pattfld = pattsett($key);
 		if ( $pattfld ) {
 			$name = $pattfld['long'] or $name = $pattfld['display'];
+			return $name;
 		};
 				
 		if ( $dolang ) return $key;

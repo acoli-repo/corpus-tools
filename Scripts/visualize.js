@@ -104,7 +104,6 @@ function drawGraph(type='table') {
 			}; 
 		};
 		fldnum = 1; // We now have only 1 column left
-		cntcol = 1; // We deleted the other counting columns
 	};
 
 	if ( input.length == 0 || ( !headrow && input.length == 1 ) ) {
