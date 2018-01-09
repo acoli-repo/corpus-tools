@@ -35,7 +35,7 @@ function downloadData ( dltype='csv' ) {
 	};
 };
 
-function setcnt(input = 'count') {
+function setcnt(input = 'freq') {
 	cnttype = input;
 	if ( charttype != 'table' ) {
 		drawGraph(charttype);
@@ -46,16 +46,15 @@ function drawGraph(type='table') {
 	charttype = type;
 	var input; var fldnum = json[0].length - cntcols;
 	var cntcol = fldnum;
-	if ( type == 'table' ) {
-		input = json;
-	} else if ( type == 'geomap' ) {
+	input = json;
+	if ( cnttype == 'wpm' && cntcols > 1 ) {
+		cntcol = fldnum+2;
+	} else {
+		cntcol = fldnum;
+	};
+	if ( type == 'geomap' ) {
 		// Split geolocation 
 		input = []; 
-		if ( cnttype == 'wpm' && cntcols > 1 ) {
-			cntcol = fldnum+2;
-		} else {
-			cntcol = fldnum;
-		};
 		for ( var i=0; i<json.length; i++ ) {
 			var row = json[i];
 			if ( row[0]['id'] ) {
@@ -67,24 +66,24 @@ function drawGraph(type='table') {
 		};
 		fldnum = 2; // We now have 2 columns
 		headrow = false;
-	} else { 
+	} else if ( type != "table"  ) { 
 		// Merge cells unless we have a table
 		input = []; 
-		if ( cnttype == 'wpm' && cntcols > 1 ) {
-			cntcol = fldnum+2;
-		} else {
-			cntcol = fldnum;
-		};
 		for ( var i=0; i<json.length; i++ ) {
 			var row = json[i];
 			if ( row[0]['id'] ) {
 				var fldlabs = row.slice(0,fldnum).map(function(item) { return item['label']; });
 				input.push([fldlabs.join(' + '), json[i][cntcol]]);
 			} else {
-				input.push([json[i].slice(0,fldnum).join('+'), json[i][cntcol]]);
+				if ( fldnum > 1 ) {
+					input.push([json[i].slice(0,fldnum).join('+'), json[i][cntcol]]);
+				} else {
+					input.push([json[i][0], json[i][cntcol]]);
+				};
 			}; 
 		};
 		fldnum = 1; // We now have only 1 column left
+		cntcol = 1; // We deleted the other counting columns
 	};
 
 	if ( input.length == 0 || ( !headrow && input.length == 1 ) ) {
@@ -160,12 +159,28 @@ function drawGraph(type='table') {
 	case 'scatter' :
 		options = {
 			legend: 'none',
-			curveType: 'function',
-		};
+    	};
 		data.sort({column: 0, desc: false}); 
 
 		viewport.style.height = '600px';
 		chart = new google.charts.Scatter(viewport);
+		break;
+
+	case 'trendline' :
+		options = {
+			legend: 'none',
+			hAxis: { title: json[0][0]['label'] },
+			vAxis: { title: json[0][cntcol]['label'] },
+    	    crosshair: { trigger: 'both' }, // Display crosshairs on focus and selection.
+		    trendlines: { 0: { color: 'green' } },    // Draw a trendline for data series 0.
+		};
+
+		// For a trendline, we need to have a number column with unique numbers # TODO: Do we?
+		// data = google.visualization.data.group(data, [{'column': 0, 'type': 'number'}], [{'column': cntcol, 'aggregation': google.visualization.data.sum, 'type': 'number'}] );
+		data.sort({column: 0, desc: false}); 
+
+		viewport.style.height = '600px';
+		chart = new google.visualization.ScatterChart(viewport);
 		break;
 
 	case 'geochart' :

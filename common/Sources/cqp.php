@@ -787,9 +787,20 @@
 				<h2>Frequency Options</h2>
 				<p>Use the query above to calculate:";
 		
+			foreach ( $settings['cqp']['frequency'] as $key => $val ) {
+				if ( !is_array($val) || $val['type'] == "group" ) continue; # Skip attributes and separator TODO: keep separators in pulldown?
+				if ( ( !$fileonly || preg_match("/text_/", $val['key']) ) ) {
+					$display = $val['long'] or $display = $val['display'];
+					if ( $val['type'] == "freq" ) {
+						$freqlist[$val['key']] = 1;
+						$freqopts .= "<option value=\"{$val['key']}\">{%$display}</option>";
+					} else $nofreqopts .= "<p><a onclick=\"document.freqform.query.value = '{$val['key']}'; document.freqform.submit();\">{%$display}</a>";
+				};
+			};
 			if ( !$fileonly && $minmatchlength == 1 ) 
 			 foreach ( $settings['cqp']['pattributes'] as $key => $att ) {
 				if ( ( $att['nosearch'] || $att['freq'] == "no" ) && $att['freq'] != "yes" ) continue; # Skip non-searchable fields (unless explicitly freqable) 
+				if ( $freqlist[$key] ) continue; # Skip attributes already listed explicitly
 				$pattname = pattname($key);
 				$freqlist[$key] = 1;
 				$freqopts .= "<option value=\"$key\">{%$pattname}</option>";
@@ -800,19 +811,12 @@
 					if ( !is_array($val) ) continue;
 					if ( ( $val['nosearch'] || $val['freq'] == "no" ) && $val['freq'] != "yes" ) continue; # Skip non-searchable fields (unless explicitly freqable) 
 					$fkey = $lvl."_".$key;
+					if ( $freqlist[$fkey] ) continue; # Skip attributes already listed explicitly
 					$pattname = pattname($fkey);
 					$freqlist[$fkey] = 1;
 					$freqopts .= "<option value=\"$fkey\">{%$pattname}</option>";
 				};
 			}; 
-			foreach ( $settings['cqp']['frequency'] as $key => $val ) {
-				if ( !is_array($val) || $val['type'] == "group" ) continue; # Skip attributes and separator TODO: keep separators in pulldown?
-				if ( ( !$fileonly || preg_match("/text_/", $val['key']) ) ) {
-					$display = $val['long'] or $display = $val['display'];
-					if ( $val['type'] == "freq" ) $freqopts .= "<option value=\"{$val['key']}\">{%$display}</option>";
-					else $nofreqopts .= "<p><a onclick=\"document.freqform.query.value = '{$val['key']}'; document.freqform.submit();\">{%$display}</a>";
-				};
-			};
 			if ( !$freqlist['text_id'] ) $freqopts .= "<option value=\"text_id\">{%Text}</option>";
 			$freqopts .= "<option value=\"custom\">Custom distribution</option>";
 			$maintext .= "<p>Frequency by: <select onchange=\"freqchoose(this.value);\">

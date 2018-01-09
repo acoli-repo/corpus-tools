@@ -68,18 +68,34 @@
 				$headrow = "true"; $fldnum = 1;
 				if ( preg_match ( "/group Matches match ([^ ]+) by match ([^ ]+)/", $grquery, $matches )  ) {
 					$fld2 = $matches[1]; $fld = $matches[2];
-					$fldname = '{%'.pattname($fld).'}' or $fldname = $fld;
+					$tmp = pattsett($fld); if ( $tmp ) {
+						$tmpt = $tmp['long'] or $tmpt = $tmp['display'];
+						if ( $tmp['var'] ) $type1 = ", 'type': '{$tmp['var']}'";
+						$fldname = '{%'.$tmpt.'}';
+						$fldi[0] = $tmp;
+					} else $fldname = $fld;
+					$tmp = pattsett($fld2); if ( $tmp ) {
+						$tmpt = $tmp['long'] or $tmpt = $tmp['display'];
+						if ( $tmp['var'] ) $type2 = ", type:'{$tmp['var']}'";
+						$fldname2 = '{%'.$tmpt.'}';
+						$fldi[1] = $tmp;
+					} else $fldname2 = $fld2;
 					$fldname2 = '{%'.pattname($fld2).'}' or $fldname2 = $fld2;
-					$json = "[{label: '$fldname', id:'$fld'}, {label: '$fldname2', id:'$fld2'}, {label:'{%Count}', id:'count', type:'number'}],\n";
+					$json = "[{label: '$fldname', id:'$fld' $type1}, {label: '$fldname2', id:'$fld2' $type2}, {label:'{%Frequency}', id:'freq', type:'number'}],\n";
 					$headrow = "false"; 
 					$grname = "{%Frequency by}: $fldname {%and} $fldname2";
 					$fldids = array ( $fld, $fld2 );
 				} else if ( preg_match ( "/group Matches match ([^ ]+)/", $grquery, $matches )  ) {
 					$fld = $matches[1];
-					$fldname = '{%'.pattname($fld).'}' or $fldname = $fld;
-					if ( $fldname == "{%text_id}" ) $fldname = "{%Text}";
+					$tmp = pattsett($fld); if ( $tmp ) {
+						$tmpt = $tmp['long'] or $tmpt = $tmp['display'];
+						if ( $tmp['var'] ) $type1 = ", type:'{$tmp['var']}'";
+						$fldname = '{%'.$tmpt.'}';
+						$fldi[0] = $tmp;
+					} else $fldname = $fld;
+					if ( $fldname == "text_id" ) $fldname = "{%Text}";
 					$fldids = array ( $fld );
-					$json = "[{label: '$fldname', id:'$fld'}, {label:'{%Count}', id:'count', type:'number'}],\n";
+					$json = "[{label: '$fldname', id:'$fld' $type1}, {label:'{%Frequency}', id:'freq', type:'number'}],\n";
 					$headrow = "false";
 					$grname = "{%Frequency by}: $fldname";
 				};	$mainfld = $fld;
@@ -103,8 +119,8 @@
 					};
 					if ( $settings['cqp']['frequency']['relcnt'] == "perc" ) {
 						$withwpm = 100;
-						$wpmdesc = "Percentage (occurrences per 100 tokens)";
-						$wpmtxt = "Perc.";						
+						$wpmdesc = "Percentage (within the total of the type)";
+						$wpmtxt = "Percentage";						
 					} else {
 						$withwpm = 1000000;
 						$wpmdesc = "Words per million";
@@ -128,6 +144,8 @@
 							if ( $i + 1 == count($flds) ) {
 								$flda .= "$fld"; 
 								$rowcnt = $fld;
+							} else if ( $fldi[$i]['var'] == "number" ) {
+								$flda .= intval($fld).', '; 
 							} else {
 								if ( $fldids[$i] == 'text_id' ) $fld = preg_replace("/.*\//", "", $fld); # For text_id fields
 								$flda .= "'$fld', ";
@@ -150,8 +168,9 @@
 		$apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B6JSu5Ne7WkNSE"; # Use our key when no other key is defined  
 			
 		$cqltxt = str_replace("'", "&#039;", $cql);
-		if ( $mainfld == "text_geo" ) { $maps = "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
-		if ( $withwpm ) $wpmsel = " | {%Base}: <select name='cntcol' onChange='setcnt(this.value);'><option value='count' title='{%Raw frequency}'>Count</option><option value='wpm' title='{%$wpmdesc}'>$wpmtxt</option></select>";
+		if ( $mainfld == "text_geo" || $fldi[0]['var'] == "geo"  ) { $moregs .= "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
+		if ( $fldi[0]['var'] == "number" )  { $moregs .= "<option value='trendline'>{%Trendline}</option>"; };
+		if ( $withwpm ) $wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value='freq' title='{%Corpus occurrences}'>Frequency</option><option value='wpm' title='{%$wpmdesc}'>$wpmtxt</option></select>";
 		if ( $json ) {
 	
 			if ( $_GET['charttype'] ) $inittype = "'{$_GET['charttype']}'";
@@ -168,12 +187,13 @@
 						<option value='lines'>{%Line Chart}</option>
 						<option value='scatter'>{%Scatter Chart}</option>
 						<option value='histogram'>{%Histogram}</option>
-						$maps
+						$moregs
 						</select>
 						$wpmsel
 						|
 						{%Download}:
 						<select name=download onClick=\"downloadData(this.value);\">
+						<option value=''>{%[select]}</option>
 						<option value='svg' class='imgbut' title='Download image as Scalable Vector Graphics'>{%SVG}</option>
 						<option value='png' class='imgbut' title='Download image as Portable Network Graphics'>{%PNG}</option>
 						<option value='csv' title='Download data as Comma-Separated Values'>{%CSV}</option>
@@ -198,7 +218,7 @@
 			var json = [$json];
 			var cql = '$cqltxt'; var data; var options;
 			var chart; var charttype;
-			var cnttype = 'count';
+			var cnttype = 'freq';
 			var headrow = $headrow;
 			var cntcols = $cntcols;
 			var viewport = document.getElementById('googlechart');
@@ -215,23 +235,31 @@
 		};
 	};
 
-	function pattname ( $key, $dolang = true ) {
+	function pattsett ( $key ) {
 		global $settings, $wordfld;
 		if ( $key == "word" && $wordfld ) $key = $wordfld;
-		$val = $settings['xmlfile']['pattributes']['forms'][$key]['display'];
+		$val = $settings['xmlfile']['pattributes']['forms'][$key];
 		if ( $val != "" ) return $val;
-		$val = $settings['xmlfile']['pattributes']['tags'][$key]['display'];
+		$val = $settings['xmlfile']['pattributes']['tags'][$key];
 		if ( $val != "" ) return $val;
 		
 		# Now try without the text_ or such
 		if ( preg_match ("/^(.*)_(.*?)$/", $key, $matches ) ) {
 			$key2 = $matches[2]; $keytype = $matches[1];
-			$val = $settings['cqp']['sattributes'][$key2]['display'];
+			$val = $settings['cqp']['sattributes'][$key2];
 			if ( $val != "" ) return $val;
-			$val = $settings['cqp']['sattributes'][$keytype][$key2]['display'];
+			$val = $settings['cqp']['sattributes'][$keytype][$key2];
 			if ( $val != "" ) return $val;
 		};
-		
+	};
+
+	function pattname ( $key, $dolang = true ) {
+		global $settings, $wordfld;
+		$pattfld = pattsett($key);
+		if ( $pattfld ) {
+			$name = $pattfld['long'] or $name = $pattfld['display'];
+		};
+				
 		if ( $dolang ) return $key;
 		return "<i>$key</i>";
 	};
