@@ -799,7 +799,7 @@
 			};
 			if ( !$fileonly && $minmatchlength == 1 ) 
 			 foreach ( $settings['cqp']['pattributes'] as $key => $att ) {
-				if ( ( $att['nosearch'] || $att['freq'] == "no" ) && $att['freq'] != "yes" ) continue; # Skip non-searchable fields (unless explicitly freqable) 
+				if ( ( $att['nosearch'] || $att['freq'] == "no" || ( $att['admin'] && !$username ) ) && $att['freq'] != "yes" ) continue; # Skip non-searchable fields (unless explicitly freqable) 
 				if ( $freqlist[$key] ) continue; # Skip attributes already listed explicitly
 				$pattname = pattname($key);
 				$freqlist[$key] = 1;
@@ -809,7 +809,7 @@
 				if ( !$tmp['display'] && $val['freq'] != "yes" ) continue; # Skip non-searchable levels (unless explicitly freqable) 
 				foreach ( $tmp as $key => $val ) {
 					if ( !is_array($val) ) continue;
-					if ( ( $val['nosearch'] || $val['freq'] == "no" ) && $val['freq'] != "yes" ) continue; # Skip non-searchable fields (unless explicitly freqable) 
+					if ( ( $val['nosearch'] || $val['freq'] == "no"  || ( $att['admin'] && !$username ) ) && $val['freq'] != "yes" ) continue; # Skip non-searchable fields (unless explicitly freqable) 
 					$fkey = $lvl."_".$key;
 					if ( $freqlist[$fkey] ) continue; # Skip attributes already listed explicitly
 					$pattname = pattname($fkey);
