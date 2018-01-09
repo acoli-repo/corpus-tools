@@ -42,7 +42,28 @@ function setcnt(input = 'freq') {
 	}; 
 };
 
+function disableView(views) {
+
+	var todo = views.split(',');
+	var sel = document.getElementById('graphselect');
+	for ( var i=0; i<sel.length; i++) {
+		var opt = sel[i];
+		if ( todo.indexOf(opt['value']) != -1 ) {
+			opt.style.display = 'none';
+		};
+	};
+
+};
+
 function drawGraph(type='table') {
+
+	// disable some options
+	if ( json[0][0]['type'] != "number" ) {
+		disableView('trendline');
+	} else {
+		// non-number fields are just cast to strings dynamically
+	};
+
 	charttype = type;
 	var input; var fldnum = json[0].length - cntcols;
 	var cntcol = fldnum;
@@ -75,7 +96,7 @@ function drawGraph(type='table') {
 				var fldlabs = row.slice(0,fldnum).map(function(item) { return item['label']; });
 				input.push([fldlabs.join(' + '), json[i][cntcol]]);
 			} else {
-				if ( fldnum > 1 ) {
+				if ( fldnum > 1 || charttype == 'pie' || charttype == 'piehole' ) {
 					input.push([json[i].slice(0,fldnum).join('+'), json[i][cntcol]]);
 				} else {
 					input.push([json[i][0], json[i][cntcol]]);
@@ -96,7 +117,7 @@ function drawGraph(type='table') {
 
 	if ( cntcols == 3 && charttype == "table" ) {
 		// Format WPM with two digits after the comma
-		var formatter1 = new google.visualization.NumberFormat({pattern:'###,###.00'});
+		var formatter1 = new google.visualization.NumberFormat({pattern:'###,##0.00'});
 		formatter1.format(data, fldnum+2);
 	};
 
@@ -159,6 +180,8 @@ function drawGraph(type='table') {
 	case 'scatter' :
 		options = {
 			legend: 'none',
+			hAxis: { title: json[0][0]['label'] },
+			vAxis: { title: json[0][cntcol]['label'] },
     	};
 		data.sort({column: 0, desc: false}); 
 
@@ -169,11 +192,14 @@ function drawGraph(type='table') {
 	case 'trendline' :
 		options = {
 			legend: 'none',
+			chartArea : { top: 20, left: 'auto' },
 			hAxis: { title: json[0][0]['label'] },
 			vAxis: { title: json[0][cntcol]['label'] },
     	    crosshair: { trigger: 'both' }, // Display crosshairs on focus and selection.
 		    trendlines: { 0: { color: 'green' } },    // Draw a trendline for data series 0.
 		};
+
+		// TODO: the hAxis title shows too low, solution?
 
 		// For a trendline, we need to have a number column with unique numbers # TODO: Do we?
 		// data = google.visualization.data.group(data, [{'column': 0, 'type': 'number'}], [{'column': cntcol, 'aggregation': google.visualization.data.sum, 'type': 'number'}] );

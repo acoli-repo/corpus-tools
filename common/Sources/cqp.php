@@ -820,6 +820,7 @@
 			if ( !$freqlist['text_id'] ) $freqopts .= "<option value=\"text_id\">{%Text}</option>";
 			$freqopts .= "<option value=\"custom\">Custom distribution</option>";
 			$maintext .= "<p>Frequency by: <select onchange=\"freqchoose(this.value);\">
+				<option value=''>{%[select]}</option>
 				$freqopts
 			</select>
 			<p>$nofreqopts</p>

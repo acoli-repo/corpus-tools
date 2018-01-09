@@ -2,8 +2,7 @@
 
 		# Show Google Visualization for data
 		
-		$maintext .= "<h2>Data Visualization</h2>";
-		$cntcols = 1;
+		$cntcols = 1; $headrow = 'false';
 
 		if ( $act == "cql" ) {
 		
@@ -19,12 +18,23 @@
 					</form>";
 					
 		} else {
+		
 			if ( $_GET['json'] or $_POST['json'] ) {
+	
+				if ( !$_POST ) $_POST = $_GET;
+	
+				$title = $_POST['title'] or $title = "Data Visualization";
+				$maintext .= "<h1>$title</h1>";
+		
+				if ( $_POST['description'] ) {
+					$maintext .= "<p>{$_POST['description']}</p><hr>";
+				};
 		
 				$json = $_GET['json'] or $json = $_POST['json'];
 		
 			} else if ( $_GET['cql'] or $_POST['cql'] ) {
 
+				$maintext .= "<h1>Corpus Distribution</h1>";
 				include ("$ttroot/common/Sources/cwcqp.php");
 				$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 				$cqpfolder = $settings['cqp']['searchfolder'];
@@ -160,26 +170,31 @@
 					};
 				};		
 
-			
+			$json = "[$json]";
+			$maintext .= "<hr>";
+			$cqltxt = str_replace("'", "&#039;", $cql);
+
+			# End of CQP section
+
 			} else {
+			
+			# TODO: Should we provide some default JSON?
 			
 			};
 
-		$apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B6JSu5Ne7WkNSE"; # Use our key when no other key is defined  
-			
-		$cqltxt = str_replace("'", "&#039;", $cql);
-		if ( $mainfld == "text_geo" || $fldi[0]['var'] == "geo"  ) { $moregs .= "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
-		if ( $fldi[0]['var'] == "number" )  { $moregs .= "<option value='trendline'>{%Trendline}</option>"; };
-		if ( $withwpm ) $wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value='freq' title='{%Corpus occurrences}'>Frequency</option><option value='wpm' title='{%$wpmdesc}'>$wpmtxt</option></select>";
 		if ( $json ) {
+
+			$apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B6JSu5Ne7WkNSE"; # Use our key when no other key is defined  
+			
+			if ( $mainfld == "text_geo" || $fldi[0]['var'] == "geo"  ) { $moregs .= "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
+			if ( $withwpm ) $wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value='freq' title='{%Corpus occurrences}'>Frequency</option><option value='wpm' title='{%$wpmdesc}'>$wpmtxt</option></select>";
 	
 			if ( $_GET['charttype'] ) $inittype = "'{$_GET['charttype']}'";
 					$maintext .= " 
-						<hr>
 						<div id='linkfield' style='float: right; z-index: 100; cursor: pointer;'></div>
 						<p>
 						{%Graph}:
-						<select name=graph onChange=\"drawGraph(this.value);\">
+						<select name=graph id=graphselect onChange=\"drawGraph(this.value);\">
 						<option value='table'>{%Table}</option>
 						<option value='pie'>{%Pie}</option>
 						<option value='piehole'>{%Donut}</option>
@@ -187,6 +202,7 @@
 						<option value='lines'>{%Line Chart}</option>
 						<option value='scatter'>{%Scatter Chart}</option>
 						<option value='histogram'>{%Histogram}</option>
+						<option value='trendline'>{%Trendline}</option>
 						$moregs
 						</select>
 						$wpmsel
@@ -215,7 +231,7 @@
 						<script type=\"text/javascript\" src=\"$jsurl/visualize.js\"></script>
 						<script type=\"text/javascript\">google.charts.load('current', {'packages':['corechart', 'table', 'bar', 'line', 'scatter' $morel ] $moreo });
 
-			var json = [$json];
+			var json = $json;
 			var cql = '$cqltxt'; var data; var options;
 			var chart; var charttype;
 			var cnttype = 'freq';
@@ -227,9 +243,9 @@
 			</script>
 				";
 			
-
 		} else {
 	
+			$maintext .= "<h1>Data Visualization</h1>";
 			$maintext .= "<p>No data to visualize";
 	
 		};
