@@ -99,9 +99,9 @@
 					$cmd = "$cmd   > \"tmp/$tmpfile.1.txt\"";
 					$cqp->exec($cmd); # print "<p>$cmd";
 
-					$cmd = 'cat tmp/'.$tmpfile.'.1.txt | perl -pe \'s/\s+/\n/g;\' | sort | uniq -c | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | sort > tmp/'.$tmpfile.'.2.txt';
+					$cmd = 'cat tmp/'.$tmpfile.'.1.txt | perl -e \'while (<>) { if ($_ eq "\n") { next; }; s/\s+/\n/g; print; };\' | sort | uniq -c | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | sort > tmp/'.$tmpfile.'.2.txt';
 					shell_exec($cmd); # print "<p>$cmd";
-					$cmd = '/usr/local/bin/cwb-lexdecode -f -s -r cqp -P '.$fld.' TT-COPLE | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | perl -pe \'s/ /_/g;\' | sort > tmp/'.$tmpfile.'.3.txt';
+					$cmd = '/usr/local/bin/cwb-lexdecode -f -s -r cqp -P '.$fld.' '.$cqpcorpus.' | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | perl -pe \'s/ /_/g;\' | sort > tmp/'.$tmpfile.'.3.txt';
 					shell_exec($cmd); # print "<p>$cmd";
 
 					$fldname = pattname($fld);
