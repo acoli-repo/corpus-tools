@@ -262,7 +262,10 @@
 		</att> 
 		<att key="textnotes" display="Note elements are part of the text"/> 
 		<att key="autonumber" display="Automatically number lines (1/0)" default="0"/> 
-		<att key="paged" display="Show one page at a time (1/0)" default="0"/>
+		<att key="paged" display="Show one page at a time" default="0">
+			<val key="0" display="Show the entire text"/>
+			<val key="1" display="Only show one page at a time"/>
+		</att>
 		<item key="teiHeader" display="items from the teiHeader to display" deprecated="1"/>
 		<item key="pattributes" display="Positional attributes (token-level)">
 			<item key="forms" display="Word form definitions">

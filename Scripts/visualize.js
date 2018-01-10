@@ -1,3 +1,5 @@
+var cntcols; var data; var options; var headrow;
+var chart; var charttype; var cnttype;
 
 function downloadData ( dltype='csv' ) {
 	if ( dltype == 'json' ) {
@@ -35,21 +37,42 @@ function downloadData ( dltype='csv' ) {
 	};
 };
 
-function setcnt(input = 'freq') {
+function setcnt(input = 1) {
 	cnttype = input;
-	if ( charttype != 'table' ) {
+
+	data = google.visualization.arrayToDataTable(json, headrow);
+	var minval = data.getColumnRange(json[0].length-1-cntcols+parseInt(cnttype)).min;
+	var disabled = false; 
+	
+	// Pies are not allowed to have negative values 
+	if ( minval < 0 ) {
+		disableView('pie,piehole', 1);
+		if ( charttype == 'pie' || charttype == 'piehole' ) { disabled = true; };
+	} else {
+		disableView('pie,piehole', 2);
+	};
+	
+	if ( charttype != 'table' && !disabled ) {
 		drawGraph(charttype);
 	}; 
 };
 
-function disableView(views) {
+function disableView(views, hide=0) {
 
 	var todo = views.split(',');
 	var sel = document.getElementById('graphselect');
+		
+	if ( sel != null ) 	
 	for ( var i=0; i<sel.length; i++) {
 		var opt = sel[i];
 		if ( todo.indexOf(opt['value']) != -1 ) {
-			opt.style.display = 'none';
+			if ( hide == 1 ) {
+				opt.disabled = true;
+			} else if ( hide == 2 ) {
+				opt.disabled = false;
+			} else {			
+				opt.style.display = 'none';
+			};
 		};
 	};
 
@@ -66,13 +89,11 @@ function drawGraph(type='table') {
 
 	charttype = type;
 	var input; var fldnum = json[0].length - cntcols;
-	var cntcol = fldnum;
 	input = json;
-	if ( cnttype == 'wpm' && cntcols > 1 ) {
-		cntcol = fldnum+2;
-	} else {
-		cntcol = fldnum;
-	};
+
+	var cntcol = fldnum + parseInt(cnttype) -1;
+	if ( cntcol > json[0].length ) { cntcol = json[0].length - 1; };
+
 	if ( type == 'geomap' ) {
 		// Split geolocation 
 		input = []; 
@@ -110,10 +131,11 @@ function drawGraph(type='table') {
 		viewport.innerHTML = '<i>No data to show</i>';
 		return -1;
 	};
-	
+	if ( !headrow ) { headrow = false; };
+
 	data = google.visualization.arrayToDataTable(input, headrow);
 	data.sort({column: fldnum, desc: true}); 
-
+	
 	if ( cntcols == 3 && charttype == "table" ) {
 		// Format WPM with two digits after the comma
 		var formatter1 = new google.visualization.NumberFormat({pattern:'###,##0.00'});

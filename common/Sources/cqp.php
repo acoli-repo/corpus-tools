@@ -771,8 +771,7 @@
 			";
 		$cqll = str_replace("'", "&#039;", $cql);
 		$maintext .= " - <a href='index.php?action=cqp&cql=".urlencode($cqll)."'>{%Direct query URL}</a>";
-		$maintext .= "<!-- CQL: $cql -->";
-		# $maintext .= "<span onclick=\"this.style.display = 'none'; document.getElementById('freqopts').style.display='block';\">show frequency options</span>";
+
 		
 		# Do not allow frequency counts if we already have a pre-select CQL
 		if ( !$precql && !$nomatch && !$fileonly ) { # We actually do want text-based searches
@@ -785,8 +784,11 @@
 
 			$maintext .= "<div style='display: block;' id='freqopts' name='freqopts'>
 				<h2>Frequency Options</h2>
+				<form action='index.php?action=$visaction' id=freqform name=freqform method=post>
 				<p>Use the query above to calculate:";
 		
+		
+			# Frequency distribution
 			foreach ( $settings['cqp']['frequency'] as $key => $val ) {
 				if ( !is_array($val) || $val['type'] == "group" ) continue; # Skip attributes and separator TODO: keep separators in pulldown?
 				if ( ( !$fileonly || preg_match("/text_/", $val['key']) ) ) {
@@ -803,6 +805,7 @@
 				if ( $freqlist[$key] ) continue; # Skip attributes already listed explicitly
 				$pattname = pattname($key);
 				$freqlist[$key] = 1;
+				$collopts .= "<option value=\"$key\">{%$pattname}</option>";
 				$freqopts .= "<option value=\"$key\">{%$pattname}</option>";
 			};
 			foreach ( $settings['cqp']['sattributes'] as $lvl => $tmp ) {
@@ -819,12 +822,32 @@
 			}; 
 			if ( !$freqlist['text_id'] ) $freqopts .= "<option value=\"text_id\">{%Text}</option>";
 			$freqopts .= "<option value=\"custom\">Custom distribution</option>";
-			$maintext .= "<p>Frequency by: <select onchange=\"freqchoose(this.value);\">
+			$maintext .= "<p>{%Collocation by}: 
+				<input type=hidden name=coll value=''>
+				<select name='collfld'>
+				<option value=''>{%[select]}</option>
+				$collopts
+			</select> 
+				| Context size: <select name='context'><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option></select>
+				| direction: <select name='dir'><option value='left'>Left</option><option value='right'>Right</option><option value='both' selected>Left and Right</option></select>
+				<input type=submit onClick=\"return collchoose();\"/>
+				";
+			
+			$maintext .= "<p>{%Frequency by}: <select onchange=\"freqchoose(this.value);\">
 				<option value=''>{%[select]}</option>
 				$freqopts
 			</select>
 			<p>$nofreqopts</p>
 			<script language=Javascript>
+			function collchoose () {
+				if ( document.freqform.collfld.value != '' ) { 
+					document.freqform.coll.value = '1'; 
+					document.freqform.submit(); 
+				} else {
+					console.log('no form chosen');
+					return false;
+				};
+			};
 			function freqchoose (val) {
 				if ( val == 'custom') {
 					document.getElementById('customfreq').style.display = 'block';
@@ -837,7 +860,7 @@
 					
 			$maintext .= "<div id='customfreq' style='display: none;'><p>Specifiy additional custom CQP command on the results above (Matches):
 		
-				<form action='index.php?action=$visaction' id=freqform name=freqform method=post>
+				
 					CQP Query:
 					<input type=hidden name=cql value='$cqlu' $chareqfn><input name='query' value='group Matches match lemma' size=70>
 					<input type=submit value='{%Apply}'>
@@ -1175,25 +1198,5 @@
 		$maintext .= $explanation;
 	
 	}; $maintext .= "<style>.adminpart { background-color: #eeeedd; padding: 5px; }</style>";
-
-	function pattname ( $key ) {
-		global $settings;
-		if ( $key == "word" ) $key = $wordfld;
-		$val = $settings['xmlfile']['pattributes']['forms'][$key]['display'];
-		if ( $val ) return $val;
-		$val = $settings['xmlfile']['pattributes']['tags'][$key]['display'];
-		if ( $val ) return $val;
-		
-		# Now try without the text_ or such
-		if ( preg_match ("/^(.*)_(.*?)$/", $key, $matches ) ) {
-			$key2 = $matches[2]; $keytype = $matches[1];
-			$val = $settings['cqp']['sattributes'][$key2]['display'];
-			if ( $val ) return $val;
-			$val = $settings['cqp']['sattributes'][$keytype][$key2]['display'];
-			if ( $val ) return $val;
-		};
-		
-		return "<i>$key</i>";
-	};
 
 ?>

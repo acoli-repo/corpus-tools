@@ -716,5 +716,36 @@
 		}; 
 		return $xml;
 	};
+
+
+	function pattsett ( $key ) {
+		global $settings, $wordfld;
+		if ( $key == "word" && $wordfld ) $key = $wordfld;
+		$val = $settings['xmlfile']['pattributes']['forms'][$key];
+		if ( $val != "" ) return $val;
+		$val = $settings['xmlfile']['pattributes']['tags'][$key];
+		if ( $val != "" ) return $val;
+		
+		# Now try without the text_ or such
+		if ( preg_match ("/^(.*)_(.*?)$/", $key, $matches ) ) {
+			$key2 = $matches[2]; $keytype = $matches[1];
+			$val = $settings['cqp']['sattributes'][$key2];
+			if ( $val != "" ) return $val;
+			$val = $settings['cqp']['sattributes'][$keytype][$key2];
+			if ( $val != "" ) return $val;
+		};
+	};
+
+	function pattname ( $key, $dolang = true ) {
+		global $settings, $wordfld;
+		$pattfld = pattsett($key);
+		if ( $pattfld ) {
+			$name = $pattfld['long'] or $name = $pattfld['display'];
+			return $name;
+		};
+				
+		if ( $dolang ) return $key;
+		return "<i>$key</i>";
+	};
 	
 ?>
