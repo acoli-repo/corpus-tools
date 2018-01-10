@@ -115,9 +115,9 @@
 					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi-square}'>{%Chi-square}</option><option value=5 title='{%Mutual information}'>{%MI}</option></select>";
 					$cntcols = 5;
 					
-					$maintext .= $debugtxt;
+					if ( $debug ) $maintext .= $debugtxt;
 	
-					# shell_exec("rm tmp/$tmpfile.*");
+					shell_exec("rm tmp/$tmpfile.*");
 				
 				} else {
 				
