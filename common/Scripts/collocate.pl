@@ -21,7 +21,7 @@ if ( !$size || !$corpussize ) {
 while ( <> ) {
 	chomp; 
 	($fld, $obs, $tot) = split(" "); 
-	if ( $fld eq '' ) { continue; };
+	if ( $fld eq "" ) { next; };
 	$exp = $size*($tot/$corpussize)*$span; 
 	$x2 = ($obs-$exp)**2/$exp; 
 	$mi = log( ($obs * $corpussize) / ( $size * $tot * $span ) ) / log(2);
