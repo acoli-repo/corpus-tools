@@ -27,6 +27,19 @@ if ( $act == "export" && $_POST['queries']  ) {
 		";	
 	
 	$maintext .= "<p>$cmd";
+
+} else if ( $act == "upload" ) {
+
+	$maintext .= "<h2>Import CSV</h2>
+		<p>After you created a CSV via this interface, you can download the CSV, modify it externally using a texteditor
+			or spreadsheet program, and then paste the modified CSV here. The CSV will not be saved directly,
+			but the modifed data will be loaded into the edit table, from where you can verify the data are correct
+			and save.
+			
+			<form action='index.php?action=$action&act=edit&file=$file' method=post>
+			<textarea name=csv></textarea>
+			<input type=submit value=Submit>
+			</form>";
 		
 } else if ( $act == "export" ) {
 	// Define a new export	
@@ -67,7 +80,7 @@ if ( $act == "export" && $_POST['queries']  ) {
 	
 } else if ( ( $act == "view" || $act == "edit" ) && $file ) {
 	// Define a new export	
-	
+		
 	$lines = explode ( "\n", file_get_contents($file) );
 	
 	// If the first line contains [fn] it is a header
@@ -79,6 +92,20 @@ if ( $act == "export" && $_POST['queries']  ) {
 	} else {
 		$header = array();
 	};
+	
+	if ( $_POST['csv'] ) {
+		$postcsv = explode ( "\n", $_POST['csv'] );
+	
+		// If the first line contains [fn] it is a header
+		if ( strpos( $postcsv[1], "[fn]" ) !== FALSE ) {
+			$desc = explode ( "\t", array_shift($postcsv) );
+			$postheader = explode ( "\t", array_shift($postcsv) );
+		} else if ( strpos( $postcsv[0], "[fn]" ) !== FALSE ) {
+			$postheader = explode ( "\t", array_shift($postcsv) );
+		} else {
+			$postheader = array();
+		};
+	}; 
 	
 	
 	$infofile = str_replace(".csv", ".info", $file);
@@ -122,18 +149,27 @@ if ( $act == "export" && $_POST['queries']  ) {
 			} else {
 				$maintext .= "<th>$fld";
 			};
-			$maintext .= "<input size=40 name=head[$nr] value=\"$fld\">";			
+			if ( $headedit ) {
+				$maintext .= "<input size=40 name=head[$nr] value=\"$fld\">";			
+			} else {
+				$maintext .= "<input type=hidden name=head[$nr] value=\"$fld\">";			
+			};
 		};	
 	};
 	
 	foreach ( $lines as $idx => $line ) {
 			$maintext .= "<tr>";
-		foreach ( explode("\t", $line) as $nr => $fld ) {
+			$linea = explode("\t", $line);
+			$posta = explode("\t", $postcsv[$idx]);
+		foreach ( $linea as $nr => $fld ) {
 			if ( $header[$nr] == "[fn]" ) { 
 				$filename = preg_replace("/.*\//", "", $fld);
 				$fldtxt = "<a href='index.php?action=file&cid=$fld' target=edit>$filename</a>";
 				$fldtxt .= "<input type=hidden size=40 name=vals[$idx][$nr] value=\"$fld\">";			
 			} else if ( $act == "edit" && $header[$nr] ) {
+				if ( $posta[0] == $linea[0] ) {	
+					$fld = $posta[$nr];
+				};
 				$fldtxt = "<input size=40 name=vals[$idx][$nr] value=\"$fld\">";			
 			} else {
 				$fldtxt = $fld;
@@ -147,7 +183,7 @@ if ( $act == "export" && $_POST['queries']  ) {
 	
 	if ( $act == "edit" ) {
 		$maintext .= "
-			<p><input type=submit value=\"Save Changes\"> <a href='index.php?action=$action'>cancel</a> </form>";
+			<p><input type=submit value=\"Save Changes\"> <a href='index.php?action=$action'>cancel</a> | <a href='index.php?action=$action&act=upload&file=$file'>upload modified CSV</a> </form>";
 	} else {
 		$maintext .= " &bull; <a href='index.php?action=$action&act=choose'>back to file list</a>";
 		if ( count($lines) < 1000 ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&file=$file'>edit</a>";
