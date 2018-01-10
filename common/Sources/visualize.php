@@ -97,21 +97,23 @@
 											</table>";
 		
 					$cmd = "$cmd   > \"tmp/$tmpfile.1.txt\"";
-					$cqp->exec($cmd); # print "<p>$cmd";
+					$cqp->exec($cmd); $debugtxt .= "<p>Make context : $cmd"; 
 
 					$cmd = 'cat tmp/'.$tmpfile.'.1.txt | perl -e \'while (<>) { if ($_ eq "\n") { next; }; s/\s+/\n/g; print; };\' | sort | uniq -c | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | sort > tmp/'.$tmpfile.'.2.txt';
-					shell_exec($cmd); # print "<p>$cmd";
+					shell_exec($cmd); $debugtxt .= "<p>Sort context: $cmd"; 
 					$cmd = '/usr/local/bin/cwb-lexdecode -f -s -r cqp -P '.$fld.' '.$cqpcorpus.' | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | perl -pe \'s/ /_/g;\' | sort > tmp/'.$tmpfile.'.3.txt';
-					shell_exec($cmd); # print "<p>$cmd";
+					shell_exec($cmd); $debugtxt .= "<p>Get lexicon: $cmd"; 
 
 					$fldname = pattname($fld);
 					$cmd = "join tmp/$tmpfile.2.txt tmp/$tmpfile.3.txt | perl $ttroot/common/Scripts/collocate.pl --selsize=$size --corpussize=$corpussize --fldname='$fldname' --span=$span";
-					$json = shell_exec($cmd); # print "<p>$cmd";
+					$json = shell_exec($cmd); $debugtxt .= "<p>Create collocation JSON: $cmd"; 
 					
 					$headrow = "false"; 
 
 					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi-square}'>{%Chi-square}</option><option value=5 title='{%Mutual information}'>{%MI}</option></select>";
 					$cntcols = 5;
+					
+					$maintext .= $debugtxt;
 	
 					# shell_exec("rm tmp/$tmpfile.*");
 				
