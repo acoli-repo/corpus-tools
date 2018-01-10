@@ -824,7 +824,7 @@
 			$freqopts .= "<option value=\"custom\">Custom distribution</option>";
 			$maintext .= "<p>{%Collocation by}: 
 				<input type=hidden name=coll value=''>
-				<select name='collfld'>
+				<select name='fld'>
 				<option value=''>{%[select]}</option>
 				$collopts
 			</select> 
@@ -840,11 +840,10 @@
 			<p>$nofreqopts</p>
 			<script language=Javascript>
 			function collchoose () {
-				if ( document.freqform.collfld.value != '' ) { 
+				if ( document.freqform.fld.value != '' ) { 
 					document.freqform.coll.value = '1'; 
 					document.freqform.submit(); 
 				} else {
-					console.log('no form chosen');
 					return false;
 				};
 			};
