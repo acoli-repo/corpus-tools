@@ -35,6 +35,8 @@
 		
 			
 			} else if ( $_GET['cql'] or $_POST['cql'] ) {
+			
+				$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
 
 				include ("$ttroot/common/Sources/cwcqp.php");
 				$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
@@ -101,7 +103,7 @@
 
 					$cmd = 'cat tmp/'.$tmpfile.'.1.txt | perl -e \'while (<>) { if ($_ eq "\n") { next; }; s/\s+/\n/g; print; };\' | sort | uniq -c | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | sort > tmp/'.$tmpfile.'.2.txt';
 					shell_exec($cmd); $debugtxt .= "<p>Sort context: $cmd"; 
-					$cmd = '/usr/local/bin/cwb-lexdecode -f -s -r cqp -P '.$fld.' '.$cqpcorpus.' | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | perl -pe \'s/ /_/g;\' | sort > tmp/'.$tmpfile.'.3.txt';
+					$cmd = '/usr/local/bin/cwb-lexdecode -f -s -r '.$registryfolder.' -P '.$fld.' '.$cqpcorpus.' | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | perl -pe \'s/ /_/g;\' | sort > tmp/'.$tmpfile.'.3.txt';
 					shell_exec($cmd); $debugtxt .= "<p>Get lexicon: $cmd"; 
 
 					$fldname = pattname($fld);
