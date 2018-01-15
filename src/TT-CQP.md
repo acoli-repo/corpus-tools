@@ -66,6 +66,12 @@ be used in grouping, so you can group by `match[-1].substr(pos,0,1)`, `a[1].lemm
 CQP command effectively only allows you to group by pairs (word+lemma in the example), the TT-CQP format more
 explicitly uses tuples of arbitrary size.
 
+### Sorting
+
+Contrary to CQP, in TT-CQP you can sort the results on anything, and not only on pattributes, so
+`sort A match.text_year` will sort the results in A on the year of the text (for match), and
+`sort A head.pos` will sort by the part-of-speech tag of the head of match/target.
+
 ### Statistics
 
 TT-CQP allows you to get statistical data for named queries. The format is `stats A lemma`, which will give a statistical
@@ -81,9 +87,10 @@ The output columns (when not using XML output) are: [lemma, count(lemma), totcou
 You can modify the output with the following options:
 
 * `measure:mutinf` will only produce the mutual information score (or chi2 score)
-* `show:lemma` will show the lemma for match/target before the lemma of the collocate
 * `context:+3` will use the first three tokens for the right of match/target for counting the collocates
 * `context:head` will not use the the position to the left/right of match/target but rather the position of the relative position head (see tabulate)
+* `show:lemma` will show the lemma for match/target before the lemma of the collocate, this is especially useful 
+to show the deps (dependency relation) when counting by headword.
 
 Keyword scores can be selected by using `stats A lemma :: type:keywords`.  
 
@@ -103,40 +110,7 @@ pwd> echo 'Matches = [word="casa"] [pos="A.*"]; tabulate Matches match.text_lang
 		<tab key="substr(match.pos,0,1)" val="N" />
 	</result>
 	<result>
-		<tab key="match.text_lang" val="PT" />
-		<tab key="match.id" val="w-148" />
-		<tab key="match.word" val="casa" />
-		<tab key="match[1].word" val="nativa" />
-		<tab key="substr(match.pos,0,1)" val="N" />
-	</result>
-	<result>
-		<tab key="match.text_lang" val="T" />
-		<tab key="match.id" val="w-459" />
-		<tab key="match.word" val="casa" />
-		<tab key="match[1].word" val="libre" />
-		<tab key="substr(match.pos,0,1)" val="N" />
-	</result>
-	<result>
-		<tab key="match.text_lang" val="PT" />
-		<tab key="match.id" val="w-168" />
-		<tab key="match.word" val="casa" />
-		<tab key="match[1].word" val="solo" />
-		<tab key="substr(match.pos,0,1)" val="N" />
-	</result>
-	<result>
-		<tab key="match.text_lang" val="" />
-		<tab key="match.id" val="w-38" />
-		<tab key="match.word" val="casa" />
-		<tab key="match[1].word" val="nova" />
-		<tab key="substr(match.pos,0,1)" val="N" />
-	</result>
-	<result>
-		<tab key="match.text_lang" val="PT" />
-		<tab key="match.id" val="w-351" />
-		<tab key="match.word" val="casa" />
-		<tab key="match[1].word" val="grandisimas" />
-		<tab key="substr(match.pos,0,1)" val="N" />
-	</result>
+	...
 </results>
 ```
 
