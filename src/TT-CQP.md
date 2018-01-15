@@ -14,9 +14,9 @@ become one, although more options will be added over time
 
 ### Options yet to be implemented
 
-* it is not yet possible to have wildcards on tokens, such as [pos="ADJ"]*
-* pattributes cannot match other attributes yet, such as [word=a.word]
-* :: within sattribute does not yet work
+* it is not yet possible to have wildcards on tokens, such as `[pos="ADJ"]*`
+* pattributes cannot match other attributes yet, such as `[word=a.word]`
+* `:: within sattribute` does not yet work
 * only matching (potentially with regex) is supported for now, so you cannot do: > < !=
 * case and diacritic insensitive search not yet supported (%cd)
 * soring does not yet do reverse or descending order
@@ -31,10 +31,63 @@ become one, although more options will be added over time
 * groupings and boolean operators are unlikely to be implemented
 * randomize sort should be done in post-processing tools
 * reduce is not likely to be implemented
-* structural attributes will not be implemented (<s>, /region, expand) - but the can be used as global constraints ( :: match.year = "1990" )
+* structural attributes will not be implemented (&lt;s&gt;, /region, expand) - but the can be used as global constraints (`:: match.year = "1990"`)
 * aligned corpora will not be supported
 
 ## Added options
+
+### XML output
+
+When using the option --output=xml, TT-CQP will produce the output of the group and tabulate command in XML format,
+where each tab of the output is marked with its key. An example is given below:
+
+```
+pwd> echo 'Matches = [word="casa"] [pos="A.*"]; tabulate Matches match.text_lang match.id match.word match[1].word substr(match.pos,0,1);' | tt-cqp --output=xml
+<results cql="[word=&quot;casa&quot;] [pos=&quot;A.*&quot;]" tab="match.text_lang match.id match.word match[1].word substr(match.pos,0,1)" size="6">
+	<result>
+		<tab key="match.text_lang" val="PT" />
+		<tab key="match.id" val="w-27" />
+		<tab key="match.word" val="casa" />
+		<tab key="match[1].word" val="corresponsal" />
+		<tab key="substr(match.pos,0,1)" val="N" />
+	</result>
+	<result>
+		<tab key="match.text_lang" val="PT" />
+		<tab key="match.id" val="w-148" />
+		<tab key="match.word" val="casa" />
+		<tab key="match[1].word" val="nativa" />
+		<tab key="substr(match.pos,0,1)" val="N" />
+	</result>
+	<result>
+		<tab key="match.text_lang" val="T" />
+		<tab key="match.id" val="w-459" />
+		<tab key="match.word" val="casa" />
+		<tab key="match[1].word" val="libre" />
+		<tab key="substr(match.pos,0,1)" val="N" />
+	</result>
+	<result>
+		<tab key="match.text_lang" val="PT" />
+		<tab key="match.id" val="w-168" />
+		<tab key="match.word" val="casa" />
+		<tab key="match[1].word" val="solo" />
+		<tab key="substr(match.pos,0,1)" val="N" />
+	</result>
+	<result>
+		<tab key="match.text_lang" val="" />
+		<tab key="match.id" val="w-38" />
+		<tab key="match.word" val="casa" />
+		<tab key="match[1].word" val="nova" />
+		<tab key="substr(match.pos,0,1)" val="N" />
+	</result>
+	<result>
+		<tab key="match.text_lang" val="PT" />
+		<tab key="match.id" val="w-351" />
+		<tab key="match.word" val="casa" />
+		<tab key="match[1].word" val="grandisimas" />
+		<tab key="substr(match.pos,0,1)" val="N" />
+	</result>
+</results>
+```
 
 ### Grouping
 
