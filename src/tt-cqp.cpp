@@ -30,18 +30,6 @@ using namespace boost;
 // subset (or restrict)
 // intersection, join, difference
 
-// Not planned:
-// interactive mode
-// set, show, dump
-// cat, count, discard, save,
-// macros
-// groupings and boolean operators
-// randomize sort
-// reduce
-// distance, distabs
-// structural attributes
-// aligned corpora
-
 // Forward declarations
 string pos2str(string a, int b);
 vector<int> idx2pos(string a, int b);
