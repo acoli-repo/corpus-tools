@@ -51,7 +51,7 @@
 				if ( substr($cql,0,6) == "<text>" ) $fileonly = 1;
 
 				$cqpquery = "Matches = $cql";
-				$cqp->exec($cqpquery);
+				$cqp->exec($cqpquery); $debugtxt .= "<p>Base query : $cqpquery"; 
 
 				$size = chop($cqp->exec("size Matches"));
 
@@ -74,7 +74,46 @@
 					$cqltxt = htmlentities($cql);
 				};
 
-				if ( $act == "collocations" || $_POST['coll'] ) {
+				if ( $act == "keyness" || $_POST['mode'] == "keyness" ) {
+					$maintext .= "<h1>Keyness</h1>";
+
+
+					$fld = $_POST['fld'] or $fld = "word";
+					
+					if ( $settings['cqp']['frequency']['refcorpus'] ) {
+						$refcorpus = $settings['cqp']['frequency']['refcorpus'];
+						$refcorpustxt = $settings['cqp']['frequency']['refcorpus'] or $refcorpustxt = $refcorpus;
+					} else {
+						$refcorpus = $cqpcorpus;
+						$refcorpustxt = "(internal)";
+					};
+
+					$cmd = "info $refcorpus;";
+					$tmp = $cqp->exec($cmd);
+					if ( preg_match("/Size:\s+(\d+)/", $tmp, $matches ) ) $corpussize = $matches[1];
+					else $corpussize = 0;
+
+					$tmpfile = time();
+	
+								$maintext .= "<table>
+												<tr><th>{%Search query}:<td>$cqltxt</tr>
+												<tr><th>{%Keyness}:<td><span title='$cmd'>{%Field}: $fld, {%Reference corpus}: $refcorpustxt</span></tr>
+											</table>";
+
+					
+					$cmd = "group Matches match $fld";
+					$cmd = "$cmd   > \"tmp/$tmpfile.1.txt\"";
+					$cqp->exec($cmd); $debugtxt .= "<p>Make context : $cmd"; 
+					$cmd = "cat \"tmp/$tmpfile.1.txt\" | sort > \"tmp/$tmpfile.2.txt\"";
+					shell_exec($cmd); $debugtxt .= "<p>Sort: $cmd"; 
+					$cmd = '/usr/local/bin/cwb-lexdecode -f -s -r '.$registryfolder.' -P '.$fld.' '.$cqpcorpus.' | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | perl -pe \'s/ /_/g;\' | sort > tmp/'.$tmpfile.'.3.txt';
+					shell_exec($cmd); $debugtxt .= "<p>Get lexicon: $cmd"; 
+
+					$fldname = pattname($fld);
+					$cmd = "join tmp/$tmpfile.2.txt tmp/$tmpfile.3.txt | perl $ttroot/common/Scripts/collocate.pl --selsize=$size --corpussize=$corpussize --fldname='$fldname' --span=1";
+					$json = shell_exec($cmd); $debugtxt .= "<p>Create collocation JSON: $cmd"; 
+				
+				} else if ( $act == "collocations" || $_POST['mode'] == "collocations" ) {
 					$maintext .= "<h1>Collocations</h1>";
 				
 					$cmd = "info $cqpcorpus;";
@@ -114,10 +153,8 @@
 
 					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi-square}'>{%Chi-square}</option><option value=5 title='{%Mutual information}'>{%MI}</option></select>";
 					$cntcols = 5;
-					
-					if ( $debug ) $maintext .= $debugtxt;
 	
-					shell_exec("rm tmp/$tmpfile.*");
+					if ( !$debug ) shell_exec("rm tmp/$tmpfile.*");
 				
 				} else {
 				
@@ -232,6 +269,8 @@
 				$maintext .= "<hr>";
 				# End of CQP section
 
+				if ( $debug ) $maintext .= $debugtxt;
+
 			} else {
 			
 			# TODO: Should we provide some default JSON?
@@ -301,7 +340,7 @@
 			
 		} else {
 	
-			$maintext .= "<h1>Data Visualization</h1>";
+			# $maintext .= "<h1>Data Visualization</h1>";
 			$maintext .= "<p>No data to visualize";
 	
 		};

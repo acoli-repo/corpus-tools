@@ -39,6 +39,8 @@ int tokcnt = 0;
 list<string> tagHist;
    
 map<string, map<string, int> > lexitems; // .lexicon ids
+map<string, map<int, int> > lexcnt; // .lexicon counts (on ids)
+map<string, map<int, int> > pos2lex; // .lexicon positions (on ids)
 map<string, map<string, ofstream*> > streams; // ascii output files
 map<string, map<string, FILE*> > files; // real output files
 map<string,int > lexidx; // max lexitems id
@@ -199,6 +201,8 @@ void treatnode ( pugi::xpath_node node ) {
 			lexidx[formkey]++; lexpos[formkey] += formval.length() + 1;
 		};
 		write_network_number(lexitems[formkey][formval], files[formkey]["corpus"]);
+		lexcnt[formkey][lexitems[formkey][formval]]++;
+		pos2lex[formkey][tokcnt-1] = tokcnt-1;
 
 	};		
 
@@ -214,6 +218,7 @@ void treatnode ( pugi::xpath_node node ) {
 	// write the //text/@id to text_id.idx
 	write_network_number(lexidx["text_id"], files["text_id"]["idx"]);
 
+	
 };
 
 void treatfile ( string filename ) {
@@ -260,6 +265,7 @@ void treatfile ( string filename ) {
     // Go through the toks
 	pugi::xpath_node_set toks = doc.select_nodes(tokxpath);
 	map<string, int> id_pos;
+	vector<pugi::xml_node> nodelist;
 	
 	if ( cqpsettings.attribute("withemptytext") != NULL && toks.size() == 0 ) {
 		// If we have no tokens in this file, but need to keep empty texts, create a single empty token inside this text
@@ -298,12 +304,15 @@ void treatfile ( string filename ) {
 				id_pos[dtoken.attribute("id").value()] = tokcnt;
 		
 				treatnode(dtoken);
+				nodelist.push_back(dtoken);
 
 	    	};
 		} else {
 			id_pos[node.attribute("id").value()] = tokcnt;
 		
 			treatnode(node);
+			nodelist.push_back(node);
+			
 		};			
 	}
 	int pos2 = tokcnt-1;
@@ -320,6 +329,21 @@ void treatfile ( string filename ) {
 		if ( debug > 4 ) { cout << "  - written to text" << endl; };
 	write_range_value (pos1, pos2, "text", "id", idname);
 		if ( debug > 4 ) { cout << "  - written to text_id" << endl; };
+
+	// if we have any id type fields, write to the .pos file
+	pugi::xpath_node_set idflds = xmlsettings.select_nodes("//cqp/pattributes/item[@type=\"id\"]");
+	for (pugi::xpath_node_set::const_iterator it1 = idflds.begin(); it1 != idflds.end(); ++it1) {
+		string idfld = it1->node().attribute("key").value();
+		for ( int x=0; x<nodelist.size(); x++ ) {
+			pugi::xml_node node = nodelist[x];
+			string refid = node.attribute(idfld.c_str()).value();
+			int refpos = -1;
+			if ( refid != "" ) {
+				refpos = id_pos[refid];
+			};
+			write_network_number(refpos, files[idfld]["pos"]);
+		};
+	};
 
 	// add the sattributes for all levels
 	string formkey; string formval; 
@@ -737,6 +761,13 @@ int main(int argc, char *argv[])
 		files[formkey]["idx"] = fopen(filename.c_str(), "wb"); 
 		filename = corpusfolder+"/"+formkey+".corpus";
 		files[formkey]["corpus"] = fopen(filename.c_str(), "wb"); 
+		
+		string tmp = formfld.attribute("type").value();
+		if ( tmp == "id" ) { // For id (ref) fields, also open a .pos file
+			filename = corpusfolder+"/"+formkey+".corpus.pos";
+			files[formkey]["pos"] = fopen(filename.c_str(), "wb"); 
+		};
+		
 	};		
 	
 	// Throw an exception if we did not manage to create corpus.lexicon
@@ -859,6 +890,32 @@ int main(int argc, char *argv[])
 
 	if ( verbose ) { cout << "- Calculating additional data" << endl; };
 
+	// write the corpus.cnt files
+	for (map<string, map<int, int> >::iterator it=lexcnt.begin(); it!=lexcnt.end(); ++it) {
+		string attname = it->first;
+		cout << attname << endl;
+		map<int,int> counts = it->second;
+		filename = corpusfolder + "/" + attname + ".corpus.cnt";
+		FILE* cntfile = fopen(filename.c_str(), "wb");
+		for (map<int, int>::iterator it2=counts.begin(); it2!=counts.end(); ++it2) {
+			write_network_number(it2->second, cntfile);
+		};
+		fclose(cntfile);
+	};
+	
+	// write the corpus.rev files
+	for (map<string, map<int, int> >::iterator it=pos2lex.begin(); it!=pos2lex.end(); ++it) {
+		string attname = it->first;
+		cout << attname << endl;
+		map<int,int> counts = it->second;
+		filename = corpusfolder + "/" + attname + ".corpus.rev";
+		FILE* cntfile = fopen(filename.c_str(), "wb");
+		for (map<int, int>::iterator it2=counts.begin(); it2!=counts.end(); ++it2) {
+			write_network_number(it2->second, cntfile);
+		};
+		fclose(cntfile);
+	};
+	
 
 	if ( verbose ) cout << "- " << tokcnt << " tokens in CQP corpus" << endl; 
 	cqpstats.append_attribute("tokens") = tokcnt;

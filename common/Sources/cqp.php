@@ -823,7 +823,7 @@
 			if ( !$freqlist['text_id'] ) $freqopts .= "<option value=\"text_id\">{%Text}</option>";
 			$freqopts .= "<option value=\"custom\">Custom distribution</option>";
 			$maintext .= "<p>{%Collocation by}: 
-				<input type=hidden name=coll value=''>
+				<input type=hidden name=mode value=''>
 				<select name='fld'>
 				<option value=''>{%[select]}</option>
 				$collopts
@@ -841,7 +841,7 @@
 			<script language=Javascript>
 			function collchoose () {
 				if ( document.freqform.fld.value != '' ) { 
-					document.freqform.coll.value = '1'; 
+					document.freqform.mode.value = 'collocations'; 
 					document.freqform.submit(); 
 				} else {
 					return false;
