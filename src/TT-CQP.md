@@ -17,7 +17,6 @@ become one, although more options will be added over time
 * it is not yet possible to have wildcards on tokens, such as `[pos="ADJ"]*`
 * pattributes cannot match other attributes yet, such as `[word=a.word]`
 * `:: within sattribute` does not yet work
-* only matching (potentially with regex) is supported for now, so you cannot do: > < !=
 * case and diacritic insensitive search not yet supported (%cd)
 * it is not yet possible to cut lists
 * ranged in tabulate output
@@ -64,14 +63,16 @@ resembles the tabulate command; where CQP uses `group A match word by match lemm
 `group A match.word match.lemma`; the reason for this difference is to allow the additional tabulate options to 
 be used in grouping, so you can group by `match[-1].substr(pos,0,1)`, `a[1].lemma`, or `head.word`; and where the
 CQP command effectively only allows you to group by pairs (word+lemma in the example), the TT-CQP format more
-explicitly uses tuples of arbitrary size.
+explicitly uses tuples of arbitrary size. For better compatibility with CQP, the CQP format of the group command
+will be translated into the TT-CQP format.
 
 ### Sorting
 
 Contrary to CQP, in TT-CQP you can sort the results on anything, and not only on pattributes, so
 `sort A match.text_year` will sort the results in A on the year of the text (for match), and
 `sort A head[1].substr(pos,0,1) descending` will sort in descending order by the first letter of the part-of-speech 
-tag of the first token to the right of the head of match/target. Instead of descending you can also use DESC.
+tag of the first token to the right of the head of match/target (who doesn't want to sort on that?). 
+Instead of descending you can also use DESC. You cannot (yet) search on ranges as in `sort A by word on matchend[1]..matchend[10]`; 
 
 ### Statistics
 

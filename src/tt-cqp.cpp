@@ -23,11 +23,12 @@ using namespace boost;
 // XML output
 // within
 // wildcard tokens (probably needs a restructuring of the match strategy)
-// other matches: > < !=
 // %cd
 // cut
 // subset (or restrict)
 // intersection, join, difference
+// sort A by word %cd on match .. matchend[42];
+// match..matchend
 
 // Forward declarations
 string pos2str(string a, int b);
@@ -57,21 +58,44 @@ pugi::xml_document logfile;
 pugi::xml_node settings;
 pugi::xml_node results;
 
+bool resmatch ( string a, string b, string matchtype = "=" ) {
+	// Check whether two strings "match" using various conditions
+	
+	// TODO: > < !> !< 
+	// Maybe: >deps or >>
+	
+	if ( matchtype == "=" ) { // Regex ==
+		return regex_match(a.c_str(), regex(b));
+	} else if ( matchtype == "==" ) { // String == 
+		return a == b;
+	} else if ( matchtype == "!=" ) {
+		if ( a == "" ) return false; // With the default regex non-match, we exclude empty strings
+		return !regex_match(a.c_str(), regex(b));
+	} else if ( matchtype == ">" ) {
+		return stoi(a,nullptr,10) > stoi(b,nullptr,10);
+	} else if ( matchtype == "<" ) {
+		return stoi(a,nullptr,10) < stoi(b,nullptr,10);
+	} else if ( matchtype == "!==" ) {
+		return a != b;
+	}
+	return false;
+};
+
 bool file_exists (const std::string& name) {
     ifstream f(name.c_str());
     return f.good();
 }
 
-bool streamopen ( FILE **stream, string filename) {	
+bool streamopen ( FILE **stream, string filename, bool throwerror = true ) {	
 	FILE* file;
-	if ( !files[filename] ) {
+	if ( !files[filename] ) { // TODO: this keeps trying when failing to open
 		file = fopen(filename.c_str(), "rb"); 
 		files[filename] = file;
+ 		if ( file == NULL && throwerror ) { cout << "Failed to open: " << filename << endl; }; // TODO: throw an exception the first time?
 	};
 	*stream = files[filename];
 
  	if ( *stream == NULL ) {
- 		cout << "Failed to open: " << filename << endl;
  		return false;
  	};
 	
@@ -127,7 +151,7 @@ class cqlfld {
 		
 	};
 	
-	string value(map<int,int> match) { // TODO: match should always be a string?
+	string value(map<int,int> match, string matchype = "=" ) { // non-string results should just get casted back later
 		cmatch m; string value;
 		
 		int posnum; int pos;
@@ -146,7 +170,7 @@ class cqlfld {
 	
 		// sattribute or pattribute
 		if ( regex_match (fld.c_str(), m, regex("(.*)_(.*)") ) ) {
-			int ridx = pos2ridx(fld, posnum);
+			int ridx = pos2ridx(fld, posnum); // TODO: this does not exist!
 			value = ridx2str(fld, ridx); 
 		} else {
 			value = pos2str(fld, posnum); 
@@ -225,9 +249,11 @@ class cqlresult {
         	if ( conds != "" ) split( parts, conds, is_any_of( "&" ) );
 			for ( int k=0; k<parts.size(); k++ ) {
 				string part = parts[k];
-				if ( regex_match (part.c_str(), m, regex("^ *(.*?) *= *\"(.*)\" *$") ) ) {
+				if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *\"(.*)\" *$") ) ) {
 					// Attribute matching string or regex
-					string attname = m[1]; string word = m[2];
+					string attname = m[1]; 
+					string matchtype = m[2];
+					string word = m[3];
 					if ( k == 0 && i == 0 ) {
 						vector<int> tmp;
 						if ( regex_match(word.c_str(), regex(".*[*+?].*")) ) {	
@@ -250,14 +276,14 @@ class cqlresult {
 						for ( int j=0; j<tocheck.size(); j++ ) {
 							map<int,int> tt = tocheck[j]; 
 							string newval = pos2str(attname,tt[i]);
-							if ( regex_match(newval.c_str(), regex(word)) ) { // Regex to generalize - was: newval == word
+							if ( resmatch(newval, word, matchtype) ) { // was: newval =regex= word
 								match.push_back(tt);
 							};
 						};
 					};
-				} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) *= *(.*\\..*)$") ) ) {
+				} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *(.*\\..*)$") ) ) {
 					// Attribute matching cqlfld
-					string attname = m[1]; string cond = m[2];
+					string attname = m[1]; string matchtype = m[2]; string cond = m[3];
 					cqlfld cqlfield; cqlfield.setfld(cond, named);
 					if ( k == 0 && i == 0 ) {
 						// TODO: Initialize with a cqlfld condition?
@@ -268,14 +294,14 @@ class cqlresult {
 							map<int,int> tt = tocheck[j]; 
 							string newval = pos2str(attname,tt[i]);
 							string cqllval = cqlfield.value(tt);
-							if ( newval == cqllval ) { 
+							if ( resmatch(newval, cqllval, matchtype) ) { 
 								match.push_back(tt);
 							};
 						};
 					};
-				} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) *= *(.*)$") ) ) {
+				} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *(.*)$") ) ) {
 					// Comparison of two attributes
-					string attname1 = m[1]; string attname2 = m[2];
+					string attname1 = m[1]; string matchtype = m[2]; string attname2 = m[3];
 					if ( k == 0 && i == 0 ) {
 						// TODO: Initialize with a comparison condition?
 					} else {
@@ -285,7 +311,7 @@ class cqlresult {
 							map<int,int> tt = tocheck[j]; 
 							string newval1 = pos2str(attname1,tt[i]);
 							string newval2 = pos2str(attname2,tt[i]);
-							if ( newval1 == newval2 ) { 
+							if ( resmatch(newval1, newval2, matchtype) ) { 
 								match.push_back(tt);
 							};
 						};
@@ -299,30 +325,31 @@ class cqlresult {
 		split( parts, global, is_any_of( "&" ) );
 		for ( int k=0; k<parts.size(); k++ ) {
 			string part = parts[k];
-			if ( regex_match (part.c_str(), m, regex("^ *(.*?) *= *\"(.*)\" *$") ) ) {
+			if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *\"(.*)\" *$") ) ) {
 				// Condition on a cqlfld
-				string cond = m[2]; 
+				string matchtype = m[2]; string cond = m[3]; 
 				cqlfld glfld; glfld.setfld(m[1], named);
 				vector< map<int,int> > tocheck = match;
 				match.clear();
 				for ( int j=0; j<tocheck.size(); j++ ) {
 					map<int,int> tt = tocheck[j]; 
-					string glval = glfld.value(tt);
-					if ( regex_match(glval.c_str(), regex("^"+cond+"$")) ) { // Regex to generalize - was: glval == cond
+					string glval = glfld.value(tt, matchtype);
+					if ( resmatch(glval, cond, matchtype) ) { // was: glval =regex= cond
 						match.push_back(tt);
 					};
 				};
-			} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) *= *(.*)$") ) ) {
+			} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *(.*)$") ) ) {
 				// Comparison between cqlfld 
 				cqlfld glfld1; glfld1.setfld(m[1], named);
-				cqlfld glfld2; glfld2.setfld(m[2], named);
+				string matchtype = m[2];
+				cqlfld glfld2; glfld2.setfld(m[3], named);
 				vector< map<int,int> > tocheck = match;
 				match.clear();
 				for ( int j=0; j<tocheck.size(); j++ ) {
 					map<int,int> tt = tocheck[j]; 
 					string glval1 = glfld1.value(tt);
 					string glval2 = glfld2.value(tt);
-					if ( glval1 == glval2 ) { 
+					if ( resmatch(glval1, glval2, matchtype) ) { 
 						match.push_back(tt);
 					};
 				};
@@ -521,6 +548,13 @@ class cqlresult {
 		vector<cqlfld> cqlfieldlist; string groupfld;
 		map<string,int> counts;
 		vector<string> fieldlist; 	cmatch m;  string sep; string value;
+		
+		if ( regex_match (fields.c_str(), m, regex("([^ ]+) ([^ ]+) by ([^ ]+) ([^ ]+)") ) ) {
+			// For compatibility with CQP
+			string tmp1 = m[1];			string tmp2 = m[2];			string tmp3 = m[3];			string tmp4 = m[4];
+			fields = tmp1+"."+tmp2+" "+tmp3+"."+tmp4;
+		};		
+		
 		split( fieldlist, fields, is_any_of( " " ) );
 
 		for ( int j=0; j< fieldlist.size(); j++ ) {
@@ -528,7 +562,7 @@ class cqlresult {
 			groupfld.setfld(fieldlist[j], named);
 			cqlfieldlist.push_back(groupfld);
 		}
-		if ( debug ) { cout << "Grouping by " << groupfld << endl; };
+		if ( debug ) { cout << "Grouping by " << fields << endl; };
 		for ( int i=0; i<match.size(); i++ ) {
 			sep = ""; value = "";
 			for ( int j=0; j<cqlfieldlist.size(); j++ ) {
@@ -712,9 +746,26 @@ int pos2ridx ( string attname, int pos ) {
  	FILE* stream; 
 
 	string filename = cqpfolder + attname + ".idx";
-	if ( !streamopen(&stream, filename) ) return -1;
 
-	int idx = read_network_number(pos,stream);
+	int idx = -1;
+	if ( streamopen(&stream, filename, false) ) {
+		// If we happen to have a satt.idx file, read quickly
+		cout << "Checking: " << filename << endl; 
+		idx = read_network_number(pos,stream);
+	} else {
+	 	FILE* stream2; 
+		string filename2 = cqpfolder + attname + ".rng";
+		streamopen(&stream2, filename2);
+		if ( stream2 == NULL ) { cout << "Failed to open RNG file: " << filename2 << endl; return -1; };
+		int start = -1; int end = -1; 
+		fseek(stream2, 0, SEEK_END); int max = ftell(stream2)/4;
+		for ( int i=0; i<max; i=i+2 ) {
+			start = read_network_number(i, stream2);
+			end = read_network_number(i+1, stream2);
+			
+			if ( start < pos && end > pos ) { idx = i/2; }; // TODO: gather rather than replace
+		};
+	};
 	//fclose(stream);
 	return idx;
 };
@@ -853,7 +904,7 @@ void cqlparse ( string cql ) {
 		subcorpora[m[2]].info();
 	} else if ( regex_match (cql.c_str(), m, regex("size +([^ ]+) (.*)$") ) ) {
 		cout << subcorpora[m[2]].size() << endl;
-	} else {
+	} else if (cql != "" ) {
 		cout << "Unrecognized command: " << cql << endl;
 	};
 
@@ -974,7 +1025,7 @@ int main(int argc, char *argv[]) {
 			for ( int i=0; i<max; i++ ) {
 				int val = read_network_number(i, stream);
 				cout << i << "\t" << val;
-				if ( fext == "lexicon.srt" || fext == "lexicon.idx" ) {
+				if ( fext == "lexicon.srt" || fext == "lexicon.idx" || fext == "corpus" ) {
 					cout << "\t\"" << idx2str(attname, val) << "\"";
 				} else if ( fext == "corpus.cnt" ) {
 					cout << "\t\"" << idx2str(attname, i) << "\"";
