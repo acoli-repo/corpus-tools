@@ -19,7 +19,6 @@ become one, although more options will be added over time
 * `:: within sattribute` does not yet work
 * only matching (potentially with regex) is supported for now, so you cannot do: > < !=
 * case and diacritic insensitive search not yet supported (%cd)
-* sort does not yet do reverse or descending order
 * it is not yet possible to cut lists
 * ranged in tabulate output
 * subcorpora cannot yet be modified by subset, intersection, join, or difference
@@ -34,6 +33,7 @@ become one, although more options will be added over time
 * reduce is not likely to be implemented
 * structural attributes will not be implemented (&lt;s&gt;, /region, expand) - but the can be used as global constraints (`:: match.year = "1990"`)
 * aligned corpora will not be supported
+* sort does not yet do reverse order (but does descending order)
 
 ## Added options
 
@@ -70,7 +70,8 @@ explicitly uses tuples of arbitrary size.
 
 Contrary to CQP, in TT-CQP you can sort the results on anything, and not only on pattributes, so
 `sort A match.text_year` will sort the results in A on the year of the text (for match), and
-`sort A head.pos` will sort by the part-of-speech tag of the head of match/target.
+`sort A head[1].substr(pos,0,1) descending` will sort in descending order by the first letter of the part-of-speech 
+tag of the first token to the right of the head of match/target. Instead of descending you can also use DESC.
 
 ### Statistics
 

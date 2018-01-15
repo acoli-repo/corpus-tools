@@ -25,7 +25,6 @@ using namespace boost;
 // wildcard tokens (probably needs a restructuring of the match strategy)
 // other matches: > < !=
 // %cd
-// reverse, descending
 // cut
 // subset (or restrict)
 // intersection, join, difference
@@ -337,11 +336,22 @@ class cqlresult {
 	};
 
 	void sort ( string field ) {
-		sortfield = field;
+		sortfield = field; cmatch m; bool desc;
+
+		if ( regex_match (field.c_str(), m, regex("(.*) (DESC|descending)") ) ) {
+			sortfield = m[1];
+			desc = true;
+		};		
+
 		cqlfld sortfld;
-		sortfld.setfld(field, named);
+		sortfld.setfld(sortfield, named);
 		if ( debug ) { cout << "Sorting on " << sortfld.fld << " - base " << sortfld.base << " - offset " << sortfld.offset << endl; };
 		std::sort (match.begin(), match.end(), Matchsorter(sortfld) );
+		
+		if ( desc ) {
+			vector< map<int,int> > swapped( match.rbegin(), match.rend() );
+			swapped.swap(match);
+		};
 	};
 
 	
@@ -833,17 +843,18 @@ void cqlparse ( string cql ) {
 		subcorpora[m[1]] = newcql;
 	} else if ( regex_match (cql.c_str(), m, regex("tabulate +([^ ]+) (.*)$") ) ) {
 		subcorpora[m[1]].tabulate(m[2]);
+	} else if ( regex_match (cql.c_str(), m, regex("sort +([^ ]+) (.*)$") ) ) {
+		subcorpora[m[1]].sort(m[2]);
 	} else if ( regex_match (cql.c_str(), m, regex("group +([^ ]+) (.*)$") ) ) {
 		subcorpora[m[1]].group(m[2]);
 	} else if ( regex_match (cql.c_str(), m, regex("stats +([^ ]+) (.*)$") ) ) {
 		subcorpora[m[1]].stats(m[2]);
-	} else if ( regex_match (cql.c_str(), m, regex("(info|size) +([^ ]+)$") ) ) {
-		string cmd = m[1];
-		if ( cmd == "info" ) {
-			subcorpora[m[2]].info();
-		} else if ( cmd == "size" ) {
-			cout << subcorpora[m[2]].size() << endl;
-		};
+	} else if ( regex_match (cql.c_str(), m, regex("info +([^ ]+) (.*)$") ) ) {
+		subcorpora[m[2]].info();
+	} else if ( regex_match (cql.c_str(), m, regex("size +([^ ]+) (.*)$") ) ) {
+		cout << subcorpora[m[2]].size() << endl;
+	} else {
+		cout << "Unrecognized command: " << cql << endl;
 	};
 
 };
