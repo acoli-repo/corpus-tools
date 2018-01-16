@@ -124,7 +124,8 @@ user> echo 'Matches = [word="casa"] [pos="A.*"]; tabulate Matches match.text_lan
 There is another sense in which TT-CQP can produce XML output: when used together with TT-CWB-ENCODE, instead of giving results
 from the CQP corpus itself, TT-CQP can lookup the underlying part of the XML files used as input for the CQP corpus. For
 this, the command `xidx A` is used, which will give the whole string from the XML file starting from the start of the
-token behind match, and ending with the token behind matchend, including anything in the middle. This means that the
+token behind match, and ending with the token behind matchend, including anything in the middle, independenty of whether that was
+indexed in the CQP corpus or not. If match and matchend do not belong to the same XML file, an empty string is given. This means that the
 resulting XML cannot be guaranteed to be valid, since match and matchend might not belong to the same XML node. Therefore, the
 raw results are given, not wrapped in any additional XML, which can hence not directly be parsed as XML, but it can be rendered
 in a browser, which will automatically repair the XML.
