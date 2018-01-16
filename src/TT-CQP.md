@@ -10,7 +10,9 @@ TT-CWB-ENCODE.
 
 TT-CQP is not meant as a replacement for CQP - it implements various of the functions of CQP, while
 adding some that CQP does not, but it is not a full re-implementation of CQP, nor is it intended to
-become one, although more options will be added over time
+become one, although more options will be added over time. Given the overlap between
+CQP and TT-CQP, a full idea about how to use TT-CQP can be obtained by consulting the
+manual of CQP, together with this document highlighting the differences.
 
 ### Options yet to be implemented
 
@@ -96,10 +98,10 @@ to show the deps (dependency relation) when counting by headword.
 
 Keyword scores can be selected by using `stats A lemma :: type:keywords`.  
 
-### XML output
+### XML and JSON output
 
-When using the option --output=xml, TT-CQP will produce the output of the group and tabulate command in XML format,
-where each tab of the output is marked with its key. An example is given below:
+When using the option --output=xml or --output=json, TT-CQP will produce the output of the group, stats, and tabulate command in XML 
+or JSON format, where each tab of the output is marked with its key. An example of the XMl output is given below:
 
 ```
 pwd> echo 'Matches = [word="casa"] [pos="A.*"]; tabulate Matches match.text_lang match.id match.word match[1].word substr(match.pos,0,1);' | tt-cqp --output=xml
@@ -147,3 +149,23 @@ one-liner, after which we merely need to visualize the results:
 ```
 echo 'Matches = [lemma="casa"]; group Matches head.lemma :: show:deps;' | tt-cqp
 ```
+
+### Concordance Checking
+
+In Spanish, the adjective (following the noun) should match the noun in number and gender. 
+If they do not, there often is a tagging error, meaning it is useful to search the corpus
+for all occurrences where noun and adjective do not match in gender or number.
+In the EAGLES tagset, the number is indicated by the 4th position for nouns, and the 5th 
+position for adjectives. In order to check whether these match in CQP, we can only check
+one combination at a time, say `[pos="NC.S.*"] [pos="AQ..P.*"]` to check for singular nouns
+followed by plural adjectives. In TT-CQP, we can use the substr function to get direct access
+to the positions that we need. So to check for noun/adjective pairs that mismatch in number,
+we can use the following one-liner:
+
+```
+echo 'Matches = a:[pos="NC.*"] b:[pos="AQ.*"] :: substr(a.pos,3,1) != substr(b.pos,4,1); tabulate Matches match.word match.pos matchend.word matchend.pos;' | tt-cqp
+```
+
+Note that the current limitations on TT-CQP mean we cannot extend this to a full match, since we cannot yet allow 
+tokens between the noun and the adjective, nor can we use a disjunction between two conditions (only
+conjunctions are supported at this time).

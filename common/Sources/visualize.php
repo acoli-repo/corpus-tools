@@ -36,24 +36,11 @@
 			
 			} else if ( $_GET['cql'] or $_POST['cql'] ) {
 			
-				$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+				if ( $settings['cqp']['defaults']['registry'] ){
+					$reg = " --cqlfolder={$settings['cqp']['defaults']['registry']}";
+				};
 
-				include ("$ttroot/common/Sources/cwcqp.php");
-				$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-				$cqpfolder = $settings['cqp']['searchfolder'];
-				$cqpcols = array();
-		
-				$cqp = new CQP();
-				$cqp->exec($cqpcorpus); // Select the corpus
-				$cqp->exec("set PrettyPrint off");
 				$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "[]";
-
-				if ( substr($cql,0,6) == "<text>" ) $fileonly = 1;
-
-				$cqpquery = "Matches = $cql";
-				$cqp->exec($cqpquery); $debugtxt .= "<p>Base query : $cqpquery"; 
-
-				$size = chop($cqp->exec("size Matches"));
 
 				if ( preg_match("/ *\[([^\]]+)\](?: *within .*)?$/", $cql, $matches) || preg_match("/ *\[([^\]]+)\] *:: *(.*?)(?: *within .*)?$/", $cql, $matches) ) {
 					$pmatch = $matches[1]; $smatch = $matches[2];
@@ -74,12 +61,13 @@
 					$cqltxt = htmlentities($cql);
 				};
 
-				if ( $act == "keyness" || $_POST['mode'] == "keyness" ) {
-					$maintext .= "<h1>Keyness</h1>";
+				if ( $act == "keywords" || $_POST['mode'] == "keyness" ) {
+					$maintext .= "<h1>Keywords</h1>";
 
 
 					$fld = $_POST['fld'] or $fld = "word";
-					
+					$fldname = pattname($fld);
+
 					if ( $settings['cqp']['frequency']['refcorpus'] ) {
 						$refcorpus = $settings['cqp']['frequency']['refcorpus'];
 						$refcorpustxt = $settings['cqp']['frequency']['refcorpus'] or $refcorpustxt = $refcorpus;
@@ -88,73 +76,44 @@
 						$refcorpustxt = "(internal)";
 					};
 
-					$cmd = "info $refcorpus;";
-					$tmp = $cqp->exec($cmd);
-					if ( preg_match("/Size:\s+(\d+)/", $tmp, $matches ) ) $corpussize = $matches[1];
-					else $corpussize = 0;
-
 					$tmpfile = time();
 	
-								$maintext .= "<table>
-												<tr><th>{%Search query}:<td>$cqltxt</tr>
-												<tr><th>{%Keyness}:<td><span title='$cmd'>{%Field}: $fld, {%Reference corpus}: $refcorpustxt</span></tr>
-											</table>";
+					$maintext .= "<table>
+									<tr><th>{%Search query}:<td>$cqltxt</tr>
+									<tr><th>{%Keyness}:<td><span title='$cmd'>{%Field}: $fld, {%Reference corpus}: $refcorpustxt</span></tr>
+								</table>";
 
-					
-					$cmd = "group Matches match $fld";
-					$cmd = "$cmd   > \"tmp/$tmpfile.1.txt\"";
-					$cqp->exec($cmd); $debugtxt .= "<p>Make context : $cmd"; 
-					$cmd = "cat \"tmp/$tmpfile.1.txt\" | sort > \"tmp/$tmpfile.2.txt\"";
-					shell_exec($cmd); $debugtxt .= "<p>Sort: $cmd"; 
-					$cmd = '/usr/local/bin/cwb-lexdecode -f -s -r '.$registryfolder.' -P '.$fld.' '.$cqpcorpus.' | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | perl -pe \'s/ /_/g;\' | sort > tmp/'.$tmpfile.'.3.txt';
-					shell_exec($cmd); $debugtxt .= "<p>Get lexicon: $cmd"; 
+					$cmd = "echo 'Matches = $cql; stats Matches $fld :: type:keywords context:$dir$context' | /usr/local/bin/tt-cqp --output=json";
+					$json = shell_exec($cmd);
 
 					$fldname = pattname($fld);
 					$cmd = "join tmp/$tmpfile.2.txt tmp/$tmpfile.3.txt | perl $ttroot/common/Scripts/collocate.pl --selsize=$size --corpussize=$corpussize --fldname='$fldname' --span=1";
-					$json = shell_exec($cmd); $debugtxt .= "<p>Create collocation JSON: $cmd"; 
+					$json = shell_exec($cmd); 
 				
 				} else if ( $act == "collocations" || $_POST['mode'] == "collocations" ) {
+				
 					$maintext .= "<h1>Collocations</h1>";
 				
-					$cmd = "info $cqpcorpus;";
-					$tmp = $cqp->exec($cmd);
-					if ( preg_match("/Size:\s+(\d+)/", $tmp, $matches ) ) $corpussize = $matches[1];
-					else $corpussize = 0;
-
 					$tmpfile = time();
 	
 					$context = $_POST['context'] or $context = 5;
-					$dir = $_POST['dir'] or $dir = "both";
+					$dirdir = array ( "" => "Left/Right", "-" => "Left", "+" => "Right"  );
+					$dir = $_POST['dir'] or $dir = ""; $dirtxt = "{%{$dirdir[$dir]}}";
 					$fld = $_POST['fld'] or $fld = "word";
-					$cmd = "tabulate Matches ";
-					if ( $dir == "left" ) { $cmd .= "match[-$context] .. match[-1] $fld"; $span = $context; };
-					if ( $dir == "right" ) { $cmd .= "match[1] .. match[$context] $fld"; $span = $context; };
-					if ( $dir == "both" ) { $cmd .= "match[-$context] .. match[-1] $fld, match[1] .. match[$context] $fld";	$span = 2*$context; };
-	
-								$maintext .= "<table>
-												<tr><th>{%Search query}:<td>$cqltxt</tr>
-												<tr><th>{%Search data}:<td>Occurrences: $size, Corpus size: $corpussize</tr>
-												<tr><th>{%Collocates}:<td><span title='$cmd'>{%Direction}: $dir; {%Context}: $context; {%Field}: $fld</span></tr>
-											</table>";
-		
-					$cmd = "$cmd   > \"tmp/$tmpfile.1.txt\"";
-					$cqp->exec($cmd); $debugtxt .= "<p>Make context : $cmd"; 
-
-					$cmd = 'cat tmp/'.$tmpfile.'.1.txt | perl -e \'while (<>) { if ($_ eq "\n") { next; }; s/\s+/\n/g; print; };\' | sort | uniq -c | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | sort > tmp/'.$tmpfile.'.2.txt';
-					shell_exec($cmd); $debugtxt .= "<p>Sort context: $cmd"; 
-					$cmd = '/usr/local/bin/cwb-lexdecode -f -s -r '.$registryfolder.' -P '.$fld.' '.$cqpcorpus.' | perl -pe \'s/^\s*(\d+)\s+(.*)/\2\t\1/g;\' | perl -pe \'s/ /_/g;\' | sort > tmp/'.$tmpfile.'.3.txt';
-					shell_exec($cmd); $debugtxt .= "<p>Get lexicon: $cmd"; 
-
 					$fldname = pattname($fld);
-					$cmd = "join tmp/$tmpfile.2.txt tmp/$tmpfile.3.txt | perl $ttroot/common/Scripts/collocate.pl --selsize=$size --corpussize=$corpussize --fldname='$fldname' --span=$span";
-					$json = shell_exec($cmd); $debugtxt .= "<p>Create collocation JSON: $cmd"; 
+	
+					$maintext .= "<table>
+									<tr><th>{%Search query}:<td>$cqltxt</tr>
+									<tr><th>{%Collocates}:<td><span title='$cmd'>{%Direction}: $dirtxt; {%Context}: $context; {%Field}: {%$fldname}</span></tr>
+								</table>";
+		
+					$cmd = "echo 'Matches = $cql; stats Matches $fld :: context:$dir$context' | /usr/local/bin/tt-cqp --output=json";
+					$json = shell_exec($cmd);
 					
 					$headrow = "false"; 
 
 					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi-square}'>{%Chi-square}</option><option value=5 title='{%Mutual information}'>{%MI}</option></select>";
 					$cntcols = 5;
-	
-					if ( !$debug ) shell_exec("rm tmp/$tmpfile.*");
 				
 				} else {
 				
