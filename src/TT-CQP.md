@@ -104,19 +104,42 @@ When using the option --output=xml or --output=json, TT-CQP will produce the out
 or JSON format, where each tab of the output is marked with its key. An example of the XMl output is given below:
 
 ```
-pwd> echo 'Matches = [word="casa"] [pos="A.*"]; tabulate Matches match.text_lang match.id match.word match[1].word substr(match.pos,0,1);' | tt-cqp --output=xml
-<results cql="[word=&quot;casa&quot;] [pos=&quot;A.*&quot;]" tab="match.text_lang match.id match.word match[1].word substr(match.pos,0,1)" size="6">
+user> echo 'Matches = [word="casa"] [pos="A.*"]; tabulate Matches match.text_lang match.id match[-5]..match[-1].word match..matchend.word matchend[1]..matchend[5].word match.substr(pos,0,1);' | tt-cqp --output=xml
+<results cql="[word=&quot;casa&quot;] [pos=&quot;A.*&quot;]" tab="match.text_lang match.id match[-5]..match[-1].word match..matchend.word matchend[1]..matchend[5].word match.substr(pos,0,1)" size="6">
 	<result>
-		<tab key="match.text_lang" val="PT" />
+		<tab key="match.text_lang" val="ES" />
 		<tab key="match.id" val="w-27" />
-		<tab key="match.word" val="casa" />
-		<tab key="match[1].word" val="corresponsal" />
-		<tab key="substr(match.pos,0,1)" val="N" />
+		<tab key="match[-5]..match[-1].word" val="de hayer estube en la" />
+		<tab key="match..matchend.word" val="casa corresponsal" />
+		<tab key="matchend[1]..matchend[5].word" val="de Almeida y me dijo" />
+		<tab key="match.substr(pos,0,1)" val="NCFS000N" />
 	</result>
 	<result>
 	...
 </results>
 ```
+
+### XIDX output
+
+There is another sense in which TT-CQP can produce XML output: when used together with TT-CWB-ENCODE, instead of giving results
+from the CQP corpus itself, TT-CQP can lookup the underlying part of the XML files used as input for the CQP corpus. For
+this, the command `xidx A` is used, which will give the whole string from the XML file starting from the start of the
+token behind match, and ending with the token behind matchend, including anything in the middle. This means that the
+resulting XML cannot be guaranteed to be valid, since match and matchend might not belong to the same XML node. Therefore, the
+raw results are given, not wrapped in any additional XML, which can hence not directly be parsed as XML, but it can be rendered
+in a browser, which will automatically repair the XML.
+
+```
+user> echo 'Matches = [word="casa"] [pos="A.*"]; xidx Matches;' | tt-cqp
+<tok id="w-27" mfs="NCFS000" lemma="casa">casa</tok> <tok id="w-28" mfs="AQ0CS0" lemma="corresponsal">corresponsal</tok>
+<tok id="w-148" lemma="casa" mfs="NCFS000">casa</tok> <tok id="w-149" mfs="AQ0FS0" lemma="nativo">nativa</tok>
+<tok id="w-459" lemma="casa" mfs="NCFS000">casa</tok> <tok id="w-460" lemma="libre" mfs="AQ0CS0">libre</tok>
+<tok id="w-168" lemma="casa" mfs="NCFS000">casa</tok> <tok id="w-169" lemma="solo" mfs="AQ0MS0">solo</tok>
+<tok id="w-38" lemma="casa" mfs="NCFS000">casa</tok> <tok id="w-39" lemma="novo" mfs="AQ0FS0">nova</tok>
+<tok id="w-351" lemma="casa" mfs="NCFS000">casa</tok> <lb id="e-37"/>
+            <tok id="w-352" nform="grandíssimas" mfs="AQSFP0" lemma="grande">grandisimas</tok>
+``` 
+
 
 ## Use cases
 
@@ -163,7 +186,7 @@ to the positions that we need. So to check for noun/adjective pairs that mismatc
 we can use the following one-liner:
 
 ```
-echo 'Matches = a:[pos="NC.*"] b:[pos="AQ.*"] :: substr(a.pos,3,1) != substr(b.pos,4,1); tabulate Matches match.word match.pos matchend.word matchend.pos;' | tt-cqp
+echo 'Matches = a:[pos="NC.*"] b:[pos="AQ.*"] :: a.substr(pos,3,1) != b.substr(pos,4,1); tabulate Matches match.word match.pos matchend.word matchend.pos;' | tt-cqp
 ```
 
 Note that the current limitations on TT-CQP mean we cannot extend this to a full match, since we cannot yet allow 

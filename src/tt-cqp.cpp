@@ -19,7 +19,6 @@ using namespace std;
 using namespace boost;
 
 // TODO: Wish list
-// attribute matching cqlfield ([word=a.word])
 // xidx XML output
 // within
 // wildcard tokens (probably needs a restructuring of the match strategy)
@@ -36,6 +35,7 @@ int idx2cnt(string a, int b);
 int str2idx(string a, string b);
 int str2cnt ( string a, string b );
 vector<int> regex2idx ( string a, string b );
+string rng2xml( int a, int b );
 int pos2relpos ( string attname, int pos );
 string ridx2str ( string attname, int idx );
 int pos2ridx ( string attname, int pos );
@@ -110,10 +110,10 @@ class cqlfld {
 	string rawfld; string fld;
 	pugi::xml_node flddef;
 	string fldname;
-	int sub1; int sub2; // For substring matches
 	string rawbase;
-	string base; // what to use as base (match, matchend, named, idfield)
-	int offset; // where it is wrt base
+	map<int,string> base; // what to use as base(s) (match, matchend, named, idfield)
+	map<int,int> offset; // where it is wrt base
+	map<int,int> sub; // For substring matches
 	map<string,int> named; int keyword;
 		
 	void setfld ( string flditem, map<string,int> trg ) {
@@ -123,40 +123,41 @@ class cqlfld {
 		rawfld = flditem; 
 		named = trg;
 
-		sub1 = 0; sub2 = 0; 
-		string tmp1; string tmp2;
-		
+		string tmp1; string tmp2;		
 		// substr(match)
-		if ( regex_match (flditem.c_str(), m, regex("substr\\((.*?),(\\d+),(\\d+)\\)") ) ) {
-			flditem = m[1]; tmp1 = m[2]; tmp2 = m[3];
-			sub1 = stoi(tmp1,nullptr,10);  sub2 = stoi(tmp2,nullptr,10);
-		};
 		
 		// match.fld
 		if ( regex_match (flditem.c_str(), m, regex("([^ ]+)\\.([^ ]+)") ) ) {
 			string posind = m[1]; string value;
-			fld = m[2];
-			if ( regex_match (posind.c_str(), m, regex("match\\[(-?\\d+)\\]") ) ) {
-				base = "match"; rawbase = m[0];
-				offset = stoi(m[1],nullptr,10);
-			} else if ( regex_match (posind.c_str(), m, regex("matchend\\[(-?\\d+)\\]") ) ) {
-				base = "matchend"; rawbase = m[0];
-				offset = stoi(m[1],nullptr,10); 
-			} else if ( posind == "match") { 
-				base = posind; rawbase = base;
-				offset = 0;
-			} else if ( posind == "matchend") { 
-				base = "matchend"; rawbase = base;
-				offset = 0;
-			} else if ( named[posind] ) { // named tokens (including target and keyword)
-				base = posind;  rawbase = base;
-				offset = 0;
-			} else if ( file_exists(cqpfolder + posind + ".corpus.pos" ) ) { // with type=id fields using .pos
-				offset = 0;
-				base = posind;  rawbase = base;
-			};			
+			fld = m[2]; rawbase = posind;
+
+        	vector<string> parts;
+	
+        	split( parts, posind, is_any_of( "." ) ); // we just have to skip 2 to get ..
+        	for (int ii=0; ii<parts.size(); ii=ii+2 ) {
+        		int i = ii/2; string dopart = parts[ii];
+				if ( regex_match (dopart.c_str(), m, regex("(.*)\\[(-?\\d+)\\]") ) ) {
+					dopart = m[1]; offset[i] = stoi(m[2],nullptr,10);
+				} else offset[i] = 0;
+				
+				if ( dopart == "match") { 
+					base[i] = "match"; 
+				} else if ( dopart == "matchend") { 
+					base[i] = "matchend"; 
+				} else if ( named[dopart] ) { // named tokens (including target and keyword)
+					base[i] = dopart; 
+				} else if ( file_exists(cqpfolder + dopart + ".corpus.pos" ) ) { // with type=id fields using .pos
+					base[i] = dopart;  
+				};		
+
+			};	
 		};
 		
+		if ( regex_match (fld.c_str(), m, regex("substr\\((.*?),(\\d+),(\\d+)\\)") ) ) {
+			fld = m[1]; tmp1 = m[2]; tmp2 = m[3];
+			sub[0] = stoi(tmp1,nullptr,10);  sub[1] = stoi(tmp2,nullptr,10);
+		};
+
 		// lookup the field definition and display name in settings.xml (when available)
 		if ( regex_match (fld.c_str(), m, regex("([^ ]+)_([^ ]+)") ) ) {
 			string tmp1 = m[1]; string tmp2 = m[2];
@@ -179,30 +180,50 @@ class cqlfld {
 		
 		cmatch m; string value;
 		
-		int posnum; int pos;
-		if ( base == "match" || base == "" ) {
+		int posstart; int pos;  int posend; 
+		if ( base[0] == "match" || base[0] == "" ) {
 			pos = match[0];
-		} else if ( base == "matchend" ) {
+		} else if ( base[0] == "matchend" ) {
 			pos = match[0] + match.size() - 1;
-		} else if ( named[base] ) { // named tokens (including target and keyword)
-			pos = match[named[base]];
+		} else if ( named[base[0]] ) { // named tokens (including target and keyword)
+			pos = match[named[base[0]]];
 		} else {
 			int relbase = 0; // relpos of match or target when specified
 			if ( named["target"] ) { relbase = named["target"]; };
-			pos = pos2relpos(base, match[relbase]); 
+			pos = pos2relpos(base[0], match[relbase]); 
 		};
-		posnum = pos + offset;
+		posstart = pos + offset[0];
+		
+		if ( base[1] != "" ) {
+			if ( base[1] == "match"  ) {
+				pos = match[0];
+			} else if ( base[1] == "matchend" ) {
+				pos = match[0] + match.size() - 1;
+			} else if ( named[base[1]] ) { // named tokens (including target and keyword)
+				pos = match[named[base[1]]];
+			} else if ( base[1] != "" ) {
+				int relbase = 0; // relpos of match or target when specified
+				if ( named["target"] ) { relbase = named["target"]; };
+				pos = pos2relpos(base[1], match[relbase]); 
+			};
+			posend = pos + offset[1];
+		} else posend = posstart;
 	
 		// sattribute or pattribute
-		if ( regex_match (fld.c_str(), m, regex("(.*)_(.*)") ) ) {
-			int ridx = pos2ridx(fld, posnum); // TODO: this does not exist!
-			value = ridx2str(fld, ridx); 
-		} else {
-			value = pos2str(fld, posnum); 
-		};
+		value = ""; string sep = "";
+		for ( int i= posstart; i<=posend; i++ ) {
+			value += sep;
+			if ( regex_match (fld.c_str(), m, regex("(.*)_(.*)") ) ) {
+				int ridx = pos2ridx(fld, i); // TODO: this does not exist!
+				value += ridx2str(fld, ridx); 
+			} else {
+				value += pos2str(fld, i); 
+			};
 		
-		if ( sub2 > 0 ) {
-			value = value.substr(sub1, sub2);
+			if ( sub[1] > 0 ) {
+				value += value.substr(sub[0], sub[1]);
+			};
+			sep = " ";
 		};
 
 		return value;
@@ -411,7 +432,7 @@ class cqlresult {
 
 		cqlfld sortfld;
 		sortfld.setfld(sortfield, named);
-		if ( debug ) { cout << "Sorting on " << sortfld.fld << " - base " << sortfld.base << " - offset " << sortfld.offset << endl; };
+		if ( debug ) { cout << "Sorting on " << sortfld.fld << " - base " << sortfld.rawbase << endl; };
 		std::sort (match.begin(), match.end(), Matchsorter(sortfld) );
 		
 		if ( desc ) {
@@ -807,6 +828,16 @@ class cqlresult {
 		
 	};
 		
+	void xidx ( string options) {
+		// Print out XML fragments for the result vector
+		
+		for ( int i=0; i<match.size(); i++ ) {
+			cout << rng2xml(match[i][0], match[i][1]) << endl;
+		};
+		
+	};
+
+		
 	void info() {
 		// Print out info about the result vector
 	
@@ -824,6 +855,45 @@ int read_network_number ( int toread, FILE *stream ) {
 	fseek(stream,offset,SEEK_SET);
 	fread(&i, 4, 1, stream);
 	return ntohl(i);
+};
+
+string read_file_range ( int from, int to, string filename ) {
+	// Read file range
+	// int buf[BUFSIZE];
+	char chr = 'x';
+
+	// char * result; 
+	string value;
+	int i, bufpos;
+	
+	FILE* stream = fopen ( filename.c_str() , "rb" );
+
+	if ( stream == NULL ) { 
+		if ( verbose ) { cout << "File could not be opened: " << filename << endl; };
+		return "";
+	};
+
+	// Reverse when needed
+	if ( to < from ) { int tmp = to; to=from; from=tmp; };
+
+	// Wind to from position
+	if ( debug > 3 ) { cout << "Seeking for " << from << endl; };
+	fseek ( stream , from , SEEK_SET );
+
+	if ( debug > 3 ) { cout << "Getting length " << to-from << endl; };
+	value = ""; int last = ftell(stream);
+    while ( ftell(stream) < to ) {
+    	chr = fgetc(stream);
+		if ( debug > 6 ) { cout << last << " : " << chr << endl; };
+	 	if ( ftell(stream) < to ) { value = value + chr; };
+	 	if ( last == ftell(stream) ) { return ""; }; // Not advancing, return nothing, prob out of file range
+		last = ftell(stream);
+	 };
+	if ( debug > 6 ) { cout << "String " << value << endl; };
+
+	fclose(stream);
+	
+	return value;
 };
 
 string idx2str ( string attname, int idx ) {
@@ -895,7 +965,6 @@ string pos2str ( string attname, int pos ) {
 	return idx2str(attname, idx);
 };
 
-
 int idx2cnt ( string attname, int idx ) {
 	// return the count for in index on attname
  	FILE* stream; 
@@ -907,7 +976,6 @@ int idx2cnt ( string attname, int idx ) {
 	// fclose(stream);
 	return cnt;
 };
-
 
 int pos2ridx ( string attname, int pos ) {
 	// return the index for a range containing a position (an attname)
@@ -937,6 +1005,35 @@ int pos2ridx ( string attname, int pos ) {
 	};
 	//fclose(stream);
 	return idx;
+};
+
+string rng2xml( int pos1, int pos2 ) {
+	string filename; FILE * file; int rpos;
+
+	filename = cqpfolder + "/text_id.idx";
+	file = fopen ( filename.c_str() , "rb" );
+	int textid1 = read_network_number(pos1, file);
+	int textid2 = read_network_number(pos2, file);
+	fclose(file);
+
+	// Check that the positions belong to the same file
+	// TODO: it merely returns, whereas it should throw an exception
+ 	if ( textid1 != textid2 ) { 
+		if ( verbose ) { cout << "Corpus positions " << pos1 << " and " << pos2 << " do not belong to the same XML file" << endl;  };
+		return "";
+ 	};	
+
+	string xmlfile = ridx2str("text_id", textid1);
+
+	filename = cqpfolder + "/xidx.rng";
+	file = fopen ( filename.c_str() , "rb" );
+	int rpos1 = read_network_number(pos1*2,file);
+	int rpos2 = read_network_number(pos2*2+1,file);
+	fclose(file);
+
+	string value = read_file_range(rpos1, rpos2, xmlfile);
+
+	return value;
 };
 
 wstring towstring (const string s) {
@@ -1088,9 +1185,11 @@ void cqlparse ( string cql ) {
 		subcorpora[m[1]].stats(m[2]);
 	} else if ( regex_match (cql.c_str(), m, regex("info +([^ ]+) (.*)$") ) ) {
 		subcorpora[m[2]].info();
+	} else if ( regex_match (cql.c_str(), m, regex("xidx +([^ ]+) ?([^ ]*)$") ) ) {
+		subcorpora[m[1]].xidx(m[2]);
 	} else if ( regex_match (cql.c_str(), m, regex("index +([^ ]+) ([^ ]+) = (.*)$") ) ) {
 		subcorpora[m[1]].index(m[2], m[3]);
-	} else if ( regex_match (cql.c_str(), m, regex("size +([^ ]+) (.*)$") ) ) {
+	} else if ( regex_match (cql.c_str(), m, regex("size +([^ ]+) ?([^ ]*)$") ) ) {
 		cout << subcorpora[m[1]].size() << endl; // TODO: What do we do with the second argument?
 	} else if (cql != "" ) {
 		cout << "Unrecognized command: " << cql << endl;
