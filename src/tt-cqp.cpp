@@ -831,8 +831,12 @@ class cqlresult {
 	void xidx ( string options) {
 		// Print out XML fragments for the result vector
 		
+		// TODO: expand to s
+		
 		for ( int i=0; i<match.size(); i++ ) {
-			cout << rng2xml(match[i][0], match[i][1]) << endl;
+			string xidx = rng2xml(match[i][0], match[i][1]);
+			replace_all(xidx, "\n", " ");
+			cout << xidx << endl;
 		};
 		
 	};

@@ -101,9 +101,9 @@ Keyword scores can be selected by using `stats A lemma :: type:keywords`.
 ### XML and JSON output
 
 When using the option --output=xml or --output=json, TT-CQP will produce the output of the group, stats, and tabulate command in XML 
-or JSON format, where each tab of the output is marked with its key. An example of the XMl output is given below:
+or JSON format, where each tab of the output is marked with its key. An example of an XML and JSON output is given below:
 
-```
+```xml
 user> echo 'Matches = [word="casa"] [pos="A.*"]; tabulate Matches match.text_lang match.id match[-5]..match[-1].word match..matchend.word matchend[1]..matchend[5].word match.substr(pos,0,1);' | tt-cqp --output=xml
 <results cql="[word=&quot;casa&quot;] [pos=&quot;A.*&quot;]" tab="match.text_lang match.id match[-5]..match[-1].word match..matchend.word matchend[1]..matchend[5].word match.substr(pos,0,1)" size="6">
 	<result>
@@ -119,6 +119,18 @@ user> echo 'Matches = [word="casa"] [pos="A.*"]; tabulate Matches match.text_lan
 </results>
 ```
 
+```json
+user> echo 'Matches = [word="casa"] [pos="A.*"]; tabulate Matches match.text_lang match.id match[-5]..match[-1].word match..matchend.word matchend[1]..matchend[5].word match.substr(pos,0,1);' | tt-cqp --output=json
+[[{'id':'match.text_lang', 'label':'{%Language%} (match)'}, {'id':'match.id', 'label':'{%id%} (match)'}, {'id':'match[-5]..match[-1].word', 'label':'{%word%} (match[-5]..match[-1])'}, {'id':'match..matchend.word', 'label':'{%word%} (match..matchend)'}, {'id':'matchend[1]..matchend[5].word', 'label':'{%word%} (matchend[1]..matchend[5])'}, {'id':'match.substr(pos,0,1)', 'label':'{%Word Class%} (match)'}, ],
+['ES', 'w-27', 'de hayer estube en la', 'casa corresponsal', 'de Almeida y me dijo', 'NCFS000N'],
+['ES', 'w-148', 'mi hyja  abandonè mi', 'casa nativa', 'sin extraer cosa alga de', 'NCFS000N'],
+['ES', 'w-459', 'bien  dejar me mi', 'casa libre', 'de su persona , y', 'NCFS000N'],
+['ES', 'w-168', ' se entro en mi', 'casa solo', 'sin llamar y se subio', 'NCFS000N'],
+['PT', 'w-38', 'dias ẽ esta mão a', 'casa nova', 'de onde me mudarão pa', 'NCFS000N'],
+['PT', 'w-351', 'o quall ove em esta', 'casa grandisimas', 'deszensois a reepeito de outra', 'NCFS000N'],
+]
+```
+
 ### XIDX output
 
 There is another sense in which TT-CQP can produce XML output: when used together with TT-CWB-ENCODE, instead of giving results
@@ -127,7 +139,8 @@ this, the command `xidx A` is used, which will give the whole string from the XM
 token behind match, and ending with the token behind matchend, including anything in the middle, independenty of whether that was
 indexed in the CQP corpus or not. If match and matchend do not belong to the same XML file, an empty string is given. This means that the
 resulting XML cannot be guaranteed to be valid, since match and matchend might not belong to the same XML node. Therefore, the
-raw results are given, not wrapped in any additional XML, which can hence not directly be parsed as XML, but it can be rendered
+raw results are given, one result per line (linebreaks within the result are removed). 
+The output can hence not directly be parsed as XML, but it can be rendered
 in a browser, which will automatically repair the XML.
 
 ```
