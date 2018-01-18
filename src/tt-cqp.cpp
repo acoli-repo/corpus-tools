@@ -25,6 +25,8 @@ using namespace boost;
 // subset (or restrict)
 // intersection, join, difference
 // discard
+// --skipbase=nform -> [word="from"] [word="here"] == [word="from"] [nform=""]* [word="here"]
+// --mwe=contr -> [word="del"]  == ([word="del"]|<contr nform="del">[]+</contr>)
 
 // Forward declarations
 string pos2str(string a, int b);
@@ -32,7 +34,7 @@ vector<int> idx2pos(string a, int b);
 int idx2cnt(string a, int b);
 int str2idx(string a, string b);
 int str2cnt ( string a, string b );
-vector<int> regex2idx ( string a, string b );
+vector<int> regex2idx ( string a, string b, string c );
 string rng2xml( int a, int b );
 int pos2relpos ( string attname, int pos );
 string ridx2str ( string attname, int idx );
@@ -256,9 +258,22 @@ class Matchsorter {
 		}
 };
 
-class cqlatt {
+class cqltok {
 	public:
+	string rawdef;
+	int partnr;
+	int idx;
+	string wildcard;
+	string flags;
+	string partname;
 	
+	string left; string matchtype;string right;
+	string leftstring; string rightstring;
+	cqlfld leftfield; cqlfld rightfield;
+
+	int rank;
+
+	bool done;
 };
 
 class cqlresult {
@@ -273,6 +288,7 @@ class cqlresult {
 	string sortfield;
 	map<string, int> named;
 	vector<cqlmatch> match;
+	vector<cqltok> condlist;
 	
 	void parsecql (string tmp) {
 		// Run a CQL search to create a result vector
@@ -291,15 +307,15 @@ class cqlresult {
 		
 		match_results<std::string::const_iterator> iter;
 		string::const_iterator start = cql.begin() ; int i=0;
-		vector<string> parts;
+		vector<string> parts; 
+		int maxrank = 0; int best; // to determine the best init condition
 		
-		// Check each CQL token in turn
-        while ( regex_search(start, cql.cend(), iter, regex("((?:@|[^ ]+:)?)\\[([^\\]]+)\\]([*+?]?)( %[^ ]+)?")) ) {
+		// Analyse each CQL token in turn
+        while ( regex_search(start, cql.cend(), iter, regex("((?:@|[^ ]+:)?)\\[([^\\]]+)\\]([*+?]?)")) ) {
 			// TODO: we should first determine the best starting point
         	string tmp = iter[1];
         	string conds = iter[2]; 
         	string wildcard = iter[3]; 
-        	string flags = iter[4];
 
 			string partname;
         	if ( tmp == "@" ) { 
@@ -314,112 +330,157 @@ class cqlresult {
         	parts.clear();
         	if ( conds != "" ) split( parts, conds, is_any_of( "&" ) );
 			for ( int k=0; k<parts.size(); k++ ) {
-
 				string part = parts[k];
-				if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *(.*) *$") ) ) {
+				cqltok newtok;
+				newtok.partnr = i;
+				newtok.idx = k; // pointless, but needed for now
+				newtok.partname = partname;
+				newtok.wildcard = wildcard;
+				if ( regex_match (part.c_str(), m, regex("(.*) *(%[^ ]+)") ) ) {
+					newtok.flags = m[2];
+					part = m[1];
+				}; int rank;
+				if ( regex_match (part.c_str(), m, regex("(.*?) *(!?[=<>]) *(.*)") ) ) {
 					// Attribute matching string or regex
-					string left = m[1]; trim(left);
-					string matchtype = m[2];
-					string right = m[3]; trim(right);
-					
-					if ( k == 0 && i == 0 ) {
-						// Initialize the vector on the very first part
-						// TODO: Initialize with %cd?
-						
-						// Do the initial lookup
-						vector<int> tmp;
-						if ( regex_match (right.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
-							string word = m[1]; string attname = left;
-							if ( regex_match(word.c_str(), regex(".*[*+?].*")) ) {	
-								// regex match initialization - slower
-								vector<int> tmpi = regex2idx(attname, word);
-								for ( int j=0; j<tmpi.size(); j++ ) {
-									vector<int> tmpp = idx2pos(attname, tmpi[j]);
-									tmp.insert(tmp.end(), tmpp.begin(), tmpp.end());
-								};
-							} else {
-								tmp = idx2pos(attname, str2idx(attname, word));
-							};
-						} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *(.*\\..*)$") ) ) {
-							// TODO: Initialize with a cqlfld condition?
-						} else {
-							// TODO: Initialize with a comparison condition?
-						};
-						
-						// Populate the result vector
-						for ( int j=0; j<tmp.size(); j++ ) {
-							cqlmatch tmp2;
-							tmp2.named["match"] = tmp[j];
-							tmp2.named["matchend"] = tmp[j];
-							tmp2.idx = tmp[j]; tmp2.ind = 1;
-							if ( partname != "" ) tmp2.named[partname] = tmp[j]; 
-							match.push_back(tmp2);
-						};
-						if ( debug ) { cout << "Size after " << part << ":" << match.size() << endl; };
-						
-					} else {
-					
-						string leftval; string rightval;
-						string leftstring; string rightstring;
-						cqlfld leftfield; cqlfld rightfield; 
-						if ( regex_match (left.c_str(), m, regex(" \"([^\"]+)\"") ) ) {
-							leftstring = m[1];
-						} else if ( regex_match (left.c_str(), m, regex("(.*\\..*)") ) ) {
-							leftfield.setfld(left, named);
-						};
-						if ( regex_match (right.c_str(), m, regex("\"([^\"]+)\"") ) ) {
-							rightstring = m[1];
-						} else if ( regex_match (right.c_str(), m, regex("(.*\\..*)") ) ) {
-							rightfield.setfld(right, named);
-						}; 
-						
-						// TODO: This should allow wildcards						
-						vector<cqlmatch> tocheck = match;
-						match.clear();
-						for( vector<cqlmatch>::iterator it2 = tocheck.begin(); it2 != tocheck.end(); it2++ ) {
-							int tt = it2->named["matchend"]; 
-							
-							if ( k == 0 ) { it2->named["matchend"]++; it2->idx++;  it2->ind++; };
+					newtok.left = m[1];
+					newtok.matchtype = m[2];
+					newtok.right = m[3];
 
-							// Calculate the value for the left-hand side
-							if ( leftfield.rawbase != "" ) {
-								// an cqlfld
-								leftval = leftfield.value(*it2);
-							} else if ( leftstring != "" ) {
-								// a (regex) string
-								leftval = leftstring;
-							} else {
-								// an attribute
-								leftval = pos2str(left, it2->idx);
-							};
-							
-							// Calculate the value for the right-hand side
-							if ( rightfield.rawbase != "" ) {
-								rightval = rightfield.value(*it2);
-							} else if ( rightstring != "" ) {
-								// a (regex) string
-								rightval = rightstring;
-							} else {
-								// an attribute
-								rightval = pos2str(right, it2->idx);
-							};
-							
-							// Keep value if the two sides match (using the matchype)
-							if ( resmatch(leftval, rightval, matchtype, flags) ) { 
-								if ( partname != "" ) it2->named[partname] = it2->idx; 
-								match.push_back(*it2);
-							} else if ( wildcard == "?" ) {
-								// TODO: Skip other parts of this token (if there are any)
-								// And make this backtrackable
-								it2->named["matchend"]--; it2->idx--; it2->ind--; // Keep, but remove item
-								match.push_back(*it2);
-							};
-						};
-						if ( debug ) { cout << "Size after " << part << ":" << match.size() << endl; };
+					if ( regex_match (newtok.left.c_str(), m, regex(" \"([^\"]+)\"") ) ) {
+						newtok.leftstring = m[1];
+					} else if ( regex_match (newtok.left.c_str(), m, regex("(.*\\..*)") ) ) {
+						newtok.leftfield.setfld(newtok.left, named);
 					};
+					if ( regex_match (newtok.right.c_str(), m, regex("\"([^\"]+)\"") ) ) {
+						newtok.rightstring = m[1];
+					} else if ( regex_match (newtok.right.c_str(), m, regex("(.*\\..*)") ) ) {
+						newtok.rightfield.setfld(newtok.right, named);
+					}; 
+					
+					rank = 5; // TODO: Ranking involves not going through the tokens linearly
+				};
+				if ( rank > maxrank ) { 
+					best = k;
+				};
+				newtok.rawdef = part;
+				condlist.push_back(newtok);
+			};
+			start = iter[0].second ;i++;
+		};
+		
+		// Initialize on the best condition
+		if ( best != -1 ) {
+			cqltok ctok = condlist[best];
+			int i = ctok.partnr;
+			int k = ctok.idx;
+			string part = ctok.rawdef;
+			string wildcard = ctok.wildcard;
+			string partname = ctok.partname;
+			string flags = ctok.flags;
+			string left = ctok.left; trim(left);
+			string matchtype = ctok.matchtype;
+			string right = ctok.right; trim(right);
+
+			// Do the initial lookup
+			vector<int> tmp;
+			if ( regex_match (right.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
+				string word = m[1]; string attname = left;
+				if ( regex_match(word.c_str(), regex(".*[*+?].*")) || flags.find("c") != std::string::npos ) {	
+					// regex match initialization - slower
+					vector<int> tmpi = regex2idx(attname, word, flags);
+					for ( int j=0; j<tmpi.size(); j++ ) {
+						vector<int> tmpp = idx2pos(attname, tmpi[j]);
+						tmp.insert(tmp.end(), tmpp.begin(), tmpp.end());
+					};
+				} else {
+					tmp = idx2pos(attname, str2idx(attname, word));
+				};
+			} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *(.*\\..*)$") ) ) {
+				// TODO: Initialize with a cqlfld condition?
+			} else {
+				// TODO: Initialize with a comparison condition?
+			};
+
+			// Populate the result vector
+			for ( int j=0; j<tmp.size(); j++ ) {
+				cqlmatch tmp2;
+				tmp2.named["match"] = tmp[j];
+				tmp2.named["matchend"] = tmp[j];
+				tmp2.idx = tmp[j]; tmp2.ind = 1;
+				if ( partname != "" ) tmp2.named[partname] = tmp[j]; 
+				match.push_back(tmp2);
+			};
+			
+			condlist[best].done = true;
+			if ( debug ) { cout << "Size after " << part << ":" << match.size() << endl; };
+
+		};
+				
+		for ( int cc =0; cc<condlist.size(); cc++ ) {
+			
+			cqltok ctok = condlist[cc];
+			if ( ctok.done ) {
+				continue;
+			};
+			
+			int i = ctok.partnr;
+			int k = ctok.idx;
+			string part = ctok.rawdef;
+			string wildcard = ctok.wildcard;
+			string partname = ctok.partname;
+			string flags = ctok.flags;
+						
+			// Attribute matching string or regex
+			string left = ctok.left; trim(left);
+			string matchtype = ctok.matchtype;
+			string right = ctok.right; trim(right);
+			
+			string leftval; string rightval;
+			
+			// TODO: This should allow wildcards						
+			vector<cqlmatch> tocheck = match;
+			match.clear();
+			for( vector<cqlmatch>::iterator it2 = tocheck.begin(); it2 != tocheck.end(); it2++ ) {
+				int tt = it2->named["matchend"]; 
+				
+				if ( k == 0 ) { it2->named["matchend"]++; it2->idx++;  it2->ind++; };
+
+				// Calculate the value for the left-hand side
+				if ( ctok.leftfield.rawbase != "" ) {
+					// an cqlfld
+					leftval = ctok.leftfield.value(*it2);
+				} else if ( ctok.leftstring != "" ) {
+					// a (regex) string
+					leftval = ctok.leftstring;
+				} else {
+					// an attribute
+					leftval = pos2str(left, it2->idx);
+				};
+				
+				// Calculate the value for the right-hand side
+				if ( ctok.rightfield.rawbase != "" ) {
+					rightval = ctok.rightfield.value(*it2);
+				} else if ( ctok.rightstring != "" ) {
+					// a (regex) string
+					rightval = ctok.rightstring;
+				} else {
+					// an attribute
+					rightval = pos2str(right, it2->idx);
+				};
+				
+				// Keep value if the two sides match (using the matchype)
+				if ( resmatch(leftval, rightval, matchtype, flags) ) { 
+					if ( partname != "" ) it2->named[partname] = it2->idx; 
+					match.push_back(*it2);
+				} else if ( wildcard == "?" ) {
+					// TODO: Skip other parts of this token (if there are any)
+					// And make this backtrackable
+					it2->named["matchend"]--; it2->idx--; it2->ind--; // Keep, but remove item
+					match.push_back(*it2);
 				};
 			};
-            start = iter[0].second ; i++;
+			if ( debug ) { cout << "Size after " << part << ":" << match.size() << endl; };
+
         }
         
         // Check global conditions
@@ -1160,13 +1221,16 @@ vector<int> str2pos ( string attname, string word ) {
 	return idx2pos(attname, str2idx(attname, word));
 };
 
-vector<int> regex2idx ( string attname, string restr ) {
+vector<int> regex2idx ( string attname, string restr, string flags = "" ) {
 	// Return the vector of indices matching a regex on attname
 
 	vector<int> idxset; int idx = 0;
 	string word;
 
-	regex re = regex(restr);
+	regex re;
+	if ( flags.find("c") != std::string::npos ) {
+		re = regex(restr, std::regex_constants::icase);
+	};
 
 	string strname = cqpfolder + attname + ".lexicon";
 	
