@@ -2,7 +2,7 @@
 
 TT-CQP is a custom version of the Corpus Query Processor from the Corpus WorkBench, written for 
 the TEITOK corpus environment; for the sake of 
-compatibility, TT-CQP uses exactly the same files as CQP, meaning you can use TT-CQP to search any
+compatibility, TT-CQP uses the same files as CQP, meaning you can use TT-CQP to search any
 existing indexed CQP corpus. However, it was designed to be used together with TT-CWB-ENCODE, which
 is a likewise custom version of CWB-ENCODE, which writes a couple of files that CWB-ENCODE does not;
 because of that, some of the options of TT-CQP are not available unless the corpus was made using 
@@ -17,16 +17,14 @@ manual of CQP, together with this document highlighting the differences.
 ### Options yet to be implemented
 
 * it is not yet possible to have wildcards on tokens, such as `[pos="ADJ"]*`
-* pattributes cannot match other attributes yet, such as `[word=a.word]`
 * `:: within sattribute` does not yet work
 * case and diacritic insensitive search not yet supported (%cd)
 * it is not yet possible to cut lists
-* ranged in tabulate output
 * subcorpora cannot yet be modified by subset, intersection, join, or difference
 
 ### Options not planned to be implemented
 
-* interactive mode - TT-CQP is meant for a piped architecture and will not have a real interactive mode
+* interactive mode - TT-CQP is meant for a piped architecture and only emulates cqp -pi
 * all option related to the interactive mode are hence also unsupported (set, show, dump, cat, count, discard, save)
 * macros, distance, distabs will not be implemented
 * groupings and boolean operators are unlikely to be implemented
@@ -34,7 +32,7 @@ manual of CQP, together with this document highlighting the differences.
 * reduce is not likely to be implemented
 * structural attributes will not be implemented (&lt;s&gt;, /region, expand) - but the can be used as global constraints (`:: match.year = "1990"`)
 * aligned corpora will not be supported
-* sort does not yet do reverse order (but does descending order)
+* sort does not do reverse order (but does descending order)
 
 ## Added options
 
@@ -119,9 +117,9 @@ user> echo 'Matches = [word="casa"] [pos="A.*"]; tabulate Matches match.text_lan
 </results>
 ```
 
-```json
+```
 user> echo 'Matches = [word="casa"] [pos="A.*"]; tabulate Matches match.text_lang match.id match[-5]..match[-1].word match..matchend.word matchend[1]..matchend[5].word match.substr(pos,0,1);' | tt-cqp --output=json
-[[{'id':'match.text_lang', 'label':'{%Language%} (match)'}, {'id':'match.id', 'label':'{%id%} (match)'}, {'id':'match[-5]..match[-1].word', 'label':'{%word%} (match[-5]..match[-1])'}, {'id':'match..matchend.word', 'label':'{%word%} (match..matchend)'}, {'id':'matchend[1]..matchend[5].word', 'label':'{%word%} (matchend[1]..matchend[5])'}, {'id':'match.substr(pos,0,1)', 'label':'{%Word Class%} (match)'}, ],
+[[{'id':'match.text_lang', 'label':'{%Language} (match)'}, {'id':'match.id', 'label':'{%id} (match)'}, {'id':'match[-5]..match[-1].word', 'label':'{%word} (match[-5]..match[-1])'}, {'id':'match..matchend.word', 'label':'{%word} (match..matchend)'}, {'id':'matchend[1]..matchend[5].word', 'label':'{%word} (matchend[1]..matchend[5])'}, {'id':'match.substr(pos,0,1)', 'label':'{%Word Class} (match)'}, ],
 ['ES', 'w-27', 'de hayer estube en la', 'casa corresponsal', 'de Almeida y me dijo', 'NCFS000N'],
 ['ES', 'w-148', 'mi hyja  abandonè mi', 'casa nativa', 'sin extraer cosa alga de', 'NCFS000N'],
 ['ES', 'w-459', 'bien  dejar me mi', 'casa libre', 'de su persona , y', 'NCFS000N'],
@@ -143,7 +141,7 @@ raw results are given, one result per line (linebreaks within the result are rem
 The output can hence not directly be parsed as XML, but it can be rendered
 in a browser, which will automatically repair the XML.
 
-```
+```xml
 user> echo 'Matches = [word="casa"] [pos="A.*"]; xidx Matches;' | tt-cqp
 <tok id="w-27" mfs="NCFS000" lemma="casa">casa</tok> <tok id="w-28" mfs="AQ0CS0" lemma="corresponsal">corresponsal</tok>
 <tok id="w-148" lemma="casa" mfs="NCFS000">casa</tok> <tok id="w-149" mfs="AQ0FS0" lemma="nativo">nativa</tok>

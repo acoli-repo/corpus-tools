@@ -19,14 +19,12 @@ using namespace std;
 using namespace boost;
 
 // TODO: Wish list
-// xidx XML output
 // within
 // wildcard tokens (probably needs a restructuring of the match strategy)
-// %cd
 // cut
 // subset (or restrict)
 // intersection, join, difference
-// match..matchend - or do ranges?
+// discard
 
 // Forward declarations
 string pos2str(string a, int b);
@@ -52,17 +50,22 @@ bool verbose = false;
 string output;
 string cqpfolder;
 int corpussize;
+string last;
 
 pugi::xml_document logfile;
 pugi::xml_node settings;
 pugi::xml_node results;
 pugi::xml_document xmlsettings;
 
-bool resmatch ( string a, string b, string matchtype = "=" ) {
+bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) {
 	// Check whether two strings "match" using various conditions
 	
 	// TODO: > < !> !< 
 	// Maybe: >deps or >>
+	
+	if ( std::size_t found = flags.find("c") != std::string::npos ) { 
+		to_lower(a); to_lower(b);
+	}; 
 	
 	if ( matchtype == "=" ) { // Regex ==
 		return regex_match(a.c_str(), regex(b));
@@ -79,6 +82,13 @@ bool resmatch ( string a, string b, string matchtype = "=" ) {
 		return a != b;
 	}
 	return false;
+};
+
+class cqlmatch {
+	public:
+	map<string,int> named;
+	int idx;
+	int ind;
 };
 
 bool file_exists (const std::string& name) {
@@ -175,36 +185,36 @@ class cqlfld {
 								
 	};
 	
-	string value(map<int,int> match, string matchype = "=" ) { // non-string results should just get casted back later
+	string value(cqlmatch match, string matchype = "=" ) { // non-string results should just get casted back later
 		// Return the result on the field for a match in the result vector
 		
 		cmatch m; string value;
 		
 		int posstart; int pos;  int posend; 
 		if ( base[0] == "match" || base[0] == "" ) {
-			pos = match[0];
+			pos = match.named["match"];
 		} else if ( base[0] == "matchend" ) {
-			pos = match[0] + match.size() - 1;
+			pos = match.named["matchend"];
 		} else if ( named[base[0]] ) { // named tokens (including target and keyword)
-			pos = match[named[base[0]]];
+			pos = match.named[base[0]];
 		} else {
-			int relbase = 0; // relpos of match or target when specified
-			if ( named["target"] ) { relbase = named["target"]; };
-			pos = pos2relpos(base[0], match[relbase]); 
+			string relbase = "match"; // relpos of match or target when specified
+			if ( named["target"] ) { relbase = "target"; };
+			pos = pos2relpos(base[0], match.named[relbase]); 
 		};
 		posstart = pos + offset[0];
 		
 		if ( base[1] != "" ) {
 			if ( base[1] == "match"  ) {
-				pos = match[0];
+				pos = match.named["match"];
 			} else if ( base[1] == "matchend" ) {
-				pos = match[0] + match.size() - 1;
+				pos = match.named["matchend"];
 			} else if ( named[base[1]] ) { // named tokens (including target and keyword)
-				pos = match[named[base[1]]];
+				pos = match.named[base[0]];
 			} else if ( base[1] != "" ) {
-				int relbase = 0; // relpos of match or target when specified
-				if ( named["target"] ) { relbase = named["target"]; };
-				pos = pos2relpos(base[1], match[relbase]); 
+				string relbase = "match"; // relpos of match or target when specified
+				if ( named["target"] ) { relbase = "target"; };
+				pos = pos2relpos(base[1], match.named[relbase]); 
 			};
 			posend = pos + offset[1];
 		} else posend = posstart;
@@ -232,7 +242,7 @@ class cqlfld {
 };
 
 // Sorting class for matches, so that we can pass arguments to the sort function (ie sortfield)
-bool compareMatches(const map<int,int> t1, const map<int,int> t2, cqlfld sortfld ){
+bool compareMatches(const cqlmatch t1, const cqlmatch t2, cqlfld sortfld ){
 	return sortfld.value(t1) < sortfld.value(t2);
 };
 class Matchsorter {	
@@ -241,9 +251,14 @@ class Matchsorter {
 		Matchsorter(cqlfld sortfld){ 
 			sortfld_ = sortfld; 
 		}
-		bool operator()(map<int,int> t1, map<int,int> t2) const {
+		bool operator()(cqlmatch t1, cqlmatch t2) const {
 			return compareMatches( t1 , t2 , sortfld_ );
 		}
+};
+
+class cqlatt {
+	public:
+	
 };
 
 class cqlresult {
@@ -256,15 +271,14 @@ class cqlresult {
 	string global;
 	string within;
 	string sortfield;
-	map<string,int> named;
-	vector< map<int,int> > match;
-	map<string, vector< vector<map<int, int> > > > indexes; // for each result, a name for a set of ranges (begin, end)
+	map<string, int> named;
+	vector<cqlmatch> match;
 	
 	void parsecql (string tmp) {
 		// Run a CQL search to create a result vector
 
 		cmatch m; 
-		cql = tmp;
+		cql = tmp; string partname;
 
 		if ( debug ) { cout << "Treating CQL " << name << ": " << tmp << endl; };
 
@@ -278,33 +292,41 @@ class cqlresult {
 		match_results<std::string::const_iterator> iter;
 		string::const_iterator start = cql.begin() ; int i=0;
 		vector<string> parts;
-        while ( regex_search(start, cql.cend(), iter, regex("((?:@|[^ ]+:)?)\\[([^\\]]+)\\]( %.*)?")) ) {
+		
+		// Check each CQL token in turn
+        while ( regex_search(start, cql.cend(), iter, regex("((?:@|[^ ]+:)?)\\[([^\\]]+)\\]([*+?]?)( %[^ ]+)?")) ) {
+			// TODO: we should first determine the best starting point
         	string tmp = iter[1];
+        	string conds = iter[2]; 
+        	string wildcard = iter[3]; 
+        	string flags = iter[4];
+
+			string partname;
         	if ( tmp == "@" ) { 
         		named["target"] = i; 
+        		partname = "target";
         	}; 
 			if ( regex_match (tmp.c_str(), m, regex("^ *([^ ]+):$") ) ) {	
-				tmp = m[1];
-        		named[tmp] = i; 
+				partname = m[1];
+        		named[partname] = i; 
         	}; 
-			
-			// Add a position to the match list # TODO: for optional items should not be one to the right
-			if ( i > 0 ) {
-				for ( int j=0; j<match.size(); j++ ) {
-					match[j][i] = match[j][i-1]+1;
-				};
-			};
-			
-        	string conds = iter[2]; parts.clear();
+
+        	parts.clear();
         	if ( conds != "" ) split( parts, conds, is_any_of( "&" ) );
 			for ( int k=0; k<parts.size(); k++ ) {
+
 				string part = parts[k];
 				if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *(.*) *$") ) ) {
 					// Attribute matching string or regex
-					string left = m[1]; 
+					string left = m[1]; trim(left);
 					string matchtype = m[2];
-					string right = m[3];
+					string right = m[3]; trim(right);
+					
 					if ( k == 0 && i == 0 ) {
+						// Initialize the vector on the very first part
+						// TODO: Initialize with %cd?
+						
+						// Do the initial lookup
 						vector<int> tmp;
 						if ( regex_match (right.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
 							string word = m[1]; string attname = left;
@@ -323,91 +345,127 @@ class cqlresult {
 						} else {
 							// TODO: Initialize with a comparison condition?
 						};
+						
+						// Populate the result vector
 						for ( int j=0; j<tmp.size(); j++ ) {
-							map<int,int> tmp2; tmp2[0] = tmp[j];
+							cqlmatch tmp2;
+							tmp2.named["match"] = tmp[j];
+							tmp2.named["matchend"] = tmp[j];
+							tmp2.idx = tmp[j]; tmp2.ind = 1;
+							if ( partname != "" ) tmp2.named[partname] = tmp[j]; 
 							match.push_back(tmp2);
 						};
+						if ( debug ) { cout << "Size after " << part << ":" << match.size() << endl; };
+						
 					} else {
-						vector< map<int,int> > tocheck = match;
-						match.clear();
+					
 						string leftval; string rightval;
-						for ( int j=0; j<tocheck.size(); j++ ) {
-							map<int,int> tt = tocheck[j]; 
+						string leftstring; string rightstring;
+						cqlfld leftfield; cqlfld rightfield; 
+						if ( regex_match (left.c_str(), m, regex(" \"([^\"]+)\"") ) ) {
+							leftstring = m[1];
+						} else if ( regex_match (left.c_str(), m, regex("(.*\\..*)") ) ) {
+							leftfield.setfld(left, named);
+						};
+						if ( regex_match (right.c_str(), m, regex("\"([^\"]+)\"") ) ) {
+							rightstring = m[1];
+						} else if ( regex_match (right.c_str(), m, regex("(.*\\..*)") ) ) {
+							rightfield.setfld(right, named);
+						}; 
+						
+						// TODO: This should allow wildcards						
+						vector<cqlmatch> tocheck = match;
+						match.clear();
+						for( vector<cqlmatch>::iterator it2 = tocheck.begin(); it2 != tocheck.end(); it2++ ) {
+							int tt = it2->named["matchend"]; 
+							
+							if ( k == 0 ) { it2->named["matchend"]++; it2->idx++;  it2->ind++; };
+
 							// Calculate the value for the left-hand side
-							if ( regex_match (left.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
-								// a (regex) string
-								leftval = m[1];
-							} else if ( regex_match (left.c_str(), m, regex(" *(.*\\..*) *") ) ) {
+							if ( leftfield.rawbase != "" ) {
 								// an cqlfld
-								string cond = m[1]; 
-								cqlfld cqlfield; cqlfield.setfld(cond, named);
-								leftval = cqlfield.value(tt);
-							} else {
-								// an attribute
-								leftval = pos2str(left,tt[i]);
-							};
-							// Calculate the value for the right-hand side
-							if ( regex_match (right.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
+								leftval = leftfield.value(*it2);
+							} else if ( leftstring != "" ) {
 								// a (regex) string
-								rightval = m[1];
-							} else if ( regex_match (right.c_str(), m, regex(" *(.*\\..*) *") ) ) {
-								// a cqlfld
-								string cond = m[1];
-								cqlfld cqlfield; cqlfield.setfld(cond, named);
-								rightval = cqlfield.value(tt);
+								leftval = leftstring;
 							} else {
 								// an attribute
-								rightval = pos2str(right,tt[i]);
+								leftval = pos2str(left, it2->idx);
 							};
+							
+							// Calculate the value for the right-hand side
+							if ( rightfield.rawbase != "" ) {
+								rightval = rightfield.value(*it2);
+							} else if ( rightstring != "" ) {
+								// a (regex) string
+								rightval = rightstring;
+							} else {
+								// an attribute
+								rightval = pos2str(right, it2->idx);
+							};
+							
 							// Keep value if the two sides match (using the matchype)
-							if ( resmatch(leftval, rightval, matchtype) ) { 
-								match.push_back(tt);
+							if ( resmatch(leftval, rightval, matchtype, flags) ) { 
+								if ( partname != "" ) it2->named[partname] = it2->idx; 
+								match.push_back(*it2);
+							} else if ( wildcard == "?" ) {
+								// TODO: Skip other parts of this token (if there are any)
+								// And make this backtrackable
+								it2->named["matchend"]--; it2->idx--; it2->ind--; // Keep, but remove item
+								match.push_back(*it2);
 							};
 						};
+						if ( debug ) { cout << "Size after " << part << ":" << match.size() << endl; };
 					};
 				};
 			};
             start = iter[0].second ; i++;
         }
         
-        // Global conditions
+        // Check global conditions
 		split( parts, global, is_any_of( "&" ) );
 		for ( int k=0; k<parts.size(); k++ ) {
 			string part = parts[k]; string left; string right; string leftval; string rightval; string matchtype;
 			if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *(.*?) *$") ) ) {
 				// Comparison between cqlfld 
 				left = m[1]; matchtype = m[2]; right = m[3];
-				// cout << "Checking " << left << " " << matchtype << " " << right << endl;
-				vector< map<int,int> > tocheck = match;
-				match.clear();
-				for ( int j=0; j<tocheck.size(); j++ ) {
-					map<int,int> tt = tocheck[j]; 
+
+				cqlfld leftfield; cqlfld rightfield; 
+				if ( regex_match (left.c_str(), m, regex("(.*\\..*)") ) ) {
+					leftfield.setfld(left, named);
+				};
+				if ( regex_match (right.c_str(), m, regex("(.*\\..*)") ) ) {
+					rightfield.setfld(right, named);
+				};
+
+				for( vector<cqlmatch>::iterator it2 = match.begin(); it2 != match.end(); ) {
+
 					// Calculate the left value
-					if ( regex_match (left.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
+					if ( leftfield.rawbase != "" ) {
+						leftval = leftfield.value(*it2);
+					} else if ( regex_match (left.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
 						// a (regex) string
 						leftval = m[1];
-					} else if ( regex_match (left.c_str(), m, regex(" *(.*\\..*) *") ) ) {
-						// a cqlfld
-						string cond = m[1];
-						cqlfld cqlfield; cqlfield.setfld(cond, named);
-						leftval = cqlfield.value(tt);
 					} else {
-						// what else can it be?
+						// A position
+						leftval = it2->named[m[1]];
 					};
+					
 					// Calculate the right value
-					if ( regex_match (right.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
+					if ( rightfield.rawbase != "" ) {
+						rightval = rightfield.value(*it2);
+					} else if ( regex_match (right.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
 						// a (regex) string
 						rightval = m[1];
-					} else if ( regex_match (right.c_str(), m, regex(" *(.*\\..*) *") ) ) {
-						// a cqlfld
-						string cond = m[1];
-						cqlfld cqlfield; cqlfield.setfld(cond, named);
-						rightval = cqlfield.value(tt);
 					} else {
-						// what else can it be?
+						// A position
+						rightval = it2->named[m[1]];
 					};
-					if ( resmatch(leftval, rightval, matchtype) ) { 
-						match.push_back(tt);
+					
+					if ( !resmatch(leftval, rightval, matchtype) ) { 
+						it2 = match.erase(it2);
+					} else {
+						++it2;
 					};
 				};
 			};			
@@ -436,16 +494,21 @@ class cqlresult {
 		std::sort (match.begin(), match.end(), Matchsorter(sortfld) );
 		
 		if ( desc ) {
-			vector< map<int,int> > swapped( match.rbegin(), match.rend() );
+			vector< cqlmatch > swapped( match.rbegin(), match.rend() );
 			swapped.swap(match);
 		};
 	};
 
-	void index ( string indexname, string field ) {
+	void index ( string field ) {
 		// Add an index to the result vector
 		// TODO : implement this
 		
-		cmatch m; 
+		string index; cmatch m; 
+		if ( regex_match (field.c_str(), m, regex("(.*) = (.*)") ) ) {
+			field = m[2];
+			index = m[1];
+		};		
+		
 		vector< vector<map<int, int> > > newidx;
 			
 		if ( regex_match (field.c_str(), m, regex(" *([^ ]+) expand to (.*)") ) ) {
@@ -520,7 +583,7 @@ class cqlresult {
 			for ( int i=0; i<match.size(); i++ ) {
 				if ( dir == "+" || dir == "" ) {
 					for ( int j=0; j<context; j++ ){
-						int pos = match[i][match[i].size()-1]+1+j;
+						int pos = match[i].named["matchend"]+1+j;
 						value = ""; sep = "";
 						for (int k=0; k<flds.size(); k++ ) {
 							value += sep + pos2str(flds[k], pos); sep = "\t";
@@ -530,7 +593,7 @@ class cqlresult {
 				};
 				if ( dir == "-" || dir == "" ) {
 					for ( int j=0; j<context; j++ ){
-						int pos = match[i][0]-1-j;
+						int pos = match[i].named["match"]-1-j;
 						value = ""; sep = "";
 						for (int k=0; k<flds.size(); k++ ) {
 							value += sep + pos2str(flds[k], pos); sep = "\t";
@@ -540,9 +603,9 @@ class cqlresult {
 				};
 				if ( dir != "" && dir != "-" && dir != "+" ) {
 					// context based on relpos
-					int relbase = 0; // relpos of match or target when specified
-					if ( named["target"] ) { relbase = named["target"]; };
-					int pos = match[i][relbase];
+					string relbase = "match"; // relpos of match or target when specified
+					if ( named["target"] ) { relbase = "target"; };
+					int pos = match[i].named[relbase];
 
 					value = ""; sep = "";
 					for (int k=0; k<flds.size(); k++ ) {
@@ -748,7 +811,7 @@ class cqlresult {
 		} else if ( output == "json" ) {
 			cout << "[[";
 			for ( int j=0; j<cqlfieldlist.size(); j++ ) {
-				cout << "{'id':'" << cqlfieldlist[j].fld << "', 'label':'{%" << cqlfieldlist[j].fldname << "%}'}, ";
+				cout << "{'id':'" << cqlfieldlist[j].fld << "', 'label':'{%" << cqlfieldlist[j].fldname << "}'}, ";
 			};
 			cout << " {'id':'count', 'label':'{%Count}', type:number} ]," << endl;
 			for (std::map<string,int>::iterator it=counts.begin(); it!=counts.end(); ++it) {
@@ -834,7 +897,7 @@ class cqlresult {
 		// TODO: expand to s
 		
 		for ( int i=0; i<match.size(); i++ ) {
-			string xidx = rng2xml(match[i][0], match[i][1]);
+			string xidx = rng2xml(match[i].named["match"], match[i].named["match"]);
 			replace_all(xidx, "\n", " ");
 			cout << xidx << endl;
 		};
@@ -1174,33 +1237,70 @@ void cqlparse ( string cql ) {
 	// Parse a CQL query
 	
 	cmatch m; 
-	if ( regex_match (cql.c_str(), m, regex(" *([^ ]+) *= *(.*)") ) ) {
+	trim(cql); string subname;
+	if ( regex_match (cql.c_str(), m, regex("([^ ]+) *= (.*)") ) ) {
+		subname = m[1];
 		cqlresult newcql;
-		newcql.name = m[1];
+		newcql.name = subname;
 		newcql.parsecql(m[2]);
-		subcorpora[m[1]] = newcql;
-	} else if ( regex_match (cql.c_str(), m, regex("tabulate +([^ ]+) (.*)$") ) ) {
-		subcorpora[m[1]].tabulate(m[2]);
-	} else if ( regex_match (cql.c_str(), m, regex("sort +([^ ]+) (.*)$") ) ) {
-		subcorpora[m[1]].sort(m[2]);
-	} else if ( regex_match (cql.c_str(), m, regex("group +([^ ]+) (.*)$") ) ) {
-		subcorpora[m[1]].group(m[2]);
-	} else if ( regex_match (cql.c_str(), m, regex("stats +([^ ]+) (.*)$") ) ) {
-		subcorpora[m[1]].stats(m[2]);
-	} else if ( regex_match (cql.c_str(), m, regex("info +([^ ]+) (.*)$") ) ) {
-		subcorpora[m[2]].info();
-	} else if ( regex_match (cql.c_str(), m, regex("xidx +([^ ]+) ?([^ ]*)$") ) ) {
-		subcorpora[m[1]].xidx(m[2]);
-	} else if ( regex_match (cql.c_str(), m, regex("index +([^ ]+) ([^ ]+) = (.*)$") ) ) {
-		subcorpora[m[1]].index(m[2], m[3]);
-	} else if ( regex_match (cql.c_str(), m, regex("size +([^ ]+) ?([^ ]*)$") ) ) {
-		cout << subcorpora[m[1]].size() << endl; // TODO: What do we do with the second argument?
+		subcorpora[subname] = newcql;
+		last = subname;
+	} else if ( regex_match (cql.c_str(), m, regex("([\"\[].*)") ) ) {
+		if ( last != "" ) {
+			subname = last;
+		} else {
+			subname = "Anon";
+		};
+		cqlresult newcql;
+		newcql.name = subname;
+		newcql.parsecql(m[1]);
+		subcorpora[subname] = newcql;
+		last = subname;
+	} else if ( regex_match (cql.c_str(), m, regex("([^ ]+)(.*)") ) ) {
+		string command = m[1];
+		string rest = m[2]; trim(rest); 
+		
+		// Determine the name of the subcorpus
+		if ( regex_match (rest.c_str(), m, regex("([^ ]+)(.*)") ) ) {
+			string tmp = m[1]; trim(tmp);
+			if ( subcorpora.find(tmp) != subcorpora.end() ) {
+				subname = tmp;
+				rest = m[2]; trim(rest);
+			};
+		};
+		if ( subname == "" || subname == "Last" ) {
+			if ( last != "" ) {
+				subname = last;
+			} else {
+				subname = "Anon";
+			};
+		};
+		last = subname;
+
+		if ( command == "tabulate" ) {
+			subcorpora[subname].tabulate(rest);
+		} else if ( command == "sort" ) {
+			subcorpora[subname].sort(rest);
+		} else if ( command == "group" ) {
+			subcorpora[subname].group(rest);
+		} else if ( command == "stats" ) {
+			subcorpora[subname].stats(rest);
+		} else if ( command == "info" ) {
+			subcorpora[subname].info();
+		} else if ( command == "xidx" ) {
+			subcorpora[subname].xidx(rest);
+		} else if ( command == "index" ) {
+			subcorpora[subname].index(rest);
+		} else if ( command == "size" ) {
+			cout << subcorpora[subname].size() << endl; 
+		} else {
+			cout << "Unrecognized command: " << cql << endl;
+		};
 	} else if (cql != "" ) {
 		cout << "Unrecognized command: " << cql << endl;
 	};
 
 };
-
 
 int main(int argc, char *argv[]) {
 	int i; string word; string attname;
