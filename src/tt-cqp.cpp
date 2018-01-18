@@ -87,10 +87,11 @@ bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) 
 };
 
 class cqlmatch {
+	// Holds a match to a CQL query
 	public:
-	map<string,int> named;
-	int idx;
-	int ind;
+	map<string,int> named; // The named parts, including "match", "matchend"
+	int ind; // The index of the token in the CQL query
+	map<int, vector<int> > options; // Non-resolved tokens hold an array of possible positions
 };
 
 bool file_exists (const std::string& name) {
@@ -259,6 +260,8 @@ class Matchsorter {
 };
 
 class cqltok {
+	// Holds a token-based restriction on a match (word="A.*")
+	
 	public:
 	string rawdef;
 	int partnr;
@@ -276,6 +279,89 @@ class cqltok {
 	bool done;
 };
 
+void checkcond ( cqltok ctok, vector<cqlmatch> *match  ) {
+	// Check a cqltok on the match list
+	
+	if ( ctok.done ) {
+		return;
+	};
+	
+	string part = ctok.rawdef;
+	string wildcard = ctok.wildcard;
+	string partname = ctok.partname;
+	string flags = ctok.flags;
+	int partnr = ctok.partnr;
+				
+	// Attribute matching string or regex
+	string left = ctok.left; trim(left);
+	string matchtype = ctok.matchtype;
+	string right = ctok.right; trim(right);
+	
+	string leftval; string rightval;
+	
+	// TODO: This should allow wildcards						
+	vector<cqlmatch> tocheck = *match;
+	match->clear();
+	for( vector<cqlmatch>::iterator it2 = tocheck.begin(); it2 != tocheck.end(); it2++ ) {
+		
+		vector<int> options = it2->options[partnr];
+		if ( options.size() == 0 ) {
+			// New token - initialize the options
+			int ofs; vector<int> ops;
+			if ( it2->options[partnr-1].size() > 0 ) {
+				ops = it2->options[partnr-1];
+				ofs = -1;
+			} else if ( it2->options[partnr+1].size() > 0 ) {
+				ops = it2->options[partnr+1];
+				ofs = +1;
+			} else {
+				return; // nothing to hook on to
+			};
+			for ( int j=0; j<ops.size(); j++ ) {
+				options.push_back(ops[j] - ofs);				
+			};
+			it2->options[partnr] = options;
+		};
+		
+		int focus = options[0]; 
+		
+		// Calculate the value for the left-hand side
+		if ( ctok.leftfield.rawbase != "" ) {
+			// an cqlfld
+			leftval = ctok.leftfield.value(*it2);
+		} else if ( ctok.leftstring != "" ) {
+			// a (regex) string
+			leftval = ctok.leftstring;
+		} else {
+			// an attribute
+			leftval = pos2str(left, focus);
+		};
+		
+		// Calculate the value for the right-hand side
+		if ( ctok.rightfield.rawbase != "" ) {
+			rightval = ctok.rightfield.value(*it2);
+		} else if ( ctok.rightstring != "" ) {
+			// a (regex) string
+			rightval = ctok.rightstring;
+		} else {
+			// an attribute
+			rightval = pos2str(right, focus);
+		};
+		
+		// Keep value if the two sides match (using the matchype)
+		if ( resmatch(leftval, rightval, matchtype, flags) ) { 
+			if ( partname != "" ) it2->named[partname] = focus; 
+			if ( focus > it2->named["matchend"] ) it2->named["matchend"] = focus;
+			match->push_back(*it2);
+		//} else if ( wildcard == "?" ) {
+		//	match->push_back(*it2);
+		};
+	};
+	if ( debug ) { cout << "Size after " << part << ":" << match->size() << endl; };
+
+};
+
+
 class cqlresult {
 	// A named CQL result, set by Sub = [cqlquery]
 	// holds a vector of matching position (sets)
@@ -289,6 +375,7 @@ class cqlresult {
 	map<string, int> named;
 	vector<cqlmatch> match;
 	vector<cqltok> condlist;
+	map<int, map<int, int> > condarray;
 	
 	void parsecql (string tmp) {
 		// Run a CQL search to create a result vector
@@ -364,6 +451,7 @@ class cqlresult {
 				};
 				newtok.rawdef = part;
 				condlist.push_back(newtok);
+				condarray[i][k] = condlist.size() - 1; // keep conditions ordered by toknr
 			};
 			start = iter[0].second ;i++;
 		};
@@ -406,7 +494,8 @@ class cqlresult {
 				cqlmatch tmp2;
 				tmp2.named["match"] = tmp[j];
 				tmp2.named["matchend"] = tmp[j];
-				tmp2.idx = tmp[j]; tmp2.ind = 1;
+				tmp2.options[i].push_back(tmp[j]);
+				tmp2.ind = 1; // What does this do?
 				if ( partname != "" ) tmp2.named[partname] = tmp[j]; 
 				match.push_back(tmp2);
 			};
@@ -417,71 +506,8 @@ class cqlresult {
 		};
 				
 		for ( int cc =0; cc<condlist.size(); cc++ ) {
-			
-			cqltok ctok = condlist[cc];
-			if ( ctok.done ) {
-				continue;
-			};
-			
-			int i = ctok.partnr;
-			int k = ctok.idx;
-			string part = ctok.rawdef;
-			string wildcard = ctok.wildcard;
-			string partname = ctok.partname;
-			string flags = ctok.flags;
-						
-			// Attribute matching string or regex
-			string left = ctok.left; trim(left);
-			string matchtype = ctok.matchtype;
-			string right = ctok.right; trim(right);
-			
-			string leftval; string rightval;
-			
-			// TODO: This should allow wildcards						
-			vector<cqlmatch> tocheck = match;
-			match.clear();
-			for( vector<cqlmatch>::iterator it2 = tocheck.begin(); it2 != tocheck.end(); it2++ ) {
-				int tt = it2->named["matchend"]; 
-				
-				if ( k == 0 ) { it2->named["matchend"]++; it2->idx++;  it2->ind++; };
-
-				// Calculate the value for the left-hand side
-				if ( ctok.leftfield.rawbase != "" ) {
-					// an cqlfld
-					leftval = ctok.leftfield.value(*it2);
-				} else if ( ctok.leftstring != "" ) {
-					// a (regex) string
-					leftval = ctok.leftstring;
-				} else {
-					// an attribute
-					leftval = pos2str(left, it2->idx);
-				};
-				
-				// Calculate the value for the right-hand side
-				if ( ctok.rightfield.rawbase != "" ) {
-					rightval = ctok.rightfield.value(*it2);
-				} else if ( ctok.rightstring != "" ) {
-					// a (regex) string
-					rightval = ctok.rightstring;
-				} else {
-					// an attribute
-					rightval = pos2str(right, it2->idx);
-				};
-				
-				// Keep value if the two sides match (using the matchype)
-				if ( resmatch(leftval, rightval, matchtype, flags) ) { 
-					if ( partname != "" ) it2->named[partname] = it2->idx; 
-					match.push_back(*it2);
-				} else if ( wildcard == "?" ) {
-					// TODO: Skip other parts of this token (if there are any)
-					// And make this backtrackable
-					it2->named["matchend"]--; it2->idx--; it2->ind--; // Keep, but remove item
-					match.push_back(*it2);
-				};
-			};
-			if ( debug ) { cout << "Size after " << part << ":" << match.size() << endl; };
-
-        }
+			checkcond(condlist[cc], &match);
+        };
         
         // Check global conditions
 		split( parts, global, is_any_of( "&" ) );

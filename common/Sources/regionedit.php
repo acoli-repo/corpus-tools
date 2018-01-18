@@ -40,6 +40,7 @@
 
 		$nons = namespacemake($editxml);
 		$xml = simplexml_load_string($nons);
+		if ( !$xml ) fatal ("Unable to load XML file");
 
 		# Find the page in the XML
 		if ( $xml->xpath(".//page") ) {
