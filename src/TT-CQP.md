@@ -152,6 +152,16 @@ user> echo 'Matches = [word="casa"] [pos="A.*"]; xidx Matches;' | tt-cqp
             <tok id="w-352" nform="grandíssimas" mfs="AQSFP0" lemma="grande">grandisimas</tok>
 ``` 
 
+### SQL mode
+
+For ranges (mostly for texts), TT-CQP also support a simple version of SQL (using --mode=sql). This mode will
+only look at ranges, and ignore corpus positions entirely. To select the year and title of all Portuguese texts written after 1600,
+you can use:
+
+```
+SELECT year, title FROM text WHERE lang="PT" && year > 1600;
+```
+
 
 ## Use cases
 

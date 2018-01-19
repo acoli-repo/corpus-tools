@@ -27,6 +27,7 @@ using namespace boost;
 // discard
 // --skipbase=nform -> [word="from"] [word="here"] == [word="from"] [nform=""]* [word="here"]
 // --mwe=contr -> [word="del"]  == ([word="del"]|<contr nform="del">[]+</contr>)
+// match.s contains b:[word="here"]
 
 // Forward declarations
 string pos2str(string a, int b);
@@ -35,10 +36,11 @@ int idx2cnt(string a, int b);
 int str2idx(string a, string b);
 int str2cnt ( string a, string b );
 vector<int> regex2idx ( string a, string b, string c );
+vector<int> regex2ridx (string a, string b );
 string rng2xml( int a, int b );
 int pos2relpos ( string attname, int pos );
 string ridx2str ( string attname, int idx );
-int pos2ridx ( string attname, int pos );
+vector<int> pos2ridx ( string attname, int pos );
 map<string,FILE*> files;
 
 class cqlresult;
@@ -227,8 +229,13 @@ class cqlfld {
 		for ( int i= posstart; i<=posend; i++ ) {
 			value += sep;
 			if ( regex_match (fld.c_str(), m, regex("(.*)_(.*)") ) ) {
-				int ridx = pos2ridx(fld, i); // TODO: this does not exist!
-				value += ridx2str(fld, ridx); 
+				vector<int> ridx = pos2ridx(fld, i);
+				string list; string lsep = "";
+				for (int j=0; j<ridx.size(); j++ ) {
+					value += lsep + ridx2str(fld, ridx[j]); 
+					lsep = ",";
+				};
+				value += list;
 			} else {
 				value += pos2str(fld, i); 
 			};
@@ -301,66 +308,154 @@ void checkcond ( cqltok ctok, vector<cqlmatch> *match  ) {
 	
 	// TODO: This should allow wildcards						
 	vector<cqlmatch> tocheck = *match;
-	match->clear();
+	match->clear(); int ofs; vector<int> ops;
 	for( vector<cqlmatch>::iterator it2 = tocheck.begin(); it2 != tocheck.end(); it2++ ) {
 		
 		vector<int> options = it2->options[partnr];
 		if ( options.size() == 0 ) {
 			// New token - initialize the options
-			int ofs; vector<int> ops;
 			if ( it2->options[partnr-1].size() > 0 ) {
 				ops = it2->options[partnr-1];
-				ofs = -1;
+				ofs = +1;
 			} else if ( it2->options[partnr+1].size() > 0 ) {
 				ops = it2->options[partnr+1];
-				ofs = +1;
+				ofs = -1;
 			} else {
 				return; // nothing to hook on to
 			};
 			for ( int j=0; j<ops.size(); j++ ) {
-				options.push_back(ops[j] - ofs);				
+				if ( ops[j] == -1 ) { 
+					vector<int> oldopts = it2->options[partnr-2*ofs];
+					for ( int k=0; k<oldopts.size(); k++ ) {
+						if ( oldopts[k] == -1 ) { continue; };
+						options.push_back(oldopts[k] + ofs); 	
+ 					};
+ 					continue; 
+				};
+				int max;
+				if ( wildcard == "+" || wildcard == "*" || wildcard == "+?" || wildcard == "*?" ) {
+					max = 10;
+				} else {
+					max = 1;
+				};
+				for ( int k=0; k<max; k++ ) {
+					int newidx = ops[j] + ofs + ofs*k;
+					// TODO: skip over "empty" tokens
+					options.push_back(newidx); // TODO: use unique at some point	
+				};
+				if ( wildcard == "?" || wildcard == "*" ) options.push_back(-1);
 			};
-			it2->options[partnr] = options;
 		};
 		
-		int focus = options[0]; 
+		it2->options[partnr].clear();
+		for ( int k=0; k<options.size(); k++ ) {
+			int focus = options[k]; 
+			if ( focus == -1 ) {
+				it2->options[partnr].push_back(focus);
+				continue;
+			};
 		
-		// Calculate the value for the left-hand side
-		if ( ctok.leftfield.rawbase != "" ) {
-			// an cqlfld
-			leftval = ctok.leftfield.value(*it2);
-		} else if ( ctok.leftstring != "" ) {
-			// a (regex) string
-			leftval = ctok.leftstring;
-		} else {
-			// an attribute
-			leftval = pos2str(left, focus);
-		};
+			// Calculate the value for the left-hand side
+			if ( ctok.leftfield.rawbase != "" ) {
+				// an cqlfld
+				leftval = ctok.leftfield.value(*it2);
+			} else if ( ctok.leftstring != "" ) {
+				// a (regex) string
+				leftval = ctok.leftstring;
+			} else {
+				// an attribute
+				leftval = pos2str(left, focus);
+			};
 		
-		// Calculate the value for the right-hand side
-		if ( ctok.rightfield.rawbase != "" ) {
-			rightval = ctok.rightfield.value(*it2);
-		} else if ( ctok.rightstring != "" ) {
-			// a (regex) string
-			rightval = ctok.rightstring;
-		} else {
-			// an attribute
-			rightval = pos2str(right, focus);
-		};
+			// Calculate the value for the right-hand side
+			if ( ctok.rightfield.rawbase != "" ) {
+				rightval = ctok.rightfield.value(*it2);
+			} else if ( ctok.rightstring != "" ) {
+				// a (regex) string
+				rightval = ctok.rightstring;
+			} else {
+				// an attribute
+				rightval = pos2str(right, focus);
+			};
 		
-		// Keep value if the two sides match (using the matchype)
-		if ( resmatch(leftval, rightval, matchtype, flags) ) { 
-			if ( partname != "" ) it2->named[partname] = focus; 
-			if ( focus > it2->named["matchend"] ) it2->named["matchend"] = focus;
-			match->push_back(*it2);
-		//} else if ( wildcard == "?" ) {
-		//	match->push_back(*it2);
-		};
+			// Keep value if the two sides match (using the matchype)
+			if ( resmatch(leftval, rightval, matchtype, flags) ) { 
+				it2->options[partnr].push_back(focus);
+			};
+		};	
+		if ( it2->options[partnr].size() > 0 ) match->push_back(*it2);
+	
 	};
-	if ( debug ) { cout << "Size after " << part << ":" << match->size() << endl; };
+	if ( debug ) { cout << "Size after " << left << matchtype << right << ":" << match->size() << endl; };
 
 };
 
+void sqlparse (string sql) {
+	// We can use a light SQL version to search ranges (mostly meant for text attributes)
+	cmatch m; vector<int> match; vector<string> parts; vector<string> attlist;
+	
+	if ( regex_match (sql.c_str(), m, regex("select (.*) from (.*) where (.*)", std::regex_constants::icase) ) ) {
+		string atts = m[1]; string rangetype = m[2]; string conds = m[3];
+
+		if ( atts != "" ) split( attlist, atts, is_any_of( "," ) );
+
+		if ( conds != "" ) split( parts, conds, is_any_of( "&" ) );
+		for ( int k=0; k<parts.size(); k++ ) {
+			string cond = parts[k]; string word; trim(cond);
+			if ( cond == "" ) continue;
+			if ( debug ) cout << "Checking " << cond << endl;
+
+			string left; string right; string matchtype;
+			if ( regex_match (cond.c_str(), m, regex("(.*)(!?[=<>])(.*)") ) ) {
+				left = m[1]; trim(left);
+				matchtype = m[2];
+				right = m[3]; trim(right);
+			};
+
+			if ( k == 0 ) {
+			
+				// Initialize the list of matches
+				string attname = rangetype + "_" + left; 
+				if ( regex_match (right.c_str(), m, regex("\"(.*)\"") ) ) {
+					word = m[1];
+					match = regex2ridx(attname, word);
+				};
+				
+			} else {
+				
+				vector<int> tocheck = match;
+				match.clear();
+				for ( int j=0; j<tocheck.size(); j++ ) {
+					int ridx = tocheck[j]; 
+					string attname = rangetype + "_" + left; 
+					if ( regex_match (right.c_str(), m, regex("\"(.*)\"") ) ) {
+						word = m[1];
+						if ( resmatch(ridx2str(attname, ridx), word) ) {
+							match.push_back(ridx);
+						};
+					};
+				};
+			};
+
+		};
+
+		// Now, tabulate this
+		for ( int k=0; k<match.size(); k++ ) {
+			int ridx = match[k]; string sep;
+			for (int j=0; j<attlist.size(); j++ ) {
+				string attname = attlist[j]; trim(attname);
+				attname = rangetype + "_" + attname;
+				cout << sep << ridx2str(attname, ridx);
+				sep = "\t";
+			};
+			cout << endl;
+		};
+		
+	} else if ( sql != "" ) {
+		cout << "Unknown SQL command: " << sql << endl;
+	};
+	
+};
 
 class cqlresult {
 	// A named CQL result, set by Sub = [cqlquery]
@@ -387,6 +482,7 @@ class cqlresult {
 
 		if ( regex_match (cql.c_str(), m, regex("^(.*) +within +(.*)$") ) ) {
 			cql = m[1]; within = m[2];
+			// TODO: translate this into min and max (and have those being used)
 		};
 		if ( regex_match (cql.c_str(), m, regex("^(.*) +:: +(.*)$") ) ) {
 			cql = m[1]; global = m[2];
@@ -429,9 +525,9 @@ class cqlresult {
 				}; int rank;
 				if ( regex_match (part.c_str(), m, regex("(.*?) *(!?[=<>]) *(.*)") ) ) {
 					// Attribute matching string or regex
-					newtok.left = m[1];
+					newtok.left = m[1]; trim(newtok.left);
 					newtok.matchtype = m[2];
-					newtok.right = m[3];
+					newtok.right = m[3]; trim(newtok.right);
 
 					if ( regex_match (newtok.left.c_str(), m, regex(" \"([^\"]+)\"") ) ) {
 						newtok.leftstring = m[1];
@@ -448,7 +544,9 @@ class cqlresult {
 				};
 				if ( rank > maxrank ) { 
 					best = k;
+					maxrank = rank;
 				};
+				trim(part);
 				newtok.rawdef = part;
 				condlist.push_back(newtok);
 				condarray[i][k] = condlist.size() - 1; // keep conditions ordered by toknr
@@ -555,7 +653,30 @@ class cqlresult {
 						++it2;
 					};
 				};
+			} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) contains (.*?) *$") ) ) {
+			
+			} else {
+				cout << "Unknown global condition: " << part << endl;
 			};			
+		};
+		
+		// Calculate actual position
+		for( vector<cqlmatch>::iterator it2 = match.begin(); it2 != match.end(); it2++ ) {
+			vector<int> poslist;
+			for ( int i=0; i<it2->options.size(); i++ ) {
+				vector<int> options = it2->options[i];
+				if ( options.size() == 1 ) { 
+					poslist.push_back(options[0]);
+				} else {
+					poslist.push_back(options[0]); 		// TODO: implement this 
+				};
+			};
+			it2->named["match"] = poslist[0];
+			it2->named["matchend"] = poslist[poslist.size()-1];				
+			for( map<string,int>::iterator it = named.begin(); it != named.end(); it++ ) {
+				string name = it->first; int idx = it->second;
+				it2->named[name] = poslist[idx];
+			};
 		};
 		
 	};
@@ -1110,6 +1231,8 @@ string pos2str ( string attname, int pos ) {
 	// Find the string for an attribute at a given corpus position
 	int idx; FILE* stream; 
 
+	if ( pos == -1 ) return "";
+
 	string filename = cqpfolder + attname + ".corpus";
 	if ( !streamopen(&stream, filename) ) return "";
 
@@ -1131,30 +1254,31 @@ int idx2cnt ( string attname, int idx ) {
 	return cnt;
 };
 
-int pos2ridx ( string attname, int pos ) {
+vector<int> pos2ridx ( string attname, int pos ) {
 	// return the index for a range containing a position (an attname)
+	vector<int> idx;
 	
  	FILE* stream; 
 
 	string filename = cqpfolder + attname + ".idx";
 
-	int idx = -1;
 	if ( streamopen(&stream, filename, false) ) {
-		// If we happen to have a satt.idx file, read quickly
-		cout << "Checking: " << filename << endl; 
-		idx = read_network_number(pos,stream);
+		// If we happen to have a satt.idx file, read quickly - also, will always be unique
+		idx.push_back(read_network_number(pos,stream));
 	} else {
 	 	FILE* stream2; 
 		string filename2 = cqpfolder + attname + ".rng";
 		streamopen(&stream2, filename2);
-		if ( stream2 == NULL ) { cout << "Failed to open RNG file: " << filename2 << endl; return -1; };
+		if ( stream2 == NULL ) { cout << "Failed to open RNG file: " << filename2 << endl; return idx; };
 		int start = -1; int end = -1; 
 		fseek(stream2, 0, SEEK_END); int max = ftell(stream2)/4;
 		for ( int i=0; i<max; i=i+2 ) {
 			start = read_network_number(i, stream2);
 			end = read_network_number(i+1, stream2);
 			
-			if ( start < pos && end > pos ) { idx = i/2; }; // TODO: gather rather than replace
+			if ( start < pos && end > pos ) { 
+				idx.push_back(i/2); 
+			}; // TODO: gather rather than replace
 		};
 	};
 	//fclose(stream);
@@ -1199,6 +1323,58 @@ wstring towstring (const string s) {
 
     return ws;
 }
+
+vector<int> regex2ridx (string attname, string word ) {
+	// Return the vector of indices matching a regex on range attname
+	FILE* stream; string strval; int i; 
+	vector<int> match; vector<int> avx;
+	map<int,bool> ofs;
+
+   	// TODO: make this use rangename.rnx
+
+	string filename = cqpfolder + attname + ".avs";
+	if ( !streamopen(&stream, filename) ) return match;
+	rewind(stream);
+
+	// First, get the avx numbers
+	ifstream myfile( filename ); int idx = 0;
+	if (myfile) {
+		while ( getline( myfile, strval, '\0' ) )  {
+			if ( resmatch(word, strval) ) {	
+				ofs[idx] = true;
+			};
+			idx = myfile.tellg();
+			i++;
+		}
+		myfile.close();
+	} else {
+		cout << "Failed to read " << filename << endl;
+	}
+   	
+   	// Now get the ranges for the avx index
+	filename = cqpfolder + attname + ".avx";
+	if ( !streamopen(&stream, filename) ) return match;
+	
+	fseek(stream, 0, SEEK_END); int max = ftell(stream)/4; 
+	rewind(stream);
+	int rnx = 0; int rng = 0; int j=0;
+	while ( j < max ) {
+		fread(&i, 4, 1, stream);
+		rng = ntohl(i);
+		fread(&i, 4, 1, stream);
+		rnx = ntohl(i);
+		// Read 2 dummy lines (for the end of the range)
+		fread(&i, 4, 1, stream);
+		fread(&i, 4, 1, stream);
+		if ( ofs[rnx] ) {
+			match.push_back(rng/2);
+		}; 
+		j = j+4;
+	};
+   	
+	return match;
+	
+};
 
 int str2idx ( string attname, string word ) {
 	// Find the IDX number in an attribute for a specific string 
@@ -1490,6 +1666,12 @@ int main(int argc, char *argv[]) {
 		while ( getline( cin, line, ';' ) && line != "exit" ) {
 			trim(line);
 			cqlparse(line);
+		}	
+	} else if ( mode ==  "sql" ) {
+		// CQL command are separated by ;
+		while ( getline( cin, line, ';' ) && line != "exit" ) {
+			trim(line);
+			sqlparse(line);
 		}	
 	} else if ( mode ==  "pos2rel" ) {
 		// Give back the corpus position of the head (or other related id)
