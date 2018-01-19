@@ -28,6 +28,7 @@ using namespace boost;
 // --skipbase=nform -> [word="from"] [word="here"] == [word="from"] [nform=""]* [word="here"]
 // --mwe=contr -> [word="del"]  == ([word="del"]|<contr nform="del">[]+</contr>)
 // match.s contains b:[word="here"]
+// mean text frequency
 
 // Forward declarations
 string pos2str(string a, int b);
@@ -41,6 +42,7 @@ string rng2xml( int a, int b );
 int pos2relpos ( string attname, int pos );
 string ridx2str ( string attname, int idx );
 vector<int> pos2ridx ( string attname, int pos );
+vector<int> ridx2rng ( string a, int b );
 map<string,FILE*> files;
 
 class cqlresult;
@@ -51,7 +53,8 @@ map<string, cqlresult> subcorpora;
 int debug = 0;
 bool test = false;
 bool verbose = false;
-string output;
+string output; // type of output (csv, json, xml)
+string mwe; // what, if anything, to treat as MWE region
 string cqpfolder;
 int corpussize;
 string last;
@@ -93,6 +96,7 @@ class cqlmatch {
 	public:
 	map<string,int> named; // The named parts, including "match", "matchend"
 	int ind; // The index of the token in the CQL query
+	int min; int max; // Minimum and maximum values for positions - typically coming from the within command
 	map<int, vector<int> > options; // Non-resolved tokens hold an array of possible positions
 };
 
@@ -347,9 +351,11 @@ void checkcond ( cqltok ctok, vector<cqlmatch> *match  ) {
 			};
 		};
 		
-		it2->options[partnr].clear();
+		it2->options[partnr].clear(); map<int,bool> done;
 		for ( int k=0; k<options.size(); k++ ) {
 			int focus = options[k]; 
+			if ( done[focus] ) continue; // Skip duplicates
+			
 			if ( focus == -1 ) {
 				it2->options[partnr].push_back(focus);
 				continue;
@@ -470,6 +476,7 @@ class cqlresult {
 	map<string, int> named;
 	vector<cqlmatch> match;
 	vector<cqltok> condlist;
+	vector<string> toklist;
 	map<int, map<int, int> > condarray;
 	
 	void parsecql (string tmp) {
@@ -491,11 +498,19 @@ class cqlresult {
 		match_results<std::string::const_iterator> iter;
 		string::const_iterator start = cql.begin() ; int i=0;
 		vector<string> parts; 
-		int maxrank = 0; int best; // to determine the best init condition
+		int maxrank = 0; named["best"] = -1; // to determine the best init condition
+		// Logic:  (you can always see what was used as the best token)
+		// - start with target
+		// - never start with a wildcard token
+		// - avoid starting with a crossref att=b.att
+		// - att="string" best, followed by att="regex*"
+		// TODO: prefer large attribute sets, and long regexp definitions
 		
 		// Analyse each CQL token in turn
         while ( regex_search(start, cql.cend(), iter, regex("((?:@|[^ ]+:)?)\\[([^\\]]+)\\]([*+?]?)")) ) {
-			// TODO: we should first determine the best starting point
+
+			toklist.push_back(iter[0]);
+
         	string tmp = iter[1];
         	string conds = iter[2]; 
         	string wildcard = iter[3]; 
@@ -522,7 +537,10 @@ class cqlresult {
 				if ( regex_match (part.c_str(), m, regex("(.*) *(%[^ ]+)") ) ) {
 					newtok.flags = m[2];
 					part = m[1];
-				}; int rank;
+				}; 
+				int rank = 0;
+				if ( partname == "target" ) rank = 11; // We get 10 points for being target (unless impossible, start with the target) 
+				if ( wildcard != "" ) rank = -20; // Never start with a wildcard token
 				if ( regex_match (part.c_str(), m, regex("(.*?) *(!?[=<>]) *(.*)") ) ) {
 					// Attribute matching string or regex
 					newtok.left = m[1]; trim(newtok.left);
@@ -530,20 +548,25 @@ class cqlresult {
 					newtok.right = m[3]; trim(newtok.right);
 
 					if ( regex_match (newtok.left.c_str(), m, regex(" \"([^\"]+)\"") ) ) {
-						newtok.leftstring = m[1];
+						rank += 3; // 5 points for a string/regex match left
+						newtok.leftstring = m[1]; 
 					} else if ( regex_match (newtok.left.c_str(), m, regex("(.*\\..*)") ) ) {
 						newtok.leftfield.setfld(newtok.left, named);
+						rank -= 5; // do not start with a relation to another attribute
+					} else {
+						rank += 5; // 5 points for an attribute match left
 					};
 					if ( regex_match (newtok.right.c_str(), m, regex("\"([^\"]+)\"") ) ) {
 						newtok.rightstring = m[1];
+						if ( regex_match(newtok.rightstring.c_str(), regex(".*[*+?].*")) || newtok.flags.find("c") != std::string::npos ) rank += 3; // 3 points for a regex match
+						else rank += 5; // 5 points for a string match 
 					} else if ( regex_match (newtok.right.c_str(), m, regex("(.*\\..*)") ) ) {
 						newtok.rightfield.setfld(newtok.right, named);
+						rank -= 5; // do not start with a relation to another attribute
 					}; 
-					
-					rank = 5; // TODO: Ranking involves not going through the tokens linearly
 				};
 				if ( rank > maxrank ) { 
-					best = k;
+					named["best"] = condlist.size();
 					maxrank = rank;
 				};
 				trim(part);
@@ -555,6 +578,7 @@ class cqlresult {
 		};
 		
 		// Initialize on the best condition
+		int best = named["best"]; 
 		if ( best != -1 ) {
 			cqltok ctok = condlist[best];
 			int i = ctok.partnr;
@@ -580,7 +604,18 @@ class cqlresult {
 					};
 				} else {
 					tmp = idx2pos(attname, str2idx(attname, word));
+
+					if ( mwe != "" ) {
+						string mweatt = mwe + "_" + attname;
+						cout << "Looking for MWE: " << mweatt << " = " << word << endl;
+						vector<int> mwems = regex2ridx(mweatt, word);
+						for ( int j=0; j<mwems.size(); j++ ) {
+							vector<int> tmprng = ridx2rng(mweatt, mwems[j]);
+							cout << "MWE result: " << mwems[j] << " = " << tmprng[0] << " = " << ridx2str(mweatt, mwems[j])  << " / " << pos2str(attname, tmprng[0]) << endl;
+						};
+					};
 				};
+								
 			} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *(.*\\..*)$") ) ) {
 				// TODO: Initialize with a cqlfld condition?
 			} else {
@@ -590,11 +625,19 @@ class cqlresult {
 			// Populate the result vector
 			for ( int j=0; j<tmp.size(); j++ ) {
 				cqlmatch tmp2;
-				tmp2.named["match"] = tmp[j];
-				tmp2.named["matchend"] = tmp[j];
-				tmp2.options[i].push_back(tmp[j]);
+				int dopos = tmp[j];
+				tmp2.named["match"] = dopos;
+				tmp2.named["matchend"] = dopos;
+				tmp2.options[i].push_back(dopos);
 				tmp2.ind = 1; // What does this do?
-				if ( partname != "" ) tmp2.named[partname] = tmp[j]; 
+				if ( within != "" ) {
+					vector<int> ranges = pos2ridx(within, dopos);
+					// This only uses the first range the item belongs to - not supported for overlapping ranges
+					vector<int> range = ridx2rng(within, ranges[0]);
+					tmp2.min=range[0];
+					tmp2.max=range[1];
+				}; 
+				if ( partname != "" ) tmp2.named[partname] = dopos; // Redundant?
 				match.push_back(tmp2);
 			};
 			
@@ -603,8 +646,17 @@ class cqlresult {
 
 		};
 				
-		for ( int cc =0; cc<condlist.size(); cc++ ) {
-			checkcond(condlist[cc], &match);
+		// From the best position, go right
+		for ( int ca = best; ca<condarray.size(); ca++ ) {
+			for (int cc=0; cc<condarray[ca].size(); cc++) {
+				checkcond(condlist[condarray[ca][cc]], &match);
+			};
+        };
+		// From the best position, go left
+		for ( int ca = best-1; ca>-1; ca-- ) {
+			for (int cc=0; cc<condarray[ca].size(); cc++) {
+				checkcond(condlist[condarray[ca][cc]], &match);
+			};
         };
         
         // Check global conditions
@@ -655,24 +707,31 @@ class cqlresult {
 				};
 			} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) contains (.*?) *$") ) ) {
 			
-			} else {
+			} else if ( part != "" ) {
 				cout << "Unknown global condition: " << part << endl;
 			};			
 		};
 		
-		// Calculate actual position
+		// Calculate actual positions (for wildcards)
 		for( vector<cqlmatch>::iterator it2 = match.begin(); it2 != match.end(); it2++ ) {
 			vector<int> poslist;
-			for ( int i=0; i<it2->options.size(); i++ ) {
+			
+			// First run - fix the positions with a unique value
+			for ( int i=0; i<condlist.size(); i++ ) {
 				vector<int> options = it2->options[i];
+				
 				if ( options.size() == 1 ) { 
 					poslist.push_back(options[0]);
 				} else {
-					poslist.push_back(options[0]); 		// TODO: implement this 
+					poslist.push_back(-2); 	// Postpone choosing
 				};
 			};
-			it2->named["match"] = poslist[0];
-			it2->named["matchend"] = poslist[poslist.size()-1];				
+			
+			int j=0; int minval = poslist[j]; while ( minval == -1 && j< poslist.size() ) { j++; minval=poslist[j]; };
+			it2->named["match"] = minval;
+			j=poslist.size()-1; int maxval = poslist[j]; while ( maxval == -1 && j>0 ) { j--; maxval=poslist[j]; };
+			it2->named["matchend"] = maxval;	
+						
 			for( map<string,int>::iterator it = named.begin(); it != named.end(); it++ ) {
 				string name = it->first; int idx = it->second;
 				it2->named[name] = poslist[idx];
@@ -956,8 +1015,127 @@ class cqlresult {
 						
 		} else if ( type == "keywords"  ) {
 
+			string value; string sep; 
+			map<string,int> counts;
 			
+			if ( verbose ) cout << "Use: [" << cqlfld << "] + " << opts << endl;
+						
+			// Calculate the statistics
+			int obs; int refcnt; string item; int csize; float refsize; float calc; string posval;
+			vector<int> poslist; vector<string> vallist; string item1;
+			
+			pugi::xml_node resfld;
+			pugi::xml_node resnode;
+			pugi::xml_document resfile;
+			if ( output == "xml" ) {
+				resfile.append_child("results");
+				resfile.first_child().append_attribute("cql") = cql.c_str();
+				resfile.first_child().append_attribute("stats") = rawstats.c_str();
+			} else if ( output == "json" ) {
+				cout << "[[{'id':'item', 'label':'{%Item}'}, {'id':'obs', 'label':'{%Observed}'}, {'id':'refcnt', 'label':'{%Reference count}'}, {'id':'csize', 'label':'{%Corpus Size}'}, {'id':'refsize', 'label':'{%Reference Size}'}";
+				if ( measure == "loglike" || measure == "all" ) {
+					cout << ", {'id':'loglike', 'label':'{%Log Likelihood}'}";
+				};
+				cout << "]," << endl;
+			};
+			for (std::map<string,int>::iterator it=counts.begin(); it!=counts.end(); ++it) {
+				obs = it->second; 
+				item = it->first;
 
+				if ( output == "xml" ) {
+					resnode = resfile.first_child().append_child("result");
+				};
+				
+				if ( flds.size() > 1 || show.size() > 0 ) {
+					split( vallist, item, is_any_of( "\t" ) );
+					item1 = vallist[0];
+				} else {
+					item1 = item;
+				};
+				
+				int idx = str2idx(flds[0], item1); // Check the index on the first field
+				
+				if ( idx != -1 ) { // Safety measure - leave out lexicon.idx we cannot find
+					
+					if ( flds.size() > 1 ) {
+						poslist = idx2pos(flds[0], idx); // Set initially as count just for col 1, then throw pos where other cols do not match
+						csize = 0;
+
+						for (int i=1; i<poslist.size(); i++ ) {
+							bool checked = true;
+							for (int j=1; j<flds.size(); j++ ) {
+								if ( pos2str(flds[j], idx) != vallist[i] ) {
+									checked = false;
+								};
+							};
+							if ( checked ) {
+								csize++;
+							};
+						};
+					} else {
+						csize = idx2cnt(flds[0], idx);
+					};
+					
+					float part = (float)csize/corpussize;
+
+					if ( output == "xml" ) {
+						resfld = resnode.append_child("tab");
+						resfld.append_attribute("key") = "item";
+						resfld.append_attribute("value") = item.c_str();
+						
+						resfld = resnode.append_child("tab");
+						resfld.append_attribute("key") = "observed";
+						resfld.append_attribute("value") = obs;
+						
+						resfld = resnode.append_child("tab");
+						resfld.append_attribute("key") = "refcnt";
+						resfld.append_attribute("value") = refcnt;
+						
+						resfld = resnode.append_child("tab");
+						resfld.append_attribute("key") = "total";
+						resfld.append_attribute("value") = csize;
+						
+						resfld = resnode.append_child("tab");
+						resfld.append_attribute("key") = "refsize";
+						resfld.append_attribute("value") = refsize;
+						
+					} else if ( output == "json" ) {
+						cout << "['" << item << "'," << obs << "," << refcnt   << "," << csize  << "," << refsize;
+					} else {	
+						cout << item << "\t" << obs << "\t" << refcnt << "\t" << csize  << "\t" << refsize;
+					};
+
+					if ( measure == "loglike" || measure == "all" ) {
+						int a; int b; int c; int d;
+						a = obs; b = refcnt; c = csize; c = refsize;
+
+						float e1 = c*(a+b)/(c+d);
+						float e2 = d*(a+b)/(c+d);
+						calc = 2*( (a*log(a/e1)) + (b*log(b/e2)) );
+						if ( output == "xml" ) {
+							resfld = resnode.append_child("tab");
+							resfld.append_attribute("key") = "loglike";
+							resfld.append_attribute("value") = calc;
+						} else if ( output == "json" ) {
+							cout << "," << calc;
+						} else {
+							cout << "\t" << calc;
+						};
+					};
+					if ( output == "xml") {
+					} else if ( output == "json" ) {
+						cout << "]," << endl;
+					} else {
+						cout << endl;
+					};
+				} else if ( debug ) { cout << "Discarding (idx not found): " << item1 << endl; };
+			};
+			if ( output == "xml" ) {
+				resfile.print(cout);
+			} else if ( output == "json" ) {
+				cout << "]" << endl;;
+			};					
+			
 		} else {
 			cout << "Unknown statistics type: " << type << endl;
 		};
@@ -1254,6 +1432,21 @@ int idx2cnt ( string attname, int idx ) {
 	return cnt;
 };
 
+vector<int> ridx2rng ( string attname, int ridx ) {
+ 	FILE* stream; 
+ 	vector<int> range; // Actually just a pair
+ 	
+	string filename = cqpfolder + attname + ".rng";
+	streamopen(&stream, filename);
+	
+	int i = 2*ridx;
+	int start = read_network_number(i, stream); range.push_back(start);
+	int end = read_network_number(i+1, stream); range.push_back(end);
+	cout << "Looking for range " << ridx << " in " << attname << " => " << start << " = " << pos2str("form", start) << endl;
+	
+	return range;	 	
+};
+
 vector<int> pos2ridx ( string attname, int pos ) {
 	// return the index for a range containing a position (an attname)
 	vector<int> idx;
@@ -1355,7 +1548,7 @@ vector<int> regex2ridx (string attname, string word ) {
 	filename = cqpfolder + attname + ".avx";
 	if ( !streamopen(&stream, filename) ) return match;
 	
-	fseek(stream, 0, SEEK_END); int max = ftell(stream)/4; 
+	fseek(stream, 0, SEEK_END); int max = ftell(stream)/2; 
 	rewind(stream);
 	int rnx = 0; int rng = 0; int j=0;
 	while ( j < max ) {
@@ -1363,11 +1556,9 @@ vector<int> regex2ridx (string attname, string word ) {
 		rng = ntohl(i);
 		fread(&i, 4, 1, stream);
 		rnx = ntohl(i);
-		// Read 2 dummy lines (for the end of the range)
-		fread(&i, 4, 1, stream);
-		fread(&i, 4, 1, stream);
+
 		if ( ofs[rnx] ) {
-			match.push_back(rng/2);
+			match.push_back(rng);
 		}; 
 		j = j+4;
 	};
@@ -1432,6 +1623,8 @@ vector<int> regex2idx ( string attname, string restr, string flags = "" ) {
 	regex re;
 	if ( flags.find("c") != std::string::npos ) {
 		re = regex(restr, std::regex_constants::icase);
+	} else {
+		re = regex(restr);
 	};
 
 	string strname = cqpfolder + attname + ".lexicon";
@@ -1511,6 +1704,14 @@ void cqlparse ( string cql ) {
 		newcql.parsecql(m[2]);
 		subcorpora[subname] = newcql;
 		last = subname;
+	} else if ( regex_match (cql.c_str(), m, regex("set (.*) (.*)") ) ) {
+		// set CQL options from input		
+		string var = m[1]; string val = m[2];
+		if ( var == "mwe" ) {
+			mwe = val;
+		} else if ( var == "output" ) {
+			output = val;
+		};
 	} else if ( regex_match (cql.c_str(), m, regex("([\"\[].*)") ) ) {
 		if ( last != "" ) {
 			subname = last;
@@ -1613,6 +1814,11 @@ int main(int argc, char *argv[]) {
 	// Parse some of the settings
 	if ( settings.attribute("output") != NULL   ) {
 		output = settings.attribute("output").value();
+	};
+
+	// Parse some of the settings
+	if ( settings.attribute("mwe") != NULL   ) {
+		mwe = settings.attribute("mwe").value();
 	};
 
 	if ( settings.attribute("cqpfolder") != NULL   ) {

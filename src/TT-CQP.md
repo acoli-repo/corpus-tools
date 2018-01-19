@@ -1,6 +1,6 @@
 # TT-CQP
 
-TT-CQP is a custom version of the Corpus Query Processor from the Corpus WorkBench, written for 
+TT-CQP is a custom version of the Corpus Query Processor from the [Corpus WorkBench](http://cwb.sourceforge.net/), written for 
 the TEITOK corpus environment; for the sake of 
 compatibility, TT-CQP uses the same files as CQP, meaning you can use TT-CQP to search any
 existing indexed CQP corpus. However, it was designed to be used together with TT-CWB-ENCODE, which
@@ -18,7 +18,7 @@ manual of CQP, together with this document highlighting the differences.
 
 * it is not yet possible to have wildcards on tokens, such as `[pos="ADJ"]*`
 * `:: within sattribute` does not yet work
-* case and diacritic insensitive search not yet supported (%cd)
+* diacritics insensitive search not yet supported (%d)
 * it is not yet possible to cut lists
 * subcorpora cannot yet be modified by subset, intersection, join, or difference
 
@@ -155,8 +155,8 @@ user> echo 'Matches = [word="casa"] [pos="A.*"]; xidx Matches;' | tt-cqp
 ### SQL mode
 
 For ranges (mostly for texts), TT-CQP also support a simple version of SQL (using --mode=sql). This mode will
-only look at ranges, and ignore corpus positions entirely. To select the year and title of all Portuguese texts written after 1600,
-you can use:
+only look at ranges, and ignore corpus positions entirely, treating the metadata as if it were a (relational) database. 
+To select the year and title of all Portuguese texts written after 1600, you can use:
 
 ```
 SELECT year, title FROM text WHERE lang="PT" && year > 1600;
