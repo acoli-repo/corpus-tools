@@ -30,5 +30,5 @@ sudo g++ -o /usr/local/bin/tt-cwb-encode tt-cwb-encode.cpp pugixml.cpp -lboost_s
 
 sudo g++ -o /usr/local/bin/tt-cwb-xidx tt-cwb-xidx.cpp pugixml.cpp -lboost_system
 
-sudo g++ -o /usr/local/bin/tt-cqp tt-cqp.cpp pugixml.cpp -lboost_system
+sudo g++ -std=c++11 -o /usr/local/bin/tt-cqp tt-cqp.cpp pugixml.cpp -lboost_system
 

@@ -64,6 +64,18 @@ pugi::xml_node settings;
 pugi::xml_node results;
 pugi::xml_document xmlsettings;
 
+int mystoi(string string) {
+	int i;
+	
+	try {
+		i = stoi(string,nullptr,10);
+	} catch (int e) {
+		return 0;
+	};
+	
+	return i;
+};
+
 bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) {
 	// Check whether two strings "match" using various conditions
 	
@@ -82,9 +94,9 @@ bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) 
 		if ( a == "" ) return false; // With the default regex non-match, we exclude empty strings
 		return !regex_match(a.c_str(), regex(b));
 	} else if ( matchtype == ">" ) {
-		return stoi(a,nullptr,10) > stoi(b,nullptr,10);
+		return mystoi(a) > mystoi(b);
 	} else if ( matchtype == "<" ) {
-		return stoi(a,nullptr,10) < stoi(b,nullptr,10);
+		return mystoi(a) < mystoi(b);
 	} else if ( matchtype == "!==" ) {
 		return a != b;
 	}
@@ -156,7 +168,7 @@ class cqlfld {
         	for (int ii=0; ii<parts.size(); ii=ii+2 ) {
         		int i = ii/2; string dopart = parts[ii];
 				if ( regex_match (dopart.c_str(), m, regex("(.*)\\[(-?\\d+)\\]") ) ) {
-					dopart = m[1]; offset[i] = stoi(m[2],nullptr,10);
+					dopart = m[1]; offset[i] = mystoi(m[2]);
 				} else offset[i] = 0;
 				
 				if ( dopart == "match") { 
@@ -174,7 +186,7 @@ class cqlfld {
 		
 		if ( regex_match (fld.c_str(), m, regex("substr\\((.*?),(\\d+),(\\d+)\\)") ) ) {
 			fld = m[1]; tmp1 = m[2]; tmp2 = m[3];
-			sub[0] = stoi(tmp1,nullptr,10);  sub[1] = stoi(tmp2,nullptr,10);
+			sub[0] = mystoi(tmp1);  sub[1] = mystoi(tmp2);
 		};
 
 		// lookup the field definition and display name in settings.xml (when available)
@@ -824,7 +836,7 @@ class cqlresult {
 		
 		if ( regex_match (opts.c_str(), m, regex(".*context:([-+]?)(\\d+).*") ) ) {
 			dir = m[1];
-			context = stoi(m[2],nullptr,10);
+			context = mystoi(m[2]);
 			span = context;
 			if ( dir == "" ) span = 2*context;
 		} else if ( regex_match (opts.c_str(), m, regex(".*context:([^ ]+).*") ) ) {
@@ -1883,7 +1895,7 @@ int main(int argc, char *argv[]) {
 		// Give back the corpus position of the head (or other related id)
 		while ( getline( cin, line ) && line != "exit" ) {
 			if (keepinput) { cout << line << "\t"; };
-			cout << pos2relpos(attname, stoi(line,nullptr,10)) << endl;
+			cout << pos2relpos(attname, mystoi(line)) << endl;
 		};
 	} else if ( mode == "str2cnt" ) {
 		// Give back the count for a set of srings
@@ -1897,11 +1909,11 @@ int main(int argc, char *argv[]) {
 			if (keepinput) { cout << line << "\t"; };
 			if ( regex_match(line, regex("(\\d+) *- *(\\d+)")) ) {
 				split( fields, line, is_any_of( "-" ) );
-				for ( int i=stoi(fields[0],nullptr,10); i<stoi(fields[1],nullptr,10); i++ ) {
+				for ( int i=mystoi(fields[0]); i<mystoi(fields[1]); i++ ) {
 					cout << pos2str(attname, i) << endl;
 				};
 			} else {
-				cout << pos2str(attname, stoi(line,nullptr,10)) << endl;
+				cout << pos2str(attname, mystoi(line)) << endl;
 			};
 		};
 	} else if ( mode ==  "dump" ) {
