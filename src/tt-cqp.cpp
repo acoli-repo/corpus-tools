@@ -68,9 +68,10 @@ int mystoi(string string) {
 	int i;
 	
 	try {
-		i = stoi(string,nullptr,10);
-	} catch (int e) {
-		return 0;
+		std::string::size_type sz;   // alias of size_t
+		i = stoi(string,&sz,10);
+	} catch (...) {
+		return -1;
 	};
 	
 	return i;
