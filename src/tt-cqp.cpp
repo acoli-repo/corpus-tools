@@ -90,7 +90,16 @@ bool preg_match ( string str, string pat, vector<string> *regmatch ) {
 	std::regex e (pat);   // matches words beginning by "sub"
 
 	cmatch m;
-	res = regex_match (str.c_str(), m, e );
+	try {
+		res = regex_match (str.c_str(), m, e );
+    } catch (const std::regex_error& e) {
+		if ( debug ) { cout << "Error in the pattern: " << pat << endl; };
+		return false;
+    } catch (...) {
+		if ( debug ) { cout << "Error in the pattern: " << pat << endl; };
+		return false;
+	};
+
 	for ( int i=0; i<m.size(); i++ ) {
  	  	string mtch = m[i];
  		regmatch->push_back(mtch);
@@ -98,8 +107,16 @@ bool preg_match ( string str, string pat, vector<string> *regmatch ) {
 
 	return res;
 };
-bool preg_match ( string str, string pat ) { // variant without a vector
+bool preg_match ( string str, string pat, string flags = "" ) { // variant without a vector
 	vector<string> matches;
+
+// 	regex re;
+// 	if ( flags.find("c") != std::string::npos ) {
+// 		re = regex(restr, std::regex_constants::icase);
+// 	} else {
+// 		re = regex(restr);
+// 	};
+
 	bool res = preg_match ( str, pat, &matches );
 	
 	return res;
@@ -1661,19 +1678,12 @@ vector<int> regex2idx ( string attname, string restr, string flags = "" ) {
 	vector<int> idxset; int idx = 0;
 	string word;
 
-	regex re;
-	if ( flags.find("c") != std::string::npos ) {
-		re = regex(restr, std::regex_constants::icase);
-	} else {
-		re = regex(restr);
-	};
-
 	string strname = cqpfolder + attname + ".lexicon";
 	
 	ifstream myfile( strname );
 	if (myfile) {
 		while ( getline( myfile, word, '\0' ) )  {
-			if ( regex_match(word, re) ) {
+			if ( preg_match(word, restr, flags) ) {
 				idxset.push_back(idx);
 			}
 			idx++;
