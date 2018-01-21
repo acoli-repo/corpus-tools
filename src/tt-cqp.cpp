@@ -44,6 +44,8 @@ string ridx2str ( string attname, int idx );
 vector<int> pos2ridx ( string attname, int pos );
 vector<int> ridx2rng ( string a, int b );
 map<string,FILE*> files;
+	
+ostream& dbout = cout;
 
 class cqlresult;
 class cqlfld;
@@ -64,17 +66,43 @@ pugi::xml_node settings;
 pugi::xml_node results;
 pugi::xml_document xmlsettings;
 
-int mystoi(string string) {
+// Local version of stoi - relies currently on C++ 11
+int intval(string str) {
 	int i;
 	
 	try {
 		std::string::size_type sz;   // alias of size_t
-		i = stoi(string,&sz,10);
+		i = stoi(str,&sz,10);
 	} catch (...) {
+		if ( debug ) { cout << "Failed to convert to integer: " << str << endl; };
 		return -1;
 	};
 	
 	return i;
+};
+
+// Local version of regex_match - relies currently on C++ 11 (could also do boost)
+bool preg_match ( string str, string pat, vector<string> *regmatch ) {
+	// Instead of regex_match, we could also iterate
+	bool res = false;
+	regmatch->clear();
+	
+	std::regex e (pat);   // matches words beginning by "sub"
+
+	cmatch m;
+	res = regex_match (str.c_str(), m, e );
+	for ( int i=0; i<m.size(); i++ ) {
+ 	  	string mtch = m[i];
+ 		regmatch->push_back(mtch);
+	};
+
+	return res;
+};
+bool preg_match ( string str, string pat ) { // variant without a vector
+	vector<string> matches;
+	bool res = preg_match ( str, pat, &matches );
+	
+	return res;
 };
 
 bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) {
@@ -88,16 +116,16 @@ bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) 
 	}; 
 	
 	if ( matchtype == "=" ) { // Regex ==
-		return regex_match(a.c_str(), regex(b));
+		return preg_match(a, b);
 	} else if ( matchtype == "==" ) { // String == 
 		return a == b;
 	} else if ( matchtype == "!=" ) {
 		if ( a == "" ) return false; // With the default regex non-match, we exclude empty strings
-		return !regex_match(a.c_str(), regex(b));
+		return !preg_match(a, b);
 	} else if ( matchtype == ">" ) {
-		return mystoi(a) > mystoi(b);
+		return intval(a) > intval(b);
 	} else if ( matchtype == "<" ) {
-		return mystoi(a) < mystoi(b);
+		return intval(a) < intval(b);
 	} else if ( matchtype == "!==" ) {
 		return a != b;
 	}
@@ -151,7 +179,7 @@ class cqlfld {
 	void setfld ( string flditem, map<string,int> trg ) {
 		// Initialize the field
 	
-		cmatch m;
+		vector<string> m;
 		rawfld = flditem; 
 		named = trg;
 
@@ -159,7 +187,7 @@ class cqlfld {
 		// substr(match)
 		
 		// match.fld
-		if ( regex_match (flditem.c_str(), m, regex("([^ ]+)\\.([^ ]+)") ) ) {
+		if ( preg_match (flditem, "([^ ]+)\\.([^ ]+)", &m ) ) {
 			string posind = m[1]; string value;
 			fld = m[2]; rawbase = posind;
 
@@ -167,9 +195,9 @@ class cqlfld {
 	
         	split( parts, posind, is_any_of( "." ) ); // we just have to skip 2 to get ..
         	for (int ii=0; ii<parts.size(); ii=ii+2 ) {
-        		int i = ii/2; string dopart = parts[ii];
-				if ( regex_match (dopart.c_str(), m, regex("(.*)\\[(-?\\d+)\\]") ) ) {
-					dopart = m[1]; offset[i] = mystoi(m[2]);
+        		int i = ii/2; string dopart = parts[ii]; vector<string> ms;
+				if ( preg_match (dopart, "(.*)\\[(-?\\d+)\\]",  &ms ) ) {
+					dopart = ms[1]; offset[i] = intval(ms[2]);
 				} else offset[i] = 0;
 				
 				if ( dopart == "match") { 
@@ -185,13 +213,13 @@ class cqlfld {
 			};	
 		};
 		
-		if ( regex_match (fld.c_str(), m, regex("substr\\((.*?),(\\d+),(\\d+)\\)") ) ) {
+		if ( preg_match (fld, "substr\\((.*?),(\\d+),(\\d+)\\)", &m ) ) {
 			fld = m[1]; tmp1 = m[2]; tmp2 = m[3];
-			sub[0] = mystoi(tmp1);  sub[1] = mystoi(tmp2);
+			sub[0] = intval(tmp1);  sub[1] = intval(tmp2);
 		};
 
 		// lookup the field definition and display name in settings.xml (when available)
-		if ( regex_match (fld.c_str(), m, regex("([^ ]+)_([^ ]+)") ) ) {
+		if ( preg_match (fld, "([^ ]+)_([^ ]+)", &m ) ) {
 			string tmp1 = m[1]; string tmp2 = m[2];
 			string xpath = "//sattributes//item[@key='"+tmp1+"']//item[@key='"+tmp2+"']";
 			flddef = xmlsettings.select_single_node(xpath.c_str()).node();
@@ -210,7 +238,7 @@ class cqlfld {
 	string value(cqlmatch match, string matchype = "=" ) { // non-string results should just get casted back later
 		// Return the result on the field for a match in the result vector
 		
-		cmatch m; string value;
+		vector<string> m; string value;
 		
 		int posstart; int pos;  int posend; 
 		if ( base[0] == "match" || base[0] == "" ) {
@@ -245,7 +273,7 @@ class cqlfld {
 		value = ""; string sep = "";
 		for ( int i= posstart; i<=posend; i++ ) {
 			value += sep;
-			if ( regex_match (fld.c_str(), m, regex("(.*)_(.*)") ) ) {
+			if ( preg_match (fld, "(.*)_(.*)", &m ) ) {
 				vector<int> ridx = pos2ridx(fld, i);
 				string list; string lsep = "";
 				for (int j=0; j<ridx.size(); j++ ) {
@@ -411,9 +439,9 @@ void checkcond ( cqltok ctok, vector<cqlmatch> *match  ) {
 
 void sqlparse (string sql) {
 	// We can use a light SQL version to search ranges (mostly meant for text attributes)
-	cmatch m; vector<int> match; vector<string> parts; vector<string> attlist;
+	vector<string> m; vector<int> match; vector<string> parts; vector<string> attlist;
 	
-	if ( regex_match (sql.c_str(), m, regex("select (.*) from (.*) where (.*)", std::regex_constants::icase) ) ) {
+	if ( preg_match (sql, "select (.*) from (.*) where (.*)", &m ) ) { // TODO: , std::regex_constants::icase
 		string atts = m[1]; string rangetype = m[2]; string conds = m[3];
 
 		if ( atts != "" ) split( attlist, atts, is_any_of( "," ) );
@@ -425,7 +453,7 @@ void sqlparse (string sql) {
 			if ( debug ) cout << "Checking " << cond << endl;
 
 			string left; string right; string matchtype;
-			if ( regex_match (cond.c_str(), m, regex("(.*)(!?[=<>])(.*)") ) ) {
+			if ( preg_match (cond, "(.*)(!?[=<>])(.*)", &m ) ) {
 				left = m[1]; trim(left);
 				matchtype = m[2];
 				right = m[3]; trim(right);
@@ -435,7 +463,7 @@ void sqlparse (string sql) {
 			
 				// Initialize the list of matches
 				string attname = rangetype + "_" + left; 
-				if ( regex_match (right.c_str(), m, regex("\"(.*)\"") ) ) {
+				if ( preg_match (right, "\"(.*)\"", &m ) ) {
 					word = m[1];
 					match = regex2ridx(attname, word);
 				};
@@ -447,7 +475,7 @@ void sqlparse (string sql) {
 				for ( int j=0; j<tocheck.size(); j++ ) {
 					int ridx = tocheck[j]; 
 					string attname = rangetype + "_" + left; 
-					if ( regex_match (right.c_str(), m, regex("\"(.*)\"") ) ) {
+					if ( preg_match (right, "\"(.*)\"", &m ) ) {
 						word = m[1];
 						if ( resmatch(ridx2str(attname, ridx), word) ) {
 							match.push_back(ridx);
@@ -495,16 +523,16 @@ class cqlresult {
 	void parsecql (string tmp) {
 		// Run a CQL search to create a result vector
 
-		cmatch m; 
+		vector<string> m; 
 		cql = tmp; string partname;
 
 		if ( debug ) { cout << "Treating CQL " << name << ": " << tmp << endl; };
 
-		if ( regex_match (cql.c_str(), m, regex("^(.*) +within +(.*)$") ) ) {
+		if ( preg_match (cql, "^(.*) +within +(.*)$", &m ) ) {
 			cql = m[1]; within = m[2];
 			// TODO: translate this into min and max (and have those being used)
 		};
-		if ( regex_match (cql.c_str(), m, regex("^(.*) +:: +(.*)$") ) ) {
+		if ( preg_match (cql, "^(.*) +:: +(.*)$", &m ) ) {
 			cql = m[1]; global = m[2];
 		};
 		
@@ -533,7 +561,7 @@ class cqlresult {
         		named["target"] = i; 
         		partname = "target";
         	}; 
-			if ( regex_match (tmp.c_str(), m, regex("^ *([^ ]+):$") ) ) {	
+			if ( preg_match (tmp, "^ *([^ ]+):$", &m ) ) {	
 				partname = m[1];
         		named[partname] = i; 
         	}; 
@@ -547,33 +575,33 @@ class cqlresult {
 				newtok.idx = k; // pointless, but needed for now
 				newtok.partname = partname;
 				newtok.wildcard = wildcard;
-				if ( regex_match (part.c_str(), m, regex("(.*) *(%[^ ]+)") ) ) {
+				if ( preg_match (part, "(.*) *(%[^ ]+)", &m ) ) {
 					newtok.flags = m[2];
 					part = m[1];
 				}; 
 				int rank = 0;
 				if ( partname == "target" ) rank = 11; // We get 10 points for being target (unless impossible, start with the target) 
 				if ( wildcard != "" ) rank = -20; // Never start with a wildcard token
-				if ( regex_match (part.c_str(), m, regex("(.*?) *(!?[=<>]) *(.*)") ) ) {
+				if ( preg_match (part, "(.*?) *(!?[=<>]) *(.*)", &m ) ) {
 					// Attribute matching string or regex
 					newtok.left = m[1]; trim(newtok.left);
 					newtok.matchtype = m[2];
 					newtok.right = m[3]; trim(newtok.right);
 
-					if ( regex_match (newtok.left.c_str(), m, regex(" \"([^\"]+)\"") ) ) {
+					if ( preg_match ( newtok.left, " \"([^\"]+)\"", &m ) ) {
 						rank += 3; // 5 points for a string/regex match left
 						newtok.leftstring = m[1]; 
-					} else if ( regex_match (newtok.left.c_str(), m, regex("(.*\\..*)") ) ) {
+					} else if ( preg_match (newtok.left, "(.*\\..*)", &m ) ) {
 						newtok.leftfield.setfld(newtok.left, named);
 						rank -= 5; // do not start with a relation to another attribute
 					} else {
 						rank += 5; // 5 points for an attribute match left
 					};
-					if ( regex_match (newtok.right.c_str(), m, regex("\"([^\"]+)\"") ) ) {
+					if ( preg_match (newtok.right, "\"([^\"]+)\"", &m ) ) {
 						newtok.rightstring = m[1];
-						if ( regex_match(newtok.rightstring.c_str(), regex(".*[*+?].*")) || newtok.flags.find("c") != std::string::npos ) rank += 3; // 3 points for a regex match
+						if ( preg_match(newtok.right, ".*[*+?].*") || newtok.flags.find("c") != std::string::npos ) rank += 3; // 3 points for a regex match
 						else rank += 5; // 5 points for a string match 
-					} else if ( regex_match (newtok.right.c_str(), m, regex("(.*\\..*)") ) ) {
+					} else if ( preg_match (newtok.right, "(.*\\..*)") ) {
 						newtok.rightfield.setfld(newtok.right, named);
 						rank -= 5; // do not start with a relation to another attribute
 					}; 
@@ -606,9 +634,9 @@ class cqlresult {
 
 			// Do the initial lookup
 			vector<int> tmp;
-			if ( regex_match (right.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
+			if ( preg_match (right, " *\"([^\"]+)\"*", &m ) ) {
 				string word = m[1]; string attname = left;
-				if ( regex_match(word.c_str(), regex(".*[*+?].*")) || flags.find("c") != std::string::npos ) {	
+				if ( preg_match(word, ".*[*+?].*") || flags.find("c") != std::string::npos ) {	
 					// regex match initialization - slower
 					vector<int> tmpi = regex2idx(attname, word, flags);
 					for ( int j=0; j<tmpi.size(); j++ ) {
@@ -620,16 +648,16 @@ class cqlresult {
 
 					if ( mwe != "" ) {
 						string mweatt = mwe + "_" + attname;
-						cout << "Looking for MWE: " << mweatt << " = " << word << endl;
+						dbout << "Looking for MWE: " << mweatt << " = " << word << endl;
 						vector<int> mwems = regex2ridx(mweatt, word);
 						for ( int j=0; j<mwems.size(); j++ ) {
 							vector<int> tmprng = ridx2rng(mweatt, mwems[j]);
-							cout << "MWE result: " << mwems[j] << " = " << tmprng[0] << " = " << ridx2str(mweatt, mwems[j])  << " / " << pos2str(attname, tmprng[0]) << endl;
+							dbout << "MWE result: " << mwems[j] << " = " << tmprng[0] << " = " << ridx2str(mweatt, mwems[j])  << " / " << pos2str(attname, tmprng[0]) << endl;
 						};
 					};
 				};
 								
-			} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *(.*\\..*)$") ) ) {
+			} else if ( preg_match (part, "^ *(.*?) *(!?[=<>]) *(.*\\..*)$", &m ) ) {
 				// TODO: Initialize with a cqlfld condition?
 			} else {
 				// TODO: Initialize with a comparison condition?
@@ -655,7 +683,7 @@ class cqlresult {
 			};
 			
 			condlist[best].done = true;
-			if ( debug ) { cout << "Size after " << part << ":" << match.size() << endl; };
+			if ( debug ) { cout << "Size for init " << part << ": " << match.size() << endl; };
 
 		};
 				
@@ -676,15 +704,15 @@ class cqlresult {
 		split( parts, global, is_any_of( "&" ) );
 		for ( int k=0; k<parts.size(); k++ ) {
 			string part = parts[k]; string left; string right; string leftval; string rightval; string matchtype;
-			if ( regex_match (part.c_str(), m, regex("^ *(.*?) *(!?[=<>]) *(.*?) *$") ) ) {
+			if ( preg_match (part, "^ *(.*?) *(!?[=<>]) *(.*?) *$", &m ) ) {
 				// Comparison between cqlfld 
 				left = m[1]; matchtype = m[2]; right = m[3];
 
 				cqlfld leftfield; cqlfld rightfield; 
-				if ( regex_match (left.c_str(), m, regex("(.*\\..*)") ) ) {
+				if ( preg_match (left, "(.*\\..*)", &m ) ) {
 					leftfield.setfld(left, named);
 				};
-				if ( regex_match (right.c_str(), m, regex("(.*\\..*)") ) ) {
+				if ( preg_match (right, "(.*\\..*)", &m ) ) {
 					rightfield.setfld(right, named);
 				};
 
@@ -693,7 +721,7 @@ class cqlresult {
 					// Calculate the left value
 					if ( leftfield.rawbase != "" ) {
 						leftval = leftfield.value(*it2);
-					} else if ( regex_match (left.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
+					} else if ( preg_match (left, " *\"([^\"]+)\"*", &m ) ) {
 						// a (regex) string
 						leftval = m[1];
 					} else {
@@ -704,7 +732,7 @@ class cqlresult {
 					// Calculate the right value
 					if ( rightfield.rawbase != "" ) {
 						rightval = rightfield.value(*it2);
-					} else if ( regex_match (right.c_str(), m, regex(" *\"([^\"]+)\"*") ) ) {
+					} else if ( preg_match (right, " *\"([^\"]+)\"*", &m ) ) {
 						// a (regex) string
 						rightval = m[1];
 					} else {
@@ -718,7 +746,7 @@ class cqlresult {
 						++it2;
 					};
 				};
-			} else if ( regex_match (part.c_str(), m, regex("^ *(.*?) contains (.*?) *$") ) ) {
+			} else if ( preg_match (part, "^ *(.*?) contains (.*?) *$", &m ) ) {
 			
 			} else if ( part != "" ) {
 				cout << "Unknown global condition: " << part << endl;
@@ -761,9 +789,9 @@ class cqlresult {
 	void sort ( string field ) {
 		// Sort the result vector
 		
-		sortfield = field; cmatch m; bool desc;
+		sortfield = field; vector<string> m; bool desc;
 
-		if ( regex_match (field.c_str(), m, regex("(.*) (DESC|descending)") ) ) {
+		if ( preg_match (field, "(.*) (DESC|descending)", &m ) ) {
 			sortfield = m[1];
 			desc = true;
 		};		
@@ -783,15 +811,15 @@ class cqlresult {
 		// Add an index to the result vector
 		// TODO : implement this
 		
-		string index; cmatch m; 
-		if ( regex_match (field.c_str(), m, regex("(.*) = (.*)") ) ) {
+		string index; vector<string> m; 
+		if ( preg_match (field, "(.*) = (.*)", &m ) ) {
 			field = m[2];
 			index = m[1];
 		};		
 		
 		vector< vector<map<int, int> > > newidx;
 			
-		if ( regex_match (field.c_str(), m, regex(" *([^ ]+) expand to (.*)") ) ) {
+		if ( preg_match (field, " *([^ ]+) expand to (.*)", &m ) ) {
 			string basepos = m[1]; string satt = m[2];
 			
 			for ( int i=0; i<match.size(); i++ ) {
@@ -807,7 +835,7 @@ class cqlresult {
 
 		string rawstats = cqlfld;
 		map<string,int> resultlist; string opts; vector<string> show;
-		string measure; string type; cmatch m; string dir; int context; int span;
+		string measure; string type; vector<string> m; string dir; int context; int span;
 		
 		string filename = cqpfolder + "word.corpus";
 		FILE* stream = fopen(filename.c_str(), "rb"); 
@@ -815,32 +843,32 @@ class cqlresult {
 		if ( debug ) { cout << "Corpus size: " << corpussize << endl; };
 		fclose(stream);
 		
-		if ( regex_match (cqlfld.c_str(), m, regex(" *(.*?) +:: +(.*)") ) ) {
+		if ( preg_match (cqlfld, " *(.*?) +:: +(.*)", &m ) ) {
 			cqlfld = m[1];
 			opts = m[2];
 		};		
 		
 		vector<string> flds; split( flds, cqlfld, is_any_of( " " ) );
 		
-		if ( regex_match (opts.c_str(), m, regex(".*measure:([^ ]+).*") ) ) {
+		if ( preg_match (opts, ".*measure:([^ ]+).*", &m ) ) {
 			measure = m[1];
 		} else { measure = "mutinf"; };
 		
-		if ( regex_match (opts.c_str(), m, regex(".*type:([^ ]+).*") ) ) {
+		if ( preg_match (opts, ".*type:([^ ]+).*", &m ) ) {
 			type = m[1];
 		} else { type = "collocations"; };
 		
-		if ( regex_match (opts.c_str(), m, regex(".*show:([^ ]+).*") ) ) {
+		if ( preg_match (opts, ".*show:([^ ]+).*", &m ) ) {
 			string showflds = m[1];
 			split( show, showflds, is_any_of( "," ) );
 		};
 		
-		if ( regex_match (opts.c_str(), m, regex(".*context:([-+]?)(\\d+).*") ) ) {
+		if ( preg_match (opts, ".*context:([-+]?)(\\d+).*", &m ) ) {
 			dir = m[1];
-			context = mystoi(m[2]);
+			context = intval(m[2]);
 			span = context;
 			if ( dir == "" ) span = 2*context;
-		} else if ( regex_match (opts.c_str(), m, regex(".*context:([^ ]+).*") ) ) {
+		} else if ( preg_match (opts, ".*context:([^ ]+).*", &m ) ) {
 			// To allow context:head
 			dir = m[1];
 			context = 0;
@@ -1161,9 +1189,9 @@ class cqlresult {
 	
 		vector<cqlfld> cqlfieldlist; string groupfld;
 		map<string,int> counts;
-		vector<string> fieldlist; 	cmatch m;  string sep; string value;
+		vector<string> fieldlist; 	vector<string> m;  string sep; string value;
 		
-		if ( regex_match (fields.c_str(), m, regex("([^ ]+) ([^ ]+) by ([^ ]+) ([^ ]+)") ) ) {
+		if ( preg_match (fields, "([^ ]+) ([^ ]+) by ([^ ]+) ([^ ]+)", &m ) ) {
 			// For compatibility with CQP
 			string tmp1 = m[1];			string tmp2 = m[2];			string tmp3 = m[3];			string tmp4 = m[4];
 			fields = tmp1+"."+tmp2+" "+tmp3+"."+tmp4;
@@ -1230,7 +1258,7 @@ class cqlresult {
 		// Print out the result vector
 	
 		if ( verbose ) { cout << "Tabulating " << name << " on " << fields << endl; };
-		vector<string> fieldlist; 	cmatch m;  string sep;
+		vector<string> fieldlist; 	vector<string> m;  string sep;
 		split( fieldlist, fields, is_any_of( " " ) );
 
 		vector<cqlfld> cqlfieldlist;
@@ -1707,17 +1735,19 @@ int pos2relpos ( string attname, int pos ) {
 
 void cqlparse ( string cql ) {
 	// Parse a CQL query
+	if ( debug ) { cout << "Parsing a CQL command: " << cql << endl; };
 	
-	cmatch m; 
+	vector<string> m; 
 	trim(cql); string subname;
-	if ( regex_match (cql.c_str(), m, regex("([^ ]+) *= (.*)") ) ) {
+	if ( preg_match (cql, "([^ ]+) *= (.*)", &m ) ) {
+		if ( debug ) { cout << "Setting a new subcorpus: " << m[1] << endl; };
 		subname = m[1];
 		cqlresult newcql;
 		newcql.name = subname;
 		newcql.parsecql(m[2]);
 		subcorpora[subname] = newcql;
 		last = subname;
-	} else if ( regex_match (cql.c_str(), m, regex("set (.*) (.*)") ) ) {
+	} else if ( preg_match (cql, "set (.*) (.*)", &m ) ) {
 		// set CQL options from input		
 		string var = m[1]; string val = m[2];
 		if ( var == "mwe" ) {
@@ -1725,7 +1755,7 @@ void cqlparse ( string cql ) {
 		} else if ( var == "output" ) {
 			output = val;
 		};
-	} else if ( regex_match (cql.c_str(), m, regex("([\"\[].*)") ) ) {
+	} else if ( preg_match (cql, "([\"\[].*)", &m ) ) {
 		if ( last != "" ) {
 			subname = last;
 		} else {
@@ -1736,12 +1766,12 @@ void cqlparse ( string cql ) {
 		newcql.parsecql(m[1]);
 		subcorpora[subname] = newcql;
 		last = subname;
-	} else if ( regex_match (cql.c_str(), m, regex("([^ ]+)(.*)") ) ) {
+	} else if ( preg_match (cql, "([^ ]+)(.*)", &m ) ) {
 		string command = m[1];
 		string rest = m[2]; trim(rest); 
 		
 		// Determine the name of the subcorpus
-		if ( regex_match (rest.c_str(), m, regex("([^ ]+)(.*)") ) ) {
+		if ( preg_match (rest, "([^ ]+)(.*)", &m ) ) {
 			string tmp = m[1]; trim(tmp);
 			if ( subcorpora.find(tmp) != subcorpora.end() ) {
 				subname = tmp;
@@ -1809,6 +1839,7 @@ int main(int argc, char *argv[]) {
 				settings.append_attribute(akey.c_str()) = aval.c_str();
 			};
 		};		
+		
 	};
 
 	// Read the settings.xml file where appropriate - by default from ./Resources/settings.xml
@@ -1838,12 +1869,12 @@ int main(int argc, char *argv[]) {
 		cqpfolder = settings.attribute("cqpfolder").value();
 	} else if ( settings.attribute("corpusname") != NULL   ) {
 		string corpusname = settings.attribute("corpusname").value();
-		to_lower(corpusname); cmatch m;
+		to_lower(corpusname); vector<string> m;
 		string filename = "/usr/local/share/cwb/registry/" + corpusname;
 		ifstream myfile( filename ); string line;
 		if (myfile) {
 			while ( getline( myfile, line ) )  {
-				if ( regex_match(line.c_str(), m, regex("HOME (.*)")) ) {
+				if ( preg_match(line, "HOME (.*)", &m ) ) {
 					cqpfolder = m[1];
 				};
 			}
@@ -1854,7 +1885,7 @@ int main(int argc, char *argv[]) {
 		cout << cqpfolder << endl;
 	} else {
 		cqpfolder = "cqp/";
-	};
+	}; 
 
 	bool keepinput;
 	if ( settings.attribute("keepinput") != NULL   ) {
@@ -1896,7 +1927,7 @@ int main(int argc, char *argv[]) {
 		// Give back the corpus position of the head (or other related id)
 		while ( getline( cin, line ) && line != "exit" ) {
 			if (keepinput) { cout << line << "\t"; };
-			cout << pos2relpos(attname, mystoi(line)) << endl;
+			cout << pos2relpos(attname, intval(line)) << endl;
 		};
 	} else if ( mode == "str2cnt" ) {
 		// Give back the count for a set of srings
@@ -1908,13 +1939,13 @@ int main(int argc, char *argv[]) {
 		// Give back the string for a set of corpus positions (on attname)
 		while ( getline( cin, line ) && line != "exit" ) {
 			if (keepinput) { cout << line << "\t"; };
-			if ( regex_match(line, regex("(\\d+) *- *(\\d+)")) ) {
+			if ( preg_match(line, "(\\d+) *- *(\\d+)") ) {
 				split( fields, line, is_any_of( "-" ) );
-				for ( int i=mystoi(fields[0]); i<mystoi(fields[1]); i++ ) {
+				for ( int i=intval(fields[0]); i<intval(fields[1]); i++ ) {
 					cout << pos2str(attname, i) << endl;
 				};
 			} else {
-				cout << pos2str(attname, mystoi(line)) << endl;
+				cout << pos2str(attname, intval(line)) << endl;
 			};
 		};
 	} else if ( mode ==  "dump" ) {
