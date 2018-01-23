@@ -59,6 +59,34 @@ bool preg_match ( std::string str, std::string pat, std::string flags = "" ) { /
 	
 	return res;
 };
+
+std::vector<std::vector<std::string> > preg_match_all ( std::string str, std::string pat, std::string flags = "" ) {
+	std::vector<std::vector<std::string> >  results;
+
+    try {
+        boost::regex exp(pat) ;
+
+        boost::match_results<std::string::const_iterator> iter;
+
+        std::string::const_iterator start = str.begin() ;
+        std::string::const_iterator end = str.end() ;
+
+        while ( boost::regex_search(start, end, iter, exp) )
+        {
+		std::vector<std::string> match;
+			for (int i=0; i<iter.size(); i++ ) {
+				match.push_back(iter[i]);
+			};
+			results.push_back(match);
+            start = iter[0].second ;
+        }
+    } catch ( boost::bad_expression & ex ) {
+        // std::cout << ex.what() ;
+    }
+    	
+	return results;
+};
+
 std::string str2lower(std::string str) {
 	boost::to_lower(str);
 	return str;

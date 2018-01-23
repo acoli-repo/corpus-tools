@@ -12,7 +12,6 @@
 #include <arpa/inet.h>
 #include "pugixml.hpp"
 #include "functions.hpp"
-#include <regex>
 #include <math.h>       /* pow */
 
 using namespace std;
@@ -495,8 +494,8 @@ class cqlresult {
 			cql = m[1]; global = m[2];
 		};
 		
-		match_results<std::string::const_iterator> iter;
-		string::const_iterator start = cql.begin() ; int i=0;
+		std::vector<std::vector<std::string> > tokres = preg_match_all (cql, "((?:@|[^ ]+:)?)\\[([^\\]]+)\\]([*+?]?)");
+
 		vector<string> parts; 
 		int maxrank = 0; named["best"] = -1; // to determine the best init condition
 		// Logic:  (you can always see what was used as the best token)
@@ -507,7 +506,8 @@ class cqlresult {
 		// TODO: prefer large attribute sets, and long regexp definitions
 		
 		// Analyse each CQL token in turn
-        while ( regex_search(start, cql.cend(), iter, regex("((?:@|[^ ]+:)?)\\[([^\\]]+)\\]([*+?]?)")) ) {
+        for ( int i=0; i<tokres.size(); i++ ) {
+			std::vector<std::string> iter = tokres[i];
 
 			toklist.push_back(iter[0]);
 
@@ -569,12 +569,10 @@ class cqlresult {
 					named["best"] = condlist.size();
 					maxrank = rank;
 				};
-				part = trim(part);
-				newtok.rawdef = part;
+				newtok.rawdef = trim(part);
 				condlist.push_back(newtok);
 				condarray[i][k] = condlist.size() - 1; // keep conditions ordered by toknr
 			};
-			start = iter[0].second ;i++;
 		};
 		
 		// Initialize on the best condition
@@ -649,12 +647,14 @@ class cqlresult {
 		// From the best position, go right
 		for ( int ca = best; ca<condarray.size(); ca++ ) {
 			for (int cc=0; cc<condarray[ca].size(); cc++) {
+				if ( debug ) cout << "Checking " << condlist[condarray[ca][cc]].left << endl;
 				checkcond(condlist[condarray[ca][cc]], &match);
 			};
         };
 		// From the best position, go left
 		for ( int ca = best-1; ca>-1; ca-- ) {
 			for (int cc=0; cc<condarray[ca].size(); cc++) {
+				if ( debug ) cout << "Checking " << condlist[condarray[ca][cc]].left << endl;
 				checkcond(condlist[condarray[ca][cc]], &match);
 			};
         };
