@@ -1,7 +1,6 @@
 // TT-CQP - a custom version of CQP (from the Corpus Workbench) to address some issues in TEITOK
 // (c) Maarten Janssen 2018
 
-#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <sstream>  
 #include <stdio.h>
@@ -12,11 +11,11 @@
 #include <sys/stat.h>
 #include <arpa/inet.h>
 #include "pugixml.hpp"
+#include "functions.hpp"
 #include <regex>
 #include <math.h>       /* pow */
 
 using namespace std;
-using namespace boost;
 
 // TODO: Wish list
 // within
@@ -66,61 +65,6 @@ pugi::xml_node settings;
 pugi::xml_node results;
 pugi::xml_document xmlsettings;
 
-// Local version of stoi - relies currently on C++ 11
-int intval(string str) {
-	int i;
-	
-	try {
-		std::string::size_type sz;   // alias of size_t
-		i = stoi(str,&sz,10);
-	} catch (...) {
-		if ( debug ) { cout << "Failed to convert to integer: " << str << endl; };
-		return -1;
-	};
-	
-	return i;
-};
-
-// Local version of regex_match - relies currently on C++ 11 (could also do boost)
-bool preg_match ( string str, string pat, vector<string> *regmatch ) {
-	// Instead of regex_match, we could also iterate
-	bool res = false;
-	regmatch->clear();
-	
-	std::regex e (pat);   // matches words beginning by "sub"
-
-	cmatch m;
-	try {
-		res = regex_match (str.c_str(), m, e );
-    } catch (const std::regex_error& e) {
-		if ( debug ) { cout << "Error in the pattern: " << pat << endl; };
-		return false;
-    } catch (...) {
-		if ( debug ) { cout << "Error in the pattern: " << pat << endl; };
-		return false;
-	};
-
-	for ( int i=0; i<m.size(); i++ ) {
- 	  	string mtch = m[i];
- 		regmatch->push_back(mtch);
-	};
-
-	return res;
-};
-bool preg_match ( string str, string pat, string flags = "" ) { // variant without a vector
-	vector<string> matches;
-
-// 	regex re;
-// 	if ( flags.find("c") != std::string::npos ) {
-// 		re = regex(restr, std::regex_constants::icase);
-// 	} else {
-// 		re = regex(restr);
-// 	};
-
-	bool res = preg_match ( str, pat, &matches );
-	
-	return res;
-};
 
 bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) {
 	// Check whether two strings "match" using various conditions
@@ -129,7 +73,7 @@ bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) 
 	// Maybe: >deps or >>
 	
 	if ( std::size_t found = flags.find("c") != std::string::npos ) { 
-		to_lower(a); to_lower(b);
+		a = str2lower(a); b = str2lower(b);
 	}; 
 	
 	if ( matchtype == "=" ) { // Regex ==
@@ -208,11 +152,9 @@ class cqlfld {
 			string posind = m[1]; string value;
 			fld = m[2]; rawbase = posind;
 
-        	vector<string> parts;
-	
-        	split( parts, posind, is_any_of( "." ) ); // we just have to skip 2 to get ..
-        	for (int ii=0; ii<parts.size(); ii=ii+2 ) {
-        		int i = ii/2; string dopart = parts[ii]; vector<string> ms;
+        	vector<string> parts = split( posind, ".." ); // we just have to skip 2 to get ..
+        	for (int ii=0; ii<parts.size(); ii++ ) {
+        		int i = ii; string dopart = parts[ii]; vector<string> ms;
 				if ( preg_match (dopart, "(.*)\\[(-?\\d+)\\]",  &ms ) ) {
 					dopart = ms[1]; offset[i] = intval(ms[2]);
 				} else offset[i] = 0;
@@ -362,9 +304,9 @@ void checkcond ( cqltok ctok, vector<cqlmatch> *match  ) {
 	int partnr = ctok.partnr;
 				
 	// Attribute matching string or regex
-	string left = ctok.left; trim(left);
+	string left = ctok.left; left = trim(left);
 	string matchtype = ctok.matchtype;
-	string right = ctok.right; trim(right);
+	string right = ctok.right; right = trim(right);
 	
 	string leftval; string rightval;
 	
@@ -461,19 +403,19 @@ void sqlparse (string sql) {
 	if ( preg_match (sql, "select (.*) from (.*) where (.*)", &m ) ) { // TODO: , std::regex_constants::icase
 		string atts = m[1]; string rangetype = m[2]; string conds = m[3];
 
-		if ( atts != "" ) split( attlist, atts, is_any_of( "," ) );
+		if ( atts != "" ) attlist = split( atts,  "," );
 
-		if ( conds != "" ) split( parts, conds, is_any_of( "&" ) );
+		if ( conds != "" ) parts = split( conds, "&" );
 		for ( int k=0; k<parts.size(); k++ ) {
-			string cond = parts[k]; string word; trim(cond);
+			string cond = parts[k]; string word; cond = trim(cond);
 			if ( cond == "" ) continue;
 			if ( debug ) cout << "Checking " << cond << endl;
 
 			string left; string right; string matchtype;
 			if ( preg_match (cond, "(.*)(!?[=<>])(.*)", &m ) ) {
-				left = m[1]; trim(left);
+				left = m[1]; left = trim(left);
 				matchtype = m[2];
-				right = m[3]; trim(right);
+				right = m[3]; right = trim(right);
 			};
 
 			if ( k == 0 ) {
@@ -507,7 +449,7 @@ void sqlparse (string sql) {
 		for ( int k=0; k<match.size(); k++ ) {
 			int ridx = match[k]; string sep;
 			for (int j=0; j<attlist.size(); j++ ) {
-				string attname = attlist[j]; trim(attname);
+				string attname = attlist[j]; attname = trim(attname);
 				attname = rangetype + "_" + attname;
 				cout << sep << ridx2str(attname, ridx);
 				sep = "\t";
@@ -584,7 +526,7 @@ class cqlresult {
         	}; 
 
         	parts.clear();
-        	if ( conds != "" ) split( parts, conds, is_any_of( "&" ) );
+        	if ( conds != "" ) parts = split( conds, "&" );
 			for ( int k=0; k<parts.size(); k++ ) {
 				string part = parts[k];
 				cqltok newtok;
@@ -601,9 +543,9 @@ class cqlresult {
 				if ( wildcard != "" ) rank = -20; // Never start with a wildcard token
 				if ( preg_match (part, "(.*?) *(!?[=<>]) *(.*)", &m ) ) {
 					// Attribute matching string or regex
-					newtok.left = m[1]; trim(newtok.left);
+					newtok.left = trim(m[1]); 
 					newtok.matchtype = m[2];
-					newtok.right = m[3]; trim(newtok.right);
+					newtok.right = trim(m[3]);
 
 					if ( preg_match ( newtok.left, " \"([^\"]+)\"", &m ) ) {
 						rank += 3; // 5 points for a string/regex match left
@@ -627,7 +569,7 @@ class cqlresult {
 					named["best"] = condlist.size();
 					maxrank = rank;
 				};
-				trim(part);
+				part = trim(part);
 				newtok.rawdef = part;
 				condlist.push_back(newtok);
 				condarray[i][k] = condlist.size() - 1; // keep conditions ordered by toknr
@@ -645,9 +587,9 @@ class cqlresult {
 			string wildcard = ctok.wildcard;
 			string partname = ctok.partname;
 			string flags = ctok.flags;
-			string left = ctok.left; trim(left);
+			string left = trim(ctok.left);
 			string matchtype = ctok.matchtype;
-			string right = ctok.right; trim(right);
+			string right = trim(ctok.right);
 
 			// Do the initial lookup
 			vector<int> tmp;
@@ -718,7 +660,7 @@ class cqlresult {
         };
         
         // Check global conditions
-		split( parts, global, is_any_of( "&" ) );
+		parts = split( global, "&" );
 		for ( int k=0; k<parts.size(); k++ ) {
 			string part = parts[k]; string left; string right; string leftval; string rightval; string matchtype;
 			if ( preg_match (part, "^ *(.*?) *(!?[=<>]) *(.*?) *$", &m ) ) {
@@ -865,7 +807,7 @@ class cqlresult {
 			opts = m[2];
 		};		
 		
-		vector<string> flds; split( flds, cqlfld, is_any_of( " " ) );
+		vector<string> flds = split( cqlfld, " " );
 		
 		if ( preg_match (opts, ".*measure:([^ ]+).*", &m ) ) {
 			measure = m[1];
@@ -877,7 +819,7 @@ class cqlresult {
 		
 		if ( preg_match (opts, ".*show:([^ ]+).*", &m ) ) {
 			string showflds = m[1];
-			split( show, showflds, is_any_of( "," ) );
+			show = split( showflds, "," );
 		};
 		
 		if ( preg_match (opts, ".*context:([-+]?)(\\d+).*", &m ) ) {
@@ -978,7 +920,7 @@ class cqlresult {
 				};
 				
 				if ( flds.size() > 1 || show.size() > 0 ) {
-					split( vallist, coll, is_any_of( "\t" ) );
+					vallist = split( coll, "\t" );
 					coll1 = vallist[0];
 				} else {
 					coll1 = coll;
@@ -1105,7 +1047,7 @@ class cqlresult {
 				};
 				
 				if ( flds.size() > 1 || show.size() > 0 ) {
-					split( vallist, item, is_any_of( "\t" ) );
+					vallist = split( item, "\t" );
 					item1 = vallist[0];
 				} else {
 					item1 = item;
@@ -1214,7 +1156,7 @@ class cqlresult {
 			fields = tmp1+"."+tmp2+" "+tmp3+"."+tmp4;
 		};		
 		
-		split( fieldlist, fields, is_any_of( " " ) );
+		fieldlist = split( fields, " " );
 
 		for ( int j=0; j< fieldlist.size(); j++ ) {
 			cqlfld groupfld;
@@ -1241,7 +1183,7 @@ class cqlresult {
 				pugi::xml_node resnode = resfile.first_child().append_child("result");
 				string key = it->first;
 				int value = it->second;
-				split( resflds, key, is_any_of( "\t" ) );
+				resflds = split( key, "\t" );
 				for ( int j=0; j<resflds.size(); j++ ) {
 					string valuefld = resflds[j];
 					pugi::xml_node resfld = resnode.append_child("tab");
@@ -1260,7 +1202,7 @@ class cqlresult {
 			cout << " {'id':'count', 'label':'{%Count}', type:number} ]," << endl;
 			for (std::map<string,int>::iterator it=counts.begin(); it!=counts.end(); ++it) {
 				string cnti = it->first;
-				replace_all(cnti, "\t", "', '");
+				cnti = replace_all(cnti, "\t", "', '");
 				cout << "['" << cnti << "', " << it->second << "]," << endl;
 			};
 			cout << "]" << endl;
@@ -1275,8 +1217,8 @@ class cqlresult {
 		// Print out the result vector
 	
 		if ( verbose ) { cout << "Tabulating " << name << " on " << fields << endl; };
-		vector<string> fieldlist; 	vector<string> m;  string sep;
-		split( fieldlist, fields, is_any_of( " " ) );
+		vector<string> m;  string sep;
+		vector<string> fieldlist = split( fields, " " );
 
 		vector<cqlfld> cqlfieldlist;
 		for ( int j=0; j<fieldlist.size(); j++ ) {
@@ -1342,7 +1284,7 @@ class cqlresult {
 		
 		for ( int i=0; i<match.size(); i++ ) {
 			string xidx = rng2xml(match[i].named["match"], match[i].named["match"]);
-			replace_all(xidx, "\n", " ");
+			xidx = replace_all(xidx, "\n", " ");
 			cout << xidx << endl;
 		};
 		
@@ -1748,7 +1690,7 @@ void cqlparse ( string cql ) {
 	if ( debug ) { cout << "Parsing a CQL command: " << cql << endl; };
 	
 	vector<string> m; 
-	trim(cql); string subname;
+	cql = trim(cql); string subname;
 	if ( preg_match (cql, "([^ ]+) *= (.*)", &m ) ) {
 		if ( debug ) { cout << "Setting a new subcorpus: " << m[1] << endl; };
 		subname = m[1];
@@ -1778,14 +1720,14 @@ void cqlparse ( string cql ) {
 		last = subname;
 	} else if ( preg_match (cql, "([^ ]+)(.*)", &m ) ) {
 		string command = m[1];
-		string rest = m[2]; trim(rest); 
+		string rest = trim(m[2]); 
 		
 		// Determine the name of the subcorpus
 		if ( preg_match (rest, "([^ ]+)(.*)", &m ) ) {
-			string tmp = m[1]; trim(tmp);
+			string tmp = trim(m[1]);
 			if ( subcorpora.find(tmp) != subcorpora.end() ) {
 				subname = tmp;
-				rest = m[2]; trim(rest);
+				rest = trim(m[2]);
 			};
 		};
 		if ( subname == "" || subname == "Last" ) {
@@ -1879,7 +1821,7 @@ int main(int argc, char *argv[]) {
 		cqpfolder = settings.attribute("cqpfolder").value();
 	} else if ( settings.attribute("corpusname") != NULL   ) {
 		string corpusname = settings.attribute("corpusname").value();
-		to_lower(corpusname); vector<string> m;
+		str2lower(corpusname); vector<string> m;
 		string filename = "/usr/local/share/cwb/registry/" + corpusname;
 		ifstream myfile( filename ); string line;
 		if (myfile) {
@@ -1924,13 +1866,13 @@ int main(int argc, char *argv[]) {
 	if ( mode ==  "cql" ) {
 		// CQL command are separated by ;
 		while ( getline( cin, line, ';' ) && line != "exit" ) {
-			trim(line);
+			line = trim(line);
 			cqlparse(line);
 		}	
 	} else if ( mode ==  "sql" ) {
 		// CQL command are separated by ;
 		while ( getline( cin, line, ';' ) && line != "exit" ) {
-			trim(line);
+			line = trim(line);
 			sqlparse(line);
 		}	
 	} else if ( mode ==  "pos2rel" ) {
@@ -1950,7 +1892,7 @@ int main(int argc, char *argv[]) {
 		while ( getline( cin, line ) && line != "exit" ) {
 			if (keepinput) { cout << line << "\t"; };
 			if ( preg_match(line, "(\\d+) *- *(\\d+)") ) {
-				split( fields, line, is_any_of( "-" ) );
+				fields = split( line, "-" );
 				for ( int i=intval(fields[0]); i<intval(fields[1]); i++ ) {
 					cout << pos2str(attname, i) << endl;
 				};
