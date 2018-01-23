@@ -1931,7 +1931,7 @@ int main(int argc, char *argv[]) {
 	if ( settings.attribute("log") != NULL  ) {
 		time_t endT = clock();
 		float elapsed = (float(clock())-float(endT))/float(CLOCKS_PER_SEC);
-		logfile.first_child().append_attribute("time") = to_string(elapsed).c_str();	
+		logfile.first_child().append_attribute("time") = float2string(elapsed).c_str();	
 
 		logfile.print(cout);
 	};

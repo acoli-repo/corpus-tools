@@ -6,20 +6,24 @@
 #include <fstream>
 #include <vector>
 #include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 
 // Local version of stoi - relies currently on C++ 11
 int intval(std::string str) {
 	int i;
 	
 	try {
-		std::string::size_type sz;   // alias of size_t
-		i = stoi(str,&sz,10);
+		i = boost::lexical_cast<int>(str);
 	} catch (...) {
 		std::cout << "Failed to convert to integer: " << str << std::endl; 
 		return -1;
 	};
 	
 	return i;
+};
+
+std::string float2string ( float num ) {
+	return boost::lexical_cast<std::string>(num);
 };
 
 // Local version of regex_match - relies currently on C++ 11 (could also do boost)

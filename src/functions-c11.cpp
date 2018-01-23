@@ -63,6 +63,10 @@ bool preg_match ( std::string str, std::string pat, std::string flags = "" ) { /
 	return res;
 };
 
+std::string float2string ( float num ) {
+	return std::to_string(num);
+};
+
 std::vector<std::vector<std::string> > preg_match_all ( std::string str, std::string pat, std::string flags = "" ) {
 	std::vector<std::vector<std::string> >  results;
 
