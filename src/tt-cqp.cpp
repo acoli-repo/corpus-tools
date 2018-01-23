@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>  
 #include <stdio.h>
+#include <stdlib.h>
 #include <fstream>
 #include <map>
 #include <vector>
@@ -13,6 +14,7 @@
 #include "pugixml.hpp"
 #include "functions.hpp"
 #include <math.h>       /* pow */
+#include <algorithm>
 
 using namespace std;
 
@@ -1530,7 +1532,7 @@ vector<int> regex2ridx (string attname, string word ) {
 	rewind(stream);
 
 	// First, get the avx numbers
-	ifstream myfile( filename ); int idx = 0;
+	ifstream myfile( filename.c_str() ); int idx = 0;
 	if (myfile) {
 		while ( getline( myfile, strval, '\0' ) )  {
 			if ( resmatch(word, strval) ) {	
@@ -1622,7 +1624,7 @@ vector<int> regex2idx ( string attname, string restr, string flags = "" ) {
 
 	string strname = cqpfolder + attname + ".lexicon";
 	
-	ifstream myfile( strname );
+	ifstream myfile( strname.c_str() );
 	if (myfile) {
 		while ( getline( myfile, word, '\0' ) )  {
 			if ( preg_match(word, restr, flags) ) {
@@ -1823,7 +1825,7 @@ int main(int argc, char *argv[]) {
 		string corpusname = settings.attribute("corpusname").value();
 		str2lower(corpusname); vector<string> m;
 		string filename = "/usr/local/share/cwb/registry/" + corpusname;
-		ifstream myfile( filename ); string line;
+		ifstream myfile( filename.c_str() ); string line;
 		if (myfile) {
 			while ( getline( myfile, line ) )  {
 				if ( preg_match(line, "HOME (.*)", &m ) ) {
