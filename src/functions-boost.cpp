@@ -107,6 +107,6 @@ std::vector<std::string> split ( std::string str, std::string sep ) {
 	return parts;
 };
 std::string replace_all ( std::string str, std::string from, std::string to ) {
-	replace_all(str, from, to);
+	boost::replace_all(str, from, to);
 	return str;
 };

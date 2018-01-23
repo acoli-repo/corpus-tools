@@ -401,7 +401,7 @@ void sqlparse (string sql) {
 	// We can use a light SQL version to search ranges (mostly meant for text attributes)
 	vector<string> m; vector<int> match; vector<string> parts; vector<string> attlist;
 	
-	if ( preg_match (sql, "select (.*) from (.*) where (.*)", &m ) ) { // TODO: , std::regex_constants::icase
+	if ( preg_match (sql, "select (.*) from (.*) where (.*)", &m ) || preg_match (sql, "select (.*) from (.*)", &m ) ) { // TODO: , std::regex_constants::icase
 		string atts = m[1]; string rangetype = m[2]; string conds = m[3];
 
 		if ( atts != "" ) attlist = split( atts,  "," );
@@ -1153,8 +1153,9 @@ class cqlresult {
 		vector<string> fieldlist; 	vector<string> m;  string sep; string value;
 		
 		if ( preg_match (fields, "([^ ]+) ([^ ]+) by ([^ ]+) ([^ ]+)", &m ) ) {
-			// For compatibility with CQP
-			string tmp1 = m[1];			string tmp2 = m[2];			string tmp3 = m[3];			string tmp4 = m[4];
+			// For compatibility with CQP 
+			// convert "group match word by match lemma" to "group match.word match.lemma"
+			string tmp1 = m[1]; string tmp2 = m[2]; string tmp3 = m[3]; string tmp4 = m[4];
 			fields = tmp1+"."+tmp2+" "+tmp3+"."+tmp4;
 		};		
 		
@@ -1444,7 +1445,6 @@ vector<int> ridx2rng ( string attname, int ridx ) {
 	int i = 2*ridx;
 	int start = read_network_number(i, stream); range.push_back(start);
 	int end = read_network_number(i+1, stream); range.push_back(end);
-	cout << "Looking for range " << ridx << " in " << attname << " => " << start << " = " << pos2str("form", start) << endl;
 	
 	return range;	 	
 };
