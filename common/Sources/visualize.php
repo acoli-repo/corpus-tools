@@ -120,44 +120,10 @@
 					$maintext .= "<h1>Corpus Distribution</h1>";
 				
 
-					$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match word";
-					$results = $cqp->exec($grquery);
+					$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
+					$cmd = "echo 'Matches = $cql; $grquery;' | /usr/local/bin/tt-cqp --output=json";
+					$json = shell_exec($cmd);
 
-
-					$headrow = "true"; $fldnum = 1;
-					if ( preg_match ( "/group Matches match ([^ ]+) by match ([^ ]+)/", $grquery, $matches )  ) {
-						$fld2 = $matches[1]; $fld = $matches[2];
-						$tmp = pattsett($fld); if ( $tmp ) {
-							$tmpt = $tmp['long'] or $tmpt = $tmp['display'];
-							if ( $tmp['var'] ) $type1 = ", 'type': '{$tmp['var']}'";
-							$fldname = '{%'.$tmpt.'}';
-							$fldi[0] = $tmp;
-						} else $fldname = $fld;
-						$tmp = pattsett($fld2); if ( $tmp ) {
-							$tmpt = $tmp['long'] or $tmpt = $tmp['display'];
-							if ( $tmp['var'] ) $type2 = ", type:'{$tmp['var']}'";
-							$fldname2 = '{%'.$tmpt.'}';
-							$fldi[1] = $tmp;
-						} else $fldname2 = $fld2;
-						$fldname2 = '{%'.pattname($fld2).'}' or $fldname2 = $fld2;
-						$json = "[{label: '$fldname', id:'$fld' $type1}, {label: '$fldname2', id:'$fld2' $type2}, {label:'{%Frequency}', id:'freq', type:'number'}],\n";
-						$headrow = "false"; 
-						$grname = "{%Frequency by}: $fldname {%and} $fldname2";
-						$fldids = array ( $fld, $fld2 );
-					} else if ( preg_match ( "/group Matches match ([^ ]+)/", $grquery, $matches )  ) {
-						$fld = $matches[1];
-						$tmp = pattsett($fld); if ( $tmp ) {
-							$tmpt = $tmp['long'] or $tmpt = $tmp['display'];
-							if ( $tmp['var'] ) $type1 = ", type:'{$tmp['var']}'";
-							$fldname = '{%'.$tmpt.'}';
-							$fldi[0] = $tmp;
-						} else $fldname = $fld;
-						if ( $fldname == "text_id" ) $fldname = "{%Text}";
-						$fldids = array ( $fld );
-						$json = "[{label: '$fldname', id:'$fld' $type1}, {label:'{%Frequency}', id:'freq', type:'number'}],\n";
-						$headrow = "false";
-						$grname = "{%Frequency by}: $fldname";
-					};	$mainfld = $fld;
 
 					if ( $grname ) {
 						$grtxt = "<span title='$grquery'>$grname</span>";
@@ -165,63 +131,15 @@
 						$grtxt = $grquery;
 					};
 				
-				
-					if ( preg_match("/_/", $mainfld) ) {
-						# For a relative query, pick up the total counts to calculate proportional measures
-						$query1 = "Tots = [] $srest";
-						$cqp->exec($query1);
-						$query = "group Tots match $mainfld";
-						$results2 = $cqp->exec($query);
-						foreach ( explode ( "\n", $results2 ) as $line ) {	
-							list ( $a, $b ) = explode ( "\t", $line );
-							$tots[$a] = $b;
-						};
-						if ( $settings['cqp']['frequency']['relcnt'] == "perc" ) {
-							$withwpm = 100;
-							$wpmdesc = "Percentage (within the total of the type)";
-							$wpmtxt = "Percentage";						
-						} else {
-							$withwpm = 1000000;
-							$wpmdesc = "Words per million";
-							$wpmtxt = "WPM";
-						};
-						$json = preg_replace("/\],\n$/", ", {id:'totcnt', label:'{%Total}'}, {id:'relcnt', label:'{%$wpmtxt}', title:'{%$wpmdesc}', format:'###,###.#', type:'number'}],\n", $json);
-						$cntcols = 3;
-					} else $cntcols = 1;
-
 					$maintext .= "<table>
 									<tr><th>{%Search query}:<td>$cqltxt</tr>
 									<tr><th>{%Group query}:<td>$grtxt</tr>
 								</table>";
-			
-					foreach ( explode ( "\n", $results ) as $line ) {	
-						$line = str_replace("'", "&#039;", $line);
-						$flds = explode("\t", $line); $flda = "";
-						if ( $line != "" && ( ( $flds[0] != '' && $flds[0] != '_' ) || $showempties) ) {
-							foreach ( $flds as $i => $fld ) {	
-								$rowval[$i] = $fld;
-								if ( $i + 1 == count($flds) ) {
-									$flda .= "$fld"; 
-									$rowcnt = $fld;
-								} else if ( $fldi[$i]['var'] == "number" ) {
-									$flda .= intval($fld).', '; 
-								} else {
-									if ( $fldids[$i] == 'text_id' ) $fld = preg_replace("/.*\//", "", $fld); # For text_id fields
-									$flda .= "'$fld', ";
-								};
-							};
-							if ( $tots ) {
-								$valtot = $tots[$rowval[0]];
-								$relcnt = ($rowcnt/$valtot) * $withwpm;
-								$flda .= ", $valtot, $relcnt";
-							};
-							$json .= "[$flda],\n";
-						};
 
-					};		
+					$wpmdesc = "Words per million"; $wpmtxt = "WPM";
 					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>Frequency</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
+					$cntcols = 2;
 
-					$json = "[$json]";
 					$cqltxt = str_replace("'", "&#039;", $cql);
 
 				};

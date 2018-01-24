@@ -29,6 +29,7 @@ using namespace std;
 // --mwe=contr -> [word="del"]  == ([word="del"]|<contr nform="del">[]+</contr>)
 // match.s contains b:[word="here"]
 // mean text frequency
+// tiger search
 
 // Forward declarations
 string pos2str(string a, int b);
@@ -44,7 +45,8 @@ string ridx2str ( string attname, int idx );
 vector<int> pos2ridx ( string attname, int pos );
 vector<int> ridx2rng ( string a, int b );
 map<string,FILE*> files;
-	
+
+// For temporary debugging, define a special stdout
 ostream& dbout = cout;
 
 class cqlresult;
@@ -55,17 +57,19 @@ map<string, cqlresult> subcorpora;
 int debug = 0;
 bool test = false;
 bool verbose = false;
+bool prompt = false;
 string output; // type of output (csv, json, xml)
 string mwe; // what, if anything, to treat as MWE region
 string cqpfolder;
+string corpusname;
 int corpussize;
 string last;
 
+// Define some XML documents
 pugi::xml_document logfile;
 pugi::xml_node settings;
 pugi::xml_node results;
 pugi::xml_document xmlsettings;
-
 
 bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) {
 	// Check whether two strings "match" using various conditions
@@ -457,7 +461,30 @@ void sqlparse (string sql) {
 			};
 			cout << endl;
 		};
-		
+	
+	// TODO: implement those
+	} else if ( preg_match (sql, "use (.*)", &m ) ) { // TODO: , std::regex_constants::icase
+		corpusname = m[1];
+		settings.attribute("corpusname").set_value(corpusname.c_str());
+		str2lower(corpusname); vector<string> m;
+		string filename = "/usr/local/share/cwb/registry/" + corpusname;
+		ifstream myfile( filename.c_str() ); string line;
+		if (myfile) {
+			while ( getline( myfile, line ) )  {
+				if ( preg_match(line, "HOME (.*)", &m ) ) {
+					cqpfolder = m[1];
+				};
+			}
+			myfile.close();
+		} else {
+			cout << "Failed to read corpus definition: " << filename << endl;
+		}
+		if ( cqpfolder.back() != '/' ) { cqpfolder += "/"; };
+		cout << "New corpus folder: " << cqpfolder << endl;
+	} else if ( preg_match (sql, "show databases", &m ) ) { // TODO: , std::regex_constants::icase
+	} else if ( preg_match (sql, "show tables", &m ) ) { // TODO: , std::regex_constants::icase
+	} else if ( preg_match (sql, "describe (.*)", &m ) ) { // TODO: , std::regex_constants::icase
+		string tmp = m[1];
 	} else if ( sql != "" ) {
 		cout << "Unknown SQL command: " << sql << endl;
 	};
@@ -630,12 +657,12 @@ class cqlresult {
 				tmp2.named["matchend"] = dopos;
 				tmp2.options[i].push_back(dopos);
 				tmp2.ind = 1; // What does this do?
-				if ( within != "" ) {
-					vector<int> ranges = pos2ridx(within, dopos);
-					// This only uses the first range the item belongs to - not supported for overlapping ranges
-					vector<int> range = ridx2rng(within, ranges[0]);
-					tmp2.min=range[0];
-					tmp2.max=range[1];
+				if ( within != "" ) { // TODO: this does not work right now
+// 					vector<int> ranges = pos2ridx(within, dopos);
+// 					// This only uses the first range the item belongs to - not supported for overlapping ranges
+// 					vector<int> range = ridx2rng(within, ranges[0]);
+// 					tmp2.min=range[0];
+// 					tmp2.max=range[1];
 				}; 
 				if ( partname != "" ) tmp2.named[partname] = dopos; // Redundant?
 				match.push_back(tmp2);
@@ -649,14 +676,14 @@ class cqlresult {
 		// From the best position, go right
 		for ( int ca = best; ca<condarray.size(); ca++ ) {
 			for (int cc=0; cc<condarray[ca].size(); cc++) {
-				if ( debug ) cout << "Checking " << condlist[condarray[ca][cc]].left << endl;
+				if ( debug ) cout << "Checking " << condlist[condarray[ca][cc]].left << endl; // TODO: this somehow prevents the system from going wild - why??
 				checkcond(condlist[condarray[ca][cc]], &match);
 			};
         };
 		// From the best position, go left
 		for ( int ca = best-1; ca>-1; ca-- ) {
 			for (int cc=0; cc<condarray[ca].size(); cc++) {
-				if ( debug ) cout << "Checking " << condlist[condarray[ca][cc]].left << endl;
+				if ( debug ) cout << "Checking " << condlist[condarray[ca][cc]].left << endl; // TODO: this somehow prevents the system from going wild - why??
 				checkcond(condlist[condarray[ca][cc]], &match);
 			};
         };
@@ -1151,6 +1178,13 @@ class cqlresult {
 		vector<cqlfld> cqlfieldlist; string groupfld;
 		map<string,int> counts;
 		vector<string> fieldlist; 	vector<string> m;  string sep; string value;
+
+		// Calculate the corpus size for WPM measurements
+		string filename = cqpfolder + "word.corpus";
+		FILE* stream = fopen(filename.c_str(), "rb"); 
+		fseek(stream, 0, SEEK_END); corpussize = ftell(stream)/4; 
+		if ( debug ) { cout << "Corpus size: " << corpussize << endl; };
+		fclose(stream);
 		
 		if ( preg_match (fields, "([^ ]+) ([^ ]+) by ([^ ]+) ([^ ]+)", &m ) ) {
 			// For compatibility with CQP 
@@ -1202,11 +1236,13 @@ class cqlresult {
 			for ( int j=0; j<cqlfieldlist.size(); j++ ) {
 				cout << "{'id':'" << cqlfieldlist[j].fld << "', 'label':'{%" << cqlfieldlist[j].fldname << "}'}, ";
 			};
-			cout << " {'id':'count', 'label':'{%Count}', type:number} ]," << endl;
+			cout << " {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'wpm', 'label':'{%Words per million}', 'type':'number'} ]," << endl;
 			for (std::map<string,int>::iterator it=counts.begin(); it!=counts.end(); ++it) {
 				string cnti = it->first;
 				cnti = replace_all(cnti, "\t", "', '");
-				cout << "['" << cnti << "', " << it->second << "]," << endl;
+				int count = it->second;
+				float wpm = ((float)count/corpussize)*1000000;
+				cout << "['" << cnti << "', " << count << ", " << wpm << "]," << endl;
 			};
 			cout << "]" << endl;
 		} else {
@@ -1693,7 +1729,25 @@ void cqlparse ( string cql ) {
 	
 	vector<string> m; 
 	cql = trim(cql); string subname;
-	if ( preg_match (cql, "([^ ]+) *= (.*)", &m ) ) {
+	if ( cqpfolder == "/" && preg_match (cql, "([^ ]+)", &m ) ) {
+		corpusname = m[1];
+		settings.attribute("corpusname").set_value(corpusname.c_str());
+		str2lower(corpusname); vector<string> m;
+		string filename = "/usr/local/share/cwb/registry/" + corpusname;
+		ifstream myfile( filename.c_str() ); string line;
+		if (myfile) {
+			while ( getline( myfile, line ) )  {
+				if ( preg_match(line, "HOME (.*)", &m ) ) {
+					cqpfolder = m[1];
+				};
+			}
+			myfile.close();
+		} else {
+			cout << "Failed to read corpus definition: " << filename << endl;
+		}
+		if ( cqpfolder.back() != '/' ) { cqpfolder += "/"; };
+		cout << "New corpus folder: " << cqpfolder << endl;
+	} else if ( preg_match (cql, "([^ ]+) *= (.*)", &m ) ) {
 		if ( debug ) { cout << "Setting a new subcorpus: " << m[1] << endl; };
 		subname = m[1];
 		cqlresult newcql;
@@ -1777,9 +1831,14 @@ int main(int argc, char *argv[]) {
 	string tmp = ctime(&tm);
 	logfile.first_child().append_attribute("starttime") = tmp.substr(0,tmp.length()-1).c_str();	
 
+	// Define short command-line options
+	map<string, vector<string> > shortopt;
+	shortopt["d"].push_back("corpusname"); shortopt["d"].push_back("1");
+	shortopt["e"].push_back("prompt"); 
+
 	// Read in all the command-line arguments
 	for ( int i=1; i< argc; ++i ) {
-		string argm = argv[i];
+		string argm = argv[i]; string akey;
 		
 		if ( argm.substr(0,2) == "--" ) {
 			int spacepos = argm.find("=");
@@ -1791,6 +1850,20 @@ int main(int argc, char *argv[]) {
 				string akey = argm.substr(2,spacepos-2);
 				string aval = argm.substr(spacepos+1);
 				settings.append_attribute(akey.c_str()) = aval.c_str();
+			};
+		} else if ( argm.substr(0,1) == "-" ) {
+			string tmp = argm.substr(1);
+			if ( shortopt.find(tmp) == shortopt.end() ) {
+				cout << "Unknown option: " << tmp << endl;
+			} else {
+				akey = shortopt[tmp][0];
+				if ( shortopt[tmp][1] != "" ) {
+					string aval = argv[i+1];
+					settings.append_attribute(akey.c_str()) = aval.c_str();
+					++i;
+				} else {
+					settings.append_attribute(akey.c_str()) = "1";
+				};
 			};
 		};		
 		
@@ -1819,10 +1892,12 @@ int main(int argc, char *argv[]) {
 		mwe = settings.attribute("mwe").value();
 	};
 
+	corpusname = "[no corpus]";
 	if ( settings.attribute("cqpfolder") != NULL   ) {
 		cqpfolder = settings.attribute("cqpfolder").value();
+		corpusname = cqpfolder;
 	} else if ( settings.attribute("corpusname") != NULL   ) {
-		string corpusname = settings.attribute("corpusname").value();
+		corpusname = settings.attribute("corpusname").value();
 		str2lower(corpusname); vector<string> m;
 		string filename = "/usr/local/share/cwb/registry/" + corpusname;
 		ifstream myfile( filename.c_str() ); string line;
@@ -1836,10 +1911,12 @@ int main(int argc, char *argv[]) {
 		} else {
 			cout << "Failed to read corpus definition: " << filename << endl;
 		}
-		cout << cqpfolder << endl;
-	} else {
+		if ( debug ) cout << "Corpus folder: " << cqpfolder << endl;
+	} else if ( file_exists("cqp/word.corpus") ) {
 		cqpfolder = "cqp/";
+		corpusname = "tt-cqp";
 	}; 
+	if ( cqpfolder.back() != '/' ) { cqpfolder += "/"; };
 
 	bool keepinput;
 	if ( settings.attribute("keepinput") != NULL   ) {
@@ -1861,21 +1938,27 @@ int main(int argc, char *argv[]) {
 
 	if ( settings.attribute("debug") != NULL ) { debug = atoi(settings.attribute("debug").value()); };
 	if ( settings.attribute("verbose") != NULL ) { verbose = true; };
-	
-	
+	if ( settings.attribute("prompt") != NULL ) { prompt = true; };
+		
 	// Read commands from STDIN 
 	vector<string> fields; string line;
 	if ( mode ==  "cql" ) {
 		// CQL command are separated by ;
+		if ( prompt ) { cout << corpusname << "> "; };
 		while ( getline( cin, line, ';' ) && line != "exit" ) {
 			line = trim(line);
+			if ( line == "exit" ) { break; };
 			cqlparse(line);
+			if ( prompt ) { cout << corpusname << "> "; };
 		}	
 	} else if ( mode ==  "sql" ) {
-		// CQL command are separated by ;
+		// SQL command are separated by ;
+		if ( prompt ) { cout << "tt-sql> "; };
 		while ( getline( cin, line, ';' ) && line != "exit" ) {
 			line = trim(line);
+			if ( line == "exit" ) { break; };
 			sqlparse(line);
+			if ( prompt ) { cout << "tt-sql> "; };
 		}	
 	} else if ( mode ==  "pos2rel" ) {
 		// Give back the corpus position of the head (or other related id)

@@ -851,7 +851,7 @@
 				if ( val == 'custom') {
 					document.getElementById('customfreq').style.display = 'block';
 				} else {
-					document.freqform.query.value = 'group Matches match ' + val; document.freqform.submit();
+					document.freqform.query.value = 'group Matches match.' + val; document.freqform.submit();
 				};
 			};
 			</script>";
