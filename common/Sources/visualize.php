@@ -119,38 +119,30 @@
 				
 					$maintext .= "<h1>Corpus Distribution</h1>";
 				
-
 					$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
 					$cmd = "echo 'Matches = $cql; $grquery;' | /usr/local/bin/tt-cqp --output=json";
 					$json = shell_exec($cmd);
-
-
-					if ( $grname ) {
-						$grtxt = "<span title='$grquery'>$grname</span>";
-					} else { 
-						$grtxt = $grquery;
-					};
 				
 					$maintext .= "<table>
 									<tr><th>{%Search query}:<td>$cqltxt</tr>
-									<tr><th>{%Group query}:<td>$grtxt</tr>
+									<tr><th>{%Group query}:<td>$grquery</tr>
 								</table>";
 
 					$wpmdesc = "Words per million"; $wpmtxt = "WPM";
 					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>Frequency</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
 					$cntcols = 2;
 
+					$headrow = "false"; 
 					$cqltxt = str_replace("'", "&#039;", $cql);
 
 				};
 				$maintext .= "<hr>";
-				# End of CQP section
 
 				if ( $debug ) $maintext .= $debugtxt;
 
 			} else {
 			
-			# TODO: Should we provide some default JSON?
+				# TODO: Should we provide some default JSON?
 			
 			};
 
