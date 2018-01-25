@@ -45,6 +45,7 @@ string ridx2str ( string attname, int idx );
 vector<int> pos2ridx ( string attname, int pos );
 vector<int> ridx2rng ( string a, int b );
 map<string,FILE*> files;
+int ridx2cnt ( string attname, int ridx );
 
 // For temporary debugging, define a special stdout
 ostream& dbout = cout;
@@ -62,6 +63,8 @@ string output; // type of output (csv, json, xml)
 string mwe; // what, if anything, to treat as MWE region
 string cqpfolder;
 string corpusname;
+string regfolder;
+int kleene; // hard boundary on kleene star
 int corpussize;
 string last;
 
@@ -405,51 +408,55 @@ void sqlparse (string sql) {
 	// We can use a light SQL version to search ranges (mostly meant for text attributes)
 	vector<string> m; vector<int> match; vector<string> parts; vector<string> attlist;
 	
-	if ( preg_match (sql, "select (.*) from (.*) where (.*)", &m ) || preg_match (sql, "select (.*) from (.*)", &m ) ) { // TODO: , std::regex_constants::icase
+	if ( preg_match (sql, "select (.*) from (.*) where (.*)", &m ) ) { // TODO: , std::regex_constants::icase
 		string atts = m[1]; string rangetype = m[2]; string conds = m[3];
 
 		if ( atts != "" ) attlist = split( atts,  "," );
 
-		if ( conds != "" ) parts = split( conds, "&" );
-		for ( int k=0; k<parts.size(); k++ ) {
-			string cond = parts[k]; string word; cond = trim(cond);
-			if ( cond == "" ) continue;
-			if ( debug ) cout << "Checking " << cond << endl;
-
-			string left; string right; string matchtype;
-			if ( preg_match (cond, "(.*)(!?[=<>])(.*)", &m ) ) {
-				left = m[1]; left = trim(left);
-				matchtype = m[2];
-				right = m[3]; right = trim(right);
-			};
-
-			if ( k == 0 ) {
+		if ( conds == "" ) {
 			
-				// Initialize the list of matches
-				string attname = rangetype + "_" + left; 
-				if ( preg_match (right, "\"(.*)\"", &m ) ) {
-					word = m[1];
-					match = regex2ridx(attname, word);
+		} else {
+			parts = split( conds, "&" );
+			for ( int k=0; k<parts.size(); k++ ) {
+				string cond = parts[k]; string word; cond = trim(cond);
+				if ( cond == "" ) continue;
+				if ( debug ) cout << "Checking " << cond << endl;
+
+				string left; string right; string matchtype;
+				if ( preg_match (cond, "(.*)(!?[=<>])(.*)", &m ) ) {
+					left = m[1]; left = trim(left);
+					matchtype = m[2];
+					right = m[3]; right = trim(right);
 				};
-				
-			} else {
-				
-				vector<int> tocheck = match;
-				match.clear();
-				for ( int j=0; j<tocheck.size(); j++ ) {
-					int ridx = tocheck[j]; 
+
+				if ( k == 0 ) {
+			
+					// Initialize the list of matches
 					string attname = rangetype + "_" + left; 
-					if ( preg_match (right, "\"(.*)\"", &m ) ) {
+					if ( preg_match (right, "\"(.*)\"", &m ) ) { // TODO: Do more than just match
 						word = m[1];
-						if ( resmatch(ridx2str(attname, ridx), word) ) {
-							match.push_back(ridx);
+						match = regex2ridx(attname, word);
+					};
+				
+				} else {
+				
+					vector<int> tocheck = match;
+					match.clear();
+					for ( int j=0; j<tocheck.size(); j++ ) {
+						int ridx = tocheck[j]; 
+						string attname = rangetype + "_" + left; 
+						if ( preg_match (right, "\"(.*)\"", &m ) ) {
+							word = m[1];
+							if ( resmatch(ridx2str(attname, ridx), word) ) {
+								match.push_back(ridx);
+							};
 						};
 					};
 				};
+
 			};
-
 		};
-
+		
 		// Now, tabulate this
 		for ( int k=0; k<match.size(); k++ ) {
 			int ridx = match[k]; string sep;
@@ -462,12 +469,53 @@ void sqlparse (string sql) {
 			cout << endl;
 		};
 	
-	// TODO: implement those
+	} else if ( preg_match (sql, "select (.*) from (.*)", &m ) ) { // TODO: , std::regex_constants::icase
+	
+		string atts = m[1]; string rangetype = m[2]; 
+
+		if ( atts == "*" ) {
+			DIR *dir;
+			struct dirent *ent;
+			if ((dir = opendir (cqpfolder.c_str())) != NULL) {
+			  /* print all the files and directories within directory */
+			  while ((ent = readdir (dir)) != NULL) {
+				string fname = ent->d_name;
+				if ( preg_match(fname, rangetype+"_(.*).avs", &m) ) attlist.push_back(m[1]);
+			  }
+			  closedir (dir);
+			} else {
+			  /* could not open directory */
+			  perror ("");
+			  cout << "Failed to read CQP folder " << cqpfolder << endl;
+			}
+		} else if ( atts != "" ) attlist = split( atts,  "," );
+
+		// Initialize the list of matches (all ranges)
+		string filename = cqpfolder + rangetype + ".rng";
+		FILE* stream; 
+		if ( !streamopen(&stream, filename) ) return;
+		fseek(stream, 0, SEEK_END); int max = ftell(stream)/8; 
+		for ( int i=0; i< max; i++ ) {
+			match.push_back(i);
+		};
+		
+		// Now, tabulate this
+		for ( int k=0; k<match.size(); k++ ) {
+			int ridx = match[k]; string sep;
+			for (int j=0; j<attlist.size(); j++ ) {
+				string attname = attlist[j]; attname = trim(attname);
+				attname = rangetype + "_" + attname;
+				cout << sep << ridx2str(attname, ridx);
+				sep = "\t";
+			};
+			cout << endl;
+		};
+
 	} else if ( preg_match (sql, "use (.*)", &m ) ) { // TODO: , std::regex_constants::icase
 		corpusname = m[1];
 		settings.attribute("corpusname").set_value(corpusname.c_str());
 		str2lower(corpusname); vector<string> m;
-		string filename = "/usr/local/share/cwb/registry/" + corpusname;
+		string filename = regfolder + corpusname;
 		ifstream myfile( filename.c_str() ); string line;
 		if (myfile) {
 			while ( getline( myfile, line ) )  {
@@ -479,12 +527,55 @@ void sqlparse (string sql) {
 		} else {
 			cout << "Failed to read corpus definition: " << filename << endl;
 		}
-		if ( cqpfolder.back() != '/' ) { cqpfolder += "/"; };
+		int lastch = cqpfolder.length() - 1; 
+		if ( cqpfolder[lastch] != '/' ) { cqpfolder += "/"; };
 		cout << "New corpus folder: " << cqpfolder << endl;
-	} else if ( preg_match (sql, "show databases", &m ) ) { // TODO: , std::regex_constants::icase
+	} else if ( sql == "show corpora" || sql == "show databases"  ) {
+		DIR *dir;
+		struct dirent *ent;
+		if ((dir = opendir (regfolder.c_str())) != NULL) {
+		  /* print all the files and directories within directory */
+		  while ((ent = readdir (dir)) != NULL) {
+		  	string fname = ent->d_name;
+			if ( fname.substr(0,1) != "." ) cout << fname << endl;
+		  }
+		  closedir (dir);
+		} else {
+		  /* could not open directory */
+		  perror ("");
+		  cout << "Failed to read registry folder" << endl;
+		}
 	} else if ( preg_match (sql, "show tables", &m ) ) { // TODO: , std::regex_constants::icase
+		DIR *dir;
+		struct dirent *ent;
+		if ((dir = opendir (cqpfolder.c_str())) != NULL) {
+		  /* print all the files and directories within directory */
+		  while ((ent = readdir (dir)) != NULL) {
+		  	string fname = ent->d_name;
+			if ( preg_match(fname, "(.*)_xidx.rng", &m) ) cout << m[1] << endl;
+		  }
+		  closedir (dir);
+		} else {
+		  /* could not open directory */
+		  perror ("");
+		  cout << "Failed to read CQP folder " << cqpfolder << endl;
+		}
 	} else if ( preg_match (sql, "describe (.*)", &m ) ) { // TODO: , std::regex_constants::icase
 		string tmp = m[1];
+		DIR *dir;
+		struct dirent *ent;
+		if ((dir = opendir (cqpfolder.c_str())) != NULL) {
+		  /* print all the files and directories within directory */
+		  while ((ent = readdir (dir)) != NULL) {
+		  	string fname = ent->d_name;
+			if ( preg_match(fname, tmp+"_(.*).avs", &m) ) cout << m[1] << endl;
+		  }
+		  closedir (dir);
+		} else {
+		  /* could not open directory */
+		  perror ("");
+		  cout << "Failed to read CQP folder " << cqpfolder << endl;
+		}
 	} else if ( sql != "" ) {
 		cout << "Unknown SQL command: " << sql << endl;
 	};
@@ -1180,6 +1271,7 @@ class cqlresult {
 		vector<string> fieldlist; 	vector<string> m;  string sep; string value;
 
 		// Calculate the corpus size for WPM measurements
+		// TODO: for sattributes, this should count with global conditions
 		string filename = cqpfolder + "word.corpus";
 		FILE* stream = fopen(filename.c_str(), "rb"); 
 		fseek(stream, 0, SEEK_END); corpussize = ftell(stream)/4; 
@@ -1236,13 +1328,33 @@ class cqlresult {
 			for ( int j=0; j<cqlfieldlist.size(); j++ ) {
 				cout << "{'id':'" << cqlfieldlist[j].fld << "', 'label':'{%" << cqlfieldlist[j].fldname << "}'}, ";
 			};
-			cout << " {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'wpm', 'label':'{%Words per million}', 'type':'number'} ]," << endl;
+			bool withglobals;
+			if ( fieldlist.size() == 1 && fields.find("_") != -1 ) { withglobals = true; }; // Check whether we have an sattribute
+			if ( withglobals ) {
+				cout << " {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'tot', 'label':'{%Total}', 'type':'number'},  {'id':'wpm', 'label':'{%Words per million}', 'type':'number'} ]," << endl;
+			} else {
+				cout << " {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'wpm', 'label':'{%WPM}', 'type':'number'} ]," << endl;
+			};
 			for (std::map<string,int>::iterator it=counts.begin(); it!=counts.end(); ++it) {
 				string cnti = it->first;
 				cnti = replace_all(cnti, "\t", "', '");
 				int count = it->second;
-				float wpm = ((float)count/corpussize)*1000000;
-				cout << "['" << cnti << "', " << count << ", " << wpm << "]," << endl;
+				if ( withglobals ) {
+					int selsize = 0;
+					string dofld = cqlfieldlist[0].fld;// this only works for 1 field
+					vector<int> tmpi = regex2ridx(dofld, cnti); 
+					for ( int j=0; j<tmpi.size(); j++ ) {
+						int rngsize = ridx2cnt(dofld, tmpi[j]);
+						selsize += rngsize;
+					};
+					if ( selsize > 0 ) {
+						float wpm = ((float)count/selsize)*1000000;
+						cout << "['" << cnti << "', " << count << ", " << selsize << ", " << wpm << "]," << endl;
+					};
+				} else {
+					float wpm = ((float)count/corpussize)*1000000;
+					cout << "['" << cnti << "', " << count << ", " << wpm << "]," << endl;
+				};
 			};
 			cout << "]" << endl;
 		} else {
@@ -1571,7 +1683,7 @@ vector<int> regex2ridx (string attname, string word ) {
 	ifstream myfile( filename.c_str() ); int idx = 0;
 	if (myfile) {
 		while ( getline( myfile, strval, '\0' ) )  {
-			if ( resmatch(word, strval) ) {	
+			if ( resmatch(word, strval, "==") ) { // TODO: Make this do more liberal comparison
 				ofs[idx] = true;
 			};
 			idx = myfile.tellg();
@@ -1581,7 +1693,7 @@ vector<int> regex2ridx (string attname, string word ) {
 	} else {
 		cout << "Failed to read " << filename << endl;
 	}
-   	
+	
    	// Now get the ranges for the avx index
 	filename = cqpfolder + attname + ".avx";
 	if ( !streamopen(&stream, filename) ) return match;
@@ -1603,6 +1715,19 @@ vector<int> regex2ridx (string attname, string word ) {
    	
 	return match;
 	
+};
+
+int ridx2cnt ( string attname, int ridx ) {
+	FILE* stream;
+	string filename = cqpfolder + attname + ".rng";
+	if ( !streamopen(&stream, filename) ) return 0;
+	
+	int seek = 2*ridx;
+	int start = read_network_number(seek, stream);
+	int end = read_network_number(seek+1, stream);
+	int cnt = end - start + 1;
+	
+	return cnt;
 };
 
 int str2idx ( string attname, string word ) {
@@ -1733,7 +1858,7 @@ void cqlparse ( string cql ) {
 		corpusname = m[1];
 		settings.attribute("corpusname").set_value(corpusname.c_str());
 		str2lower(corpusname); vector<string> m;
-		string filename = "/usr/local/share/cwb/registry/" + corpusname;
+		string filename = regfolder + corpusname;
 		ifstream myfile( filename.c_str() ); string line;
 		if (myfile) {
 			while ( getline( myfile, line ) )  {
@@ -1745,8 +1870,24 @@ void cqlparse ( string cql ) {
 		} else {
 			cout << "Failed to read corpus definition: " << filename << endl;
 		}
-		if ( cqpfolder.back() != '/' ) { cqpfolder += "/"; };
+		int lastch = cqpfolder.length() - 1; 
+		if ( cqpfolder[lastch] != '/' ) { cqpfolder += "/"; };
 		cout << "New corpus folder: " << cqpfolder << endl;
+	} else if ( cql == "show corpora" ) {
+		DIR *dir;
+		struct dirent *ent;
+		if ((dir = opendir (regfolder.c_str())) != NULL) {
+		  /* print all the files and directories within directory */
+		  while ((ent = readdir (dir)) != NULL) {
+		  	string fname = ent->d_name;
+			if ( fname.substr(0,1) != "." ) cout << fname << endl;
+		  }
+		  closedir (dir);
+		} else {
+		  /* could not open directory */
+		  perror ("");
+		  cout << "Failed to read registry folder" << endl;
+		}
 	} else if ( preg_match (cql, "([^ ]+) *= (.*)", &m ) ) {
 		if ( debug ) { cout << "Setting a new subcorpus: " << m[1] << endl; };
 		subname = m[1];
@@ -1833,7 +1974,9 @@ int main(int argc, char *argv[]) {
 
 	// Define short command-line options
 	map<string, vector<string> > shortopt;
-	shortopt["d"].push_back("corpusname"); shortopt["d"].push_back("1");
+	shortopt["D"].push_back("corpusname"); shortopt["D"].push_back("1");
+	shortopt["r"].push_back("registry"); shortopt["r"].push_back("1");
+	shortopt["b"].push_back("kleene"); shortopt["b"].push_back("1");
 	shortopt["e"].push_back("prompt"); 
 
 	// Read in all the command-line arguments
@@ -1868,6 +2011,19 @@ int main(int argc, char *argv[]) {
 		};		
 		
 	};
+	
+	
+	if ( settings.attribute("registry") != NULL ) { 
+		regfolder = settings.attribute("registry").value();
+	} else {
+		regfolder = "/usr/local/share/cwb/registry/";
+	};
+
+	if ( settings.attribute("kleene") != NULL ) { 
+		kleene = atoi(settings.attribute("kleene").value());
+	} else {
+		kleene = 10;
+	};
 
 	// Read the settings.xml file where appropriate - by default from ./Resources/settings.xml
 	string settingsfile;
@@ -1899,7 +2055,7 @@ int main(int argc, char *argv[]) {
 	} else if ( settings.attribute("corpusname") != NULL   ) {
 		corpusname = settings.attribute("corpusname").value();
 		str2lower(corpusname); vector<string> m;
-		string filename = "/usr/local/share/cwb/registry/" + corpusname;
+		string filename = regfolder + corpusname;
 		ifstream myfile( filename.c_str() ); string line;
 		if (myfile) {
 			while ( getline( myfile, line ) )  {
@@ -1916,7 +2072,8 @@ int main(int argc, char *argv[]) {
 		cqpfolder = "cqp/";
 		corpusname = "tt-cqp";
 	}; 
-	if ( cqpfolder.back() != '/' ) { cqpfolder += "/"; };
+		int lastch = cqpfolder.length() - 1; 
+		if ( cqpfolder[lastch] != '/' ) { cqpfolder += "/"; };
 
 	bool keepinput;
 	if ( settings.attribute("keepinput") != NULL   ) {
@@ -1951,6 +2108,7 @@ int main(int argc, char *argv[]) {
 			cqlparse(line);
 			if ( prompt ) { cout << corpusname << "> "; };
 		}	
+		if ( prompt ) { cout << "Bye" << endl; };
 	} else if ( mode ==  "sql" ) {
 		// SQL command are separated by ;
 		if ( prompt ) { cout << "tt-sql> "; };
@@ -1960,6 +2118,7 @@ int main(int argc, char *argv[]) {
 			sqlparse(line);
 			if ( prompt ) { cout << "tt-sql> "; };
 		}	
+		if ( prompt ) { cout << "Bye" << endl; };
 	} else if ( mode ==  "pos2rel" ) {
 		// Give back the corpus position of the head (or other related id)
 		while ( getline( cin, line ) && line != "exit" ) {
