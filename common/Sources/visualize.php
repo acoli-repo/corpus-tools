@@ -129,9 +129,14 @@
 								</table>";
 
 					$wpmdesc = "Words per million"; $wpmtxt = "WPM";
-					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>Count</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
-					$cntcols = 2;
-
+					if ( strstr("%Tot", $json) != -1 ) {
+						$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>Count</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
+						$cntcols = 3;
+					} else {
+						$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>Count</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
+						$cntcols = 2;
+					};
+					
 					$headrow = "false"; 
 					$cqltxt = str_replace("'", "&#039;", $cql);
 
