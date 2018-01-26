@@ -1363,6 +1363,7 @@ class cqlresult {
 				vector<string> its = split(cnti, "\t");
 				for ( int i=0; i<its.size(); i++ ) {
 					string valname = valstring(cqlfieldlist[i], its[i]); 
+					valname = replace_all(valname, "'", "\\'");
 					item += "'" + valname + "', "; 
 				};
 				int count = it->second;
