@@ -121,6 +121,7 @@
 				
 					$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
 					$cmd = "echo 'Matches = $cql; $grquery;' | /usr/local/bin/tt-cqp --output=json";
+					if ( $debug ) $maintext .= "<!-- $cmd -->";
 					$json = shell_exec($cmd);
 				
 					$maintext .= "<table>
@@ -129,11 +130,11 @@
 								</table>";
 
 					$wpmdesc = "Words per million"; $wpmtxt = "WPM";
-					if ( strstr("%Tot", $json) != -1 ) {
-						$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>Count</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
+					if ( strpos($json, "%Tot") != false ) {
+						$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>{%Count}</option><option value=2 title='{%Total occurrences}'>{%Total}</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
 						$cntcols = 3;
 					} else {
-						$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>Count</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
+						$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>{%Count}</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
 						$cntcols = 2;
 					};
 					
@@ -171,6 +172,7 @@
 						<option value='scatter'>{%Scatter Chart}</option>
 						<option value='histogram'>{%Histogram}</option>
 						<option value='trendline'>{%Trendline}</option>
+						<option value='totals'>{%Statistics}</option>
 						$moregs
 						</select>
 						$wpmsel
@@ -196,6 +198,7 @@
 					# Create a pie-chart option
 					$maintext .= " 
 						<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>
+						<script type=\"text/javascript\" src=\"https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js\"></script>
 						<script type=\"text/javascript\" src=\"$jsurl/visualize.js\"></script>
 						<script type=\"text/javascript\">
 						

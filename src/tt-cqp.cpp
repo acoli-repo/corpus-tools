@@ -30,6 +30,8 @@ using namespace std;
 // match.s contains b:[word="here"]
 // mean text frequency
 // tiger search
+// make word=".*" (and []) catch all ranges rather than do a real regex
+// stats: mean text frequency
 
 // Forward declarations
 string pos2str(string a, int b);
@@ -101,6 +103,8 @@ bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) 
 	return false;
 };
 
+
+
 class cqlmatch {
 	// Holds a match to a CQL query
 	public:
@@ -140,6 +144,7 @@ class cqlfld {
 	pugi::xml_node flddef;
 	string fldname;
 	string rawbase;
+	string fldatt;
 	map<int,string> base; // what to use as base(s) (match, matchend, named, idfield)
 	map<int,int> offset; // where it is wrt base
 	map<int,int> sub; // For substring matches
@@ -199,6 +204,9 @@ class cqlfld {
 			fldname = xmlsettings.select_single_node(xpath.c_str()).node().attribute("display").value();
 		};
 		if ( fldname == "" ) fldname = fld;
+
+	
+		fldatt = fld.substr(fld.find("_")+1);
 								
 	};
 	
@@ -261,6 +269,17 @@ class cqlfld {
 		return value;
 	};
 	
+};
+
+string valstring (cqlfld fld, string val ) {
+	// See if we need to provide kselect, select, or other translation options
+	string valstring = val;
+
+	string fldtype = fld.flddef.attribute("type").value();
+
+	if ( fldtype  == "kselect" ) { valstring = "{%" + fld.fldatt + "-" + val + "}"; };
+
+	return valstring;
 };
 
 // Sorting class for matches, so that we can pass arguments to the sort function (ie sortfield)
@@ -346,7 +365,7 @@ void checkcond ( cqltok ctok, vector<cqlmatch> *match  ) {
 				};
 				int max;
 				if ( wildcard == "+" || wildcard == "*" || wildcard == "+?" || wildcard == "*?" ) {
-					max = 10;
+					max = kleene; // restrict to the max kleene star settings
 				} else {
 					max = 1;
 				};
@@ -909,7 +928,7 @@ class cqlresult {
 		
 	};
 	
-	map<string,int> stats(string cqlfld) {
+	map<string,int> stats(string cqlfld, string stattype = "" ) {
 		// Print out statistical measures for the result vector
 
 		string rawstats = cqlfld;
@@ -935,6 +954,8 @@ class cqlresult {
 		
 		if ( preg_match (opts, ".*type:([^ ]+).*", &m ) ) {
 			type = m[1];
+		} else if ( stattype != "" ) { 
+			type = stattype;
 		} else { type = "collocations"; };
 		
 		if ( preg_match (opts, ".*show:([^ ]+).*", &m ) ) {
@@ -1328,7 +1349,7 @@ class cqlresult {
 			for ( int j=0; j<cqlfieldlist.size(); j++ ) {
 				cout << "{'id':'" << cqlfieldlist[j].fld << "', 'label':'{%" << cqlfieldlist[j].fldname << "}'}, ";
 			};
-			bool withglobals;
+			bool withglobals = false;
 			if ( fieldlist.size() == 1 && fields.find("_") != -1 ) { withglobals = true; }; // Check whether we have an sattribute
 			if ( withglobals ) {
 				cout << " {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'tot', 'label':'{%Total}', 'type':'number'},  {'id':'wpm', 'label':'{%Words per million}', 'type':'number'} ]," << endl;
@@ -1336,8 +1357,12 @@ class cqlresult {
 				cout << " {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'wpm', 'label':'{%WPM}', 'type':'number'} ]," << endl;
 			};
 			for (std::map<string,int>::iterator it=counts.begin(); it!=counts.end(); ++it) {
-				string cnti = it->first;
-				cnti = replace_all(cnti, "\t", "', '");
+				string cnti = it->first; string item = "";
+				vector<string> its = split(cnti, "\t");
+				for ( int i=0; i<its.size(); i++ ) {
+					string valname = valstring(cqlfieldlist[i], its[i]); 
+					item += "'" + valname + "', "; 
+				};
 				int count = it->second;
 				if ( withglobals ) {
 					int selsize = 0;
@@ -1349,11 +1374,11 @@ class cqlresult {
 					};
 					if ( selsize > 0 ) {
 						float wpm = ((float)count/selsize)*1000000;
-						cout << "['" << cnti << "', " << count << ", " << selsize << ", " << wpm << "]," << endl;
+						cout << "[" << item << " " << count << ", " << selsize << ", " << wpm << "]," << endl;
 					};
 				} else {
 					float wpm = ((float)count/corpussize)*1000000;
-					cout << "['" << cnti << "', " << count << ", " << wpm << "]," << endl;
+					cout << "[" << item << " " << count << ", " << wpm << "]," << endl;
 				};
 			};
 			cout << "]" << endl;
@@ -1850,7 +1875,7 @@ int pos2relpos ( string attname, int pos ) {
 
 void cqlparse ( string cql ) {
 	// Parse a CQL query
-	if ( debug ) { cout << "Parsing a CQL command: " << cql << endl; };
+	if ( debug && cql != "" ) { cout << "Parsing a CQL command: " << cql << endl; };
 	
 	vector<string> m; 
 	cql = trim(cql); string subname;
@@ -1903,6 +1928,8 @@ void cqlparse ( string cql ) {
 			mwe = val;
 		} else if ( var == "output" ) {
 			output = val;
+		} else if ( var == "kleene" ) {
+			kleene = intval(val);
 		};
 	} else if ( preg_match (cql, "([\"\[].*)", &m ) ) {
 		if ( last != "" ) {
@@ -1944,6 +1971,10 @@ void cqlparse ( string cql ) {
 			subcorpora[subname].group(rest);
 		} else if ( command == "stats" ) {
 			subcorpora[subname].stats(rest);
+		} else if ( command == "coll" || command == "collocations"  ) {
+			subcorpora[subname].stats(rest, "collocations");
+		} else if ( command == "keys" || command == "keywords"  ) {
+			subcorpora[subname].stats(rest, "keywords");
 		} else if ( command == "info" ) {
 			subcorpora[subname].info();
 		} else if ( command == "xidx" ) {

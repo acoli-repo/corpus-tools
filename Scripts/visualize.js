@@ -41,7 +41,9 @@ function setcnt(input = 1) {
 	cnttype = input;
 
 	data = google.visualization.arrayToDataTable(json, headrow);
-	var minval = data.getColumnRange(json[0].length-1-cntcols+parseInt(cnttype)).min;
+	var newcol = json[0].length-1-cntcols+parseInt(cnttype);
+	if ( newcol > json[0].length-1 ) { newcol = json[0].length - 1; };
+	var minval = data.getColumnRange(newcol).min;
 	var disabled = false; 
 	
 	// Pies are not allowed to have negative values 
@@ -92,7 +94,7 @@ function drawGraph(type='table') {
 	input = json;
 
 	var cntcol = fldnum + parseInt(cnttype) -1;
-	if ( cntcol > json[0].length ) { cntcol = json[0].length - 1; };
+	if ( cntcol > json[0].length-1 ) { cntcol = json[0].length - 1; }; // Safety measure in case cntcols is wrong
 
 	if ( type == 'geomap' ) {
 		// Split geolocation 
@@ -108,7 +110,7 @@ function drawGraph(type='table') {
 		};
 		fldnum = 2; // We now have 2 columns
 		headrow = false;
-	} else if ( type != "table"  ) { 
+	} else if ( type != "table" && type != "totals"  ) { 
 		// Merge cells unless we have a table
 		input = []; 
 		for ( var i=0; i<json.length; i++ ) {
@@ -264,6 +266,47 @@ function drawGraph(type='table') {
 		chart = new google.charts.Bar(viewport);
 		break;
 
+	case 'totals' :
+		headrow = false;
+
+		var data = new google.visualization.DataTable();
+
+		// Declare columns
+		data.addColumn('string', 'Measure');
+		data.addColumn('number', 'Value');
+
+		// Make an array for jStat
+		var myVect = []; 
+		for ( var i=1; i<json.length; i++ ) {
+			var val = json[i][cntcol];
+			myVect.push(val);
+		};
+		jObj = jStat( myVect );
+		
+		data.addRow(['Rows', myVect.length]);
+		data.addRow(['Total', jObj.sum()]);
+		data.addRow(['Minimum', jObj.min()]);
+		data.addRow(['Maximum', jObj.max()]);
+		data.addRow(['Mean', jObj.mean()]);
+		data.addRow(['Median', jObj.median()]);
+		var mode = jObj.mode(); if ( typeof(mode) == "number") data.addRow(['Mode', mode]);
+		data.addRow(['Range', jObj.range()]);
+		data.addRow(['Standard deviation', jObj.stdev()]);
+		data.addRow(['Mean deviation', jObj.meandev()]);
+		data.addRow(['Median deviation', jObj.meddev()]);
+		data.addRow(['Mean squared error', jObj.meansqerr()]);
+		
+		options = {
+			legend: 'none',
+		};
+
+		var formatter1 = new google.visualization.NumberFormat({pattern:'###,##0.00'});
+		formatter1.format(data, 1);
+
+		viewport.style.height = 'auto';
+		chart = new google.visualization.Table(viewport);
+		break;
+
 	};
 
 	chart.draw(data, options);
@@ -301,7 +344,7 @@ function selectHandler(e) {
 	var linkfld = document.getElementById('linkfield');
 	var fldlabs = fld.map(function(item) { return item['label']; });
 	
-	if ( typeof(cql) != undefined ) {
+	if ( typeof(cql) != undefined && charttype != "totals" ) {
 		linkfld.innerHTML = '<p>Search for ' + fldlabs.join('+') + ' = ' + val.join('+');
 		var tokrest = ''; var sep1 = ''; var sep2 = ''; var matchrest = '';
 		var tmp = cql.match(/:: (.*)/i);
