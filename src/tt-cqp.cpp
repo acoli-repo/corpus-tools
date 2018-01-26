@@ -1111,6 +1111,7 @@ class cqlresult {
 						resfld.append_attribute("value") = exp;
 						
 					} else if ( output == "json" ) {
+						coll = replace_all(coll, "'", "\\'");
 						cout << "['" << coll << "'," << obs << "," << csize  << "," << exp;
 					} else {	
 						cout << coll << "\t" << obs << "\t" << csize  << "\t" << exp;
@@ -1241,6 +1242,7 @@ class cqlresult {
 						resfld.append_attribute("value") = refsize;
 						
 					} else if ( output == "json" ) {
+						item = replace_all(item, "'", "\\'");
 						cout << "['" << item << "'," << obs << "," << refcnt   << "," << csize  << "," << refsize;
 					} else {	
 						cout << item << "\t" << obs << "\t" << refcnt << "\t" << csize  << "\t" << refsize;

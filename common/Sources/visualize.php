@@ -116,7 +116,6 @@
 					$cntcols = 5;
 				
 				} else {
-				
 					$maintext .= "<h1>Corpus Distribution</h1>";
 				
 					$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
@@ -124,9 +123,19 @@
 					if ( $debug ) $maintext .= "<!-- $cmd -->";
 					$json = shell_exec($cmd);
 				
+					# See if we can find a name for this query
+					if ( preg_match("/group Matches (.*)/", $grquery, $matches ) ) {
+						$groupflds = explode(" ", $matches[1]); $sep = "";
+						foreach ( $groupflds as $grfld ) {
+							$grfld = preg_replace("/.*\./", "", $grfld);
+							$grnames .= $sep."<b>".pattname($grfld)."</b>"; $sep = " + ";
+						};
+						$grtxt = "Group by:  $grnames";
+					} else $grtxt = $grquery;
+				
 					$maintext .= "<table>
 									<tr><th>{%Search query}:<td>$cqltxt</tr>
-									<tr><th>{%Group query}:<td>$grquery</tr>
+									<tr><th>{%Group query}:<td>$grtxt</tr>
 								</table>";
 
 					$wpmdesc = "Words per million"; $wpmtxt = "WPM";
