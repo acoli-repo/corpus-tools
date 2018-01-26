@@ -1435,6 +1435,7 @@ class cqlresult {
 				cout << "[";
 				for ( int j=0; j<cqlfieldlist.size(); j++ ) {
 					string value = cqlfieldlist[j].value(match[i]);
+					value = replace_all(value, "'", "\\'");
 					cout << sep << "'" << value << "'"; 
 					sep = ", ";
 				};
