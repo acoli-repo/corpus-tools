@@ -128,6 +128,7 @@
 						$groupflds = explode(" ", $matches[1]); $sep = "";
 						foreach ( $groupflds as $grfld ) {
 							$grfld = preg_replace("/.*\./", "", $grfld);
+							if ( !$mainfld ) $mainfld = $grfld;
 							$grnames .= $sep."<b>".pattname($grfld)."</b>"; $sep = " + ";
 						};
 						$grtxt = "Group by:  $grnames";

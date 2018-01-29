@@ -26,6 +26,10 @@ std::string float2string ( float num ) {
 	return boost::lexical_cast<std::string>(num);
 };
 
+std::string int2string ( int num ) {
+	return boost::lexical_cast<std::string>(num);
+};
+
 // Local version of regex_match - relies currently on C++ 11 (could also do boost)
 bool preg_match ( std::string str, std::string pat, std::vector<std::string> *regmatch ) {
 	// Instead of regex_match, we could also iterate

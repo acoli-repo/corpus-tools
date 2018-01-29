@@ -67,6 +67,10 @@ std::string float2string ( float num ) {
 	return std::to_string(num);
 };
 
+std::string int2string ( int num ) {
+	return std::to_string(num);
+};
+
 std::vector<std::vector<std::string> > preg_match_all ( std::string str, std::string pat, std::string flags = "" ) {
 	std::vector<std::vector<std::string> >  results;
 
