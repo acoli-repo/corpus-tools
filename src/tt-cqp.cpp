@@ -19,15 +19,11 @@
 using namespace std;
 
 // TODO: Wish list
-// within
 // wildcard tokens (probably needs a restructuring of the match strategy)
 // cut
-// subset (or restrict)
-// intersection, join, difference
-// discard
 // --skipbase=nform -> [word="from"] [word="here"] == [word="from"] [nform=""]* [word="here"]
 // --mwe=contr -> [word="del"]  == ([word="del"]|<contr nform="del">[]+</contr>)
-// match.s contains b:[word="here"]
+// s contains b:[word="here"]
 // tiger search
 // stats: mean text frequency
 // do not display empty matches
@@ -1139,7 +1135,14 @@ class cqlresult {
 		if ( verbose ) { cout << "Tabulating " << name << " on " << fields << endl; };
 		vector<string> m;  string sep;
 		vector<string> fieldlist = split( fields, " " );
+		int tab1 = 0; int tab2 = match.size();
 
+		if ( preg_match(fields, "(\\d+) (\\d+) (.*)", &m) ) {
+			tab1 = intval(m[1]);
+			tab2 = intval(m[2]);
+			fields = m[3];
+		};
+		
 		vector<cqlfld> cqlfieldlist;
 		for ( int j=0; j<fieldlist.size(); j++ ) {
 			if ( fieldlist[j] == "" ) { continue; };
@@ -1154,7 +1157,7 @@ class cqlresult {
 			resfile.first_child().append_attribute("cql") = cql.c_str();
 			resfile.first_child().append_attribute("tab") = fields.c_str();
 			resfile.first_child().append_attribute("size") = size();
-			for ( int i=0; i<match.size(); i++ ) {
+			for ( int i=tab1; i<tab2; i++ ) {
 				pugi::xml_node resnode = resfile.first_child().append_child("result");
 				for ( int j=0; j<cqlfieldlist.size(); j++ ) {
 					string value = cqlfieldlist[j].value(match[i]);
@@ -1172,7 +1175,7 @@ class cqlresult {
 			};
 			cout << "]," << endl;
 
-			for ( int i=0; i<match.size(); i++ ) {
+			for ( int i=tab1; i<tab2; i++ ) {
 				sep = "";
 				cout << "[";
 				for ( int j=0; j<cqlfieldlist.size(); j++ ) {
@@ -1185,7 +1188,7 @@ class cqlresult {
 			};
 			cout << "]" << endl;
 		} else {
-			for ( int i=0; i<match.size(); i++ ) {
+			for ( int i=tab1; i<tab2; i++ ) {
 				sep = "";
 				for ( int j=0; j<cqlfieldlist.size(); j++ ) {
 					string value = cqlfieldlist[j].value(match[i]);
