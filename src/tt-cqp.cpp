@@ -20,7 +20,6 @@ using namespace std;
 
 // TODO: Wish list
 // wildcard tokens (probably needs a restructuring of the match strategy)
-// cut
 // --skipbase=nform -> [word="from"] [word="here"] == [word="from"] [nform=""]* [word="here"]
 // --mwe=contr -> [word="del"]  == ([word="del"]|<contr nform="del">[]+</contr>)
 // s contains b:[word="here"]
@@ -1134,14 +1133,17 @@ class cqlresult {
 	
 		if ( verbose ) { cout << "Tabulating " << name << " on " << fields << endl; };
 		vector<string> m;  string sep;
-		vector<string> fieldlist = split( fields, " " );
 		int tab1 = 0; int tab2 = match.size();
 
 		if ( preg_match(fields, "(\\d+) (\\d+) (.*)", &m) ) {
 			tab1 = intval(m[1]);
-			tab2 = intval(m[2]);
+			tab2 = intval(m[2])+1; 
+			if ( tab2 > match.size() ) tab2 = match.size(); // Make sure we do not exceed matches
 			fields = m[3];
+			if ( debug ) cout << "Tabulating " << fields << " from " << tab1 << " - " << tab2 << endl;
 		};
+		
+		vector<string> fieldlist = split( fields, " " );
 		
 		vector<cqlfld> cqlfieldlist;
 		for ( int j=0; j<fieldlist.size(); j++ ) {

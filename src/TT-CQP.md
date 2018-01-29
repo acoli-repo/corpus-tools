@@ -14,16 +14,9 @@ become one, although more options will be added over time. Given the overlap bet
 CQP and TT-CQP, a full idea about how to use TT-CQP can be obtained by consulting the
 manual of CQP, together with this document highlighting the differences.
 
-### Options yet to be implemented
+### Options not (yet) implemented
 
-* it is not yet possible to have wildcards on tokens, such as `[pos="ADJ"]*`
-* `:: within sattribute` does not yet work
 * diacritics insensitive search not yet supported (%d)
-* it is not yet possible to cut lists
-* subcorpora cannot yet be modified by subset, intersection, join, or difference
-
-### Options not planned to be implemented
-
 * interactive mode - TT-CQP is meant for a piped architecture and only emulates cqp -pi
 * all option related to the interactive mode are hence also unsupported (set, show, dump, cat, count, discard, save)
 * macros, distance, distabs will not be implemented
@@ -32,7 +25,9 @@ manual of CQP, together with this document highlighting the differences.
 * reduce is not likely to be implemented
 * structural attributes will not be implemented (&lt;s&gt;, /region, expand) - but the can be used as global constraints (`:: match.year = "1990"`)
 * aligned corpora will not be supported
+* it is not possible to cut lists - you can tabulate a part, or cut externally
 * sort does not do reverse order (but does descending order)
+* subcorpora cannot be modified by subset, intersection, join, or difference; those options are left for after the pipe
 
 ## Added options
 
@@ -162,6 +157,15 @@ To select the year and title of all Portuguese texts written after 1600, you can
 SELECT year, title FROM text WHERE lang="PT" && year > 1600;
 ```
 
+### Small differences
+
+* The tabulate in TT-CQP stops at the boundaries set by `within`, whereas CQP does not search beyond the within limits,
+but does always display context to the left and the right even if that does not belong to the same s/text/etc.
+
+* TT-CQP shows terminal colours only in interactive mode, and only with cat; and it does not add spaces around the match, 
+and uses red bold text (as for instance in grep) rather than white-on-black. 
+
+* `cat` in TT-CQP does not show the corpus positions
 
 ## Use cases
 
