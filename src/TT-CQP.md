@@ -46,13 +46,14 @@ main pos in position-based tagsets
 * `a.word` will give the word attribute for a position named "a" in the query; contrary to CQP, these names are kept, which 
 effectively means that `target:[]` is synonymous to `@[]`. Reserved names (match, matchend, keyword, target) take preference over
 named positions.
-* `head.word` will render the word of the corpus position marked as the head of either match, or target when set. This 
+* `head.word` will render the word of the corpus position marked as the head of the match; 
+to get the head of any other named token, use `head(a).word`. This 
 feature relies on a file `head.corpus.pos`, which matches corpus positions to the related position for the
 pattribute head (head can be any
 pattribute, but this feature is intended for dependency relations). Named positions take preference over related
 positions.
 * context shifts can be used with any of the position types, so `adj[1].lemma` will give the lemma first position to the
-right of a named position "adj", and `head[-2].word` will give the second word to the left of the head of match or target.
+right of a named position "adj", and `head(target)[-2].word` will give the second word to the left of the head of the target.
 
 ### Grouping
 
@@ -69,7 +70,7 @@ will be translated into the TT-CQP format.
 Contrary to CQP, in TT-CQP you can sort the results on anything, and not only on pattributes, so
 `sort A match.text_year` will sort the results in A on the year of the text (for match), and
 `sort A head[1].substr(pos,0,1) descending` will sort in descending order by the first letter of the part-of-speech 
-tag of the first token to the right of the head of match/target (who doesn't want to sort on that?). 
+tag of the first token to the right of the head of the match (who doesn't want to sort on that?). 
 Instead of "descending" you can also use DESC. You cannot (yet) search on ranges as in `sort A by word on matchend[1]..matchend[10]`; 
 
 ### Statistics
@@ -152,8 +153,11 @@ user> echo 'Matches = [word="casa"] [pos="A.*"]; xidx Matches;' | tt-cqp
 The XIDX output gives a range starting from the beginning of the first XML token and ending with the last. This means
 that `Matches = [word="casa"]; expand Matches to s; xidx Matches;` will give all sentences containing the word "casa", but
 will not capture the actual &lt;s&gt; node since it will only render things starting from the first word. To get the whole
-XML of the sentence, you have to tell the XIDX to expand (which will not affect the actual result list) so 
-`Matches = [word="casa"]; xidx Matches expand to s;` will give a list of &lt;s&gt; nodes 
+XML of the sentence, you have to tell the XIDX to expand (which will not affect the actual result list) so to get a list of &lt;s&gt; nodes you should use:
+
+```
+Matches = [word="casa"]; xidx Matches expand to s;
+``` 
 
 ### SQL mode
 
@@ -161,7 +165,7 @@ For ranges (mostly for texts), TT-CQP also support a simple version of SQL (usin
 only look at ranges, and ignore corpus positions entirely, treating the metadata as if it were a (relational) database. 
 To select the year and title of all Portuguese texts written after 1600, you can use:
 
-```
+```sql
 SELECT year, title FROM text WHERE lang="PT" && year > 1600;
 ```
 
@@ -173,7 +177,11 @@ but does always display context to the left and the right even if that does not 
 * TT-CQP shows terminal colours only in interactive mode, and only with cat; and it does not add spaces around the match, 
 and uses red bold text (as for instance in grep) rather than white-on-black. 
 
-* `cat` in TT-CQP does not show the corpus positions
+* `cat` in TT-CQP does not show the corpus positions but only the actual results, making it easier to post-process.
+
+* In TT-CQP you can use _ to get the corpus position, so target._ will give the corpus position of the target
+
+* TT-CQP will cast any string to an integer when using a > b or a < b conditions
 
 ## Use cases
 
