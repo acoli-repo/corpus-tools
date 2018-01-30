@@ -42,7 +42,7 @@ int str2idx(string a, string b);
 int str2cnt ( string a, string b );
 vector<int> regex2idx ( string a, string b, string c );
 vector<int> regex2ridx (string a, string b );
-string rng2xml( int a, int b );
+string rng2xml( int a, int b, string c = "" );
 int pos2relpos ( string attname, int pos );
 string ridx2str ( string attname, int idx );
 vector<int> pos2ridx ( string attname, int pos );
@@ -1209,15 +1209,22 @@ class cqlresult {
 		
 	void xidx ( string options) {
 		// Print out XML fragments for the result vector
+		vector<string> m;
 		
-		// TODO: expand to s
-		
-		for ( int i=0; i<match.size(); i++ ) {
-			string xidx = rng2xml(match[i].named["match"], match[i].named["match"]);
-			xidx = replace_all(xidx, "\n", " ");
-			cout << xidx << endl;
+		if ( preg_match(options, "expand to ([^ ]+)", &m ) ) {
+			for ( int i=0; i<match.size(); i++ ) {
+				string xidx = rng2xml(match[i].named["match"], match[i].named["matchend"], m[1]);
+				xidx = replace_all(xidx, "\n", " ");
+				cout << xidx << endl; // TODO: this crashes at some point
+			};
+		} else {
+			for ( int i=0; i<match.size(); i++ ) {
+				string xidx = rng2xml(match[i].named["match"], match[i].named["matchend"]);
+				xidx = replace_all(xidx, "\n", " ");
+				cout << xidx << endl;
+			};
 		};
-		
+				
 	};
 
 		
@@ -1807,7 +1814,7 @@ vector<int> pos2rng ( string attname, int pos ) {
 	return idx;
 };
 
-string rng2xml( int pos1, int pos2 ) {
+string rng2xml( int pos1, int pos2, string rngname ) { // optional "" forward defined
 	string filename; FILE * file; int rpos;
 
 	filename = cqpfolder + "/text_id.idx";
@@ -1819,18 +1826,38 @@ string rng2xml( int pos1, int pos2 ) {
 	// Check that the positions belong to the same file
 	// TODO: it merely returns, whereas it should throw an exception
  	if ( textid1 != textid2 ) { 
-		if ( verbose ) { cout << "Corpus positions " << pos1 << " and " << pos2 << " do not belong to the same XML file" << endl;  };
+		cout << "Error: corpus positions " << pos1 << " and " << pos2 << " do not belong to the same XML file" << endl;  
 		return "";
  	};	
 
 	string xmlfile = ridx2str("text_id", textid1);
 
-	filename = cqpfolder + "/xidx.rng";
-	file = fopen ( filename.c_str() , "rb" );
-	int rpos1 = read_network_number(pos1*2,file);
-	int rpos2 = read_network_number(pos2*2+1,file);
-	fclose(file);
+	int rpos1 = -1; int rpos2 = -1;
+	if ( rngname != "" ) {
+		int ridx1 = -1; int ridx2 = -1;
+		vector<int> tmp1 = pos2ridx(rngname, pos1); 
+		if ( tmp1.size() == 1 ) ridx1 = tmp1[0]; 
+		vector<int> tmp2 = pos2ridx(rngname, pos2); 
+		if ( tmp2.size() == 1 ) ridx2 = tmp2[0]; 
+		else if ( tmp1.size() == 1 ) ridx2 = tmp1[0]; 
 
+		if ( ridx1 != -1 && ridx2 != -1 ) {
+			filename = cqpfolder + "/" + rngname+ "_xidx.rng";
+			file = fopen ( filename.c_str() , "rb" );
+			rpos1 = read_network_number(ridx1*2,file);
+			rpos2 = read_network_number(ridx2*2+1,file);
+			fclose(file);
+		};
+	};
+	
+	if ( rpos1 == -1 || rpos2 == -1 ) {
+		filename = cqpfolder + "/xidx.rng";
+		file = fopen ( filename.c_str() , "rb" );
+		rpos1 = read_network_number(pos1*2,file);
+		rpos2 = read_network_number(pos2*2+1,file);
+		fclose(file);
+	};
+	
 	string value = read_file_range(rpos1, rpos2, xmlfile);
 
 	return value;

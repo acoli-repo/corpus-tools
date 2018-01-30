@@ -16,6 +16,9 @@ manual of CQP, together with this document highlighting the differences.
 
 ### Options not (yet) implemented
 
+This is an incomplete list of all the options from CQP left out in TT-CQP, some to be potentially 
+implemented later, but many not intended to be implemented.
+
 * diacritics insensitive search not yet supported (%d)
 * interactive mode - TT-CQP is meant for a piped architecture and only emulates cqp -pi
 * all option related to the interactive mode are hence also unsupported (set, show, dump, cat, count, discard, save)
@@ -49,7 +52,7 @@ pattribute head (head can be any
 pattribute, but this feature is intended for dependency relations). Named positions take preference over related
 positions.
 * context shifts can be used with any of the position types, so `adj[1].lemma` will give the lemma first position to the
-right of a named position "adj", and `head[-2].word` will give to the second word to the left of the head of match or target.
+right of a named position "adj", and `head[-2].word` will give the second word to the left of the head of match or target.
 
 ### Grouping
 
@@ -143,9 +146,14 @@ user> echo 'Matches = [word="casa"] [pos="A.*"]; xidx Matches;' | tt-cqp
 <tok id="w-459" lemma="casa" mfs="NCFS000">casa</tok> <tok id="w-460" lemma="libre" mfs="AQ0CS0">libre</tok>
 <tok id="w-168" lemma="casa" mfs="NCFS000">casa</tok> <tok id="w-169" lemma="solo" mfs="AQ0MS0">solo</tok>
 <tok id="w-38" lemma="casa" mfs="NCFS000">casa</tok> <tok id="w-39" lemma="novo" mfs="AQ0FS0">nova</tok>
-<tok id="w-351" lemma="casa" mfs="NCFS000">casa</tok> <lb id="e-37"/>
-            <tok id="w-352" nform="grandíssimas" mfs="AQSFP0" lemma="grande">grandisimas</tok>
+<tok id="w-351" lemma="casa" mfs="NCFS000">casa</tok> <lb id="e-37"/> <tok id="w-352" nform="grandíssimas" mfs="AQSFP0" lemma="grande">grandisimas</tok>
 ``` 
+
+The XIDX output gives a range starting from the beginning of the first XML token and ending with the last. This means
+that `Matches = [word="casa"]; expand Matches to s; xidx Matches;` will give all sentences containing the word "casa", but
+will not capture the actual &lt;s&gt; node since it will only render things starting from the first word. To get the whole
+XML of the sentence, you have to tell the XIDX to expand (which will not affect the actual result list) so 
+`Matches = [word="casa"]; xidx Matches expand to s;` will give a list of &lt;s&gt; nodes 
 
 ### SQL mode
 
