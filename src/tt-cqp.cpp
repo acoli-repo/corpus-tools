@@ -26,6 +26,7 @@ using namespace std;
 // tiger search
 // stats: mean text frequency
 // do not display empty matches
+// use an external XML annotation
 
 // Forward declarations
 class cqlresult;
@@ -54,6 +55,7 @@ int ridx2cnt ( string attname, int ridx );
 bool file_exists (const std::string& name);
 bool isnamed (string att, string res);
 string valstring (cqlfld fld, string val );
+string ext2str ( string attname, int pos );
 
 // For temporary debugging, define a special stdout
 ostream& dbout = cout;
@@ -81,11 +83,11 @@ pugi::xml_document logfile;
 pugi::xml_node settings;
 pugi::xml_node results;
 pugi::xml_document xmlsettings;
+pugi::xml_document extann; // To hold an external annotation
 
 bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) {
 	// Check whether two strings "match" using various conditions
 	
-	// TODO: > < !> !< 
 	// Maybe: >deps or >>
 	
 	if ( std::size_t found = flags.find("c") != std::string::npos ) { 
@@ -103,6 +105,10 @@ bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) 
 		return intval(a) > intval(b);
 	} else if ( matchtype == "<" ) {
 		return intval(a) < intval(b);
+	} else if ( matchtype == "!>" ) {
+		return !(intval(a) > intval(b));
+	} else if ( matchtype == "!<" ) {
+		return !(intval(a) < intval(b));
 	} else if ( matchtype == "!==" ) {
 		return a != b;
 	}
@@ -240,6 +246,8 @@ class cqlfld {
 			string cval;
 			if ( fld == "_" ) {
 				cval = int2string(i);
+			} else if ( preg_match (fld, "extann_(.*)", &m ) ) {
+				cval = ext2str(fld, i); 
 			} else if ( preg_match (fld, "(.*)_(.*)", &m ) ) {
 				vector<int> ridx = pos2ridx(fld, i);
 				string list; string lsep = "";
@@ -329,7 +337,7 @@ class cqlresult {
 				// check if this is a..b
 			};
 	
-		} else if ( preg_match (part, "^ *(.*?) *(!?[=<>]) *(.*?) *$", &m ) ) {
+		} else if ( preg_match (part, "^ *(.*?) *(!?[=<>]+) *(.*?) *$", &m ) ) {
 			// Comparison between cqlfld 
 			left = m[1]; matchtype = m[2]; right = m[3];
 
@@ -364,7 +372,11 @@ class cqlresult {
 					// A position
 					rightval = it2->named[m[1]];
 				};
-
+				
+				// TODO - this is a soddy way of getting rid of unwanted null characters....
+				rightval = rightval.c_str(); 
+				leftval = leftval.c_str(); // TODO - this is a soddy way of getting rid of unwanted null characters....
+				// dbout << "Checking " << leftval << " " << matchtype << " " << rightval << endl;
 				if ( !resmatch(leftval, rightval, matchtype) ) { 
 					it2 = match.erase(it2);
 				} else {
@@ -414,7 +426,7 @@ class cqlresult {
         	string conds = iter[2]; 
         	string wildcard = iter[3]; 
         	
-        	if ( conds == "" ) conds = "word=\".*\""; // TODO: This should get optimized
+        	if ( conds == "" ) conds = "word=\".*\""; // add a dummy condition to empty tokens (which will be ignored mostly)
 
 			string partname;
         	if ( tmp == "@" ) { 
@@ -536,11 +548,13 @@ class cqlresult {
 				tmp2.named["matchend"] = dopos;
 				tmp2.options[i].push_back(dopos);
 				tmp2.ind = 1; // What does this do?
-				if ( within != "" ) { // TODO: this does not work right now
+				if ( within != "" ) { 
 					vector<int> range = pos2rng(within, dopos);
 					if ( range[1] > 0 ) { // Ignore the within if we cannot find a range
 						tmp2.min=range[0];
 						tmp2.max=range[1];
+					} else if ( debug ) {
+						cout << "Ignoring within statement since we cannot find a range for " << dopos << endl;
 					};
 				} else {
 					tmp2.min=0;
@@ -579,6 +593,7 @@ class cqlresult {
 		for( vector<cqlmatch>::iterator it2 = match.begin(); it2 != match.end(); ) {
 			vector<int> poslist; int maxval; int minval; int j;
 			
+			// TODO: This logic is still far from perfect
 			// First run - fix the positions with a unique value
 			for ( int i=0; i<it2->options.size(); i++ ) {
 				vector<int> options = it2->options[i];
@@ -591,10 +606,42 @@ class cqlresult {
 					goto nomatch;
 				} else {
 					poslist.push_back(-2); 	// Postpone choosing
+					it2->options[i].clear();
+					for ( int j=1; j<options.size()-1; j++ ) {
+						int ch = options[j];
+						if ( ch > poslist[i-1] && ch < poslist[i+1] ) it2->options[i].push_back(ch);
+					};
+					if ( it2->options[i].size() == 0 ) {
+					} else if ( it2->options[i].size() == 0 ) {
+						poslist[i] = it2->options[i][0];
+					};
 				};
 			};
-			
-			// TODO: choose the smallest / largest stretch for wildcards (poslist items -2)
+
+			// Second run - take the option closest to the best option 
+// 			for ( int i=0; i<poslist.size(); i++ ) {
+// 				vector<int> options = it2->options[i];
+// 				int cpos = poslist[i];
+// 				if ( cpos == -2 ) { 
+// 					if ( i> 0 && i< poslist.size()-1 ) {
+// 						it2->options[i].clear();
+// 						for ( int j=0; j<options.size(); j++ ) {
+// 							int ch = options[j];
+// 							if ( ch > poslist[i-1] && ch < poslist[i+1] ) it2->options[i].push_back(ch);
+// 						};
+// 						if ( it2->options[i].size() == 0 ) {
+// 							// Match without options - delete
+// 							if ( debug ) cout << "Ended up with a match with no options" << endl;
+// 							match.erase(it2);
+// 							goto nomatch;
+// 						} else if ( it2->options[i].size() == 0 ) {
+// 							poslist[i] = it2->options[i][0];
+// 						} else {
+// 							poslist[i] = it2->options[i][0]; // Take the first option, which should always be the one closest to best
+// 						};
+// 					};
+// 				};
+// 			};
 			
 			j=0; minval = poslist[j]; while ( minval == -1 && j< poslist.size() ) { j++; minval=poslist[j]; };
 			it2->named["match"] = minval;
@@ -1215,7 +1262,7 @@ class cqlresult {
 			for ( int i=0; i<match.size(); i++ ) {
 				string xidx = rng2xml(match[i].named["match"], match[i].named["matchend"], m[1]);
 				xidx = replace_all(xidx, "\n", " ");
-				cout << xidx << endl; // TODO: this crashes at some point
+				cout << xidx << endl; 
 			};
 		} else {
 			for ( int i=0; i<match.size(); i++ ) {
@@ -1250,9 +1297,9 @@ bool streamopen ( FILE **stream, string filename, bool throwerror = true ) {
 		file = fopen(filename.c_str(), "rb"); 
 		files[filename] = file;
  		if ( file == NULL ) { 
- 			if ( throwerror ) cout << "Failed to open: " << filename << endl; 
+ 			if ( throwerror ) cout << "Error: failed to open: " << filename << endl; 
  			nofile[filename] = true;
- 		}; // TODO: throw an exception the first time?
+ 		};
 	};
 	*stream = files[filename];
 
@@ -1355,7 +1402,7 @@ inline void cqlresult::checkcond ( cqltok ctok  ) {
 					for ( int k=0; k<oldopts.size(); k++ ) {
 						if ( oldopts[k] == -1 ) { continue; };
 						int newidx = oldopts[k] + ofs;
-						if ( it2->max == 0 || ( newidx < it2->max+1 && newidx > it2->min-1 ) ) options.push_back(newidx); // TODO: use unique at some point	
+						if ( it2->max == 0 || ( newidx < it2->max+1 && newidx > it2->min-1 ) ) options.push_back(newidx); // We just push, duplicates will be filtered out later	
  					};
  					continue; 
 				};
@@ -1365,12 +1412,20 @@ inline void cqlresult::checkcond ( cqltok ctok  ) {
 				} else {
 					max = 1;
 				};
-				for ( int k=0; k<max; k++ ) {
-					int newidx = ops[j] + ofs + ofs*k;
-					// TODO: skip over "empty" tokens
-					if ( it2->max == 0 || ( newidx < it2->max+1 && newidx > it2->min-1 ) ) options.push_back(newidx); // TODO: use unique at some point	
+				if ( partnr > named["best"]-1 ) { // Invert options when going back from best to always have the best option first
+					for ( int k=0; k<max; k++ ) {
+						int newidx = ops[j] + ofs + ofs*k;
+						// TODO: skip over "empty" tokens
+						if ( it2->max == 0 || ( newidx < it2->max+1 && newidx > it2->min-1 ) ) options.push_back(newidx); // We just push, duplicates will be filtered out later	
+					};
+				} else {
+					for ( int k=max-1; k>-1; k-- ) {
+						int newidx = ops[j] + ofs + ofs*k;
+						// TODO: skip over "empty" tokens
+						if ( it2->max == 0 || ( newidx < it2->max+1 && newidx > it2->min-1 ) ) options.push_back(newidx); // We just push, duplicates will be filtered out later	
+					};
 				};
-				if ( wildcard == "?" || wildcard == "*" ) options.push_back(-1);
+				if ( wildcard == "?" || wildcard == "*" ) options.push_back(-1); // Add a "no such token" option
 			};
 		};
 		
@@ -1790,6 +1845,15 @@ bool isnamed (string att, string res) {
 	return false;
 };
 
+string ext2str ( string attname, int pos ) {
+	attname = replace_all(attname, "extann_", "");
+
+	string xpath = "//item[@cpos='" + int2string(pos) + "']/@" + attname ;
+	return extann.select_single_node(xpath.c_str()).attribute().value();
+	
+	return "";
+};
+
 vector<int> pos2rng ( string attname, int pos ) {
 	// return the (first) range containing a position (on attname)
 	vector<int> idx;
@@ -1956,13 +2020,12 @@ int str2idx ( string attname, string word ) {
 		lastseek = seek;
 		idx = read_network_number(seek, stream);
 		match = idx2str(attname, idx);
-		// Cast to wstring cos otherwise string comparison does not match CWB sorting
 		// dbout << "Seeking " << word << " on " << seek << " = " << match << " <= " << min << "-" << max << endl;
 		if ( match == word ) {
 			return idx;
-		} else if ( towstring(match) < towstring(word) ) {
+		} else if ( match.c_str() < match.c_str() ) { // This is not ideal, but should follow the sorting in the .srt files
 			min = seek;
-		} else if ( towstring(match) > towstring(word) ) {
+		} else if ( match.c_str() > match.c_str() ) {
 			max = seek;
 		} else {
 			return -1;
@@ -2060,7 +2123,7 @@ void cqlparse ( string cql ) {
 	
 	vector<string> m;
 	cql = trim(cql); string subname;
-	if ( cqpfolder == "/" && preg_match (cql, "([^ ]+)", &m ) ) {
+	if ( ( cqpfolder == "/" && preg_match (cql, "([^ ]+)", &m ) ) || preg_match (cql, "use (.*)", &m ) ) {
 		corpusname = m[1];
 		settings.attribute("corpusname").set_value(corpusname.c_str());
 		str2lower(corpusname); vector<string> m;
@@ -2110,7 +2173,7 @@ void cqlparse ( string cql ) {
 		} else if ( var == "output" ) {
 			output = val;
 		} else if ( var == "Context" ) {
-			context = intval(val); // TODO: Should this do characters, with 5 words for tokens like CQP?
+			context = intval(val); 
 			if ( debug ) cout << "Setting context to " << context << endl;
 		} else if ( var == "kleene" ) {
 			kleene = intval(val);
@@ -2309,8 +2372,18 @@ int main(int argc, char *argv[]) {
 		keepinput = true;
 	};
 		
+	if ( settings.attribute("extann") != NULL   ) {
+		string fn = settings.attribute("extann").value();
+		// read an external annotation file
+		if ( extann.load_file(fn.c_str()) ) {
+			if ( verbose ) { cout << "- Loaded external annotations from " << fn << endl; };
+		} else {
+			cout << "Error: failed to load external annotations from " << fn << endl; 
+		};
+	};
+	
 	if ( settings.attribute("attname") != NULL   ) {
-		attname = settings.attribute("attname").value();
+		attname = settings.attribute("attname").value();	
 	} else {
 		attname = "word";
 	};
@@ -2375,17 +2448,31 @@ int main(int argc, char *argv[]) {
 		};
 	} else if ( mode == "pos2str" ) {
 		// Give back the string for a set of corpus positions (on attname)
+		string atttype; string strval;
+		vector<int> optlist;
+		if ( preg_match(attname, "extann_.*") ) { 
+			atttype = "ext"; 
+		} else if ( preg_match(attname, ".*_.*") ) { 
+			atttype = "rng"; 
+		}; 
 		while ( getline( cin, line ) && line != "exit" ) {
-			line = trim(line);
+			line = trim(line); 
 			if (keepinput) { cout << line << "\t"; };
-			if ( preg_match(line, "(\\d+) *- *(\\d+)") ) {
-				fields = split( line, "-" );
-				for ( int i=intval(fields[0]); i<intval(fields[1]); i++ ) {
-					cout << pos2str(attname, i) << endl;
+			fields = split( line, "-" ); string sep = "";
+			if ( fields.size() == 1 ) fields[1] = fields[0];
+			for ( int i=intval(fields[0]); i<intval(fields[1]); i++ ) {
+				if ( atttype == "ext" ) {
+					strval = ext2str(attname, i);
+				} else if ( atttype == "rng" ) {
+					optlist = pos2ridx(attname, i);
+					strval = ridx2str(attname, optlist[0]);
+				} else {
+					strval = pos2str(attname, i);
 				};
-			} else {
-				cout << pos2str(attname, intval(line))  << endl;
+				cout << sep << strval; 
+				sep = " ";
 			};
+			cout << endl; 
 		};
 	} else if ( mode ==  "dump" ) {
 		// Dump a CWB file to stdout

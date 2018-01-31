@@ -1,7 +1,7 @@
 # TT-CQP
 
 TT-CQP is a custom version of the Corpus Query Processor from the [Corpus WorkBench](http://cwb.sourceforge.net/), written for 
-the TEITOK corpus environment; for the sake of 
+the [TEITOK](http://www.teitok.org/) corpus environment, but which can be used independently of it as well; for the sake of 
 compatibility, TT-CQP uses the same files as CQP, meaning you can use TT-CQP to search any
 existing indexed CQP corpus. However, it was designed to be used together with TT-CWB-ENCODE, which
 is a likewise custom version of CWB-ENCODE, which writes a couple of files that CWB-ENCODE does not;
@@ -71,7 +71,7 @@ Contrary to CQP, in TT-CQP you can sort the results on anything, and not only on
 `sort A match.text_year` will sort the results in A on the year of the text (for match), and
 `sort A head[1].substr(pos,0,1) descending` will sort in descending order by the first letter of the part-of-speech 
 tag of the first token to the right of the head of the match (who doesn't want to sort on that?). 
-Instead of "descending" you can also use DESC. You cannot (yet) search on ranges as in `sort A by word on matchend[1]..matchend[10]`; 
+ You cannot (yet) search on ranges as in `sort A by word on matchend[1]..matchend[10]`; 
 
 ### Statistics
 
@@ -169,6 +169,26 @@ To select the year and title of all Portuguese texts written after 1600, you can
 SELECT year, title FROM text WHERE lang="PT" && year > 1600;
 ```
 
+### External annotations
+
+In TT-CQP, you can read in an external XML file containing additional positional attributes; this is mostly meant to store external
+annotations, say those made by visitors of a website, that in the design of the corpus cannot be included in the corpus itself. 
+An external annotation file is a simple XML file linking corpus positions to any number of attributes, as in the following example:
+
+```xml
+<annotation>
+	<item cpos="1334" type="Correct"/>   
+	<item cpos="2622" type="Wrong"/> 
+	<item cpos="204604" type="Correct"/>   
+	<item cpos="268666" type="Correct"/>   
+	<item cpos="112548" type="Correct"/>   
+</annotation>
+```
+
+You load an external annotation by adding --extann=[filename], and are addressed like sattributes, using extann_type in this case.
+There is no limit to the number of attributes associated with an item, but only one external attributes file can be loaded at
+a time. Although they have the form of an sattribute, extann can only refer to single corpus positions.
+
 ### Small differences
 
 * The tabulate in TT-CQP stops at the boundaries set by `within`, whereas CQP does not search beyond the within limits,
@@ -179,9 +199,19 @@ and uses red bold text (as for instance in grep) rather than white-on-black.
 
 * `cat` in TT-CQP does not show the corpus positions but only the actual results, making it easier to post-process.
 
-* In TT-CQP you can use _ to get the corpus position, so target._ will give the corpus position of the target
-
 * TT-CQP will cast any string to an integer when using a > b or a < b conditions
+
+* In TT-CQP you can use _ to get the corpus position, so target._ will give the corpus position of the target. You can use this 
+for instance to check whether the head of a word comes before the word: a._ > head(a)._
+
+* Instead of "descending" you can also use DESC in sorting, as you would in SQL.
+
+* TT-CQP is not case-senstive when selecting a corpus, but only lets you select a corpus by just typing in the name if you have not 
+yet selected a corpus - to switch, use "use corpusname" instead, as you would in SQL.
+
+* `set Context 5` means 5 tokens in TT-CQP, showing a fixed number of character is not supported at this point
+
+* In TT-CQP, "best" is a reserved name pointing to the token used first in the CQP query
 
 ## Use cases
 
