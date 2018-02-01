@@ -68,10 +68,11 @@ will be translated into the TT-CQP format.
 ### Sorting
 
 Contrary to CQP, in TT-CQP you can sort the results on anything, and not only on pattributes, so
-`sort A match.text_year` will sort the results in A on the year of the text (for match), and
+`sort A match.text_year` will sort the results in A on the year of the text (for match), 
+`sort A match[1]..word[5].word` will sort on the first 5 words of the right context, 
+and
 `sort A head[1].substr(pos,0,1) descending` will sort in descending order by the first letter of the part-of-speech 
 tag of the first token to the right of the head of the match (who doesn't want to sort on that?). 
- You cannot (yet) search on ranges as in `sort A by word on matchend[1]..matchend[10]`; 
 
 ### Statistics
 

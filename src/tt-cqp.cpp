@@ -19,14 +19,13 @@
 using namespace std;
 
 // TODO: Wish list
-// wildcard tokens (probably needs a restructuring of the match strategy)
+// wildcard tokens (check properly + implemented the *? vs. *)
 // --skipbase=nform -> [word="from"] [word="here"] == [word="from"] [nform=""]* [word="here"]
 // --mwe=contr -> [word="del"]  == ([word="del"]|<contr nform="del">[]+</contr>)
 // s contains b:[word="here"]
 // tiger search
 // stats: mean text frequency
 // do not display empty matches
-// use an external XML annotation
 
 // Forward declarations
 class cqlresult;
@@ -269,7 +268,7 @@ class cqlfld {
 			sep = " ";
 		};
 
-		return value;
+		return trim(value); // kill white spaces 
 	};
 	
 };
