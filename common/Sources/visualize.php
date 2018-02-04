@@ -95,6 +95,10 @@
 					$maintext .= "<h1>Collocations</h1>";
 				
 					$tmpfile = time();
+
+					$moredirect .= "&context=".urlencode($_POST['context']);
+					$moredirect .= "&dir=".urlencode($_POST['dir']);
+					$moredirect .= "&fld=".urlencode($_POST['fld']);
 	
 					$context = $_POST['context'] or $context = 5;
 					$dirdir = array ( "" => "Left/Right", "-" => "Left", "+" => "Right"  );
@@ -108,6 +112,7 @@
 								</table>";
 		
 					$cmd = "echo 'Matches = $cql; stats Matches $fld :: context:$dir$context' | /usr/local/bin/tt-cqp --output=json";
+					if ( $debug ) $maintext .= "<!-- $cmd -->";
 					$json = shell_exec($cmd);
 					
 					$headrow = "false"; 
@@ -117,6 +122,8 @@
 				
 				} else {
 					$maintext .= "<h1>Corpus Distribution</h1>";
+				
+					$moredirect = "&query=".urlencode($_POST['query']);
 				
 					$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
 					$cmd = "echo 'Matches = $cql; $grquery;' | /usr/local/bin/tt-cqp --output=json";
@@ -201,7 +208,7 @@
 
 			$maintext .= "<hr><p><a target=help href='http://teitok.corpuswiki.org/site/index.php?action=help&id=visualize'>{%Help}</a>";
 			if ( $cql && !$_GET['cql'] ) {
-				$maintext .= " &bull; <a href='index.php?action=$action&cql=".urlencode($cql)."&query=".urlencode($grquery)."'>{%Direct URL}</a>";
+				$maintext .= " &bull; <a href='index.php?action=$action&cql=".urlencode($cql)."&mode={$_POST['mode']}".$moredirect."'>{%Direct URL}</a>";
 			};
 	
 	

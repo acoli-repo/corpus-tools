@@ -685,7 +685,7 @@
 			if ( preg_match("/^(.*)\[([^\]]+)\]$/", $new, $matches2) ) { 
 				$new = $matches2[1]; $newrest = $matches2[2];
 				if ( $verbose ) { print "\n<p>Node restriction: $newrest"; };
-				if ( preg_match("/\@([a-z]+)=['\"](.*?)['\"]/", $newrest, $matches3) ) { 
+				if ( preg_match("/\@([a-z][a-z0=9_]*)=['\"](.*?)['\"]/", $newrest, $matches3) ) { 
 					$newatt = $matches3[1]; $newval = $matches3[2]; 
 				};
 			};

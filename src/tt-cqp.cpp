@@ -54,7 +54,7 @@ int ridx2cnt ( string attname, int ridx );
 bool file_exists (const std::string& name);
 bool isnamed (string att, string res);
 string valstring (cqlfld fld, string val );
-string ext2str ( string attname, int pos );
+string ext2str ( string attname, int pos, string attfile = "extann" );
 
 // For temporary debugging, define a special stdout
 ostream& dbout = cout;
@@ -76,13 +76,14 @@ int context;
 int corpussize;
 string last;
 map<string,bool> relpos; // Known related positions
+map<string,string> fldtype; // Known range/extann types
 
 // Define some XML documents
 pugi::xml_document logfile;
 pugi::xml_node settings;
 pugi::xml_node results;
 pugi::xml_document xmlsettings;
-pugi::xml_document extann; // To hold an external annotation
+map<string, pugi::xml_document> extann; // To hold an external annotation
 
 bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) {
 	// Check whether two strings "match" using various conditions
@@ -123,6 +124,16 @@ class cqlmatch {
 	map<int, vector<int> > options; // Non-resolved tokens hold an array of possible positions
 };
 
+wstring towstring (const string s) {
+	// Cast a string to a wstring - which for now seems to best way to approximate the CQP sort in .srt
+	
+    wstring wsTmp(s.begin(), s.end());
+
+    wstring ws = wsTmp;
+
+    return ws;
+}
+
 class cqlfld {
 	// Parse a CQL field using in tabulate, sort, etc. - say match.word, matchend[2].text_id, etc.
 	// additional options over CQL: substr(fld, start, end)
@@ -134,6 +145,8 @@ class cqlfld {
 	string fldname;
 	string rawbase;
 	string fldatt;
+	string valtype;
+	string rngname; string rngatt;
 	map<int,string> base; // what to use as base(s) (match, matchend, named, idfield)
 	map<int,int> offset; // where it is wrt base
 	map<int,int> sub; // For substring matches
@@ -145,12 +158,13 @@ class cqlfld {
 		vector<string> m;
 		rawfld = flditem; 
 		resultname = resnam;
-
+		rngname = ""; rawbase = "";
+		
 		string tmp1; string tmp2;		
 		
 		// match.fld
 		if ( preg_match (flditem, "([^ ]+)\\.([^ ]+)", &m ) ) {
-			string posind = m[1]; string value;
+			string posind = m[1]; string value; 
 			if ( posind == "this" ) posind = "_"; // Alias for convenience this.text_year == _.text_year
 			fld = m[2]; rawbase = posind;
 
@@ -161,11 +175,28 @@ class cqlfld {
 					dopart = ms[1]; offset[i] = intval(ms[2]);
 				} else offset[i] = 0;
 
-				if ( !isnamed(dopart, resultname) && !relpos[dopart] ) {
+				if ( !isnamed(dopart, resultname) && !relpos[dopart] && dopart != "_" ) {
 					cout << "Error: no such named token: " << dopart << endl;
 				};
 				base[i] = dopart; // We no longer check here whether a named item exists
 			};	
+		} else fld = flditem;
+
+		fld = trim(fld);
+		if ( preg_match (fld, "([^ ]+)_([^ ]+)", &m ) ) {
+			rngname = m[1]; rngatt = m[2];
+			if ( fldtype[rngname] == "extann" ) {
+				valtype = "extann";
+			} else if ( fldtype[rngname] == "range" ) {
+				valtype = "range";
+			} else {
+				cout << "Error: unknown attribute " << flditem << endl;
+				return false; // No such field
+			};
+		} else if ( preg_match (fld, "\"(.*)\"", &m ) ) {
+			valtype = "regex";
+		} else {
+			valtype = "attribute";
 		};
 		
 		// Allow substring matches : match.substr(att,0,4)
@@ -192,6 +223,7 @@ class cqlfld {
 	
 		fldatt = fld.substr(fld.find("_")+1);
 		
+		// dbout << "Set field with " << flditem << " = (base) " << rawbase  << " = (type) " << valtype  << " = (rngatt) " << rngatt << endl;
 		return true;				
 	};
 	
@@ -245,9 +277,9 @@ class cqlfld {
 			string cval;
 			if ( fld == "_" ) {
 				cval = int2string(i);
-			} else if ( preg_match (fld, "extann_(.*)", &m ) ) {
-				cval = ext2str(fld, i); 
-			} else if ( preg_match (fld, "(.*)_(.*)", &m ) ) {
+			} else if ( valtype == "extann" ) {
+				cval = ext2str(rngatt, i, rngname); 
+			} else if ( valtype == "range" ) {
 				vector<int> ridx = pos2ridx(fld, i);
 				string list; string lsep = "";
 				for (int j=0; j<ridx.size(); j++ ) {
@@ -284,7 +316,8 @@ class cqltok {
 	string flags;
 	string partname;
 	
-	string left; string matchtype;string right;
+	string left; string matchtype; string right;
+	string lefttype; string righttype;
 	string leftstring; string rightstring;
 	cqlfld leftfield; cqlfld rightfield;
 
@@ -353,7 +386,7 @@ class cqlresult {
 				// Calculate the left value
 				if ( leftfield.rawbase != "" ) {
 					leftval = leftfield.value(*it2);
-				} else if ( preg_match (left, " *\"([^\"]+)\"*", &m ) ) {
+				} else if ( preg_match (left, "\"([^\"]+)\"", &m ) ) {
 					// a (regex) string
 					leftval = m[1];
 				} else {
@@ -364,7 +397,7 @@ class cqlresult {
 				// Calculate the right value
 				if ( rightfield.rawbase != "" ) {
 					rightval = rightfield.value(*it2);
-				} else if ( preg_match (right, " *\"([^\"]+)\"*", &m ) ) {
+				} else if ( preg_match (right, "\"([^\"]+)\"", &m ) ) {
 					// a (regex) string
 					rightval = m[1];
 				} else {
@@ -375,7 +408,7 @@ class cqlresult {
 				// TODO - this is a soddy way of getting rid of unwanted null characters....
 				rightval = rightval.c_str(); 
 				leftval = leftval.c_str(); // TODO - this is a soddy way of getting rid of unwanted null characters....
-				// dbout << "Checking " << leftval << " " << matchtype << " " << rightval << endl;
+				// dbout << "Checking for " << it2->named["match"] << " => " << left << ":" << leftval << " " << matchtype << " " << right << ":" << rightval << endl;
 				if ( !resmatch(leftval, rightval, matchtype) ) { 
 					it2 = match.erase(it2);
 				} else {
@@ -442,6 +475,7 @@ class cqlresult {
 			for ( int k=0; k<parts.size(); k++ ) {
 				string part = parts[k];
 				cqltok newtok;
+
 				newtok.partnr = i;
 				newtok.idx = k; // pointless, but needed for now
 				newtok.partname = partname;
@@ -459,22 +493,26 @@ class cqlresult {
 					newtok.matchtype = m[2];
 					newtok.right = trim(m[3]);
 
+					newtok.leftfield.setfld(newtok.left, name);
+					newtok.rightfield.setfld(newtok.right, name);
+
 					if ( preg_match ( newtok.left, "\"([^\"]+)\"", &m ) ) {
 						rank += 3; // 5 points for a string/regex match left
-						newtok.leftstring = m[1]; 
+						newtok.leftstring = m[1];  newtok.lefttype = "regex";
+					} else if ( newtok.leftfield.valtype == "extann" )  {
+						rank += 5; // do not start with a relation to another attribute
 					} else if ( preg_match (newtok.left, "(.*\\..*)", &m ) ) {
-						newtok.leftfield.setfld(newtok.left, name);
 						rank -= 5; // do not start with a relation to another attribute
 					} else {
-						rank += 5; // 5 points for an attribute match left
+						rank += 4; // 5 points for an attribute match left
 						if ( !file_exists(cqpfolder + newtok.left + ".corpus" ) ) { 
 							// Check whether the attribute exists					
 							cout << "Error: no such pattribute - " << newtok.left << endl; 	
 							return; // Stop processing the CQL query
  						};
 					};
-					if ( preg_match (newtok.right, "\"([^\"]+)\"", &m ) ) {
-						newtok.rightstring = m[1];
+					if ( preg_match (newtok.right, "\"([^\"]*)\"", &m ) ) {
+						newtok.rightstring = m[1]; newtok.righttype = "regex";
 						if ( preg_match(newtok.right, ".*[*+?].*") || newtok.flags.find("c") != std::string::npos ) rank += 3; // 3 points for a regex match
 						else rank += 5; // 5 points for a string match 
 					} else if ( preg_match (newtok.right, "(.*\\..*)") ) {
@@ -495,7 +533,9 @@ class cqlresult {
 		
 		// Initialize on the best condition
 		int best = named["best"]; 
-		if ( best != -1 ) {
+		if ( best == -1 ) {
+			cout << "Error: no suitable initial condition found" << endl;
+		} else {
 			cqltok ctok = condlist[best];
 			int i = ctok.partnr;
 			int k = ctok.idx;
@@ -509,7 +549,17 @@ class cqlresult {
 
 			// Do the initial lookup
 			vector<int> tmp;
-			if ( preg_match (right, "\"([^\"]+)\"", &m ) ) {
+			if ( preg_match (right, "\"([^\"]+)\"", &m ) && ctok.leftfield.valtype == "extann" ) {
+				string xpath = "//item[@"+ctok.leftfield.rngatt+"=\""+m[1]+"\"]/@c_pos";
+				string extfile = ctok.leftfield.rngname;
+				if ( debug ) cout << "Initializing with an external attribute: " << xpath << " on " << extfile << endl;	
+				pugi::xpath_node_set tools = extann[extfile].select_nodes(xpath.c_str());
+				for (pugi::xpath_node_set::const_iterator it = tools.begin(); it != tools.end(); ++it) {
+					string idxt = it->attribute().value();
+					int idx = intval(idxt);
+					tmp.push_back(idx);
+				};
+			} else if ( preg_match (right, "\"([^\"]+)\"", &m ) ) {
 				string word = m[1]; string attname = left;
 				if ( preg_match(word, ".*[*+?].*") || flags.find("c") != std::string::npos || 1==1 ) {	// TODO: sort not correct, which makes halftime search fail
 					// regex match initialization - slower
@@ -618,30 +668,7 @@ class cqlresult {
 			};
 
 			// Second run - take the option closest to the best option 
-// 			for ( int i=0; i<poslist.size(); i++ ) {
-// 				vector<int> options = it2->options[i];
-// 				int cpos = poslist[i];
-// 				if ( cpos == -2 ) { 
-// 					if ( i> 0 && i< poslist.size()-1 ) {
-// 						it2->options[i].clear();
-// 						for ( int j=0; j<options.size(); j++ ) {
-// 							int ch = options[j];
-// 							if ( ch > poslist[i-1] && ch < poslist[i+1] ) it2->options[i].push_back(ch);
-// 						};
-// 						if ( it2->options[i].size() == 0 ) {
-// 							// Match without options - delete
-// 							if ( debug ) cout << "Ended up with a match with no options" << endl;
-// 							match.erase(it2);
-// 							goto nomatch;
-// 						} else if ( it2->options[i].size() == 0 ) {
-// 							poslist[i] = it2->options[i][0];
-// 						} else {
-// 							poslist[i] = it2->options[i][0]; // Take the first option, which should always be the one closest to best
-// 						};
-// 					};
-// 				};
-// 			};
-			
+
 			j=0; minval = poslist[j]; while ( minval == -1 && j< poslist.size() ) { j++; minval=poslist[j]; };
 			it2->named["match"] = minval;
 			j=poslist.size()-1; maxval = poslist[j]; while ( maxval == -1 && j>0 ) { j--; maxval=poslist[j]; };
@@ -901,7 +928,7 @@ class cqlresult {
 					} else {
 						cout << endl;
 					};
-				} else if ( debug ) { cout << "Discarding (idx not found): " << coll1 << endl; };
+				} else if ( debug ) { cout << "Discarding (idx not found): " << it->first << " " << coll1 << " for " << flds[0] << endl; };
 			};
 			if ( output == "xml" ) {
 				resfile.print(cout);
@@ -1176,11 +1203,10 @@ class cqlresult {
 	
 	void tabulate ( string fields, bool ansi = false ) {
 		// Print out the result vector
-	
+
 		if ( verbose ) { cout << "Tabulating " << name << " on " << fields << endl; };
 		vector<string> m;  string sep;
 		int tab1 = 0; int tab2 = match.size();
-
 		if ( preg_match(fields, "(\\d+) (\\d+) (.*)", &m) ) {
 			tab1 = intval(m[1]);
 			tab2 = intval(m[2])+1; 
@@ -1188,7 +1214,7 @@ class cqlresult {
 			fields = m[3];
 			if ( debug ) cout << "Tabulating " << fields << " from " << tab1 << " - " << tab2 << endl;
 		};
-		
+
 		vector<string> fieldlist = split( fields, " " );
 		
 		vector<cqlfld> cqlfieldlist;
@@ -1256,18 +1282,43 @@ class cqlresult {
 	void xidx ( string options) {
 		// Print out XML fragments for the result vector
 		vector<string> m;
+
+		bool rawout = false;
+		if ( preg_match(options, "rawxml") ) rawout = true;
+
+		int tab1 = 0; int tab2 = match.size();
+		if ( preg_match(options, "(\\d+) (\\d+)(.*)", &m) ) {
+			tab1 = intval(m[1]);
+			tab2 = intval(m[2])+1; 
+			if ( tab2 > match.size() ) tab2 = match.size(); // Make sure we do not exceed matches
+			options = m[3];
+			if ( debug ) cout << "Outputting " << options << " from " << tab1 << " - " << tab2 << endl;
+		};
+	
+		string ctxt = ""; 
+		if ( preg_match(options, ".*(context:(\\d+)).*", &m ) ) {
+			ctxt = m[1];
+		};
 		
 		if ( preg_match(options, "expand to ([^ ]+)", &m ) ) {
-			for ( int i=0; i<match.size(); i++ ) {
+			for ( int i=tab1; i<tab2; i++ ) {
 				string xidx = rng2xml(match[i].named["match"], match[i].named["matchend"], m[1]);
 				xidx = replace_all(xidx, "\n", " ");
 				cout << xidx << endl; 
 			};
 		} else {
-			for ( int i=0; i<match.size(); i++ ) {
-				string xidx = rng2xml(match[i].named["match"], match[i].named["matchend"]);
+			for ( int i=tab1; i<tab2; i++ ) {
+				int cpos = match[i].named["match"];
+				if ( match[i].named["target"] ) { cpos = match[i].named["target"]; };
+				int pos1 = match[i].named["match"];
+				int pos2 = match[i].named["matchend"];			
+				string xidx = rng2xml(pos1, pos2, ctxt);
 				xidx = replace_all(xidx, "\n", " ");
-				cout << xidx << endl;
+				if ( rawout ) {
+					cout << xidx << endl;
+				} else {
+					cout << "<resblk c_pos='" << cpos << "'>" << xidx << "</resblk>" << endl;
+				};
 			};
 		};
 				
@@ -1376,6 +1427,15 @@ inline void cqlresult::checkcond ( cqltok ctok  ) {
 		
 	string leftval; string rightval;
 	
+	vector<string> m;
+	if ( preg_match (left, "(.*\\..*)", &m ) ) {
+		ctok.leftfield.setfld(left, name);
+	};
+	if ( preg_match (right, "(.*\\..*)", &m ) ) {
+		ctok.rightfield.setfld(right, name);
+	};
+
+
 	// TODO: This should allow wildcards						
 	vector<cqlmatch> tocheck = match;
 	match.clear(); int ofs; vector<int> ops;
@@ -1443,14 +1503,14 @@ inline void cqlresult::checkcond ( cqltok ctok  ) {
 				it2->options[partnr].push_back(focus);
 				continue;
 			};
-		
+
 			// Calculate the value for the left-hand side
 			if ( ctok.leftfield.rawbase == "_" ) {
 				leftval = ctok.leftfield.value(*it2, "=", focus);
 			} else if ( ctok.leftfield.rawbase != "" ) {
 				// an cqlfld
 				leftval = ctok.leftfield.value(*it2);
-			} else if ( ctok.leftstring != "" ) {
+			} else if ( ctok.lefttype == "regex" ) {
 				// a (regex) string
 				leftval = ctok.leftstring;
 			} else {
@@ -1463,7 +1523,7 @@ inline void cqlresult::checkcond ( cqltok ctok  ) {
 				rightval = ctok.rightfield.value(*it2, "=", focus);
 			} else if ( ctok.rightfield.rawbase != "" ) {
 				rightval = ctok.rightfield.value(*it2);
-			} else if ( ctok.rightstring != "" ) {
+			} else if ( ctok.righttype == "regex" ) {
 				// a (regex) string
 				rightval = ctok.rightstring;
 			} else {
@@ -1724,7 +1784,6 @@ string idx2str ( string attname, int idx ) {
 	fseek(stream,offset,SEEK_SET);
 	fread(&i, 4, 1, stream);
 	int start = ntohl(i);
-	//fclose(stream);
 	
 	filename = cqpfolder + attname + ".lexicon";
 	if ( !streamopen(&stream, filename) ) return "";
@@ -1734,7 +1793,6 @@ string idx2str ( string attname, int idx ) {
 	rewind(stream);
 	fseek(stream,start,SEEK_SET);
    	fgets(strval, 400, stream); // We do not need the end - the \0 or eof will terminate
-   	// fclose(stream);
 	
 	return strval;
 };
@@ -1752,7 +1810,6 @@ string ridx2str ( string attname, int idx ) {
 	fseek(stream,offset,SEEK_SET);
 	fread(&i, 4, 1, stream);
 	int start = ntohl(i);
-	// fclose(stream);
 	
 	filename = cqpfolder + attname + ".avs";
 	if ( !streamopen(&stream, filename) ) return "";
@@ -1761,7 +1818,6 @@ string ridx2str ( string attname, int idx ) {
 	char strval[1000];
 	fseek(stream,start,SEEK_SET);
    	fgets(strval, 400, stream); // We do not need the end - the \0 or eof will terminate
-   	// fclose(stream);
 	
 	return strval;
 };
@@ -1776,7 +1832,6 @@ string pos2str ( string attname, int pos ) {
 	if ( !streamopen(&stream, filename) ) return "";
 
 	idx = read_network_number(pos, stream);
-	//fclose(stream);
 	
 	return idx2str(attname, idx);
 };
@@ -1789,7 +1844,6 @@ int idx2cnt ( string attname, int idx ) {
 	if ( !streamopen(&stream, filename) ) return -1;
 
 	int cnt = read_network_number(idx,stream);
-	// fclose(stream);
 	return cnt;
 };
 
@@ -1834,7 +1888,6 @@ vector<int> pos2ridx ( string attname, int pos ) {
 			}; // TODO: gather rather than replace
 		};
 	};
-	//fclose(stream);
 	return idx;
 };
 
@@ -1844,11 +1897,11 @@ bool isnamed (string att, string res) {
 	return false;
 };
 
-string ext2str ( string attname, int pos ) {
+string ext2str ( string attname, int pos, string annfile ) {
 	attname = replace_all(attname, "extann_", "");
-
-	string xpath = "//item[@cpos='" + int2string(pos) + "']/@" + attname ;
-	return extann.select_single_node(xpath.c_str()).attribute().value();
+	
+	string xpath = "//item[@c_pos='" + int2string(pos) + "']/@" + attname ;
+	return extann[annfile].select_single_node(xpath.c_str()).attribute().value();
 	
 	return "";
 };
@@ -1886,17 +1939,27 @@ string rng2xml( int pos1, int pos2, string rngname ) { // optional "" forward de
 	int textid2 = read_network_number(pos2, file);
 	fclose(file);
 
-	// Check that the positions belong to the same file
-	// TODO: it merely returns, whereas it should throw an exception
- 	if ( textid1 != textid2 ) { 
-		cout << "Error: corpus positions " << pos1 << " and " << pos2 << " do not belong to the same XML file" << endl;  
-		return "";
- 	};	
-
+	vector<string> m; 
+ 	if ( preg_match(rngname, "context:(\\d+)", &m) ) {
+ 		rngname = ""; int ctxt = intval(m[1]);
+ 		vector<int> tmp = ridx2rng("text_id", textid1);
+ 		pos1 = pos1 - ctxt;
+ 		pos2 = pos2 + ctxt;
+ 		if ( pos1 < tmp[0] ) pos1 = tmp[0]; // stay within the same xml file
+ 		if ( pos2 > tmp[1] ) pos2 = tmp[1]; // stay within the same xml file
+ 	} else {
+		if ( textid1 != textid2 ) { 
+			// Check that the positions belong to the same file
+			cout << "Error: corpus positions " << pos1 << " and " << pos2 << " do not belong to the same XML file" << endl;  
+			return "";
+		};	
+	};
+	
 	string xmlfile = ridx2str("text_id", textid1);
 
 	int rpos1 = -1; int rpos2 = -1;
 	if ( rngname != "" ) {
+		// expanded to a range (see if we can find one
 		int ridx1 = -1; int ridx2 = -1;
 		vector<int> tmp1 = pos2ridx(rngname, pos1); 
 		if ( tmp1.size() == 1 ) ridx1 = tmp1[0]; 
@@ -1925,16 +1988,6 @@ string rng2xml( int pos1, int pos2, string rngname ) { // optional "" forward de
 
 	return value;
 };
-
-wstring towstring (const string s) {
-	// Cast a string to a wstring
-	
-    wstring wsTmp(s.begin(), s.end());
-
-    wstring ws = wsTmp;
-
-    return ws;
-}
 
 vector<int> regex2ridx (string attname, string word ) {
 	// Return the vector of indices matching a regex on range attname
@@ -2005,7 +2058,10 @@ int str2idx ( string attname, string word ) {
 	int min = 0; int max; int seek; int idx;
 	
 	string filename = cqpfolder + attname + ".lexicon.srt";
-	if ( !streamopen(&stream, filename) ) return -1;
+	if ( !streamopen(&stream, filename) ) {
+		if ( debug ) cout << "File not found: " << filename << endl;
+		return -1;
+	};
 
 	fseek(stream, 0, SEEK_END); max = ftell(stream)/4; int lastseek = -1;
 	while ( min < max ) { // With the /2 it gets stuck in the middle
@@ -2022,15 +2078,14 @@ int str2idx ( string attname, string word ) {
 		// dbout << "Seeking " << word << " on " << seek << " = " << match << " <= " << min << "-" << max << endl;
 		if ( match == word ) {
 			return idx;
-		} else if ( match.c_str() < match.c_str() ) { // This is not ideal, but should follow the sorting in the .srt files
+		} else if ( towstring(match) < towstring(word) ) { // We do not seem to be able to follow the sorting in the .srt files
 			min = seek;
-		} else if ( match.c_str() > match.c_str() ) {
+		} else if ( towstring(match) > towstring(word) ) {
 			max = seek;
 		} else {
 			return -1;
 		};
 	};
-   	//fclose(stream);
 
 	return -1;
 };
@@ -2086,7 +2141,6 @@ vector<int> idx2pos (string attname, int idx ) {
 	int start = ntohl(i);
 	fread(&i, 4, 1, stream);
 	int end = ntohl(i);
-	//fclose(stream);
 		
 		
 	filename = cqpfolder + attname + ".corpus.rev";
@@ -2111,7 +2165,6 @@ int pos2relpos ( string attname, int pos ) {
 	if ( !streamopen(&stream, filename, false) ) return -1;
 
 	int headnum = read_network_number(pos, stream);
-	//fclose(stream); 
 	
 	return headnum;
 };
@@ -2176,6 +2229,20 @@ void cqlparse ( string cql ) {
 			if ( debug ) cout << "Setting context to " << context << endl;
 		} else if ( var == "kleene" ) {
 			kleene = intval(val);
+		};
+	} else if ( preg_match (cql, "load ([^ ]+)(.*)", &m ) ) {
+		string fn = m[1]; string extname = trim(m[2]);
+		extname = replace_all(extname, "as ", ""); // Allow "as" in the command
+		if ( fldtype[extname] == "range" || fldtype[extname] == "extann"  ) {
+			cout << "Error: not loading external attributes " << extname << " - conflicting with existing " << fldtype[extname] << endl;
+			return;
+		};
+		// read an external annotation file
+		if ( extann[extname].load_file(fn.c_str()) ) {
+			if ( verbose ) { cout << "- Loaded external annotations " << extname << endl; };
+			fldtype[extname] = "extann";
+		} else {
+			cout << "Error: failed to load external annotations from " << fn << endl; 
 		};
 	} else if ( preg_match (cql, "([\"\[].*)", &m ) ) {
 		if ( last != "" ) {
@@ -2374,8 +2441,9 @@ int main(int argc, char *argv[]) {
 	if ( settings.attribute("extann") != NULL   ) {
 		string fn = settings.attribute("extann").value();
 		// read an external annotation file
-		if ( extann.load_file(fn.c_str()) ) {
-			if ( verbose ) { cout << "- Loaded external annotations from " << fn << endl; };
+		if ( extann["extann"].load_file(fn.c_str()) ) {
+			if ( verbose ) { cout << "- Loaded external annotations extann" << endl; };
+			fldtype["extann"] = "extann";
 		} else {
 			cout << "Error: failed to load external annotations from " << fn << endl; 
 		};
@@ -2385,6 +2453,13 @@ int main(int argc, char *argv[]) {
 		attname = settings.attribute("attname").value();	
 	} else {
 		attname = "word";
+	};
+	
+	string cqlcmd; 
+	if ( settings.attribute("cql") != NULL   ) {
+		cqlcmd = settings.attribute("cql").value();	
+	} else {
+		cqlcmd = "tabulate match.word";
 	};
 	
 	string cmd; string mode;
@@ -2402,7 +2477,8 @@ int main(int argc, char *argv[]) {
 	vector<string> fields; string line;
 	if ( mode ==  "cql" ) {
 		// CQL command are separated by ;
-		// if ( prompt ) { cout << "TT-CQP, (c) Maarten Janssen 2018 - CWB Query Language interpreter" << endl << endl; };
+		if ( prompt && verbose ) { cout << "TT-CQP, (c) Maarten Janssen 2018 - CWB Query Language interpreter" << endl << endl; };
+		if ( debug || prompt ) verbose = true;
 		if ( prompt ) { cout << corpusname << "> "; };
 		context = 5; // default context size
 		// Check the related positions
@@ -2412,6 +2488,8 @@ int main(int argc, char *argv[]) {
 			string fname = ent->d_name;
 			if ( preg_match(fname, "([^/]+)\\.corpus\\.pos", &m) ) {
 				relpos[m[1]] = true;
+			} else if ( preg_match(fname, "([^/_]+)\\.rng", &m) ) {
+				fldtype[m[1]] = "range";
 			};
 		}
 		closedir (dir);
@@ -2447,32 +2525,56 @@ int main(int argc, char *argv[]) {
 		};
 	} else if ( mode == "pos2str" ) {
 		// Give back the string for a set of corpus positions (on attname)
-		string atttype; string strval;
+		string strval;
 		vector<int> optlist;
-		if ( preg_match(attname, "extann_.*") ) { 
-			atttype = "ext"; 
-		} else if ( preg_match(attname, ".*_.*") ) { 
-			atttype = "rng"; 
-		}; 
 		while ( getline( cin, line ) && line != "exit" ) {
 			line = trim(line); 
 			if (keepinput) { cout << line << "\t"; };
 			fields = split( line, "-" ); string sep = "";
 			if ( fields.size() == 1 ) fields[1] = fields[0];
 			for ( int i=intval(fields[0]); i<intval(fields[1]); i++ ) {
-				if ( atttype == "ext" ) {
-					strval = ext2str(attname, i);
-				} else if ( atttype == "rng" ) {
-					optlist = pos2ridx(attname, i);
-					strval = ridx2str(attname, optlist[0]);
-				} else {
-					strval = pos2str(attname, i);
-				};
+				strval = pos2str(attname, i);
 				cout << sep << strval; 
 				sep = " ";
 			};
 			cout << endl; 
 		};
+	} else if ( mode == "pos2tab" ) {
+		// Treat an incoming number of position, and tabulate it
+
+		// Create a cqlresult
+		cqlresult newcql; vector<string> m;
+		newcql.name = "Infile";
+				
+		// Read the infile
+		char linesep;
+		if ( settings.attribute("linesep") != NULL   ) {
+			string tmp = settings.attribute("linesep").value();
+			linesep = tmp.at(0);
+		} else {
+			linesep = '\n';
+		};
+		while ( getline( cin, line, linesep ) && line != "exit" ) {
+			line = trim(line); 
+			if ( line == "" ) continue;
+			fields = split( line, "-" ); string sep = "";
+			if ( fields.size() == 1 ) fields.push_back(fields[0]);
+			cqlmatch newline;
+			newline.named["match"] = intval(fields[0]);
+			newline.named["matchend"] = intval(fields[1]);
+			newcql.match.push_back(newline);			
+		};
+		string basecmd;
+		if ( preg_match(cqlcmd, "(tabulate|xidx)(.*)", &m) ) {
+			cqlcmd = trim(m[2]); basecmd = m[1];
+		} else {
+			basecmd = "tabulate";
+		};
+		if ( basecmd == "xidx" ) {
+			newcql.xidx(cqlcmd);	
+		} else {
+			newcql.tabulate(cqlcmd);	
+		};		
 	} else if ( mode ==  "dump" ) {
 		// Dump a CWB file to stdout
 		string fext = settings.attribute("file").value();

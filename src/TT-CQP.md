@@ -20,8 +20,7 @@ This is an incomplete list of all the options from CQP left out in TT-CQP, some 
 implemented later, but many not intended to be implemented.
 
 * diacritics insensitive search not yet supported (%d)
-* interactive mode - TT-CQP is meant for a piped architecture and only emulates cqp -pi
-* all option related to the interactive mode are hence also unsupported (set, show, dump, cat, count, discard, save)
+* many of the options for the interactive mode are not supported (show, dump, count, discard, save)
 * macros, distance, distabs will not be implemented
 * groupings and boolean operators are unlikely to be implemented
 * randomize sort should be done in post-processing tools
@@ -33,6 +32,21 @@ implemented later, but many not intended to be implemented.
 * subcorpora cannot be modified by subset, intersection, join, or difference; those options are left for after the pipe
 
 ## Added options
+
+### Related positions
+
+In TT-CQP, you can link a word in your corpus to another corpus position, 
+containing (typically) its head (in a dependency tree). The way this
+works is as follows: if your corpus has a pattribute head, which contains the ID of the head word, you can use that
+in a CQP query, by specifying something like a.head = b.id, and if your IDs are only unique within a text, you would
+furthermore have to specify that they need to belong to the same text. This is not only slow, but cumbersome to use,
+whereas dependency relations are often very useful in queries. Therefore, TT-CWB-ENCODE can be asked to encode the
+corpus positions of the head words, and create a file head.corpus.pos. When there is such a file, head will
+function like a named position, and can be combined with any attribute, such as head.substr(pos,0,1) to give the
+first letter of the part-of-speech of the head - without any specification, head will always refer to the head of
+match, to get to the head of any other named token, use head(a) for the head of the named token a. Although built for
+dependencies, you can also use it for other relations, such as anaphora, and head is only the typical name for
+the pattribute - the only restriction is that the related position has to be unique.
 
 ### Tabulate
 
@@ -47,11 +61,7 @@ main pos in position-based tagsets
 effectively means that `target:[]` is synonymous to `@[]`. Reserved names (match, matchend, keyword, target) take preference over
 named positions.
 * `head.word` will render the word of the corpus position marked as the head of the match; 
-to get the head of any other named token, use `head(a).word`. This 
-feature relies on a file `head.corpus.pos`, which matches corpus positions to the related position for the
-pattribute head (head can be any
-pattribute, but this feature is intended for dependency relations). Named positions take preference over related
-positions.
+to get the head of any other named token, use `head(a).word`. Named positions take preference over related positions.
 * context shifts can be used with any of the position types, so `adj[1].lemma` will give the lemma first position to the
 right of a named position "adj", and `head(target)[-2].word` will give the second word to the left of the head of the target.
 
@@ -170,6 +180,25 @@ To select the year and title of all Portuguese texts written after 1600, you can
 SELECT year, title FROM text WHERE lang="PT" && year > 1600;
 ```
 
+### Contains
+
+In TT-CQP, you can search for words in the neighbourhood of another word, without explicitly using wildcard tokens; in CQP, 
+it is hard to search for a sentence that contains two words A and B - you would have to search for 
+`[word="A"] []* [word="B"] within s`, as
+well as for the reverse order (and then join the two results), whereas we are often not interested in the material in the middle. Therefore, TT-CQP features
+a contains command that allows you to do exactly that. We can use it for instance with the update command, which adds additional
+global constraints to an existing query; so you first search for A, and then ask for a lookup of any B within the same sentence:
+
+```
+Matches = a:[word="A"]; update Matches s contains b:[word="B"];
+```
+
+Notice that like with related positions (head), the b anchor is not (necessarily) within the range match..matchend, so if you
+want to do anything with it later, you always need to name the anchor, allowing you to use it in tabulate, search, or group.
+The result will always contain the first occurrence of B in the sentence (unless additional constraints are added that do not hold for the 
+first occurrence).
+
+
 ### External annotations
 
 In TT-CQP, you can read in an external XML file containing additional positional attributes; this is mostly meant to store external
@@ -178,17 +207,19 @@ An external annotation file is a simple XML file linking corpus positions to any
 
 ```xml
 <annotation>
-	<item cpos="1334" type="Correct"/>   
-	<item cpos="2622" type="Wrong"/> 
-	<item cpos="204604" type="Correct"/>   
-	<item cpos="268666" type="Correct"/>   
-	<item cpos="112548" type="Correct"/>   
+	<item c_pos="1334" type="Correct"/>   
+	<item c_pos="2622" type="Wrong"/> 
+	<item c_pos="204604" type="Correct"/>   
+	<item c_pos="268666" type="Correct"/>   
+	<item c_pos="112548" type="Correct"/>   
 </annotation>
 ```
 
-You load an external annotation by adding --extann=[filename], and are addressed like sattributes, using extann_type in this case.
-There is no limit to the number of attributes associated with an item, but only one external attributes file can be loaded at
-a time. Although they have the form of an sattribute, extann can only refer to single corpus positions.
+You load an external annotation by adding --extann=[filename], or by loading it 
+as a CQL command `load [filename] [name]`, and are addressed like sattributes, using [name]_type in this case.
+Any external annotation file can contain various attributes inside.
+Although they have the form of an sattribute, external annotations can only refer to single corpus positions.
+In case of naming conflicts, a warning is issued, and sattributes take preference over external attributes.
 
 ### Small differences
 
@@ -239,11 +270,11 @@ of head. For this, we use the deps relation identifying the relation type betwee
 the word and its its head. We do not want these to be taken into account in the 
 statistics, but we do want to see them, which we can do by using `show:deps`. 
 
-So creating the raw data for a Word Sketch in TT-CQP can be done by the following 
+So creating the raw data for a Word Sketch in TT-CQP for the word "casa" can be done by the following 
 one-liner, after which we merely need to visualize the results:
 
 ```
-echo 'Matches = [lemma="casa"]; group Matches head.lemma :: show:deps;' | tt-cqp
+echo 'Matches = [lemma="casa"]; group Matches head.lemma :: show:deps;' | tt-cqp --output=json
 ```
 
 ### Concordance Checking
@@ -259,7 +290,7 @@ to the positions that we need. So to check for noun/adjective pairs that mismatc
 we can use the following one-liner:
 
 ```
-echo 'Matches = a:[pos="NC.*"] b:[pos="AQ.*"] :: a.substr(pos,3,1) != b.substr(pos,4,1); tabulate Matches match.word match.pos matchend.word matchend.pos;' | tt-cqp
+echo 'Matches = a:[pos="NC.*"] b:[pos="AQ.*"] :: a.substr(pos,3,1) != b.substr(pos,4,1); tabulate Matches a.word a.pos b.word b.pos match[-5]..matchend[5].word;' | tt-cqp
 ```
 
 Note that the current limitations on TT-CQP mean we cannot extend this to a full match, since we cannot yet allow 

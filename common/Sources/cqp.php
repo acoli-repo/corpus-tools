@@ -774,7 +774,14 @@
 
 		
 		# Do not allow frequency counts if we already have a pre-select CQL
-		if ( !$precql && !$nomatch && !$fileonly ) { # We actually do want text-based searches
+		if ( !file_exists("/usr/local/bin/tt-cqp") && !$settings["default"]["tt-cqp"] ) {
+			if ( $username )
+			$maintext .= "<hr><div class=adminpart>
+				<p>The corpus frequency options in TEITOK rely on tt-cqp, which does not
+				seem to be installed on the server. In order to provide statistical data, 
+				please ask you administrator to install it.
+				</div>";
+		} else if ( !$precql && !$nomatch && !$fileonly ) { # We actually do want text-based searches
 			$maintext .= "<hr>";
 			if ( $settings['cqp']['visualize'] == "cqp" ) {
 				$visaction = "cqp&act=freq";
