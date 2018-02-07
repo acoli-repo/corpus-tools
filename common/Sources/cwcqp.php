@@ -26,7 +26,7 @@ class CQP
 	var $version;
 	
 	## PHPCQP object constructor
-    function CQP($registryfolder = "") {
+    function CQP($registryfolder = "", $cqpapp = "/usr/local/bin/cqp") {
     	global $settings;
     	if ( $registryfolder == "" ) { 
 			$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
@@ -47,7 +47,7 @@ class CQP
 		
 		$env = array(); # $env = array('some_option' => 'aeiou');
 
-		$this->prcs = proc_open('/usr/local/bin/cqp -r '.$registryfolder.' -c', $descriptorspec, $this->pipes, '-c', $env); # This should be -c
+		$this->prcs = proc_open($cqpapp.' -r '.$registryfolder.' -c', $descriptorspec, $this->pipes, '-c', $env); # This should be -c
 		foreach ($this->pipes as $pipe) {
 			stream_set_blocking($pipe, false);
 		}

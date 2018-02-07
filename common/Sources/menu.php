@@ -55,16 +55,30 @@
    $menu .= "</ul>";
 	
   	if ( $username ) {
-  		$menu .= "<hr>user: <a href='index.php?action=user'>{$user['short']}</a><hr>";
+		$shortuserid = $user['short'];
+  		$menu .= "<hr>user: <a href='index.php?action=user'>$shortuserid</a><hr>";
   		$tmp = ""; if ( $action == "admin" ) $tmp = "class=\"selected\""; 
   		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=admin' $tmp>Admin</a></ul>";
   		$menu .= "<ul style='text-align: left'><li><a target=help href='http://www.teitok.org/index.php?action=help' $tmp>Help</a></ul>";
+		if ( file_exists("/usr/local/bin/tt-cqp") || $settings["defaults"]["tt-cqp"] ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=classify'>Custom annotation</a></ul>"; 
   		if ( count(scandir("pagetrans")) > 2 ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=pagetrans'>Page-by-Page</a></ul>"; 
   		$tmp = ""; if ( $action == "files" ) $tmp = "class=\"selected\""; 
   		if ( file_exists("xmlfiles") ) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
   		if (file_exists("Resources/filelist.xml")) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=filelist'>File repository</a></ul>";
   		$menu .= $adminitems;
+	} else if ( $_SESSION['extid'] ) {
+		foreach ( $_SESSION['extid'] as $idtype => $val ) { 
+		if ( $tmp = $settings['permissions'][$idtype] ) { 
+			$idname = $tmp['display'] or $idname = strtoupper($idtype); 
+			$idaction = $tmp['login'] or $idaction = $idtype; 
+			$shortuserid = $_SESSION['extid'][$idtype];
+			$menu .= "<hr>$idname: <a href='index.php?action=$idaction'>$shortuserid</a><hr>";
+			foreach ( $tmp['functions'] as $key => $func ) {
+				$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action={$func['key']}' $tmp>{%{$func['display']}}</a></ul>";
+			};
+		}; }; 
 	} else {
+		$shortuserid = "guest";
   		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=login'>Login</a></ul>";
 	};
         	

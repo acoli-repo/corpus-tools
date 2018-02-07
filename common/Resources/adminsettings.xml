@@ -548,12 +548,36 @@
     </item>
 
     <item key="permissions" display="Detailed permission control">
+		<desc>
+			<p>In this section you can control who has access to what in your project. You can
+			set-up groups that only have access to a limited set of functions, and to allow
+			guests to have access to certain functions, you can have them login using their ORCID.</p>
+			<p>To enable ORCID login, you need to enable the <a href='https://orcid.org/developer-tools'>ORCID developer
+			tools</a>, and copy both the public and the private key to
+			here. The login screen will show the application name on top of the login request, so make sure
+			that has a name that is recognisable for the users. You also need to make sure the redirect URI
+			is listed in the tools - the default is (projecturl)/index.php?action=orcid. Contrary to the
+			internal project login, the ORCID login will be available to all projects on your server, so
+			you can use the same redirect URI for all projects, although you need to enable the ORCID
+			permissions for each project individually.</p>
+		</desc>
     	<item key="groups" display="Groups">
     		<list display="List of groups">
     			<att key="key" display="Name of the group"/>
     			<att key="message" display="Error message for actions disallowed for this group"/>
     			<att key="actions" display="List of actions allowed for this group"/>
     		</list>
+    	</item>
+    	<item key="orcid" display="ORCID">
+        	<att key="public" display="ORCID API Client ID"/>
+        	<att key="private" display="ORCID API Client secret"/>
+        	<att key="redirect" display="ORCID API Redirect URI (default: index.php?action=orcid in this project)"/>
+        	<item key="functions" display="Functions allowed under ORCID login">
+        		<list>
+    				<att key="key" display="Action (index.php?action=XXX)"/>
+    				<att key="display" display="Menu name for this item"/>
+        		</list>
+        	</item>
     	</item>
 	</item>
 	

@@ -860,6 +860,10 @@
 			$maintext .= "$sep<a onClick='exporttxt();' style='cursor: pointer;'>{%Download current view as TXT}</a>
 			";
 		
+		if ( $audiobit ) {
+			$maintext .= " &bull; <a href='index.php?action=wavesurfer&cid=$fileid'>{%Waveform view}</a>";
+		};
+		
 		// Show s-attribute level views
 		foreach ( $settings['xmlfile']['sattributes'] as $key => $item ) {	
 			$lvl = $item['level'];	

@@ -42,7 +42,7 @@ int str2idx(string a, string b);
 int str2cnt ( string a, string b );
 vector<int> regex2idx ( string a, string b, string c );
 vector<int> regex2ridx (string a, string b );
-string rng2xml( int a, int b, string c = "" );
+string rng2xml( int a, int b, string c = "", bool nomark = true );
 int pos2relpos ( string attname, int pos );
 string ridx2str ( string attname, int idx );
 vector<int> pos2ridx ( string attname, int pos );
@@ -66,6 +66,7 @@ int debug = 0;
 bool test = false;
 bool verbose = false;
 bool prompt = false;
+bool clientmode = false;
 string output; // type of output (csv, json, xml)
 string mwe; // what, if anything, to treat as MWE region
 string cqpfolder;
@@ -180,6 +181,11 @@ class cqlfld {
 				};
 				base[i] = dopart; // We no longer check here whether a named item exists
 			};	
+		} else if ( flditem == "match" || flditem == "matchend" ) {
+			// interpret just a named item as a position indicator
+			rawbase = flditem;
+			flditem = rawbase + "._";
+			fld = "_";
 		} else fld = flditem;
 
 		fld = trim(fld);
@@ -209,14 +215,14 @@ class cqlfld {
 		if ( preg_match (fld, "([^ ]+)_([^ ]+)", &m ) ) {
 			string tmp1 = m[1]; string tmp2 = m[2];
 			string xpath = "//sattributes//item[@key='"+tmp1+"']//item[@key='"+tmp2+"']";
-			flddef = xmlsettings.select_single_node(xpath.c_str()).node();
+			flddef = xmlsettings.select_node(xpath.c_str()).node();
 			xpath = "//sattributes//item[@key='"+tmp1+"']//item[@key='"+tmp2+"' and @display]"; // run xpath again to also use xmlsettings when applicable
-			fldname = xmlsettings.select_single_node(xpath.c_str()).node().attribute("display").value();
+			fldname = xmlsettings.select_node(xpath.c_str()).node().attribute("display").value();
 		} else {
 			string xpath = "//pattributes//item[@key='"+fld+"']";
-			flddef = xmlsettings.select_single_node(xpath.c_str()).node();
+			flddef = xmlsettings.select_node(xpath.c_str()).node();
 			xpath = "//pattributes//item[@key='"+fld+"' and @display]"; // run xpath again to also use xmlsettings when applicable
-			fldname = xmlsettings.select_single_node(xpath.c_str()).node().attribute("display").value();
+			fldname = xmlsettings.select_node(xpath.c_str()).node().attribute("display").value();
 		};
 		if ( fldname == "" ) fldname = fld;
 
@@ -499,7 +505,7 @@ class cqlresult {
 					if ( preg_match ( newtok.left, "\"([^\"]+)\"", &m ) ) {
 						rank += 3; // 5 points for a string/regex match left
 						newtok.leftstring = m[1];  newtok.lefttype = "regex";
-					} else if ( newtok.leftfield.valtype == "extann" )  {
+					} else if ( newtok.leftfield.valtype == "extann" && !preg_match(newtok.right, ".*[*+?].*") )  {
 						rank += 5; // do not start with a relation to another attribute
 					} else if ( preg_match (newtok.left, "(.*\\..*)", &m ) ) {
 						rank -= 5; // do not start with a relation to another attribute
@@ -1215,13 +1221,19 @@ class cqlresult {
 			if ( debug ) cout << "Tabulating " << fields << " from " << tab1 << " - " << tab2 << endl;
 		};
 
-		vector<string> fieldlist = split( fields, " " );
+		vector<string> fieldlist = split( fields, "," );
 		
 		vector<cqlfld> cqlfieldlist;
 		for ( int j=0; j<fieldlist.size(); j++ ) {
-			if ( fieldlist[j] == "" ) { continue; };
+			string tmp = trim(fieldlist[j]);
+			if ( tmp == "" ) { continue; };
+			
+			// for compatibility with CQP
+			tmp = replace_all(tmp, " ... ", "..");
+			tmp = replace_all(tmp, " ", ".");
+
 			cqlfld cqlfield;
-			cqlfield.setfld(fieldlist[j], name);
+			cqlfield.setfld(tmp, name);			
 			cqlfieldlist.push_back(cqlfield);
 		};
 
@@ -1284,7 +1296,7 @@ class cqlresult {
 		vector<string> m;
 
 		bool rawout = false;
-		if ( preg_match(options, "rawxml") ) rawout = true;
+		if ( preg_match(options, ".*rawxml.*") ) rawout = true;
 
 		int tab1 = 0; int tab2 = match.size();
 		if ( preg_match(options, "(\\d+) (\\d+)(.*)", &m) ) {
@@ -1302,7 +1314,7 @@ class cqlresult {
 		
 		if ( preg_match(options, "expand to ([^ ]+)", &m ) ) {
 			for ( int i=tab1; i<tab2; i++ ) {
-				string xidx = rng2xml(match[i].named["match"], match[i].named["matchend"], m[1]);
+				string xidx = rng2xml(match[i].named["match"], match[i].named["matchend"], m[1], rawout);
 				xidx = replace_all(xidx, "\n", " ");
 				cout << xidx << endl; 
 			};
@@ -1312,7 +1324,7 @@ class cqlresult {
 				if ( match[i].named["target"] ) { cpos = match[i].named["target"]; };
 				int pos1 = match[i].named["match"];
 				int pos2 = match[i].named["matchend"];			
-				string xidx = rng2xml(pos1, pos2, ctxt);
+				string xidx = rng2xml(pos1, pos2, ctxt, rawout);
 				xidx = replace_all(xidx, "\n", " ");
 				if ( rawout ) {
 					cout << xidx << endl;
@@ -1390,7 +1402,9 @@ inline	void cqlresult::sort ( string field ) {
 	// Sort the result vector
 	
 	sortfield = field; vector<string> m; bool desc;
-	if ( preg_match(sortfield, "on (.*)", &m) ) { sortfield = m[1]; };
+	
+	if ( preg_match(sortfield, "on (.*)", &m) ) { sortfield = m[1]; }; // for compatibility
+	if ( preg_match(sortfield, "by (.*)", &m) ) { sortfield = m[1]; };
 
 	if ( preg_match (field, "(.*) (DESC|descending)", &m ) ) {
 		sortfield = m[1];
@@ -1669,7 +1683,7 @@ void sqlparse (string sql) {
 		}
 		int lastch = cqpfolder.length() - 1; 
 		if ( cqpfolder[lastch] != '/' ) { cqpfolder += "/"; };
-		cout << "New corpus folder: " << cqpfolder << endl;
+		if ( verbose ) cout << "New corpus folder: " << cqpfolder << endl;
 	} else if ( sql == "show corpora" || sql == "show databases"  ) {
 		DIR *dir;
 		struct dirent *ent;
@@ -1901,7 +1915,7 @@ string ext2str ( string attname, int pos, string annfile ) {
 	attname = replace_all(attname, "extann_", "");
 	
 	string xpath = "//item[@c_pos='" + int2string(pos) + "']/@" + attname ;
-	return extann[annfile].select_single_node(xpath.c_str()).attribute().value();
+	return extann[annfile].select_node(xpath.c_str()).attribute().value();
 	
 	return "";
 };
@@ -1930,7 +1944,7 @@ vector<int> pos2rng ( string attname, int pos ) {
 	return idx;
 };
 
-string rng2xml( int pos1, int pos2, string rngname ) { // optional "" forward defined
+string rng2xml( int pos1, int pos2, string rngname, bool rawout ) { // optional "" forward defined
 	string filename; FILE * file; int rpos;
 
 	filename = cqpfolder + "/text_id.idx";
@@ -1940,13 +1954,14 @@ string rng2xml( int pos1, int pos2, string rngname ) { // optional "" forward de
 	fclose(file);
 
 	vector<string> m; 
+	int cpos1 = -1; int cpos2 = -1; 
  	if ( preg_match(rngname, "context:(\\d+)", &m) ) {
  		rngname = ""; int ctxt = intval(m[1]);
  		vector<int> tmp = ridx2rng("text_id", textid1);
- 		pos1 = pos1 - ctxt;
- 		pos2 = pos2 + ctxt;
- 		if ( pos1 < tmp[0] ) pos1 = tmp[0]; // stay within the same xml file
- 		if ( pos2 > tmp[1] ) pos2 = tmp[1]; // stay within the same xml file
+ 		cpos1 = pos1 - ctxt;
+ 		cpos2 = pos2 + ctxt;
+ 		if ( cpos1 < tmp[0] ) cpos1 = tmp[0]; // stay within the same xml file
+ 		if ( cpos2 > tmp[1] ) cpos2 = tmp[1]; // stay within the same xml file
  	} else {
 		if ( textid1 != textid2 ) { 
 			// Check that the positions belong to the same file
@@ -1958,6 +1973,7 @@ string rng2xml( int pos1, int pos2, string rngname ) { // optional "" forward de
 	string xmlfile = ridx2str("text_id", textid1);
 
 	int rpos1 = -1; int rpos2 = -1;
+	int crpos1 = -1; int crpos2 = -1;
 	if ( rngname != "" ) {
 		// expanded to a range (see if we can find one
 		int ridx1 = -1; int ridx2 = -1;
@@ -1970,10 +1986,19 @@ string rng2xml( int pos1, int pos2, string rngname ) { // optional "" forward de
 		if ( ridx1 != -1 && ridx2 != -1 ) {
 			filename = cqpfolder + "/" + rngname+ "_xidx.rng";
 			file = fopen ( filename.c_str() , "rb" );
-			rpos1 = read_network_number(ridx1*2,file);
-			rpos2 = read_network_number(ridx2*2+1,file);
+			crpos1 = read_network_number(ridx1*2,file);
+			crpos2 = read_network_number(ridx2*2+1,file);
 			fclose(file);
 		};
+		if ( rawout ) {
+			rpos1 = crpos1; rpos2 = crpos2;
+		};
+	} else {
+		filename = cqpfolder + "/xidx.rng";
+		file = fopen ( filename.c_str() , "rb" );
+		crpos1 = read_network_number(cpos1*2,file);
+		crpos2 = read_network_number(cpos2*2+1,file);
+		fclose(file);
 	};
 	
 	if ( rpos1 == -1 || rpos2 == -1 ) {
@@ -1984,8 +2009,17 @@ string rng2xml( int pos1, int pos2, string rngname ) { // optional "" forward de
 		fclose(file);
 	};
 	
-	string value = read_file_range(rpos1, rpos2, xmlfile);
-
+	if ( crpos1 == -1 || crpos2 == -1  ) {
+		crpos1 = rpos1; crpos2 = rpos2; 
+	};
+	
+	string value;
+	if ( rawout ) {
+		value = read_file_range(crpos1, crpos2, xmlfile);
+	} else {
+		value = read_file_range(crpos1, rpos1+1, xmlfile) + "<match>" + read_file_range(rpos1, rpos2, xmlfile) + "</match>" + read_file_range(rpos2-1, crpos2, xmlfile);
+	};
+	
 	return value;
 };
 
@@ -2193,7 +2227,7 @@ void cqlparse ( string cql ) {
 		}
 		int lastch = cqpfolder.length() - 1; 
 		if ( cqpfolder[lastch] != '/' ) { cqpfolder += "/"; };
-		cout << "New corpus folder: " << cqpfolder << endl;
+		if ( verbose ) cout << "New corpus folder: " << cqpfolder << endl;
 	} else if ( cql == "show corpora" ) {
 		DIR *dir;
 		struct dirent *ent;
@@ -2209,6 +2243,8 @@ void cqlparse ( string cql ) {
 		  perror ("");
 		  cout << "Failed to read registry folder" << endl;
 		}
+	} else if ( cql == ".EOL." ) {
+		cout << "-::-EOL-::-" << endl; // End-of-line for child processes (to know when to stop reading from the pipe)
 	} else if ( preg_match (cql, "([^ ]+) *= (.*)", &m ) ) {
 		if ( debug ) { cout << "Creating a new subcorpus: " << m[1] << endl; };
 		subname = m[1];
@@ -2286,8 +2322,8 @@ void cqlparse ( string cql ) {
 		if ( command == "tabulate" ) {
 			subcorpora[subname].tabulate(rest);
 		} else if ( command == "cat" ) {
-			rest = "match[-"+int2string(context)+"]..match[-1].word match..matchend.word matchend[1]..matchend["+int2string(context)+"].word";
-			subcorpora[subname].tabulate(rest);
+			rest = "match[-"+int2string(context)+"]..match[-1].word, match..matchend.word, matchend[1]..matchend["+int2string(context)+"].word";
+			subcorpora[subname].tabulate(rest, prompt);
 		} else if ( command == "sort" ) {
 			subcorpora[subname].sort(rest);
 		} else if ( command == "group" ) {
@@ -2311,7 +2347,7 @@ void cqlparse ( string cql ) {
 		} else if ( command == "size" ) {
 			cout << subcorpora[subname].size() << endl; 
 		} else {
-			cout << "Unrecognized command: " << cql << endl;
+			if ( !clientmode ) cout << "Unrecognized command: " << cql << endl;
 		};
 	} else if (cql != "" ) {
 		cout << "Unrecognized command: " << cql << endl;
@@ -2336,6 +2372,7 @@ int main(int argc, char *argv[]) {
 	shortopt["r"].push_back("registry"); shortopt["r"].push_back("1");
 	shortopt["b"].push_back("kleene"); shortopt["b"].push_back("1");
 	shortopt["e"].push_back("prompt"); 
+	shortopt["c"].push_back("client");  // this makes it print out the version
 
 	// Read in all the command-line arguments
 	for ( int i=1; i< argc; ++i ) {
@@ -2472,12 +2509,14 @@ int main(int argc, char *argv[]) {
 	if ( settings.attribute("debug") != NULL ) { debug = atoi(settings.attribute("debug").value()); };
 	if ( settings.attribute("verbose") != NULL ) { verbose = true; };
 	if ( settings.attribute("prompt") != NULL ) { prompt = true; };
+	if ( settings.attribute("client") != NULL ) { clientmode = true; };
 		
 	// Read commands from STDIN 
 	vector<string> fields; string line;
 	if ( mode ==  "cql" ) {
 		// CQL command are separated by ;
-		if ( prompt && verbose ) { cout << "TT-CQP, (c) Maarten Janssen 2018 - CWB Query Language interpreter" << endl << endl; };
+		if ( clientmode ) { cout << "TT-CQP version 0.5.0" << endl; }
+		else if ( prompt && verbose ) { cout << "TT-CQP, (c) Maarten Janssen 2018 - CWB Query Language interpreter" << endl << endl; };
 		if ( debug || prompt ) verbose = true;
 		if ( prompt ) { cout << corpusname << "> "; };
 		context = 5; // default context size

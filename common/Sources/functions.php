@@ -7,7 +7,18 @@
 	function check_login ( $checktype = "user" ) {
 		global $user, $username, $settings, $action, $publicactions;
 		if ( $settings['permissions']['groups'] ) $grouprec = $settings['permissions']['groups'][$user['group'].""];
+				
 		if ( $user['permissions'] == "admin" ) return; # Always allow admin
+		if ( $checktype != "" && in_array($user['permissions'], explode(",", $checktype)) ) return; // explicitly allowed for this type
+		
+		if ( is_array($_SESSION['extid']) ) { // Check whether we are logged in with an appropriate external ID
+			foreach ( $_SESSION['extid'] as $idtype => $val ) {
+				$extfunc = $settings['permissions'][$idtype]['functions'];
+				if ( is_array($extfunc) && in_array($action, array_keys($extfunc)) ) return; // allowed for extid users
+			};
+		};
+		
+		// We did not get permissions - figure out which error to display		
 		if ( !in_array($user['permissions'], explode(",", $checktype)) ) { 
 			if ( $usergroups[$checktype]['message'] )
 				print "<p>".$usergroups[$checktype]['message'];

@@ -471,7 +471,7 @@ float getTransProb ( string transitionstring ) {
 		return transitionProbs[transitionstring];
 	} else {
 		string xpath = "item[@key=\""+transitionstring+"\"]"; 
-		float transitionprob = atoi(parameters.first_child().child("transitions").select_single_node(xpath.c_str()).node().attribute("cnt").value()); // transition probabilities, smoothed if so desired
+		float transitionprob = atoi(parameters.first_child().child("transitions").select_node(xpath.c_str()).node().attribute("cnt").value()); // transition probabilities, smoothed if so desired
 		if ( debug > 4 ) { cout << "  Parameter transition frequency: " << transitionprob << " from " << xpath << endl; };
 		transitionProbs[transitionstring] = transitionprob;
 		return transitionprob;
@@ -1694,7 +1694,7 @@ int main (int argc, char * const argv[]) {
 				if ( debug > 3 ) cout << "  Not the selected parameters: " << (*it).node().attribute("pid").value() << endl;
 			};
 		} else if ( (*it).node().attribute("restriction") == NULL 
-				|| doc.select_single_node((*it).node().attribute("restriction").value()) != NULL ) {
+				|| doc.select_node((*it).node().attribute("restriction").value()) != NULL ) {
 			parameter = (*it).node();
 			if ( debug > 2 ) cout << "  Applicable parameters restriction: " << (*it).node().attribute("restriction").value() << endl;
 		} else {

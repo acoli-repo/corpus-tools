@@ -176,7 +176,7 @@ void treatnode ( pugi::xpath_node node ) {
 		formkey = formfld.attribute("key").value(); 
 		if ( xpath != "" ) {
 			if ( debug > 4 ) { cout << "Calculating XPath value for node: " << xpath << endl; };
-			 xres = node.node().select_single_node(xpath.c_str());
+			 xres = node.node().select_node(xpath.c_str());
 			if ( debug > 4 ) { xres.node().print(cout); };
 			if ( xres.attribute() ) {	
 				formval = xres.attribute().value();
@@ -243,7 +243,7 @@ void treatfile ( string filename ) {
 	pugi::xpath_node resnode;
 
 	if ( cqpsettings.attribute("restriction") != NULL 
-			&& doc.select_single_node(cqpsettings.attribute("restriction").value()) == NULL ) {
+			&& doc.select_node(cqpsettings.attribute("restriction").value()) == NULL ) {
 		if ( debug ) cout << "- XML " << filename << " not matching " << cqpsettings.attribute("restriction") .value() << endl;
 		return;
 	};
@@ -372,7 +372,7 @@ void treatfile ( string filename ) {
 					pugi::xpath_node xres;
 					if ( external != "" ) {
 						if ( debug > 2 ) { cout << "External XML lookup: " << external << endl; };
-						string tmp = doc.select_single_node(external.c_str()).attribute().value();
+						string tmp = doc.select_node(external.c_str()).attribute().value();
 						if ( debug > 3 ) { cout << " -- lookup value: " << tmp << endl; };
 						  vector <string> exval; 
 						  // Initialize srings
@@ -393,20 +393,20 @@ void treatfile ( string filename ) {
 								if ( debug > 1 ) { cout << "ID lookup: " << idlookup << endl; };
 								pugi::xml_node exnode;
 								try {
-									exnode = externals[exval[0]]->select_single_node(idlookup.c_str()).node();
+									exnode = externals[exval[0]]->select_node(idlookup.c_str()).node();
 								} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
 								if ( debug > 2 ) { exnode.print(cout); };
 								if ( exnode ) {
-									xres = exnode.select_single_node(xpath.c_str()); 
+									xres = exnode.select_node(xpath.c_str()); 
 								};
 							} else {
 								try {
-									xres = externals[exval[0]]->first_child().select_single_node(xpath.c_str()); 
+									xres = externals[exval[0]]->first_child().select_node(xpath.c_str()); 
 								} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
 							};
 						};
 					} else {
-						 xres = doc.select_single_node(xpath.c_str());
+						 xres = doc.select_node(xpath.c_str());
 					};
 					if ( xres.attribute() ) {	
 						formval = xres.attribute().value();
@@ -447,7 +447,7 @@ void treatfile ( string filename ) {
 				// it->node().print(oss); // This is the interpreted XML, which is too long... get beginning of next node instead
 				// std::string xmltxt = oss.str();	
 				// int xmlpos2 = xmlpos1 + xmltxt.length(); 
-				int xmlpos2 = it->node().select_single_node("./following::*").node().offset_debug()-1;
+				int xmlpos2 = it->node().select_node("./following::*").node().offset_debug()-1;
 				if ( debug > 4 ) { cout << "Writing XIDX for " << tagname << " = " << xmlpos1 << " - " << xmlpos2 << endl; };
 				write_network_number(xmlpos1, files[tagname + "_xidx"]["rng"]);
 				write_network_number(xmlpos2, files[tagname + "_xidx"]["rng"]);
@@ -462,14 +462,14 @@ void treatfile ( string filename ) {
 						pugi::xpath_node xres;
 						string external = formfld.attribute("external").value();
 						if ( external != "" ) {
-							pugi::xpath_node tmp = it->node().select_single_node(external.c_str());
+							pugi::xpath_node tmp = it->node().select_node(external.c_str());
 							string tmp2 = tmp.attribute().value();
 							string extxpath = "//*[@id='"+tmp2+"']";
 							if ( debug > 3 ) { cout << " - External lookup: " << external << " = " << tmp2  << " => " << extxpath << " : " << xpath << endl; };
-							pugi::xpath_node xext = it->node().select_single_node(extxpath.c_str());
-							xres = xext.node().select_single_node(xpath.c_str());
+							pugi::xpath_node xext = it->node().select_node(extxpath.c_str());
+							xres = xext.node().select_node(xpath.c_str());
 						} else {
-							xres = it->node().select_single_node(xpath.c_str());
+							xres = it->node().select_node(xpath.c_str());
 						};
 						formval = pugi::xpath_query(".").evaluate_string(xres);;
 
@@ -648,7 +648,7 @@ int main(int argc, char *argv[])
 
 
 	
-	pugi::xml_node parameters = xmlsettings.select_single_node("/ttsettings/cqp").node();
+	pugi::xml_node parameters = xmlsettings.select_node("/ttsettings/cqp").node();
 	if ( parameters == NULL ) {
 		cout << "- No parameters for CQP found" << endl;
 		return -1;
@@ -718,13 +718,13 @@ int main(int argc, char *argv[])
 	string corpusname;
 	if ( cqpsettings.attribute("corpus") != NULL ) { corpusname = cqpsettings.attribute("corpus").value(); }
 	else {
-		corpusname = xmlsettings.select_single_node("//cqp/@corpus").attribute().value();
+		corpusname = xmlsettings.select_node("//cqp/@corpus").attribute().value();
 	};
 	if ( corpusname == "" ) { cout << "Error: no corpus name indicated!" << endl; return -1; };
 	string corpuslong;
 	if ( cqpsettings.attribute("name") != NULL ) { corpuslong = cqpsettings.attribute("name").value(); }
 	else {
-		corpuslong = xmlsettings.select_single_node("//title/@display").attribute().value();
+		corpuslong = xmlsettings.select_node("//title/@display").attribute().value();
 	};
 	corpusname = strtolower(corpusname);
 	string registryfile = registryfolder + '/' + corpusname;
@@ -748,7 +748,7 @@ int main(int argc, char *argv[])
 		longname = formfld.attribute("display").value();
 		if ( longname == "" ) {
 			string tmp = "//pattributes//item[@key=\""+formkey+"\"]/@display";
-			longname = xmlsettings.select_single_node(tmp.c_str()).attribute().value();
+			longname = xmlsettings.select_node(tmp.c_str()).attribute().value();
 		};
 		registry << "ATTRIBUTE " << formkey << "  # " << longname << endl;
 		
@@ -871,7 +871,7 @@ int main(int argc, char *argv[])
 	string dofolders;
 	if ( cqpsettings.attribute("folder") != NULL ) { dofolders = cqpsettings.attribute("folder").value(); }
 	else {
-		dofolders = xmlsettings.select_single_node("//cqp/@searchfolder").attribute().value();
+		dofolders = xmlsettings.select_node("//cqp/@searchfolder").attribute().value();
 	};
 	if ( dofolders != "" ) {
 		if ( verbose ) cout << "- Indexing folder(s): " << dofolders << endl;
@@ -891,30 +891,30 @@ int main(int argc, char *argv[])
 	if ( verbose ) { cout << "- Calculating additional data" << endl; };
 
 	// write the corpus.cnt files
-	for (map<string, map<int, int> >::iterator it=lexcnt.begin(); it!=lexcnt.end(); ++it) {
-		string attname = it->first;
-		cout << attname << endl;
-		map<int,int> counts = it->second;
-		filename = corpusfolder + "/" + attname + ".corpus.cnt";
-		FILE* cntfile = fopen(filename.c_str(), "wb");
-		for (map<int, int>::iterator it2=counts.begin(); it2!=counts.end(); ++it2) {
-			write_network_number(it2->second, cntfile);
-		};
-		fclose(cntfile);
-	};
-	
-	// write the corpus.rev files
-	for (map<string, map<int, int> >::iterator it=pos2lex.begin(); it!=pos2lex.end(); ++it) {
-		string attname = it->first;
-		cout << attname << endl;
-		map<int,int> counts = it->second;
-		filename = corpusfolder + "/" + attname + ".corpus.rev";
-		FILE* cntfile = fopen(filename.c_str(), "wb");
-		for (map<int, int>::iterator it2=counts.begin(); it2!=counts.end(); ++it2) {
-			write_network_number(it2->second, cntfile);
-		};
-		fclose(cntfile);
-	};
+// 	for (map<string, map<int, int> >::iterator it=lexcnt.begin(); it!=lexcnt.end(); ++it) {
+// 		string attname = it->first;
+// 		cout << attname << endl;
+// 		map<int,int> counts = it->second;
+// 		filename = corpusfolder + "/" + attname + ".corpus.cnt";
+// 		FILE* cntfile = fopen(filename.c_str(), "wb");
+// 		for (map<int, int>::iterator it2=counts.begin(); it2!=counts.end(); ++it2) {
+// 			write_network_number(it2->second, cntfile);
+// 		};
+// 		fclose(cntfile);
+// 	};
+// 	
+// 	// write the corpus.rev files
+// 	for (map<string, map<int, int> >::iterator it=pos2lex.begin(); it!=pos2lex.end(); ++it) {
+// 		string attname = it->first;
+// 		cout << attname << endl;
+// 		map<int,int> counts = it->second;
+// 		filename = corpusfolder + "/" + attname + ".corpus.rev";
+// 		FILE* cntfile = fopen(filename.c_str(), "wb");
+// 		for (map<int, int>::iterator it2=counts.begin(); it2!=counts.end(); ++it2) {
+// 			write_network_number(it2->second, cntfile);
+// 		};
+// 		fclose(cntfile);
+// 	};
 	
 
 	if ( verbose ) cout << "- " << tokcnt << " tokens in CQP corpus" << endl; 

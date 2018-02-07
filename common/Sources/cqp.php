@@ -367,8 +367,24 @@
 		// Now that the we have the full CQL - make sure matches are always within a <text>
 		if ( !preg_match("/ within /", $cql) && !$fileonly ) $cql .= " within text";
 
-		$cqp = new CQP();
-		$cqp->exec($cqpcorpus); // Select the corpus
+		$cqpapp = $_POST['cqpapp'] or $cqpapp = $_GET['cqpapp'] or $cqpapp = "/usr/local/bin/cqp";
+		$cqp = new CQP("", $cqpapp);
+
+		if ( strstr($cqpapp, "tt-cqp") !== false  ) {
+			// tt-cqp specific options
+			$extannfile = $_POST['extann'] or $extannfile = "Users/ann_{$user['short']}.xml";
+			if ( file_exists($extannfile) ) {
+				$cqp->exec("load $extannfile my"); // Load the external annotation file
+			};
+		} else {
+			$cqp->exec($cqpcorpus); // Select the corpus
+			if ( $_POST['strategy'] && !$fileonly ) {
+				$cmd = "set MatchingStrategy {$_POST['strategy']}";
+				$cqp->exec($cmd); // Select the corpus
+				$maintext .= "<p>{%Matching strategy}: {%{$_POST['strategy']}}";
+			};
+		};
+
 
 		if ( !$fileonly || $user['permissions'] == "admin" ) $cqltxt = str_replace("'", "&#039;", $cql); # Best not show the query for doc-only searches...
 
@@ -386,11 +402,6 @@
 			$maintext .= "<div style='display: none;'><audio id=\"track\" src=\"http://alfclul.clul.ul.pt/teitok/site/Audio/mini.wav\" controls ontimeupdate=\"checkstop();\"></audio></div>";
 		};
 		
-		if ( $_POST['strategy'] && !$fileonly ) {
-			$cmd = "set MatchingStrategy {$_POST['strategy']}";
-			$cqp->exec($cmd); // Select the corpus
-			$maintext .= "<p>{%Matching strategy}: {%{$_POST['strategy']}}";
-		};
 
 		$precql = stripslashes($_POST['precql']);
 		if ( !$precql ) $precql = stripslashes($_GET['precql']);
@@ -774,7 +785,7 @@
 
 		
 		# Do not allow frequency counts if we already have a pre-select CQL
-		if ( !file_exists("/usr/local/bin/tt-cqp") && !$settings["default"]["tt-cqp"] ) {
+		if ( !file_exists("/usr/local/bin/tt-cqp") && !$settings["defaults"]["tt-cqp"] ) {
 			if ( $username )
 			$maintext .= "<hr><div class=adminpart>
 				<p>The corpus frequency options in TEITOK rely on tt-cqp, which does not
@@ -900,6 +911,19 @@
 			$wdef = "checked";
 			$stmp = "<script language=Javascript>switchtype('st', 'word');</script>";
 		} else { $cdef = "checked"; };
+
+		if ( file_exists("/usr/local/bin/tt-cqp") || $settings["defaults"]["tt-cqp"] ) {
+			// tt-cqp specific options
+			$extannfile = $_POST['extann'] or $extannfile = "Users/ann_{$user['short']}.xml";
+			if ( file_exists($extannfile) ) {
+				$extann = simplexml_load_file($extannfile);	
+				foreach ( $extann->xpath("//def/field") as $i => $deffld) { 
+					$tkey = $deffld['key'].'';
+					$tval = $deffld['short'] or $tval = $deffld['display'] or $tval = $deffld['key']; 
+					$extannfields["my_$tkey"] = "$tval"; 
+				};
+			};
+		};
 		
 		$maintext .= "
 				<p>{%Search method}:  &nbsp;
@@ -910,6 +934,7 @@
 					var types = [];
 					types['st'] = ['cqp', 'word'];
 					types['style'] = ['kwic', 'context'];
+					types['app'] = ['cqp-', 'tt-cqp-'];
 					for ( var i in types[tg] ) {
 						stype = types[tg][i]; 
 						document.getElementById(stype+'search').style.display = 'none';
@@ -999,7 +1024,11 @@
 				$maintext .= "<tr><th span='row'>$col<td>{%$colname}</tr>";
 			};
 		};
-		$maintext .= "</table></div>
+		$maintext .= "</table><div style='display: none' id='tt-cqp-search'><table>";
+		foreach ( $extannfields as $key => $display ) {
+			$maintext .= "<tr><th span='row'>$key<td>{%$display}</tr>";
+		};
+		$maintext .= "</table></div></div>
 			<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>";
 		
 		
@@ -1015,6 +1044,13 @@
 				<p>{%Display method}: 
 				<input type=radio name=style value='kwic' onClick=\"switchtype('style', 'kwic');\" $chkwic> KWIC
 				<input type=radio name=style value='context' onClick=\"switchtype('style', 'context');\" $chcont> Context
+				";			
+		
+		// Turned off for now - and should only have the options installed on the server
+		if ( $user['email'] == "maarten@clul.ul.pt" ) $maintext .= "
+				<p>{%CQP application}: 
+				<input type=radio name=cqpapp value=\"/usr/local/bin/cqp\" checked onClick=\"switchtype('app', 'cqp-');\"> CQP
+				<input type=radio name=cqpapp value=\"/usr/local/bin/tt-cqp\" onClick=\"switchtype('app', 'tt-cqp-');\"> TT-CQP
 				";			
 		
 		foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
@@ -1053,10 +1089,11 @@
 					<option value='word on match[-1]..match[-5]'>{%Left context}</option>
 					<option value=''>{%Corpus order}</option>
 				</select> 
-				<p>{%Matching stategy}: <select name=strategy>
+				<p id='cqp-search'>{%Matching stategy}: <select name=strategy>
 					<option value='longest' selected>{%Longest match}</option>
 					<option value='shortest'>{%Shortest match}</option>
 				</select> 
+				</p>
 				
 				
 				
