@@ -76,7 +76,7 @@
 				<input type=submit value={%Login}></form>";
 		
 		if ( !$_SESSION['extid'] ) {
-			if ( $settings['permissions']['orcid']['public'] && $settings['permissions']['orcid']['private'] ) {
+			if ( $settings['permissions']['orcid'] && $settings['permissions']['orcid']['public'] && $settings['permissions']['orcid']['private'] ) {
 				$maintext .= "<p>{%Visitor login}:  <a href='index.php?action=orcid'><img src=\"https://orcid.org/sites/default/files/images/orcid_16x16.png\" width=\"16\" height=\"16\" hspace=\"4\" /> ORCID</a>";
 			};
 		};		
