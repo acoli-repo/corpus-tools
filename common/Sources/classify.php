@@ -102,7 +102,8 @@
    		};
 		
 		if ( count($anfs) == 1 && 1==2) {
-			$autofile = array_keys($anfs)[0];
+			$tmp = array_keys($anfs);
+			$autofile = $tmp[0];
 			print "Auto-selecting: $autofile
 					<script language=Javascript>top.location='index.php?action=$action&file=$autofile';</script>"; exit;
 		};
