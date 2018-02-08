@@ -3,7 +3,7 @@
 	// (c) Maarten Janssen, 2018
 	check_login();
 	if ( !file_exists("/usr/local/bin/tt-cqp") && !$settings["defaults"]["tt-cqp"] ) {
-		fatal ("This function relies on TT-CQP, which does not seem to be installed");
+		fatal("This function relies on TT-CQP, which does not seem to be installed");
 	};
 	
 	// Use/build an external annotation file to classify 

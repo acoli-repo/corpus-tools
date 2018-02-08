@@ -1,11 +1,46 @@
 document.onclick = clickEvent; 
+document.onkeydown = keyEvent; 
 // document.onmouseover = mouseEvent; 
 // document.onmouseout = mouseOut; 
+
+var wavesurfer = Object.create(WaveSurfer);
+var waveform = document.getElementById('waveform');
+var mtxt = document.getElementById('mtxt');
+var speed = 1; 
+var zoom = 100;
+var loaded = false;
+var editfld = false;
+var pointa = 0;
+var pointb = 0;
+
+function keyEvent(evt) { 
+	var kc = evt.keyCode
+	if ( loaded && !editfld ) {
+		switch ( kc ) {
+			case 32: playpause(evt); break;
+			case 39: wavesurfer.skipForward(); break;
+			case 37: wavesurfer.skipBackward(); break;
+			case 65: pointa = wavesurfer.getCurrentTime(); break;
+			case 66: pointb = wavesurfer.getCurrentTime(); if ( pointa ) { wavesurfer.play(pointa); }; break;
+		};
+	}; 
+}
 
 function clickEvent(evt) { 
 	element = evt.toElement;
 	if ( !element ) { element = evt.target; };
 	if ( !element ) { console.log('No element found - try Chrome or Firefox'); console.log(evt); return -1; };
+	
+	// With the cmd button pressed, we are trying to edit a token
+	if ( evt.metaKey ) {
+		if ( element.parentNode.tagName == "TOK" ) { element = element.parentNode; };
+		if ( element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; };
+
+		if (element.tagName == "TOK" ) {
+			window.open('index.php?action=tokedit&cid='+tid+'&tid='+element.getAttribute('id'), 'edit');
+		};
+		return;
+	};
 	
 	// We might be hovering over a child of our utterance
 	if ( element.parentNode && element.parentNode.tagName == "U" ) { element = element.parentNode; };
@@ -19,11 +54,6 @@ function clickEvent(evt) {
 	};
 };
 
-var wavesurfer = Object.create(WaveSurfer);
-var waveform = document.getElementById('waveform');
-var mtxt = document.getElementById('mtxt');
-var speed = 1; 
-var zoom = 100;
 
 wavesurfer.init({
 	container: document.querySelector('#waveform'),
@@ -53,6 +83,7 @@ wavesurfer.on('ready', function () {
 	document.getElementById('waveblock').style.visibility = 'visible';
 
 	setzoom(1);
+	loaded = true;
 
 	minimap = wavesurfer.initMinimap({
 		height: 30,
@@ -92,7 +123,6 @@ wavesurfer.on('ready', function () {
 	
 	if ( jmp ) {
 		// Jump to a token
-		console.log(jmp);
 		var mtch = document.evaluate("//*[@id=\""+jmp+"\"]/ancestor::u", mtxt, null, XPathResult.ANY_TYPE, null);
 		var utt = mtch.iterateNext(); 
 		scrollToElementD(utt);
@@ -159,7 +189,7 @@ function showload(e){
 
 function scrollToElementD(elm){
 	var topPos = elm.offsetTop;
-	mtxt.scrollTop = topPos - mtxt.offsetTop - (mtxt.offsetHeight/2) + 10;
+	mtxt.scrollTop = topPos - mtxt.offsetTop - (mtxt.offsetHeight/2) + (elm.offsetHeight/2);
 }
 
 function setspeed (factor) {

@@ -27,7 +27,7 @@
 		<table width='100%'>
 		<tr>
 		<td>
-		 {%Speed}: <span onclick=\"setspeed(0.8);\">-</span> <span id='speedtxt' val=1>100%</span> <span onclick=\"setspeed(1.2);\">+</span>
+		 {%Speed}: <span onclick=\"setspeed(0.8);\">&#8854;</span> <span id='speedtxt' val=1>100%</span> <span onclick=\"setspeed(1.2);\">&#8853;</span>
 
 		<td><span id='timeindex' style=''></span>
 
@@ -37,7 +37,7 @@
 		  <span onclick=\"playpause(this);\"><i class=\"material-icons\">play_arrow</i></span>
 		  <span onclick=\"wavesurfer.skipForward();\"><i class=\"material-icons\">fast_forward</i></span>
 		<td  style='text-align: right;'>
-		 {%Zoom}: <span onclick=\"setzoom(0.8);\">-</span> <span id='zoomtxt' val=1>200 pps</span> <span onclick=\"setzoom(1.2);\">+</span>
+		 {%Zoom}: <span onclick=\"setzoom(0.8);\">&#8854;</span> <span id='zoomtxt' val=1>200 pps</span> <span onclick=\"setzoom(1.2);\">&#8853;</span>
 		</table>
 	</div>
 
@@ -53,6 +53,7 @@
 
 	$maintext .= "<script language=Javascript>
 		var soundfile = '$soundfile'; 
+		var tid = '$ttxml->fileid'; 
 		var	jmp = '$jmp';
 		</script>";
 
