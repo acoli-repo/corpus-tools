@@ -5,23 +5,73 @@ document.onkeydown = keyEvent;
 
 var wavesurfer = Object.create(WaveSurfer);
 var waveform = document.getElementById('waveform');
+var utteditor = document.getElementById('utteditor');
 var mtxt = document.getElementById('mtxt');
 var speed = 1; 
 var zoom = 100;
 var loaded = false;
-var editfld = false;
 var pointa = 0;
-var pointb = 0;
+var pointe = 0;
+var utttag = "U";
+var currregion;
+var editmode;
+
+
+var uttxp = "//" + utttag;
 
 function keyEvent(evt) { 
 	var kc = evt.keyCode
-	if ( loaded && !editfld ) {
+	var actfld = document.activeElement.tagName;
+	if ( loaded && ( !editmode || evt.ctrlKey ) ) {
 		switch ( kc ) {
-			case 32: playpause(evt); break;
-			case 39: wavesurfer.skipForward(); break;
-			case 37: wavesurfer.skipBackward(); break;
-			case 65: pointa = wavesurfer.getCurrentTime(); break;
-			case 66: pointb = wavesurfer.getCurrentTime(); if ( pointa ) { wavesurfer.play(pointa); }; break;
+			case 32: // space
+				playpause(evt); 
+				evt.preventDefault();
+				break;
+			case 39: // rightarrow
+				wavesurfer.skipForward(); 
+				evt.preventDefault();
+				break;
+			case 37: //leftarrow
+				wavesurfer.skipBackward(); 
+				evt.preventDefault();
+				break;
+			case 65: // a - set a
+				pointa = wavesurfer.getCurrentTime(); 
+				pointe = 0;
+				currregion.id = 'new';
+				currregion.update({start: pointa, end: pointa, color: 'rgba(255, 255, 0, 0.3)'});
+				break;
+			case 66: // b - back to a
+				if ( pointa ) { wavesurfer.play(pointa); }; 
+				break; 
+			case 67: // c - create utterance
+				if ( pointa && pointe && editmode ) { 
+					newutt(); 
+				}; 
+				break; 
+			case 69: // e - set e and repeat
+				if ( pointa ) { 
+					pointe = wavesurfer.getCurrentTime(); 
+					currregion.update({end: pointe});
+					wavesurfer.pause();
+				}; 
+				break; 
+			case 78:  // n - speed to normal
+				setspeed(0);  break;
+			case 80: // p - play currregion
+				if ( pointa && pointe ) { 
+					currregion.play();
+				}; 
+				break; 
+			case 81: 
+				pointa = 0;  
+				pointe = 0
+				currregion.update({start: pointa});
+				currregion.update({end: pointe});
+				break; // q - remove a
+			case 83: setspeed(0.8);  break; // s - slow down
+			case 90: setzoom(1.2);  break; // z - zoom in
 		};
 	}; 
 }
@@ -43,17 +93,76 @@ function clickEvent(evt) {
 	};
 	
 	// We might be hovering over a child of our utterance
-	if ( element.parentNode && element.parentNode.tagName == "U" ) { element = element.parentNode; };
-	if ( element.parentNode && element.parentNode.parentNode && element.parentNode.parentNode.tagName == "U" ) { element = element.parentNode.parentNode; };
+	if ( element.parentNode && element.parentNode.tagName == utttag ) { element = element.parentNode; };
+	if ( element.parentNode && element.parentNode.parentNode && element.parentNode.parentNode.tagName == utttag ) { element = element.parentNode.parentNode; };
 
-	if (element.tagName == "U" ) {
-		var start = element.getAttribute("start")*1;
-		var stop = element.getAttribute("end")*1;
-		wavesurfer.seekTo(start / wavesurfer.getDuration())
-		wavesurfer.play(start, stop);
+	if ( element.tagName == utttag ) {
+		var uttid = element.getAttribute('id');
+		var uttreg = regionarray[uttid];
+		pointa = uttreg.start; pointe = uttreg.end;
+		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.3)'});
+		currregion.id = uttreg.id; // set the ID so we know we do now want to create a new utterance
+		currregion.play();
 	};
 };
 
+function newutt () {
+	// Check that we are allowed to edit, and in edit mode
+
+	var a = currregion.start;
+	var b = currregion.end;
+	a = Math.floor(a*1000)/1000;
+	b = Math.floor(b*1000)/1000;
+	wavesurfer.pause();
+
+	// Show the utterance editor and instantiate the fields
+	utteditor.style.visibility = 'visible';
+	document.uttform.start.value = a;
+	document.uttform.end.value = b;
+	document.uttform.uttid.value = currregion.id;
+	document.uttform.transcription.value = ''; // reset the transcription (but leave @who since it is often correct)
+	
+};
+
+function changeutt (frm) {
+	// Process the new or updated utterance from the edit window
+	var v = document.uttform;
+	var utt;
+	
+	var uttid = v.uttid.value;
+	if ( uttid == "new" ) {
+		utt = document.createElement(utttag);
+		// add the utt to the end of the list of utterances
+		var mtch = document.evaluate(uttxp, waveform, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+		var llu = mtch.snapshotItem(mtch.snapshotLength-1);
+		llu.parentNode.insertBefore(utt, llu.nextSibling);
+		uttid = llu.getAttribute('id') + "-1";
+		utt.setAttribute('id', uttid);
+		uttarray[uttid] = utt;
+		var newregion = wavesurfer.addRegion({
+			start: v.start.value, // time in seconds
+			end: v.end.value, // time in seconds
+			drag: false,
+			resize: false,
+			color: 'hsla(0, 0%, 0%, 0)'
+		});
+		regionarray[uttid] = newregion
+	} else {
+		utt = uttarray[uttid];
+	};
+	utt.setAttribute('start', v.start.value);
+	utt.setAttribute('end', v.end.value);
+	utt.setAttribute('who', v.who.value);
+	
+	
+	// Now add the XML inside
+	utt.innerHTML = v.transcription.value;	
+	
+	utteditor.style.visibility = 'hidden';
+	pointa = 0; pointe = 0;
+	
+	return false;
+};
 
 wavesurfer.init({
 	container: document.querySelector('#waveform'),
@@ -82,6 +191,10 @@ wavesurfer.on('ready', function () {
 	document.getElementById('loading').style.display = 'none';
 	document.getElementById('waveblock').style.visibility = 'visible';
 
+	// Load some optional arguments from the PHP
+	if ( typeof(alttag) == "string" ) utttag = alttag;
+	if ( typeof(setedit) == "boolean" ) editmode = setedit;
+
 	setzoom(1);
 	loaded = true;
 
@@ -94,34 +207,33 @@ wavesurfer.on('ready', function () {
 	});
 
 	// Load the utterances
-	var uttlist = Array(); 
-	var mtch = document.evaluate("//u", waveform, null, XPathResult.ANY_TYPE, null);
-	var utt = mtch.iterateNext(); 
-	while ( utt != null )  { 
+	var mtch = document.evaluate(uttxp, waveform, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+	for ( var i=0 ; i < mtch.snapshotLength; i++ ) {
+		utt = mtch.snapshotItem(i);
+		var uttid = utt.getAttribute("id");
+		if ( uttid == "" ) uttid = "utt" + i;
 		var start = utt.getAttribute("start")*1;
 		var stop = utt.getAttribute("end")*1;
-		uttlist.push(utt);
-		uttarray[start] = utt;
-		utt = mtch.iterateNext(); 
-	};		
-	for ( i=0; i<uttlist.length; i++ ) {
-		var utt = uttlist[i];
-		var start = 1*utt.getAttribute('start');
-		var stop = 1*utt.getAttribute('end');
+		uttarray[uttid] = utt; 
 		
-		regionarray[start] = wavesurfer.addRegion({
+		var newregion = wavesurfer.addRegion({
 			start: start, // time in seconds
 			end: stop, // time in seconds
+			drag: false,
+			resize: false,
 			color: 'hsla(0, 0%, 0%, 0)'
 		});
+		newregion.id = utt.getAttribute('id');
+		regionarray[uttid] = newregion;
 	};
 	
 	// Now, resize the mtxt to fill the whole space below the wavesurfer element
 	var setheight = window.innerHeight - mtxt.offsetTop - 5;
 	mtxt.style.height = setheight + 'px';
+	document.getElementById('fullmtxt').style.visibility = 'visible';
 	durtxt = ftime(wavesurfer.getDuration());
 	
-	if ( jmp ) {
+	if ( jmp && !editmode ) {
 		// Jump to a token
 		var mtch = document.evaluate("//*[@id=\""+jmp+"\"]/ancestor::u", mtxt, null, XPathResult.ANY_TYPE, null);
 		var utt = mtch.iterateNext(); 
@@ -131,26 +243,47 @@ wavesurfer.on('ready', function () {
 
 	};
 	
+	currregion = wavesurfer.addRegion({
+		start: 0, // time in seconds
+		end: 0, // time in seconds
+		color: 'rgba(255, 255, 0, 0.3)'
+	});
 	showtime();
 	
 });
 wavesurfer.on('region-in', aligntranscription);
 wavesurfer.on('loading', showload);
 wavesurfer.on('audioprocess', showtime);
+wavesurfer.on('region-update-end', changeregion);
 
 var lastutt;
 function aligntranscription (region, e) {
-	var idx = region.start;
+	var idx = region.id;
 	
-	if ( uttarray[idx] ) {
-		if (lastutt) lastutt.style.backgroundColor = "";
-		uttarray[idx].style.backgroundColor = "#ffffcc";
-		scrollToElementD(uttarray[idx]);
-		lastutt = uttarray[idx];
-	};
+	var selutt = uttarray[idx];
+	if ( !selutt ) return;
+	
+	// Highlight the utterance (and unhighlight the previous one)
+	if (lastutt) lastutt.style.backgroundColor = "";
+	selutt.style.backgroundColor = "#ffffcc";
+	lastutt = selutt;
+
+	// Scroll to the utterance
+	scrollToElementD(selutt);
+
 };
 
-
+function changeregion (region) {
+	if ( editmode && region.id != 'new' && region.drag ) {
+		var utt = uttarray[region.id];
+		if ( !utt ) return;
+		var a = Math.floor(region.start*1000)/1000;
+		var b = Math.floor(region.end*1000)/1000;
+		utt.setAttribute('start', a);
+		utt.setAttribute('end', b);
+		regionarray[region.id].update({start: region.start, end: region.end});
+	};
+};
 
 function ftime (ms) {
 	var x = Math.floor(ms);
@@ -177,7 +310,11 @@ function ftime (ms) {
 };
 
 function showtime(e) {	
-	document.getElementById('timeindex').innerHTML = ftime(wavesurfer.getCurrentTime()) + " / " + durtxt;
+	var now =  wavesurfer.getCurrentTime();
+	document.getElementById('timeindex').innerHTML = ftime(now) + " / " + durtxt;
+	if ( pointa && !pointe ) {
+		currregion.update({end: now});
+	};
 };
 
 function showload(e){
@@ -194,6 +331,7 @@ function scrollToElementD(elm){
 
 function setspeed (factor) {
 	speed = speed * factor;
+	if ( speed == 0 ) speed = 1;
 	var speedtxt = Math.floor(speed*100) + "%";
 	wavesurfer.setPlaybackRate(speed);
 	document.getElementById('speedtxt').innerHTML = speedtxt;
@@ -206,11 +344,18 @@ function setzoom (factor) {
 	document.getElementById('zoomtxt').innerHTML = zoomtxt;
 }
 
-function playpause(e) {
+function playpause(evt) {
+	var ppbut = document.getElementById('ppbut');
 	if ( wavesurfer.isPlaying() ) {
-		e.innerHTML = '<i class=\"material-icons\">play_arrow</i>';
+		ppbut.innerHTML = '<i class=\"material-icons\">play_arrow</i>';
 	} else {
-		e.innerHTML = '<i class=\"material-icons\">pause</i>';
+		ppbut.innerHTML = '<i class=\"material-icons\">pause</i>';
 	};
 	wavesurfer.playPause();
+};
+
+function savetrans() {
+	var newtrans = mtxt.innerHTML;
+	document.getElementById('newval').value = newtrans;
+	document.getElementById('newtab').submit();	
 };

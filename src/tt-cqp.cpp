@@ -84,7 +84,7 @@ pugi::xml_document logfile;
 pugi::xml_node settings;
 pugi::xml_node results;
 pugi::xml_document xmlsettings;
-map<string, pugi::xml_document> extann; // To hold an external annotation
+map<string, shared_ptr<pugi::xml_document> > extann; // To hold an external annotation, shared pointers since xml_document is not copyable
 
 bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) {
 	// Check whether two strings "match" using various conditions
@@ -559,7 +559,7 @@ class cqlresult {
 				string xpath = "//item[@"+ctok.leftfield.rngatt+"=\""+m[1]+"\"]/@c_pos";
 				string extfile = ctok.leftfield.rngname;
 				if ( debug ) cout << "Initializing with an external attribute: " << xpath << " on " << extfile << endl;	
-				pugi::xpath_node_set tools = extann[extfile].select_nodes(xpath.c_str());
+				pugi::xpath_node_set tools = extann[extfile]->select_nodes(xpath.c_str());
 				for (pugi::xpath_node_set::const_iterator it = tools.begin(); it != tools.end(); ++it) {
 					string idxt = it->attribute().value();
 					int idx = intval(idxt);
@@ -1915,7 +1915,7 @@ string ext2str ( string attname, int pos, string annfile ) {
 	attname = replace_all(attname, "extann_", "");
 	
 	string xpath = "//item[@c_pos='" + int2string(pos) + "']/@" + attname ;
-	return extann[annfile].select_node(xpath.c_str()).attribute().value();
+	return extann[annfile]->select_node(xpath.c_str()).attribute().value();
 	
 	return "";
 };
@@ -2273,10 +2273,12 @@ void cqlparse ( string cql ) {
 			cout << "Error: not loading external attributes " << extname << " - conflicting with existing " << fldtype[extname] << endl;
 			return;
 		};
-		// read an external annotation file
-		if ( extann[extname].load_file(fn.c_str()) ) {
+		// read an external annotation file - store as a shared pointer
+		shared_ptr<pugi::xml_document> tmpdoc = make_shared<pugi::xml_document>();
+		if ( tmpdoc->load_file(fn.c_str()) ) {
 			if ( verbose ) { cout << "- Loaded external annotations " << extname << endl; };
 			fldtype[extname] = "extann";
+			extann.insert(make_pair(extname, tmpdoc));
 		} else {
 			cout << "Error: failed to load external annotations from " << fn << endl; 
 		};
@@ -2478,12 +2480,16 @@ int main(int argc, char *argv[]) {
 	if ( settings.attribute("extann") != NULL   ) {
 		string fn = settings.attribute("extann").value();
 		// read an external annotation file
-		if ( extann["extann"].load_file(fn.c_str()) ) {
-			if ( verbose ) { cout << "- Loaded external annotations extann" << endl; };
-			fldtype["extann"] = "extann";
+		shared_ptr<pugi::xml_document> tmpdoc = make_shared<pugi::xml_document>();
+		string extname = "extann";
+		if ( tmpdoc->load_file(fn.c_str()) ) {
+			if ( verbose ) { cout << "- Loaded external annotations " << extname << endl; };
+			fldtype[extname] = "extann";
+			extann.insert(make_pair(extname, tmpdoc));
 		} else {
 			cout << "Error: failed to load external annotations from " << fn << endl; 
 		};
+
 	};
 	
 	if ( settings.attribute("attname") != NULL   ) {
