@@ -10,7 +10,7 @@
 	// $maintext .= $ttxml->tableheader();
 	
 	$soundfile = current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url"));
-	if ( !$soundfile ) $soundfile = current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url"));
+	if ( !$soundfile ) $soundfile = current($ttxml->xml->xpath("//media/@url")); // maybe there is no mimeType
 	if ( !$soundfile ) fatal ("XML file has no media element providing a URL to the sound file");
 	$mp3 = str_replace(".wav", ".mp3", $soundfile);
 	if ( file_exists($mp3) ) $soundfile = $mp3;
