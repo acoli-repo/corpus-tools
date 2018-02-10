@@ -9,17 +9,17 @@
 		<h1>{%Waveform view}</h1>";
 	// $maintext .= $ttxml->tableheader();
 	
-	$soundfile = current($ttxml->xml->xpath("//media[@mimeType=\"audio/wav\"]/@url"));
+	$soundfile = current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url"));
 	$mp3 = str_replace(".wav", ".mp3", $soundfile);
 	if ( file_exists($mp3) ) $soundfile = $mp3;
 
 	if ( $act == "save" ) {
 	
 		$newtext = $_POST['newval'];
-
-		$newxml = preg_replace("/(<text .*?<\/text>|<text\/>)/smi", $newtext, $ttxml->xml->asXML());
-		$outputxml = simplexml_load_string($newxml);
+		$newtext = preg_replace("/ style=\"background-color: rgb\(255, 255, 204\);\"/", "", $newtext);		
 		
+		$newxml = preg_replace("/(<text .*?<\/text>|<text>.*?<\/text>|<text\/>)/smi", $newtext, $ttxml->xml->asXML());
+		$outputxml = simplexml_load_string($newxml);
 		if ( !$outputxml ) fatal("Ended up with invalid XML - refusing to save"); 
 
 		saveMyXML ( $newxml, $ttxml->fileid );
@@ -70,7 +70,7 @@
 				Key codes: a = set start time; c = create timeslot (from a) (<a target=help href='http://www.teitok.org/index.php?action=help&id=wavesurfer#edit'>more</a>).<hr>";
 		} else if ( $act == "edit"  && $username ) {
 			$editmsg = "<p>Below is an editable version of the transcription; Hold ctrl to control the sound. You can resize utterances boxes (<a target=help href='http://www.teitok.org/index.php?action=help&id=wavesurfer#edit'>more</a>)
-				<br><span style='color: red'>Editing here may modify the content of your transcription, handle with care.</span>";
+				<br><span style='color: red'>Editing here may modify the content of your transcription, Avoid using after tokenization.</span>";
 		};
 		if ( $editmsg ) {
 			$editable = "contenteditable"; $setedit = "true"; $editmsg .= "<hr>";
@@ -90,15 +90,17 @@
 			$editbuts
 			</div>
 	
-			<div id='utteditor' style='visibility: hidden; position: absolute; top: 250px; width: 650px; padding: 20px; left: 200px; height: 300px; background-color: #ffffee; border: 1px solid #999999;'>
+			<div id='utteditor' style='visibility: hidden; position: absolute; top: 270px; width: 650px; padding: 20px; left: 200px; background-color: #ffffee; border: 1px solid #999999;'>
 			<h2>{%Edit utterance}</h2>
 			<form action='' method=post id=uttform name=uttform onsubmit=\"return changeutt(this);\">
-			<p>Utterance: <input size=6 name='uttid' editable=false>
-			<p>Region: <input size=6 name='start' editable=false> - <input size=6 name='end' editable=false>
-			<p>Speaker: <input size=10 name=who>
+			<p>Utterance: <input size=6 name='uttid' readonly style='border: none; background-color: rgba(0, 0, 0, 0);'> 
+			- Region: <input size=6 name='start' editable=false> - <input size=6 name='end' editable=false>
+			- Speaker: <input size=10 name=who>
 			<p>Transcription: 
 			<br><textarea name=transcription style='width: 100%; height: 100px;'></textarea>
-			<input type=submit value=Save> &bull; <input type=button value=Cancel onClick=\"utteditor.style.visibility='hidden;';\">
+			<input type=submit value=Save> 
+			<input type=button value=Cancel onClick=\"utteditor.style.visibility='hidden';\">
+			<a target=help href='http://www.teitok.org/index.php?action=help&id=wavesurfer#codes'>recommended codes</a>
 			</form>
 			</div>
 	
@@ -109,10 +111,17 @@
 		
 		if ( !$editmsg ) {
 			$jmp = $_GET['jump'] or $jmp = $_GET['tid'];
+		} else {
+			// In edit mode, make utterances without a @start opaque
+			$maintext .= "<style>
+				u { opacity: 0.3;}
+				u[start] { opacity: 1;}
+			</style>";
 		};
 	
 		$maintext .= "<script language=Javascript>
 			var soundfile = '$soundfile'; 
+			var username = '$username'; 
 			var tid = '$ttxml->fileid'; 
 			var	jmp = '$jmp';
 			var alttag = '$utttag';

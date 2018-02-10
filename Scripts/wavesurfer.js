@@ -1,7 +1,7 @@
 document.onclick = clickEvent; 
 document.onkeydown = keyEvent; 
-// document.onmouseover = mouseEvent; 
-// document.onmouseout = mouseOut; 
+document.onmouseover = mouseEvent; 
+document.onmouseout = mouseOut; 
 
 var wavesurfer = Object.create(WaveSurfer);
 var waveform = document.getElementById('waveform');
@@ -22,7 +22,7 @@ var uttxp = "//" + utttag;
 function keyEvent(evt) { 
 	var kc = evt.keyCode
 	var actfld = document.activeElement.tagName;
-	if ( loaded && ( !editmode || evt.ctrlKey ) ) {
+	if ( loaded && ( !editmode || evt.altKey ) ) {
 		switch ( kc ) {
 			case 32: // space
 				playpause(evt); 
@@ -99,15 +99,50 @@ function clickEvent(evt) {
 	if ( element.tagName == utttag ) {
 		var uttid = element.getAttribute('id');
 		var uttreg = regionarray[uttid];
-		pointa = uttreg.start; pointe = uttreg.end;
-		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.3)'});
-		currregion.id = uttreg.id; // set the ID so we know we do now want to create a new utterance
-		currregion.play();
+		if ( uttreg.start && (!editmode || evt.altKey) ) {
+			pointa = uttreg.start; pointe = uttreg.end;
+			currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.3)'});
+			currregion.id = uttreg.id; // set the ID so we know we do now want to create a new utterance
+			currregion.play();
+			evt.preventDefault();
+		} else if ( editmode && evt.altKey && currregion.start && currregion.end ) {
+			// For an utterance that does not yet have a region, set it to current region
+			uttreg.start = currregion.start;
+			uttreg.end = currregion.end;
+			element.setAttribute("start", currregion.start);
+			element.setAttribute("end", currregion.end);
+			evt.preventDefault();
+		};
 	};
 };
 
+var lastreg;
+function mouseEvent(evt) { 
+	var element = evt.toElement; var reg;
+	if ( !element ) { element = evt.target; };
+	if ( !element ) { console.log('No element found - try Chrome or Firefox'); console.log(evt); return -1; };
+
+	// We might be hovering over a child of our utterance
+	if ( element.parentNode && element.parentNode.tagName == utttag ) { element = element.parentNode; };
+	if ( element.parentNode && element.parentNode.parentNode && element.parentNode.parentNode.tagName == utttag ) { element = element.parentNode.parentNode; };
+
+	if ( element.tagName == utttag ) {
+		if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+		lastreg = element.getAttribute('id');
+		reg = regionarray[lastreg];
+		reg.update({color: 'hsla(120, 100%, 50%, 0.1)'});
+	}
+	
+}
+
+function mouseOut(evt) { 
+	if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+}
+
+
 function newutt () {
 	// Check that we are allowed to edit, and in edit mode
+	if ( !editmode || !username ) return;
 
 	var a = currregion.start;
 	var b = currregion.end;
@@ -120,8 +155,17 @@ function newutt () {
 	document.uttform.start.value = a;
 	document.uttform.end.value = b;
 	document.uttform.uttid.value = currregion.id;
-	document.uttform.transcription.value = ''; // reset the transcription (but leave @who since it is often correct)
 	
+	if ( currregion.id != "new" ) {
+		var utt = uttarray[currregion.id];
+		document.uttform.transcription.value = utt.innerHTML; 
+		document.uttform.who.value = utt.getAttribute('who');
+	} else {
+		document.uttform.transcription.value = ''; // reset the transcription (but leave @who since it is often correct)
+	};
+	
+	// focus the transcription
+	document.uttform.transcription.focus();
 };
 
 function changeutt (frm) {
@@ -243,6 +287,7 @@ wavesurfer.on('ready', function () {
 
 	};
 	
+	// Add the HL region - last, so it is always on top
 	currregion = wavesurfer.addRegion({
 		start: 0, // time in seconds
 		end: 0, // time in seconds
@@ -251,6 +296,7 @@ wavesurfer.on('ready', function () {
 	showtime();
 	
 });
+wavesurfer.on('region-out', mouseOut);
 wavesurfer.on('region-in', aligntranscription);
 wavesurfer.on('loading', showload);
 wavesurfer.on('audioprocess', showtime);
@@ -262,6 +308,11 @@ function aligntranscription (region, e) {
 	
 	var selutt = uttarray[idx];
 	if ( !selutt ) return;
+
+	// Highlight the region we just entered
+	if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+	lastreg = region.id;
+	region.update({color: 'hsla(120, 100%, 50%, 0.1)'});
 	
 	// Highlight the utterance (and unhighlight the previous one)
 	if (lastutt) lastutt.style.backgroundColor = "";
@@ -270,6 +321,8 @@ function aligntranscription (region, e) {
 
 	// Scroll to the utterance
 	scrollToElementD(selutt);
+	
+
 
 };
 
