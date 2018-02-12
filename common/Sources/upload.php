@@ -62,29 +62,72 @@
 	
 	} else if ( $act == "list" ) {
 	
-		$type = $_GET['type'] or $type = "audio";
+		$type = $_GET['type'];
 		$typedef = $settings['files'][$type];
-		
 		$accept = str_replace('*', '', $typedef['extension']);
-		$maintext .= "<h1>File Upload</h1>
-			<h2>{$typedef['display']}</h2>";
-		
 		$maxsize = min(intval(ini_get("upload_max_filesize")), intval(ini_get("post_max_size")), intval(ini_get("memory_limit")));
-		if ( $maxsize < 20 ) $warning = "<i style='color: #888888;'> - ask system admistrator to increase upload_max_filesize, post_max_size, and memory_limit to upload larger files</i>";
-		$maxsize .= "Mb";
-		
-		if ( !is_dir($typedef['folder']) ) {
-			$maintext .= "<p style='font-weight: bold; color: #992000;'>Folder {$typedef['folder']} does not exist, please contact admin</p>";
-		} else if ( !is_writable($typedef['folder']) ) {
-			$maintext .= "<p style='font-weight: bold; color: #992000;'>Folder {$typedef['folder']} is not writable, please contact admin</p>";
-		} else {
-			$maintext .= "<p><form action='index.php?action=$action&act=save' method=post enctype=\"multipart/form-data\">
-				<p>Accepted extensions: <i>{$typedef['extension']}</i>
-				<p>Maximum file size: <i>$maxsize</i> $warning
+
+		$maintext .= "<h1>File Upload</h1>
+				<h2>{$typedef['display']}</h2>";
+
+		if ( !$_GET['old'] ) {
+			// Dropzone.js
+			
+			if ( $type == "facsimile" ) {
+				$capture = "capture: \"camera\",";
+			} else if ( $type == "audio" ) {
+				$capture = "capture: \"microphone\",";
+			} else if ( $type == "video" ) {
+				$capture = "capture: \"camcorder\",";
+			};
+			$maintext .= "
+				<script src=\"https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.2.0/dropzone.js\"></script>
+				<style type=\"text/css\"> @import url(\"https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.2.0/dropzone.css\");</style>
+				<script language=Javascript>
+				Dropzone.options.uploadZone = {
+  				  paramName: \"upfile\", // The name that will be used to transfer the file
+  				  acceptedFiles: \"$accept\",
+  				  maxsize: $maxsize,
+  				  $capture
+  				  init: function() {
+				  	// Maybe reload the list of uploaded files?
+				  }
+				};
+				</script>
+				<div id=\"dropzone\">
+				<form action=\"index.php?action=$action&act=save\" class=\"dropzone needsclick\" id=\"upload-zone\">
 				<input type=hidden name=type value='$type'>
-				<p>Add new file: <input type=file name=upfile accept=\"$accept\"> <input type=submit value=Save name=submit> 
-				</form> ";
-		};
+				<div class=\"dz-message needsclick\">
+					Drop files here or click to upload.
+					<br/>Accepted files: $accept
+					<br/>Maximum file size (accepted by server): $maxside Mb
+				</div>				
+				</form>
+				</div>
+			";
+			
+		} else {
+			// Simple style
+			
+		
+			$maxsize = min(intval(ini_get("upload_max_filesize")), intval(ini_get("post_max_size")), intval(ini_get("memory_limit")));
+			if ( $maxsize < 20 ) $warning = "<i style='color: #888888;'> - ask system admistrator to increase upload_max_filesize, post_max_size, and memory_limit to upload larger files</i>";
+			$maxsize .= "Mb";
+		
+			if ( !is_dir($typedef['folder']) ) {
+				$maintext .= "<p style='font-weight: bold; color: #992000;'>Folder {$typedef['folder']} does not exist, please contact admin</p>";
+			} else if ( !is_writable($typedef['folder']) ) {
+				$maintext .= "<p style='font-weight: bold; color: #992000;'>Folder {$typedef['folder']} is not writable, please contact admin</p>";
+			} else {
+				$maintext .= "<p><form action='index.php?action=$action&act=save' method=post enctype=\"multipart/form-data\">
+					<p>Accepted extensions: <i>{$typedef['extension']}</i>
+					<p>Maximum file size: <i>$maxsize</i> $warning
+					<input type=hidden name=type value='$type'>
+					<p>Add new file: <input type=file name=upfile accept=\"$accept\"> <input type=submit value=Save name=submit> 
+					</form> ";
+			};
+		};	
+			
 		
 		$maintext .= "<hr>
 				<h2>Stored Files</h2>
