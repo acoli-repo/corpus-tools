@@ -2,6 +2,8 @@ document.onclick = clickEvent;
 document.onkeydown = keyEvent; 
 document.onmouseover = mouseEvent; 
 document.onmouseout = mouseOut; 
+document.onmousedown = mouseDown; 
+document.onmouseup = mouseUp; 
 
 var wavesurfer = Object.create(WaveSurfer);
 var waveform = document.getElementById('waveform');
@@ -15,7 +17,8 @@ var pointe = 0;
 var utttag = "U";
 var currregion;
 var editmode;
-
+var downpoint;
+var lastdown;
 
 var uttxp = "//" + utttag;
 
@@ -90,6 +93,37 @@ function keyEvent(evt) {
 		};
 	}; 
 }
+
+function mouseDown(evt) { 
+    downpoint = xtotime(evt);
+};
+
+function mouseUp(evt) { 
+    uppoint = xtotime(evt);
+    if ( evt.shiftKey ) downpoint = lastdown; 
+    if ( uppoint > downpoint || evt.shiftKey) {
+    	pointa = downpoint;
+    	pointe = uppoint;
+		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 255, 0, 0.3)'});
+    } else if ( uppoint < downpoint ) {
+    	pointa = downpoint;
+    	pointe = uppoint;
+		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 255, 0, 0.3)'});
+    } else {
+		lastdown = uppoint;
+    };
+};
+
+function xtotime(evt) {
+	var timeidx = 0;
+	if ( evt.target.tagName == "REGION" ) {
+		// no idea yet
+    } else {
+    	timeidx = ( evt.layerX / wavesurfer.drawer.width ) * wavesurfer.getDuration(); // this works only for the first canvas
+    };
+    
+    return timeidx;
+};
 
 function clickEvent(evt) { 
 
@@ -205,8 +239,13 @@ function changeutt (frm) {
 		// add the utt to the end of the list of utterances
 		var mtch = document.evaluate(uttxp, waveform, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 		var llu = mtch.snapshotItem(mtch.snapshotLength-1);
-		llu.parentNode.insertBefore(utt, llu.nextSibling);
-		uttid = llu.getAttribute('id') + "-1";
+		if ( llu ) {
+			llu.parentNode.insertBefore(utt, llu.nextSibling);
+			uttid = llu.getAttribute('id') + "-1";
+		} else {
+			mtxt.appendChild(utt);
+			uttid = "utt-1";
+		};
 		utt.setAttribute('id', uttid);
 		uttarray[uttid] = utt;
 		var newregion = wavesurfer.addRegion({
@@ -313,6 +352,9 @@ wavesurfer.on('ready', function () {
 	mtxt.style.height = setheight + 'px';
 	document.getElementById('fullmtxt').style.visibility = 'visible';
 	durtxt = ftime(wavesurfer.getDuration());
+	
+	utteditor.style.top = mtxt.parentNode.offsetTop + 'px';
+	utteditor.style.left = mtxt.parentNode.getBoundingClientRect().left + 'px';
 	
 	if ( jmp && !editmode ) {
 		// Jump to a token

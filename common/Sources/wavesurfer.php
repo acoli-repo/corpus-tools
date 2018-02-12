@@ -4,9 +4,11 @@
 	$ttxml = new TTXML();
 	$fileid = $ttxml->fileid;
 	
+	
+	if ( $act == "edit" ) $editmode = " - {%Edit mode}";
 	$maintext .= "
 		<h2>$fileid</h2>
-		<h1>{%Waveform view}</h1>";
+		<h1>{%Waveform view}$editmode</h1>";
 	// $maintext .= $ttxml->tableheader();
 	
 	$soundfile = current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url"));
@@ -76,7 +78,7 @@
 		};
 		if ( $editmsg ) {
 			$editable = "contenteditable"; $setedit = "true"; $editmsg .= "<hr>";
-			$editbuts = "<hr><p><input type=button onClick='savetrans();' value='Save'> &bull; <input type=button onClick='window.reload();' value='Cancel'>";
+			$editbuts = "<hr><p><input type=button onClick='savetrans();' value='Save'> <input type=button onClick='top.location=\"index.php?action=$action&cid=$ttxml->fileid\";' value='Cancel'>";
 			$editbuts .= "
 				<form style='display: none;' action='index.php?action=$action&act=save&cid=$ttxml->fileid' method=post id=newtab>
 				<textarea style='display:none' name=newval id=newval></textarea>
@@ -92,7 +94,7 @@
 			$editbuts
 			</div>
 	
-			<div id='utteditor' style='visibility: hidden; position: absolute; top: 270px; width: 650px; padding: 20px; left: 200px; background-color: #ffffee; border: 1px solid #999999;'>
+			<div id='utteditor' style='visibility: hidden; position: absolute; top: 120px; width: 650px; padding: 20px; left: 20px; background-color: #ffffee; border: 1px solid #999999; z-index: 500;'>
 			<h2>{%Edit utterance}</h2>
 			<form action='' method=post id=uttform name=uttform onsubmit=\"return changeutt(this);\">
 			<p>Utterance: <input size=6 name='uttid' readonly style='border: none; background-color: rgba(0, 0, 0, 0);'> 

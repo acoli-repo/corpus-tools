@@ -39,7 +39,15 @@
 			print "<h1>Uploading File</h1><p>$target_file";
 		};
 		if( isset($_POST["type"]) ) {
-			if ( move_uploaded_file($_FILES["upfile"]["tmp_name"], $target_file) ) {
+			if ( file_exists($target_file) ) {
+				// Do not allow overwrite files
+				if ( !$dropzone ) {
+					echo "<p>The file $targe_file already exists.";
+				} else {
+					header("HTTP/1.0 422 File already exists"); ## Throw an error to let Dropzone know it went wrong
+					print '{"error": "file already exists"}';
+				};
+			} if ( move_uploaded_file($_FILES["upfile"]["tmp_name"], $target_file) ) {
 				if ( !$dropzone ) {
 					echo "<p>The file ". basename( $_FILES["upfile"]["name"]). " has been uploaded.";
 					header("location:index.php?action=$action&act=list&type=$type");

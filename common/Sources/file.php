@@ -861,6 +861,7 @@
 			";
 		
 		if ( $audiobit ) {
+			$maintext .= " &bull; <a href='index.php?action=audiomanage&cid=$fileid'>{%Audio management}</a>";
 			$maintext .= " &bull; <a href='index.php?action=wavesurfer&cid=$fileid'>{%Waveform view}</a>";
 		};
 		
