@@ -20,6 +20,8 @@ var editmode;
 var uttxp = "//" + utttag;
 
 function keyEvent(evt) { 
+	// Handle key presses - with the ALT key in edit mode
+
 	var kc = evt.keyCode
 	var actfld = document.activeElement.tagName;
 	if ( loaded && ( !editmode || evt.altKey ) ) {
@@ -41,14 +43,17 @@ function keyEvent(evt) {
 				pointe = 0;
 				currregion.id = 'new';
 				currregion.update({start: pointa, end: pointa, color: 'rgba(255, 255, 0, 0.3)'});
+				evt.preventDefault();
 				break;
 			case 66: // b - back to a
 				if ( pointa ) { wavesurfer.play(pointa); }; 
+				evt.preventDefault();
 				break; 
 			case 67: // c - create utterance
 				if ( pointa && pointe && editmode ) { 
 					newutt(); 
 				}; 
+				evt.preventDefault();
 				break; 
 			case 69: // e - set e and repeat
 				if ( pointa ) { 
@@ -56,33 +61,45 @@ function keyEvent(evt) {
 					currregion.update({end: pointe});
 					wavesurfer.pause();
 				}; 
+				evt.preventDefault();
 				break; 
 			case 78:  // n - speed to normal
+				evt.preventDefault();
 				setspeed(0);  break;
 			case 80: // p - play currregion
 				if ( pointa && pointe ) { 
 					currregion.play();
 				}; 
+				evt.preventDefault();
 				break; 
 			case 81: 
 				pointa = 0;  
 				pointe = 0
 				currregion.update({start: pointa});
 				currregion.update({end: pointe});
+				evt.preventDefault();
 				break; // q - remove a
-			case 83: setspeed(0.8);  break; // s - slow down
-			case 90: setzoom(1.2);  break; // z - zoom in
+			case 83: 
+				setspeed(0.8);  
+				evt.preventDefault();
+				break; // s - slow down
+			case 90: 
+				setzoom(1.2);  
+				evt.preventDefault();
+				break; // z - zoom in
 		};
 	}; 
 }
 
 function clickEvent(evt) { 
+
+	// Check if we cmd-click a token - in which we jump to edit if we are logged in
 	element = evt.toElement;
 	if ( !element ) { element = evt.target; };
 	if ( !element ) { console.log('No element found - try Chrome or Firefox'); console.log(evt); return -1; };
 	
 	// With the cmd button pressed, we are trying to edit a token
-	if ( evt.metaKey ) {
+	if ( evt.metaKey && username ) {
 		if ( element.parentNode.tagName == "TOK" ) { element = element.parentNode; };
 		if ( element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; };
 
@@ -91,6 +108,8 @@ function clickEvent(evt) {
 		};
 		return;
 	};
+	
+	// Check if we are clicking on an utterance
 	
 	// We might be hovering over a child of our utterance
 	if ( element.parentNode && element.parentNode.tagName == utttag ) { element = element.parentNode; };
@@ -118,6 +137,7 @@ function clickEvent(evt) {
 
 var lastreg;
 function mouseEvent(evt) { 
+	// Check whether the mouse rolls over an utterance
 	var element = evt.toElement; var reg;
 	if ( !element ) { element = evt.target; };
 	if ( !element ) { console.log('No element found - try Chrome or Firefox'); console.log(evt); return -1; };
@@ -126,7 +146,7 @@ function mouseEvent(evt) {
 	if ( element.parentNode && element.parentNode.tagName == utttag ) { element = element.parentNode; };
 	if ( element.parentNode && element.parentNode.parentNode && element.parentNode.parentNode.tagName == utttag ) { element = element.parentNode.parentNode; };
 
-	if ( element.tagName == utttag ) {
+	if ( element.tagName == utttag && !wavesurfer.isPlaying() ) {
 		if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
 		lastreg = element.getAttribute('id');
 		reg = regionarray[lastreg];
@@ -136,6 +156,12 @@ function mouseEvent(evt) {
 }
 
 function mouseOut(evt) { 
+	// Hide the last roll-over region (if there is one), unless the sound is playing (otherwise the two out function interfere)
+	if ( regionarray[lastreg]  && !wavesurfer.isPlaying()  ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+}
+
+function regionOut(evt) { 
+	// Hide the last roll-over region, when the waveform moves out of it (if there is one)
 	if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
 }
 
@@ -225,7 +251,7 @@ wavesurfer.init({
 	// splitChannels: true,
 });
 
-var minimap;
+var minimap; var zoomregion;
 var uttarray = Array();
 var regionarray = Array();
 var durtxt;
@@ -270,6 +296,17 @@ wavesurfer.on('ready', function () {
 		newregion.id = utt.getAttribute('id');
 		regionarray[uttid] = newregion;
 	};
+
+	// Show a region on the minimap - the zoom window, 
+	// and potentially also the regions on mouse-over
+// 	zoomregion = minimap.wavesurfer.addRegion({
+// 		start: 2, // time in seconds
+// 		end: 5, // time in seconds
+// 		drag: false,
+// 		resize: false,
+// 		color: 'hsla(210, 100%, 50%, 0.3)'
+// 	});
+	
 	
 	// Now, resize the mtxt to fill the whole space below the wavesurfer element
 	var setheight = window.innerHeight - mtxt.offsetTop - 5;
@@ -296,7 +333,7 @@ wavesurfer.on('ready', function () {
 	showtime();
 	
 });
-wavesurfer.on('region-out', mouseOut);
+wavesurfer.on('region-out', regionOut);
 wavesurfer.on('region-in', aligntranscription);
 wavesurfer.on('loading', showload);
 wavesurfer.on('audioprocess', showtime);
@@ -310,19 +347,20 @@ function aligntranscription (region, e) {
 	if ( !selutt ) return;
 
 	// Highlight the region we just entered
-	if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
-	lastreg = region.id;
-	region.update({color: 'hsla(120, 100%, 50%, 0.1)'});
-	
+	if ( idx != currregion.id ) {
+		if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+		lastreg = region.id;
+		region.update({color: 'hsla(120, 100%, 50%, 0.1)'});
+	};
+		
 	// Highlight the utterance (and unhighlight the previous one)
 	if (lastutt) lastutt.style.backgroundColor = "";
 	selutt.style.backgroundColor = "#ffffcc";
-	lastutt = selutt;
-
+		lastutt = selutt;
+	
 	// Scroll to the utterance
 	scrollToElementD(selutt);
 	
-
 
 };
 
