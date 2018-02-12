@@ -22,7 +22,7 @@
 		$newtext = $_POST['newval'];
 		$newtext = preg_replace("/ style=\"background-color: rgb\(255, 255, 204\);\"/", "", $newtext);		
 		
-		$newxml = preg_replace("/(<text .*?<\/text>|<text>.*?<\/text>|<text\/>)/smi", $newtext, $ttxml->xml->asXML());
+		$newxml = preg_replace("/(<text .*?<\/text>|<text>.*?<\/text>|<text[^>]*\/>)/smi", $newtext, $ttxml->xml->asXML());
 		$outputxml = simplexml_load_string($newxml);
 		if ( !$outputxml ) fatal("Ended up with invalid XML - refusing to save"); 
 

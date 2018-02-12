@@ -243,7 +243,7 @@ function changeutt (frm) {
 			llu.parentNode.insertBefore(utt, llu.nextSibling);
 			uttid = llu.getAttribute('id') + "-1";
 		} else {
-			mtxt.appendChild(utt);
+			mtxt.firstChild.appendChild(utt);
 			uttid = "utt-1";
 		};
 		utt.setAttribute('id', uttid);
