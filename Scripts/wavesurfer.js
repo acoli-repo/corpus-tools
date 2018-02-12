@@ -106,8 +106,8 @@ function mouseUp(evt) {
     	pointe = uppoint;
 		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 255, 0, 0.3)'});
     } else if ( uppoint < downpoint ) {
-    	pointa = downpoint;
-    	pointe = uppoint;
+    	pointe = downpoint;
+    	pointa = uppoint;
 		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 255, 0, 0.3)'});
     } else {
 		lastdown = uppoint;
@@ -116,11 +116,10 @@ function mouseUp(evt) {
 
 function xtotime(evt) {
 	var timeidx = 0;
-	if ( evt.target.tagName == "REGION" ) {
-		// no idea yet
-    } else {
-    	timeidx = ( evt.layerX / wavesurfer.drawer.width ) * wavesurfer.getDuration(); // this works only for the first canvas
-    };
+	const bbox = wavesurfer.drawer.wrapper.getBoundingClientRect();
+	var clientX = evt.clientX - bbox.left + wavesurfer.drawer.wrapper.scrollLeft;
+
+	timeidx = ( clientX / wavesurfer.drawer.width ) * wavesurfer.getDuration(); // this works only for the first canvas
     
     return timeidx;
 };
@@ -154,7 +153,8 @@ function clickEvent(evt) {
 		var uttreg = regionarray[uttid];
 		if ( uttreg.start && (!editmode || evt.altKey) ) {
 			pointa = uttreg.start; pointe = uttreg.end;
-			currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.3)'});
+			currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.15)'});
+			if ( uttreg.id == lastreg ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
 			currregion.id = uttreg.id; // set the ID so we know we do now want to create a new utterance
 			currregion.play();
 			evt.preventDefault();
@@ -184,7 +184,7 @@ function mouseEvent(evt) {
 		if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
 		lastreg = element.getAttribute('id');
 		reg = regionarray[lastreg];
-		reg.update({color: 'hsla(120, 100%, 50%, 0.1)'});
+		if ( reg.id != currregion.id ) { reg.update({color: 'hsla(120, 100%, 50%, 0.1)'}); };
 	}
 	
 }
@@ -196,6 +196,7 @@ function mouseOut(evt) {
 
 function regionOut(evt) { 
 	// Hide the last roll-over region, when the waveform moves out of it (if there is one)
+	if (lastutt) lastutt.style.backgroundColor = "";
 	if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
 }
 
@@ -392,13 +393,13 @@ function aligntranscription (region, e) {
 	if ( idx != currregion.id ) {
 		if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
 		lastreg = region.id;
-		region.update({color: 'hsla(120, 100%, 50%, 0.1)'});
+		if ( region.id != currregion.id ) region.update({color: 'hsla(120, 100%, 50%, 0.1)'});
 	};
 		
 	// Highlight the utterance (and unhighlight the previous one)
 	if (lastutt) lastutt.style.backgroundColor = "";
 	selutt.style.backgroundColor = "#ffffcc";
-		lastutt = selutt;
+	lastutt = selutt;
 	
 	// Scroll to the utterance
 	scrollToElementD(selutt);
