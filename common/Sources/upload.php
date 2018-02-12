@@ -28,20 +28,46 @@
 		if ( !is_dir($target_folder) ) mkdir($target_folder); # Create the folder if needed
 
 		$target_file = $target_folder."/".basename($_FILES["upfile"]["name"]);
-		print "<h1>Uploading File</h1><p>$target_file";
 		$uploadOk = 1;
 		$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
-		// Check if image file is a actual image or fake image
-		if(isset($_POST["submit"])) {
+
+		// print_r($_POST); exit;
+		if ( isset($_POST["submit"]) && $_POST['submit'] != "Save" ) {
+			$dropzone = true;
+			header('Content-type: application/json');
+		} else {
+			print "<h1>Uploading File</h1><p>$target_file";
+		};
+		if( isset($_POST["type"]) ) {
 			if ( move_uploaded_file($_FILES["upfile"]["tmp_name"], $target_file) ) {
-				echo "<p>The file ". basename( $_FILES["upfile"]["name"]). " has been uploaded.";
-				header("location:index.php?action=$action&act=list&type=$type");
+				if ( !$dropzone ) {
+					echo "<p>The file ". basename( $_FILES["upfile"]["name"]). " has been uploaded.";
+					header("location:index.php?action=$action&act=list&type=$type");
+				} else {
+					print "{\"ok\": \"file has been uploaded to $target_file\"}";
+				};
 			} else {
-				echo "<p>Sorry, there was an error uploading your file.";
-				if ( !is_uploaded_file($_FILES["upfile"]["tmp_name"]) ) print "<p>Error: file did not get uploaded";
-				else print "<p>Error: file could not get moved to $target_file";
+				if ( !$dropzone ) {
+					echo "<p>Sorry, there was an error uploading your file.";
+					if ( !is_uploaded_file($_FILES["upfile"]["tmp_name"]) ) print "<p>Error: file did not get uploaded";
+					else print "<p>Error: file could not get moved to $target_file";
+				} else {
+					if ( !is_uploaded_file($_FILES["upfile"]["tmp_name"]) ) {
+						header("HTTP/1.0 422 File move error"); ## Throw an error to let Dropzone know it went wrong
+						print "{\"error\": \"file could not get moved to $target_file\"}";
+					} else {
+						header("HTTP/1.0 422 File upload error"); ## Throw an error to let Dropzone know it went wrong
+						print '{"error": "file did not get uploaded"}';
+					};
+				};
 			}
-		} else { print "<p>Nothing received to upload";};
+		} else { 	
+			if ( !$dropzone ) 
+				print "<p>Nothing received to upload";
+			else 
+				header("HTTP/1.0 422 No file"); ## Throw an error to let Dropzone know it went wrong
+				print '{"error": "no file received"}';
+		};
 		exit;
 
 	} else if ( $act == "download" ) {
@@ -70,7 +96,7 @@
 		$maintext .= "<h1>File Upload</h1>
 				<h2>{$typedef['display']}</h2>";
 
-		if ( !$_GET['old'] ) {
+		if ( !$settings['files']['nodropzone'] ) {
 			// Dropzone.js
 			
 			if ( $type == "facsimile" ) {
@@ -80,6 +106,7 @@
 			} else if ( $type == "video" ) {
 				$capture = "capture: \"camcorder\",";
 			};
+			if ( $debug || $_GET['simple'] || $settings['files']['fallback'] ) { $capture .= " forceFallback: true,"; };
 			$maintext .= "
 				<script src=\"https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.2.0/dropzone.js\"></script>
 				<style type=\"text/css\"> @import url(\"https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.2.0/dropzone.css\");</style>
@@ -95,14 +122,18 @@
 				};
 				</script>
 				<div id=\"dropzone\">
-				<form action=\"index.php?action=$action&act=save\" class=\"dropzone needsclick\" id=\"upload-zone\">
+				<form action=\"index.php?action=$action&act=save\" class=\"dropzone needsclick\" id=\"upload-zone\"  method=post enctype=\"multipart/form-data\">
 				<input type=hidden name=type value='$type'>
 				<div class=\"dz-message needsclick\">
 					Drop files here or click to upload.
 					<br/>Accepted files: $accept
 					<br/>Maximum file size (accepted by server): $maxside Mb
 				</div>				
-				</form>
+				<div class=\"fallback\">
+					<input type=file name=upfile accept=\"$accept\"> 
+					<input type=submit value=Save name=submit> 
+				</div>
+  				</form>
 				</div>
 			";
 			
@@ -123,7 +154,9 @@
 					<p>Accepted extensions: <i>{$typedef['extension']}</i>
 					<p>Maximum file size: <i>$maxsize</i> $warning
 					<input type=hidden name=type value='$type'>
-					<p>Add new file: <input type=file name=upfile accept=\"$accept\"> <input type=submit value=Save name=submit> 
+					<p>Add new file: 
+						<input type=file name=upfile accept=\"$accept\"> 
+						<input type=submit value=Save name=submit> 
 					</form> ";
 			};
 		};	
