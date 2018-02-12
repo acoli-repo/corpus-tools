@@ -127,7 +127,7 @@
 				<div class=\"dz-message needsclick\">
 					Drop files here or click to upload.
 					<br/>Accepted files: $accept
-					<br/>Maximum file size (accepted by server): $maxside Mb
+					<br/>Maximum file size (accepted by server): $maxsize Mb
 				</div>				
 				<div class=\"fallback\">
 					<input type=file name=upfile accept=\"$accept\"> 
