@@ -68,6 +68,16 @@ function keyEvent(evt) {
 				}; 
 				evt.preventDefault();
 				break; 
+			case 70: // f - continue from e
+				if ( pointe ) {
+					pointa = pointe; 
+					pointe = 0;
+					currregion.id = 'new';
+					currregion.update({start: pointa, end: pointa, color: 'rgba(255, 255, 0, 0.3)'});
+				};
+				evt.preventDefault();
+				break;
+				
 			case 78:  // n - speed to normal
 				evt.preventDefault();
 				setspeed(0);  break;
@@ -599,6 +609,6 @@ function toelan(elm) {
  	var url = URL.createObjectURL(blob);
 	elm.href = url;
 	elm.download = tid.replace(".xml", ".eaf");
-	elm.click();
+	// elm.click();
 	// window.URL.revokeObjectURL(url);
 };

@@ -1,5 +1,26 @@
 # Change Log
 
+
+## [Version 1.7](https://gitlab.com/maartenes/TEITOK/tags/v1.7) (Nov 17, 2017)
+
+### Improvements 
+
+* Complete redesign of not-logged-in message system
+* Added a tagset for the universal dependencies for dependency trees
+* Major overhaul of the options to create a new XML file, including WYSIWYG editing
+* Major overhaul of the XML reader, which can now be used as a full module to display simple XML databases
+
+### Bug fixes
+
+* Fixed several bugs in the dependency tree display
+* Greatly improved stand-off annotation module
+* Removed the non-working option to keep facsimile image on page on scroll
+* Made tokview listed to the noshow option in the settings
+* Removed recqp from the admin module (which had long been deprecated)
+* Removed the (too slow) option to have PHP look for Smarty if it cannot be found
+* Removed the namespace in several places where it made the system crash
+* Made sure users always get a short ID
+
 ## [Version 1.6](https://gitlab.com/maartenes/TEITOK/tags/v1.6) (Jun 08, 2017)
 
 ### Improvements 
@@ -12,7 +33,6 @@
 * Fixed a new bug that incorrectly flattened XML
 * Fixed issues in the new xmlreader
 
-# Change Log
 
 ## [Version 1.5](https://gitlab.com/maartenes/TEITOK/tags/v1.5) (Jun 01, 2017)
 
