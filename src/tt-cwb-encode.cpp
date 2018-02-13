@@ -891,6 +891,7 @@ int main(int argc, char *argv[])
 	if ( verbose ) { cout << "- Calculating additional data" << endl; };
 
 	// write the corpus.cnt files
+	// TODO: This writes the data wrong apparently, making CQP no longer work - check and resolve
 // 	for (map<string, map<int, int> >::iterator it=lexcnt.begin(); it!=lexcnt.end(); ++it) {
 // 		string attname = it->first;
 // 		cout << attname << endl;

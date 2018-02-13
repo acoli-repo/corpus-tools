@@ -3,7 +3,7 @@ document.onkeydown = keyEvent;
 document.onmouseover = mouseEvent; 
 document.onmouseout = mouseOut; 
 document.onmousedown = mouseDown; 
-document.onmouseup = mouseUp; 
+document.onmousemove = mouseMove; 
 
 var wavesurfer = Object.create(WaveSurfer);
 var waveform = document.getElementById('waveform');
@@ -94,24 +94,22 @@ function keyEvent(evt) {
 	}; 
 }
 
-function mouseDown(evt) { 
-    downpoint = xtotime(evt);
+function mouseMove(evt) { 
+	uppoint = xtotime(evt);
+    if ( evt.buttons ) {
+		if ( uppoint > downpoint || evt.shiftKey) {
+			pointa = downpoint;
+			pointe = uppoint;
+		} else if ( uppoint < downpoint ) {
+			pointe = downpoint;
+			pointa = uppoint;
+		};
+		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 255, 0, 0.3)'});
+    };
 };
 
-function mouseUp(evt) { 
-    uppoint = xtotime(evt);
-    if ( evt.shiftKey ) downpoint = lastdown; 
-    if ( uppoint > downpoint || evt.shiftKey) {
-    	pointa = downpoint;
-    	pointe = uppoint;
-		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 255, 0, 0.3)'});
-    } else if ( uppoint < downpoint ) {
-    	pointe = downpoint;
-    	pointa = uppoint;
-		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 255, 0, 0.3)'});
-    } else {
-		lastdown = uppoint;
-    };
+function mouseDown(evt) { 
+    downpoint = xtotime(evt);
 };
 
 function xtotime(evt) {
@@ -149,6 +147,7 @@ function clickEvent(evt) {
 	if ( element.parentNode && element.parentNode.parentNode && element.parentNode.parentNode.tagName == utttag ) { element = element.parentNode.parentNode; };
 
 	if ( element.tagName == utttag ) {
+		// We are clicking on an utterance
 		var uttid = element.getAttribute('id');
 		var uttreg = regionarray[uttid];
 		if ( uttreg.start && (!editmode || evt.altKey) ) {
@@ -166,7 +165,16 @@ function clickEvent(evt) {
 			element.setAttribute("end", currregion.end);
 			evt.preventDefault();
 		};
+	} else if ( ( element.tagName == "CANVAS" || element.tagName == "REGION" ) ) {
+		// We are clicking in the wavesurfer
+		if ( evt.shiftKey ) {
+			pointa = wavesurfer.getCurrentTime(); 
+			pointe = xtotime(evt);
+			currregion.id = 'new';
+			currregion.update({start: pointa, end: pointe, color: 'rgba(255, 255, 0, 0.3)'});
+		};
 	};
+	
 };
 
 var lastreg;
