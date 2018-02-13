@@ -63,7 +63,6 @@
 
 		";
 
-		//$editxml = current($ttxml->xml->xpath("//text"))->asXML();
 		$editxml = $ttxml->asXML();
 
 		$utttag = $settings['xmlfile']['defaults']['speechturn'] or $utttag = strtoupper($_GET["utt"]) or $utttag = "U"; // Make it possible to use <p> instead of <u>
@@ -111,7 +110,7 @@
 			<hr><a href='index.php?action=file&cid=$ttxml->fileid'>{%text view}</a>";
 	
 		if ( $username && !$editmsg ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&cid=$ttxml->fileid'>edit transcripion</a>";
-
+		if ( 1==1 ) $maintext .= " &bull;  <a onClick='toelan(this);'>export as ELAN</a>";
 		
 		if ( !$editmsg ) {
 			$jmp = $_GET['jump'] or $jmp = $_GET['tid'];

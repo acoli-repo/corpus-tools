@@ -3,6 +3,7 @@ document.onkeydown = keyEvent;
 document.onmouseover = mouseEvent; 
 document.onmouseout = mouseOut; 
 document.onmousedown = mouseDown; 
+document.onmouseup = mouseUp; 
 document.onmousemove = mouseMove; 
 
 var wavesurfer = Object.create(WaveSurfer);
@@ -18,6 +19,7 @@ var utttag = "U";
 var currregion;
 var editmode;
 var downpoint;
+var downtype;
 var lastdown;
 
 var uttxp = "//" + utttag;
@@ -96,8 +98,12 @@ function keyEvent(evt) {
 
 function mouseMove(evt) { 
 	uppoint = xtotime(evt);
-    if ( evt.buttons ) {
-		if ( uppoint > downpoint || evt.shiftKey) {
+	if ( evt.buttons && downtype != "DOWN" && ( evt.target.tagName == "HANDLE" || evt.target.tagName == "REGION" ) ) {
+		// Mark we are dragging a region or region handle, and do not do move until mouseup
+		downtype = "HANDLE";
+	};
+    if ( evt.buttons && downtype != "HANDLE" ) {
+		if ( uppoint > downpoint ) {
 			pointa = downpoint;
 			pointe = uppoint;
 		} else if ( uppoint < downpoint ) {
@@ -110,7 +116,13 @@ function mouseMove(evt) {
 
 function mouseDown(evt) { 
     downpoint = xtotime(evt);
+	downtype = "DOWN";
 };
+
+function mouseUp(evt) { 
+	downtype = "UP";
+};
+
 
 function xtotime(evt) {
 	var timeidx = 0;
@@ -385,6 +397,7 @@ wavesurfer.on('ready', function () {
 	
 });
 wavesurfer.on('region-out', regionOut);
+wavesurfer.on('region-click', regionClick);
 wavesurfer.on('region-in', aligntranscription);
 wavesurfer.on('loading', showload);
 wavesurfer.on('audioprocess', showtime);
@@ -413,6 +426,17 @@ function aligntranscription (region, e) {
 	scrollToElementD(selutt);
 	
 
+};
+
+
+
+function regionClick (uttreg, e) {
+	if ( e.altKey ) {
+		pointa = uttreg.start; pointe = uttreg.end;
+		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.15)'});
+		if ( uttreg.id == lastreg ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+		currregion.id = uttreg.id; // set the ID so we know we do now want to create a new utterance
+	};
 };
 
 function changeregion (region) {
@@ -500,4 +524,67 @@ function savetrans() {
 	var newtrans = mtxt.innerHTML;
 	document.getElementById('newval').value = newtrans;
 	document.getElementById('newtab').submit();	
+};
+
+var slotlist = new Array();
+function toelan(elm) {
+	var xmlString = "<ANNOTATION_DOCUMENT>\
+	<HEADER>\
+		<MEDIA_DESCRIPTOR MEDIA_URL=\""+  document.baseURI + soundfile +"\"/>\
+	</HEADER>\
+	<TIME_ORDER/>\
+	<TIER TIER_ID=\"MAIN\"/>\
+</ANNOTATION_DOCUMENT>";
+	var parser = new DOMParser();
+	var xmlDoc = parser.parseFromString(xmlString, "text/xml"); //important to use "text/xml"
+
+	var timeorder = xmlDoc.getElementsByTagName("TIME_ORDER")[0]; var i=0;
+	for ( var uttid in uttarray  ) {
+		var utt = uttarray[uttid]; 
+		var start = utt.getAttribute("start");
+		if ( !slotlist[start] ) {
+			var node = xmlDoc.createElement("TIME_SLOT");
+			node.setAttribute("TIME_SLOT_ID", "T"+(i+1));
+			node.setAttribute("TIME_VALUE", start);
+			timeorder.appendChild(node);
+			slotlist[start] =  "T"+(i+1);
+			i++;
+		};
+		var end = utt.getAttribute("end");
+		if ( !slotlist[end] ) {
+			var node = xmlDoc.createElement("TIME_SLOT");
+			node.setAttribute("TIME_SLOT_ID", "T"+(i+1));
+			node.setAttribute("TIME_VALUE", start);
+			timeorder.appendChild(node);
+			slotlist[end] =  "T"+(i+1);
+			i++;
+		};
+	};
+
+	var tier = xmlDoc.getElementsByTagName("TIER")[0]; i = 1;
+	for ( var uttid in uttarray  ) {
+		var utt = uttarray[uttid]; 
+		var start = slotlist[utt.getAttribute("start")];
+		var end = slotlist[utt.getAttribute("end")];
+
+		var node = xmlDoc.createElement("ANNOTATION");
+		var node2 = xmlDoc.createElement("ALIGNABLE_ANNOTATION");
+		node2.setAttribute("TIME_SLOT_REF1", start);
+		node2.setAttribute("TIME_SLOT_REF2", end);
+		var node3 = xmlDoc.createElement("ANNOTATION_VALUE");
+		node3.innerHTML = utt.innerHTML;
+		node2.appendChild(node3);
+		node.appendChild(node2);
+		tier.appendChild(node);
+	};
+	
+	var serializer = new XMLSerializer();
+	var xmltext = serializer.serializeToString(xmlDoc);
+	
+ 	var blob = new Blob([xmltext], {type: 'application/xml'});
+ 	var url = URL.createObjectURL(blob);
+	elm.href = url;
+	elm.download = tid.replace(".xml", ".eaf");
+	elm.click();
+	// window.URL.revokeObjectURL(url);
 };
