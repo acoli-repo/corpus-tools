@@ -1,6 +1,88 @@
 # Change Log
 
 
+## [Version 1.11](https://gitlab.com/maartenes/TEITOK/tags/v1.11) (Jan 15, 2018)
+
+### Improvements 
+
+* Introduced TT-CQP, a custom version of CQP
+* Added various additional views to the data visualization
+* Added the option to upload a modified CSV to the csv module
+
+### Bug fixes
+
+* TT-CWB-ENCODE now writes .pos files for dependent positions
+
+
+## [Version 1.10](https://gitlab.com/maartenes/TEITOK/tags/v1.10) (Jan 8, 2018)
+
+### Improvements 
+
+* Added a data visualization module showing statistics and graphs
+
+### Bug fixes
+
+* Improved checksettings (after copying/moving a project)
+* Solved a bug in CQP search when searches included a '
+* Solved a bug in tt-cwb-encode that sometimes made token content disappear
+
+
+## [Version 1.9](https://gitlab.com/maartenes/TEITOK/tags/v1.9) (Jan 2, 2018)
+
+### Improvements 
+
+* Moved Javscript libraries out of the repository in favour of CDN
+* Added various option to pagetrans (fullscreen, 2up, zoom, simplify, line and token edit)
+* Added region edit to place lines and other regions interactively on a facsimile image
+* Added the option to use another view than text view (file) for context in CQP search
+* Added facsimile view, showing a searchable-PDF style view focussed on the Facsimile image
+* Line-by-line editing in pagetrans now allows you to adjust the facsimile cutout
+
+### Bug fixes
+
+* Improved rendering of pb to mimick the treatment of lb
+* Added the option to have gtok element for words split across a linebreak
+* Made multichange run in the background
+* Several improvements to pdf2tei
+* Made fatal error display message via a file rather than the URL
+* backups folder now created if it does not exist
+* Added search result highlight to line view
+* Lineview now uses CSS and Javascript to get the cutout images
+* Added a warning when merging tokens fails (string replacement failure)
+* tokmerge now deals correctly with bboxes
+* pdf2tei can now write a logfile
+* Added paged view to ttxml
+* Added the option to include non-tokenized texts with tt-cwb-encode
+
+
+## [Version 1.8](https://gitlab.com/maartenes/TEITOK/tags/v1.8) (Dec 5, 2017)
+
+### Improvements 
+
+* Added the option to have an automatic simplified layer, for instance to keep the long s only at pform
+* Added a check to see the folder did not get moved or copied, checking the settings if it did
+* Added XML validity check before submitting raw XML, avoiding loss of content
+* Greatly improved the options for creating new XML files
+* Added a module to create an XML files based upon a PDF file
+* Improved support for using milestones in XML files
+* Added page-by-page transcription using a pre-TEI format comparable to hOCR or PAGESXML for easy transcription
+* Made a central recqp script avoiding the need to have project-specific script to create the CQP corpus
+* Added a module to help create a template
+* Added a list of standard frequency distribution options
+
+### Bug fixes
+
+* Corrected an issue that made line numbers appear various time by redesigning the lb rendering
+* Added some missing features to adminsettings.xml
+* Corrected the position of the help button in advanced search
+* Removed deprecated modules from the repository
+* Added i18n for Catalan
+* Added a help item to the admin menu
+* Corrected an error in the PSDX module which made it not show all results
+* Made the upload module a bit more informative
+* Made the XML reader work even if there are no records yet
+
+
 ## [Version 1.7](https://gitlab.com/maartenes/TEITOK/tags/v1.7) (Nov 17, 2017)
 
 ### Improvements 
@@ -20,6 +102,7 @@
 * Removed the (too slow) option to have PHP look for Smarty if it cannot be found
 * Removed the namespace in several places where it made the system crash
 * Made sure users always get a short ID
+
 
 ## [Version 1.6](https://gitlab.com/maartenes/TEITOK/tags/v1.6) (Jun 08, 2017)
 
