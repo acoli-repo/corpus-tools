@@ -432,10 +432,24 @@ function aligntranscription (region, e) {
 
 function regionClick (uttreg, e) {
 	if ( e.altKey ) {
+	
+		// Highlight the region itself
 		pointa = uttreg.start; pointe = uttreg.end;
 		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.15)'});
 		if ( uttreg.id == lastreg ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
 		currregion.id = uttreg.id; // set the ID so we know we do now want to create a new utterance
+
+		var selutt = uttarray[uttreg.id];
+		if ( !selutt ) return;
+
+		// Highlight the utterance (and unhighlight the previous one)
+		if (lastutt) lastutt.style.backgroundColor = "";
+		selutt.style.backgroundColor = "#ffffcc";
+		lastutt = selutt;
+
+		// Scroll to the utterance
+		scrollToElementD(selutt);
+
 	};
 };
 
