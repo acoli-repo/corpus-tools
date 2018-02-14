@@ -599,19 +599,30 @@ function mtxtSelect(evt) {
 	var node;
 	if  ( evt.type == "click" ) node = evt.target;
 	else node = window.getSelection().focusNode.parentNode;
+	if ( !node ) return; // Prevent errors
 
-	var pospath = ""; var sep = ""; var uttid;
+	var pospath = ""; var sep = ""; var uttid = "";
 	while ( node.tagName != "DIV" ) {
 		time = "";
 		if ( node.tagName == utttag && node.getAttribute("start") ) { 
 			time = " ["+node.getAttribute("start")+"-"+node.getAttribute("end")+"]";
 			uttid = node.getAttribute("id");
+		} else if ( node.tagName == utttag ) {
+			uttid = "unnamed"; //
 		};
 		pospath = node.tagName + time + sep + pospath;
 		sep = " > ";		
 		node = node.parentNode;
 	};
 	document.getElementById('pospath').innerHTML = pospath;
+	
+	if ( !uttid ) {
+		console.log(uttid);
+		// If we are not in an utterance, we should not be able to edit
+		alert('Only text inside an utterance can be modified in waveform view');
+		mtxt.blur();
+		return;
+	};
 	
 	// also set HL to the time slot if there is one
 	uttreg = regionarray[uttid];
@@ -661,15 +672,12 @@ function savetrans() {
 
 var slotlist = new Array();
 function toelan(elm) {
-	var xmlString = "<ANNOTATION_DOCUMENT>\
-	<HEADER>\
-		<MEDIA_DESCRIPTOR MEDIA_URL=\""+  document.baseURI + soundfile +"\"/>\
-	</HEADER>\
-	<TIME_ORDER/>\
-	<TIER TIER_ID=\"MAIN\"/>\
-</ANNOTATION_DOCUMENT>";
+	var d = new Date();
+	var date = d.toISOString();// 2012-11-20T07:49:32+04:00
+	var xmlString = "<ANNOTATION_DOCUMENT DATE=\""+date+"\" FORMAT=\"2.6\" VERSION=\"2.6\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://www.mpi.nl/tools/elan/EAFv2.6.xsd\">\n<HEADER TIME_UNITS=\"seconds\">\n\t<MEDIA_DESCRIPTOR MEDIA_URL=\""+  document.baseURI + soundfile +"\"/>\n</HEADER>\n<TIME_ORDER/>\n<TIER TIER_ID=\"MAIN\"/>\n</ANNOTATION_DOCUMENT>";
+	xmlString = xmlString.replace("\r", "\n"); 
 	var parser = new DOMParser();
-	var xmlDoc = parser.parseFromString(xmlString, "text/xml"); //important to use "text/xml"
+	var xmlDoc = parser.parseFromString(xmlString, "application/xml"); //important to use "text/xml"
 
 	var timeorder = xmlDoc.getElementsByTagName("TIME_ORDER")[0]; var i=0;
 	for ( var uttid in uttarray  ) {
@@ -680,7 +688,7 @@ function toelan(elm) {
 			node.setAttribute("TIME_SLOT_ID", "T"+(i+1));
 			node.setAttribute("TIME_VALUE", start);
 			var newline = document.createTextNode("\n\t");
-			timeorder.firstChild.appendChild(newline);
+			timeorder.appendChild(newline);
 			timeorder.appendChild(node);
 			slotlist[start] =  "T"+(i+1);
 			i++;
@@ -691,12 +699,14 @@ function toelan(elm) {
 			node.setAttribute("TIME_SLOT_ID", "T"+(i+1));
 			node.setAttribute("TIME_VALUE", start);
 			var newline = document.createTextNode("\n\t");
-			timeorder.firstChild.appendChild(newline);
+			timeorder.appendChild(newline);
 			timeorder.appendChild(node);
 			slotlist[end] =  "T"+(i+1);
 			i++;
 		};
 	};
+	var newline = document.createTextNode("\n");
+	timeorder.appendChild(newline);
 
 	var tier = xmlDoc.getElementsByTagName("TIER")[0]; i = 1;
 	for ( var uttid in uttarray  ) {
@@ -713,9 +723,11 @@ function toelan(elm) {
 		node2.appendChild(node3);
 		node.appendChild(node2);
 		var newline = document.createTextNode("\n\t");
-		tier.firstChild.appendChild(newline);
+		tier.appendChild(newline);
 		tier.appendChild(node);
 	};
+	var newline = document.createTextNode("\n");
+	tier.appendChild(newline);
 	
 	var serializer = new XMLSerializer();
 	var xmltext = serializer.serializeToString(xmlDoc);
