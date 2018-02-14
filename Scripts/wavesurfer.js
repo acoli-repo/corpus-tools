@@ -21,8 +21,15 @@ var editmode;
 var downpoint;
 var downtype;
 var lastdown;
+var modified = false;
 
 var uttxp = "//" + utttag;
+
+window.onbeforeunload = function warnUsers() {
+	if (modified) {
+		return "Your XML has been changed, unsaved changes will be lost.";
+	}
+}
 
 function keyEvent(evt) { 
 	// Handle key presses - with the ALT key in edit mode
@@ -57,6 +64,7 @@ function keyEvent(evt) {
 			case 67: // c - create utterance
 				if ( pointa && pointe && editmode ) { 
 					newutt(); 
+					modified = true;
 				}; 
 				evt.preventDefault();
 				break; 
@@ -74,6 +82,7 @@ function keyEvent(evt) {
 					pointe = 0;
 					currregion.id = 'new';
 					currregion.update({start: pointa, end: pointa, color: 'rgba(255, 255, 0, 0.3)'});
+					wavesurfer.play();
 				};
 				evt.preventDefault();
 				break;
@@ -121,6 +130,7 @@ function mouseMove(evt) {
 			pointa = uppoint;
 		};
 		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 255, 0, 0.3)'});
+		currregion.id = "new";
     };
 };
 
@@ -301,6 +311,8 @@ function changeutt (frm) {
 	utteditor.style.visibility = 'hidden';
 	pointa = 0; pointe = 0;
 	
+	modified = true;
+	
 	return false;
 };
 
@@ -334,6 +346,11 @@ wavesurfer.on('ready', function () {
 	// Load some optional arguments from the PHP
 	if ( typeof(alttag) == "string" ) utttag = alttag;
 	if ( typeof(setedit) == "boolean" ) editmode = setedit;
+	
+	if ( editmode ) {
+		mtxt.addEventListener('click', mtxtSelect);
+		mtxt.addEventListener('keyup', mtxtSelect);
+	};
 
 	setzoom(1);
 	loaded = true;
@@ -366,17 +383,6 @@ wavesurfer.on('ready', function () {
 		newregion.id = utt.getAttribute('id');
 		regionarray[uttid] = newregion;
 	};
-
-	// Show a region on the minimap - the zoom window, 
-	// and potentially also the regions on mouse-over
-// 	zoomregion = minimap.wavesurfer.addRegion({
-// 		start: 2, // time in seconds
-// 		end: 5, // time in seconds
-// 		drag: false,
-// 		resize: false,
-// 		color: 'hsla(210, 100%, 50%, 0.3)'
-// 	});
-	
 	
 	// Now, resize the mtxt to fill the whole space below the wavesurfer element
 	var setheight = window.innerHeight - mtxt.offsetTop - 5;
@@ -387,14 +393,24 @@ wavesurfer.on('ready', function () {
 	utteditor.style.top = mtxt.parentNode.offsetTop + 'px';
 	utteditor.style.left = mtxt.parentNode.getBoundingClientRect().left + 'px';
 	
-	if ( jmp && !editmode ) {
+	var sourceeditor = document.getElementById('sourceeditor');
+	if ( sourceeditor ) {
+		sourceeditor.style.top = mtxt.parentNode.offsetTop + 'px';
+		sourceeditor.style.left = mtxt.parentNode.getBoundingClientRect().left + 'px';
+		sourceeditor.style.height = mtxt.style.height;
+		sourceeditor.style.width = mtxt.offsetWidth + 'px';
+		aceeditor.resize();
+	};
+		
+	if ( jmp ) {
 		// Jump to a token
 		var mtch = document.evaluate("//*[@id=\""+jmp+"\"]/ancestor::u", mtxt, null, XPathResult.ANY_TYPE, null);
 		var utt = mtch.iterateNext(); 
-		scrollToElementD(utt);
-		utt.style.backgroundColor = "#ffffcc";
-		wavesurfer.seekTo(utt.getAttribute('start') / wavesurfer.getDuration())
-
+		if ( utt ) {
+			scrollToElementD(utt);
+			if ( !editmode ) utt.style.backgroundColor = "#ffffcc";
+			wavesurfer.seekAndCenter(utt.getAttribute('start') / wavesurfer.getDuration())
+		};
 	};
 	
 	// Add the HL region - last, so it is always on top
@@ -544,8 +560,92 @@ function playpause(evt) {
 	wavesurfer.playPause();
 };
 
+function sortutt() {
+
+	// Copy the raw XML if we are looking at the raw XML
+	if ( shown == "visible" ) {
+		mtxt.innerHTML = aceeditor.getSession().getValue();
+	};
+	
+	var oldsort = new Array();
+	for ( uttid in uttarray ) {
+		oldsort[uttid] = uttarray[uttid].getAttribute("start");
+	}
+
+	mtxt.innerHTML = "<text/>";
+	
+	var keys = Object.keys(oldsort);
+ 	keys.sort(function(a, b) {
+		return oldsort[a] - oldsort[b]  
+	}).forEach(function(k) {
+	   var newline = document.createTextNode("\n\t");
+	   mtxt.firstChild.appendChild(newline);
+	   mtxt.firstChild.appendChild(uttarray[k]);
+	});
+	var newline = document.createTextNode("\n");
+	mtxt.firstChild.appendChild(newline);
+	
+	// Copy back to the raw XML if we are looking at the raw XML	
+	if ( shown == "visible" ) {
+		aceeditor.getSession().setValue(mtxt.innerHTML);
+	};
+
+	modified = true;
+};
+
+function mtxtSelect(evt) {
+	var node;
+	if  ( evt.type == "click" ) node = evt.target;
+	else node = window.getSelection().focusNode.parentNode;
+
+	var pospath = ""; var sep = ""; var uttid;
+	while ( node.tagName != "DIV" ) {
+		time = "";
+		if ( node.tagName == utttag && node.getAttribute("start") ) { 
+			time = " ["+node.getAttribute("start")+"-"+node.getAttribute("end")+"]";
+			uttid = node.getAttribute("id");
+		};
+		pospath = node.tagName + time + sep + pospath;
+		sep = " > ";		
+		node = node.parentNode;
+	};
+	document.getElementById('pospath').innerHTML = pospath;
+	
+	// also set HL to the time slot if there is one
+	uttreg = regionarray[uttid];
+	if ( uttreg ) { 
+		pointa = uttreg.start; pointe = uttreg.end;
+		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.15)'});
+		if ( uttreg.id == lastreg ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+		currregion.id = uttreg.id; // set the ID so we know we do now want to create a new utterance
+		if ( !wavesurfer.isPlaying() ) wavesurfer.seekAndCenter(pointa / wavesurfer.getDuration());
+	};
+	
+};
+
+var shown = "hidden";
+function showsource() {
+	if ( shown == "hidden" ) {
+		aceeditor.getSession().setValue(mtxt.innerHTML);
+		shown = "visible";
+		document.getElementById('sourcebutton').innerHTML = "Preview";
+	} else {
+		mtxt.innerHTML = aceeditor.getSession().getValue();
+		shown = "hidden";
+		document.getElementById('sourcebutton').innerHTML = "Raw XML";
+	};
+	document.getElementById('sourceeditor').style.visibility = shown;
+};
+
 function savetrans() {
+
+	// Copy the raw XML if we are looking at the raw XML
+	if ( shown == "visible" ) {
+		mtxt.innerHTML = aceeditor.getSession().getValue();
+	};
+
 	var newtrans = mtxt.innerHTML;
+	modified = false;
 	document.getElementById('newval').value = newtrans;
 	document.getElementById('newtab').submit();	
 };

@@ -77,7 +77,16 @@
 		};
 		if ( $editmsg ) {
 			$editable = "contenteditable"; $setedit = "true"; $editmsg .= "<hr>";
-			$editbuts = "<hr><p><input type=button onClick='savetrans();' value='Save'> <input type=button onClick='top.location=\"index.php?action=$action&cid=$ttxml->fileid\";' value='Cancel'>";
+			$editbuts = "
+				<div style='height: 12px; width: 100%; font-size: 10px; color: #999999; vertical-align: bottom; margin-top: 5px;' id=pospath></div>
+				<hr><p><input type=button onClick='savetrans();' value='Save'> 
+				<input type=button onClick='top.location=\"index.php?action=$action&cid=$ttxml->fileid\";' value='Cancel'>
+				<span style='display: inline; float: right;'>
+					<button onClick=\"showsource()\" id=\"sourcebutton\">Raw XML</button>
+					<button onClick=\"sortutt()\">Sort utterances</button>
+				</span>
+				";
+				
 			$editbuts .= "
 				<form style='display: none;' action='index.php?action=$action&act=save&cid=$ttxml->fileid' method=post id=newtab>
 				<textarea style='display:none' name=newval id=newval></textarea>
@@ -88,7 +97,7 @@
 		$maintext .= "<hr>
 		
 			<div id='fullmtxt' style='visibility: hidden;'>
-			$editmsg
+			<!-- $editmsg -->
 			<div $editable id=mtxt style='margin-top: 20px; height: 0; overflow: scroll;'>$editxml</div>
 			$editbuts
 			</div>
@@ -105,12 +114,23 @@
 			<input type=button value=Cancel onClick=\"utteditor.style.visibility='hidden';\">
 			<a target=help href='http://www.teitok.org/index.php?action=help&id=wavesurfer#codes'>recommended codes</a>
 			</form>
+			</div>";
+
+		if ( $editmsg ) $maintext .= "
+			<div id='sourceeditor' style='visibility: hidden; position: absolute; top: 120px; width: 100%; left: 20px; z-index: 600;'>
 			</div>
-	
-			<hr><a href='index.php?action=file&cid=$ttxml->fileid'>{%text view}</a>";
+			<script src=\"$aceurl\" type=\"text/javascript\" charset=\"utf-8\"></script>
+			<script>
+				var aceeditor = ace.edit(\"sourceeditor\");
+				aceeditor.setTheme(\"ace/theme/chrome\");
+				aceeditor.getSession().setMode(\"ace/mode/xml\");
+			</script>";
+			
+		$maintext .= "<hr><a href='index.php?action=file&cid=$ttxml->fileid'>{%text view}</a>";
 	
 		if ( $username && !$editmsg ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&cid=$ttxml->fileid'>edit transcripion</a>";
 		if ( $username ) $maintext .= " &bull;  <a onClick='toelan(this);'>export as ELAN</a>";
+		$maintext .= " &bull;  <a href='http://www.teitok.org/index.php?action=help&id=wavesurfer' target=help>{%Help}</a>";
 		
 		if ( !$editmsg ) {
 			$jmp = $_GET['jump'] or $jmp = $_GET['tid'];

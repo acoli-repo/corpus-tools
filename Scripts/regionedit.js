@@ -172,7 +172,7 @@
     var newbb = newleft +' '+ newtop +' '+ newright + ' '+ newbottom;
     baseelm.setAttribute('bbox', newbb);
 	window.onbeforeunload = function () {
-		return 'Your XML has been change, unsaved changed will be lost.';
+		return 'Your XML has been changed, unsaved changes will be lost.';
 	};
 
   };
