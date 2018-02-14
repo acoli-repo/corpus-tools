@@ -281,7 +281,9 @@ function changeutt (frm) {
 		var mtch = document.evaluate(uttxp, waveform, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 		var llu = mtch.snapshotItem(mtch.snapshotLength-1);
 		if ( llu ) {
+			var newline = document.createTextNode("\n\t");
 			llu.parentNode.insertBefore(utt, llu.nextSibling);
+			llu.parentNode.insertBefore(newline, llu.nextSibling);
 			uttid = llu.getAttribute('id') + "-1";
 		} else {
 			var newline = document.createTextNode("\n\t");
@@ -308,7 +310,13 @@ function changeutt (frm) {
 	
 	
 	// Now add the XML inside
-	utt.innerHTML = v.transcription.value;	
+	var newHTML = v.transcription.value;
+	
+	// Replace self-closing nodes for empty nodes otherwise the DOM will corrupt them
+	newHTML = newHTML.replace(/<([^ >]+)\/>/, "<$1></$1>");
+	newHTML = newHTML.replace(/<([^ >]+) ([^>]*)\/>/, "<$1 $2></$1>");
+	
+	utt.innerHTML = newHTML;	
 	
 	utteditor.style.visibility = 'hidden';
 	pointa = 0; pointe = 0;

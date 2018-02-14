@@ -75,11 +75,21 @@
 				<input type=hidden name=goon value={$_GET['action']}>
 				<input type=submit value={%Login}></form>";
 		
+		$browser = get_browser(null, true);
+		if ( strpos($_SERVER["HTTP_USER_AGENT"], "Explorer") !== false ) {
+			$maintext  .= "<p style='color: red'>Corpus administration in Explorer is not supported; 
+				please use Chrome, Firefox, or Edge</p>";
+		};
+		
+		print_r($browser);
+		
 		if ( !$_SESSION['extid'] ) {
 			if ( $settings['permissions']['orcid'] && $settings['permissions']['orcid']['public'] && $settings['permissions']['orcid']['private'] ) {
 				$maintext .= "<p>{%Visitor login}:  <a href='index.php?action=orcid'><img src=\"https://orcid.org/sites/default/files/images/orcid_16x16.png\" width=\"16\" height=\"16\" hspace=\"4\" /> ORCID</a>";
 			};
 		};		
+		
+		if ( $debug ) $maintext .= "<p style='color: #999999'>You are using: {$_SERVER['HTTP_USER_AGENT']}";
 				
 	} # else { $maintext .= "logged in as $username"; };
 

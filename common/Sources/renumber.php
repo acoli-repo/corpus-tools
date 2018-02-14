@@ -65,7 +65,9 @@
 		# print "MYXML: ".$newxml->asXML(); exit;
 		saveMyXML($newxml->asXML(), $cardid);
 
-		if ( $_GET['tid'] )
+		if ( $_GET['nexturl'] )
+			$nexturl = $_GET['nexturl'];
+		else if ( $_GET['tid'] )
 			$nexturl = "index.php?action=tokedit&cid=$cardid&tid={$_GET['tid']}";
 		else 
 			$nexturl = "index.php?action=edit&id=$cardid";
@@ -81,7 +83,9 @@
 		$res = shell_exec($cmd);
 		for ( $i=0; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...
 		
-		if ( $_GET['tid'] )
+		if ( $_GET['nexturl'] )
+			$nexturl = $_GET['nexturl'];
+		else if ( $_GET['tid'] )
 			$nexturl = "index.php?action=tokedit&cid=$cardid&tid={$_GET['tid']}";
 		else 
 			$nexturl = "index.php?action=edit&id=$cardid";

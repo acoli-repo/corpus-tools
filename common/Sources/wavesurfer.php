@@ -27,9 +27,10 @@
 		if ( !$outputxml ) fatal("Ended up with invalid XML - refusing to save"); 
 
 		saveMyXML ( $newxml, $ttxml->fileid );
-		print "Saved to $ttxml->fileid";
-			print "Your file has been saved
-					<script language=Javascript>top.location='index.php?action=$action&cid=$ttxml->filename';</script>"; 
+		$nexturl = urlencode("index.php?action=$action&cid=$ttxml->filename");
+		print "Saved to $ttxml->fileid"; 
+ 			print "Your file has been saved
+ 					<script language=Javascript>top.location='index.php?action=renumber&cid=$ttxml->filename&nexturl=$nexturl';</script>"; 
     	exit;
 	
 	} else {
