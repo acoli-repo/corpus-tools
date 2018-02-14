@@ -284,6 +284,8 @@ function changeutt (frm) {
 			llu.parentNode.insertBefore(utt, llu.nextSibling);
 			uttid = llu.getAttribute('id') + "-1";
 		} else {
+			var newline = document.createTextNode("\n\t");
+			mtxt.firstChild.appendChild(newline);
 			mtxt.firstChild.appendChild(utt);
 			uttid = "utt-1";
 		};
@@ -629,12 +631,19 @@ function showsource() {
 		aceeditor.getSession().setValue(mtxt.innerHTML);
 		shown = "visible";
 		document.getElementById('sourcebutton').innerHTML = "Preview";
+		if ( currregion.id && currregion.id != "new" ) {
+			aceeditor.find("id=\""+currregion.id+"\"");
+			aceeditor.selection.selectLine();
+			aceeditor.scrollToLine();
+		};
 	} else {
 		mtxt.innerHTML = aceeditor.getSession().getValue();
 		shown = "hidden";
 		document.getElementById('sourcebutton').innerHTML = "Raw XML";
 	};
+		
 	document.getElementById('sourceeditor').style.visibility = shown;
+	
 };
 
 function savetrans() {
@@ -670,6 +679,8 @@ function toelan(elm) {
 			var node = xmlDoc.createElement("TIME_SLOT");
 			node.setAttribute("TIME_SLOT_ID", "T"+(i+1));
 			node.setAttribute("TIME_VALUE", start);
+			var newline = document.createTextNode("\n\t");
+			timeorder.firstChild.appendChild(newline);
 			timeorder.appendChild(node);
 			slotlist[start] =  "T"+(i+1);
 			i++;
@@ -679,6 +690,8 @@ function toelan(elm) {
 			var node = xmlDoc.createElement("TIME_SLOT");
 			node.setAttribute("TIME_SLOT_ID", "T"+(i+1));
 			node.setAttribute("TIME_VALUE", start);
+			var newline = document.createTextNode("\n\t");
+			timeorder.firstChild.appendChild(newline);
 			timeorder.appendChild(node);
 			slotlist[end] =  "T"+(i+1);
 			i++;
@@ -699,6 +712,8 @@ function toelan(elm) {
 		node3.innerHTML = utt.innerHTML;
 		node2.appendChild(node3);
 		node.appendChild(node2);
+		var newline = document.createTextNode("\n\t");
+		tier.firstChild.appendChild(newline);
 		tier.appendChild(node);
 	};
 	
