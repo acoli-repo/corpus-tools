@@ -359,7 +359,7 @@ wavesurfer.on('ready', function () {
 	
 	if ( editmode ) {
 		mtxt.addEventListener('click', mtxtSelect);
-		mtxt.addEventListener('keyup', mtxtSelect);
+		mtxt.addEventListener('keydown', mtxtSelect);
 	};
 
 	setzoom(1);

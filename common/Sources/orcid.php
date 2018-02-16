@@ -141,24 +141,7 @@
 
 
 		// Read the user data 
-		$url = "https://pub.orcid.org/v1.2/$userid/orcid-bio/";
-		$data = array(
-			);
-		$options = array(
-			'http' => array(
-				'header'  => "Content-Type: application/orcid+xml\r\nAuthorization: Bearer $bearer\r\n",
-				'method'  => 'GET',
-			)
-		);
-		$context  = stream_context_create($options);
-		$result = file_get_contents($url, false, $context);
-		if ($result === FALSE) { 
-			print "Request failed<hr>";
-			  $error = error_get_last();
-			  echo "HTTP request failed. Error was: " . $error['message'];		 
-			exit;
-		}
-		$userdata = simplexml_load_string(str_replace("xmlns", "away", $result)); 
+		$userdata = orcidurl("https://pub.orcid.org/v2.1/$userid/personal-details/"); 
 
 		$realname = current($userdata->xpath("//given-names"))." ".current($userdata->xpath("//family-name"));
 		$maintext .= "<h1>$realname</h1>
@@ -166,25 +149,7 @@
 			<p>ORCID <a href='https://orcid.org/$userid'>$userid</a></p>";
 
 		// Read the publication list
-		$maintext .= "<hr><h2>Bibliography</h2>";
-		$url = "https://pub.orcid.org/v1.2/$userid/orcid-works/";
-		$data = array(
-			);
-		$options = array(
-			'http' => array(
-				'header'  => "Content-Type: application/orcid+xml\r\nAuthorization: Bearer $bearer\r\n",
-				'method'  => 'GET',
-			)
-		);
-		$context  = stream_context_create($options);
-		$result = file_get_contents($url, false, $context);
-		if ($result === FALSE) { 
-			print "Request failed<hr>";
-			  $error = error_get_last();
-			  echo "HTTP request failed. Error was: " . $error['message'];		 
-			exit;
-		}
-		$works = simplexml_load_string(str_replace("xmlns", "away", $result)); 
+		$works = orcidurl("https://pub.orcid.org/v2.1/$userid/works/"); 
 
 		foreach ( $works->xpath("//orcid-work") as $tmp ) {
 			$title = current($tmp->xpath(".//title"));
@@ -248,6 +213,29 @@
 			float: left;
 		}
 		</style>";
+	};
+
+	function orcidurl ( $url ) {
+		global $bearer;
+	
+		// Read from ORCID API 
+		$data = array(
+			);
+		$options = array(
+			'http' => array(
+				'header'  => "Content-Type: application/orcid+xml\r\nAuthorization: Bearer $bearer\r\n",
+				'method'  => 'GET',
+			)
+		);
+		$context  = stream_context_create($options);
+		$result = file_get_contents($url, false, $context);
+		if ($result === FALSE) { 
+			print "Request failed<hr>";
+			  $error = error_get_last();
+			  echo "HTTP request failed. Error was: " . $error['message'];		 
+			exit;
+		}
+		return simplexml_load_string(str_replace("xmlns", "away", $result)); 
 	};
 
 
