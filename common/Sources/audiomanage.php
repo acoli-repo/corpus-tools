@@ -9,7 +9,8 @@
 	$ttxml = new TTXML();
 	$fileid = $ttxml->fileid;
 
-	if ( !file_exists("/usr/local/bin/sox") && !$settings['apps']['sox'] ) {
+	$sox = findapp("sox");
+	if ( !$sox ) {
 		fatal("Audio management relies on SoX, which is not installed");
 	};
 
@@ -92,7 +93,7 @@
 		};
 
 
-		$cmd = "sox backups/$filename Audio/$filename trim $start $length";
+		$cmd = "$sox backups/$filename Audio/$filename trim $start $length";
 		exec($cmd);
 
 		$maintext .= "<hr><p>The sound file has been trimmed (there is a backup of the old file); reloading";
@@ -174,7 +175,7 @@
 			$ext = $matches[3];	
 			$basename = $matches[2];
 			$folder = $matches[1];
-			$finfo['Extension'] = $ext;	
+			$soundinfo['Extension'] = $ext;	
 		};
 		if ( $_POST ) {
 
@@ -187,7 +188,7 @@
 			};
 			
 			// TODO: replace aligned <anon> elements with beep sounds	
-			$cmd = "/usr/local/bin/sox $soundfile -r {$_POST['rate']} -t {$_POST['format']} $outfile";
+			$cmd = "$sox $soundfile -r {$_POST['rate']} -t {$_POST['format']} $outfile";
 			print "<p>$cmd";
 			shell_exec($cmd);
 			//print "<p>File converted. Reloading.
@@ -196,18 +197,27 @@
 			
 		} else {	
 
-			$soxinfo = shell_exec("/usr/local/bin/sox --i $soundfile");
-			foreach ( explode ( "\n", $soxinfo ) as $line ) {
-				list ( $key, $val ) = explode ( ": ", $line );
-				$key = trim($key);
-				$val = trim($val);
-				$val = preg_replace("/['\"]/", "", $val);
-				$finfo[$key] = $val;
+			// sound info	
+			$soxinfo = shell_exec("$sox --i $soundfile");
+			foreach ( explode("\n", $soxinfo) as $line ) {
+				if ( preg_match ( "/^\s*(.*?)\s*:\s*(.*)$/", $line, $matches ) )
+					$soundinfo[trim($matches[1])] = trim($matches[2]);
 			};
+			$infotable .= "<table>";
+			foreach ( $soundinfo as $key => $val ) {
+				if ( preg_match("/^([0-9.]+)M$/", $val, $matches) ) {
+					$soundinfo[$key] = $matches[1]*1000000;
+				};
+				$infotable .= "<tr><th>$key<td>$val</pre>";
+			};
+			$infotable .= "</table><p></p>";
 		
 			$maintext .= "
 				<h2>$fileid</h2>
 				<h1>{%Sound conversion}: $soundfile</h1>
+				
+				<h2>Current format</h2>
+				$infotable
 			
 				<h2>Output option</h2>";
 
@@ -223,13 +233,14 @@
 				"44100" => "Audio CD",
 				"48000" => "Digital video equipment",
 				"96000" => "DVD-Audio",
+				"1410000" => "PCM-Audio",
 				);
 			$list = "";
 			foreach ( $bitrates as $key => $val  ) {
-				$sel = ""; if ( $key == $finfo['Sample Rate'] ) $sel = "selected";
+				$sel = ""; if ( $key == $soundinfo['Sample Rate'] ) $sel = "selected";
 				$list .= "<option value='$key' $sel>$key ($val)</option>";
 			};
-			$maintext .= "<p>Bit rate: <select name=rate>$list</select>";
+			$maintext .= "<p>Sample rate: <select name=rate>$list</select>";
 		
 			// 8svx aif aifc aiff aiffc al amb au avr cdda cdr cvs cvsd cvu dat dvms f32 f4 f64 f8 fssd gsm gsrt hcom htk ima ircam la lpc lpc10 lu maud mp2 mp3 nist prc raw s1 s16 s2 s24 s3 s32 s4 s8 sb sf sl sln smp snd sndr sndt sou sox sph sw txw u1 u16 u2 u24 u3 u32 u4 u8 ub ul uw vms voc vox wav wavpcm wve xa
 			$formats = array (
@@ -251,7 +262,7 @@
 				);
 			$list = "";
 			foreach ( $formats as $key => $val ) {
-				$sel = ""; if ( $key == $finfo['Extension'] ) $sel = "selected";
+				$sel = ""; if ( $key == $soundinfo['Extension'] ) $sel = "selected";
 				$list .= "<option value='$key' $sel>$key ($val)</option>";
 			};
 			$maintext .= "<p>File format: <select name=format>$list</select>";
@@ -362,15 +373,24 @@
 		$soundfile = current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url"));
 		if ( !$soundfile ) $soundfile = current($ttxml->xml->xpath("//media/@url")); // maybe there is no mimeType
 		if ( !$soundfile ) fatal ("XML file has no media element providing a URL to the sound file");
-		$mp3 = str_replace(".wav", ".mp3", $soundfile);
-		if ( file_exists($mp3) ) $soundfile = $mp3;
-		
-		
-		
-		$soxinfo = shell_exec("/usr/local/bin/sox --i $soundfile");
-		
+
+		if ( !strstr($audiourl, 'http') ) {
+			if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
+			else $audiourl = $baseurl."Audio/$audiourl"; 
+		}
+			
+		// sound info	
+		$soxinfo = shell_exec("$sox --i $soundfile");
+		foreach ( explode("\n", $soxinfo) as $line ) {
+			if ( preg_match ( "/^(.*?)\s*:\s*(.*)$/", $line, $matches ) )
+				$soundinfo[$matches[1]] = $matches[2];
+		};
 		$maintext .= "<h2>File info</h2>
-			<pre>$soxinfo</pre>";
+		<table>";
+		foreach ( $soundinfo as $key => $val ) {
+			$maintext .= "<tr><th>$key<td>$val</pre>";
+		};
+		$maintext .= "</table><p></p>";
 		
 		$maintext .= "<audio id=\"track\" src=\"{$medianode['url']}\" controls ontimeupdate=\"checkaudio();\">
 				<source  src=\"{$medianode['url']}\">

@@ -255,6 +255,17 @@
 		return "";
 	};
 
+	function findapp ( $appname ) {
+	
+		if ( $settings['bin'][$appname] ) return $settings['bin'][$appname];
+		
+		if ( file_exists("/usr/local/bin/$appname") ) return "/usr/local/bin/$appname";
+
+		if ( file_exists("/usr/bin/$appname") ) return "/usr/bin/$appname"; // For Fedora
+	
+		return false;
+	};
+
 	function saveMyXML ( $xmltxt, $filename, $noempties = true ) {
 		// Safe store XML to file, and keep a backup
 		global $xmlfolder;

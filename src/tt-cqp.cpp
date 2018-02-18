@@ -32,7 +32,7 @@ class cqlresult;
 class cqlfld;
 class cqltok;
 class cqlmatch;
-class cqlmatch;
+class pugidoc;
 class Matchsorter;
 
 string pos2str(string a, int b);
@@ -84,7 +84,6 @@ pugi::xml_document logfile;
 pugi::xml_node settings;
 pugi::xml_node results;
 pugi::xml_document xmlsettings;
-map<string, shared_ptr<pugi::xml_document> > extann; // To hold an external annotation, shared pointers since xml_document is not copyable
 
 bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) {
 	// Check whether two strings "match" using various conditions
@@ -115,6 +114,24 @@ bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) 
 	}
 	return false;
 };
+
+
+class pugidoc {
+	// Holds an external annotation (to make the pugixml document persistent
+	public:
+	map<string, pugi::xml_document> doc;
+	
+	bool init( string extname, string filename ) {
+		return doc[extname].load_file(filename.c_str());
+	};
+	
+	pugi::xpath_node_set xpath ( string extfile, string xpath ) {
+		return doc[extfile].select_nodes(xpath.c_str());
+	};
+	
+};
+pugidoc extann; // To hold an external annotation, as a class since xml_document is not copyable
+
 
 class cqlmatch {
 	// Holds a match to a CQL query
@@ -164,7 +181,7 @@ class cqlfld {
 		string tmp1; string tmp2;		
 		
 		// match.fld
-		if ( preg_match (flditem, "([^ ]+)\\.([^ ]+)", &m ) ) {
+		if ( preg_match (flditem, "([a-z0-9]+)\\.([^ ]+)", &m ) ) { // Do not match with preg "a.*"
 			string posind = m[1]; string value; 
 			if ( posind == "this" ) posind = "_"; // Alias for convenience this.text_year == _.text_year
 			fld = m[2]; rawbase = posind;
@@ -177,7 +194,7 @@ class cqlfld {
 				} else offset[i] = 0;
 
 				if ( !isnamed(dopart, resultname) && !relpos[dopart] && dopart != "_" ) {
-					cout << "Error: no such named token: " << dopart << endl;
+					cout << "Error: no such named token: " << dopart << " << " << flditem << endl;
 				};
 				base[i] = dopart; // We no longer check here whether a named item exists
 			};	
@@ -559,7 +576,7 @@ class cqlresult {
 				string xpath = "//item[@"+ctok.leftfield.rngatt+"=\""+m[1]+"\"]/@c_pos";
 				string extfile = ctok.leftfield.rngname;
 				if ( debug ) cout << "Initializing with an external attribute: " << xpath << " on " << extfile << endl;	
-				pugi::xpath_node_set tools = extann[extfile]->select_nodes(xpath.c_str());
+				pugi::xpath_node_set tools = extann.xpath(extfile, xpath);
 				for (pugi::xpath_node_set::const_iterator it = tools.begin(); it != tools.end(); ++it) {
 					string idxt = it->attribute().value();
 					int idx = intval(idxt);
@@ -1915,7 +1932,8 @@ string ext2str ( string attname, int pos, string annfile ) {
 	attname = replace_all(attname, "extann_", "");
 	
 	string xpath = "//item[@c_pos='" + int2string(pos) + "']/@" + attname ;
-	return extann[annfile]->select_node(xpath.c_str()).attribute().value();
+	pugi::xpath_node_set res = extann.xpath(annfile, xpath);
+	return res.begin()->attribute().value();
 	
 	return "";
 };
@@ -2273,12 +2291,10 @@ void cqlparse ( string cql ) {
 			cout << "Error: not loading external attributes " << extname << " - conflicting with existing " << fldtype[extname] << endl;
 			return;
 		};
-		// read an external annotation file - store as a shared pointer
-		shared_ptr<pugi::xml_document> tmpdoc = make_shared<pugi::xml_document>();
-		if ( tmpdoc->load_file(fn.c_str()) ) {
+		// read an external annotation file - store as a class
+		if ( extann.init(extname, fn) ) {
 			if ( verbose ) { cout << "- Loaded external annotations " << extname << endl; };
 			fldtype[extname] = "extann";
-			extann.insert(make_pair(extname, tmpdoc));
 		} else {
 			cout << "Error: failed to load external annotations from " << fn << endl; 
 		};
@@ -2480,12 +2496,10 @@ int main(int argc, char *argv[]) {
 	if ( settings.attribute("extann") != NULL   ) {
 		string fn = settings.attribute("extann").value();
 		// read an external annotation file
-		shared_ptr<pugi::xml_document> tmpdoc = make_shared<pugi::xml_document>();
 		string extname = "extann";
-		if ( tmpdoc->load_file(fn.c_str()) ) {
+		if ( extann.init(extname, fn) ) {
 			if ( verbose ) { cout << "- Loaded external annotations " << extname << endl; };
 			fldtype[extname] = "extann";
-			extann.insert(make_pair(extname, tmpdoc));
 		} else {
 			cout << "Error: failed to load external annotations from " << fn << endl; 
 		};

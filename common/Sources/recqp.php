@@ -133,12 +133,12 @@
 	
 		if ( $cqpfolder == "" ) $cqpfolder = "**";
 	
-		if ( !$settings['cqp']['verticalize'] && ( $settings['bin']['tt-cwb-encode'] || file_exists("/usr/local/bin/tt-cwb-encode") )  ) {
+		$ttencode = findapp("tt-cwb-encode");
+		if ( !$settings['cqp']['verticalize'] && $ttencode )  ) {
 			# Verticalize using the verticalize C++ application
 			# For simplicity, we do htmldecoding externally in Perl
 			$maintext .= "<p>Using tt-cwb-encode";
-			$exec = $settings['bin']['tt-cwb-encode'] or $exec = "/usr/local/bin/tt-cwb-encode";
-			$cmd = "$exec -r $registryfolder/";
+			$cmd = "$ttencode -r $registryfolder/";
 			$script .= "\n\nprint FILE '----------------------';";
 			$script .= "\nprint FILE '(1) Encoding the corpus';";
 			$script .= "\nprint FILE 'command:\n$cmd';";

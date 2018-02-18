@@ -2,7 +2,8 @@
 	// Allow users to create their own annotations, and make them searchable in TT-CQP
 	// (c) Maarten Janssen, 2018
 	check_login();
-	if ( !file_exists("/usr/local/bin/tt-cqp") && !$settings["defaults"]["tt-cqp"] ) {
+	$ttcqp = findapp("tt-cqp");
+	if ( !$ttcqp ) {
 		fatal("This function relies on TT-CQP, which does not seem to be installed");
 	};
 	
@@ -23,6 +24,8 @@
 	$useridtxt = $shortuserid;
 		
 	if ( gettype($extann) == "object" ) {
+		// If we have loaded an external annotation
+	
 		foreach ( $extann->xpath("//def/field") as $i => $deffld) { 
 			$values = "";
 			foreach ( explode(",", $deffld['values']) as $fldopt ) {
@@ -62,6 +65,9 @@
 	};
 
 	if ( $act == "create" ) {
+		
+		
+		if ( !file_exists("Users") ) mkdir ("Users");
 		
 		$file = "Users/ann_$useridtxt.xml"; // TODO: allow superusers to create other files as well?
 		file_put_contents($file, "<annotation author=\"$realname\" id=\"$useridtxt\"></annotation>");
@@ -121,7 +127,7 @@
 				print "<p>Setting: $key => ".print_r($tmp, 1); 
 				$newnode = xpathnode($extann, "/annotation/item[@c_pos=\"$key\"]");
 				# Lookup the text_id, word, and id 
-				$cmd = "/bin/echo '$key' | /usr/local/bin/tt-cqp --mode=pos2tab --cql='tabulate match.word match.id match.text_id match._'";
+				$cmd = "/bin/echo '$key' | $ttcqp --mode=pos2tab --cql='tabulate match.word match.id match.text_id match._'";
 				$result = shell_exec($cmd); 
 				list ( $word, $id, $textid ) = explode ( "\t", $result );
 				$newnode['c_idx'] = "$textid:$id";
@@ -246,7 +252,7 @@
 			
 			$max = $_GET['max'] or $max = 50;
 		
-			$cmd = "/bin/echo '$cql; xidx 0 $max context:5' | /usr/local/bin/tt-cqp --extann=$file";
+			$cmd = "/bin/echo '$cql; xidx 0 $max context:5' | $ttcqp --extann=$file";
 			$results = shell_exec($cmd); // print $cmd;
 		
 			$maintext .= "<div id=\"mtxt\"><table>
@@ -268,7 +274,7 @@
 				if ( preg_match("/resblk c_pos='(\d+)'/", $line, $matches ) ) $cpos = $matches[1];
 				$maintext .= "<tr id=\"$i\"><td style='text-align: right; color: #cccccc;'>$cpos<td>$line";
 				foreach ( $opts as $key ) {
-					$maintext .= "<td><select name=vals[$cpos][$key]><option value=''>{%[select]}</option>$val</select>";
+					$maintext .= "<td><select name=vals[$cpos][$key]><option value=''>{%[select]}</option>$values</select>";
 				};
 			};
 			$maintext .= "</table></div>
@@ -289,7 +295,7 @@
 		
 		if ( !$myfile ) $maintext .= "<p>Author: <b>{$extann['author']}</b></p>";
 
-		$cmd = "/bin/echo '$poslist' | /usr/local/bin/tt-cqp --mode=pos2tab --cql='xidx context:5' --linesep=';'";
+		$cmd = "/bin/echo '$poslist' | $ttcqp --mode=pos2tab --cql='xidx context:5' --linesep=';'";
 		$results = shell_exec($cmd);
 	
 		foreach ( explode("\n", $results) as $i => $line ) {

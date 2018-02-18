@@ -4,6 +4,7 @@
 		if ( !$_POST ) $_POST = $_GET;
 		
 		$cntcols = 1; $headrow = 'false';
+		$ttcqp = findapp("tt-cqp");
 
 		if ( $act == "cql" ) {
 		
@@ -83,7 +84,7 @@
 									<tr><th>{%Keyness}:<td><span title='$cmd'>{%Field}: $fld, {%Reference corpus}: $refcorpustxt</span></tr>
 								</table>";
 
-					$cmd = "echo 'Matches = $cql; stats Matches $fld :: type:keywords context:$dir$context' | /usr/local/bin/tt-cqp --output=json";
+					$cmd = "echo 'Matches = $cql; stats Matches $fld :: type:keywords context:$dir$context' | $ttcqp --output=json";
 					$json = shell_exec($cmd);
 
 					$fldname = pattname($fld);
@@ -111,7 +112,7 @@
 									<tr><th>{%Collocates}:<td><span title='$cmd'>{%Direction}: $dirtxt; {%Context}: $context; {%Field}: {%$fldname}</span></tr>
 								</table>";
 		
-					$cmd = "echo 'Matches = $cql; stats Matches $fld :: context:$dir$context' | /usr/local/bin/tt-cqp --output=json";
+					$cmd = "echo 'Matches = $cql; stats Matches $fld :: context:$dir$context' | $ttcqp --output=json";
 					if ( $debug ) $maintext .= "<!-- $cmd -->";
 					$json = shell_exec($cmd);
 					
@@ -126,7 +127,7 @@
 					$moredirect = "&query=".urlencode($_POST['query']);
 				
 					$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
-					$cmd = "echo 'Matches = $cql; $grquery;' | /usr/local/bin/tt-cqp --output=json";
+					$cmd = "echo 'Matches = $cql; $grquery;' | $ttcqp --output=json";
 					if ( $debug ) $maintext .= "<!-- $cmd -->";
 					$json = shell_exec($cmd);
 				

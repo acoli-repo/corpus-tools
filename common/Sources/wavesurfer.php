@@ -11,11 +11,14 @@
 		<h1>{%Waveform view}$editmode</h1>";
 	// $maintext .= $ttxml->tableheader();
 	
-	$soundfile = current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url"));
-	if ( !$soundfile ) $soundfile = current($ttxml->xml->xpath("//media/@url")); // maybe there is no mimeType
-	if ( !$soundfile ) fatal ("XML file has no media element providing a URL to the sound file");
-	$mp3 = str_replace(".wav", ".mp3", $soundfile);
-	if ( file_exists($mp3) ) $soundfile = $mp3;
+	$audiourl = current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url"));
+	if ( !$audiourl ) $audiourl = current($ttxml->xml->xpath("//media/@url")); // maybe there is no mimeType
+	if ( !$audiourl ) fatal ("XML file has no media element providing a URL to the sound file");
+
+	if ( !strstr($audiourl, 'http') ) {
+		if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
+		else $audiourl = $baseurl."Audio/$audiourl"; 
+	}
 
 	if ( $act == "save" ) {
 	
@@ -35,7 +38,7 @@
 	
 	} else {
 		$maintext .= "
-		<!-- Sound file: $soundfile -->
+		<!-- Sound file: $audiourl -->
 		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.4.0/wavesurfer.min.js\"></script>
 		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.4.0/plugin/wavesurfer.regions.min.js\"></script>
 		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.4.0/plugin/wavesurfer.minimap.min.js\"></script>
@@ -127,10 +130,11 @@
 				aceeditor.getSession().setMode(\"ace/mode/xml\");
 			</script>";
 			
-		$maintext .= "<hr><a href='index.php?action=file&cid=$ttxml->fileid'>{%text view}</a>";
+		$maintext .= "<hr><a href='index.php?action=file&cid=$ttxml->fileid'>{%Text view}</a>";
 	
-		if ( $username && !$editmsg ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&cid=$ttxml->fileid'>edit transcripion</a>";
-		if ( $username ) $maintext .= " &bull;  <a onClick='toelan(this);'>export as ELAN</a>";
+		if ( $username && !$editmsg ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&cid=$ttxml->fileid'>Edit transcripion</a>";
+		if ( $username ) $maintext .= " &bull;  <a onClick='toelan(this);'>Export as ELAN</a>";
+		if ( $username ) $maintext .= " &bull; <a href='index.php?action=audiomanage&cid=$fileid'>{%Audio management}</a>";
 		$maintext .= " &bull;  <a href='http://www.teitok.org/index.php?action=help&id=wavesurfer' target=help>{%Help}</a>";
 		
 		if ( !$editmsg ) {
@@ -144,7 +148,7 @@
 		};
 	
 		$maintext .= "<script language=Javascript>
-			var soundfile = '$soundfile'; 
+			var soundfile = '$audiourl'; 
 			var username = '$username'; 
 			var tid = '$ttxml->fileid'; 
 			var	jmp = '$jmp';
