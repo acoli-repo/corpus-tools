@@ -118,15 +118,19 @@ bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) 
 
 class pugidoc {
 	// Holds an external annotation (to make the pugixml document persistent
+	typedef pair<string, pugi::xml_document*> pair;
+	
 	public:
-	map<string, pugi::xml_document> doc;
+	map<string, pugi::xml_document*> doc;
 	
 	bool init( string extname, string filename ) {
-		return doc[extname].load_file(filename.c_str());
+		pugi::xml_document* newdoc = new pugi::xml_document();
+		doc.insert(pair(extname, newdoc));
+		return newdoc->load_file(filename.c_str());
 	};
 	
 	pugi::xpath_node_set xpath ( string extfile, string xpath ) {
-		return doc[extfile].select_nodes(xpath.c_str());
+		return doc[extfile]->select_nodes(xpath.c_str());
 	};
 	
 };
