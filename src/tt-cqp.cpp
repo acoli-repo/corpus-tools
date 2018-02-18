@@ -118,14 +118,14 @@ bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) 
 
 class pugidoc {
 	// Holds an external annotation (to make the pugixml document persistent
-	typedef pair<string, pugi::xml_document*> pair;
+	typedef pair<string, pugi::xml_document*> pugipair;
 	
 	public:
 	map<string, pugi::xml_document*> doc;
 	
 	bool init( string extname, string filename ) {
 		pugi::xml_document* newdoc = new pugi::xml_document();
-		doc.insert(pair(extname, newdoc));
+		doc.insert(pugipair(extname, newdoc));
 		return newdoc->load_file(filename.c_str());
 	};
 	
