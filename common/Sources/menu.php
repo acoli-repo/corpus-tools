@@ -59,7 +59,7 @@
   		$menu .= "<hr>user: <a href='index.php?action=user'>$shortuserid</a><hr>";
   		$tmp = ""; if ( $action == "admin" ) $tmp = "class=\"selected\""; 
   		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=admin' $tmp>Admin</a></ul>";
-  		$menu .= "<ul style='text-align: left'><li><a target=help href='http://www.teitok.org/index.php?action=help' $tmp>Help</a></ul>";
+  		$menu .= "<ul style='text-align: left'><li><a target=help href='http://www.teitok.org/index.php?action=help'>Help</a></ul>";
 		if ( file_exists("/usr/local/bin/tt-cqp") || $settings["defaults"]["tt-cqp"] ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=classify'>Custom annotation</a></ul>"; 
   		if ( count(scandir("pagetrans")) > 2 ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=pagetrans'>Page-by-Page</a></ul>"; 
   		$tmp = ""; if ( $action == "files" ) $tmp = "class=\"selected\""; 

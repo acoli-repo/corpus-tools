@@ -1,11 +1,10 @@
 <?php
 	// Script to allow viewing and editing teiHeader data
 	// (c) Maarten Janssen, 2015
-	
-	$fileid = $_POST['id'] or $fileid = $_GET['id'] or $fileid = $_GET['cid'];
-	$xml = getxmlfile($fileid);
-	if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
-	$verbose = 1;
+
+	require("$ttroot/common/Sources/ttxml.php");
+	$ttxml = new TTXML();	
+	$xml = $ttxml->xml;
 
 	$result = $xml->xpath("//title"); 
 	$title = $result[0];
@@ -72,11 +71,12 @@
 		exit;
 
 	} else if ( $act == "rawview" ) {
+	
 		check_login();
 		
 		$teiheader = current($xml->xpath("//teiHeader"));
 		$maintext .= showxml($teiheader);
-		$maintext .= "<hr><p><a href='index.php?action=file&cid=$fileid'>text view</a>";
+		$maintext .= "<hr><p>".$ttxml->viewswitch();
 		
 	} else if ( $act == "edit" ) {
 	

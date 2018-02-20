@@ -168,9 +168,7 @@
 	</script>
 	<br style='clear: both; margin-top: 10px; margin-top: 10px;'/>
 	<hr>
-	<a href='index.php?action=file&cid=$fileid&tid={$_GET['tid']}&pageid={$_GET['pageid']}&jmp=$tid'>{%Text view}</a>
-	&bull;
-	<a href='index.php?action=lineview&cid=$fileid&tid={$_GET['tid']}&pageid={$_GET['pageid']}&jmp=$tid'>{%Manuscript line view}</a>
 	";
+	$maintext .= $ttxml->viewswitch(false);
 	
 ?>

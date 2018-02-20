@@ -11,14 +11,8 @@
 		<h1>{%Waveform view}$editmode</h1>";
 	// $maintext .= $ttxml->tableheader();
 	
-	$audiourl = current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url"));
-	if ( !$audiourl ) $audiourl = current($ttxml->xml->xpath("//media/@url")); // maybe there is no mimeType
+	$audiourl = $ttxml->audiourl; 
 	if ( !$audiourl ) fatal ("XML file has no media element providing a URL to the sound file");
-
-	if ( !strstr($audiourl, 'http') ) {
-		if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
-		else $audiourl = $baseurl."Audio/$audiourl"; 
-	}
 
 	if ( $act == "save" ) {
 	

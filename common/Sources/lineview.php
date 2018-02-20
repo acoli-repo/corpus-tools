@@ -98,16 +98,13 @@
 				$maintext .= "\n<tr><th title=\"{$lb['id']}\">$linenr<td>$linetxt$bbox";
 
 			};
-			if ( $settings['xmlfile']['sattributes']['tok'] ) $facsview = " &bull; <a href='index.php?action=facsview&cid={$ttxml->fileid}&pageid={$_GET['pageid']}'>{%Facsimile view}</a>";
 			$maintext .= "</table>
 				<p><input type=submit value='Save'>
 				</form>
 
-			<hr><p>
-				<a href='index.php?action=file&cid={$ttxml->fileid}&pageid={$_GET['pageid']}&jmp={$_GET['jmp']}'>{%Text view}</a>
-				$facsview
-				&bull; <a href='index.php?action=lineview&cid={$ttxml->fileid}'>{%Line view}</a>
+			<hr><p><a href='index.php?action=lineview&cid={$ttxml->fileid}'>{%Line view}</a>
 				";
+			$maintext .= $ttxml->viewswitch(false);
 				
 		} else {
 		
@@ -222,8 +219,8 @@
 								};
 							</script>
 
-			<hr><p><a href='index.php?action=file&cid={$ttxml->fileid}&pageid={$curr['id']}&jmp={$_GET['jmp']}'>{%Text view}</a>";
-			if ( $settings['xmlfile']['sattributes']['tok'] ) $maintext .= " &bull; <a href='index.php?action=facsview&cid={$ttxml->fileid}&pageid={$_GET['pageid']}&jmp={$_GET['jmp']}'>{%Facsimile view}</a>";
+			<hr><p>";
+			$maintext .= $ttxml->viewswitch();
 
 			if ( $username ) 
 				$maintext .= " &bull;

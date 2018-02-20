@@ -17,8 +17,8 @@
 	$outfolder = $settings['cqp']['folder'] or $outfolder = "cqp";
 
 	// This version of CQP relies on XIDX - check whether program and file exist
-	$xidxcmd = $settings['bin']['tt-cwb-xidx'] or $xidxcmd = "/usr/local/bin/tt-cwb-xidx";
-	if ( !file_exists($xidxcmd) || !file_exists("$outfolder/xidx.rng") ) {
+	$xidxcmd = findapp('tt-cwb-xidx');
+	if ( !$xidxcmd || !file_exists("$outfolder/xidx.rng") ) {
 		print "<p>This CQP version works only with XIDX
 			<script language=Javascript>top.location='index.php?action=cqpraw';</script>
 		";
@@ -28,7 +28,6 @@
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
-
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$cqpfolder = $settings['cqp']['searchfolder'];
@@ -785,7 +784,7 @@
 
 		
 		# Do not allow frequency counts if we already have a pre-select CQL
-		if ( !file_exists("/usr/local/bin/tt-cqp") && !$settings["defaults"]["tt-cqp"] ) {
+		if ( !findapp("tt-cqp") ) {
 			if ( $username )
 			$maintext .= "<hr><div class=adminpart>
 				<p>The corpus frequency options in TEITOK rely on tt-cqp, which does not
@@ -912,7 +911,7 @@
 			$stmp = "<script language=Javascript>switchtype('st', 'word');</script>";
 		} else { $cdef = "checked"; };
 
-		if ( file_exists("/usr/local/bin/tt-cqp") || $settings["defaults"]["tt-cqp"] ) {
+		if ( findapp("tt-cqp") ) {
 			// tt-cqp specific options
 			$extannfile = $_POST['extann'] or $extannfile = "Users/ann_{$user['short']}.xml";
 			if ( file_exists($extannfile) ) {
@@ -1046,12 +1045,12 @@
 				<input type=radio name=style value='context' onClick=\"switchtype('style', 'context');\" $chcont> Context
 				";			
 		
-		// Turned off for now - and should only have the options installed on the server
-		if ( $user['email'] == "maarten@clul.ul.pt" ) $maintext .= "
-				<p>{%CQP application}: 
-				<input type=radio name=cqpapp value=\"/usr/local/bin/cqp\" checked onClick=\"switchtype('app', 'cqp-');\"> CQP
-				<input type=radio name=cqpapp value=\"/usr/local/bin/tt-cqp\" onClick=\"switchtype('app', 'tt-cqp-');\"> TT-CQP
-				";			
+		// TODO: choose the CQP app (for now only for admin users)
+		$cqpopts = array();
+		if ( $cqpapp = findapp("cqp") ) array_push($cqpopts, "<input type=radio name=cqpapp value=\"$cqpapp\" checked onClick=\"switchtype('app', 'cqp-');\"> CQP");
+		if ( $cqpapp = findapp("tt-cqp") ) array_push($cqpopts, "<input type=radio name=cqpapp value=\"$cqpapp\" onClick=\"switchtype('app', 'tt-cqp-');\"> TT-CQP");
+		if ( $user['permissions'] == "admin" && count($cqpopts) > 1 ) $maintext .= "
+				<p>{%CQP application}: ".join("\n", $cqpopts);
 		
 		foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
 			if ( $settings['cqp']['defaults']['subtype'] == $key ) $sel = "checked"; else $sel = "";

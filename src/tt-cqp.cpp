@@ -117,7 +117,7 @@ bool resmatch ( string a, string b, string matchtype = "=", string flags = "" ) 
 
 
 class pugidoc {
-	// Holds an external annotation (to make the pugixml document persistent
+	// Holds an external annotation (to make the pugixml document persistent)
 	typedef pair<string, pugi::xml_document*> pugipair;
 	
 	public:
@@ -185,7 +185,7 @@ class cqlfld {
 		string tmp1; string tmp2;		
 		
 		// match.fld
-		if ( preg_match (flditem, "([a-z0-9]+)\\.([^ ]+)", &m ) ) { // Do not match with preg "a.*"
+		if ( preg_match (flditem, "([^\"].*)\\.([^ ]+)", &m ) ) { // Do not match with preg "a.*"
 			string posind = m[1]; string value; 
 			if ( posind == "this" ) posind = "_"; // Alias for convenience this.text_year == _.text_year
 			fld = m[2]; rawbase = posind;
@@ -860,12 +860,15 @@ class cqlresult {
 				};
 				cout << "]," << endl;
 			};
+			int i = 0;
 			for (std::map<string,int>::iterator it=counts.begin(); it!=counts.end(); ++it) {
 				obs = it->second; 
 				coll = it->first;
-
+				i++;
+				
 				if ( output == "xml" ) {
 					resnode = resfile.first_child().append_child("result");
+					resnode.append_attribute("n") = i;
 				};
 				
 				if ( flds.size() > 1 || show.size() > 0 ) {
@@ -988,12 +991,15 @@ class cqlresult {
 				};
 				cout << "]," << endl;
 			};
+			int i=0;
 			for (std::map<string,int>::iterator it=counts.begin(); it!=counts.end(); ++it) {
 				obs = it->second; 
 				item = it->first;
 
+				i++;
 				if ( output == "xml" ) {
 					resnode = resfile.first_child().append_child("result");
+					resnode.append_attribute("n") = i;
 				};
 				
 				if ( flds.size() > 1 || show.size() > 0 ) {
@@ -1266,6 +1272,7 @@ class cqlresult {
 			resfile.first_child().append_attribute("size") = size();
 			for ( int i=tab1; i<tab2; i++ ) {
 				pugi::xml_node resnode = resfile.first_child().append_child("result");
+				resnode.append_attribute("n") = i+1;
 				for ( int j=0; j<cqlfieldlist.size(); j++ ) {
 					string value = cqlfieldlist[j].value(match[i]);
 					pugi::xml_node resfld = resnode.append_child("tab");

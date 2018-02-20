@@ -134,7 +134,7 @@
 		if ( $cqpfolder == "" ) $cqpfolder = "**";
 	
 		$ttencode = findapp("tt-cwb-encode");
-		if ( !$settings['cqp']['verticalize'] && $ttencode )  ) {
+		if ( !$settings['cqp']['verticalize'] && $ttencode ) {
 			# Verticalize using the verticalize C++ application
 			# For simplicity, we do htmldecoding externally in Perl
 			$maintext .= "<p>Using tt-cwb-encode";

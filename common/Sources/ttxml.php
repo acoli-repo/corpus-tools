@@ -10,6 +10,9 @@ class TTXML
 	public $xmlid; # The ID of the file
 	public $fileid; # Full path of the file (within xmlfiles)
 	public $xml; # The parsed XML
+	public $audio = array(); # An array with the audio file(s) in this XML
+	public $audiourl; # The URL for the first AUDIO node
+	public $video = array(); # An array with the video file(s) in this XML
 	
 	var $xmlfolder;
 	var $rawtext;
@@ -19,7 +22,7 @@ class TTXML
 	public $facsimg; # The facsimile image for the page
 
 	function __construct($fileid = "", $fatal = 1, $options ) {	
-		global $xmlfolder;
+		global $xmlfolder; global $baseurl;
 		
 		# Use $_GET to find the file
 		if ( !$xmlfolder ) $xmlfolder = "xmlfiles";
@@ -66,6 +69,19 @@ class TTXML
 			
 		$this->xml = simplexml_load_string($this->rawtext);
 		if ( !$this->xml && $fatal ) { fatal ( "Failing to read/parse $fileid" ); };
+		
+		// See if there is an Audio element in the header
+		foreach ( $this->xml->xpath("//recording/media") as $medianode ) {
+			$mimetype = $medianode['mimeType'] or $mimetype = mime_content_type($medianode['url']);
+			if ( strstr($mimetype, "audio") ) array_push($this->audio, $medianode);
+			else if ( strstr($mimetype, "video") ) array_push($this->video, $medianode);
+		};
+		$audiourl = $this->audio[0]['url']; 
+		if ( !strstr($audiourl, 'http') ) {
+			if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
+			else $audiourl = $baseurl."Audio/$audiourl"; 
+		};
+		$this->audiourl = $audiourl;
 		
 	}
 	
@@ -348,6 +364,55 @@ class TTXML
 						";
 		
 		return $editxml;
+	}
+
+	function viewswitch($initial = true, $withself = false ) {
+		global $settings; global $username;
+
+		$viewopts['text'] = "Text view";
+		
+		// Add the sattribute levels
+		foreach ( $settings['xmlfile']['sattributes'] as $key => $item ) {	
+			$lvl = $item['level'];	
+			if ( strstr($this->rawtext, "<$key ") ) {
+				$lvltxt = $item['display'] or $lvltxt = "Sentence";
+				$viewopts['block:'.$lvl] = "{$lvltxt} view";
+			}; 
+		}; 
+
+		// Add the annotation levels
+		if ( $settings['annotations'] ) {
+			foreach ( $settings['annotations'] as $key => $val ) {
+				if ( $val['type'] == "standoff" &&  ( !$val['admin'] || $username ) ) {
+					if ( file_exists("Annotations/{$key}_$this->xmlid.xml") ) $viewopts['annotation'] = $val['display'];
+					else $viewopts['annotation'] = "Create ".$val['display'];
+				} else if ( $val['type'] == "psdx" && file_exists("Annotations/$this->xmlid.psdx") ) {
+					$viewopts['psdx'] = $val['display'];
+				} else if ( $val['type'] == "morph" && strstr($this->rawtext, "<morph") ) {
+					$viewopts['igt'] = $val['display'];
+				};
+			}; 
+		}; 
+		
+		if ( $settings['views']['lineview'] || ( !$settings['views'] && strstr($this->rawtext, "bbox=") ) ) {
+			$lvltxt = $settings['views']['lineview']['display'] or $lvltxt = "Manuscript line";
+			$viewopts['lineview'] = "{$lvltxt} view";
+		};
+		if ( $settings['views']['facsview'] || ( !$settings['views'] && strstr($this->rawtext, "bbox=") ) ) {
+			$lvltxt = $settings['views']['facsview']['display'] or $lvltxt = "Facsimile";
+			$viewopts['facsview'] = "{$lvltxt} view";
+		};
+			
+		$sep = ""; if ( !$initial ) $sep = " &bull; ";
+		foreach ( $viewopts as $key => $val ) {
+			list ( $doaction, $dolvl ) = split ( ":", $key );
+			if ( $_GET['action'] != $doaction || ($dolvl && $dolvl != $_GET['elm']) ) {
+				$views .= $sep."<a href='index.php?action=$doaction&cid=$this->fileid&pageid={$_GET['pageid']}&jmp={$_GET['jmp']}&elm=$dolvl'>{%$val}</a>";
+				$sep = " &bull; ";
+			};
+		};
+
+		return $views;
 	}
 
 	function save() {

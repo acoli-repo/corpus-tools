@@ -66,7 +66,6 @@
 
 	if ( $act == "create" ) {
 		
-		
 		if ( !file_exists("Users") ) mkdir ("Users");
 		
 		$file = "Users/ann_$useridtxt.xml"; // TODO: allow superusers to create other files as well?
@@ -76,19 +75,10 @@
 	
 	} else if ( gettype($extann) != "object" ) {
 	
-		$maintext .= "<h1>{%Choose an annotation file}</h1>";
-		if ( file_exists("Users/ann_$useridtxt.xml") ) {
-			$anfs["Users/ann_$useridtxt.xml"] = 1;
-			$maintext .= "<p><a href=\"index.php?action=$action&file=ann_$useridtxt\">{%Your annotation file}</a>";
-		} else {
-			$anfs["Users/ann_$useridtxt.xml"] = 1;
-			$maintext .= "<p><a href=\"index.php?action=$action&act=create\">{%Create your own annotation file}</a>";
-		};
+		$maintext .= "<h1>{%Custom annotation}</h1>";
 		
 		if ( $user['email'] ) {
-			$maintext .= "<h2>Annotations made by other users</h2>
-			<table>
-			<tr><th>Field<th>File<th>Description";
+			$tabrows = "";
 			foreach ( explode("\n", shell_exec("/usr/bin/grep -H '<field' Users/*.xml")) as $line )  {
 				$ufld = $ufile = $udesc = $ustat = "";
 				if ( preg_match("/key=\"([^\"]+)\"/", $line, $matches ) ) { $ukey = $matches[1]; };
@@ -96,15 +86,37 @@
 				if ( preg_match("/^([^:]+):/", $line, $matches ) ) { $ufile = $matches[1]; };
 				if ( preg_match("/desc=\"([^\"]+)\"/", $line, $matches ) ) { $udesc = $matches[1]; };
 				if ( preg_match("/status=\"([^\"]+)\"/", $line, $matches ) ) { $ustat = $matches[1]; };
+				// TODO: Author name is in the XML root, not in each field
+				if ( preg_match("/author=\"([^\"]+)\"/", $line, $matches ) ) { $authorname = $matches[1]; };
 				$ufiletxt = str_replace("Users/", "", $ufile);
 				$ufiletxt = str_replace(".xml", "", $ufiletxt);
-				if ( $ustat != "private" && $ufile != "Users/ann_$useridtxt.xml" )
-				$maintext .= "<tr><td><a href='index.php?action=$action&file=$ufile&fields=$ukey'>$ufld</a>
-					<td>$ufiletxt
-					<td>$udesc";
+				if ( $ufiletxt != "" ) {
+					$row = "<tr>
+						<td><a href='index.php?action=$action&file=$ufile&fields=$ukey'>$ufld</a>
+						<td>$udesc";
+					if ( $ufile == "Users/ann_$useridtxt.xml" ) $myrows .= $row;
+					else if ( $ustat != "private" ) $tabrows .= $row;
+				};
 				$anfs[$ufile] = 1;
 			};
-			$maintext .= "</table>";
+			
+			if ( $myrows != "" )
+			$maintext .= "<h2>{%My annotations}</h2>
+			<table>
+			<tr><th>Field<th>Description
+			$myrows
+			</table>";
+			else  {
+			$anfs["Users/ann_$useridtxt.xml"] = 1;
+			$maintext .= "<p><a href=\"index.php?action=$action&act=create\">{%Create your own annotation file}</a>";
+			};
+			
+			if ( $tabrows != "" )
+			$maintext .= "<h2>{%Public annotations made by other users}</h2>
+			<table>
+			<tr><th>Field<th>Description
+			$tabrows
+			</table>";
    		};
 		
 		if ( count($anfs) == 1 && 1==2) {
@@ -263,8 +275,9 @@
 			foreach ( explode("\n", $results) as $i => $line ) {
 				if ( $line == "" ) continue;
 				// Correct xidx errors
-				$line = str_replace("<</match>", "</match><", $line );
-				$line = str_replace("<</resblk>", "</resblk>", $line );
+				$line = html_entity_decode($line);
+				$line = preg_replace("/(<[^>]*)<\/match>/", "</match>\\1", $line );
+				$line = preg_replace("/(<[^>]*)<\/resblk>/", "</resblk>", $line );
 				# Replace block-type elements by vertical bars
 				$line = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l|lg|div) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<\\2>'>|</span> ", $line);
 				$line = preg_replace ( "/(<(lb|br)[^>]*\/>\s*)+/", " <span style='color: #aaffaa' title='<p>'>|</span> ", $line);
