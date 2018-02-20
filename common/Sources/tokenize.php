@@ -38,7 +38,7 @@
 		$txtxml = $result[0]; 
 		if ( $txtxml ) {
 			print "<p>This XML has already been tokenized - proceeding automatically to edit";
-			header("location:index.php?action=edit&id=$fileid");
+			header("location:index.php?action=file&id=$fileid");
 			exit;
 		};
 		$mtxtelement = $xml->xpath($mtxtelement); 
@@ -226,7 +226,7 @@
 				$xmltxt = htmlentities($newfile);
 				if ( $markers ) $maintext .= "<p>The (first) conflicting line has been highlighted";
 	
-				$maintext .= "<p>Click <a href='index.php?action=edit&cid=$filename'>here</a> to go (back) to view mode";
+				$maintext .= "<p>Click <a href='index.php?action=file&cid=$filename'>here</a> to go (back) to view mode";
 
 				
 			} else {
@@ -260,8 +260,8 @@
 
 				saveMyXML($newxml->asXML(), $fileid);
 
-				$maintext .= "<hr><p>Your text has been tokenized - reloading to <a href='index.php?action=edit&id=$fileid'>the tokenized page</a>";
-				$maintext .= "<script langauge=Javasript>top.location='index.php?action=edit&id=$fileid';</script>";
+				$maintext .= "<hr><p>Your text has been tokenized - reloading to <a href='index.php?action=file&id=$fileid'>the tokenized page</a>";
+				$maintext .= "<script langauge=Javasript>top.location='index.php?action=file&id=$fileid';</script>";
 		
 			};
 		
@@ -288,7 +288,7 @@
 		if ( $_GET['tid'] )
 			$nexturl = "index.php?action=tokedit&cid=$fileid&tid={$_GET['tid']}";
 		else 
-			$nexturl = "index.php?action=edit&id=$fileid";
+			$nexturl = "index.php?action=file&id=$fileid";
 		$maintext .= "<hr><p>Your text has been renumbered - reloading to <a href='$nexturl'>the edit page</a>";
 		$maintext .= "<script langauge=Javasript>top.location='$nexturl';</script>";
 	

@@ -417,7 +417,7 @@
 					<td>
 					<td align=right>$lcontext<td align=center><b>$word</b><td>$rcontext";
 				else $maintext .= "<tr>
-					<td><a target=check style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=edit&cid=$fileid&jmp=$tid'$target>$refname</a>
+					<td><a target=check style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=file&cid=$fileid&jmp=$tid'$target>$refname</a>
 					$checkbox
 					<td align=right>$lcontext<td align=center><b>$word</b><td>$rcontext";
 			 # else $maintext .= "<p>?? $match, $line";

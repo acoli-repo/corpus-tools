@@ -519,8 +519,8 @@
 		# Show the context
 		$maintext .= "<hr><div id=mtxt>".$editxml."</div>
 		<hr><input type=submit value=\"Save\">
-		<!-- <button onClick=\"window.open('index.php?action=edit&cid=$fileid', '_self');\">Cancel</button> -->
-		<a href='index.php?action=edit&cid=$fileid'>Cancel</a>
+		<!-- <button onClick=\"window.open('index.php?action=file&cid=$fileid', '_self');\">Cancel</button> -->
+		<a href='index.php?action=file&cid=$fileid'>Cancel</a>
 		<script language=Javascript>
 			document.getElementById('fnform').focus();
 			highlight('$tokid',  '#ffee88');

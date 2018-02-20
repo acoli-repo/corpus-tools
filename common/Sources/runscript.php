@@ -27,12 +27,12 @@
 		$maintext .= "<h1>Script Done</h1><p>Script successfully executed. Result:
 		 <hr><PRE>$res</PRE><hr>
 		 
-		 <p>&bull; Click <a href='index.php?action=edit&cid={$_GET['file']}'>here</a> to return to the XML file";
+		 <p>&bull; Click <a href='index.php?action=file&cid={$_GET['file']}'>here</a> to return to the XML file";
 		 
 		 if ( $outfile ) {
 			$outfile = preg_replace ( "/\[fn\]/", "$xmlfolder/{$_GET['file']}", $outfile );
 			$outfile = preg_replace ( "/\[id\]/", "$id", $outfile );
-			$maintext .= "<p>&bull; Click <a href='index.php?action=edit&cid=$outfile'>here</a> to go to the modified XML file";
+			$maintext .= "<p>&bull; Click <a href='index.php?action=file&cid=$outfile'>here</a> to go to the modified XML file";
 
 		 };
 	};

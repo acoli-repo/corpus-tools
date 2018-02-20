@@ -13,6 +13,11 @@
 	# Show sentence view
 	$stype = $_GET['elm'] or $stype = "s";
 	if ( $stype == "1" ) $stype = "s";
+
+	// When so indicated, load the external PSDX file so we can link to existing trees
+	if ( $settings['psdx'] && file_exists( "Annotations/$xmlid.psdx") ) {
+		$psdx = simplexml_load_file("Annotations/$xmlid.psdx", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+	};
 	
 	$blockdef = $settings['xmlfile']['sattributes'][$stype];
 	
@@ -71,8 +76,7 @@
 	};
 	
 	
-	if ( $username ) $txtid = $fileid; else $txt = $xmlid;
-	$maintext .= "<h2>$txtid</h2><h1>{%{$blockdef['display']} view}</h1>";
+	$maintext .= "<h2>{%{$blockdef['display']} view}</h2><h1>".$ttxml->title()."</h1>";
 	$maintext .= $ttxml->tableheader();
 				
 	$maintext .= "<div id='mtxt'>$editxml</div>";

@@ -7,8 +7,8 @@
 	
 	if ( $act == "edit" ) $editmode = " - {%Edit mode}";
 	$maintext .= "
-		<h2>$fileid</h2>
-		<h1>{%Waveform view}$editmode</h1>";
+		<h2>{%Waveform view}$editmode</h2>
+		<h1>".$ttxml->title()."</h1>";
 	// $maintext .= $ttxml->tableheader();
 	
 	$audiourl = $ttxml->audiourl; 

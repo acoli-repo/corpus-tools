@@ -372,7 +372,7 @@ class TTXML
 		$viewopts['text'] = "Text view";
 		
 		// Add the sattribute levels
-		foreach ( $settings['xmlfile']['sattributes'] as $key => $item ) {	
+		if ( !$settings['views'] ) foreach ( $settings['xmlfile']['sattributes'] as $key => $item ) {	
 			$lvl = $item['level'];	
 			if ( strstr($this->rawtext, "<$key ") ) {
 				$lvltxt = $item['display'] or $lvltxt = "Sentence";
@@ -394,6 +394,7 @@ class TTXML
 			}; 
 		}; 
 		
+		// TODO: Make these check for @bbox on <lb/> and <tok/> respectively
 		if ( $settings['views']['lineview'] || ( !$settings['views'] && strstr($this->rawtext, "bbox=") ) ) {
 			$lvltxt = $settings['views']['lineview']['display'] or $lvltxt = "Manuscript line";
 			$viewopts['lineview'] = "{$lvltxt} view";

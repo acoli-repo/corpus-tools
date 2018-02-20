@@ -60,8 +60,8 @@
 
 		$maintext .= "<hr>
 		<input type=submit value=\"Save\">
-		<button onClick=\"window.open('index.php?action=edit&cid=$fileid', '_self');\">Cancel</button></form>
-		<!-- <a href='index.php?action=edit&cid=$fileid'>Cancel</a> -->
+		<button onClick=\"window.open('index.php?action=file&cid=$fileid', '_self');\">Cancel</button></form>
+		<!-- <a href='index.php?action=file&cid=$fileid'>Cancel</a> -->
 		<hr><div id=mtxt>".$txtxml->asXML()."</div>
 		<script language=Javascript>
 			var telm = document.getElementById('$tokid');

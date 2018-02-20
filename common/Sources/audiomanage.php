@@ -360,7 +360,7 @@
 		};
 		$maintext .= "</table>
 			<input type=submit value=Save>
-			<input type=button value=Cancel onClick=\"window.open('index.php?action=edit&cid=$fileid', '_top');\">
+			<input type=button value=Cancel onClick=\"window.open('index.php?action=file&cid=$fileid', '_top');\">
 			</form>
 			";
 

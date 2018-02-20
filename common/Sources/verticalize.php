@@ -31,7 +31,7 @@
 		};
 		saveMyXML($xml->asXML(), $fileid);
 		$maintext .= "<hr><p>Your text has been modified - reloading";
-		header("location:index.php?action=edit&id=$fileid&tid=$tokid$slnk");
+		header("location:index.php?action=file&id=$fileid&tid=$tokid$slnk");
 		
 	} else if ( $act == "define" ) {
 
@@ -204,7 +204,7 @@
 		
 			if ( $_GET['show'] == "all" ) $maintext .= "<a href='index.php?action=$action&cid=$fileid&form=$showform&show='>show only tagged tokens</a>";
 			else $maintext .= "<a href='index.php?action=$action&cid=$fileid&form=$showform&show=all'>show all tokens</a>";
-			$maintext .= " &bull; <a href='index.php?action=edit&cid=$fileid'>back to view mode</a>";
+			$maintext .= " &bull; <a href='index.php?action=file&cid=$fileid'>back to view mode</a>";
 			$maintext .= " &bull; <a href='index.php?action=$action&act=raw&cid=$fileid'>verticalized XML</a>";
 			$maintext .= " &bull; <a href='index.php?action=$action&act=define&cid=$fileid'>define columns</a>";
 

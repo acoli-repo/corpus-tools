@@ -293,7 +293,7 @@
 			$xmltxt = htmlentities($xmltxt);
 			if ( $markers ) print "<p>The (first) conflicting line has been highlighted";
 	
-			print "<p>Click <a href='index.php?action=edit&cid=$filename'>here</a> to go (back) to view mode";
+			print "<p>Click <a href='index.php?action=file&cid=$filename'>here</a> to go (back) to view mode";
 
 			exit;
 		};

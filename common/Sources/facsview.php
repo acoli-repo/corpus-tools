@@ -7,7 +7,9 @@
 	
 	$ttxml = new TTXML();
 	
-	$maintext .= "<h1>".$ttxml->title()."</h1>"; 
+	$maintext .= "
+		<h2>{%Facsimile view}</h2>
+		<h1>".$ttxml->title()."</h1>";
 
 	# Display the teiHeader data as a table
 	$maintext .= $ttxml->tableheader(); 
@@ -169,6 +171,6 @@
 	<br style='clear: both; margin-top: 10px; margin-top: 10px;'/>
 	<hr>
 	";
-	$maintext .= $ttxml->viewswitch(false);
+	$maintext .= $ttxml->viewswitch();
 	
 ?>

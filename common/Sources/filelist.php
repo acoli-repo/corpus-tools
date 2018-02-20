@@ -140,14 +140,14 @@
 			$maintext .= "<hr><p style='color: #992000'>WARNING: duplicated file";
 			foreach ( $fnd as $ff ) {
 				$ff = preg_replace ( "/^Resources\/xmlfiles\//", "", $ff );
-				$maintext .= "<p><a href='index.php?action=edit&id=$ff'>$ff</a>";
+				$maintext .= "<p><a href='index.php?action=file&id=$ff'>$ff</a>";
 			};
 		
 		} else {
 			$maintext .= "<hr><p>Current location: ";
 			$fff = $fnd[0];
 			$ff = preg_replace ( "/^Resources\/xmlfiles\//", "", $fff );
-			$maintext .= "<p><a href='index.php?action=edit&id=$ff'>$ff</a>";
+			$maintext .= "<p><a href='index.php?action=file&id=$ff'>$ff</a>";
 
 			// Now that we have one file, go check for tokenization, etc.
 			$file = file_get_contents("$fff"); 

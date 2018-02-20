@@ -1,6 +1,7 @@
 <?php
 
 	$cid = $_GET['cid'];
+	$cid = preg_replace("/.*\/(.*?)(\.xml)?/", "", $cid);
 	$treeid = $_GET['treeid'];
 	$sentenceid = $_GET['sentence'];
 	$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'];
@@ -752,7 +753,7 @@
 			if ( $nextforest['id'] ) { $options .= " &bull; <a href='index.php?action=$action&cid=$cid&treeid={$nextforest['id']}&treestyle=$treestyle'>{%next sentence}</a>"; };
 			// $maintext .= "<hr><a href='index.php?action=$action&cid=$cid'>{%sentence list}</a> ";
 			$maintext .= "<hr><a href='index.php?action=file&cid=$cid&sentence=1'>{%sentence list}</a> ";
-			$maintext .= "&bull; <a href='index.php?action=edit&cid=$cid&jmp=$sentid'>{%to text mode}</a> $options</p><br>";
+			$maintext .= "&bull; <a href='index.php?action=file&cid=$cid&jmp=$sentid'>{%to text mode}</a> $options</p><br>";
 		} else {
 			$maintext .= "<div id=mtxt><table cellpadding=3px>";
 			$result = $forestxml->xpath("//forest"); 

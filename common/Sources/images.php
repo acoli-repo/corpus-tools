@@ -90,10 +90,10 @@
 				$xmlid = preg_replace ( "/.*\//", "", $xmlfile);
 				$imgfls[$img] = 1;
 				if ( !file_exists("Facsimile/$img") ) {
-					$maintext .= "<p><b>$img</b> in <a href='index.php?action=edit&cid=$xmlfile'>$xmlfile</a>";
+					$maintext .= "<p><b>$img</b> in <a href='index.php?action=file&cid=$xmlfile'>$xmlfile</a>";
 					$cnt++;
 				} else if ( $debug ) {
-					$maintext .= "<p><a href='Facsimile/$img'>$img</a> in <a href='index.php?action=edit&cid=$xmlfile'>$xmlfile</a>";
+					$maintext .= "<p><a href='Facsimile/$img'>$img</a> in <a href='index.php?action=file&cid=$xmlfile'>$xmlfile</a>";
 				};
 			};
 		};

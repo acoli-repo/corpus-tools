@@ -103,7 +103,7 @@
 		$maintext .= "</div><hr>";
 	};
 	$maintext .= "</table></div><hr>";
-			$maintext .= "<a href='index.php?action=edit&cid=$cid&jmp=$sentid'>{%to text mode}</a> $options</p><br>";
+			$maintext .= "<a href='index.php?action=file&cid=$cid&jmp=$sentid'>{%to text mode}</a> $options</p><br>";
 
 
 ?>

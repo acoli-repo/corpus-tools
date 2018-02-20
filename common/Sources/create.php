@@ -133,7 +133,7 @@
 		
 		saveMyXML($newfile, $cardid);
 		print "<p>New XML file has been created. Reloading to edit mode.
-			<script language=Javascript>top.location='index.php?action=edit&cid=$cardid&display=shand'</script>"; exit;
+			<script language=Javascript>top.location='index.php?action=file&cid=$cardid&display=shand'</script>"; exit;
 
 	} else {
 	

@@ -181,7 +181,7 @@
 		$maintext .= "<h1>Version Retrieval - $xmlid / $date</h1>
 		
 			<p>Your previous version has been restored
-			<script language=Javascript>top.location='index.php?action=edit&cid=$fileid';</script>";
+			<script language=Javascript>top.location='index.php?action=file&cid=$fileid';</script>";
 
 	} else if ( $xmlid ) {	
 	

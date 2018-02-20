@@ -70,7 +70,7 @@
 		else if ( $_GET['tid'] )
 			$nexturl = "index.php?action=tokedit&cid=$cardid&tid={$_GET['tid']}";
 		else 
-			$nexturl = "index.php?action=edit&id=$cardid";
+			$nexturl = "index.php?action=file&id=$cardid";
 		$maintext .= "<hr><p>Your text has been renumbered - reloading to <a href='$nexturl'>the edit page</a>";
 		$maintext .= "<script langauge=Javasript>top.location='$nexturl';</script>";
 		
@@ -88,7 +88,7 @@
 		else if ( $_GET['tid'] )
 			$nexturl = "index.php?action=tokedit&cid=$cardid&tid={$_GET['tid']}";
 		else 
-			$nexturl = "index.php?action=edit&id=$cardid";
+			$nexturl = "index.php?action=file&id=$cardid";
 		$maintext .= "<hr><p>Your text has been renumbered - reloading to <a href='$nexturl'>the edit page</a>";
 		$maintext .= "<script langauge=Javasript>top.location='$nexturl';</script>";
 		

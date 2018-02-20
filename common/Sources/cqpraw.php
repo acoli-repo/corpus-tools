@@ -516,7 +516,7 @@
 				if ( $_POST['style'] == "attlist" ) {
 					$rowcnt = count($tidarray) + 1;	$colcnt = count($settings['xmlfile']['pattributes']['forms'])+count($settings['xmlfile']['pattributes']['tags']);
 					$maintext .= "<tr>
-							<th><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=edit&cid=$fileid&jmp=$tid'$target>$refname</a>
+							<th><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=file&cid=$fileid&jmp=$tid'$target>$refname</a>
 							<th colspan='$colcnt'>$lcontext <b>$match</b> $rcontext";
 					foreach ( $tidarray as $key => $val ) {
 						if ( $username ) $val = "<a href='{$purl}index.php?action=tokedit&cid=$fileid&tid=$val'$target>$val</a>";
@@ -526,7 +526,7 @@
 						};
 					};
 				} else if ( $_POST['style'] == "sent" ) {
-					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=edit&cid=$fileid&jmp=$tid'$target>$refname</a>
+					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=file&cid=$fileid&jmp=$tid'$target>$refname</a>
 						<td>$lcontext <span class=match>$match</span> $rcontext";
 				} else if ( $audioelm ) {
 					$src = $featres[1][0];
@@ -535,12 +535,12 @@
 						$strt = $featres[2][0]; $stp = $featres[3][0];
 						$audiobut = "<img src=\"http://alfclul.clul.ul.pt/teitok/common/Images/playbutton.gif\" width=\"14\" height=\"14\" style=\"margin-right: 5px; display: inline-block;\" onClick=\"playpart('$src', $strt, $stp, this );\">"; 
 					};
-					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=edit&cid=$fileid&jmp=$tid'$target>$refname</a>
+					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=file&cid=$fileid&jmp=$tid'$target>$refname</a>
 						<td>$audiobut
 						<td>$lcontext <span class=match>$match</span> $rcontext";
 					else $maintext .= "<p>?? $match, $line";
 				} else {
-					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=edit&cid=$fileid&jmp=$tid'$target>$refname</a>
+					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=file&cid=$fileid&jmp=$tid'$target>$refname</a>
 						<td align=right>$lcontext<td align=center><b>$match</b><td>$rcontext";
 					#else $maintext .= "<p>?? $match ".join( " ; ", explode ("\t", $line));
 				};

@@ -29,7 +29,7 @@
 
 		saveMyXML($file, $fileid);
 		print "<p>Note saved. Reloading.";
-		header("location:index.php?action=edit&id=$fileid&tid=$tokid$slnk");
+		header("location:index.php?action=file&id=$fileid&tid=$tokid$slnk");
 		
 	} else {
 
@@ -69,8 +69,8 @@
 		
 		<hr>
 		<div id=mtxt>".$editxml."</div>
-		<button onClick=\"window.open('index.php?action=edit&cid=$fileid', '_self');\">Cancel</button>
-		<a href='index.php?action=edit&cid=$fileid'>Cancel</a>
+		<button onClick=\"window.open('index.php?action=file&cid=$fileid', '_self');\">Cancel</button>
+		<a href='index.php?action=file&cid=$fileid'>Cancel</a>
 		<script language=Javascript>
 			document.getElementById('fnform').focus();
 			highlight('$tokid',  '#ffee88');
