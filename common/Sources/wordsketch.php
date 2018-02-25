@@ -48,15 +48,17 @@
 				<tr><th>{%$fldname}<th>{%Observed}<th>{%Total}<th>{%Expected}<th title='{%Chi Square}'>{%Chi2}<th title='{%Mutual Information}'>{%MI}";
 
 			$sort_col = array();
+			$sortidx = $_GET['sort'] or $sortidx = 3;
 			foreach ($wordlist as $key => $row) {
-				$sort_col[] = $row[3];
+				$sort_col[] = $row[$sortidx];
 			};
 			array_multisort($sort_col, SORT_NUMERIC, $wordlist, SORT_ASC );
 			
-			$i = 0;
+			$i = 0; $maxshow = $_GET['max'] or $maxshow = 10;
 			$json .= "\n\t'$deps':[[{'key':'$fld','label':'$fldname'},\n{'key':'obs','label':'Observed'},\n{'key':'tot','label':'Total'},\n{'key':'exp','label':'Expected'},\n{'key':'chi2','label':'Chi Square'},\n{'key':'mi','label':'Mutual Information'}],\n";
 			foreach ( array_reverse($wordlist) as $collocate => $data ) {
-				if ( $i < 15 ) $maintext .= "<tr><td>$collocate<td>".join("<td>", $data);
+				if ( $i < $maxshow ) $maintext .= "<tr><td>$collocate<td>".join("<td>", $data);
+				$i++;
 				$json .= "['$collocate', ".join(",", $data)."], ";
 			};
 			$maintext .= "</table>";

@@ -477,16 +477,7 @@ $maintext .= "
 
 			# Order the nodes to avoid needless crossing
 			$tmp = $cols;
-// 			uksort($tmp,function($a,$b) { use($tmp)
-// 				if($tmp[$a] < $tmp[$b]){
-// 					return -1;
-// 				 }
-// 				 if($tmp[$a] > $tmp[$b]){ 
-// 					return 1;
-// 				 }
-// 				 return strcmp($a,$b);
-// 			  });    
-			asort($tmp);      			
+			uksort( $tmp, "valsort" );
 			
 			$headcols = $cols;
 			$ocols = array_keys($tmp);
@@ -643,5 +634,16 @@ $maintext .= "
 
 		return $graph;
 	};
+
+	function valsort ($a,$b) {
+		global $tmp;
+		if($tmp[$a] < $tmp[$b]){
+			return -1;
+		 }
+		 if($tmp[$a] > $tmp[$b]){ 
+			return 1;
+		 }
+		 return strcmp($a,$b);
+	  };    
 
 ?>
