@@ -14,6 +14,7 @@ $scriptname = $0;
             'linebreaks' => \$linebreaks, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
             'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
+            'sent=i' => \$sentsplit, # split into sentences (1=yes, 2=only)
             );
 
 $\ = "\n"; $, = "\t";
@@ -44,9 +45,20 @@ if ( $rawxml eq '' ) {
 	print " -- empty file $filename"; exit;
 };
 
+if ( $rawxml =~ /<\/s>/ && $sentsplit ) {
+	print "Already split into sentences - not splitting";
+	$sentsplit = 0;
+};
+
 # Check if not already tokenized
-if ( !$force && $rawxml =~ /<\/tok>/ ) {
-	print "Already tokenized"; exit;
+if ( $rawxml =~ /<\/tok>/ ) {
+	if ( $force ) {
+		# Forcing, so just go on
+	} elsif ( $sentsplit ) {
+		$sentsplit = 2;
+	} else {
+		print "Already tokenized"; exit;
+	};
 };
 
 # Kill the xmlns
@@ -83,7 +95,7 @@ if ( $linebreaks ) {
 	$tagtxt =~ s/\n(?!<p>|\n|<\/text>)/\n<lb\/>/g; # This places <lb/> before tags that should not have one...
 };
 
-# Deal with |~ encode line endings
+# Deal with |~ encode line endings (from with page-by-page files)
 $tagtxt =~ s/\s*\|~\s*((<[pl]b[^>]*>\s*?)*)\s*/\1/gsmi;
 
 # Do some preprocessing
@@ -124,255 +136,306 @@ if ( $debug ) {
 
 # Now actually tokenize
 # Go line by line to make it faster
-foreach $line ( split ( "\n", $tagtxt ) ) {
+if ( $sentsplit != 2 ) {
+	foreach $line ( split ( "\n", $tagtxt ) ) {
 
-	# Protect XML tags
-	$line =~ s/<([a-zA-Z0-9]+)>/<\1%%>/g;
-	while ( $line =~ /<([^>]+) +/ ) {
-		$line =~ s/<([^>]+) +/<\1%%/g;
-	};
+		# Protect XML tags
+		$line =~ s/<([a-zA-Z0-9]+)>/<\1%%>/g;
+		while ( $line =~ /<([^>]+) +/ ) {
+			$line =~ s/<([^>]+) +/<\1%%/g;
+		};
 	
-	# Protect MWE and other space-crossing or punctuation-including toks
-	# When there is a parameter folder with a ptok.txt file
-	if ( $params && -e "$params/ptoks.txt" ) {
-	};
+		# Protect MWE and other space-crossing or punctuation-including toks
+		# When there is a parameter folder with a ptok.txt file
+		if ( $params && -e "$params/ptoks.txt" ) {
+		};
 	
-	$line =~ s/^(\s*)//; $pre = $1;
-	$line =~ s/(\s*)$//; $post = $1;
+		$line =~ s/^(\s*)//; $pre = $1;
+		$line =~ s/(\s*)$//; $post = $1;
 	
-	# Put tokens around all whitespaces
-	if ( $line ne '' ) { $line = '<tokk>'.$line.'</tok>'; };
+		# Put tokens around all whitespaces
+		if ( $line ne '' ) { $line = '<tokk>'.$line.'</tok>'; };
 
-	$line =~ s/(\s+)/<\/tok>\1<tokk>/g;
+		$line =~ s/(\s+)/<\/tok>\1<tokk>/g;
 
-	# Remove toks around only XML tags
-	$line =~ s/<tokk>((<[^>]+>)+)<\/tok>/\1/g;
+		# Remove toks around only XML tags
+		$line =~ s/<tokk>((<[^>]+>)+)<\/tok>/\1/g;
 
-	$line =~ s/%%/ /g;
+		$line =~ s/%%/ /g;
 
-	# Move tags between punctuation and </tok> out 
-	$line =~ s/(\p{isPunct})(<[^>]+>)<\/tok>/\1<\/tok>\2/g;
-	# Move tags between <tok> and punctuation out 
-	$line =~ s/<tokk>(<[^>]+>)(\p{isPunct})/\1<tokk>\2/g;
-
-	if ( $debug ) {
-		print "BP|| $line\n";
-	};
-
-	# Split off the punctuation marks
-	while ( $line =~ /(?<!<tokk>)(\p{isPunct}<\/tok>)/ ) {
-		$line =~ s/(?<!<tokk>)(\p{isPunct}<\/tok>)/<\/tok><tokk>\1/g;
-	};
-	while ( $line =~ /(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
-		$line =~ s/(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tokk>/g;
-	};
-	if ( $debug ) {
-		print "IP|| $line\n";
-	};
-
-	# This should be repeated after punctuation
-	# First remove empty <tok>
-	$line =~ s/<tokk><\/tok>//g;
-	$line =~ s/<tokk>(<[^>]+>)<\/tok>/\1/g;
-	# Move beginning tags at the end out 
-	$line =~ s/(<[^>\/ ]+ [^>\/]*>)<\/tok>/<\/tok>\1/g;
-	if ( $debug ) {
-		print "IP|| $line\n";
-	};
-	# Move end tags at the beginning out 
-	$line =~ s/<tokk>(<\/[^>]+>)/\1<tokk>/g;
-
-	# Move notes out 
-	$line =~ s/<tokk>(<ntn [^>]+>)/\1<tokk>/g;
-	$line =~ s/(<ntn [^>]+>)<\/tok>/<\/tok>\1/g;
-
-	# Always move <p> out
-	$line =~ s/<tokk>(<p [^>]+>)/\1<tokk>/g;
-	$line =~ s/(<p [^>]+>)<\/tok>/<\/tok>\1/g;
-
-	if ( $debug ) {
-		print "AP|| $line\n";
-	};
-	
-	#print $line; 
-	
-	
-	# Go through all the tokens
-	while ( $line =~ /<tokk>(.*?)<\/tok>/ ) {
-		$a = ""; $b = ""; undef(%added);
-		$m = $1; $n = $&;
+		# Move tags between punctuation and </tok> out 
+		$line =~ s/(\p{isPunct})(<[^>]+>)<\/tok>/\1<\/tok>\2/g;
+		# Move tags between <tok> and punctuation out 
+		$line =~ s/<tokk>(<[^>]+>)(\p{isPunct})/\1<tokk>\2/g;
 
 		if ( $debug ) {
-			print "TOK | $m";
+			print "BP|| $line\n";
 		};
-		
-		# Check whether <tok> is valid XML
-		( $chtok = $n ) =~ s/tokk/tok/g;
-		$parser = XML::LibXML->new(); $tokxml = "";
-		eval { $tokxml = $parser->load_xml(string => $chtok); };
-		
-		# Check unmatched start tags
-		$chkcnt = 0;
-		while ( !$tokxml && ( $m =~ /^<([^>]+)>/ || $m =~ /<([^>]+)>$/) ) { 
-			if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
-			if ( $m =~ /^<([^>]+)>/ ) {
-				# Leftmost 
-				$tm = $&; $ti = $1; $rc = $';
-				( $tn = $ti ) =~ s/ .*//;
-				if ( $ti =~ /\/$/ || $ti =~ /^\// || $rc !~ /^((?<!<$tn ).)+<\/$tn>/ ) { 
-					# Move out
-					$m =~ s/^\Q$tm\E//;
-					$a .= $tm;
-				} else {
-					# Mark as non-movable
-					$m = "#".$m;
-				};
-			} elsif ( $m =~ /<([^>]+)>$/ ) {
-				# Rightmost
-				$tm = $&; $ti = $1; $lc = $`;
-				( $tn = $ti ) =~ s/ .*//;
-				( $tv = $ti ) =~ s/^[^ ]+ //;
-				if ( $ti =~ /\/$/ || $ti !~ /^\// || $lc !~ /<$tn [^>\/]*>(.(?!<\/$tn>))+$/ ) { 
-					# Move out
-					$m =~ s/\Q$tm\E$//;
-					$b = $tm.$b;
-				} else {
-					# Mark as non-movable
-					$m = $m."#";
-				};
-			};
+
+		# Split off the punctuation marks
+		while ( $line =~ /(?<!<tokk>)(\p{isPunct}<\/tok>)/ ) {
+			$line =~ s/(?<!<tokk>)(\p{isPunct}<\/tok>)/<\/tok><tokk>\1/g;
+		};
+		while ( $line =~ /(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
+			$line =~ s/(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tokk>/g;
+		};
+		if ( $debug ) {
+			print "IP|| $line\n";
+		};
+
+		# This should be repeated after punctuation
+		# First remove empty <tok>
+		$line =~ s/<tokk><\/tok>//g;
+		$line =~ s/<tokk>(<[^>]+>)<\/tok>/\1/g;
+		# Move beginning tags at the end out 
+		$line =~ s/(<[^>\/ ]+ [^>\/]*>)<\/tok>/<\/tok>\1/g;
+		if ( $debug ) {
+			print "IP|| $line\n";
+		};
+		# Move end tags at the beginning out 
+		$line =~ s/<tokk>(<\/[^>]+>)/\1<tokk>/g;
+
+		# Move notes out 
+		$line =~ s/<tokk>(<ntn [^>]+>)/\1<tokk>/g;
+		$line =~ s/(<ntn [^>]+>)<\/tok>/<\/tok>\1/g;
+
+		# Always move <p> out
+		$line =~ s/<tokk>(<p [^>]+>)/\1<tokk>/g;
+		$line =~ s/(<p [^>]+>)<\/tok>/<\/tok>\1/g;
+
+		if ( $debug ) {
+			print "AP|| $line\n";
+		};
+	
+		#print $line; 
+	
+	
+		# Go through all the tokens
+		while ( $line =~ /<tokk>(.*?)<\/tok>/ ) {
+			$a = ""; $b = ""; undef(%added);
+			$m = $1; $n = $&;
+
 			if ( $debug ) {
-				print "CTK1 | ($a) $m ($b)";
+				print "TOK | $m";
 			};
-			# Check whether <tok> is valid XML
-			$parser = XML::LibXML->new(); $tokxml = "";
-			eval { $tokxml = $parser->load_xml(string => "<tok>$m</tok>"); };
-			$chcnt++;
-		};
-		$m =~ s/^#|#$//g;
 		
-		# If there are unmatched tags in the middle...
-		if ( !$tokxml ) {
-			$chkcnt = 0; $checkm = $m; $onto = "";
-			while ( $checkm =~ /<([^\/ ]+) (.(?!<\/\1>))+$/ ) {
-				if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
-				$tn = $1;
-				$onto = "<\/$tn>".$onto;
-				$b .= "<$tn rpt=\"1\">";
-				if ( $debug ) {
-					print "CTK2 | ($a) $m/$onto ($b)";
-				};
-				$chcnt++; $checkm = $m.$onto;
-			}; $m = $m.$onto;
 			# Check whether <tok> is valid XML
+			( $chtok = $n ) =~ s/tokk/tok/g;
 			$parser = XML::LibXML->new(); $tokxml = "";
-			eval { $tokxml = $parser->load_xml(string => "<tok>$m</tok>"); };
-			$chcnt++;
-		};
-		if ( !$tokxml ) {
+			eval { $tokxml = $parser->load_xml(string => $chtok); };
+		
+			# Check unmatched start tags
 			$chkcnt = 0;
-			while ( $m =~ /<\/([^>]+)>/g ) {
+			while ( !$tokxml && ( $m =~ /^<([^>]+)>/ || $m =~ /<([^>]+)>$/) ) { 
 				if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
-				$lc = $`; $tn = $1;
-				if ( $lc !~ /<$tn [^>\/]*>(.(?!<\/$tn>))+$/ ) {
-					$a .= "<\/$tn>";
-					$m = "<$tn rpt=\"1\">".$m;
+				if ( $m =~ /^<([^>]+)>/ ) {
+					# Leftmost 
+					$tm = $&; $ti = $1; $rc = $';
+					( $tn = $ti ) =~ s/ .*//;
+					if ( $ti =~ /\/$/ || $ti =~ /^\// || $rc !~ /^((?<!<$tn ).)+<\/$tn>/ ) { 
+						# Move out
+						$m =~ s/^\Q$tm\E//;
+						$a .= $tm;
+					} else {
+						# Mark as non-movable
+						$m = "#".$m;
+					};
+				} elsif ( $m =~ /<([^>]+)>$/ ) {
+					# Rightmost
+					$tm = $&; $ti = $1; $lc = $`;
+					( $tn = $ti ) =~ s/ .*//;
+					( $tv = $ti ) =~ s/^[^ ]+ //;
+					if ( $ti =~ /\/$/ || $ti !~ /^\// || $lc !~ /<$tn [^>\/]*>(.(?!<\/$tn>))+$/ ) { 
+						# Move out
+						$m =~ s/\Q$tm\E$//;
+						$b = $tm.$b;
+					} else {
+						# Mark as non-movable
+						$m = $m."#";
+					};
 				};
 				if ( $debug ) {
-					print "CTK3 | ($a) $m ($b)";
+					print "CTK1 | ($a) $m ($b)";
 				};
+				# Check whether <tok> is valid XML
+				$parser = XML::LibXML->new(); $tokxml = "";
+				eval { $tokxml = $parser->load_xml(string => "<tok>$m</tok>"); };
 				$chcnt++;
 			};
-		};
-
+			$m =~ s/^#|#$//g;
 		
-		# Finally, look at the @form and @fform and @nform
-		$fts = "";
-		if ( $m =~ /^(.+)\|=([^<>]+)$/ ) {
-			$m = $1; $fts .= " nform=\"$2\"";
-		};
-		if ( $m =~ /^(.+)\|\|([^<>]+)$/ ) {
-			$m = $1; $fts .= " fform=\"$2\"";
-		};
-		if ( $m =~ /<[^>]+>/ ) {
-			$frm = $m; $ffrm = "";
-			$frm =~ s/<del.*?<\/del>//g; # Delete deleted texts
-			$frm =~ s/-<lb[^>]*\/>//g; # Delete hyphens before word-internal hyphens
-			if ( $frm eq "" ) { $frm = "--"; };
-			
-			# Deal with <ex> or <expan>
-			if ( $frm =~ /<ex/ ) {
-				if ( $frm =~ /<\/ex>/ ) { 
-					$frm =~ s/<\/?expan [^>]*>//g; 
-				}; # With <ex> - <expan> is no longer an expanded stretch
-				$ffrm = $frm;
-				$frm =~ s/<ex.*?<\/ex[^>]*>//g; # Delete expansions in form
+			# If there are unmatched tags in the middle...
+			if ( !$tokxml ) {
+				$chkcnt = 0; $checkm = $m; $onto = "";
+				while ( $checkm =~ /<([^\/ ]+) (.(?!<\/\1>))+$/ ) {
+					if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
+					$tn = $1;
+					$onto = "<\/$tn>".$onto;
+					$b .= "<$tn rpt=\"1\">";
+					if ( $debug ) {
+						print "CTK2 | ($a) $m/$onto ($b)";
+					};
+					$chcnt++; $checkm = $m.$onto;
+				}; $m = $m.$onto;
+				# Check whether <tok> is valid XML
+				$parser = XML::LibXML->new(); $tokxml = "";
+				eval { $tokxml = $parser->load_xml(string => "<tok>$m</tok>"); };
+				$chcnt++;
+			};
+			if ( !$tokxml ) {
+				$chkcnt = 0;
+				while ( $m =~ /<\/([^>]+)>/g ) {
+					if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
+					$lc = $`; $tn = $1;
+					if ( $lc !~ /<$tn [^>\/]*>(.(?!<\/$tn>))+$/ ) {
+						$a .= "<\/$tn>";
+						$m = "<$tn rpt=\"1\">".$m;
+					};
+					if ( $debug ) {
+						print "CTK3 | ($a) $m ($b)";
+					};
+					$chcnt++;
+				};
 			};
 
-			# Remove all (other) tags
-			$frm =~ s/<[^>]+>//g;
-			$frm =~ s/"/&quot;/g;
-			$ffrm =~ s/<[^>]+>//g;
-			$ffrm =~ s/"/&quot;/g;
+		
+			# Finally, look at the @form and @fform and @nform
+			$fts = "";
+			if ( $m =~ /^(.+)\|=([^<>]+)$/ ) {
+				$m = $1; $fts .= " nform=\"$2\"";
+			};
+			if ( $m =~ /^(.+)\|\|([^<>]+)$/ ) {
+				$m = $1; $fts .= " fform=\"$2\"";
+			};
+			if ( $m =~ /<[^>]+>/ ) {
+				$frm = $m; $ffrm = "";
+				$frm =~ s/<del.*?<\/del>//g; # Delete deleted texts
+				$frm =~ s/-<lb[^>]*\/>//g; # Delete hyphens before word-internal hyphens
+				if ( $frm eq "" ) { $frm = "--"; };
+			
+				# Deal with <ex> or <expan>
+				if ( $frm =~ /<ex/ ) {
+					if ( $frm =~ /<\/ex>/ ) { 
+						$frm =~ s/<\/?expan [^>]*>//g; 
+					}; # With <ex> - <expan> is no longer an expanded stretch
+					$ffrm = $frm;
+					$frm =~ s/<ex.*?<\/ex[^>]*>//g; # Delete expansions in form
+				};
 
-			if ( $m ne $frm ) { $fts .= " form=\"$frm\""; };
-			if ( $ffrm ne '' && $frm ne $ffrm ) { $fts .= " fform=\"$ffrm\""; };
+				# Remove all (other) tags
+				$frm =~ s/<[^>]+>//g;
+				$frm =~ s/"/&quot;/g;
+				$ffrm =~ s/<[^>]+>//g;
+				$ffrm =~ s/"/&quot;/g;
+
+				if ( $m ne $frm ) { $fts .= " form=\"$frm\""; };
+				if ( $ffrm ne '' && $frm ne $ffrm ) { $fts .= " fform=\"$ffrm\""; };
+			};
+
+			# Move <lb/> out from beginning of <tok>
+			if ( $m =~ /^<lb\/>/ ) {
+				$m = $'; $a .= $&;
+			};
+
+			if ( $debug ) {
+				print "TKK | $m";
+			};
+
+			$line =~ s/\Q$n\E/$a<tok$fts>$m<\/tok>$b/;
+
 		};
 
-		# Move <lb/> out from beginning of <tok>
-		if ( $m =~ /^<lb\/>/ ) {
-			$m = $'; $a .= $&;
+		# Move tags at the rim out of the tok
+		$line =~ s/(<tok[^>]*>)(<([a-z0-9]+) [^>]*>)((.(?!<\/\3>))*.)<\/\3><\/tok>/\2\1\4<\/tok><\/\3>/gi;
+		# This has to be done multiple time in principle since there might be multiple
+		$line =~ s/(<tok[^>]*>)(<([a-z0-9]+) [^>]*>)((.(?!<\/\3>))*.)<\/\3><\/tok>/\2\1\4<\/tok><\/\3>/gi;
+
+		# Split off the punctuation marks again (in case we moved out end tags)
+		while ( $line =~ /(?<!<tok>)(\p{isPunct}<\/tok>)/ ) {
+			$line =~ s/(?<!<tok>)(\p{isPunct}<\/tok>)/<\/tok><tok>\1/g;
 		};
+		while ( $line =~ /(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
+			$line =~ s/(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tok>/g;
+		};
+
+		# Unprotect all MWE and other space-crossing or punctuation-including tokens
+		while ( $line =~ /x#\{x[^\}]*%/ ) {
+			$line =~ s/(x#\{x[^\}]*)%/\1 /g;
+		};
+		$line =~ s/x#\{x//g; $line =~ s/x\}#x//g;
 
 		if ( $debug ) {
-			print "TKK | $m";
+			print "LE|| $line\n";
 		};
 
-		$line =~ s/\Q$n\E/$a<tok$fts>$m<\/tok>$b/;
-
+		# if ( $linebreaks && $line =~ /<tok>/ ) { $pre .= "<lb/> "; };
+		$teitext .= $pre.$line.$post."\n";
 	};
 
-	# Move tags at the rim out of the tok
-	$line =~ s/(<tok[^>]*>)(<([a-z0-9]+) [^>]*>)((.(?!<\/\3>))*.)<\/\3><\/tok>/\2\1\4<\/tok><\/\3>/gi;
-	# This has to be done multiple time in principle since there might be multiple
-	$line =~ s/(<tok[^>]*>)(<([a-z0-9]+) [^>]*>)((.(?!<\/\3>))*.)<\/\3><\/tok>/\2\1\4<\/tok><\/\3>/gi;
+	# Join some non-splittable sequences		
+	$teitext =~ s/<tok>\[<\/tok><tok>\.<\/tok><tok>\.<\/tok><tok>\.<\/tok><tok>\]<\/tok>/<tok>[...]<\/tok>/g; # They can also be inside a tok
+	$teitext =~ s/<tok>\(<\/tok><tok>\.<\/tok><tok>\.<\/tok><tok>\.<\/tok><tok>\)<\/tok>/<tok>(...)<\/tok>/g; # They can also be inside a tok
+	$teitext =~ s/<tok>\.<\/tok><tok>\.<\/tok><tok>\.<\/tok>/<tok>...<\/tok>/g; # They can also be inside a tok
 
-	# Split off the punctuation marks again (in case we moved out end tags)
-	while ( $line =~ /(?<!<tok>)(\p{isPunct}<\/tok>)/ ) {
-		$line =~ s/(?<!<tok>)(\p{isPunct}<\/tok>)/<\/tok><tok>\1/g;
-	};
-	while ( $line =~ /(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
-		$line =~ s/(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tok>/g;
-	};
+	$teitext =~ s/xx(&[^ \n\r&]+;)xx/\1/g; # Unprotect HTML Characters
 
-	# Unprotect all MWE and other space-crossing or punctuation-including tokens
-	while ( $line =~ /x#\{x[^\}]*%/ ) {
-		$line =~ s/(x#\{x[^\}]*)%/\1 /g;
-	};
-	$line =~ s/x#\{x//g; $line =~ s/x\}#x//g;
 
-	if ( $debug ) {
-		print "LE|| $line\n";
-	};
+	# A single capital with a dot is likely a name
+	$teitext =~ s/<tok>([A-Z])<\/tok><tok>\.<\/tok>/<tok>\1.<\/tok>/g; # They can also be inside a tok
 
-	# if ( $linebreaks && $line =~ /<tok>/ ) { $pre .= "<lb/> "; };
-	$teitext .= $pre.$line.$post."\n";
+} else {
+	$teitext = $tagtxt;
 };
+ 
+if ( $sentsplit ) {
+	# Now - split into sentences; 
+	
+	# Start by making a <s> inside each <p> or <head>, fallback to <div>, or else just the outer xml (<text>) 
+	if ( $teitext =~ /<\/(p|head)>/ ) {
+		$teitext =~ s/(<p [^>]+>)/\1<s>/g;
+		$teitext =~ s/(<\/p>)/<\/s>\1/g;
+		$teitext =~ s/(<head [^>]+>)/\1<s>/g;
+		$teitext =~ s/(<\/head>)/<\/s>\1/g;
+	} elsif ( $teitext =~ /<\/div>/ ) {
+		$teitext =~ s/(<div [^>]+>)/\1<s>/g;
+		$teitext =~ s/(<\/div>)/<\/s>\1/g;
+	} else {
+		# Add a sentence start at the beginning of the mtxt
+		$teitext =~ s/^(<[^>]+>)/\1<s>/;
+		$teitext =~ s/(<\/[^>]+>)$/<\/s>\1/;
+	};
 
-# Join some non-splittable sequences		
-$teitext =~ s/<tok>\[<\/tok><tok>\.<\/tok><tok>\.<\/tok><tok>\.<\/tok><tok>\]<\/tok>/<tok>[...]<\/tok>/g; # They can also be inside a tok
-$teitext =~ s/<tok>\(<\/tok><tok>\.<\/tok><tok>\.<\/tok><tok>\.<\/tok><tok>\)<\/tok>/<tok>(...)<\/tok>/g; # They can also be inside a tok
-$teitext =~ s/<tok>\.<\/tok><tok>\.<\/tok><tok>\.<\/tok>/<tok>...<\/tok>/g; # They can also be inside a tok
+	while ( $teitext =~ /<ntn (\d+)\/>/ ) {
+		$notenr = $1; $notetxt = $notes[$notenr]; 
+		$teitext =~ s/<ntn (\d+)\/>/$notetxt/;
+	};
 
-$teitext =~ s/xx(&[^ \n\r&]+;)xx/\1/g; # Unprotect HTML Characters
+	$presplit = $teitext; 
+	
+	# Now - add </s><s> after every sentence-final token
+	# TODO: this should be done one at a time to fallback only where needed
+	$teitext =~ s/(<tok [^>]+>[.?!]<\/tok>)(\s*)/\1<\/s>\2<s>/g; 
+	
+	# In case the splitting messed up the XML, undo
+	$parser = XML::LibXML->new(); $tmp = "";
+	eval {
+		$tmp = $parser->load_xml(string => $teitext);
+	};
+	if ( !$tmp ) {
+		print "Splitting within paragraphs failed - reverting: $@";
+		$teitext = $presplit; 
+	};
+	
+	# Finally, remove empty sentences
+	$teitext =~ s/<s><\/s>//g;
+	
+} else {
 
+	while ( $teitext =~ /<ntn (\d+)\/>/ ) {
+		$notenr = $1; $notetxt = $notes[$notenr]; 
+		$teitext =~ s/<ntn (\d+)\/>/$notetxt/;
+	};
 
-# A single capital with a dot is likely a name
-$teitext =~ s/<tok>([A-Z])<\/tok><tok>\.<\/tok>/<tok>\1.<\/tok>/g; # They can also be inside a tok
-
-while ( $teitext =~ /<ntn (\d+)\/>/ ) {
-	$notenr = $1; $notetxt = $notes[$notenr]; 
-	$teitext =~ s/<ntn (\d+)\/>/$notetxt/;
 };
 
 

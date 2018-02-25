@@ -555,7 +555,7 @@
 		exit;
 	};
 
-	function forminherit ( $node, $form ) {
+	function forminherit ( $node, $form, $rich = false ) {
 		# Calculate inherited form
 		global $settings;
 		if ( $settings['xmlfile']['inherit'] == "default" ) {
@@ -567,7 +567,10 @@
 		} else {
 			$try = $form;
 			while ( $try != "" ) {
-				if ( $node[$try] != "" ) return "<span class='p-$try'>".$node[$try]."</span>";
+				if ( $node[$try] != "" ) {
+					if ( $rich ) return "<span class='p-$try'>".$node[$try]."</span>";
+					else return $node[$try];
+				};
 				$trfrom = $settings['xmlfile']['pattributes']['forms'][$try]['transliterate'];
 				if ( $trfrom && $settings['transliteration'] ) {
 					return transliterate(forminherit($node, $trfrom));

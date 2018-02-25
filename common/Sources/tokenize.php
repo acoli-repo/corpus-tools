@@ -277,6 +277,7 @@
 		};
 
 		if ( $settings['xmlfile']['linebreaks'] ) { $lbcmd = " --linebreaks "; };
+		if ( $_GET['s'] ) { $lbcmd .= " --s={$_GET['s']} "; }; # Sentence split
 
 		# Build the UNIX command
 		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot"; };

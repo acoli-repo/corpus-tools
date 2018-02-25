@@ -18,7 +18,7 @@ if ( typeof(labelstxt) != "undefined" ) {
 	if ( labelstxt != '' ) {
 	document.getElementById('linktxt').innerText = "Edit mode: Select a node in the tree to attach it to a new head - or select a label to change it";
 
-	var sentxml = makeXML(document.getElementById('mtxt').innerHTML);
+	// var sentxml = makeXML(document.getElementById('mtxt').innerHTML);
 	var senttxt = new XMLSerializer().serializeToString(sentxml);
 	document.getElementById('sentxml').value = senttxt;
 	};

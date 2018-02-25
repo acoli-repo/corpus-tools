@@ -20,6 +20,7 @@
 	};
 	
 	$blockdef = $settings['xmlfile']['sattributes'][$stype];
+	$defdef = array ( "s" => "Sentence", "p" => "Paragraph", ); 
 	
 	$stype = str_replace("|", "| //", $stype);
 	$result = $xml->xpath("//$stype"); 
@@ -75,8 +76,8 @@
 		$editxml .= "</div></div>";
 	};
 	
-	
-	$maintext .= "<h2>{%{$blockdef['display']} view}</h2><h1>".$ttxml->title()."</h1>";
+	$blockname = $blockdef['display'] or $blockname = $defdef[$stype] or $blockname = $stype;
+	$maintext .= "<h2>{%$blockname view}</h2><h1>".$ttxml->title()."</h1>";
 	$maintext .= $ttxml->tableheader();
 				
 	$maintext .= "<div id='mtxt'>$editxml</div>";

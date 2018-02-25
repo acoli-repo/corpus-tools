@@ -103,7 +103,8 @@
 		$maintext .= "</div><hr>";
 	};
 	$maintext .= "</table></div><hr>";
-			$maintext .= "<a href='index.php?action=file&cid=$cid&jmp=$sentid'>{%to text mode}</a> $options</p><br>";
+	$maintext .= $ttxml->viewswitch();
+	# $maintext .= "<a href='index.php?action=file&cid=$cid&jmp=$sentid'>{%to text mode}</a> $options</p><br>";
 
 
 ?>

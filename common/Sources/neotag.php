@@ -158,9 +158,9 @@
 			<p>Tagging command: $cmd 
 			<p>Reponse text: 
 			<pre>$response</pre>
+		";
 		
-		" ;
-			$maintext .= "<hr><p><a href='index.php?action=file&cid=$cid'>Back to text</a>";
+		$maintext .= "<hr><p><a href='index.php?action=file&cid=$cid'>Back to text</a>";
 	
 	} else if ( $act == "update" ) {
 	

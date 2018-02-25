@@ -9,6 +9,14 @@
 	
 	if ( $cql ) {
 	
+		# Read edge labels from the tagset
+		if ( file_exists("Resources/tagset.xml") ) {
+			require ( "$ttroot/common/Sources/tttags.php" );
+			$tttags = new TTTAGS("", false);
+			$edgelabels = $tttags->tagset['edges'];
+		};
+		// print_r($edgelabels); exit;
+	
 		$maintext .= "<h1>Word Sketch</h1>";
 
 		$fld = $_POST['fld'] or $fld = "word";
@@ -34,20 +42,20 @@
 
 		foreach ( $sketchlist as $deps => $wordlist ) {
 			if ( !$deps || count($wordlist) == 0 ) continue;
-			$depsname = $deps;
+			$depsname = $edgelabels[$deps.""]['display'] or $depsname = $deps;
 			$maintext .= "<table style='float: left;'>
 				<tr><th colspan=6><b onClick=\"visualize('$deps', '$depsname');\">$depsname</b></tr>
 				<tr><th>{%$fldname}<th>{%Observed}<th>{%Total}<th>{%Expected}<th title='{%Chi Square}'>{%Chi2}<th title='{%Mutual Information}'>{%MI}";
 
 			$sort_col = array();
 			foreach ($wordlist as $key => $row) {
-				$sort_col[] = $wordlist[1];
-			}
-			array_multisort($sort_col, SORT_NUMERIC, $wordlist, SORT_DESC );
+				$sort_col[] = $row[3];
+			};
+			array_multisort($sort_col, SORT_NUMERIC, $wordlist, SORT_ASC );
 			
 			$i = 0;
 			$json .= "\n\t'$deps':[[{'key':'$fld','label':'$fldname'},\n{'key':'obs','label':'Observed'},\n{'key':'tot','label':'Total'},\n{'key':'exp','label':'Expected'},\n{'key':'chi2','label':'Chi Square'},\n{'key':'mi','label':'Mutual Information'}],\n";
-			foreach ( $wordlist as $collocate => $data ) {
+			foreach ( array_reverse($wordlist) as $collocate => $data ) {
 				if ( $i < 15 ) $maintext .= "<tr><td>$collocate<td>".join("<td>", $data);
 				$json .= "['$collocate', ".join(",", $data)."], ";
 			};

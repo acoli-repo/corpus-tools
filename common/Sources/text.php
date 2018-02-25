@@ -559,7 +559,9 @@
 				};
 				element = document.getElementById(jmpar[0])
 				alignWithTop = true;
-				if ( typeof(element) != null ) { element.scrollIntoView(alignWithTop); };
+				if ( element != null && typeof(element) != null ) { 
+					element.scrollIntoView(alignWithTop); 
+				};
 			};
 			document.getElementById('jsoptions').style.display = 'block';
 			document.getElementById('nojs').style.display = 'none';

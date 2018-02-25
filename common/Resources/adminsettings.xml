@@ -426,6 +426,29 @@
 		</item> 
 	</item>
 
+	<item key="udpipe" display="Settings for the udpipe dependency parser">
+		<desc>
+			TEITOK has can use an external dependency parser, for which the default is 
+			to use the <a href='http://ufal.mff.cuni.cz/udpipe'>udpipe</a> web service. 
+			This section defines the parameter settings for the parser.
+		</desc>
+		<att key="tagform" display="Word form to tag from"/> 
+		<item key="parameters" display="List of udpipe parameter definitions">
+			<list>
+	    		<att key="pid" display="ID for the settings"/> 
+	    		<att key="restriction" display="XPath restriction for using this parameter set"/> 
+	    		<att key="condition" display="XPath condition for using this parameter set"/> 
+	    		<att key="params" display="Filename of the parameter file"/> 
+	    		<att key="training" display="Folders used for (re)training the parameter file"/> 
+	    		<att key="tagform" display="Word form to tag from"/> 
+	    		<att key="tagpos" display="Attribute name for the POS tag"/> 
+	    		<att key="folder" display="Folder where the parameter files are stored" deprecated="1"/> 
+	    		<att key="formtags" display="Attributes to assign while tagging"/> 
+	    		<att key="lemmatize" display="Attributes that should be lemmatized"/> 
+			</list>
+		</item> 
+	</item>
+
     <item key="xmltemplates" display="Settings for the templates for new XML files">
     	<desc>
     		The creation of new XML files in TEITOK can either start with a simple, empty

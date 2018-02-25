@@ -163,8 +163,6 @@ window.addEventListener(\"beforeunload\", function (e) {
 		};
 	
 		$maintext .= "\n
-<script language=\"Javascript\" src=\"$jsurl/tokview.js\"></script>
-<script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
 $graph
 </div>
 <style>
@@ -208,32 +206,211 @@ if ( $_GET['view'] != "graph" ) {
 	$maintext .= "
 	&bull;
 	<a href='index.php?action=$action&cid={$ttxml->fileid}&sid=$sid&view=tree'>{%Tree view}</a>
+	
 	";
 };
 
+$formfld = $_GET['form'] or $formfld = "";
 $graphbase = base64_encode(str_replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ', $graph));
-$maintext .= " &bull; <a href='data:image/svg+xml;base64,$graphbase' download=\"deptree.svg\">{%Download SVG}</a>";
+$maintext .= "
+	 &bull; <a href='data:image/svg+xml;base64,$graphbase' download=\"deptree.svg\">{%Download SVG}</a>
+	 &bull; <a id='pnglink' onMouseUp=\"makelink()\"  download=\"deptree.png\">{%Download PNG}</a>
+	<canvas style='display: none;' id='myCanvas' width='800' height='400' ></canvas>
+	<script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
+	<script language=Javascript>
+		var orgtoks = new Object();
+		formify(); setForm('$formfld');
+		var canvas=document.getElementById('myCanvas');
+		var ctxt = canvas.getContext('2d');
+		var svgelm = document.querySelector('svg');
+		function drawInlineSVG(svgElement, ctx, callback){
+		  var svgURL = new XMLSerializer().serializeToString(svgElement);
+		  var img  = new Image();
+		  img.onload = function(){
+			ctx.drawImage(this, 0,0);
+			callback();
+			}
+		  	img.src = 'data:image/svg+xml; charset=utf8, '+encodeURIComponent(svgURL);
+		  }
+
+		canvas.height = svgelm.height.baseVal.value;
+		canvas.width = svgelm.width.baseVal.value;
+		drawInlineSVG(svgelm, ctxt, function(){
+			document.getElementById('pnglink').href = canvas.toDataURL();
+		});
+	</script>";
 
 
+	} else if ( $act == "parse" ) {
+		
+		check_login();
+		
+		$filename = $xmlfolder."/".$ttxml->fileid;
+		if ( !file_exists($filename) ) { fatal ( "File does not exist: $filename" ); };
+		
+		$formfld = "nform"; $sep ="";
+		$exec = findapp("udpipe"); if ( !$exec ) fatal ("UDPIPE application not found");
+		
+		
+		$model = $_GET['pid'];
+		if ( !$pid ) {
+			foreach ( $settings['udpipe']['parameters'] as $key => $val ) {
+				if ( $ttxml->xml->xpath("".$val['restriction']) ) {
+					$pid = $key; $param = $val;
+					break;
+				};
+			};
+			$model = $param['params'];
+		};
+
+		$url = "http://lindat.mff.cuni.cz/services/udpipe/api/process";
+		$data = array(
+			'input' => 'conllu',
+			'tagger' => '1',
+			'parser' => '1',
+			'model' => $model,
+		);
+		
+		$tagfields = explode(",", $param['formtags']);
+		
+		## Verticalize the text in CoNLL-U format
+		foreach ( $ttxml->xml->xpath("//s") as $sent ) {
+			$tnr = 0; $verticalized = "";	
+			unset($heads); unset($tid);
+			foreach ( $sent->xpath(".//tok") as $tok ) {		
+				$form = forminherit($tok, $formfld);
+				if ( $form != "--" ) {
+					$tnr++;	
+					$lemma = $tok['lemma'] or $lemma = "_";
+					$tokid = $tok['id']."";
+					$toks[$tokid] = $tok;
+				
+					$verticalized .= $sep."$tnr\t$form\t$lemma\t_\t_\t_\t_\t_\t_\t$tokid";
+					$sep = "\n";
+				};
+			};	
+			
+			$data['data'] = $verticalized;
+
+			$options = array(
+				'http' => array(
+					'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+					'method'  => 'POST',
+					'content' => http_build_query($data)
+				)
+			);
+			$context  = stream_context_create($options);
+			$result = file_get_contents($url, false, $context);
+			if ($result === FALSE) { 
+				print "Failed to get data from the server<hr>"; print_r($result); 
+				exit;
+			}
+
+			if ( preg_match('/"result": "([^"]*)"/', $result, $matches ) ) {
+				$response = $matches[1];
+				$response = str_replace("\\n", "\n", $response);
+				$response = str_replace("\\t", "\t", $response);
+
+				$parsetxt .= "<hr>".$response;
+				
+				foreach ( explode ( "\n", $response ) as $line ) {
+					list ( $tnr, $word, $lemma, $upos, $xpos, $feats, $head, $drel, $x1, $tokid ) = split ( "\t", $line );
+					if ( $word ) {
+						$tid[$tnr] = $tokid;
+						$heads[$tokid] = $head;
+						$toks[$tokid]['deprel'] = $drel;
+						
+						# Optionally also introduce upos, xpos, feats, lemma
+						if ( in_array("upos", $tagfields) ) { $toks[$tokid]['upos'] = $upos; };
+						if ( in_array("xpos", $tagfields) ) { $toks[$tokid]['xpos'] = $xpos; };
+						if ( in_array("feats", $tagfields) ) { $toks[$tokid]['feats'] = $feats; };				
+						if ( in_array("lemma", $tagfields) ) { $toks[$tokid]['lemma'] = $lemma; };
+						
+					};
+				};
+				
+				foreach ( $heads as $tokid => $head ) {
+					if ( $tid[$head] ) $toks[$tokid]['head'] = $tid[$head];
+				};
+				
+			} else {
+				print "Unexpected result from the server<hr>"; print_r($result); 
+				exit;
+			};
+			
+		}; 
+						
+		$maintext .= "<h1>File tagged</h1>
+			<p>Parsing URL: $url
+			<p>Reponse text: 
+			<pre>$parsetxt</pre>
+			<hr>
+		";		
+		
+		$ttxml->save();
+		print "<p>New XML file has been created. Reloading to deptree mode.
+			<script language=Javascript>top.location='index.php?action=$action&cid=$ttxml->fileid'</script>"; exit;
+		
 	} else {
 	
-		$maintext .= "
-			<p>Select a sentence
-			<table id=mtxt>"; 
+		$sentlist = $ttxml->xml->xpath("//s");
+	
+		if ( !strstr($ttxml->asXML(), "<tok" ) ) {
+
+			$maintext .= "<p>Dependency trees are not available for this text, since the text is not yet tokenized. ";
+
+			if ( $username ) {
+				$maintext .= "<p class=adminpart>You can tokenize by clicking <a href='index.php?action=tokenize&id=$fileid&display=tok&s=1'>here</a> -
+					tokenization will also attempt to split the text into sentences";
+			};
 		
-		foreach ( $ttxml->xml->xpath("//s") as $sent ) {
+		} else if ( !$sentlist) {
+
+			$maintext .= "<p>Dependency trees are not available for this text, since the text is not yet split into sentences. ";
+
+			if ( $username ) {
+				$maintext .= "<p class=adminpart>You can split the text into sentences by clicking 
+					<a href='index.php?action=tokenize&id=$ttxml->fileid&display=tok&s=2'>here</a> -
+					bear in mind that XML regions crossing sentences boundaries can hamper this process.
+					If sentence splitting fails, please insert sentences directly in the raw XML";
+			};
+		
+		
+		} else if ( !strstr($ttxml->asXML(), "deprel=" ) ) {
+
+			$maintext .= "<p>Dependency trees are not available for this text, since the text is not yet parsed with dependency relations.";
+		
+			if ( $username ) {
+				if ( $settings['udpipe'] ) {
+					$maintext .= "<p class=adminpart>You can parse the file using your parser definition by
+						clicking <a href='index.php?action=$action&act=parse&id=$ttxml->fileid'>here</a> ";
+				} else {
+					$maintext .= "<p class=adminpart>No dependency parser has been set-up for this project. To use
+						a dependency parser, please set-up the <a href='index.php?action=adminsettings&section=udpipe'>udpipe</a> section of the settings";
+				};
+			};
+		
+		} else {
+		
+			$maintext .= "
+				<p>Select a sentence
+				<table id=mtxt>"; 
+		
+			foreach ( $sentlist as $sent ) {
 			
-			$maintext .= "<tr><td><a href='index.php?action=$action&cid={$ttxml->fileid}&sid={$sent['id']}'>{$sent['id']}
-				<td>".$sent->asXML();
+				$maintext .= "<tr><td><a href='index.php?action=$action&cid={$ttxml->fileid}&sid={$sent['id']}'>{$sent['id']}
+					<td>".$sent->asXML();
 			
+			};
+			$maintext .= "</table>
+			<hr><p><a href='index.php?action=file&cid={$ttxml->fileid}'>{%Text view}</a>";
+	
 		};
-		$maintext .= "</table>
-		<hr><p><a href='index.php?action=file&cid={$ttxml->fileid}'>{%Text view}</a>";
 	
 	};	
 
-	function drawtree ( $node ) {
-		$treetxt = "";
+	function drawtree ( $node, $tokform = "form" ) {
+		$treetxt = ""; if ( $_GET['form'] ) $tokform = $_GET['form'];
 		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight; global $maxwidth;
 
 		if ( $username && $act == "edit" ) {
@@ -244,7 +421,8 @@ $maintext .= " &bull; <a href='data:image/svg+xml;base64,$graphbase' download=\"
 		$i = 0;
 		$svgtxt .= "<svg version=\"1.1\" width=\"100%\" height=\"500\">"; # xmlns=\"http://www.w3.org/2000/svg\" 
 		foreach ( $node->xpath($toksel) as $tok ) {
-			$text = $tok['form'] or $text = $tok."";
+			$text = forminherit($tok, $tokform, false);
+			if ( $text == "--" ) continue;
 			if ( $text == "" ) $text = "∅";
 			if ( $tok['pos'] != "PUNCT" || $showpunct ) {
 				$svgtxt .= "\n\t<text text-anchor='middle' tokid=\"{$tok['id']}\" font-size=\"12pt\" type=\"tok\" head=\"{$tok['head']}\" deprel=\"{$tok['deprel']}\" $onclick>$text</text> ";
