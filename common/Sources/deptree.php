@@ -185,6 +185,7 @@ $graph
 <textarea id=sentxml name=sent></textarea> <input type=submit>
 <input type=hidden name=action value='edit'>
 </form>
+<script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
 <script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>
 <hr>
 <p>
@@ -216,7 +217,6 @@ $maintext .= "
 	 &bull; <a href='data:image/svg+xml;base64,$graphbase' download=\"deptree.svg\">{%Download SVG}</a>
 	 &bull; <a id='pnglink' onMouseUp=\"makelink()\"  download=\"deptree.png\">{%Download PNG}</a>
 	<canvas style='display: none;' id='myCanvas' width='800' height='400' ></canvas>
-	<script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
 	<script language=Javascript>
 		var orgtoks = new Object();
 		formify(); setForm('$formfld');
