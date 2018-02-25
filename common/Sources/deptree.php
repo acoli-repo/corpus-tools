@@ -191,7 +191,7 @@ $graph
 <p>
 	<a href='index.php?action=file&cid={$ttxml->fileid}&tid=$sid'>{%Text view}</a>
 	&bull;
-	<a href='index.php?action=file&cid={$ttxml->fileid}&tid=$sid&elm=s'>{%Sentence view}</a>
+	<a href='index.php?action=block&cid={$ttxml->fileid}&tid=$sid&elm=s'>{%Sentence view}</a>
 ";
 if ( $_GET['view'] != "graph" ) {
 	$maintext .= "
