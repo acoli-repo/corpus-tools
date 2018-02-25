@@ -347,6 +347,11 @@ $maintext .= "
 			<hr>
 		";		
 		
+		# Add a revisionDesc node indicating it was parsed by UDPIPE
+		$revnode = xpathnode($ttxml->xml, "//teiHeader/revisionDesc/change[@who=\"udpipe\"]");
+		$revnode['when'] = date("Y-m-d");
+		$revnode[0] = "dependency parsed with the udpipe web-service using model $model";
+		
 		$ttxml->save();
 		print "<p>New XML file has been created. Reloading to deptree mode.
 			<script language=Javascript>top.location='index.php?action=$action&cid=$ttxml->fileid'</script>"; exit;

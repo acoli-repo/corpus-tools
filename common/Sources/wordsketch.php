@@ -37,6 +37,7 @@
 		
 		foreach ( explode("\n", $results ) as $res ) {
 			list ( $word, $deps, $cnt, $tot, $exp, $chi2, $mutinf ) = explode("\t", $res );
+			$exp = sprintf("%.4f", $exp);
 			$sketchlist[$deps][$word] = array ( $cnt, $tot, $exp, $chi2, $mutinf );
 		};
 
