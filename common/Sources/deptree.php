@@ -477,16 +477,16 @@ $maintext .= "
 
 			# Order the nodes to avoid needless crossing
 			$tmp = $cols;
-			uksort($tmp,function($a,$b) { # use($tmp)
-				global $tmp;
-				if($tmp[$a] < $tmp[$b]){
-					return -1;
-				 }
-				 if($tmp[$a] > $tmp[$b]){ 
-					return 1;
-				 }
-				 return strcmp($a,$b);
-			  });          			
+// 			uksort($tmp,function($a,$b) { use($tmp)
+// 				if($tmp[$a] < $tmp[$b]){
+// 					return -1;
+// 				 }
+// 				 if($tmp[$a] > $tmp[$b]){ 
+// 					return 1;
+// 				 }
+// 				 return strcmp($a,$b);
+// 			  });    
+			asort($tmp);      			
 			
 			$headcols = $cols;
 			$ocols = array_keys($tmp);
