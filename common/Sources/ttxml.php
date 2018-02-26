@@ -147,7 +147,7 @@ class TTXML
 			$header = file_get_contents("Resources/teiHeader.tpl");
 			$tableheader .= xpathrun($header, $this->xml);
 			$tableheader .= "<ul>"; 
-			if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$fileid";
+			if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$this->fileid";
 			if ( file_exists("Resources/teiHeader-long.tpl") ) $tableheader .= "<li><a href='{$_SERVER['REQUEST_URI']}$cidurl&headers=full'>{%more header data}</a>";
 			if ( $settings['xmlfile']['teiHeader'] ) {
 				foreach ( $settings['xmlfile']['teiHeader'] as $key => $item ) {
@@ -160,13 +160,13 @@ class TTXML
 					};
 					$tpl = $key;
 					if ( $item['admin'] ) {
-						if ($username) $tableheader .= " &bull; <a href='index.php?action=file&cid=$fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
+						if ($username) $tableheader .= " &bull; <a href='index.php?action=file&cid=$this->fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
 					} else if ( !$item['admin'] ) {
-						$tableheader .= " &bull; <a href='index.php?action=file&cid=$fileid&tpl=$tpl'>{$item['display']}</a>";
+						$tableheader .= " &bull; <a href='index.php?action=file&cid=$this->fileid&tpl=$tpl'>{$item['display']}</a>";
 					};
 				};
 			};
-			if ( file_exists("Resources/teiHeader-edit.tpl") && $username ) $tableheader .= " &bull; <a href='index.php?action=header&act=edit&cid=$fileid&tpl=teiHeader-edit.tpl' class=adminpart>edit teiHeader</a>";
+			if ( file_exists("Resources/teiHeader-edit.tpl") && $username ) $tableheader .= " &bull; <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=teiHeader-edit.tpl' class=adminpart>edit teiHeader</a>";
 			$tableheader .= "</ul><hr>";
 		} else {
 			foreach ( $headershow as $hq => $hn ) {
