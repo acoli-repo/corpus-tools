@@ -83,51 +83,30 @@
 	$maintext .= $ttxml->tableheader();
 
 	# Show optional additional headers
-	if ( $_GET['tpl'] && file_exists("Resources/teiHeader-{$_GET['tpl']}.tpl") ) {
-		$header = file_get_contents("Resources/teiHeader-{$_GET['tpl']}.tpl");
-		$maintext .= xpathrun($header, $xml);
-	} else if ( $_GET['headers'] == "full" && file_exists("Resources/teiHeader-long.tpl") ) {
-		$header = file_get_contents("Resources/teiHeader-long.tpl");
-		$maintext .= xpathrun($header, $xml);
-		if ( file_exists("Resources/teiHeader.tpl") ) $maintext .= "<ul><li><a href='{$_SERVER['REQUEST_URI']}&headers=short'>{%less header data}</a></ul>";
-		$maintext .= "<hr>"; 
-	} else if ( file_exists("Resources/teiHeader.tpl") ) {
-		$header = file_get_contents("Resources/teiHeader.tpl");
-		$maintext .= xpathrun($header, $xml);
-		$maintext .= "<ul>"; 
-		if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$fileid";
-		if ( file_exists("Resources/teiHeader-long.tpl") ) $maintext .= "<li><a href='{$_SERVER['REQUEST_URI']}$cidurl&headers=full'>{%more header data}</a>";
-		if ( $settings['xmlfile']['teiHeader'] ) {
-			foreach ( $settings['xmlfile']['teiHeader'] as $key => $item ) {
-				$cond = $item['condition'];
-				if ( $cond ) {
-					$result = $xml->xpath($cond); 
-					if ( !$result ) {
-						continue; # Conditional header
-					};
+	# TODO: move this to ttxml
+	$maintext .= "<ul>"; 
+	if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$fileid";
+	if ( file_exists("Resources/teiHeader-long.tpl") ) $maintext .= "<li><a href='{$_SERVER['REQUEST_URI']}$cidurl&headers=full'>{%more header data}</a>";
+	if ( $settings['xmlfile']['teiHeader'] ) {
+		foreach ( $settings['xmlfile']['teiHeader'] as $key => $item ) {
+			$cond = $item['condition'];
+			if ( $cond ) {
+				$result = $xml->xpath($cond); 
+				if ( !$result ) {
+					continue; # Conditional header
 				};
-				$tpl = $key;
-				if ( $item['admin'] ) {
-					if ($username) $maintext .= " &bull; <a href='index.php?action=file&cid=$fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
-				} else if ( !$item['admin'] ) {
-					$maintext .= " &bull; <a href='index.php?action=file&cid=$fileid&tpl=$tpl'>{$item['display']}</a>";
-				};
+			};
+			$tpl = $key;
+			if ( $item['admin'] ) {
+				if ($username) $maintext .= " &bull; <a href='index.php?action=file&cid=$fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
+			} else if ( !$item['admin'] ) {
+				$maintext .= " &bull; <a href='index.php?action=file&cid=$fileid&tpl=$tpl'>{$item['display']}</a>";
 			};
 		};
-		if ( file_exists("Resources/teiHeader-edit.tpl") && $username ) $maintext .= " &bull; <a href='index.php?action=header&act=edit&cid=$fileid&tpl=teiHeader-edit.tpl' class=adminpart>edit teiHeader</a>";
-		if ( $username ) $maintext .= " &bull; <a href='index.php?action=header&act=rawview&cid=$fileid' class=adminpart>view teiHeader</a>";
-		$maintext .= "</ul><hr>";
-	} else {
-		foreach ( $headershow as $hq => $hn ) {
-			$result = $xml->xpath($hq); 
-			$hv = $result[0];
-			if ( $hv ) {
-				$htxt = $hv->asXML();
-				$maintext .= "<h3>{%$hn}</h3><p>$htxt</p>";
-			};
-		}; 
-		if ( $headershow ) $maintext .= "<hr>";
 	};
+	if ( file_exists("Resources/teiHeader-edit.tpl") && $username ) $maintext .= " &bull; <a href='index.php?action=header&act=edit&cid=$fileid&tpl=teiHeader-edit.tpl' class=adminpart>edit teiHeader</a>";
+	if ( $username ) $maintext .= " &bull; <a href='index.php?action=header&act=rawview&cid=$fileid' class=adminpart>view teiHeader</a>";
+	$maintext .= "</ul><hr>";
 
 	if ( strstr($ttxml->asXML(), '</tok>' ) ) $tokcheck = 1; // check whether this file is tokenized
 
