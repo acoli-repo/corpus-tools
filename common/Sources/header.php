@@ -5,6 +5,7 @@
 	require("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML();	
 	$xml = $ttxml->xml;
+	$fileid = $ttxml->fileid;
 
 	$result = $xml->xpath("//title"); 
 	$title = $result[0];
@@ -111,7 +112,7 @@
 		};
 		
 		$maintext .= "
-			<form action='index.php?action=$action&act=save&cid=$fileid' method=post>
+			<form action='index.php?action=$action&act=save&cid=$ttxml->fileid' method=post>
 			<input type=hidden name=tpl value='$tplfile'>
 			$text
 			<p><input type=submit value=Save>

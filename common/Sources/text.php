@@ -118,7 +118,7 @@
 
 	$maintext .= $ttxml->tableheader();
 
-	$editxml = $ttxml->asXML(); # This got lost somehow
+	$file = $ttxml->asXML(); # This got lost somehow
 
 	if ( strstr($editxml, '</tok>' ) ) $tokcheck = 1; // check whether this file is tokenized
 
@@ -164,7 +164,7 @@
 			$pidx = strpos($editxml, $pb);
 		};
 		if ( !$pidx || $pidx == -1 ) { 
-			# When @n is not the first attribute, we cannot use strpos - try regexp instead (slower)
+			# When @n or @id is not the first attribute, we cannot use strpos - try regexp instead (slower)
 			if ( $_GET['pageid'] ) {
 				preg_match("/<$pbelm [^>]*id=\"{$_GET['pageid']}\"/", $editxml, $matches, PREG_OFFSET_CAPTURE, 0);
 			} else {
