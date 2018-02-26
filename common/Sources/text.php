@@ -118,7 +118,10 @@
 
 	$maintext .= $ttxml->tableheader();
 
-	if ( strstr($ttxml->asXML(), '</tok>' ) ) $tokcheck = 1; // check whether this file is tokenized
+	$editxml = $ttxml->asXML(); # This got lost somehow
+
+	if ( strstr($editxml, '</tok>' ) ) $tokcheck = 1; // check whether this file is tokenized
+
 
 	// TODO: move this to ttxml
 	if ( $settings['xmlfile']['restriction'] && !$xml->xpath($settings['xmlfile']['restriction']) && !$username ) { 
