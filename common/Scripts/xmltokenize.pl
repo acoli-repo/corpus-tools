@@ -3,6 +3,7 @@ use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use HTML::Entities;
 use XML::LibXML;
 use Getopt::Long;
+use POSIX qw(strftime);
 
 $scriptname = $0;
 
@@ -468,6 +469,18 @@ if ( !$doc ) {
 		$ttnode->setAttribute('form', "--");
 	}; 
 
+# Add a revisionDesc to indicate the file was tokenized
+$revnode = makenode($doc, "//teiHeader/revisionDesc/change[\@who=\"xmltokenize\"]");
+$when = strftime "%Y-%m-%d", localtime;
+$revnode->setAttribute("when", $when);
+if ( $sentsplit == 2 ) {
+	$revnode->appendText("split into sentences using xmltokenize.pl");
+} elsif ( $sentsplit == 1 ) {
+	$revnode->appendText("tokenized and split into sentences using xmltokenize.pl");
+} else {
+	$revnode->appendText("tokenized using xmltokenize.pl");
+};
+
 $xmlfile = $doc->toString;
 
 if ( $test ) { 
@@ -486,3 +499,39 @@ if ( $test ) {
 	`$cmd`;
 };
 
+sub makenode ( $xml, $xquery ) {
+	my ( $xml, $xquery ) = @_;
+	@tmp = $xml->findnodes($xquery); 
+	if ( scalar @tmp ) { 
+		$node = shift(@tmp);
+		if ( $debug ) { print "Node exists: $xquery"; };
+		return $node;
+	} else {
+		if ( $xquery =~ /^(.*)\/(.*?)$/ ) {
+			my $parxp = $1; my $thisname = $2;
+			my $parnode = makenode($xml, $parxp);
+			$thisatts = "";
+			if ( $thisname =~ /^(.*)\[(.*?)\]$/ ) {
+				$thisname = $1; $thisatts = $2;
+			};
+			$newchild = XML::LibXML::Element->new( $thisname );
+			
+			# Set any attributes defined for this node
+			if ( $thisatts ne '' ) {
+				if ( $debug ) { print "setting attributes $thisatts"; };
+				foreach $ap ( split ( " and ", $thisatts ) ) {
+					if ( $ap =~ /\@([^ ]+) *= *"(.*?)"/ ) {
+						$an = $1; $av = $2; 
+						$newchild->setAttribute($an, $av);
+					};
+				};
+			};
+
+			if ( $debug ) { print "Creating node: $xquery ($thisname)"; };
+			$parnode->addChild($newchild);
+			
+		} else {
+			print "Failed to find or create node: $xquery";
+		};
+	};
+};
