@@ -491,7 +491,7 @@
 
 	if ( $username ) {
 		
-		if ( preg_match("/<text[^>]*>\s*<\/text>/", $editxml) ) $emptyxml = 1;
+		if ( preg_match("/<text[^>]*>\s*<\/text>/", $ttxml->asXML() ) ) $emptyxml = 1;
 		
 		if ( $tokcheck ) { 
 			$maintext .= "<p class=adminpart>			
