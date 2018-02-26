@@ -131,6 +131,8 @@ class TTXML
 	}
 		
 	function tableheader() {
+		global $username;
+	
 		if (!$this->xml) return "";
 		// Create a header with information about the first from the teiHeader
 		if ( $_GET['tpl'] && file_exists("Resources/teiHeader-{$_GET['tpl']}.tpl") ) {
