@@ -120,7 +120,7 @@
 
 	$file = $ttxml->asXML(); # This got lost somehow
 
-	if ( strstr($editxml, '</tok>' ) ) $tokcheck = 1; // check whether this file is tokenized
+	if ( strstr($file, '</tok>' ) ) $tokcheck = 1; // check whether this file is tokenized
 
 
 	// TODO: move this to ttxml
