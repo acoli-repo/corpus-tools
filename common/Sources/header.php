@@ -12,6 +12,8 @@
 
 	$tplfile = $_POST['tpl'] or $tplfile = $_GET['tpl'] or $tplfile = "teiHeader-edit.tpl";
 
+	if ( file_exists("Resources/teiHeader-$tplfile.tpl") ) $tplfile = "teiHeader-$tplfile.tpl";
+
 	if ( !file_exists("Resources/$tplfile") && $act != "rawview" ) fatal ("No such header template: $tplfile");
 	$text = file_get_contents("Resources/$tplfile");
 	$maintext .= "<h2>$fileid</h2><h1>$title </h1>";

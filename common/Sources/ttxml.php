@@ -132,8 +132,8 @@ class TTXML
 		
 	function tableheader() {
 		global $username;
-	
 		if (!$this->xml) return "";
+
 		// Create a header with information about the first from the teiHeader
 		if ( $_GET['tpl'] && file_exists("Resources/teiHeader-{$_GET['tpl']}.tpl") ) {
 			$header = file_get_contents("Resources/teiHeader-{$_GET['tpl']}.tpl");
@@ -146,39 +146,43 @@ class TTXML
 		} else if ( file_exists("Resources/teiHeader.tpl") ) {
 			$header = file_get_contents("Resources/teiHeader.tpl");
 			$tableheader .= xpathrun($header, $this->xml);
-			$tableheader .= "<ul>"; 
-			if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$this->fileid";
-			if ( file_exists("Resources/teiHeader-long.tpl") ) $tableheader .= "<li><a href='{$_SERVER['REQUEST_URI']}$cidurl&headers=full'>{%more header data}</a>";
-			if ( $settings['xmlfile']['teiHeader'] ) {
-				foreach ( $settings['xmlfile']['teiHeader'] as $key => $item ) {
-					$cond = $item['condition'];
-					if ( $cond ) {
-						$result = $this->xml->xpath($cond); 
-						if ( !$result ) {
-							continue; # Conditional header
-						};
-					};
-					$tpl = $key;
-					if ( $item['admin'] ) {
-						if ($username) $tableheader .= " &bull; <a href='index.php?action=file&cid=$this->fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
-					} else if ( !$item['admin'] ) {
-						$tableheader .= " &bull; <a href='index.php?action=file&cid=$this->fileid&tpl=$tpl'>{$item['display']}</a>";
-					};
+		};
+
+		# Show alternative header views
+		if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$this->fileid";
+		$headeroptions = $settings['xmlfile']['teiHeader'] or $headeroptions = array (
+			'' => array ( "display" => "less header data" ),
+			'long' => array ( "display" => "more header data" ),
+			'edit' => array ( "display" => "edit header data", "edit" => 1 ),
+			);
+		$sep = "";
+		foreach ( $headeroptions as $key => $item ) {
+			if ( $key ) $tfn = "teiHeader-$key.tpl"; else $tfn = "teiHeader.tpl";
+			if ( !file_exists("Resources/$tfn") ) continue;
+			if ( $_GET['tpl'] == $key ) continue;
+			$cond = $item['condition'];
+			if ( $cond ) {
+				$result = $this->xml->xpath($cond); 
+				if ( !$result ) {
+					continue; # Conditional header
 				};
 			};
-			if ( file_exists("Resources/teiHeader-edit.tpl") && $username ) $tableheader .= " &bull; <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=teiHeader-edit.tpl' class=adminpart>edit teiHeader</a>";
-			$tableheader .= "</ul><hr>";
-		} else {
-			foreach ( $headershow as $hq => $hn ) {
-				$result = $this->xml->xpath($hq); 
-				$hv = $result[0];
-				if ( $hv ) {
-					$htxt = $hv->asXML();
-					$tableheader .= "<h3>{%$hn}</h3><p>$htxt</p>";
-				};
-			}; 
-			if ( $headershow ) $tableheader .= "<hr>";
+			$tpl = $key;
+			if ( $item['edit'] ) {
+				if ($username) $moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
+				$sep = "&bull;";
+			} else if ( $item['admin'] ) {
+				if ($username) $moreopts .= " $sep <a href='index.php?action=file&cid=$this->fileid&tpl=$tpl$edittxt' class=adminpart>{$item['display']}</a>";
+				$sep = "&bull;";
+			} else {
+				$moreopts .= " $sep <a href='index.php?action=file&cid=$this->fileid&tpl=$tpl'>{$item['display']}</a>";
+				$sep = "&bull;";
+			};
 		};
+		if ( $username ) $moreopts .= " $sep <a href='index.php?action=header&act=rawview&cid=$this->fileid' class=adminpart>view teiHeader</a>";
+		if ( $moreopts ) $tableheader .= "<ul><li>$moreopts</ul>";
+		$tableheader .= "<hr>";
+
 		return $tableheader;
 	}
 	
