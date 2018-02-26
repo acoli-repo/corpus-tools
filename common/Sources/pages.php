@@ -8,7 +8,7 @@
 	$maintext .= $ttxml->tableheader(); 
 	$maintext .= $ttxml->viewheader(); 
 	
-	$fileid = $_GET['cid'];
+	$fileid = $_GET['cid'] or $fileid = $_GET['id'];
 	
 	$pbsel = $_GET['pbtype'] or $pbsel = $_GET['type'];
 	if ( !$pbsel ) { 
