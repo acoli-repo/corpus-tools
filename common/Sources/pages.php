@@ -36,11 +36,11 @@
 			$pid = $node['id'] or $pid = "cnt[$cnt]";
 			$pnr = $node['n'] or $pnr = "cnt[$cnt]";
 			if ( $lpnr ) {
-				$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&pageid=$lpid&pbtype=pb\">$lpnr</a>";
+				$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$lpid&pbtype=pb\">$lpnr</a>";
 			};
 			$lpnr = $pnr; $lpid = $pid;
 		};
-		$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
+		$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
 		$maintext .= "</td>";
 	};
 	if ( !$settings['xmlfile']['index'] ) $settings['xmlfile']['index'] = array ( "chapter" => array ( "display" => "Chapter List" ));
@@ -56,11 +56,11 @@
 					$pid = $node['id'] or $pid = "cnt[$cnt]";
 					$pnr = $node['n'] or $pnr = "cnt[$cnt]";
 					if ( $lpnr ) {
-						$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&div=$lpid&divtype={$val['div']}\">$lpnr</a>";
+						$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&div=$lpid&divtype={$val['div']}\">$lpnr</a>";
 					};
 					$lpnr = $pnr; $lpid = $pid;
 				};
-				$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&div=$pid&divtype={$val['div']}\">$pnr</a>";
+				$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&div=$pid&divtype={$val['div']}\">$pnr</a>";
 				$maintext .= "</td>";
 			};
 		} else {
@@ -73,11 +73,11 @@
 					$pid = $node['id'] or $pid = "cnt[$cnt]";
 					$pnr = $node['n'] or $pnr = "cnt[$cnt]";
 					if ( $lpnr ) {
-						$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&pageid=$lpid&pbtype=$key\">$lpnr</a>";
+						$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$lpid&pbtype=$key\">$lpnr</a>";
 					};
 					$lpnr = $pnr; $lpid = $pid;
 				};
-				$maintext .= "<p><a href=\"index.php?action=file&id=$fileid&pageid=$pid&pbtype=$key\">$pnr</a>";
+				$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=$key\">$pnr</a>";
 				$maintext .= "</td>";
 			};
 		};

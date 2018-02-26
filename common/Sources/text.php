@@ -22,6 +22,42 @@
 	$title = $result[0];
 	if ( $title == "" ) $title = "<i>{%Without Title}</i>";
 
+	// on "paged" display, determine what to show
+	if ( !$_GET['pbtype'] && is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['element'] ) { 
+		# allow special "page types" to be defined in the settings, which can be XML elements and not milestones
+		$_GET['pbtype'] = $settings['xmlfile']['paged']['element'];
+	};
+	if ( !$_GET['pbtype'] || $_GET['pbtype'] == "pb" ) { 
+		$pbelm = "pb";
+		$titelm = "Page";
+		$pbtype = "pb";
+		$pbsel = "&pbtype={$_GET['pbtype']}";
+	} else if ( $_GET['type'] == "chapter"  ) { 
+		$pbtype = "milestone[@type=\"chapter\"]";
+		$titelm = "Chapter";
+		$foliotxt = $titelm;
+		$pbelm = "milestone";
+		$pbsel = "&pbtype={$_GET['pbtype']}";
+	} else if ( $_GET['pbtype'] && $settings['xmlfile']['milestones'][$_GET['pbtype']] ) { 
+		$elm = $_GET['pbtype'];
+		$pbtype = "milestone[@type=\"$elm\"]";
+		$titelm = $settings['xmlfile']['milestones'][$elm]['display'] or $titelm = ucfirst($elm);
+		$titelm = "{%$titelm}";
+		$foliotxt = $titelm;
+		$pbelm = "milestone";
+		$pbsel = "&pbtype={$elm}";
+	} else if ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['closed'] ) {
+		$pbtype = $_GET['pbtype'];
+		$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($_GET['type']);
+		$pbelm = $_GET['pbtype'];
+	} else {
+		$pbtype = "milestone[@type=\"{$_GET['pbtype']}\"]";
+		$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($_GET['type']);
+		$pbelm = "milestone";
+		$pbsel = "&pbtype={$_GET['pbtype']}";
+	};
+
+
 	// TODO: move this to ttxml
 	# In paged texts, always jump to a page
 	if ( $settings['xmlfile']['paged'] && !$_GET['page'] && !$_GET['pageid'] && !$_GET['div'] ) {
