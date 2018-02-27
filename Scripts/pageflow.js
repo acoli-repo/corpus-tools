@@ -18,7 +18,7 @@ document.addEventListener('MSFullscreenChange', togglefull, false);
 
 // Init
 var facsview = document.getElementById('facsview');
-var textview = document.getElementById('textview');
+var textview = document.getElementById('mtxt');
 var viewport = document.getElementById('viewport');
 var doc = document.getElementById('fulltext').innerHTML;
 var facs = new Image();

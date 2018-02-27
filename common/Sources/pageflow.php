@@ -25,12 +25,14 @@
 			</tr>
 			<tr>
 			<td><div id='facsview' style='background-color: black; height: 470px; text-align: center; overflow: hidden; vertical-align: middle;'></div>
-			<td><div id='textview' style='background-color: white; height: 470px; overflow: scroll; padding-left: 20px; padding-right: 20px;'></div>
+			<td id=mtxt><div id='mtxt' style='background-color: white; height: 470px; overflow: scroll; padding-left: 20px; padding-right: 20px;'></div>
 			</tr>
 			</table>
 		</div>
 		<div id='fulltext' style='display: none;'>$editxml</div>
 		<script language=Javascript src='$jsurl/pageflow.js'></script>
-		";
+		<hr>";
+	
+	$maintext .= $ttxml->viewswitch();
 
 ?>
