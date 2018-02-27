@@ -423,6 +423,12 @@ class TTXML
 			}; 
 		}; 
 
+		foreach ( $settings['views'] as $key => $item ) {	
+			if ( 1 == 1 ) { // View condition
+				$lvltxt = $item['display'];
+				$viewopts[$key] = $lvltxt;
+			}; 
+		}; 
 		// Add the annotation levels
 		if ( $settings['annotations'] ) {
 			foreach ( $settings['annotations'] as $key => $val ) {
@@ -438,11 +444,11 @@ class TTXML
 		}; 
 		
 		// TODO: Make these check for @bbox on <lb/> and <tok/> respectively
-		if ( $settings['views']['lineview'] || ( !$settings['views'] && strstr($this->rawtext, "bbox=") ) ) {
+		if ( !$settings['views'] && strstr($this->rawtext, "bbox=") ) {
 			$lvltxt = $settings['views']['lineview']['display'] or $lvltxt = "Manuscript line";
 			$viewopts['lineview'] = "{$lvltxt} view";
 		};
-		if ( $settings['views']['facsview'] || ( !$settings['views'] && strstr($this->rawtext, "bbox=") ) ) {
+		if ( !$settings['views'] && strstr($this->rawtext, "bbox=") ) {
 			$lvltxt = $settings['views']['facsview']['display'] or $lvltxt = "Facsimile";
 			$viewopts['facsview'] = "{$lvltxt} view";
 		};

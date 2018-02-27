@@ -11,6 +11,41 @@ document.onkeydown = function(evt) {
 	}
 };
 
+document.addEventListener('mousemove', mouseMove, false);
+document.addEventListener('mouseup', mouseUp, false);
+
+var last_position = {};
+function mouseMove(evt) { 
+	if ( evt.target.id == "facsview" && evt.buttons == 1) {
+		//check to make sure there is data to compare against
+		if (typeof(last_position.x) != 'undefined') {
+
+			//get the change from last position to this position
+			var deltaX = last_position.x - evt.clientX,
+				deltaY = last_position.y - evt.clientY;
+
+			bpx = bpx - deltaX;
+			facsview.style.backgroundPositionX = bpx + "px"; 
+			bpy = bpy - deltaY;
+			facsview.style.backgroundPositionY = bpy + "px"; 
+
+		};
+
+		//set the new last position to the current for next time
+		last_position = {
+			x : evt.clientX,
+			y : evt.clientY
+		};	
+	};	
+};
+function mouseUp(evt) { 
+	last_position = {};
+};
+
+function showmenu() {
+	// show the options menu
+};
+
 document.addEventListener('webkitfullscreenchange', togglefull, false);
 document.addEventListener('mozfullscreenchange', togglefull, false);
 document.addEventListener('fullscreenchange', togglefull, false);
@@ -51,6 +86,7 @@ if ( tid ) {
 
 function setpage(num) {
 	curpage = num*1; 
+	console.log(num);
 	showpage(curpage);
 };
 
@@ -58,11 +94,11 @@ function switchpage(dif) {
 	curpage = curpage + dif; 
 	if ( curpage < 1 ) curpage = 1;
 	if ( curpage > pagelist.length-1 ) curpage = pagelist.length-1;
+	pagesel.selectedIndex = curpage - 1; 
 	showpage(curpage);
 };
 
 function showpage(num, before=-1) {
-	pagesel.selectedIndex = num - 1; // TODO: this makes it jump 2 pages after we select y hand
 	var i=0; var lp = -1; var pi = 0; var tmp = 0;
 	while ( tmp != -1 && i < num ) {
 		tmp = doc.indexOf('<pb', lp+1);
@@ -91,6 +127,7 @@ function showpage(num, before=-1) {
 		document.getElementById(tid).style.backgroundColor = '#ffff88';
 	};
 	
+	// var img = page.getAttribute('facs');
 	var img = textview.innerHTML.match(/facs="([^"]+)"/);
 	if ( img ) {
 		var imgurl = 'Facsimile/' + img[1];
@@ -99,6 +136,8 @@ function showpage(num, before=-1) {
     	facswidth = facsview.offsetWidth;
 		facsview.style['background-size'] = facswidth + 'px ' + (facswidth*(facs.naturalHeight/facs.naturalWidth)) + 'px';
 		facsview.style['background-repeat'] = 'no-repeat';
+		facsview.style.backgroundPositionX = "0px"; bpx = 0;
+		facsview.style.backgroundPositionY = "0px"; bpy = 0;
 		
 		facsview.addEventListener("mousewheel", scalefacs, false);
 		facsview.addEventListener("DOMMouseScroll", scalefacs, false);
@@ -119,6 +158,8 @@ function showpage(num, before=-1) {
 function resetfacs() {
 	facswidth = facsview.offsetWidth;
 	facsview.style['background-size'] = facswidth + 'px ' + (facswidth*(facs.naturalHeight/facs.naturalWidth)) + 'px';
+	facsview.style.backgroundPositionX = "0px"; bpx = 0;
+	facsview.style.backgroundPositionY = "0px"; bpy = 0;
 };
 
 function scalefacs(e) {
@@ -151,6 +192,8 @@ function fullscreen() {
 	  document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);  
 	};  
 	
+	document.getElementById('fullscreen').innerHTML = '<i class=\"material-icons\">fullscreen_exit</i>';
+	
 	viewport.style.height = screen.height + 'px';
 	viewport.style.width = screen.width + 'px';
 	viewport.style.top = '0';
@@ -174,6 +217,8 @@ function unfullscreen(man) {
 		  document.webkitCancelFullScreen();  
 		};
 	};
+
+	document.getElementById('fullscreen').innerHTML = '<i class=\"material-icons\">fullscreen</i>';
 	
 	viewport.style.height = window.innerHeight + 'px';
 	viewport.style.width = (window.innerWidth-initleft) + 'px';
