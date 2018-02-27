@@ -105,6 +105,15 @@ function showpage(num, before=-1) {
 	} else {
 		facsview.innerHTML = "";
 	};
+	
+	resetfacs();
+	
+	// Finally, skip this page if it is empty
+	// TODO: unless we select it by hand
+	if ( page.getAttribute('empty') ) {
+		switchpage(1);
+	};
+	
 };
 
 function resetfacs() {

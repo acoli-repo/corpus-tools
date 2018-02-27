@@ -187,14 +187,23 @@ class TTXML
 	}
 	
 	function asXML() {
-		global $mtxtelement;
-		$result = $this->xml->xpath($mtxtelement);
-		if ($result) {
-			$xmltxt = $result[0]->asXML();
-		} else {
-			$xmltxt = "($mtxtelement not found)";
-		};
+		global $mtxtelement; global $settings; global $username;
 		
+		if ( $settings['xmlfile']['restriction'] && !$this->xml->xpath($settings['xmlfile']['restriction']) && !$username ) { 
+			$tokid = $_GET['jmp'] or $tokid = $_GET['tid'] or $tokid = 'w-1';
+			$xmltxt = $this->context($tokid);
+			$this->pagenav = "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
+		} else if ( $settings['xmlfile']['paged'] ) {
+			$xmltxt = $this->page();
+		} else {
+			$result = $this->xml->xpath($mtxtelement);
+			if ($result) {
+				$xmltxt = $result[0]->asXML();
+			} else {
+				$xmltxt = "($mtxtelement not found)";
+			};
+		};
+				
 		# Protect empty elements
 		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
 		
