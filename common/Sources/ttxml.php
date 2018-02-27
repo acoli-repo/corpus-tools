@@ -172,10 +172,10 @@ class TTXML
 				if ($username) $moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
 				$sep = "&bull;";
 			} else if ( $item['admin'] ) {
-				if ($username) $moreopts .= " $sep <a href='index.php?action=file&cid=$this->fileid&tpl=$tpl$edittxt' class=adminpart>{$item['display']}</a>";
+				if ($username) $moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl$edittxt' class=adminpart>{$item['display']}</a>";
 				$sep = "&bull;";
 			} else {
-				$moreopts .= " $sep <a href='index.php?action=file&cid=$this->fileid&tpl=$tpl'>{$item['display']}</a>";
+				$moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl'>{$item['display']}</a>";
 				$sep = "&bull;";
 			};
 		};
@@ -261,16 +261,13 @@ class TTXML
 		return $context;
 	}
 	
-	function page ( $pagid, $id ) {
+	function page ( $pagid ) {
 		global $action;
 		
 		$editxml = $this->rawtext;
 	
 		# Return the xml for a page of the text
 		$pbelm = "pb";
-		$titelm = "Page";
-		$pbtype = "pb";
-		$pbsel = "&pbtype={$_GET['pbtype']}";
 
 		if ( !$pagid ) $pagid = $_GET['pageid'];
 		if ( !$tid ) $tid = $_GET['tid'] or $tid = $_GET['jmp'];
