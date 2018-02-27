@@ -275,8 +275,39 @@ class TTXML
 		
 		$editxml = $this->rawtext;
 	
-		# Return the xml for a page of the text
-		$pbelm = "pb";
+		# Return the xml for a page (or other element) of the text
+		
+		// Determine what element to use
+		$pbtmp = $_GET['pbtype'] or $pbtmp = $settings['xmlfile']['paged']['element'] or $pbtmp = "pb";
+		if ( $pbtmp == "pb" ) { // Page
+			$pbelm = "pb";
+			$titelm = "Page";
+			$pbsel = "&pbtype={$_GET['pbtype']}";
+		} else if ( $pbtmp == "chapter"  ) {  // Chapter
+			$pbtype = "milestone[@type=\"chapter\"]";
+			$titelm = "Chapter";
+			$foliotxt = $titelm;
+			$pbelm = "milestone";
+			$pbsel = "&pbtype={$pbtmp}";
+		} else if ( $settings['xmlfile']['milestones'][$pbtmp] ) {  // Custom-defined milestone
+			$elm = $pbtmp;
+			$pbtype = "milestone[@type=\"$elm\"]";
+			$titelm = $settings['xmlfile']['milestones'][$pbtmp]['display'] or $titelm = ucfirst($elm);
+			$titelm = "{%$titelm}";
+			$foliotxt = $titelm;
+			$pbelm = "milestone";
+			$pbsel = "&pbtype={$pbtmp}";
+		} else if ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['closed'] ) {  // Custom-defined XML node
+			$pbtype = $pbtmp;
+			$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($pbtmp);
+			$pbelm = $pbtmp;
+		} else {  // Generic milestone
+			$pbtype = "milestone[@type=\"{$pbtmp}\"]";
+			$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($pbtmp);
+			$pbelm = "milestone";
+			$pbsel = "&pbtype={$pbtmp}";
+		};
+
 
 		if ( !$pagid ) $pagid = $_GET['pageid'];
 		if ( !$tid ) $tid = $_GET['tid'] or $tid = $_GET['jmp'];

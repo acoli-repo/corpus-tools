@@ -27,7 +27,13 @@
 	</item>
 	
 	<item key="defaults" display="Some global settings">
-	    <att key="fileview" display="Default fileview">
+	    <att key="fileview" display="Default fileview" default="text">
+		<desc>
+			Since version 2, TEITOK has a number of different ways to view a TEI/XML file: as text, 
+			as a waveform, as a facsimile image, etc. Here you can define which of those views should be
+			used as the default to display a TEI/XML file, which will then be used in all cases unless 
+			another view is selected.
+		</desc>
 	    	<val key="text" display="Text view"/>
 	    	<val key="facsview" display="Facsimile view"/>
 	    	<val key="pageflow" display="Page flow view"/>
