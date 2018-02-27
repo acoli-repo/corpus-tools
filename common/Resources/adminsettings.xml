@@ -27,6 +27,14 @@
 	</item>
 	
 	<item key="defaults" display="Some global settings">
+	    <att key="fileview" display="Default fileview">
+	    	<val key="text" display="Text view"/>
+	    	<val key="facsview" display="Facsimile view"/>
+	    	<val key="pageflow" display="Page flow view"/>
+	    	<val key="lineview" display="Facsimile line view"/>
+	    	<val key="igt" display="IGT view"/>
+	    	<val key="wavesurfer" display="Waveform view"/>
+		</att>
 	    <item key="title" display="Title of the page">
 	    	<att key="display" display="Display name"/>
 		</item>
