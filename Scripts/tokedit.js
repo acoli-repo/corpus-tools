@@ -1,6 +1,5 @@
 var pattcolors = {'gloss':'#009900', 'nform':'#990099', 'pos':'#009999', 'mfs':'#009999', 'lemma':'#999900' };
 var formified = false;
-var username = '';
 var labels = [ ];
 var baseurl = location.href.replace(/(\/..)*\/index\.php.*/, '/');
 
@@ -19,6 +18,9 @@ var basedirection = "";
 if ( typeof(orgtoks) == "undefined" ) {
 	var orgtoks = new Object();
 };
+if ( typeof(username) == "undefined" ) {
+	var username = '';
+}
 
 function wsearch ( wrd ) {
 	unhighlight();

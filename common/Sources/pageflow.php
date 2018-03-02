@@ -66,12 +66,19 @@
 	$views = $ttxml->viewswitch();
 	$maintext .= "
 		<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">
+		<script>
+			var username = '$username';
+			$settingsdefs
+			var nofacs = true;
+			var tid = '$ttxml->fileid'; 
+		</script>
 		<style>
 			#pageflow .material-icons:hover { background-color: #990000; }
 			#pageflow #info { background-color: white; color: white; }
 			#pageflow #options { background-color: black; color: white; }
 			#pageflow #options a { color: #ffdddd; }
 			#pageflow { box-sizing: border-box; }
+			#facsview { color: #dddddd; text-align: right;  }
 		</style>
 		<div id='pageflow' style='z-index: 150;'>
 		<div id='info' style='display: none; position: fixed; z-index: 200; opacity: 0.9; overflow: scroll;'>
@@ -112,7 +119,7 @@
 				</div>
 			</tr>
 			<tr>
-			<td><div id='facsview' style='background-color: black; height: 470px; text-align: center; overflow: hidden; vertical-align: middle;'></div>
+			<td><div id='facsview' style='background-color: black; height: 470px; overflow: hidden;'></div>
 			<td id='grip' style='cursor: col-resize;'>&nbsp;</td>
 			<td><div id='mtxt' style='background-color: white; height: 470px; overflow: scroll; padding: 20px;'></div>
 			</tr>
@@ -122,10 +129,6 @@
 		<div id='fulltext' style='display: none;'>".$ttxml->asXML(true)."</div>
 		<hr>
 		<script>
-			var username = '$username';
-			$settingsdefs
-			var nofacs = true;
-			var tid = '$ttxml->fileid'; 
 			var orgXML = document.getElementById('fulltext').innerHTML;
 		</script>
 		<script language=Javascript src='$jsurl/tokedit.js'></script>

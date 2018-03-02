@@ -178,15 +178,13 @@ function showpage(num, before=-1) {
 	pageXML = doc.substring(pi, np);
 
 	textview.innerHTML = pageXML;
-	// console.log(page.getAttribute('n') + ' = ' + curpage);
 
 	if ( tid ) {	
 		document.getElementById(tid).style.backgroundColor = '#ffff88';
 	};
 	
-	// var img = page.getAttribute('facs');
 	var img = textview.innerHTML.match(/facs="([^"]+)"/);
-	if ( img ) {
+	if ( img && ( !page.getAttribute('admin') || username ) ) {
 		var imgurl = img[1];
 		if ( imgurl.indexOf("http") == -1 ) imgurl = 'Facsimile/' + img[1];
     	facs.src = imgurl;
@@ -200,9 +198,12 @@ function showpage(num, before=-1) {
 		facsview.addEventListener("mousewheel", scalefacs, false);
 		facsview.addEventListener("DOMMouseScroll", scalefacs, false);
 	} else {
-		facsview.innerHTML = "";
+		facsview.src = "";
 	};
-	
+	if ( page.getAttribute('copy') ) {
+		facsview.innerHTML = "&copy; " + page.getAttribute('copy');
+	};
+			
 	pageinit();
 		
 	redraw();
@@ -321,7 +322,7 @@ function redraw() {
 
 	// Resize the divs inside the table to the table size
 	// The box model makes this more difficult than it should be
-	facsview.style.height = (facsview.parentNode.offsetHeight-20) + 'px';
+	facsview.style.height = (facsview.parentNode.offsetHeight-60) + 'px';
 	textview.style.height = (textview.parentNode.offsetHeight-60) + 'px';
 	facsview.style.width = ( facsview.parentNode.offsetWidth -10) + 'px';
 	textview.style.width = ( textview.parentNode.offsetWidth -45) + 'px';
@@ -330,7 +331,8 @@ function redraw() {
 	facsview.style['background-size'] = facswidth + 'px ' + (facswidth*(facs.naturalHeight/facs.naturalWidth)) + 'px';
 	facsview.style.backgroundPositionX = "0px"; bpx = 0;
 	facsview.style.backgroundPositionY = "0px"; bpy = 0;
-
+	facsview.style['line-height'] = (facsview.style.height.replace("px","")*1 * 2)-30 + 'px'; 
+	
 	var rect = textview.getClientRects();
 	opts.style.top = rect[0]['top'] + 'px';
 	opts.style.left = rect[0]['left'] + 'px';
