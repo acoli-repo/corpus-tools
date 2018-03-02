@@ -130,70 +130,78 @@ class TTXML
 		return $header;
 	}
 		
-	function tableheader() {
+	function tableheader( $tpl = "", $showbottom = true ) {
 		global $username;
 		if (!$this->xml) return "";
 
-		// Create a header with information about the first from the teiHeader
-		if ( $_GET['tpl'] && file_exists("Resources/teiHeader-{$_GET['tpl']}.tpl") ) {
-			$header = file_get_contents("Resources/teiHeader-{$_GET['tpl']}.tpl");
-			$tableheader .= xpathrun($header, $this->xml);
-		} else if ( $_GET['headers'] == "full" && file_exists("Resources/teiHeader-long.tpl") ) {
-			$header = file_get_contents("Resources/teiHeader-long.tpl");
-			$tableheader .= xpathrun($header, $this->xml);
-			if ( file_exists("Resources/teiHeader.tpl") ) $tableheader .= "<ul><li><a href='{$_SERVER['REQUEST_URI']}&headers=short'>{%less header data}</a></ul>";
-			$tableheader .= "<hr>"; 
-		} else if ( file_exists("Resources/teiHeader.tpl") ) {
-			$header = file_get_contents("Resources/teiHeader.tpl");
-			$tableheader .= xpathrun($header, $this->xml);
+		// Determine which header to show
+		if ( $tpl == "" ) {
+			if ( $_GET['headers'] == "full" ) $tpl = "long";
+			else $tpl = $_GET['tpl'];
 		};
 
-		# Show alternative header views
-		if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$this->fileid";
-		$headeroptions = $settings['xmlfile']['teiHeader'] or $headeroptions = array (
-			'' => array ( "display" => "less header data" ),
-			'long' => array ( "display" => "more header data" ),
-			'edit' => array ( "display" => "edit header data", "edit" => 1 ),
-			);
-		$sep = "";
-		foreach ( $headeroptions as $key => $item ) {
-			if ( $key ) $tfn = "teiHeader-$key.tpl"; else $tfn = "teiHeader.tpl";
-			if ( !file_exists("Resources/$tfn") ) continue;
-			if ( $_GET['tpl'] == $key ) continue;
-			$cond = $item['condition'];
-			if ( $cond ) {
-				$result = $this->xml->xpath($cond); 
-				if ( !$result ) {
-					continue; # Conditional header
+		// Create a header with information about the first from the teiHeader
+		$opts = explode(",", $tpl); array_push($opts, "");
+		while ( $tpfile == "" && count($opts) ) {
+			$opt = array_shift($opts);
+			if ( file_exists("Resources/teiHeader-$opt.tpl") ) {
+				$tplfile = "Resources/teiHeader-$opt.tpl";
+			} else if ( file_exists("Resources/teiHeader$opt.tpl") ) {
+				$tplfile =  "Resources/teiHeader$opt.tpl";
+			};
+		};
+		
+		$header = file_get_contents($tplfile);
+		$tableheader .= xpathrun($header, $this->xml);
+
+		if ( $showbottom ) {
+			# Show alternative header views
+			if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$this->fileid";
+			$headeroptions = $settings['xmlfile']['teiHeader'] or $headeroptions = array (
+				'' => array ( "display" => "less header data" ),
+				'long' => array ( "display" => "more header data" ),
+				'edit' => array ( "display" => "edit header data", "edit" => 1 ),
+				);
+			$sep = "";
+			foreach ( $headeroptions as $key => $item ) {
+				if ( $key ) $tfn = "teiHeader-$key.tpl"; else $tfn = "teiHeader.tpl";
+				if ( !file_exists("Resources/$tfn") ) continue;
+				if ( $_GET['tpl'] == $key ) continue;
+				$cond = $item['condition'];
+				if ( $cond ) {
+					$result = $this->xml->xpath($cond); 
+					if ( !$result ) {
+						continue; # Conditional header
+					};
+				};
+				$tpl = $key;
+				if ( $item['edit'] ) {
+					if ($username) $moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
+					$sep = "&bull;";
+				} else if ( $item['admin'] ) {
+					if ($username) $moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl$edittxt' class=adminpart>{$item['display']}</a>";
+					$sep = "&bull;";
+				} else {
+					$moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl'>{$item['display']}</a>";
+					$sep = "&bull;";
 				};
 			};
-			$tpl = $key;
-			if ( $item['edit'] ) {
-				if ($username) $moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
-				$sep = "&bull;";
-			} else if ( $item['admin'] ) {
-				if ($username) $moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl$edittxt' class=adminpart>{$item['display']}</a>";
-				$sep = "&bull;";
-			} else {
-				$moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl'>{$item['display']}</a>";
-				$sep = "&bull;";
-			};
+			if ( $username ) $moreopts .= " $sep <a href='index.php?action=header&act=rawview&cid=$this->fileid' class=adminpart>view teiHeader</a>";
+			if ( $moreopts ) $tableheader .= "<ul><li>$moreopts</ul>";
+			$tableheader .= "<hr>";
 		};
-		if ( $username ) $moreopts .= " $sep <a href='index.php?action=header&act=rawview&cid=$this->fileid' class=adminpart>view teiHeader</a>";
-		if ( $moreopts ) $tableheader .= "<ul><li>$moreopts</ul>";
-		$tableheader .= "<hr>";
-
+		
 		return $tableheader;
 	}
 	
-	function asXML() {
+	function asXML( $whole = false ) {
 		global $mtxtelement; global $settings; global $username;
 		
 		if ( $settings['xmlfile']['restriction'] && !$this->xml->xpath($settings['xmlfile']['restriction']) && !$username ) { 
 			$tokid = $_GET['jmp'] or $tokid = $_GET['tid'] or $tokid = 'w-1';
 			$xmltxt = $this->context($tokid);
 			$this->pagenav = "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
-		} else if ( $settings['xmlfile']['paged'] ) {
+		} else if ( !$whole && $settings['xmlfile']['paged'] ) {
 			$xmltxt = $this->page();
 		} else {
 			$result = $this->xml->xpath($mtxtelement);
@@ -463,6 +471,14 @@ class TTXML
 		};
 
 		return $views;
+	}
+
+	function makeedit() {
+		# Provide the JS code to use tokedit and tokview with mtxt
+
+		$editblock = "<div id='mtxt'>".$this->asXML()."</div>";
+
+		return $editblock;
 	}
 
 	function save() {

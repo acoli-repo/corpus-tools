@@ -1,11 +1,26 @@
 document.onclick = clickEvent; 
 document.onmouseover = mouseEvent; 
 document.onmouseout = mouseOut; 
-if (!attributelist) {
-	var attributelist = Array("fform", "lemma", "pos", "mfs");
-};
 if (!attributenames) {
 	var attributenames = Array();
+};
+if (!attributelist) {
+	var attributelist = Array();
+	for ( fld in formdef ) {
+		attributelist.push(fld);
+		attributenames[fld] = formdef[fld]['display'];
+	};
+	if ( attributelist.length == 0 ) { Array("fform", "lemma", "pos", "mfs"); };
+};
+
+if ( !document.getElementById('tokinfo') ) {
+	var tokinfo = document.createElement("div"); 
+	tokinfo.setAttribute('id', 'tokinfo');
+	tokinfo.style.display = 'block';
+	tokinfo.style.position = 'absolute';
+	tokinfo.style.backgroundColor = '#ffffee';
+	tokinfo.style['border'] = '1px solid #ffddaa';
+	document.body.appendChild(tokinfo);
 };
 
 function clickEvent(evt) { 
@@ -13,8 +28,8 @@ function clickEvent(evt) {
 	if ( !element ) { element = evt.target; };
 	if ( !element ) { console.log('No element found - try Chrome or Firefox'); console.log(evt); return -1; };
 	// We might be hovering over a child of our TOK
-	if ( element.parentNode.tagName == "TOK" ) { element = element.parentNode; };
-	if ( element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; };
+	if ( element.parentNode && element.parentNode.tagName == "TOK" ) { element = element.parentNode; };
+	if ( element.parentNode && element.parentNode.parentNode && element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; };
 
     if (element.tagName == "TOK" ) {
     	if ( username ) {

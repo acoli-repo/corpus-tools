@@ -1,12 +1,14 @@
 document.onkeydown = function(evt) {
 	evt = evt || window.event;
-	if (evt.keyCode == 37) {
+	if (evt.keyCode == 37) { // left = previous page
 		switchpage(-1);
-	} else if (evt.keyCode == 39) {
+	} else if (evt.keyCode == 39) { // right = next page
 		switchpage(1);
-	} else if (evt.keyCode == 48) {
+	} else if (evt.keyCode == 48) { // 0 = reset facsimile position
 		resetfacs(1);
-	} else if (evt.keyCode == 27) {
+	} else if (evt.keyCode == 70) { // f = fullscreen
+		fullscreen();
+	} else if (evt.keyCode == 27) { // escape = exit fullscreen
 		unfullscreen();
 	}
 };
@@ -14,9 +16,98 @@ document.onkeydown = function(evt) {
 document.addEventListener('mousemove', mouseMove, false);
 document.addEventListener('mouseup', mouseUp, false);
 
+document.getElementById('grip').addEventListener('mousedown', function (e) {
+	grip = e.target;
+	startOffset = e.pageX;
+});
+
+document.addEventListener('webkitfullscreenchange', switchedfull, false);
+document.addEventListener('mozfullscreenchange', switchedfull, false);
+document.addEventListener('fullscreenchange', switchedfull, false);
+document.addEventListener('MSFullscreenChange', switchedfull, false);
+window.addEventListener('resize', resize, false);
+
+// Init
+var facsview = document.getElementById('facsview');
+var textview = document.getElementById('mtxt');
+var viewport = document.getElementById('viewport');
+var doc = document.getElementById('fulltext').innerHTML;
+var toc = document.getElementById('info');
+var opts = document.getElementById('options');
+var facs = new Image();
+var facswidth;
+var left = 50; // % of the leftmost column
+var fullscreenmode = false;
+var grip;
+var startOffset;
+var pagemode = true;
+
+// Populate the orgtoks (since we only display them by page)
+var toks = document.getElementById('fulltext').getElementsByTagName("tok");
+for ( var a = 0; a<toks.length; a++ ) {
+	var tok = toks[a];
+	if ( typeof(tok) != 'object' ) { continue; };
+	// When explicitly not having a form - don't show
+	if ( tok.innerHTML == '--' ) { 
+		tok.innerHTML = '';
+	};
+	tokid = tok.getAttribute('id');
+	if ( tokid && orgtoks[tokid] == undefined ) {
+		orgtoks[tokid] = tok.innerHTML;
+	};
+};
+// Make all lb innerText into rend
+var its = document.getElementById('fulltext').getElementsByTagName("lb");
+for ( var a = 0; a<its.length; a++ ) {
+	var it = its[a];
+	if ( typeof(it) != 'object' ) { continue; };
+	if ( it.innerText != '' && it.innerText != undefined ) { 
+		it.setAttribute('rend', it.innerText);
+	};
+
+	// Create internal element for rendering, numbering, and breaks
+	var lbrend = document.createElement("span"); // LB rendering (hyphen)
+	it.appendChild(lbrend);
+	var lbnum = document.createElement("span"); // LB number (empty)
+	it.appendChild(lbnum);
+	var lbhl = document.createElement("span"); // LB line
+	it.appendChild(lbhl);
+};
+
+var pagelist = document.getElementById('fulltext').getElementsByTagName('pb');
+var pagesel = document.getElementById('pagesel') 
+for ( i=0; i<pagelist.length; i++ ) {
+	var option = document.createElement("option");
+	option.text = pagelist[i].getAttribute('n');
+	option.value = i+1;
+	pagesel.add(option); 
+};
+
+var initleft = viewport.offsetLeft;
+viewport.style.height = window.innerHeight + 'px';
+viewport.style.width = (window.innerWidth-initleft) + 'px';
+facsview.style.height = (viewport.offsetHeight-40) + 'px';
+textview.style.height = (viewport.offsetHeight-40) + 'px';
+
+var curpage = 1; 
+var tid = getQueryVariable('tid');
+if ( tid ) {
+	var tmp = doc.indexOf(tid);
+	if ( tmp != -1 ) showpage(1000000, tmp);
+	else showpage(curpage);
+} else {
+	showpage(curpage);
+};
+
+redraw();
+
 var last_position = {};
 function mouseMove(evt) { 
-	if ( evt.target.id == "facsview" && evt.buttons == 1) {
+	if (grip) {
+        var newgrip = evt.pageX - viewport.offsetLeft;
+        left = Math.floor((newgrip/viewport.offsetWidth) * 100);
+        redraw();
+	} else if ( evt.target.id == "facsview" && evt.buttons == 1) {
 		//check to make sure there is data to compare against
 		if (typeof(last_position.x) != 'undefined') {
 
@@ -36,57 +127,20 @@ function mouseMove(evt) {
 			x : evt.clientX,
 			y : evt.clientY
 		};	
-	};	
+    };
+
 };
 function mouseUp(evt) { 
 	last_position = {};
+	grip = undefined;
 };
 
 function showmenu() {
 	// show the options menu
 };
 
-document.addEventListener('webkitfullscreenchange', togglefull, false);
-document.addEventListener('mozfullscreenchange', togglefull, false);
-document.addEventListener('fullscreenchange', togglefull, false);
-document.addEventListener('MSFullscreenChange', togglefull, false);
-
-// Init
-var facsview = document.getElementById('facsview');
-var textview = document.getElementById('mtxt');
-var viewport = document.getElementById('viewport');
-var doc = document.getElementById('fulltext').innerHTML;
-var facs = new Image();
-var facswidth;
-
-var pagelist = document.getElementById('fulltext').getElementsByTagName('pb');
-var pagesel = document.getElementById('pagesel') 
-for ( i=0; i<pagelist.length; i++ ) {
-	var option = document.createElement("option");
-	option.text = pagelist[i].getAttribute('n');
-	option.value = i+1;
-	pagesel.add(option); 
-};
-
-var initleft = viewport.offsetLeft;
-viewport.style.height = window.innerHeight + 'px';
-viewport.style.width = (window.innerWidth-initleft) + 'px';
-facsview.style.height = (viewport.offsetHeight-30) + 'px';
-textview.style.height = (viewport.offsetHeight-30) + 'px';
-
-var curpage = 1; 
-var tid = getQueryVariable('tid');
-if ( tid ) {
-	var tmp = doc.indexOf(tid);
-	if ( tmp != -1 ) showpage(1000000, tmp);
-	else showpage(curpage);
-} else {
-	showpage(curpage);
-};
-
 function setpage(num) {
 	curpage = num*1; 
-	console.log(num);
 	showpage(curpage);
 };
 
@@ -130,7 +184,8 @@ function showpage(num, before=-1) {
 	// var img = page.getAttribute('facs');
 	var img = textview.innerHTML.match(/facs="([^"]+)"/);
 	if ( img ) {
-		var imgurl = 'Facsimile/' + img[1];
+		var imgurl = img[1];
+		if ( imgurl.indexOf("http") == -1 ) imgurl = 'Facsimile/' + img[1];
     	facs.src = imgurl;
     	facsview.style['background-image'] = 'url('+imgurl+')';
     	facswidth = facsview.offsetWidth;
@@ -145,7 +200,9 @@ function showpage(num, before=-1) {
 		facsview.innerHTML = "";
 	};
 	
-	resetfacs();
+	pageinit();
+		
+	redraw();
 	
 	// Finally, skip this page if it is empty
 	// TODO: unless we select it by hand
@@ -155,29 +212,71 @@ function showpage(num, before=-1) {
 	
 };
 
-function resetfacs() {
-	facswidth = facsview.offsetWidth;
-	facsview.style['background-size'] = facswidth + 'px ' + (facswidth*(facs.naturalHeight/facs.naturalWidth)) + 'px';
-	facsview.style.backgroundPositionX = "0px"; bpx = 0;
-	facsview.style.backgroundPositionY = "0px"; bpy = 0;
+function pageinit() {
+
+	formify();
+	setForm(showform);
+	
+};
+
+function tocshow() {
+	if ( toc.style.display == 'block' ) {
+		toc.style.display = 'none';
+	} else {
+		toc.style.display = 'block';
+	};
+	redraw();
+};
+
+function optshow() {
+	if ( opts.style.display == 'block' ) {
+		opts.style.display = 'none';
+	} else {
+		opts.style.display = 'block';
+	};
+	redraw();
 };
 
 function scalefacs(e) {
 	var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
 	
-	var maxwidth = Math.max(facs.naturalWidth*1.5, facsview.offsetWidth);
-	facswidth = Math.max(50, Math.min(maxwidth, facswidth + (30 * delta)));
+	if ( e.shiftKey || e.buttons ) {
+		var maxwidth = Math.max(facs.naturalWidth*1.5, facsview.offsetWidth);
+		facswidth = Math.max(50, Math.min(maxwidth, facswidth + (30 * delta)));
 
-	facsview.style['background-size'] = facswidth + 'px ' + (facswidth*(facs.naturalHeight/facs.naturalWidth)) + 'px';
-	
+		facsview.style['background-size'] = facswidth + 'px ' + (facswidth*(facs.naturalHeight/facs.naturalWidth)) + 'px';
+	} else if ( e.axis == 1 ) {	
+		var tmp = facsview.style.backgroundSize.match(/(.+)px (.+)px/);
+		var maxx = tmp[1]*1 - facsview.offsetWidth;
+		bpx = Math.max(-maxx, Math.min(0, bpx + (30 * delta)));
+		facsview.style.backgroundPositionX = bpx + "px"; 
+	} else {
+		var tmp = facsview.style.backgroundSize.match(/(.+)px (.+)px/);
+		var maxy = tmp[2]*1 - facsview.offsetHeight + 0;
+		bpy = Math.max(-maxy, Math.min(0, bpy + (30 * delta)));
+		facsview.style.backgroundPositionY = bpy + "px"; 
+	};
+		
 	return false;
 };
 
-function togglefull (man) {
+function switchedfull (e) {
+	// Called after changing fullscreen mode (manually or automatically)
     if ( document.webkitIsFullScreen || document.mozFullScreenEnabled ) {
-		fullscreen(man);
+		fullscreen();
 	} else {
-		unfullscreen(man);
+		unfullscreen();
+	};
+};
+
+function togglefull () {
+	// Called to change fullscreen mode (manually)
+    if ( fullscreenmode ) {
+		unfullscreen();
+		fullscreenmode = false;
+	} else {
+		fullscreen();
+		fullscreenmode = true;
 	};
 };
 
@@ -192,46 +291,90 @@ function fullscreen() {
 	  document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);  
 	};  
 	
+	fullscreenmode = true;
 	document.getElementById('fullscreen').innerHTML = '<i class=\"material-icons\">fullscreen_exit</i>';
 	
+	// Make the viewport use the entire screen
 	viewport.style.height = screen.height + 'px';
 	viewport.style.width = screen.width + 'px';
 	viewport.style.top = '0';
 	viewport.style.left = '0';
-	
-	facsview.style.height = (viewport.offsetHeight-30) + 'px';
-	textview.style.height = (viewport.offsetHeight-30) + 'px';
 
-	resetfacs();
+	redraw();
 }
 
-function unfullscreen(man) {
+function resetfacs() {
+	facswidth = facsview.offsetWidth;
+	facsview.style['background-size'] = facswidth + 'px ' + (facswidth*(facs.naturalHeight/facs.naturalWidth)) + 'px';
+	redraw();
+}
 
-	if ( man == 1 ) {
-		// Set DIV to inline
-		if (document.cancelFullScreen) {  
-		  document.cancelFullScreen();  
-		} else if (document.mozCancelFullScreen) {  
-		  document.mozCancelFullScreen();  
-		} else if (document.webkitCancelFullScreen) {  
-		  document.webkitCancelFullScreen();  
-		};
+function redraw() {
+
+	// Redraw the table 
+	document.getElementById('col1').style.width = left + '%';
+	document.getElementById('col2').style.width = ( 100 - left ) + '%';
+	document.getElementById('viewtable').style.height = viewport.offsetHeight + 'px';
+
+	// Resize the divs inside the table to the table size
+	// The box model makes this more difficult than it should be
+	facsview.style.height = (facsview.parentNode.offsetHeight-20) + 'px';
+	textview.style.height = (textview.parentNode.offsetHeight-60) + 'px';
+	facsview.style.width = ( facsview.parentNode.offsetWidth -10) + 'px';
+	textview.style.width = ( textview.parentNode.offsetWidth -45) + 'px';
+
+	facswidth = facsview.offsetWidth;
+	facsview.style['background-size'] = facswidth + 'px ' + (facswidth*(facs.naturalHeight/facs.naturalWidth)) + 'px';
+	facsview.style.backgroundPositionX = "0px"; bpx = 0;
+	facsview.style.backgroundPositionY = "0px"; bpy = 0;
+
+	var rect = textview.getClientRects();
+	opts.style.top = rect[0]['top'] + 'px';
+	opts.style.left = rect[0]['left'] + 'px';
+	opts.style.width = rect[0]['width'] + 'px';
+	opts.style.height = rect[0]['height'] + 'px';
+	
+	var rect = facsview.getClientRects();
+	toc.style.top = rect[0]['top'] + 'px';
+	toc.style.left = rect[0]['left'] + 'px';
+	toc.style.width = rect[0]['width'] + 'px';
+	toc.style.height = rect[0]['height'] + 'px';
+	
+};
+
+function unfullscreen() {
+
+	// Set DIV to inline
+	if (document.cancelFullScreen) {  
+	  document.cancelFullScreen();  
+	} else if (document.mozCancelFullScreen) {  
+	  document.mozCancelFullScreen();  
+	} else if (document.webkitCancelFullScreen) {  
+	  document.webkitCancelFullScreen();  
 	};
 
+	fullscreenmode = false;
 	document.getElementById('fullscreen').innerHTML = '<i class=\"material-icons\">fullscreen</i>';
-	
+
+	// Put the viewport where it used to be
 	viewport.style.height = window.innerHeight + 'px';
 	viewport.style.width = (window.innerWidth-initleft) + 'px';
 	viewport.style.left = initleft + 'px';
-	
-	facsview.style.height = (viewport.offsetHeight-30) + 'px';
-	textview.style.height = (viewport.offsetHeight-30) + 'px';
-	
-	resetfacs();
+		
+	redraw();
 }
 
-function getQueryVariable(variable)
-{
+function resize() {
+	if ( !fullscreenmode ) {
+		// Put the viewport where it used to be
+		viewport.style.height = window.innerHeight + 'px';
+		viewport.style.width = (window.innerWidth-initleft) + 'px';
+		
+		redraw();
+	};
+}
+
+function getQueryVariable(variable) {
        var query = window.location.search.substring(1);
        var vars = query.split("&");
        for (var i=0;i<vars.length;i++) {
@@ -240,3 +383,4 @@ function getQueryVariable(variable)
        }
        return(false);
 }
+

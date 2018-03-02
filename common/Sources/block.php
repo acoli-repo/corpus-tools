@@ -14,6 +14,8 @@
 	$stype = $_GET['elm'] or $stype = "s";
 	if ( $stype == "1" ) $stype = "s";
 
+	// TODO: should this be textedit.js?
+
 	// When so indicated, load the external PSDX file so we can link to existing trees
 	if ( $settings['psdx'] && file_exists( "Annotations/$xmlid.psdx") ) {
 		$psdx = simplexml_load_file("Annotations/$xmlid.psdx", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);

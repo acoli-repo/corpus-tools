@@ -16,6 +16,10 @@ var transt = [];
 var footnotes = [];
 var basedirection = "";
 
+if ( typeof(orgtoks) == "undefined" ) {
+	var orgtoks = new Object();
+};
+
 function wsearch ( wrd ) {
 	unhighlight();
 	var toks = document.getElementsByTagName("tok");
@@ -200,7 +204,8 @@ function formify () {
 		pb.appendChild(pbnum);
 
 		// Make img for all pb facs
-		if ( pb.getAttribute('facs') 
+		if (  typeof(nofacs) == "undefined"
+				&& pb.getAttribute('facs') 
 				&& ( pb.getAttribute("admin") != "1" || username )
 				&& pb.getAttribute("img") != "yes" 
 			) { // Set a marker to say we already made an img
@@ -404,9 +409,11 @@ function setview () {
 	var pnr = 0;
 	for ( var a = 0; a<pbs.length; a++ ) {
 		var pb = pbs[a];
+		
 		var pbhl = pb.childNodes[0]; 
 		if ( typeof(pb) != 'object' ) { continue; };
-		if ( interpret ) {	
+		if ( typeof(pbhl) == 'undefined' ) { continue; };
+		if ( interpret  && typeof(pagemode) == "undefined" ) {	
 			pbhl.innerHTML = '<hr style="background-color: #cccccc; clear: both;">';
 		} else {
 			pbhl.innerHTML = '';
@@ -445,7 +452,7 @@ function setview () {
 		if ( typeof(it) != 'object' ) { continue; }; // For just in case
 
 		// Handle the rendering element (innerHTML of the <lb/> or the @rend)
-		var lbrend = it.childNodes[0]; 
+		var lbrend = it.childNodes[0]; if ( typeof(lbrend) == "undefined" ) { var lbrend = document.createElement("span"); it.appendChild(lbrend); };
 		if ( showform == 'pform' && it.getAttribute('rend') != "none" && it.getAttribute('rend') != null ) {
 			lbrend.innerHTML = it.getAttribute('rend');
 		} else {
@@ -462,7 +469,7 @@ function setview () {
 		};
 		
 		// Handle the linebreak child
-		var lbhl = it.childNodes[1]; 
+		var lbhl = it.childNodes[1]; if ( typeof(lbhl) == "undefined" ) { var lbhl = document.createElement("span");  it.appendChild(lbhl); };
 		if ( interpret ) {
 			lbhl.innerHTML = '<br>';
 		} else if ( ( showee || showtag['lb'] ) && lid != '' ) {
@@ -474,7 +481,7 @@ function setview () {
 		};
 		
 		 // Handle the number child
-		var lbnum = it.childNodes[2];
+		var lbnum = it.childNodes[2];if ( typeof(lbnum) == "undefined" ) { var lbnum = document.createElement("span");  it.appendChild(lbnum); };
 		if ( showee || showtag['lb'] ) {
 			if ( interpret ) {
 				if ( lid == '' ) { 
