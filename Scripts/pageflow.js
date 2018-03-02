@@ -43,6 +43,9 @@ var startOffset;
 var pagemode = true;
 
 // Populate the orgtoks (since we only display them by page)
+if ( typeof(orgtoks) == "undefined" ) {
+	var orgtoks = new Object();
+};
 var toks = document.getElementById('fulltext').getElementsByTagName("tok");
 for ( var a = 0; a<toks.length; a++ ) {
 	var tok = toks[a];
