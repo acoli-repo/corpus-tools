@@ -4,7 +4,6 @@ var labels = [ ];
 var baseurl = location.href.replace(/(\/..)*\/index\.php.*/, '/');
 
 // Default values for settings variables
-var interpret = false;
 var showee = false;
 var showcol = false;
 var showimg = false;
@@ -21,6 +20,9 @@ if ( typeof(orgtoks) == "undefined" ) {
 if ( typeof(username) == "undefined" ) {
 	var username = '';
 }
+if ( typeof(interpret) == "undefined" ) {
+	var interpret = false;
+};
 
 function wsearch ( wrd ) {
 	unhighlight();

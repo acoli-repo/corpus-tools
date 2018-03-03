@@ -402,3 +402,14 @@ function getQueryVariable(variable) {
        return(false);
 }
 
+function dolines(type) {
+	showtag['lb'] = false;
+	if ( type == 'bar' ) {
+		showtag['lb'] = true;
+	};
+	interpret = false;
+	if ( type == 'format' ) {
+		interpret = true;
+	};
+	setview();
+}
