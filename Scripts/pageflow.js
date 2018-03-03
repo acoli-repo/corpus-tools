@@ -6,6 +6,8 @@ document.onkeydown = function(evt) {
 		switchpage(1);
 	} else if (evt.keyCode == 48) { // 0 = reset facsimile position
 		resetfacs(1);
+	} else if (evt.keyCode == 49) { // 1 = fit facsimile in window
+		fitfacs();
 	} else if (evt.keyCode == 70) { // f = fullscreen
 		fullscreen();
 	} else if (evt.keyCode == 27) { // escape = exit fullscreen
@@ -198,7 +200,7 @@ function showpage(num, before=-1) {
 		facsview.addEventListener("mousewheel", scalefacs, false);
 		facsview.addEventListener("DOMMouseScroll", scalefacs, false);
 	} else {
-		facsview.src = "";
+    	facsview.style['background-image'] = 'none';
 	};
 	if ( page.getAttribute('copy') ) {
 		facsview.innerHTML = "&copy; " + page.getAttribute('copy');
@@ -233,10 +235,11 @@ function tocshow() {
 };
 
 function optshow() {
-	if ( opts.style.display == 'block' ) {
-		opts.style.display = 'none';
+	var optrow = opts.parentNode.parentNode;
+	if ( optrow.style.display == 'none' ) {
+		optrow.style.display = 'table-row';
 	} else {
-		opts.style.display = 'block';
+		optrow.style.display = 'none';
 	};
 	redraw();
 };
@@ -313,6 +316,16 @@ function resetfacs() {
 	redraw();
 }
 
+function fitfacs() {
+
+	var natwidth = viewport.offsetHeight*(facs.naturalWidth/facs.naturalHeight);
+	left = Math.floor((natwidth/viewport.offsetWidth) * 100);
+
+	facswidth = facsview.offsetWidth;
+	facsview.style['background-size'] = facswidth + 'px ' + (facswidth*(facs.naturalHeight/facs.naturalWidth)) + 'px';
+	redraw();
+}
+
 function redraw() {
 
 	// Redraw the table 
@@ -322,7 +335,7 @@ function redraw() {
 
 	// Resize the divs inside the table to the table size
 	// The box model makes this more difficult than it should be
-	facsview.style.height = (facsview.parentNode.offsetHeight-60) + 'px';
+	facsview.style.height = (facsview.parentNode.offsetHeight-20) + 'px';
 	textview.style.height = (textview.parentNode.offsetHeight-60) + 'px';
 	facsview.style.width = ( facsview.parentNode.offsetWidth -10) + 'px';
 	textview.style.width = ( textview.parentNode.offsetWidth -45) + 'px';
@@ -333,11 +346,11 @@ function redraw() {
 	facsview.style.backgroundPositionY = "0px"; bpy = 0;
 	facsview.style['line-height'] = (facsview.style.height.replace("px","")*1 * 2)-30 + 'px'; 
 	
-	var rect = textview.getClientRects();
-	opts.style.top = rect[0]['top'] + 'px';
-	opts.style.left = rect[0]['left'] + 'px';
-	opts.style.width = rect[0]['width'] + 'px';
-	opts.style.height = rect[0]['height'] + 'px';
+// 	var rect = textview.getClientRects();
+// 	opts.style.top = rect[0]['top'] + 'px';
+// 	opts.style.left = rect[0]['left'] + 'px';
+// 	opts.style.width = rect[0]['width'] + 'px';
+// 	opts.style.height = rect[0]['height'] + 'px';
 	
 	var rect = facsview.getClientRects();
 	toc.style.top = rect[0]['top'] + 'px';

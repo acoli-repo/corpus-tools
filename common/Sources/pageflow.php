@@ -5,9 +5,8 @@
 	$fileid = $ttxml->fileid;
 	
 	$title = $ttxml->title();
-	$editxml = $ttxml->asXML();
+	$editxml = $ttxml->xml->asXML();
 
-	# Build the buttons
 	#Build the view options	
 	foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
 		$formcol = $item['color'];
@@ -17,7 +16,7 @@
 			if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
 			$ikey = $item['inherit'];
 			if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract'] 
-				$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+				$viewopts .= " <option id='but-$key' value='$key'>{%".$item['display']."}</option>";
 				$fbc++;
 			};
 			if ( $key != "pform" ) { 
@@ -33,7 +32,7 @@
 	
 	
 	# Only show text options if there is more than one form to show
-	if ( $fbc > 1 ) $viewoptions .= "<p>{%Text}: $formbuts"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
+	if ( $fbc > 1 ) $viewoptions .= "<p>{%Text view}: <select onChange='setForm(this.value)'>$viewopts</select>"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
 
 	$sep = "<p>";
 	if ( $fbc > 1 ) {
@@ -57,13 +56,13 @@
 	
 	if ( !$username ) $noadmin = "(?![^>]*admin=\"1\")";
 	
-	if ( $viewoptions != "" ) $viewoptions = "<p>{%Text display}: $viewoptions</p>";
-	if ( $showoptions != "" ) $showoptions = "<p>{%Display options}: $showoptions</p>";
+	if ( $showoptions != "" ) $showoptions = " - {%Display options}: $showoptions";
 
 	$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
 	$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
 	$header = $ttxml->tableheader("pageflow,long", false);
-	$views = $ttxml->viewswitch();
+	$viewsels = $ttxml->viewswitch("select");
+	
 	$maintext .= "
 		<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">
 		<script>
@@ -75,7 +74,7 @@
 		<style>
 			#pageflow .material-icons:hover { background-color: #990000; }
 			#pageflow #info { background-color: white; color: white; }
-			#pageflow #options { background-color: black; color: white; }
+			#pageflow #options { color: white; }
 			#pageflow #options a { color: #ffdddd; }
 			#pageflow { box-sizing: border-box; }
 			#facsview { color: #dddddd; text-align: right;  }
@@ -86,15 +85,6 @@
 			<div style='padding: 20px;'>
 			<h2>$ttxml->title</h2>
 			$header
-			</div>
-		</div>
-		<div id='options' style='display: none; position: fixed; z-index: 200; opacity: 0.9; overflow: scroll;'>
-			<span title='{%close}' style='float: right; color: white;' onClick='opts.style.display=\"none\";'><i class=\"material-icons\">close</i></span>
-			<div style='padding: 20px;'>
-			<h1 style='color: white;'>{%Viewing options}</h1>
-			$viewoptions
-			$showoptions
-			<p style='color: white;'>{%Switch to view}:<br>$views</p>
 			</div>
 		</div>
 		<div id='viewport' style='z-index: 160; border: 1px solid #666666; background-color: black; position: fixed; top: 0; width: 100%;'>
@@ -117,6 +107,15 @@
 						<span  title='{%options}' onClick='optshow();'><i class=\"material-icons\">menu</i></span>
 					</span>
 				</div>
+			</tr>
+			<tr style='height: 30px; overflow: hidden;'>
+			<td colspan=3>
+				<div id='options' style='z-index: 200; overflow: scroll;'>
+					$viewoptions
+					$showoptions
+					- {%Switch to view}: <select onChange=\"window.open(this.value, '_self');\">$viewsels</select>
+				</div>
+			</td>
 			</tr>
 			<tr>
 			<td><div id='facsview' style='background-color: black; height: 470px; overflow: hidden;'></div>
