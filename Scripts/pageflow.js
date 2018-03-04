@@ -465,14 +465,11 @@ function textscroll(e) {
 	var facsheight = facswidth*(facs.naturalHeight/facs.naturalWidth);
 	
 	while ( !seltok && i<lbs.length ) {
-		console.log( lbs[i].getAttribute('id') + " = " + lbs[i].offsetTop );
-		console.log (mtxt.scrollTop );
 		var tmp = lbs[i].getAttribute('bbox').split(" ");
 		if ( lbs[i].offsetTop > mtxt.scrollTop ) {
 			seltok = lbs[i];
 			bpy = Math.max(-facsheight, Math.min(0, 40 - tmp[1] ));
 			facsview.style.backgroundPositionY = bpy + "px"; 
-			console.log(seltok);
 		};
 		i++;
 	};
