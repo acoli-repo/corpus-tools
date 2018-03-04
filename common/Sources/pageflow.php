@@ -68,15 +68,6 @@
 			var nofacs = true;
 			var tid = '$ttxml->fileid'; 
 		</script>
-		<style>
-			#pageflow .material-icons:hover { background-color: #990000; }
-			#pageflow .material-icons:selected { background-color: #000000; }
-			#pageflow #info { background-color: white; color: white; }
-			#pageflow #options { color: white; }
-			#pageflow #options a { color: #ffdddd; }
-			#pageflow { box-sizing: border-box; }
-			#facsview { color: #dddddd; text-align: right;  }
-		</style>
 		<div id='pageflow' style='z-index: 150;'>
 		<div id='info' style='display: none; position: fixed; z-index: 200; opacity: 0.9; overflow: scroll;'>
 			<span title='{%close}' style='float: right;' onClick='toc.style.display=\"none\";'><i class=\"material-icons\">close</i></span>

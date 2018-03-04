@@ -29,3 +29,12 @@
 #rollovertable tr.even  {
 	background-color: #eaeaee;
 }
+
+/* Styles for the Pageflow mode */
+#pageflow .material-icons:hover { background-color: #990000; }
+#pageflow .material-icons:selected { background-color: #000000; }
+#pageflow #info { background-color: white; color: white; }
+#pageflow #options { color: white; }
+#pageflow #options a { color: #ffdddd; }
+#pageflow { box-sizing: border-box; }
+#facsview { color: #dddddd; text-align: right;  }
