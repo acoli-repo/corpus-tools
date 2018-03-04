@@ -87,7 +87,7 @@
 			<td colspan=3>
 				<div id='title' style=''>
 					$title
-					<span id='toolbar' style='float: right; color: white; vertical-align: top;'>
+					<span id='toolbar' style='float: right; vertical-align: top;'>
 						<span title='{%zoom out}' onClick='zoom(-1);'><i class=\"material-icons\">zoom_out</i></span>
 						<span title='{%zoom in}' onClick='zoom(1);' style='margin-right: 5px'><i class=\"material-icons\">zoom_in</i></span>
 						<span title='{%previous page}' onClick='switchpage(-1);'><i class=\"material-icons\">navigate_before</i></span>
