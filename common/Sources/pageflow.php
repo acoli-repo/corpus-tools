@@ -32,26 +32,24 @@
 	
 	
 	# Only show text options if there is more than one form to show
-	if ( $fbc > 1 ) $viewoptions .= "<p>{%Text view}: <select onChange='setForm(this.value)'>$viewopts</select>"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
-
-	$sep = "<p>";
 	if ( $fbc > 1 ) {
-		$showoptions .= "<button id='btn-col' style='background-color: #ffffff;' title='{%color-code form origin}' onClick=\"togglecol();\">{%Colors}</button> ";
-		$sep = " - ";
+		$viewoptions .= "<p>{%Text view}: <select onChange='setForm(this.value)'>$viewopts</select>"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
+		$viewoptions .= " &nbsp; <button id='btn-col' style='background-color: #ffffff;' title='{%color-code form origin}' onClick=\"togglecol();\">{%Colors}</button> ";
 	};
 	
 	# Some of these checks work after the first token, so first find the first token
 	$tokpos = strpos($editxml, "<tok"); 
 	
 	if ( !$nobreakoptions && strpos($editxml, "<lb", $tokpos) ) {
-		$showoptions = "
+		$showoptions .= "
 			- {%Lines}:
 				<select onChange='dolines(this.value);'>
-				<option value='format'>{%Show as new line}</option>
-				<option value='bar'>{%Show as vertical bar}</option>
-				<option value='hide'>{%Do not show}</option>
+				<option value='format'>{%New line}</option>
+				<option value='bar'>{%Vertical bar}</option>
+				<option value='hide'>{%Don't show}</option>
 				</select>";
 	};
+
 	
 	if ( !$username ) $noadmin = "(?![^>]*admin=\"1\")";
 	
@@ -72,6 +70,7 @@
 		</script>
 		<style>
 			#pageflow .material-icons:hover { background-color: #990000; }
+			#pageflow .material-icons:selected { background-color: #000000; }
 			#pageflow #info { background-color: white; color: white; }
 			#pageflow #options { color: white; }
 			#pageflow #options a { color: #ffdddd; }
@@ -98,6 +97,8 @@
 				<div id='title' style='color: white; font-weight: bold; font-size: 24px;'>
 					$title
 					<span id='toolbar' style='float: right; color: white; vertical-align: top;'>
+						<span title='{%zoom out}' onClick='zoom(-1);'><i class=\"material-icons\">zoom_out</i></span>
+						<span title='{%zoom in}' onClick='zoom(1);' style='margin-right: 5px'><i class=\"material-icons\">zoom_in</i></span>
 						<span title='{%previous page}' onClick='switchpage(-1);'><i class=\"material-icons\">navigate_before</i></span>
 						<select id='pagesel' onChange='setpage(this.value);' style='margin-top: 3px; margin-right: 0px; vertical-align: top;'></select> &nbsp;
 						<span title='{%next page}' onClick='switchpage(1);' style='margin-left: -13px;'><i class=\"material-icons\">navigate_next</i></span>
@@ -113,6 +114,9 @@
 					$viewoptions
 					$showoptions
 					- {%Switch to view}: <select onChange=\"window.open(this.value, '_self');\">$viewsels</select>
+					-   <span title='{%smaller font}' style='margin-left: 4px;' onClick='fontzoom(-1);'>A-</span>
+						<span title='{%larger font}' style='margin-left: 4px;' onClick='fontzoom(1);' style='margin-right: 5px'>A+</span>
+
 				</div>
 			</td>
 			</tr>

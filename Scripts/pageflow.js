@@ -43,6 +43,7 @@ var fullscreenmode = false;
 var grip;
 var startOffset;
 var pagemode = true;
+var fontsize;
 
 // Populate the orgtoks (since we only display them by page)
 if ( typeof(orgtoks) == "undefined" ) {
@@ -208,6 +209,7 @@ function showpage(num, before=-1) {
 			
 	pageinit();
 		
+	facswidth = facsview.offsetWidth;
 	redraw();
 	
 	// Finally, skip this page if it is empty
@@ -222,7 +224,7 @@ function pageinit() {
 
 	formify();
 	setForm(showform);
-	
+	fontzoom(0);	
 };
 
 function tocshow() {
@@ -241,6 +243,26 @@ function optshow() {
 	} else {
 		optrow.style.display = 'none';
 	};
+	redraw();
+};
+
+function fontzoom (factor) {
+	var toks = mtxt.getElementsByTagName("tok");
+	if ( !fontsize ) fontsize = window.getComputedStyle(toks[0], null).getPropertyValue('font-size').replace('px', '') * 1;
+	fontsize = Math.floor(fontsize) + factor;
+	for ( var a = 0; a<toks.length; a++ ) {
+		var tok = toks[a];
+		if ( typeof(tok) != 'object' ) { continue; };
+
+		tok.style.fontSize = fontsize + 'px';
+	};
+	redraw();
+};
+
+function zoom(factor) {
+	facswidth = facswidth + (30 * factor);
+
+	facsview.style['background-size'] = facswidth + 'px ' + (facswidth*(facs.naturalHeight/facs.naturalWidth)) + 'px';
 	redraw();
 };
 
@@ -269,10 +291,11 @@ function scalefacs(e) {
 
 function switchedfull (e) {
 	// Called after changing fullscreen mode (manually or automatically)
-    if ( document.webkitIsFullScreen || document.mozFullScreenEnabled ) {
-		fullscreen();
-	} else {
+	if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
 		unfullscreen();
+		resetfacs(1);
+	} else {
+		fullscreen();
 	};
 };
 
@@ -307,6 +330,7 @@ function fullscreen() {
 	viewport.style.top = '0';
 	viewport.style.left = '0';
 
+	facswidth = facsview.offsetWidth;
 	redraw();
 }
 
@@ -340,17 +364,10 @@ function redraw() {
 	facsview.style.width = ( facsview.parentNode.offsetWidth -10) + 'px';
 	textview.style.width = ( textview.parentNode.offsetWidth -45) + 'px';
 
-	facswidth = facsview.offsetWidth;
 	facsview.style['background-size'] = facswidth + 'px ' + (facswidth*(facs.naturalHeight/facs.naturalWidth)) + 'px';
 	facsview.style.backgroundPositionX = "0px"; bpx = 0;
 	facsview.style.backgroundPositionY = "0px"; bpy = 0;
 	facsview.style['line-height'] = (facsview.style.height.replace("px","")*1 * 2)-30 + 'px'; 
-	
-// 	var rect = textview.getClientRects();
-// 	opts.style.top = rect[0]['top'] + 'px';
-// 	opts.style.left = rect[0]['left'] + 'px';
-// 	opts.style.width = rect[0]['width'] + 'px';
-// 	opts.style.height = rect[0]['height'] + 'px';
 	
 	var rect = facsview.getClientRects();
 	toc.style.top = rect[0]['top'] + 'px';
@@ -379,6 +396,7 @@ function unfullscreen() {
 	viewport.style.width = (window.innerWidth-initleft) + 'px';
 	viewport.style.left = initleft + 'px';
 		
+	facswidth = facsview.offsetWidth;
 	redraw();
 }
 
@@ -386,10 +404,9 @@ function resize() {
 	if ( !fullscreenmode ) {
 		// Put the viewport where it used to be
 		viewport.style.height = window.innerHeight + 'px';
-		viewport.style.width = (window.innerWidth-initleft) + 'px';
-		
-		redraw();
+		viewport.style.width = (window.innerWidth-initleft) + 'px';		
 	};
+	redraw();
 }
 
 function getQueryVariable(variable) {
