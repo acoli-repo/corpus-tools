@@ -76,7 +76,7 @@
 			$header
 			</div>
 		</div>
-		<div id='viewport' style='z-index: 160; border: 1px solid #666666; background-color: black; position: fixed; top: 0; width: 100%;'>
+		<div id='viewport' style='z-index: 160; position: fixed; top: 0; width: 100%;'>
 		<table width='100%' height='500px' style='table-layout: fixed;' id=viewtable>
 		   <colgroup>
 			<col id='col1' style='width: 50%'>

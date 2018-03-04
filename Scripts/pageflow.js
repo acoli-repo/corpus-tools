@@ -44,6 +44,7 @@ var grip;
 var startOffset;
 var pagemode = true;
 var fontsize;
+var progscroll;
 
 textview.addEventListener('scroll', textscroll, false);
 textview.addEventListener('onscroll', textscroll, false);
@@ -464,6 +465,11 @@ function textscroll(e) {
 	var lbs = mtxt.getElementsByTagName("lb"); var i=0; var seltok;
 	var facsheight = facswidth*(facs.naturalHeight/facs.naturalWidth);
 	
+	if ( progfacs ) {
+		progfacs = false;
+		return;
+	}; progfacs = false;
+	
 	while ( !seltok && i<lbs.length ) {
 		var tmp = lbs[i].getAttribute('bbox').split(" ");
 		if ( lbs[i].offsetTop > mtxt.scrollTop ) {
@@ -477,6 +483,8 @@ function textscroll(e) {
 
 function scrollToElementD(elm){
 	var topPos = elm.offsetTop;
-	mtxt.scrollTop = topPos - mtxt.offsetTop - (mtxt.offsetHeight/2) + (elm.offsetHeight/2);
+	var newst = topPos - mtxt.offsetTop - (mtxt.offsetHeight/2) + (elm.offsetHeight/2);
+	progfacs = true;
+	mtxt.scrollTop = newst;
 }
 

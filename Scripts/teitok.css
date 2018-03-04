@@ -31,6 +31,7 @@
 }
 
 /* Styles for the Pageflow mode */
+#viewpart { border: 1px solid #666666; background-color: black; }
 #pageflow .material-icons:hover { background-color: #990000; }
 #pageflow .material-icons:selected { background-color: #000000; }
 #pageflow #info { background-color: white; color: white; }
