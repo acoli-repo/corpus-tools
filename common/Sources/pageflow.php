@@ -85,7 +85,7 @@
 		  </colgroup>	
 			<tr style='height: 30px; overflow: hidden;'>
 			<td colspan=3>
-				<div id='title' style='color: white; font-weight: bold; font-size: 24px;'>
+				<div id='title' style=''>
 					$title
 					<span id='toolbar' style='float: right; color: white; vertical-align: top;'>
 						<span title='{%zoom out}' onClick='zoom(-1);'><i class=\"material-icons\">zoom_out</i></span>
