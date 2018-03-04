@@ -120,7 +120,6 @@
 		</div>
 		</div>
 		<div id='fulltext' style='display: none;'>".$ttxml->asXML(true)."</div>
-		<hr>
 		<script>
 			var orgXML = document.getElementById('fulltext').innerHTML;
 		</script>
@@ -128,8 +127,5 @@
 		<script language=Javascript src='$jsurl/tokview.js'></script>
 		<script language=Javascript src='$jsurl/pageflow.js'></script>
 		";
-	
-	
-	$maintext .= $ttxml->viewswitch();
 
 ?>
