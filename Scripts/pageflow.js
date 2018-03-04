@@ -45,6 +45,9 @@ var startOffset;
 var pagemode = true;
 var fontsize;
 
+textview.addEventListener('scroll', textscroll, false);
+textview.addEventListener('onscroll', textscroll, false);
+
 // Populate the orgtoks (since we only display them by page)
 if ( typeof(orgtoks) == "undefined" ) {
 	var orgtoks = new Object();
@@ -284,6 +287,32 @@ function scalefacs(e) {
 		var maxy = tmp[2]*1 - facsview.offsetHeight + 0;
 		bpy = Math.max(-maxy, Math.min(0, bpy + (30 * delta)));
 		facsview.style.backgroundPositionY = bpy + "px"; 
+		
+		// grab the first tok inside the view 
+		if ( mtxt.innerHTML.indexOf('bbox') != -1 ) 
+		if ( delta < 0 ) {
+			// scroll down
+			var lbs = mtxt.getElementsByTagName("lb"); var i=0; var seltok;
+			while ( !seltok && i<lbs.length ) {
+				var tmp = lbs[i].getAttribute('bbox').split(" ");
+				if ( tmp[1] > 0-bpy ) {
+					seltok = lbs[i];
+					scrollToElementD(seltok);
+				};
+				i++;
+			};
+		} else {
+			// scroll up
+			var lbs = mtxt.getElementsByTagName("lb"); var i=0; var seltok;
+			while ( !seltok && i<lbs.length ) {
+				var tmp = lbs[i].getAttribute('bbox').split(" ");
+				if ( tmp[1] > 0-bpy ) {
+					seltok = lbs[i];
+					scrollToElementD(seltok);
+				};
+				i++;
+			};
+		};
 	};
 		
 	return false;
@@ -430,3 +459,27 @@ function dolines(type) {
 	};
 	setview();
 }
+
+function textscroll(e) {
+	var lbs = mtxt.getElementsByTagName("lb"); var i=0; var seltok;
+	var facsheight = facswidth*(facs.naturalHeight/facs.naturalWidth);
+	
+	while ( !seltok && i<lbs.length ) {
+		console.log( lbs[i].getAttribute('id') + " = " + lbs[i].offsetTop );
+		console.log (mtxt.scrollTop );
+		var tmp = lbs[i].getAttribute('bbox').split(" ");
+		if ( lbs[i].offsetTop > mtxt.scrollTop ) {
+			seltok = lbs[i];
+			bpy = Math.max(-facsheight, Math.min(0, 40 - tmp[1] ));
+			facsview.style.backgroundPositionY = bpy + "px"; 
+			console.log(seltok);
+		};
+		i++;
+	};
+}
+
+function scrollToElementD(elm){
+	var topPos = elm.offsetTop;
+	mtxt.scrollTop = topPos - mtxt.offsetTop - (mtxt.offsetHeight/2) + (elm.offsetHeight/2);
+}
+
