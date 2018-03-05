@@ -143,7 +143,7 @@ class TTXML
 
 		// Create a header with information about the first from the teiHeader
 		$opts = explode(",", $tpl); array_push($opts, "");
-		while ( $tpfile == "" && count($opts) ) {
+		while ( $tplfile == "" && count($opts) ) {
 			$opt = array_shift($opts);
 			if ( file_exists("Resources/teiHeader-$opt.tpl") ) {
 				$tplfile = "Resources/teiHeader-$opt.tpl";
