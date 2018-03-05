@@ -71,18 +71,19 @@ class TTXML
 		if ( !$this->xml && $fatal ) { fatal ( "Failing to read/parse $fileid" ); };
 		
 		// See if there is an Audio element in the header
-		foreach ( $this->xml->xpath("//recording/media") as $medianode ) {
-			$mimetype = $medianode['mimeType'] or $mimetype = mime_content_type($medianode['url']);
+		foreach ( $this->xml->xpath("//recording//media") as $medianode ) {
+			$mimetype = $medianode['mimeType'] or $mimetype = $medianode['mimetype'] or $mimetype = mime_content_type($medianode['url']);
 			if ( strstr($mimetype, "audio") ) array_push($this->audio, $medianode);
 			else if ( strstr($mimetype, "video") ) array_push($this->video, $medianode);
-		};
+		}; 
 		$audiourl = $this->audio[0]['url']; 
-		if ( !strstr($audiourl, 'http') ) {
-			if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
-			else $audiourl = $baseurl."Audio/$audiourl"; 
-		};
-		$this->audiourl = $audiourl;
-		
+		if ( $audiourl != "" ) {
+			if ( !strstr($audiourl, 'http') ) {
+				if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
+				else if ( !strstr($audiourl, 'Audio') ) $audiourl = $baseurl."Audio/$audiourl"; 
+			};
+			$this->audiourl = $audiourl;
+		};		
 	}
 	
 	function title() {
