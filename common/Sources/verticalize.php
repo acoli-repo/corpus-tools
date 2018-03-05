@@ -4,9 +4,13 @@
 
 	check_login();
 	set_time_limit(60);
+
+	require("$ttroot/common/Sources/ttxml.php");
+	$ttxml = new TTXML();
+	$fileid = $ttxml->fileid;
+	$xmlid = $ttxml->xmlid;
+	$xml = $ttxml->xml;
 	
-	$fileid = $_POST['id'] or $fileid = $_GET['id'] or $fileid = $_GET['cid'];	
-	$xml = getxmlfile($fileid);
 	if ( !$xml ) { fatal ("Failing to read/parse $fileid"); };
 
 	$result = $xml->xpath("//title"); 
