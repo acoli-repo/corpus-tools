@@ -438,6 +438,7 @@ wavesurfer.on('region-in', aligntranscription);
 wavesurfer.on('loading', showload);
 wavesurfer.on('audioprocess', showtime);
 wavesurfer.on('region-update-end', changeregion);
+wavesurfer.on('error', errordo);
 
 var lastutt;
 function aligntranscription (region, e) {
@@ -676,6 +677,13 @@ function savetrans() {
 	modified = false;
 	document.getElementById('newval').value = newtrans;
 	document.getElementById('newtab').submit();	
+};
+
+function errordo(msg) {
+	if ( msg == "Error decoding audiobuffer" ) {
+		document.getElementById('loading').innerHTML = '<h2>Error</h2><p>The sound file could not be loaded'; 
+		if ( username ) document.getElementById('loading').innerHTML += '<p class="adminpart">Please verify the provided URL is correct: <a href="'+soundfile+'">'+soundfile+'</a>. <br/>If it not correct, please correct it in the <a href="index.php?action=rawedit&full=1&cid='+tid+'">raw xml</a> or in the header edit function</p>';
+	};
 };
 
 var slotlist = new Array();
