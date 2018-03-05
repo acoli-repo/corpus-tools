@@ -466,7 +466,7 @@ class TTXML
 		foreach ( $viewopts as $key => $val ) {
 			list ( $doaction, $dolvl ) = split ( ":", $key );
 			if ( $_GET['action'] != $doaction || ($dolvl && $dolvl != $_GET['elm']) ) {
-				if ( $initial == "select" ) {
+				if ( $initial."" == "select" ) {
 					$views .= $sep."<option value='index.php?action=$doaction&cid=$this->fileid&pageid={$_GET['pageid']}&jmp={$_GET['jmp']}&elm=$dolvl'>{%$val}</option>";
 					$sep = " &bull; ";
 				} else {
