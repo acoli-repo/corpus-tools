@@ -790,7 +790,7 @@ function highlight ( id, color, dtokcolor ) {
 	if ( !color )  { color = '#ffffaa'; };
 	if ( !dtokcolor )  { dtokcolor = color; };
 	if ( document.getElementById(id) ) {
-		var element = document.getElementById(id);
+		var element = document.getElementById(id); 
 		
 		// Move up to TOK when we are trying to highlight a DTOK
 		if ( element.parentNode.tagName == "TOK" || element.parentNode.tagName == "MTOK" ) { element = element.parentNode; color = dtokcolor; };

@@ -48,22 +48,21 @@
 			$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
 			$jsontrans = array2json($settings['transliteration']);
 
+	$hlcol = $_POST['hlcol'] or $hlcol = $_GET['hlcol'] or $hlcol = $settings['defaults']['highlight']['color'] or $hlcol = "#ffffaa"; 
+	$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'];	
+
 	$maintext .= "
 		<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 		<div id=mtxt>
-			<script language=Javascript src='$jsurl/tokedit.js'></script>
-			<script language=Javascript src='$jsurl/tokview.js'></script>
 			<script language=Javascript>
 				var username = '$username';
 				var formdef = $jsonforms;
 				var orgtoks = new Object();
 				var tid = '$cid'; 
-				var attributelist = Array($attlisttxt);
-				$attnamelist
-				formify(); 
-				var orgXML = document.getElementById('mtxt').innerHTML;
-				setForm('$showform');
+				var jmps = '$highlights'; var jmpid;
 			</script>
+			<script language=Javascript src='$jsurl/tokedit.js'></script>
+			<script language=Javascript src='$jsurl/tokview.js'></script>
 		";
 	$maintext .= "<style>.floatbox { float: left; margin-right: 10px; }</style>";
 	
@@ -102,7 +101,27 @@
 		};
 		$maintext .= "</div><hr>";
 	};
-	$maintext .= "</table></div><hr>";
+	$maintext .= "</table></div><hr>
+				<script language=Javascript>			
+				if ( jmps ) { 
+					var jmpar = jmps.split(' ');
+					for (var i = 0; i < jmpar.length; i++) {
+						var jmpid = jmpar[i];
+						highlight(jmpid, '$hlcol');
+					};
+					element = document.getElementById(jmpar[0])
+					alignWithTop = true;
+					if ( element != null && typeof(element) != null ) { 
+						element.scrollIntoView(alignWithTop); 
+					};
+				};
+				var attributelist = Array($attlisttxt);
+				$attnamelist
+				formify(); 
+				var orgXML = document.getElementById('mtxt').innerHTML;
+				setForm('$showform');
+			</script>
+			";
 	$maintext .= $ttxml->viewswitch();
 	# $maintext .= "<a href='index.php?action=file&cid=$cid&jmp=$sentid'>{%to text mode}</a> $options</p><br>";
 
