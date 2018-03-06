@@ -13,10 +13,10 @@
 		# Only show forms that are not admin-only
 		if ( $username || !$item['admin'] ) {
 			if ( !$bestform ) $bestform = $key; 
-			if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+			if ( $item['admin'] ) { $bgcol = " background-color: #ffdddd; "; } else { $bgcol = ""; };
 			$ikey = $item['inherit'];
 			if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract'] 
-				$viewopts .= " <option id='but-$key' value='$key'>{%".$item['display']."}</option>";
+				$viewopts .= " <option id='but-$key' style='color: $formcol; $bgcol' value='$key'>{%".$item['display']."}</option>";
 				$fbc++;
 			};
 			if ( $key != "pform" ) { 

@@ -186,14 +186,14 @@ function showpage(num, before=-1) {
 
 	textview.innerHTML = pageXML;
 
-	if ( tid ) {	
+	if ( tid && document.getElementById(tid) ) {	
 		document.getElementById(tid).style.backgroundColor = '#ffff88';
 	};
 	
-	var img = textview.innerHTML.match(/facs="([^"]+)"/);
+	var img = page.getAttribute('facs');
 	if ( img && ( !page.getAttribute('admin') || username ) ) {
-		var imgurl = img[1];
-		if ( imgurl.indexOf("http") == -1 ) imgurl = 'Facsimile/' + img[1];
+		var imgurl = img;
+		if ( imgurl.indexOf("http") == -1 ) imgurl = 'Facsimile/' + imgurl;
     	facs.src = imgurl;
     	facsview.style['background-image'] = 'url('+imgurl+')';
     	facswidth = facsview.offsetWidth;

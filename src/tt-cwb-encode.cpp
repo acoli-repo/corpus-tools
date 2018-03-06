@@ -1,7 +1,3 @@
-#include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
-#include "pugixml.hpp"
 #include <iostream>
 #include <sstream>  
 #include <stdio.h>
@@ -11,9 +7,10 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <arpa/inet.h>
+#include "pugixml.hpp"
+#include "functions.hpp"
 
 using namespace std;
-using namespace boost;
 
 int debug = 0;
 bool test = false;
@@ -23,7 +20,7 @@ char tokxpath [50];
 pugi::xml_document trainlog;
 pugi::xml_node cqpsettings;
 pugi::xml_node cqpstats;
-list<string> formTags;
+vector<string> formTags;
 
     pugi::xml_document doc;
 
@@ -33,10 +30,9 @@ string filename;
 string corpusfolder;
 string registryfolder;
 
-
 int tokcnt = 0;
 
-list<string> tagHist;
+vector<string> tagHist;
    
 map<string, map<string, int> > lexitems; // .lexicon ids
 map<string, map<int, int> > lexcnt; // .lexicon counts (on ids)
@@ -79,6 +75,10 @@ string strtoupper ( string str ) {
   return uppercase;
 };
 
+bool file_exists (const std::string& name) {
+    ifstream f(name.c_str());
+    return f.good();
+}
 
 string calcform ( pugi::xml_node node, string fld ) {
 	string getfld = fld;
@@ -190,6 +190,8 @@ void treatnode ( pugi::xpath_node node ) {
 				formval = calcform(node.node(), formkey);
 			};
 		};
+		
+		formval = trim(replace_all(formval, "\n", " ")); // Trim white spaces
 			
 		if ( debug > 4 ) { cout << "Value: " << formkey << " = " << formval << endl; };
 		if ( !lexitems[formkey][formval] ) {
@@ -376,7 +378,7 @@ void treatfile ( string filename ) {
 						if ( debug > 3 ) { cout << " -- lookup value: " << tmp << endl; };
 						  vector <string> exval; 
 						  // Initialize srings
-						  split( exval, tmp, is_any_of( "#" ) );
+						  exval = split( tmp, "#" );
 						string exfile = exval[0];
 						if ( exfile.substr(exfile.length()-4) == ".xml" && externals[exfile] == NULL ) { 
 							exfile = "Resources/" + exfile;
@@ -498,7 +500,7 @@ void treatfile ( string filename ) {
 		string annotationfile = "Annotations/" + tagname + "_" + fileid+ ".xml";
 		if ( debug > 2 ) { cout << " - Looking for stand-off: " << annotationfile << endl; };
 		// Loop through the actual items if the file exists
-		if ( access( annotationfile.c_str(), F_OK ) != -1 ) { // Check whether the annotation file exists for this file
+		if ( file_exists( annotationfile ) ) { // Check whether the annotation file exists for this file
 			externals[tagname]->load_file(annotationfile.c_str());
 			// string xpath = "//file[@id=\""+fileid+"\"]/segment";
 			string xpath = "//span";
@@ -875,9 +877,9 @@ int main(int argc, char *argv[])
 	};
 	if ( dofolders != "" ) {
 		if ( verbose ) cout << "- Indexing folder(s): " << dofolders << endl;
-		char_separator<char> sep(" ");
-    	tokenizer< char_separator<char> > tokens(dofolders, sep);
-		BOOST_FOREACH (const string& fldr, tokens) {
+		vector<string> tokens = split(dofolders, sep); 
+		for( vector<string>::iterator it2 = tokens.begin(); it2 != tokens.end(); it2++ ) {
+			string fldr = *it2;	
 			if ( debug ) {
 				cout << "  - Analyzing files from: " << fldr << endl;    	
 			};
@@ -890,33 +892,7 @@ int main(int argc, char *argv[])
 
 	if ( verbose ) { cout << "- Calculating additional data" << endl; };
 
-	// write the corpus.cnt files
-	// TODO: This writes the data wrong apparently, making CQP no longer work - check and resolve
-// 	for (map<string, map<int, int> >::iterator it=lexcnt.begin(); it!=lexcnt.end(); ++it) {
-// 		string attname = it->first;
-// 		cout << attname << endl;
-// 		map<int,int> counts = it->second;
-// 		filename = corpusfolder + "/" + attname + ".corpus.cnt";
-// 		FILE* cntfile = fopen(filename.c_str(), "wb");
-// 		for (map<int, int>::iterator it2=counts.begin(); it2!=counts.end(); ++it2) {
-// 			write_network_number(it2->second, cntfile);
-// 		};
-// 		fclose(cntfile);
-// 	};
-// 	
-// 	// write the corpus.rev files
-// 	for (map<string, map<int, int> >::iterator it=pos2lex.begin(); it!=pos2lex.end(); ++it) {
-// 		string attname = it->first;
-// 		cout << attname << endl;
-// 		map<int,int> counts = it->second;
-// 		filename = corpusfolder + "/" + attname + ".corpus.rev";
-// 		FILE* cntfile = fopen(filename.c_str(), "wb");
-// 		for (map<int, int>::iterator it2=counts.begin(); it2!=counts.end(); ++it2) {
-// 			write_network_number(it2->second, cntfile);
-// 		};
-// 		fclose(cntfile);
-// 	};
-	
+	// TODO: Write the .cnt files and such directly here to drop dependency on CWB altogether
 
 	if ( verbose ) cout << "- " << tokcnt << " tokens in CQP corpus" << endl; 
 	cqpstats.append_attribute("tokens") = tokcnt;

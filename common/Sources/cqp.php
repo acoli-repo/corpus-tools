@@ -389,7 +389,7 @@
 
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
-			<form action='' method=post id=cqp name=cqp><p>{%CQP Query}: &nbsp; <input name=cql size=80 value='{$cqltxt}'  $chareqfn> <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
+			<form action='' method=post id=cqp name=cqp><p>{%CQP Query}: &nbsp; <textarea name=cql style='width: 600px;  height: 20px;' $chareqfn>$cqltxt</textarea> <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
 			$chareqjs
 			<script language=Javascript>
 			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
@@ -878,7 +878,8 @@
 		
 				
 					CQP Query:
-					<input type=hidden name=cql value='$cqlu' $chareqfn><input name='query' value='group Matches match lemma' size=70>
+					<input type=hidden name=cql value='$cqlu' $chareqfn>
+					<input name='query' value='group Matches match lemma' size=70>
 					<input type=submit value='{%Apply}'>
 				</form>
 				</div>
@@ -999,7 +1000,7 @@
 		
 		$maintext .= "</table>$chareqtxt</div>
 				<div name='cqpsearch' id='cqpsearch'>
-				<p>{%CQP Query}: &nbsp; <input name=cql size=70 value='{$cql}' $chareqfn>
+				<p>{%CQP Query}: &nbsp;  <textarea name=cql style='width: 600px;  height: 20px;' $chareqfn>$cql</textarea>
 				$chareqjs 
 				$subheader
 				";
@@ -1228,7 +1229,7 @@
 
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
-			<form action='' method=post id=cqp name=cqp><p>CQP Query: &nbsp; <input name=cql size=80 value='{$cql}' $chareqfn> <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
+			<form action='' method=post id=cqp name=cqp><p>CQP Query: &nbsp; <textarea name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
 			$chareqjs
 			<script language=Javascript>
 			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
