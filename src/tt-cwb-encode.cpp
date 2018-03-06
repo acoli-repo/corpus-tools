@@ -4,7 +4,7 @@
 #include <fstream>
 #include <map>
 #include <vector>
-#include <string>
+#include <string.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <arpa/inet.h>
