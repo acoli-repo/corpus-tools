@@ -386,10 +386,15 @@
 
 
 		if ( !$fileonly || $user['permissions'] == "admin" ) $cqltxt = str_replace("'", "&#039;", $cql); # Best not show the query for doc-only searches...
+		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
+			$cqlbox = "<textarea name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
+		else 
+			$cqlbox = "<input name=cql value='$cql' style='width: 600px;'/> ";
 
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
-			<form action='' method=post id=cqp name=cqp><p>{%CQP Query}: &nbsp; <textarea name=cql style='width: 600px;  height: 20px;' $chareqfn>$cqltxt</textarea> <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
+			<form action='' method=post id=cqp name=cqp><p>{%CQP Query}: &nbsp; 
+				$cqlbox <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
 			$chareqjs
 			<script language=Javascript>
 			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
@@ -997,10 +1002,15 @@
 						      <td><select name=\"matches[$col]\"><option value='matches'>{%matches}</option><option value='startswith'>{%starts with}</option><option value='endsin'>{%ends in}</option><option value='contains'>{%contains}</option></select>
 						      <td><input name=vals[$col] size=40 $chareqfn>";
 		};
+
+		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
+			$cqlbox = "<textarea name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
+		else 
+			$cqlbox = "<input name=cql value='$cql' style='width: 600px;'/> ";
 		
 		$maintext .= "</table>$chareqtxt</div>
 				<div name='cqpsearch' id='cqpsearch'>
-				<p>{%CQP Query}: &nbsp;  <textarea name=cql style='width: 600px;  height: 20px;' $chareqfn>$cql</textarea>
+				<p>{%CQP Query}: &nbsp;  $cqlbox
 				$chareqjs 
 				$subheader
 				";
