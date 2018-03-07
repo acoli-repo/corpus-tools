@@ -1227,9 +1227,16 @@
 	} else {
 		# Display the search screen with a CQP box only and a search-help
 
+		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
+			$cqlbox = "<textarea name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
+		else 
+			$cqlbox = "<input name=cql value='$cql' style='width: 600px;'/> ";
+			
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
-			<form action='' method=post id=cqp name=cqp><p>CQP Query: &nbsp; <textarea name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
+			<form action='' method=post id=cqp name=cqp><p>CQP Query: &nbsp; 
+				$cqlbox
+				<input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
 			$chareqjs
 			<script language=Javascript>
 			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
