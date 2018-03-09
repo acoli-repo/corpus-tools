@@ -5,6 +5,9 @@
 #include <algorithm> 
 #include <cctype>
 #include <locale>
+#include <string>
+#include <sstream>
+#include <iterator>
 
 // Local version of stoi - relies currently on C++ 11
 int intval(std::string str) {
@@ -107,6 +110,19 @@ static inline void rtrim(std::string &s) {
         return !std::isspace(ch);
     }).base(), s.end());
 }
+
+// join a vector of strings into a string
+std::string join (std::vector<std::string> elems, std::string b="." ) {
+	
+	const char* const delim = b.c_str();
+
+	std::ostringstream imploded;
+	std::copy(elems.begin(), elems.end(),
+			   std::ostream_iterator<std::string>(imploded, delim));
+           	
+	return imploded.str();
+};
+
 
 // trim from both ends (in place)
 static inline void itrim(std::string &s) {

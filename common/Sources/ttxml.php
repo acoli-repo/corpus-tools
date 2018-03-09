@@ -342,7 +342,12 @@ class TTXML
 			};
 			$pidx = $matches[0][1];
 		};
-		if ( !$pidx || $pidx == -1 ) { fatal ("No such $pbelm in XML: $pagid"); };
+		if ( !$pidx || $pidx == -1 ) { 
+			if ( $pagid ) 
+				fatal ("No such $pbelm in XML: $pagid"); 
+			else 
+				return $editxml;
+		};
 
 		
 		# Find the next page/chapter (for navigation, and to cut off editXML)

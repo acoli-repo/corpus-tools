@@ -9,3 +9,4 @@ std::string replace_all ( std::string str, std::string from, std::string to );
 std::vector<std::string> split ( std::string str, std::string sep );
 std::string float2string (float f);
 std::string int2string (int f);
+std::string join (std::vector<std::string> a, std::string b="." );
