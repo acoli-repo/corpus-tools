@@ -1,7 +1,3 @@
-#include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
-#include "pugixml.hpp"
 #include <iostream>
 #include <sstream>
 #include <string.h>
@@ -11,9 +7,10 @@
 #include <vector>
 #include <dirent.h>
 #include <sys/stat.h>
+#include "pugixml.hpp"
+#include "functions.hpp"
 
 using namespace std;
-using namespace boost;
 
 int debug = 0;
 bool test = false;
@@ -31,14 +28,14 @@ pugi::xml_node transitions;
 string tagfld; // The field to use for tagging
 string tagpos; // 
 string lemmafld;
-list<string> formTags;
-list<string> lemTags;
+vector<string> formTags;
+vector<string> lemTags;
 int contextlength = 1;
 int endlen = 4;
 string dtokform;
 int tokcnt;
 
-list<string> tagHist;
+vector<string> tagHist;
    
 map<string, map<string, pugi::xml_node> > lexitems; // lexiconprob items
 map<string,pugi::xml_node > transs; // transition items
@@ -75,8 +72,9 @@ string calcform ( pugi::xml_node node, string fld ) {
 
 void addhist (string tagkey) {
 	tagHist.push_back(tagkey);
-	while ( tagHist.size() > contextlength + 1 ) { tagHist.pop_front(); }
-	string histstring = boost::algorithm::join(tagHist, ".");
+	// while ( tagHist.size() > contextlength + 1 ) { tagHist.pop_front();  }
+	while ( tagHist.size() > contextlength + 1 ) { tagHist.erase(tagHist.begin());  }
+	string histstring = join(tagHist, ".");
 		if ( debug > 2 ) { cout << "Transition history: " <<  histstring << endl; };
 	pugi::xml_node transitem;
 	if ( transs[histstring] ) {
@@ -180,19 +178,14 @@ void treatnode ( pugi::xpath_node node ) {
 		tok.append_attribute("key") = tagtag.c_str(); 
 		tok.append_attribute("cnt") = 1; 
 		// add all items that are relevant here
-		BOOST_FOREACH(string t, formTags )
-		{
+		for (vector<string>::iterator it2 = formTags.begin(); it2 != formTags.end(); it2++) {
+			string t = *it2;
 			if ( node.node().attribute(t.c_str()) != NULL ) tok.append_attribute(t.c_str()) = node.node().attribute(t.c_str()).value();
 		}
-
-
 	   
 	    // Add lemma-level attributes
 	    // TODO: implement
 	   	if ( lemTags.size() ) {
-			BOOST_FOREACH(string t, lemTags )
-			{
-			}
 	   	};
 
 	   	// Add dtoks to the item
@@ -201,8 +194,8 @@ void treatnode ( pugi::xpath_node node ) {
         for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") )
         {
 			pugi::xml_node dtok = tok.append_child("dtok");
-			BOOST_FOREACH(string t, formTags )
-			{
+			for (vector<string>::iterator it2 = formTags.begin(); it2 != formTags.end(); it2++) {
+				string t = *it2;
 				if ( dtoken.attribute(t.c_str()) != NULL ) dtok.append_attribute(t.c_str()) = dtoken.attribute(t.c_str()).value();
 			}
 			// If we are not tagging from form, make sure the <dtok> has a form
@@ -387,7 +380,7 @@ void treatfile ( string filename ) {
 	pugi::xpath_node resnode;
 
 	if ( tagsettings.attribute("restriction") != NULL 
-			&& doc.select_single_node(tagsettings.attribute("restriction").value()) == NULL ) {
+			&& doc.select_node(tagsettings.attribute("restriction").value()) == NULL ) {
 		if ( debug ) cout << "- XML " << filename << " not matching " << tagsettings.attribute("restriction") .value() << endl;
 		return;
 	};
@@ -582,7 +575,7 @@ int main(int argc, char *argv[])
 	} else { 
 		tmp = "lemma,"+tagpos; // By default, tag for lemma and pos
 	};
-	split(formTags, tmp, is_any_of(",")); 
+	vector<string> formTags = split(tmp, ","); 
 
 	if ( tagsettings.attribute("dtokform") != NULL ) { 
 		dtokform = tagsettings.attribute("wordfld").value();
@@ -607,9 +600,9 @@ int main(int argc, char *argv[])
 	string dofolders = tagsettings.attribute("training").value();
 	if ( dofolders != "" ) {
 		if ( verbose ) cout << "- Training folder(s): " << dofolders << endl;
-		char_separator<char> sep(" ");
-    	tokenizer< char_separator<char> > tokens(dofolders, sep);
-		BOOST_FOREACH (const string& fldr, tokens) {
+    	vector<string> doar = split(dofolders, " ");
+		for (vector<string>::iterator it2 = doar.begin(); it2 != doar.end(); it2++) {
+			string fldr = *it2;
 			if ( debug ) {
 				cout << "  - Analyzing files from: " << fldr << endl;    	
 			};

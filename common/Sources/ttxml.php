@@ -345,8 +345,15 @@ class TTXML
 		if ( !$pidx || $pidx == -1 ) { 
 			if ( $pagid ) 
 				fatal ("No such $pbelm in XML: $pagid"); 
-			else 
-				return $editxml;
+			else {
+				$result = $this->xml->xpath($mtxtelement);
+				if ($result) {
+					$xmltxt = $result[0]->asXML();
+				} else {
+					$xmltxt = "($mtxtelement not found)";
+				};
+				return $xmltxt;
+			};
 		};
 
 		
