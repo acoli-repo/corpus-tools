@@ -346,6 +346,7 @@ class TTXML
 			if ( $pagid ) 
 				fatal ("No such $pbelm in XML: $pagid"); 
 			else {
+				global $mtxtelement;
 				$result = $this->xml->xpath($mtxtelement);
 				if ($result) {
 					$xmltxt = $result[0]->asXML();
