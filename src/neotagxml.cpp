@@ -1,7 +1,3 @@
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
-#include "pugixml.hpp"
 #include <iostream>
 #include <fstream>  
 #include <string>
@@ -14,13 +10,14 @@
 #include <locale>
 #include <getopt.h>
 #include <math.h>
+#include "pugixml.hpp"
+#include "functions.hpp"
 
 // This is a version of NeoTag that tags directly in XML
 // Designed within the TEITOK frameword: http://teitok.corpuwiki.org
 // (c) Maarten Janssen, 2015
 
 using namespace std;
-using namespace boost;
 
 // header
 class wordtoken;
@@ -94,14 +91,12 @@ map<string,int>  lemTagProb; 			// the list of POS used in the external lemmalis
 map<string,int>  lexTagProb; 			// the list of POS used in the external lexicon
 
 map<string, string> pairparse (const string &s ) {
-    vector<string> pairs;
     map<string, string> mapOne;
     if ( s.size() == 0 ) { return mapOne; };
-    boost::split(pairs, s, is_any_of(";"));
+    vector<string> pairs = split(s, ";");
 
     for ( int i=0; i< pairs.size(); ++i ) {
-	    vector<string> elems;
-        boost::split(elems, pairs.at(i), is_any_of(":"));
+        vector<string> elems = split(pairs.at(i), ":");
         if ( elems.size() > 1 ) { mapOne[elems.at(0)] = elems.at(1); };
         
     }
@@ -480,7 +475,7 @@ float getTransProb ( string transitionstring ) {
 
 string xpescape ( string word ) {
 	// Escape XPath query strings
-	boost::replace_all(word, "\"", "&quot;");
+	word = replace_all(word, "\"", "&quot;");
 	return word;
 };
 
@@ -565,8 +560,7 @@ string applylemrule ( string word, string rule ) {
 	string root; root = word;
 	if ( debug > 4 ) { cout << "  - applying lemrule " << rule << " to " << word << " ==> " << endl; };
 	
-	vector<string> temp;
-	boost::split ( temp, rule, is_any_of("#") );
+	vector<string> temp = split ( rule, "#" );
 	string wrdtr = temp[0]; string lemtr = temp[1]; 
 	
 	// first apply the bits required on the beginning and the end
@@ -1156,8 +1150,8 @@ string NumberToString ( T Number )
 
 // Check whether a partially tagged token matches a lexical item
 bool tagsmatch ( pugi::xml_node lexitem, pugi::xml_node token, string ignore="" ) {
-	BOOST_FOREACH(string t, formTags )
-	{
+	for (vector<string>::iterator it2 = formTags.begin(); it2 != formTags.end(); it2++) {
+		string t = *it2;
 		string tokform = calcform(token, t);
 		string lexform = lexitem.attribute(t.c_str()).value();
 		if ( lexform == "" ) { lexform =  lexitem.parent().attribute("key").value(); };
@@ -1751,7 +1745,7 @@ int main (int argc, char * const argv[]) {
 	} else { 
 		tmp2 = "lemma,"+tagpos; // By default, tag for lemma and pos
 	};
-	split(formTags, tmp2, is_any_of(",")); 
+	formTags = split(tmp2, ","); 
 	
 	if ( tagsettings.attribute("help") != NULL ) { help(); };
 
