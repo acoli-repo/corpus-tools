@@ -379,6 +379,8 @@ void treatfile ( string filename ) {
 
 	pugi::xpath_node resnode;
 
+	cout << tagsettings.attribute("restriction").value() << endl;
+
 	if ( tagsettings.attribute("restriction") != NULL 
 			&& doc.select_node(tagsettings.attribute("restriction").value()) == NULL ) {
 		if ( debug ) cout << "- XML " << filename << " not matching " << tagsettings.attribute("restriction") .value() << endl;
