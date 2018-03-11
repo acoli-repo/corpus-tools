@@ -152,7 +152,7 @@ void treatnode ( pugi::xpath_node node ) {
 
 	// If the tag consists only of dots, the word has not been tagged
 	// string tagtest = tagtag; tagtest.erase(std::remove(tagtest.begin(), tagtest.end(), '.'), tagtest.end());
-	string tagtest = tagtag.replace(".", "", );
+	string tagtest = tagtag.replace(".", "");
 	if ( tagtest == "" && tagsettings.attribute("inclnotag") == NULL ) { 
 		if ( debug > 1 ) { cout << "Skipping - not tagged, no: " <<  tagpos << endl; };
 		return;
