@@ -1,12 +1,21 @@
 <?php
 
-	// XML File Search
-	// This does not really make sense, since we mostly want to search in the various text representations...
+	// XML File Search by XPath
+
 	$txtq = $_POST['xpf']; 
 	$xpftxt = str_replace("'", "&#039", $txtq);
 	$qt = str_replace("'", '"', $txtq);
+	
+	$xprtxt = str_replace("'", "&#039", $_POST['xpr']);
+	$qr = str_replace("'", '"', $_POST['xpr']);
+	
+	if ( $username ) $restq = "<p>{%Xpath restriction}: &nbsp; <input name=xpr size=80 value='{$xprtxt}'  $chareqfn> ";
+	
 	$maintext .= "<h1>XPath Search</h1>
-			<form action='' method=post id=cqp name=cqp>{%Query}: &nbsp; <input name=xpf size=80 value='{$xpftxt}'  $chareqfn> <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
+			<form action='' method=post id=cqp name=cqp>
+				$restq
+				<p>{%Xpath query}: &nbsp; <input name=xpf size=80 value='{$xpftxt}'  $chareqfn> 
+				<input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
 			";
 
 	$app = findapp("tt-xpath");
