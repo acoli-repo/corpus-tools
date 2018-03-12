@@ -15,6 +15,7 @@
 	else if ( $settings['defaults']['fileview'] ) $viewaction = $settings['defaults']['fileview'];
 	else $viewaction = "text";
 
+	$action = $viewaction;
 	include("$viewaction.php");
 
 ?>

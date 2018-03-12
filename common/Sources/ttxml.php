@@ -432,7 +432,7 @@ class TTXML
 	}
 
 	function viewswitch($initial = true, $withself = false ) {
-		global $settings; global $username;
+		global $settings; global $username; global $action;
 
 		$viewopts['text'] = "Text view";
 		
@@ -474,14 +474,18 @@ class TTXML
 			$lvltxt = $settings['views']['facsview']['display'] or $lvltxt = "Facsimile";
 			$viewopts['facsview'] = "{$lvltxt} view";
 		};
+		
+		if ( $initial."" == "select" ) {
+				$views = "<option value='' disabled selected>[{%select}]</option>";
+		};
 			
 		$sep = ""; if ( !$initial ) $sep = " &bull; ";
 		foreach ( $viewopts as $key => $val ) {
 			list ( $doaction, $dolvl ) = explode ( ":", $key );
-			if ( $_GET['action'] != $doaction || ($dolvl && $dolvl != $_GET['elm']) ) {
+			if ( $action != $doaction || ($dolvl && $dolvl != $_GET['elm']) ) {
 				if ( $initial."" == "select" ) {
 					$views .= $sep."<option value='index.php?action=$doaction&cid=$this->fileid&pageid={$_GET['pageid']}&jmp={$_GET['jmp']}&elm=$dolvl'>{%$val}</option>";
-					$sep = " &bull; ";
+					$sep = "\n";
 				} else {
 					$views .= $sep."<a href='index.php?action=$doaction&cid=$this->fileid&pageid={$_GET['pageid']}&jmp={$_GET['jmp']}&elm=$dolvl'>{%$val}</a>";
 					$sep = " &bull; ";
