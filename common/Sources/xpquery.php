@@ -11,9 +11,9 @@
 	
 	if ( $username ) {
 		$restq = "<p>{%Xpath restriction}: &nbsp; <input name=xpr size=80 value='{$xprtxt}'  $chareqfn> 
-			<input type=checkbox value=1 name=xx> Include non-indexed files
+			<input type=checkbox value=1 name=xx class=adminpart> include non-indexed files
 		";
-		$hq = "<br><input type=checkbox value=1 name=hh class=adminpart> (also) look in the teiHeader";
+		$hq = "<input type=checkbox value=1 name=hh class=adminpart> (also) look in the teiHeader<p>";
 	};
 	
 	$maintext .= "<h1>XPath Search</h1>
@@ -27,7 +27,7 @@
 	$app = findapp("tt-xpath");
 	if ( !$app ) fatal ("This function relies on tt-xpath, which is not installed on the server");
 
-	if ( $qr ) { $qrest = "xprest='$qr'"; };
+	if ( $qr ) { $qrest = " --xprest='$qr' "; };
 
 	if ( $_POST['xx'] ) { $opts .= " --folder='xmlfiles' "; };
 	if ( $_POST['hh'] ) { $opts .= " --header "; };
@@ -46,7 +46,7 @@
 		};
 
 
-		$cmd = "/usr/local/bin/tt-xpath --xpquery='$qt' $qrest"; 
+		$cmd = "/usr/local/bin/tt-xpath $opts --xpquery='$qt' $qrest"; 
 		// print $cmd; exit; 
 		$tmp = shell_exec($cmd);
 	
