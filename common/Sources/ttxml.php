@@ -73,10 +73,12 @@ class TTXML
 		// See if there is an Audio element in the header
 		foreach ( $this->xml->xpath("//recording//media") as $medianode ) {
 			$mimetype = $medianode['mimeType'] or $mimetype = $medianode['mimetype'] or $mimetype = mime_content_type($medianode['url']);
-			if ( strstr($mimetype, "audio") ) {
+			if ( strstr($mimetype, "video") ) {
+				array_push($this->video, $medianode);
+			} else { // If it ain't video, it's audio
 				array_push($this->audio, $medianode);
 				if ( $audiourl == "" ) $audiourl = $medianode['url']; 
-			} else if ( strstr($mimetype, "video") ) array_push($this->video, $medianode);
+			};
 		}; 
 		if ( $audiourl != "" ) {
 			if ( !strstr($audiourl, 'http') ) {

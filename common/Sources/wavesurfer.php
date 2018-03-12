@@ -12,7 +12,7 @@
 	// $maintext .= $ttxml->tableheader();
 	
 	$audiourl = $ttxml->audiourl; 
-	if ( !$audiourl ) fatal ("XML file has no media element providing a URL to the sound file");
+	if ( $audiourl == "" ) fatal ("XML file has no media element providing a URL to the sound file");
 
 	if ( $act == "save" ) {
 	
