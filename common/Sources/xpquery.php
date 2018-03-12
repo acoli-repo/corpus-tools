@@ -32,8 +32,12 @@
 	if ( $_POST['xx'] ) { $opts .= " --folder='xmlfiles' "; };
 	if ( $_POST['hh'] ) { $opts .= " --header "; };
 
-	if ( $txtq ) {
-
+	if ( !$txtq ) {
+	
+		$maintext .= getlangfile("xpathtext", true);
+	
+	} else {
+	
 		$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
 		#Build the view options	
 		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
