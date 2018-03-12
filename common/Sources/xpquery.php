@@ -21,6 +21,8 @@
 	$app = findapp("tt-xpath");
 	if ( !$app ) fatal ("This function relies on tt-xpath, which is not installed on the server");
 
+	if ( $qr ) { $qrest = "xprest='$qr'"; };
+
 	if ( $txtq ) {
 
 		$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
@@ -35,7 +37,8 @@
 		};
 
 
-		$cmd = "/usr/local/bin/tt-xpath --xpquery='$qt' "; 
+		$cmd = "/usr/local/bin/tt-xpath --xpquery='$qt' $qrest"; 
+		// print $cmd; exit; 
 		$tmp = shell_exec($cmd);
 	
 		$results = simplexml_load_string($tmp);
@@ -48,6 +51,11 @@
 				$resx = substr($resx, 0, 1000);
 			};
 			$editxml .= "<tr><td><a target=view style='font-size: 10pt; padding-right: 5px;' href='index.php?action=file&id={$resnode['fileid']}&jmp={$resnode['id']}'>context</a><td>$resx</td>";
+		};
+
+		if ( $editxml == "" ) {
+			$editxml = "<i>{%No results found}</i>";
+			if ( $username ) $editxml .= "<p>Query: $cmd";
 		};
 
 		$maintext .= "
