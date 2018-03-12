@@ -9,7 +9,11 @@
 	$xprtxt = str_replace("'", "&#039", $_POST['xpr']);
 	$qr = str_replace("'", '"', $_POST['xpr']);
 	
-	if ( $username ) $restq = "<p>{%Xpath restriction}: &nbsp; <input name=xpr size=80 value='{$xprtxt}'  $chareqfn> ";
+	if ( $username ) {
+		$restq = "<p>{%Xpath restriction}: &nbsp; <input name=xpr size=80 value='{$xprtxt}'  $chareqfn> 
+			<input type=checkbox value=1 name=xx> Include non-indexed files
+		";
+	};
 	
 	$maintext .= "<h1>XPath Search</h1>
 			<form action='' method=post id=cqp name=cqp>
@@ -22,6 +26,8 @@
 	if ( !$app ) fatal ("This function relies on tt-xpath, which is not installed on the server");
 
 	if ( $qr ) { $qrest = "xprest='$qr'"; };
+
+	if ( $_POST['xx'] ) { $opts .= " --folder='xmlfiles' "; };
 
 	if ( $txtq ) {
 
