@@ -20,6 +20,7 @@
 			<form action='' method=post id=cqp name=cqp>
 				$restq
 				<p>{%Xpath query}: &nbsp; <input name=xpf size=80 value='{$xpftxt}'  $chareqfn> 
+				$hq
 				<input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
 			";
 
