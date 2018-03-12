@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 	if ( verbose ) { 
 		cout << "Query: " << xpquery << endl;
 	};
-	if ( clsettings.attribute("header") == NULL ) && strstr(xpquery.c_str(), "text") == NULL ) {
+	if ( clsettings.attribute("header") == NULL && strstr(xpquery.c_str(), "text") == NULL ) {
 		// Unless specifically asked to, only look in the //text
 		string base = "";
 		if ( xpquery.substr(0,1) != "/" ) {
