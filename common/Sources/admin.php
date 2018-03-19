@@ -75,9 +75,9 @@
 	
 		if ( $settings['permissions']['groups'] )  $grouprec = $settings['permissions']['groups'][$user['group'].""];
 		$adminmenulist = array (
+				"upload" => "upload files",
 				"pageedit" => "edit HTML files",
 				"i18n" => "edit internationalization",
-				"upload" => "upload files",
 				"csv" => "batch-edit XML using CSV",
 			);
 			
@@ -87,18 +87,12 @@
 			<p>These are the options available for editors of the corpus $grouptxt
 
 			<ul>";
-		
-		foreach ( $adminmenulist as $key => $val ) {
-			if ( allowedforme($key) ) {
-				$maintext .= "			<li><a href='index.php?action=$key'>$val</a>";
-			};
-		};
-			
+
 		if ( allowedforme("create") ) {
 			#if ( $settings['xmltemplates'] || file_exists("Resources/xmltemplate.xml" ) ) $maintext .= "<li><a href='index.php?action=create'>create new XML from template</a>"; else 
 			$maintext .= "<li><a href='index.php?action=create'>create new XML file</a>";
 		};
-				
+
 		if ( $settings['cqp']['corpus'] && allowedforme("recqp") ) {
 			$maintext .= "<li><a href='index.php?action=recqp'>(re)generate the CQP corpus</a> (or only 
 				<a href='index.php?action=recqp&check=1'>check</a> the status)";
@@ -106,6 +100,14 @@
 			#	$maintext .= "<ul><li>  <a href='index.php?action=recqp&force=1'>regenerate</a> the script to regenerate the CQP corpus (after changing CQP settings)</ul>";
 			# };
 		};
+		
+		foreach ( $adminmenulist as $key => $val ) {
+			if ( allowedforme($key) ) {
+				$maintext .= "			<li><a href='index.php?action=$key'>$val</a>";
+			};
+		};
+			
+				
 		if ( $settings['neotag'] && allowedforme("neotag") ) {
 				$maintext .= "<li>  <a href='index.php?action=neotag'>check or update</a> the NeoTag parameter set(s)";
 		};
@@ -123,8 +125,8 @@
 		if ( ( $filelist || file_exists("Resources/filelist.xml" ) ) && allowedforme("filelist") )
 			$maintext .= "<li><a href='index.php?action=filelist'>view file repository</a>";
 				
-		if ( file_exists("Facsimile" ) && allowedforme("images") )
-			$maintext .= "<li><a href='index.php?action=images&act=check'>check facsimile images</a>";
+// 		if ( file_exists("Facsimile" ) && allowedforme("images") )
+// 			$maintext .= "<li><a href='index.php?action=images&act=check'>check facsimile images</a>";
 
 		if ( is_array($settings['menu']['admin']) )
 		foreach ( $settings['menu']['admin'] as $key => $item ) { 	

@@ -39,17 +39,7 @@
 			$fullxml = $_POST['fullxml'];
 			$newxml = $_POST['newxml'];
 
-			if ( strpos($file, $fullxml) == false ) {
-				fatal("Replacement will fail - XML does not contain: <pre>".htmlentities($fullxml)."</pre>");
-			};
-
 			$file = str_replace($fullxml, $newxml, $file);
-
-				print "Replacement seems to have failed - XML still contains: <pre>".htmlentities($fullxml)."</pre>"; 
-				print "<hr>New: <pre>".htmlentities($newxml)."</pre>"; 
-				print "<hr>Replace: <pre>".htmlentities($file)."</pre>"; 
-				
-				exit;
 			
 			# Check whether we actually changed anything
 			if ( strpos($file, $fullxml) !== false ) {
