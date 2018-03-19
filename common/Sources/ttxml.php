@@ -135,7 +135,7 @@ class TTXML
 	}
 		
 	function tableheader( $tpl = "", $showbottom = true ) {
-		global $username;
+		global $username; global $settings;
 		if (!$this->xml) return "";
 
 		// Determine which header to show
