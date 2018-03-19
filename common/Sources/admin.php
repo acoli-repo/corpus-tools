@@ -129,7 +129,7 @@
 		if ( is_array($settings['menu']['admin']) )
 		foreach ( $settings['menu']['admin'] as $key => $item ) { 	
 			$link = "{$tlpr}index.php?action=$key";
-			if ( allowedforme($key) )
+			if ( allowedforme($key) && $item['display'] )
 				$maintext .= "<li><a href='$link'>{%".$item['display']."}</a>";
 		};
 		

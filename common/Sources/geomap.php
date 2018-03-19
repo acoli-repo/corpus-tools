@@ -152,12 +152,22 @@ if ( $act == "xml" ) {
 	};
 
 	$fileheader = getlangfile("geomaptext");
+	
+	if ( $settings['geomap']['areas'] ) {
+		$areaswitch = "<p>{%Jump to}: "; $sep = "";
+		foreach ( $settings['geomap']['areas'] as $area ) {
+			$areaswitch .= " $sep <a onclick=\"zoomto('{$area['startpos']}', '{$area['zoom']}')\">{%{$area['display']}}</a> ";
+			$sep = " &bull; ";
+		};
+	};
 		
 	// Larger circles indicate more documents from that location.
 	$maintext  .= "
 	<h1>{%$pagtit}</h1>
 
 	$fileheader
+
+	$areaswitch
 
 	<div id=\"map\" style='width: 100%; height: 600px;'></div>
 	<script>

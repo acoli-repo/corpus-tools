@@ -2,6 +2,7 @@
   // (c) Maarten Janssen 2016
 
   // jsondata format: [ { "lat": lat, "lng": lng, "location": placename, "cnt": nr of docs } ]
+	var map;
 
   function initMap() {
 	
@@ -29,7 +30,7 @@
 	} else { startzoom = defzoom; };
 
 	// Create the map
-	var map = new google.maps.Map(document.getElementById('map'), {
+	map = new google.maps.Map(document.getElementById('map'), {
 	  zoom: startzoom,
 	  center: startpos
 	});
@@ -108,6 +109,13 @@
 	};
 
   }
+  
+  function zoomto ( geo, zoom ) {
+  	var pos = geo.split(' ');
+	var geopos = { lat: pos[0]*1, lng: pos[1]*1 }; 
+	map.setZoom(zoom*1);
+	map.setCenter(geopos);	
+  };
   
   function rescale (num) {
   	return Math.log(num)+1;

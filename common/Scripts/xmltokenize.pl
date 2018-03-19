@@ -302,10 +302,10 @@ if ( $sentsplit != 2 ) {
 		
 			# Finally, look at the @form and @fform and @nform
 			$fts = "";
-			if ( $m =~ /^(.+)\|=([^<>]+)$/ ) {
+			if ( $m =~ /^(.+)\|=([^<>]+)$/ ) { # q||que -> expansion
 				$m = $1; $fts .= " nform=\"$2\"";
 			};
-			if ( $m =~ /^(.+)\|\|([^<>]+)$/ ) {
+			if ( $m =~ /^(.+)\|\|([^<>]+)$/ ) { # echa|=hecha -> normalization
 				$m = $1; $fts .= " fform=\"$2\"";
 			};
 			if ( $m =~ /<[^>]+>/ ) {

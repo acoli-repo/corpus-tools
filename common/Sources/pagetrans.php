@@ -14,6 +14,10 @@
 		$ttxml = new TTXML($_GET['cid'], false, "pagetrans");
 		if ( !$ttxml->xml ) fatal("Could not load page-by-page XML file: {$_GET['cid']}");
 
+		if ( $ttxml->asXML() == "<text/>" ) {
+			# Completely empty - add a page
+		};
+
 		if ( !$ttxml->xml->xpath("//page") ) fatal("This is not a page-by-page edit XML file");
 		$fileid = $ttxml->xmlid;
 	};
@@ -114,6 +118,12 @@
 
 	} else if ( $act == "apply" && $_POST['fileid'] ) {
 
+
+		$date = date("Y-m-d"); 
+		$newrev = xpathnode($ttxml->xml, "//teiHeader/revisionDesc/change[@when='$date']");
+		$newrev['who'] = $user['short'];
+		$newrev[0] = "Converted from page-by-page transcription";
+
 		$dom = dom_import_simplexml($ttxml->xml)->ownerDocument; 		
 		$xpath = new DOMXpath($dom);
 		
@@ -129,14 +139,15 @@
 			
 			# Remove the Facsimile from the image name
 			$pagebody = preg_replace("/facs=\"Facsimile\//", "facs=\"", $pagebody);
+
+			# Remove any <lineblock>
+			$pagebody = preg_replace("/<\/?lineblock[^>]*>/", "", $pagebody);
 			
 			# Convert linebreaks
 			if ( !$pagenode->getAttribute("empty") && $pagenode->textContent != "" ) {
 				if ( $_POST['lines'] == "lb" ) {
 					$pagebody = preg_replace("/^(<page[^>]+>)/", "\\1<lb/>", $pagebody);
 					$pagebody = preg_replace("/(\&#13;|[\n\r])+/", "\n<lb/>", $pagebody);
-					$pagebody = str_replace("|\n<lb/>", "<lb/>", $pagebody);
-					$pagebody = str_replace("|\n", "", $pagebody);
 				} else if ( $_POST['lines'] == "plb" ) {
 					$pagebody = preg_replace("/^(<page[^>]+>)/", "\\1<p><lb/>", $pagebody);
 					$pagebody = preg_replace("/(<\/page>)$/", "</p>\\1", $pagebody);
@@ -145,8 +156,6 @@
 					# Convert double lines to <p> breaks
 					$pagebody = preg_replace("/\n\n+/", "</p><p><lb/>", $pagebody);
 					$pagebody = preg_replace("/(&#13;|[\n\r])+/", "\n<lb/>", $pagebody);
-					$pagebody = str_replace("|\n<lb/>", "<lb/>", $pagebody);
-					$pagebody = str_replace("|\n", "", $pagebody);
 				} else if ( $_POST['lines'] == "p" ) {
 					$pagebody = preg_replace("/^(<page[^>]+>)/", "\\1<p>", $pagebody);
 					$pagebody = preg_replace("/(<\/page>)$/", "</p>\\1", $pagebody);
@@ -173,6 +182,9 @@
 				$pagebody = str_replace("&lt;", "<", $pagebody);
 				$pagebody = str_replace("&gt;", ">", $pagebody);
 			};
+
+			# Remove any @status
+			$pagebody = preg_replace(" status=\"[^\"]*\"", "", $pagebody);
 			
 			$sxe = simplexml_load_string($pagebody, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$sxe && $value ) {
@@ -196,16 +208,16 @@
 		$newxml = preg_replace("/<lb([^>]+)(?<!\/)> */", "<lb\\1/> ", $newxml);
 		$newxml = str_replace("</line>", "", $newxml);
 
-		# This should actally be done in the tokenization
-		# $newxml = preg_replace("/\|\s*(<lb[^>]*>)\s*/", "\\1", $newxml);
+		# This should actally be done in the tokenization <= Why?
+		$newxml = preg_replace("/\|\s*(<lb[^>]*>)\s*/", "\\1", $newxml);
 		
 		# Now change <page> into <pb/>
 		$newxml = str_replace("<page ", "<pb ", $newxml);
 		$newxml = preg_replace("/<pb([^>]+)(?<!\/)>/", "<pb\\1/>", $newxml);
 		$newxml = str_replace("</page>", "", $newxml);
 
-		# This should actally be done in the tokenization
-		# $newxml = preg_replace("/\|\s*<pb/", "<pb", $newxml);
+		# This should actally be done in the tokenization <= Why?
+		$newxml = preg_replace("/\|\s*<pb/", "<pb", $newxml);
 		
 		$xmlfolder = "xmlfiles";
 		saveMyXML($newxml, $ttxml->fileid);
@@ -476,6 +488,27 @@
 			</span>
 		";
 		} else {	
+
+			// If the page has no FACS, assign it a FACS and reload
+			if ( !$pagexml['facs']  ) {
+				$pagenr = 1;
+				foreach ( $ttxml->xml->xpath("//page") as $i => $ptmp ) {
+					if ( $ptmp == $pagexml ) {
+						$pagenr = $i+1;
+					};
+				};
+				$pagexml['facs'] = $ttxml->xmlid."_$pagenr.jpg";
+				if ( !$pagexml['id'] ) $pagexml['id'] = "page-$pagenr";
+				file_put_contents("pagetrans/$ttxml->xmlid.xml", $ttxml->xml->asXML());
+				print "<p>Assigned FACS automatically to the page - reloading
+					<script language=Javascript>location.reload();</script>"; exit;
+			};
+			
+			if ( !strstr("http", $pagexml['facs']) && !file_exists("Facsimile/{$pagexml['facs']}") ) {
+				# TODO: create an upload button to upload the facs
+			};
+			
+					
 			if ( $pagexml['crop'] == "right"  ) 
 				$crop = "width: 200%; float: right;";
 			else if ( $pagexml['crop'] == "left"  ) 
@@ -499,6 +532,7 @@
 				</div>";
 						
 			};
+
 
 			foreach ( $settings['input']['replace'] as $key => $item ) {
 				$val = $item['value'];
