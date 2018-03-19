@@ -85,6 +85,15 @@ destroyClickedElement = function(event) {
 };
 
 function formify () {
+	// This is basically the "init" function
+	
+	// If we did not specify the attributelist, build it from formdef
+	if ( typeof(formdef) != "undefined" ) for ( fld in formdef ) {
+		attributelist.push(fld);
+		attributenames[fld] = formdef[fld]['display'];
+	};
+	if ( attributelist.length == 0 ) { Array("fform", "lemma", "pos", "mfs"); };
+
 	var mtxt = document.getElementById("mtxt");
 	if ( formified ) {
 		return ""; 

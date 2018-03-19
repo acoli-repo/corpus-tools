@@ -6,12 +6,6 @@ if (!attributenames) {
 };
 if ( !attributelist ) {
 	var attributelist = Array();
-	console.log(typeof(formdef));
-	if ( typeof(formdef) != "undefined" ) for ( fld in formdef ) {
-		attributelist.push(fld);
-		attributenames[fld] = formdef[fld]['display'];
-	};
-	if ( attributelist.length == 0 ) { Array("fform", "lemma", "pos", "mfs"); };
 };
 
 if ( !document.getElementById('tokinfo') ) {
@@ -172,10 +166,15 @@ function showtokinfo(evt, element, poselm) {
 
 function highlightbb (elm, hln=0) {
 
+	// Unhighlight if we still have a hlbar 
+	if ( typeof(hlbar) != "undefined" && hlbar.tagName == "DIV" ) {
+		hlbar.style.display = 'none';
+	};
+
 	// Find the bbox we need
 	if ( elm.getAttribute('bbox') == null ) {
 		var mtch = document.evaluate("./gtok[@bbox]", elm, null, XPathResult.ANY_TYPE, null);
-		if ( elm.tagName == "TOK"  ) {
+		if ( elm.tagName == "TOK" && mtch.invalidIteratorState != false ) { // In case we have GTOK elements
 			var gtoks = [];
 			var tmpe = mtch.iterateNext(); 
 			while ( tmpe != null )  { gtoks.push(tmpe); tmpe = mtch.iterateNext(); };		
@@ -192,7 +191,7 @@ function highlightbb (elm, hln=0) {
 			if ( mtch != null ) { tmpe = mtch.iterateNext(); };
 			while ( tmpe != null )  { elm = tmpe; tmpe = mtch.iterateNext(); };		
 		};		
-	};
+	}; 
 	if ( elm.getAttribute('bbox') == null ) { return -1; };
 
 	// Find the image div we need
@@ -214,7 +213,7 @@ function highlightbb (elm, hln=0) {
 	
 	var imgscale = facsimg.width/orgImg.width;
 
-	var bb = elm.getAttribute('bbox').split(' ');
+	var bb = elm.getAttribute('bbox').split(' '); 
 	hlbar.style.display = 'block';
 	hlbar.style['background-color'] = '#ffff00';
 	hlbar.style['z-index'] = '100';
