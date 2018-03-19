@@ -6,7 +6,7 @@ if (!attributenames) {
 };
 if ( !attributelist ) {
 	var attributelist = Array();
-	if ( formdef ) for ( fld in formdef ) {
+	if ( typeof(formdef) != null ) for ( fld in formdef ) {
 		attributelist.push(fld);
 		attributenames[fld] = formdef[fld]['display'];
 	};
