@@ -88,7 +88,7 @@ function formify () {
 	// This is basically the "init" function
 	
 	// If we did not specify the attributelist, build it from formdef
-	if ( typeof(formdef) != "undefined" ) for ( fld in formdef ) {
+	if ( typeof(formdef) != "undefined" && attributelist.length == 0 ) for ( fld in formdef ) {
 		attributelist.push(fld);
 		attributenames[fld] = formdef[fld]['display'];
 	};
