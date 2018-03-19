@@ -4,9 +4,9 @@ document.onmouseout = mouseOut;
 if (!attributenames) {
 	var attributenames = Array();
 };
-if (!attributelist) {
+if ( !attributelist ) {
 	var attributelist = Array();
-	for ( fld in formdef ) {
+	if ( formdef ) for ( fld in formdef ) {
 		attributelist.push(fld);
 		attributenames[fld] = formdef[fld]['display'];
 	};
