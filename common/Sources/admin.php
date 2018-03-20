@@ -34,6 +34,10 @@
 		if ( !is_writable($gitfldr) ) { fatal("TEITOK cannot be updated from within the browser $gitfldr"); };
 		
 		$cmd = "cd $gitfldr; git pull";
+		$output = shell_exec($cmd);
+		
+		$maintext .= "<h1>Updating the TEITOK system</h1>
+			<pre>$output</pre>";
 		
 	} else if ( $act == "checksettings" ) {
 	
