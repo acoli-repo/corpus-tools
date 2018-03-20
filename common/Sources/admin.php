@@ -1,6 +1,9 @@
 <?php
 
 	check_login();
+	
+	# Determine the Git root for TEITOK
+	$gitfldr = str_replace("/common", "", realpath("$ttroot/common"));
 
 	if ( $act == "shorthand" ) {
 
@@ -28,7 +31,9 @@
 	} else if ( $act == "update" ) {
 		
 		if ( $user['permissions'] != "admin" ) { fatal("Not allowed"); };
-		if ( !is_writable($ttroot) ) { fatal("TEITOK cannot be updated from within the browser $ttroot"); };
+		if ( !is_writable($gitfldr) ) { fatal("TEITOK cannot be updated from within the browser $gitfldr"); };
+		
+		$cmd = "cd $gitfldr; git pull";
 		
 	} else if ( $act == "checksettings" ) {
 	
@@ -154,7 +159,7 @@
 			$version = $tmp[0];
 			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
 
-			if ( $user['permissions'] == "admin" && is_writable($ttroot) ) {
+			if ( $user['permissions'] == "admin" && is_writable($gitfldr) ) {
 				$maintext .= " (<a href='index.php?action=admin&act=update'>update</a>)";
 			};
 		};
