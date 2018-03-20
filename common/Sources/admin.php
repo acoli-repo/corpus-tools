@@ -28,7 +28,7 @@
 	} else if ( $act == "update" ) {
 		
 		if ( $user['permissions'] != "admin" ) { fatal("Not allowed"); };
-		if ( !is_writable($ttroot) ) { fatal("TEITOK cannot be updated from within the browser"); };
+		if ( !is_writable($ttroot) ) { fatal("TEITOK cannot be updated from within the browser $ttroot"); };
 		
 	} else if ( $act == "checksettings" ) {
 	
