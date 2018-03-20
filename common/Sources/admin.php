@@ -30,6 +30,8 @@
 		
 	} else if ( $act == "update" ) {
 		
+		// TODO: Could this work? It depends on Apache having all the right permissions
+		
 		if ( $user['permissions'] != "admin" ) { fatal("Not allowed"); };
 		if ( !is_writable($gitfldr) ) { fatal("TEITOK cannot be updated from within the browser $gitfldr"); };
 		
@@ -164,9 +166,9 @@
 			$version = $tmp[0];
 			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
 
-			if ( $user['permissions'] == "admin" && is_writable($gitfldr) ) {
-				$maintext .= " (<a href='index.php?action=admin&act=update'>update</a>)";
-			};
+// 			if ( $user['permissions'] == "admin" && is_writable($gitfldr) ) {
+// 				$maintext .= " (<a href='index.php?action=admin&act=update'>update</a>)";
+// 			};
 		};
 
 	};

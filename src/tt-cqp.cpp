@@ -210,18 +210,18 @@ class cqlfld {
 		} else fld = flditem;
 
 		fld = trim(fld);
-		if ( preg_match (fld, "([^ ]+)_([^ ]+)", &m ) ) {
+		if ( preg_match (fld, "^\"(.*)\"$", &m ) ) {
+			valtype = "regex";
+		} else if ( preg_match (fld, "([^ ]+)_([^ ]+)", &m ) ) {
 			rngname = m[1]; rngatt = m[2];
 			if ( fldtype[rngname] == "extann" ) {
 				valtype = "extann";
 			} else if ( fldtype[rngname] == "range" ) {
 				valtype = "range";
 			} else {
-				cout << "Error: unknown attribute " << flditem << endl;
+				if ( debug ) { cout << "Error: unknown attribute " << flditem << endl; };
 				return false; // No such field
 			};
-		} else if ( preg_match (fld, "\"(.*)\"", &m ) ) {
-			valtype = "regex";
 		} else {
 			valtype = "attribute";
 		};
