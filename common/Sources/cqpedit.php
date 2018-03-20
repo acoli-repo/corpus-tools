@@ -180,13 +180,17 @@
 				$marked = 0;
 				foreach ( $changes as $chkey => $chval ) {
 					# $maintext .= "<p>   - setting $chkey to $chval";
-					$token[$chkey] = $chval; $inherited = 0;
+					$inherited = 0;
 					if ( $_POST['lineedit'] && $settings['xmlfile']['pattributes']['forms'] ) {
 						# Check that this is not an inherited value
 						if ( $chval == forminherit($token, $chkey) ) {
 							$inherited = 1;
-							$maintext .= "<p>   -- Not changing $chkey: inherited value";
+							$maintext .= "<p>   -- Not changing $chkey for $tokid: value matched inherited value";
+						} else {
+							$token[$chkey] = $chval; 
 						};
+					} else {
+						$token[$chkey] = $chval; 
 					};
 					if ( !$inherited && ( $chval != $checks[$chkey] || !$checks ) ) {
 						if ( $_POST['lineedit'] ) {
