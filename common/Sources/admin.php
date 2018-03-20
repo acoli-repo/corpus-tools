@@ -23,6 +23,12 @@
 		if ( $shorthand ) {
 			$maintext .= "<hr>".htmlentities(unshorthand($shorthand));
 		};
+
+		
+	} else if ( $act == "update" ) {
+		
+		if ( $user['permissions'] != "admin" ) { fatal("Not allowed"); };
+		if ( !is_writable($ttroot) ) { fatal("TEITOK cannot be updated from within the browser"); };
 		
 	} else if ( $act == "checksettings" ) {
 	
@@ -147,6 +153,10 @@
 			$tmp = simplexml_load_file("$ttroot/common/Resources/version.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
 			$version = $tmp[0];
 			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
+
+			if ( $user['permissions'] == "admin" && is_writable($ttroot) ) {
+				$maintext .= " (<a href='index.php?action=admin&act=update'>update</a>)";
+			};
 		};
 
 	};
