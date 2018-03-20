@@ -37,6 +37,7 @@
 		$output = shell_exec($cmd);
 		
 		$maintext .= "<h1>Updating the TEITOK system</h1>
+			<p>TEITOK Git folder: $gitfldr</p>
 			<pre>$output</pre>";
 		
 	} else if ( $act == "checksettings" ) {
