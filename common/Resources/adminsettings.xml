@@ -77,6 +77,17 @@
 			 <att key="name" display="XPath for the placename within the node"/>
 			 <att key="desc" display="XPath for the description (placename type) within the node"/>
 		</item>
+		<item key="areas" display="Areas to jump to on the map">
+			<desc>If not all the documents on the document map are together, say if most of
+			them are in Spain, but some are on the Canary Islands, you can specify jump points
+			to allow you to jump directly to a specific region on the map.</desc>
+			<list>
+				<att key="key" display="ID of the area"/>
+				<att key="display" display="The name of the area"/>
+				<att key="startpos" display="Coordinates on the map to jump to"/>
+				<att key="zoom" display="Zoom factor of the map"/> 
+			</list>	
+		</item>
 	</item>
 	
 	<item key="menu" display="Items to be displayed in the navigation menu">	

@@ -201,6 +201,8 @@ class TTXML
 	function asXML( $whole = false ) {
 		global $mtxtelement; global $settings; global $username;
 		
+		if ( $_GET['page'] == "all" ) $whole = 1;
+		
 		if ( $settings['xmlfile']['restriction'] && !$this->xml->xpath($settings['xmlfile']['restriction']) && !$username ) { 
 			$tokid = $_GET['jmp'] or $tokid = $_GET['tid'] or $tokid = 'w-1';
 			$xmltxt = $this->context($tokid);
