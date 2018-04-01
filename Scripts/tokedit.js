@@ -234,49 +234,50 @@ function formify () {
 			if ( imgsrc.substr(0,4) != "http" ) {
 				imgsrc = baseurl + 'Facsimile/' + imgsrc;
 			};
-			var cropside = pb.getAttribute('crop');
-			if ( cropside || 1==1 ) {
-				var imgelm = document.createElement("div");
 
-				var imghl = document.createElement("div");
-				imghl.setAttribute('class', 'hlbar'); // The highlight bar
-				imgelm.appendChild(imghl);
-				imgelm.setAttribute('class', 'imgdiv'); // The highlight bar
-				
-				var rlimg = document.createElement("img");
-				imgelm.appendChild(rlimg);
+			var imgelm = document.createElement("div");
 
-				var pbcopy = pb.getAttribute('copy');
-				if ( !pbcopy && typeof(facscopy) != "undefined" ) pbcopy = facscopy; 
-				if ( pbcopy ) {
-					var imgdesc = document.createElement("div");
-					imgelm.appendChild(imgdesc);
-					imgdesc.innerHTML = '&copy; ' + pb.getAttribute('copy');
-					imgdesc.width = '100%';
-					imgdesc.style['text-align'] = 'center';
-					imgdesc.style['font-size'] = 'small';
-					imgdesc.style['color'] = 'grey';
-				};
-				
-				imgelm.setAttribute('src', imgsrc);
-				rlimg.src = imgsrc;
-				if ( cropside ) {
-					rlimg.style.width = '200%';
-				} else {
-					rlimg.style.width = '100%';
-				};
-				if ( cropside == "left" ) {
-					rlimg.style['cssFloat'] = 'left';
-				} else if ( cropside == "right" ) {
-					rlimg.style['cssFloat'] = 'right';
-				};
-				imgelm.style['overflow'] = 'hidden';
-			} else {
-				var imgelm = document.createElement("img");
-				imgelm.src = imgsrc;
+			var imghl = document.createElement("div");
+			imghl.setAttribute('class', 'hlbar'); // The highlight bar
+			imgelm.appendChild(imghl);
+			imgelm.setAttribute('class', 'imgdiv'); // The highlight bar
 			
-				imgelm.style['display'] = 'none';
+			var rlimg = document.createElement("img");
+			imgelm.appendChild(rlimg);
+
+			var pbcopy = pb.getAttribute('copy');
+			if ( !pbcopy && typeof(facscopy) != "undefined" ) pbcopy = facscopy; 
+			if ( pbcopy ) {
+				var imgdesc = document.createElement("div");
+				imgelm.appendChild(imgdesc);
+				imgdesc.innerHTML = '&copy; ' + pb.getAttribute('copy');
+				imgdesc.width = '100%';
+				imgdesc.style['text-align'] = 'center';
+				imgdesc.style['font-size'] = 'small';
+				imgdesc.style['color'] = 'grey';
 			};
+			
+			imgelm.setAttribute('src', imgsrc);
+			rlimg.src = imgsrc;
+
+			var pbrend = pb.getAttribute('rend'); 
+			var cropside = pb.getAttribute('crop'); // Deprecated
+			if ( cropside == "left" && pbrend == "" ) { pbrend = "0,0,50,100" };
+			if ( cropside == "right" && pbrend == "" ) { pbrend = "50,0,100,100" };
+
+			// TODO: make this use percentages (or bbox)
+			var pbzoom = 100;
+			if ( pbrend == "0,0,50,100" ) {
+				rlimg.style['cssFloat'] = 'left';
+				pbzoom = 200;
+			} else if ( pbrend == "50,0,100,100"  ) {
+				rlimg.style['cssFloat'] = 'right';
+				pbzoom = 200;
+			};
+			imgelm.style['overflow'] = 'hidden';
+
+			rlimg.style.width = pbzoom+'%';
+
 			if ( pb.getAttribute('url') ) { imgelm.setAttribute('url', pb.getAttribute('url')); };
 			if ( pb.getAttribute("admin") === "1"  ) { 	
 				imgelm.style.border = '3px solid #992000'; 

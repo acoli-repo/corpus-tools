@@ -83,7 +83,7 @@
 		$node = current($xml->xpath($xp));
 		$node['n'] = "transcription";
 		$node['id'] = $user['short'];
-		$node[0] = $user['fullname'];
+		$node[0] = trim($user['fullname']);
 
 		$xp = "/TEI/teiHeader/notesStmt/note[@n='orgfile']";
 		createnode($dom, $xp);

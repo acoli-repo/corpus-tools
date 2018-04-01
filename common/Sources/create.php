@@ -44,7 +44,7 @@
 		} else {
 			$file = "<TEI>
 <teiHeader/>
-<text/>
+<text xml:space=\"preserve\"/>
 </TEI>";
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		};
@@ -98,12 +98,12 @@
 			$text = preg_replace("/\n\r?[\n\r]+/", "</p>\n\n<p>", $text);
 			# $text = preg_replace("/<([^>]+)>/", "<ex>\\1</ex>", $text);
 			# $text = preg_replace("/\(([^\)]+)\)/", "<del>\\1</del>", $text);
-			$newtext = "<text>\n<p>$text</p>\n</text>";
+			$newtext = "<text xml:space=\"preserve\">\n<p>$text</p>\n</text>";
 		} else if ( $_POST['body'] == "html" ) {
 			$text = $_POST['html'];
 			$text = preg_replace("/\n\r?[\n\r]+/", "</p>\n\n<p>", $text);
 			# TODO: convert shorthand
-			$newtext = "<text>\n$text\n</text>";
+			$newtext = "<text xml:space=\"preserve\">\n$text\n</text>";
 		};
 
 

@@ -119,13 +119,14 @@
 	} else if ( $act == "apply" && $_POST['fileid'] ) {
 
 
-		$date = date("Y-m-d"); 
+		$date = date("Y-m-d"); 	
 		$newrev = xpathnode($ttxml->xml, "//teiHeader/revisionDesc/change[@when='$date']");
 		$newrev['who'] = $user['short'];
 		$newrev[0] = "Converted from page-by-page transcription";
 
 		$dom = dom_import_simplexml($ttxml->xml)->ownerDocument; 		
 		$xpath = new DOMXpath($dom);
+		
 		
 		foreach ( $xpath->query("//text/page") as $pagenode ) {
 			$pagebody = $dom->saveXML($pagenode);
@@ -182,9 +183,8 @@
 				$pagebody = str_replace("&lt;", "<", $pagebody);
 				$pagebody = str_replace("&gt;", ">", $pagebody);
 			};
-
 			# Remove any @status
-			$pagebody = preg_replace(" status=\"[^\"]*\"", "", $pagebody);
+			$pagebody = preg_replace("/ status=\"[^\"]*\"/", "", $pagebody);
 			
 			$sxe = simplexml_load_string($pagebody, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$sxe && $value ) {
@@ -573,9 +573,10 @@
 				$done = 0; $tot = 0;
 				foreach ( explode("\n", shell_exec("grep '<page ' pagetrans/$file")) as $line ) {
 					if ( strstr($line, 'status="2"') != false ) $done++;
-					$tot++;
+					if ( strstr($line, 'page') != false ) $tot++;
 				};
-				$resp = shell_exec("grep 'n=\"transcription\"' pagetrans/$file");
+				$tmp = shell_exec("grep 'n=\"transcription\"' pagetrans/$file");
+				if ( preg_match("/<resp[^>]*>(.*?)<\/resp>/", $tmp, $matches) ) $resp = $matches[1];
 				$maintext .= "<tr><td><a href='index.php?action=$action&cid=$file'>$file</a>
 					<td align=right>$done of $tot pages
 					<td>{$resp}";

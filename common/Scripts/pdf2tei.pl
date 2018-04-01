@@ -116,7 +116,7 @@ if ( $parsetype eq "ocr" ) {
 	};
 	if ( $teistring eq '' ) { $teistring = "<TEI>
 	<teiHeader/>
-	<text>
+	<text xml:space=\"preserve\">
 	</text>
 	</TEI>"; };
 

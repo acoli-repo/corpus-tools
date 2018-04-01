@@ -321,6 +321,7 @@ if ( $sentsplit != 2 ) {
 					}; # With <ex> - <expan> is no longer an expanded stretch
 					$ffrm = $frm;
 					$frm =~ s/<ex.*?<\/ex[^>]*>//g; # Delete expansions in form
+					$ffrm =~ s/<am.*?<\/am[^>]*>//g; # Delete abrrev markers in fform
 				};
 
 				# Remove all (other) tags

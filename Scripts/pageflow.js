@@ -210,7 +210,8 @@ function showpage(num, before=-1) {
 	if ( page.getAttribute('copy') ) {
 		facsview.innerHTML = "&copy; " + page.getAttribute('copy');
 	};
-			
+
+
 	pageinit();
 		
 	facswidth = facsview.offsetWidth;
@@ -398,6 +399,25 @@ function redraw() {
 	facsview.style.backgroundPositionX = "0px"; bpx = 0;
 	facsview.style.backgroundPositionY = "0px"; bpy = 0;
 	facsview.style['line-height'] = (facsview.style.height.replace("px","")*1 * 2)-30 + 'px'; 
+
+	// TODO: make this use percentages (or bbox)
+	var pbrend = page.getAttribute('rend'); var bbrend;
+	var cropside = page.getAttribute('crop'); // Deprecated
+	if ( cropside == "left" ) { pbrend = "0,0,50,100" };
+	if ( cropside == "right" ) { pbrend = "50,0,100,100" };
+	if ( pbrend != "" ) {
+		bbrend = pbrend.split(",");
+		var tmp = bbrend[2]-bbrend[0];
+		pbzoom = 1/(tmp/100);
+		facswidth = facsview.offsetWidth * pbzoom;
+		facsheight = (facswidth*(facs.naturalHeight/facs.naturalWidth));
+		facsview.style['background-size'] = facswidth + 'px ' + facsheight + 'px';
+		bpx = 0 - (bbrend[0]/100)*facswidth;
+		facsview.style.backgroundPositionX = bpx + "px"; 
+		bpy = 0 - (bbrend[1]/100)*facsheight;
+		facsview.style.backgroundPositionY = bpy + "px"; 
+		console.log('Show: ' + bbrend + ' > ' + pbzoom + ' - ' + bpx + ' x ' + bpy);
+	};
 	
 	var rect = facsview.getClientRects();
 	toc.style.top = rect[0]['top'] + 'px';

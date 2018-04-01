@@ -35,49 +35,37 @@
 		foreach ($result as $cnt => $node) {
 			$pid = $node['id'] or $pid = "cnt[$cnt]";
 			$pnr = $node['n'] or $pnr = "cnt[$cnt]";
-			if ( $lpnr ) {
-				$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$lpid&pbtype=pb\">$lpnr</a>";
-			};
-			$lpnr = $pnr; $lpid = $pid;
+			$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
 		};
-		$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
 		$maintext .= "</td>";
 	};
 	if ( !$settings['xmlfile']['index'] ) $settings['xmlfile']['index'] = array ( "chapter" => array ( "display" => "Chapter List" ));
 	foreach ( $settings['xmlfile']['index'] as $key => $val ) {
-		if ( $val['div'] ) {
-			$divxp = "//{$val['div']}[@type=\"$key\"]";
+		if ( $val['div'] || $val['xpath'] ) {
+			if ( $val['xpath'] ) $divxp = $val['xpath'];
+			else $divxp = "//{$val['div']}[@type=\"$key\"]";
 			if ( count($ttxml->xml->xpath($divxp)) > 0 ) {
 				$lpnr = "";
 				$maintext .= "<td valign=top><h2>{%{$val['display']}}</h2>";
 				# Build the list of pages
 				$result = $ttxml->xml->xpath($divxp); $tmp = 0;
-				foreach ($result as $cnt => $node) {
+				foreach ( $result as $cnt => $node ) {
 					$pid = $node['id'] or $pid = "cnt[$cnt]";
 					$pnr = $node['n'] or $pnr = "cnt[$cnt]";
-					if ( $lpnr ) {
-						$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&div=$lpid&divtype={$val['div']}\">$lpnr</a>";
-					};
-					$lpnr = $pnr; $lpid = $pid;
+					$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&div=$pid&divtype={$key}\">$pnr</a>";
 				};
-				$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&div=$pid&divtype={$val['div']}\">$pnr</a>";
 				$maintext .= "</td>";
 			};
 		} else {
 			if ( count($ttxml->xml->xpath("//milestone[@type=\"$key\"]")) > 0 ) {
-				$lpnr = "";
 				$maintext .= "<td valign=top><h2>{%{$val['display']}}</h2>";
 				# Build the list of pages
 				$result = $ttxml->xml->xpath("//milestone[@type=\"$key\"]"); $tmp = 0;
 				foreach ($result as $cnt => $node) {
 					$pid = $node['id'] or $pid = "cnt[$cnt]";
 					$pnr = $node['n'] or $pnr = "cnt[$cnt]";
-					if ( $lpnr ) {
-						$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$lpid&pbtype=$key\">$lpnr</a>";
-					};
-					$lpnr = $pnr; $lpid = $pid;
+					$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=$key\">$pnr</a>";
 				};
-				$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=$key\">$pnr</a>";
 				$maintext .= "</td>";
 			};
 		};

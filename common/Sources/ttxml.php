@@ -207,6 +207,8 @@ class TTXML
 			$tokid = $_GET['jmp'] or $tokid = $_GET['tid'] or $tokid = 'w-1';
 			$xmltxt = $this->context($tokid);
 			$this->pagenav = "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
+		} else if ( $settings['xmlfile']['paged'] != 2 && $_GET['div'] && 1==2 ) {
+			# Show a whole DIV
 		} else if ( !$whole && $settings['xmlfile']['paged'] ) {
 			$xmltxt = $this->page();
 		} else {
@@ -285,15 +287,20 @@ class TTXML
 	}
 	
 	function page ( $pagid ) {
-		global $action;
+		global $action; global $settings;
 		
 		$editxml = $this->rawtext;
 	
 		# Return the xml for a page (or other element) of the text
 		
 		// Determine what element to use
-		$pbtmp = $_GET['pbtype'] or $pbtmp = $settings['xmlfile']['paged']['element'] or $pbtmp = "pb";
-		if ( $pbtmp == "pb" ) { // Page
+		if ( $settings['xmlfile']['paged'] == 2 ) $pbtmp = "pb"; # Hard-coded page
+		else 
+			$pbtmp = $_GET['pbtype'] or $pbtmp = $settings['xmlfile']['paged']['element'] or $pbtmp = "pb";
+		if ( $action == "pagetrans" ) { // Page
+			$pbelm = "page";
+			$titelm = "Page";
+		} else if ( $pbtmp == "pb" ) { // Page
 			$pbelm = "pb";
 			$titelm = "Page";
 			$pbsel = "&pbtype={$_GET['pbtype']}";
