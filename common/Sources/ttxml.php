@@ -287,16 +287,16 @@ class TTXML
 	}
 	
 	function page ( $pagid ) {
-		global $action; global $settings;
+		global $action; # global $settings;
 		
 		$editxml = $this->rawtext;
 	
 		# Return the xml for a page (or other element) of the text
 		
 		// Determine what element to use
-		if ( $settings['xmlfile']['paged'] == 2 ) $pbtmp = "pb"; # Hard-coded page
-		else 
-			$pbtmp = $_GET['pbtype'] or $pbtmp = $settings['xmlfile']['paged']['element'] or $pbtmp = "pb";
+		# if ( $settings['xmlfile']['paged'] == 2) $me = "you";
+		
+		$pbtmp = $_GET['pbtype'] or $pbtmp = $settings['xmlfile']['paged']['element'] or $pbtmp = "pb";
 		if ( $action == "pagetrans" ) { // Page
 			$pbelm = "page";
 			$titelm = "Page";
