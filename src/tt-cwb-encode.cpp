@@ -427,21 +427,32 @@ void treatfile ( string filename ) {
 			// Loop through the actual items
 			pugi::xpath_node_set elmres = doc.select_nodes(xpath.c_str());
 			for (pugi::xpath_node_set::const_iterator it = elmres.begin(); it != elmres.end(); ++it) {
+				
 				string tmpxpath;
-				if ( taglvl == "tok[dtok]" ) { 
-					tmpxpath = "dtok";
+				
+				string toka; string tokb;
+				if ( it->node().attribute("empty") != NULL ) {
+					// TODO: for empty nodes like <pb/> - go from the first token after to the first token before the next....
+					
 				} else {
-					tmpxpath = rel_tokxpath;
-				}
-				if ( debug > 4 ) { cout << " - Relative xpath: " << tmpxpath << endl; };
-				pugi::xpath_node_set rel_toks = it->node().select_nodes(tmpxpath.c_str());
-				if ( rel_toks.empty() ) { continue; };
-				string toka = rel_toks[0].node().attribute("id").value();
-				string tokb = rel_toks[rel_toks.size()-1].node().attribute("id").value();
+				
+					if ( taglvl == "tok[dtok]" ) { 
+						tmpxpath = "dtok";
+					} else {
+						tmpxpath = rel_tokxpath;
+					}
+					if ( debug > 4 ) { cout << " - Relative xpath: " << tmpxpath << endl; };
+					pugi::xpath_node_set rel_toks = it->node().select_nodes(tmpxpath.c_str());
+					if ( rel_toks.empty() ) { continue; };
+					toka = rel_toks[0].node().attribute("id").value();
+					tokb = rel_toks[rel_toks.size()-1].node().attribute("id").value();
+				
+				};
+
 				int posa = id_pos[toka]; // first "token" in the range
 				int posb = id_pos[tokb]; // last "token" in the range
 				if ( debug > 2 ) { cout << " Found a range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
-
+				
 				write_range(posa, posb, tagname );
 
 				// Write the XXX_xidx.rng

@@ -480,7 +480,7 @@
 			  });
 
 			</script>	
-			<p>$helptxt
+			<p><span  style='color: #888888;'>$helptxt</span>
 			<span style='display: inline; float: right;'>
 				<span onClick='fontchange(-1);' id='font1' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='decrease font size'>A-</span>
 				<span onClick='fontchange(1);' id='font2' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='increase font size'>A+</span>
