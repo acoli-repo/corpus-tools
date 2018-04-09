@@ -351,8 +351,12 @@ void treatfile ( string filename ) {
 	// add the sattributes for all levels
 	string formkey; string formval; 
 	string rel_tokxpath = tokxpath;
+	
 	// TODO: Make this make a proper relative XPath, since //tok//dtok would currently become .//tok.//dtok
-	replace_all(rel_tokxpath, "//", ".//");
+	if ( tokxpath[0] == '/' ) { 	
+		string tmp = "." + string(tokxpath);
+		strcpy(tokxpath, tmp.c_str()); 
+	};
 		if ( debug > 4 ) { cout << "  - looking for the tokens inside this range: " << rel_tokxpath << endl; };
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
 		string tagname = taglevel.attribute("key").value();

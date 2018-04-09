@@ -239,6 +239,7 @@
 				<input type=button onClick=\"showregions('p,tei:head,h1,h2,h3,h4',255,0,0)\" value='Paragraphs' style='background-color: rgba(255,0,0,0.4);'/>
 				<input type=button onClick=\"showregions('lb,l,line',0,0,255)\" value='Lines'  style='background-color: rgba(0,0,255,0.4);'/>
 				<input type=button onClick=\"showregions('tok,gtok',0,255,0)\" value='Words'  style='background-color: rgba(0,255,0,0.4);'/>
+				<input type=button onClick=\"showregions('figure',0,255,255)\" value='Illustrations'  style='background-color: rgba(0,255,255,0.4);'/>
 				<input type=button style='float: right;' onClick=\"scale(1.2)\" value='Zoom in'/>
 				<input type=button style='float: right;' onClick=\"scale(0.8)\" value='Zoom out'/>
 				<input type=button style='float: right;' onClick=\"savexml()\" value='Save'/>

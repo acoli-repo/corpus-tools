@@ -54,11 +54,15 @@
 			$nrblock .= " 
 				<td style='width: 30px;font-size: 10pt;  text-align: right;'>$sentid </table></div>";
 		}  else {
+			if ( $username ) "<a href='index.php?action=sentedit&cid=$fileid&sid={$sent['id']}'>$sentid</a>";
+			else $sentnumtxt = "$sentid";
+
 			$nrblock = "
 				<div style='display: inline-block; float: left; margin: 0px; padding: 0px; padding-top: 0px; width: {$ewd}px; font-size: 10pt;'>
-					<a href='index.php?action=sentedit&cid=$fileid&sid={$sent['id']}'>$sentid</a>
+					$sentnumtxt
 					$treelink
 				</div>";
+		
 			$pl = "50px";
 		};
 		$editxml .= "
