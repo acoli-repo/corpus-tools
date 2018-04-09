@@ -353,9 +353,8 @@ void treatfile ( string filename ) {
 	string rel_tokxpath = tokxpath;
 	
 	// TODO: Make this make a proper relative XPath, since //tok//dtok would currently become .//tok.//dtok
-	if ( tokxpath[0] == '/' ) { 	
-		string tmp = "." + string(tokxpath);
-		strcpy(tokxpath, tmp.c_str()); 
+	if ( rel_tokxpath.substr(0,1) == "/" ) { 
+		rel_tokxpath = "." + rel_tokxpath;
 	};
 		if ( debug > 4 ) { cout << "  - looking for the tokens inside this range: " << rel_tokxpath << endl; };
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
