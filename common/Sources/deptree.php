@@ -249,8 +249,10 @@ $maintext .= "
 		if ( !file_exists($filename) ) { fatal ( "File does not exist: $filename" ); };
 		
 		$formfld = "nform"; $sep ="";
-		$exec = findapp("udpipe"); if ( !$exec ) fatal ("UDPIPE application not found");
+		$exec = findapp("udpipe");
 		
+		// TODO: Check this only if we run locally
+		// if ( !$exec ) fatal ("UDPIPE application not found");
 		
 		$model = $_GET['pid'];
 		if ( !$pid ) {

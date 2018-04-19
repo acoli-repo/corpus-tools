@@ -380,7 +380,8 @@
 			if ( $_POST['strategy'] && !$fileonly ) {
 				$cmd = "set MatchingStrategy {$_POST['strategy']}";
 				$cqp->exec($cmd); // Select the corpus
-				$maintext .= "<p>{%Matching strategy}: {%{$_POST['strategy']}}";
+				// TODO: make this show on the right position
+				// $maintext .= "<p>{%Matching strategy}: {%{$_POST['strategy']}}";
 			};
 		};
 
@@ -855,6 +856,8 @@
 				<input type=submit onClick=\"return collchoose();\"/>
 				";
 			
+			// TODO: what happened to the context by sattribute?
+			
 			$maintext .= "<p>{%Frequency by}: <select onchange=\"freqchoose(this.value);\">
 				<option value=''>{%[select]}</option>
 				$freqopts
@@ -1125,7 +1128,7 @@
 				if ( $item['type'] == "group" ) { 
 					$maintext .= "<tr><td>&nbsp;<tr><td colspan=2 style='text-align: center; color: #992000; font-size: 10pt; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa;'>{%$val}";
 				} else {
-					if ( $item['nosearch'] ) $a = 1; # Ignore this in search 
+					if ( $item['nosearch'] || $val == "" ) $a = 1; # Ignore this in search 
 					else if ( $item['type'] == "range" ) 
 						$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
 					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {

@@ -111,6 +111,7 @@ $tagtxt =~ s/&(?![^ \n\r&]+;)/xx&amp;xx/g;
 # <note> elements should not get tokenized
 # And neither should <desc> or <gap>
 # Take them out and put them back later
+# TODO: this goes wrong with nested notes (which apt. are allowed in TEI)
 $notecnt = 0;
 while ( $tagtxt =~ /<(note|desc|gap|pb|fw|app)[^>]*(?<!\/)>.*?<\/\1>/gsmi )  {
 	$notetxt = $&; $leftc = $`;
@@ -124,7 +125,7 @@ while ( $tagtxt =~ /<(note|desc|gap|pb|fw|app)[^>]*(?<!\/)>.*?<\/\1>/gsmi )  {
 		};
 	};
 	$oldtxt = $newtxt;
-	$tagtxt =~ s/\Q$notetxt\E/<ntn $notecnt\/>/;
+	$tagtxt =~ s/\Q$notetxt\E/<ntn n="$notecnt"\/>/;
 	$notecnt++;
 };	
 
@@ -225,15 +226,32 @@ if ( $sentsplit != 2 ) {
 			$parser = XML::LibXML->new(); $tokxml = "";
 			eval { $tokxml = $parser->load_xml(string => $chtok); };
 		
-			# Check unmatched start tags
+			# Correct unmatched tags
 			$chkcnt = 0;
 			while ( !$tokxml && ( $m =~ /^<([^>]+)>/ || $m =~ /<([^>]+)>$/) ) { 
 				if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
-				if ( $m =~ /^<([^>]+)>/ ) {
-					# Leftmost 
+				if ( $m =~ /^<([^>]+)\/>/ ) {
+					# Leftmost empty
+					$a .= $&;
+					$m = $';
+				} elsif ( $m =~ /<([^>]+)\/>$/ ) {
+					# Rightmost empty
+					$b = $&.$b;
+					$m = $`;
+				} elsif ( $m =~ /^<\/([^>]+)>/ ) {
+					# Leftmost closing
+					$a .= $&;
+					$m = $';
+				} elsif ( $m =~ /<[^\/>][^>]*>$/ ) {
+					# Rightmost opening
+					$b .= $&.$b;
+					$m = $`;
+				} elsif ( $m =~ /^<([^\/>][^>]*)>/ ) {
+					# Leftmost opening without close
+					# TODO: This is not a complete check
 					$tm = $&; $ti = $1; $rc = $';
-					( $tn = $ti ) =~ s/ .*//;
-					if ( $ti =~ /\/$/ || $ti =~ /^\// || $rc !~ /^((?<!<$tn ).)+<\/$tn>/ ) { 
+					( $tn = $ti ) =~ s/ .*//; $tn =~ s/^\///; # tag name
+					if ( $rc !~ /^((?<!<$tn ).)+<\/$tn>/ ) { 
 						# Move out
 						$m =~ s/^\Q$tm\E//;
 						$a .= $tm;
@@ -241,12 +259,13 @@ if ( $sentsplit != 2 ) {
 						# Mark as non-movable
 						$m = "#".$m;
 					};
-				} elsif ( $m =~ /<([^>]+)>$/ ) {
-					# Rightmost
+				} elsif ( $m =~ /<\/([^>]+)>$/ ) {
+					# Rightmost closing without open
+					# TODO: This is not a complete check
 					$tm = $&; $ti = $1; $lc = $`;
-					( $tn = $ti ) =~ s/ .*//;
+					( $tn = $ti ) =~ s/ .*//; $tn =~ s/^\///; # tag name
 					( $tv = $ti ) =~ s/^[^ ]+ //;
-					if ( $ti =~ /\/$/ || $ti !~ /^\// || $lc !~ /<$tn [^>\/]*>(.(?!<\/$tn>))+$/ ) { 
+					if ( $lc !~ /<$tn [^>\/]*>(.(?!<\/$tn>))+$/ ) { 
 						# Move out
 						$m =~ s/\Q$tm\E$//;
 						$b = $tm.$b;
@@ -267,45 +286,63 @@ if ( $sentsplit != 2 ) {
 		
 			# If there are unmatched tags in the middle...
 			if ( !$tokxml ) {
-				$chkcnt = 0; $checkm = $m; $onto = "";
-				while ( $checkm =~ /<([^\/ ]+) (.(?!<\/\1>))+$/ ) {
-					if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
-					$tn = $1;
-					$onto = "<\/$tn>".$onto;
-					$b .= "<$tn rpt=\"1\">";
-					if ( $debug ) {
-						print "CTK2 | ($a) $m/$onto ($b)";
+			
+				# Count all the tags
+				undef(%tgchk); # Clean count hash first
+				while ( $m =~ /<([^ >]+)([^>]*)>/g ) {
+					$tn = $1; $ta = $2;
+					if ( $tn =~ /^\// ) {
+						$tn = $';
+						if ( $tgchk{$tn} > 0 ) {
+							$tgchk{$tn}--;
+						} else {
+							# Closing before opening
+							$a .= "<\/$tn>";
+							$m = "<$tn rpt=\"1\">".$m;
+						};
+					} elsif ( $ta =~ /\/$/ || $tn =~ /\/$/ ) {
+						# Ignore
+					} else {
+						$tgchk{$tn}++;
+					};										
+				}; 
+				
+				# Repair unpaired tags
+				while ( ( $tn, $val ) = each ( %tgchk ) ) {
+					# TODO: these should be added in the right order...
+					$onto = "";
+					if ( $val < 0 ) {
+						for ( $i=0; $i>$val; $i-- ) {
+							$a .= "<\/$tn>";
+							$m = "<$tn rpt=\"1\">".$m;
+							if ( $debug ) {
+								print "CTK2 | ($a) $m+$onto ($b)";
+							};
+						};
+					} elsif ( $val > 0  ) {
+						for ( $i=0; $i<$val; $i++ ) {
+							$onto = "<\/$tn>".$onto;
+							$b .= "<$tn rpt=\"1\">";
+							if ( $debug ) {
+								print "CTK2 | ($a) $m+$onto ($b)";
+							};
+						};
 					};
-					$chcnt++; $checkm = $m.$onto;
-				}; $m = $m.$onto;
+				};
+				$m = $m.$onto;
+				
 				# Check whether <tok> is valid XML
 				$parser = XML::LibXML->new(); $tokxml = "";
 				eval { $tokxml = $parser->load_xml(string => "<tok>$m</tok>"); };
-				$chcnt++;
-			};
-			if ( !$tokxml ) {
-				$chkcnt = 0;
-				while ( $m =~ /<\/([^>]+)>/g ) {
-					if ( $chkcnt++ > 15 )  { print "Oops - infinite loop on $chtok"; exit; };
-					$lc = $`; $tn = $1;
-					if ( $lc !~ /<$tn [^>\/]*>(.(?!<\/$tn>))+$/ ) {
-						$a .= "<\/$tn>";
-						$m = "<$tn rpt=\"1\">".$m;
-					};
-					if ( $debug ) {
-						print "CTK3 | ($a) $m ($b)";
-					};
-					$chcnt++;
-				};
 			};
 
 		
 			# Finally, look at the @form and @fform and @nform
 			$fts = "";
-			if ( $m =~ /^(.+)\|=([^<>]+)$/ ) { # q||que -> expansion
+			if ( $m =~ /^(.+)\|=([^<>]+)$/ ) { # echa|=hecha -> normalization
 				$m = $1; $fts .= " nform=\"$2\"";
 			};
-			if ( $m =~ /^(.+)\|\|([^<>]+)$/ ) { # echa|=hecha -> normalization
+			if ( $m =~ /^(.+)\|\|([^<>]+)$/ ) { # q||que -> expansion
 				$m = $1; $fts .= " fform=\"$2\"";
 			};
 			if ( $m =~ /<[^>]+>/ ) {
@@ -314,8 +351,8 @@ if ( $sentsplit != 2 ) {
 				$frm =~ s/-<lb[^>]*\/>//g; # Delete hyphens before word-internal hyphens
 				if ( $frm eq "" ) { $frm = "--"; };
 			
-				# Deal with <ex> or <expan>
-				if ( $frm =~ /<ex/ ) {
+				# Deal with expansions
+				if ( $frm =~ /<ex/ || $frm =~ /<am/ ) {
 					if ( $frm =~ /<\/ex>/ ) { 
 						$frm =~ s/<\/?expan [^>]*>//g; 
 					}; # With <ex> - <expan> is no longer an expanded stretch
@@ -324,7 +361,7 @@ if ( $sentsplit != 2 ) {
 					$ffrm =~ s/<am.*?<\/am[^>]*>//g; # Delete abrrev markers in fform
 				};
 
-				# Remove all (other) tags
+				# Remove all (other) tags from @form
 				$frm =~ s/<[^>]+>//g;
 				$frm =~ s/"/&quot;/g;
 				$ffrm =~ s/<[^>]+>//g;
@@ -334,13 +371,16 @@ if ( $sentsplit != 2 ) {
 				if ( $ffrm ne '' && $frm ne $ffrm ) { $fts .= " fform=\"$ffrm\""; };
 			};
 
-			# Move <lb/> out from beginning of <tok>
-			if ( $m =~ /^<lb\/>/ ) {
+			# Move <lb/> out from beginning of <tok> - should be redundant
+			if ( $m =~ /^<lb[^>]*\/>/ ) {
 				$m = $'; $a .= $&;
 			};
 
 			if ( $debug ) {
-				print "TKK | $m";
+				$mo = "";  
+				if ( $a ne ""  ) { $mo1 = "($a)"; };
+				if ( $b ne "" ) { $mo2 = "($b)"; };
+				print "TKK | $mo1 $m $mo2";
 			};
 
 			$line =~ s/\Q$n\E/$a<tok$fts>$m<\/tok>$b/;
@@ -381,7 +421,6 @@ if ( $sentsplit != 2 ) {
 
 	$teitext =~ s/xx(&[^ \n\r&]+;)xx/\1/g; # Unprotect HTML Characters
 
-
 	# A single capital with a dot is likely a name
 	$teitext =~ s/<tok>([A-Z])<\/tok><tok>\.<\/tok>/<tok>\1.<\/tok>/g; # They can also be inside a tok
 
@@ -407,9 +446,9 @@ if ( $sentsplit ) {
 		$teitext =~ s/(<\/[^>]+>)$/<\/s>\1/;
 	};
 
-	while ( $teitext =~ /<ntn (\d+)\/>/ ) {
+	while ( $teitext =~ /<ntn n="(\d+)"\/>/ ) {
 		$notenr = $1; $notetxt = $notes[$notenr]; 
-		$teitext =~ s/<ntn (\d+)\/>/$notetxt/;
+		$teitext =~ s/<ntn n="(\d+)"\/>/$notetxt/;
 	};
 
 	$presplit = $teitext; 

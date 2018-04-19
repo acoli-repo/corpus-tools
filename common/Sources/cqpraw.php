@@ -848,24 +848,4 @@
 	
 	}; $maintext .= "<style>.adminpart { background-color: #eeeedd; padding: 5px; }</style>";
 
-	function pattname ( $key ) {
-		global $settings;
-		if ( $key == "word" ) $key = "form";
-		$val = $settings['xmlfile']['pattributes']['forms'][$key]['display'];
-		if ( $val ) return $val;
-		$val = $settings['xmlfile']['pattributes']['tags'][$key]['display'];
-		if ( $val ) return $val;
-		
-		# Now try without the text_ or such
-		if ( preg_match ("/^(.*)_(.*?)$/", $key, $matches ) ) {
-			$key2 = $matches[2]; $keytype = $matches[1];
-			$val = $settings['cqp']['sattributes'][$key2]['display'];
-			if ( $val ) return $val;
-			$val = $settings['cqp']['sattributes'][$keytype][$key2]['display'];
-			if ( $val ) return $val;
-		};
-		
-		return "<i>$key</i>";
-	};
-
 ?>

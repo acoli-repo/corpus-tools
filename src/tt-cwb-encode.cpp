@@ -352,8 +352,8 @@ void treatfile ( string filename ) {
 	string formkey; string formval; 
 	string rel_tokxpath = tokxpath;
 	
-	// TODO: Make this make a proper relative XPath, since //tok//dtok would currently become .//tok.//dtok
 	if ( rel_tokxpath.substr(0,1) == "/" ) { 
+		// Make the path relative if it is root-based
 		rel_tokxpath = "." + rel_tokxpath;
 	};
 		if ( debug > 4 ) { cout << "  - looking for the tokens inside this range: " << rel_tokxpath << endl; };
