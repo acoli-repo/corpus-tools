@@ -2,6 +2,7 @@
 #include <fstream>  
 #include <string>
 #include <sstream>
+#include <stdlib.h>
 #include <set>
 #include <map>
 #include <vector>
