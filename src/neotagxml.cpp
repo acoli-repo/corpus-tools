@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <stdlib.h>
+#include <cstring> 
 #include <set>
 #include <map>
 #include <vector>
