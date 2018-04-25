@@ -158,8 +158,8 @@ class TTXML
 		$header = file_get_contents($tplfile);
 		$tableheader .= xpathrun($header, $this->xml);
 
+		# Show alternative header views
 		if ( $showbottom ) {
-			# Show alternative header views
 			if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$this->fileid";
 			$headeroptions = $settings['xmlfile']['teiHeader'] or $headeroptions = array (
 				'' => array ( "display" => "less header data" ),

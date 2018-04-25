@@ -453,8 +453,15 @@ void treatfile ( string filename ) {
 				
 				};
 
+				// Skip this is we do not have any tokens inside the range
+				if ( id_pos.find(toka) == id_pos.end() || id_pos.find(tokb) == id_pos.end() ) {
+					if ( debug > 2 ) { cout << " Empty range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " to " << tokb << endl; };
+					continue;
+				};
+
 				int posa = id_pos[toka]; // first "token" in the range
 				int posb = id_pos[tokb]; // last "token" in the range
+
 				if ( debug > 2 ) { cout << " Found a range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
 				
 				write_range(posa, posb, tagname );
@@ -466,6 +473,8 @@ void treatfile ( string filename ) {
 				// std::string xmltxt = oss.str();	
 				// int xmlpos2 = xmlpos1 + xmltxt.length(); 
 				int xmlpos2 = it->node().select_node("./following::*").node().offset_debug()-1;
+				
+				
 				if ( debug > 4 ) { cout << "Writing XIDX for " << tagname << " = " << xmlpos1 << " - " << xmlpos2 << endl; };
 				write_network_number(xmlpos1, files[tagname + "_xidx"]["rng"]);
 				write_network_number(xmlpos2, files[tagname + "_xidx"]["rng"]);
