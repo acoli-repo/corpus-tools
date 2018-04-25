@@ -112,7 +112,7 @@ for ( var w = 0; w<wits.length; w++ ) {
 	for ( var a = 0; a<its.length; a++ ) {
 		var tok = its[a]; 
 		var appid = tok.getAttribute('appid');
-		if ( appid == '' ) continue;
+		if ( appid == '' || appid == null ) continue;
 		var form = tok.getAttribute('form');
 		if ( !form ) form = tok.innerHTML;
 		if ( !apps[appid] ) apps[appid] = [];

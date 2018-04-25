@@ -38,6 +38,11 @@
 			$treelink .= "<a href='index.php?action=deptree&cid=$fileid&sid={$sent['id']}' title='dependency tree'>tree</a>"; 
 			$ewd = 50;
 		};
+		if ( $sent['appid'] ) {
+			$cid = $xmlid;
+			$treelink .= "<a href='index.php?action=collate&act=cqp&baselevel=$stype&appid={$sent['appid']}&from=$cid' title='witness collation'>app</a>"; 
+			$ewd = 50;
+		};
 		if ( $psdx  && $stype == "s" ) { // Allow a direct link to a PSDX tree 
 			$nrblock = "
 				<div style='display: inline-block; float: left; margin: 0px; padding: 0px; width: 80px;'>
