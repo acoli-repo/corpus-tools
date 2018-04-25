@@ -60,6 +60,7 @@
 		$end = $start+$perpage;
 		$cqpquery = "tabulate Matches $start $end $mtch id, $mtch text_id, $mtch word, $mtch;";	# match page_facs
 		$results = $cqp->exec($cqpquery);
+		$results = $cqp->exec($cqpquery); // TODO: Why do we need this a second time?
 		if ( $size > $perpage ) {
 			$showing = " - {%showing} ".($start+1)." - $end";
 		};

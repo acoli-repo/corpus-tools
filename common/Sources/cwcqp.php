@@ -67,7 +67,7 @@ class CQP
     public function exec($cmd) {
     	global $settings;
     	
-    	$cmd = preg_replace("/\n/", "", $cmd);
+    	$cmd = preg_replace("/\n/", " ", $cmd); # Keep commands on a single line
     	$cmd = preg_replace("/;*$/", ";\n;.EOL.;\n", $cmd); // Append the .EOL. command to mark the end of the CQP output
 		
         if (is_resource($this->prcs)) {
@@ -79,7 +79,7 @@ class CQP
 			} while ( !strstr($line, "-::-EOL-::-") );
 			$data = preg_replace ("/-::-EOL-::-/", "", $data); 
 
-			if ( $settings['defaults']['cwblog'] )
+			if ( $settings['defaults']['cwblog'] ) # Write a CWB log file if so asked
 			if ( $fh = fopen($settings['defaults']['cwblog']['file'], 'a') ) { 
 					fwrite($fh, $cmd);
 					fclose ( $fh );
