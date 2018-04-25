@@ -126,6 +126,7 @@ var its = document.getElementById('bf').getElementsByTagName("tok");
 for ( var a = 0; a<its.length; a++ ) {
 	var tok=its[a]; 
 	var appid = tok.getAttribute('appid');
+	if ( apps[appid] == null ) continue;
 	var keys = Object.keys(apps[appid]);
 	if ( keys.length > 1 ) {
 		var appstring = '';
