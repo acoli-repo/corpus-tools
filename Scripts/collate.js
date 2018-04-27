@@ -2,6 +2,7 @@
 document.onmouseover = mouseEvent; 
 document.onmouseout = mouseOut; 
 var hlid;
+var teiapp;
 
 function mouseOut(evt) {
 	hidetokinfo();
@@ -123,19 +124,34 @@ for ( var w = 0; w<wits.length; w++ ) {
 	
 // Show the apparatus on the bf element
 var its = document.getElementById('bf').getElementsByTagName("tok");
+teiapp = "<l>";
 for ( var a = 0; a<its.length; a++ ) {
 	var tok=its[a]; 
 	var appid = tok.getAttribute('appid');
+	var form = tok.getAttribute('form');
+	if ( !form ) form = tok.innerHTML;
 	if ( apps[appid] == null ) continue;
 	var keys = Object.keys(apps[appid]);
 	if ( keys.length > 1 ) {
 		var appstring = '';
+		teiapp += "\n<w><app>";
 		for ( var b=0; b<keys.length; b++ ) {
 			var key = keys[b];
 			var val = apps[appid][key];
+			val = val.replace(/; *$/, "");
 			appstring += key+':'+val+',';
+			if ( form != key ) {
+				teiapp += "\n\t<rdg wit=\"#"+val.replace(/; /g, " #")+"\">"+key+"</rdg>";
+			} else {
+				teiapp += "\n\t<lem wit=\"#"+val.replace(/; /g, " #")+"\">"+key+"</lem>";
+			};
 		};
 		tok.setAttribute('apps', 'true');
 		tok.setAttribute('list', appstring);
+		teiapp += "\n</app></w>";
+	} else {
+		teiapp += "\n<w>"+form+"</w>";
 	};
 };
+teiapp += "\n</l>"; 
+document.getElementById('dltei').href = 'data:attachment/xml,' + encodeURIComponent(teiapp); // teiapp.replace(/"/, "%22")
