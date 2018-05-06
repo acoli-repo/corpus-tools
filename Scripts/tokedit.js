@@ -95,7 +95,14 @@ function formify () {
 				attributelist.push(fld);
 				attributenames[fld] = formdef[fld]['display'];
 			};
-		} else { attributelist = Array("fform", "lemma", "pos", "mfs"); };
+		};
+		if ( typeof(tagdef) != "undefined" ) {
+			for ( fld in tagdef ) {
+				attributelist.push(fld);
+				attributenames[fld] = formdef[fld]['display'];
+			};
+		};
+		if ( attributelist.length == 0 )  { attributelist = Array("fform", "lemma", "pos", "mfs"); };
 	};
 	
 	var mtxt = document.getElementById("mtxt");
