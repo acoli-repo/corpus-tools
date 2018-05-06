@@ -99,7 +99,7 @@ function formify () {
 		if ( typeof(tagdef) != "undefined" ) {
 			for ( fld in tagdef ) {
 				attributelist.push(fld);
-				attributenames[fld] = formdef[fld]['display'];
+				attributenames[fld] = tagdef[fld]['display'];
 			};
 		};
 		if ( attributelist.length == 0 )  { attributelist = Array("fform", "lemma", "pos", "mfs"); };
