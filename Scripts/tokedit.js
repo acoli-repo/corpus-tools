@@ -90,9 +90,13 @@ function formify () {
 	// If we did not specify the attributelist, build it from formdef
 	if ( typeof(attributelist) == "undefined" || attributelist.length == 0 ) {
 		if ( typeof(attributelist) == "undefined" ) var attributelist = Array();
-		if ( typeof(formdef) != "undefined" ) for ( fld in formdef ) {
-			attributelist.push(fld);
-			attributenames[fld] = formdef[fld]['display'];
+		if ( typeof(formdef) != "undefined" ) {
+			for ( fld in formdef ) {
+				console.log(fld);
+				var fldkey = fld.key;
+				attributelist.push(fldkey);
+				attributenames[fldkey] = formdef[fldkey]['display'];
+			};
 		} else { attributelist = Array("fform", "lemma", "pos", "mfs"); };
 	};
 	
