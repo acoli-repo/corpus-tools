@@ -66,6 +66,9 @@
 		};
 		# $maintext .= "<p>$size {%results} $showing";
 		
+		if ( $_GET['witlist'] ) $witlist = explode(",", $_GET['witlist']);
+		if ( is_array($witlist) && $_GET['from'] && !in_array($_GET['from'], $witlist) ) array_push($witlist, $_GET['from'] );
+		
 		if ( $debug ) $maintext .= "<p>$cqpquery";
 		$xidxcmd = findapp('tt-cwb-xidx');
 		foreach ( explode("\n", $results ) as $res ) {
@@ -73,7 +76,11 @@
 			$tmp = explode(" ", $ids); $leftpos = array_shift($tmp); $rightpos = array_pop($tmp);
 			if ( !$leftpos ) continue;
 
-			$fileid = "xmlfiles/$cid"; $outfolder = "cqp";
+			$fileid = $cid; $outfolder = "cqp";
+			if ( preg_match("/([^\/.]+)\.xml/", $cid, $matches) ) { $xmlid = $matches[1]; };
+			
+			if ( is_array($witlist) && !in_array($xmlid, $witlist) ) continue;
+			
 			$expand = "--expand=$baselevel";
 			$cmd = "$xidxcmd --filename=$fileid --cqp='$outfolder' $expand $leftpos $leftpos";
 			$cid2 = preg_replace("/.*?\/([^\/]+)\.xml/", "\\1", $cid);
