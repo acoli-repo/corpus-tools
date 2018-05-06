@@ -93,9 +93,8 @@ function formify () {
 		if ( typeof(formdef) != "undefined" ) {
 			for ( fld in formdef ) {
 				console.log(fld);
-				var fldkey = fld.key;
-				attributelist.push(fldkey);
-				attributenames[fldkey] = formdef[fldkey]['display'];
+				attributelist.push(fld);
+				attributenames[fld] = formdef[fld]['display'];
 			};
 		} else { attributelist = Array("fform", "lemma", "pos", "mfs"); };
 	};
