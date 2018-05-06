@@ -96,6 +96,7 @@ function formify () {
 				attributelist.push(fld);
 				attributenames[fld] = formdef[fld]['display'];
 			};
+			console.log(attributelist);
 		} else { attributelist = Array("fform", "lemma", "pos", "mfs"); };
 	};
 	
