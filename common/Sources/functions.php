@@ -166,7 +166,7 @@
 			
 			$text = preg_replace("/$from/", "$to", $text);
 		};
-		$text = str_replace('&quot;', '"', $to);
+		$text = str_replace('&quot;', '"', $text);
 		
 		return $text;
 	};
