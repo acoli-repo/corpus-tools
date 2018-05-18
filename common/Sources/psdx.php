@@ -1,7 +1,8 @@
 <?php
 
 	$cid = $_GET['cid'];
-	$cid = preg_replace("/.*\/(.*?)(\.xml)?/", "", $cid);
+	$cid = preg_replace("/.*\//", "", $cid);
+	$cid = preg_replace("/\.xml/", "", $cid);
 	$treeid = $_GET['treeid'];
 	$sentenceid = $_GET['sentence'];
 	$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'];
