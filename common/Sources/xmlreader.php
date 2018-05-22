@@ -197,7 +197,11 @@
 		if ( $id == "new" ) $maintext .= "<tr><th>Record ID<td><input name=newid value='' size=10>";
  
 		foreach ( $entryxml->children() as $fldrec ) {
-			$key = $fldrec->getName();
+			if ( $fldrec['xpath'] ) {
+				$key = $fldrec['xpath']."";
+			} else {
+				$key = $fldrec->getName();
+			};
 			$val = $fldrec."" or $val = $key;
 			if ( $record ) $fldval = current($record->xpath($key));
 			if ( $fldrec['type'] == "xml" )  {
@@ -289,9 +293,13 @@
 		$maintext .= "<h2>$tit</h2>
 		
 		<table>";
-		foreach ( $record->children() as $fldrec ) {
-			$key = $fldrec->getName();
-			$val = current($entryxml->xpath($key))."" or $val = $key;
+		foreach ( $entryxml->children() as $fldrec ) {
+			if ( $fldrec['xpath'] ) {
+				$key = $fldrec['xpath']."";
+			} else {
+				$key = $fldrec->getName();
+			};
+			$val = $fldrec."";
 			$fldval = current($record->xpath($key));
 			if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
 			$maintext .= "<tr><th>{%$val}<td>$fldval";
@@ -427,7 +435,11 @@
 
 			foreach ( $entryxml->children() as $fldrec ) {
 				if ( !$fldrec['list'] ) continue;
-				$key = $fldrec->getName();
+				if ( $fldrec['xpath'] ) {
+					$key = $fldrec['xpath']."";
+				} else {
+					$key = $fldrec->getName();
+				};
 				$val = current($record->xpath($key));
 				if ( $fldrec["link"] ) {
 					if ( substr($fldrec["link"],0,1) == "%" ) {
