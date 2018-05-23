@@ -487,7 +487,11 @@
 		$maintext .= "$whichtxt<table class=rollovertable><tr><td>";
 		foreach ( $entryxml->children() as $fldrec ) {
 			if ( !$fldrec['list'] ) continue;
-			$key = $fldrec->getName();
+			if ( $fldrec['xpath'] ) {
+				$key = $fldrec['xpath']."";
+			} else {
+				$key = $fldrec->getName();
+			};
 			$val = $fldrec."";
 			$maintext .= "<th><a href='index.php?action=$action&sort=$key' class='black'>{%$val}</a>";
 		}; $num = count($arraylines);
