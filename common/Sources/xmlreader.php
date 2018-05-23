@@ -98,12 +98,15 @@
 			$record['id'] = $newid;
 		};
 			
-		foreach ( $_POST['newvals'] as $key => $val ) {
+		foreach ( $_POST['newvals'] as $cn => $val ) {
+			$key = $_POST['newflds'][$cn];
 			$fldval = current($record->xpath($key));
 			$fldrec = current($entryxml->xpath($key));
 			print "<p>$key: $fldval (".gettype($fldval).") => $val";
 			if ( $val != "" && gettype($fldval) != "object" ) { # When child does not exist
-				$fldval = $record->addChild($key);
+				# $fldval = $record->addChild($key);
+				$key = "//{$recname}[@id='$id']/$key";
+				$fldval = xpathnode($record, $key); 
 			};
 			if ( $fldrec['type'] == "xml" ) {
 				$somexml = 1;
@@ -196,7 +199,9 @@
 		<table>";
 		if ( $id == "new" ) $maintext .= "<tr><th>Record ID<td><input name=newid value='' size=10>";
  
+ 		$cn = 0;
 		foreach ( $entryxml->children() as $fldrec ) {
+			$cn++;
 			if ( $fldrec['xpath'] ) {
 				$key = $fldrec['xpath']."";
 			} else {
@@ -207,9 +212,10 @@
 			if ( $fldrec['type'] == "xml" )  {
 				$xmlnum++;
 				$xmlupdate .= "document.getElementById(\"frm$key\").value = editor.getSession().getValue(); ";
-				$maintext .= "\n<tr><th>{%$val}<td><div id=\"editor\" style='width: 100%; height: 80px;'>".htmlentities($fldval[1]->asXML())."</div><textarea id='frm$key' name=newvals[$key] style='display:none'>$fldval</textarea>";
-			} else if ( $fldrec['type'] == "text" )  $maintext .= "<tr><th>{%$val}<td><textarea  name=newvals[$key] style='width: 100%; height: 50px;'>$fldval</textarea>";
-			else $maintext .= "<tr><th>{%$val}<td><input name=newvals[$key] value='$fldval' size=80>";
+				$maintext .= "\n<tr><th>{%$val}<td><div id=\"editor\" style='width: 100%; height: 80px;'>".htmlentities($fldval[1]->asXML())."</div><textarea id='frm$key' name=newvals[$cn] style='display:none'>$fldval</textarea>";
+			} else if ( $fldrec['type'] == "text" )  $maintext .= "<tr><th>{%$val}<td><textarea  name=newvals[$cn] style='width: 100%; height: 50px;'>$fldval</textarea>";
+			else $maintext .= "<tr><th>{%$val}<td><input name=newvals[$cn] value='$fldval' size=80>";
+			$maintext .= "<input type=hidden name=newflds[$cn] value=\"$key\">";
 		}; 
 		$maintext .= "</table>
 		<p><input type=submit value=Save  onClick=\"runsubmit();\">
@@ -301,6 +307,7 @@
 			};
 			$val = $fldrec."";
 			$fldval = current($record->xpath($key));
+			if ( !$fldval ) continue;
 			if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
 			$maintext .= "<tr><th>{%$val}<td>$fldval";
 		}; 
