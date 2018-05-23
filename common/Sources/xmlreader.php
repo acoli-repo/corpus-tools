@@ -352,7 +352,11 @@
 	} else if ( $act == "search" ) {
 
 		foreach ( $entryxml->children() as $fldrec ) {
-			$key = $fldrec->getName();
+			if ( $fldrec['xpath'] ) {
+				$key = $fldrec['xpath']."";
+			} else {
+				$key = $fldrec->getName();
+			};
 			$val = $fldrec."" or $val = $key;
 			$fldsel .= "<option value='$key'>{%$val}</option>";
 		}; 
