@@ -445,7 +445,7 @@
 							
 			$sortkey = current($record->xpath($sort));
 			$id = current($record->xpath("@id"));
-			$tableline = "<tr id='$sortkey'><td>";
+			$tableline = "\n<tr id='$sortkey'><td>";
 			if ( !$xrset["noview"] || $username ) $tableline .= "<a href='index.php?action=$action&id=$id' style='font-size: smaller;'>{%view}</a>";
 
 			foreach ( $entryxml->children() as $fldrec ) {
@@ -492,6 +492,7 @@
 			} else {
 				$key = $fldrec->getName();
 			};
+			$key = urlencode($key);
 			$val = $fldrec."";
 			$maintext .= "<th><a href='index.php?action=$action&sort=$key' class='black'>{%$val}</a>";
 		}; $num = count($arraylines);
