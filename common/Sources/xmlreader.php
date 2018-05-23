@@ -354,6 +354,7 @@
 		foreach ( $entryxml->children() as $fldrec ) {
 			if ( $fldrec['xpath'] ) {
 				$key = $fldrec['xpath']."";
+				$key = str_replace("'", "&#039;", $key);
 			} else {
 				$key = $fldrec->getName();
 			};
@@ -400,7 +401,8 @@
 				if ( !$qp ) continue;	
 				list ( $fld, $val ) = explode (":", $qp );
 				$which .= $sep."contains($fld/.,\"$val\")";
-				$fldtxt = current($entryxml->xpath($fld))."" or $fldtxt = $fld; 
+				$fldxp = "item[@xpath='$fld']";
+				$fldtxt = current($entryxml->xpath($fld))."" or $fldtxt = current($entryxml->xpath($fldxp))."" or $fldtxt = $fld; 
 				$whichtxt .= "$sep<i>$fldtxt</i> = <b>$val</b>";
 				$sep = " and ";
 			};
