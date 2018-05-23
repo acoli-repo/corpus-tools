@@ -401,7 +401,7 @@
 				if ( !$qp ) continue;	
 				list ( $fld, $val ) = explode (":", $qp );
 				$which .= $sep."contains($fld/.,\"$val\")";
-				$fldxp = "item[@xpath='$fld']";
+				$fldxp = "item[@xpath=\"$fld\"]";
 				$fldtxt = current($entryxml->xpath($fld))."" or $fldtxt = current($entryxml->xpath($fldxp))."" or $fldtxt = $fld; 
 				$whichtxt .= "$sep<i>$fldtxt</i> = <b>$val</b>";
 				$sep = " and ";
@@ -411,13 +411,15 @@
 		} else if ( $_POST['q'] ) {
 			$val = $_POST['q'];
 			$fld = $_POST['f'];
-			$fldtxt = current($entryxml->xpath($fld))."" or $fldtxt = $fld; 
+			$fldxp = "item[@xpath=\"$fld\"]";
+			$fldtxt = current($entryxml->xpath($fld))."" or $fldtxt = current($entryxml->xpath($fldxp))."" or $fldtxt = $fld; 
 			$which = "[contains($fld/.,\"$val\")]";
 			$whichtxt = "<p><i>$fldtxt</i> = <b>$val</b> (<a href='index.php?action=$action'>reset</a>)</p>";
 		} else if ( $_POST['query'] ) {
 			foreach ( $_POST['query'] as $fld => $val ) {	
 				$which .= $sep."contains($fld/.,\"$val\")";
-				$fldtxt = current($entryxml->xpath($fld))."" or $fldtxt = $fld; 
+				$fldxp = "item[@xpath=\"$fld\"]";
+				$fldtxt = current($entryxml->xpath($fld))."" or $fldtxt = current($entryxml->xpath($fldxp))."" or $fldtxt = $fld; 
 				$whichtxt .= "$sep<i>$fldtxt</i> = <b>$val</b>";
 				$sep = " and ";
 			};	
