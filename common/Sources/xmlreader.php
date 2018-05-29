@@ -318,7 +318,7 @@
 			$recid = $record['id']; $cqpfld = $entryxml['cqp'];
 			# $cqlquery = "SELECT id, title FROM text WHERE {$entryxml['cqp']}='$recid'";
 			
-			$cql = "Matches = <text> [] :: text_$cqpfld='$recid'";
+			$cql = "Matches = <text> [] :: match.text_$cqpfld='$recid'";
 
 			include ("$ttroot/common/Sources/cwcqp.php");
 			$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
@@ -341,6 +341,11 @@
 				$maintext .= "<h2>Corresponding files</h2>";
 				foreach ( $results as $line ) {
 					list ( $cid, $texttit ) = explode ( "\t", $line );
+					
+					if ( !$texttit ) {
+						if ( preg_match("/([^\/.]+)\.xml/", $cid, $matches) ) { $xmlid = $matches[1]; };
+						$texttit = $xmlid;			
+					};
 					$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$texttit</a>";
 				};	
 			
