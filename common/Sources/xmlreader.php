@@ -330,9 +330,12 @@
 			$cqpquery = "Matches = $cql";
 			$size = $cqp->exec("size Matches");
 			
+			# TODO: get morecols to show the desired title
+				$maintext .= "$cql <- $cqpcorpus";
+			
 			if ( $size > 0 ) {
 			
-				$cqpquery = "tabulate Matches match text_id match text_title";
+				$cqpquery = "tabulate Matches match text_id match $morecols";
 				$results = $cqp->exec($cqpquery);
 		
 				$maintext .= "<h2>Corresponding files</h2>";
