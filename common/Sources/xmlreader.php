@@ -341,13 +341,14 @@
 		
 				$maintext .= "<h2>Corresponding files</h2>";
 				foreach ( $results as $line ) {
+					$lcnt++;
 					list ( $cid, $texttit ) = explode ( "\t", $line );
 					
 					if ( !$texttit ) {
 						if ( preg_match("/([^\/.]+)\.xml/", $cid, $matches) ) { $xmlid = $matches[1]; };
 						$texttit = $xmlid;			
 					};
-					$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$texttit</a>";
+					$maintext .= "<p>$lcnt. <a href='index.php?action=file&cid=$cid'>$texttit</a>";
 				};	
 			
 			};
