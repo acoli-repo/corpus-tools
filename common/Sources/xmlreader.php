@@ -335,11 +335,13 @@
 			
 			if ( $size > 0 ) {
 			
+				$cqptitle = $entryxml["cqptitle"] or $cqptitle = "Corresponding files";
+			
 				$cqpquery = "tabulate Matches match text_id $morecols";
 				$results = $cqp->exec($cqpquery);
 				$results = $cqp->exec($cqpquery); // TODO: Why do we need this a second time?
 		
-				$maintext .= "<h2>Corresponding files</h2>$size => $cqpquery";
+				$maintext .= "<h2>{%$cqptitle}</h2>";
 				foreach ( explode("\n", $results ) as $line ) {
 					$lcnt++;
 					list ( $cid, $texttit ) = explode ( "\t", $line );
