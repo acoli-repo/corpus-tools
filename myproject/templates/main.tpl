@@ -2,6 +2,7 @@
 <html  style='height: 100%; width: 100%; padding: 0; margin: 0;'><head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" type="text/css" href="http://www.teitok.org/Scripts/teitok.css" media="screen">
   <link rel="stylesheet" type="text/css" href="Resources/htmlstyles.css" media="screen">
   <link rel="stylesheet" type="text/css" href="Resources/xmlstyles.css" media="screen">
   <title>{$title}</title>

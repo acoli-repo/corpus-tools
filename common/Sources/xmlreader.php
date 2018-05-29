@@ -311,9 +311,41 @@
 			if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
 			$maintext .= "<tr><th>{%$val}<td>$fldval";
 		}; 
-		$maintext .= "</table>
-		<hr><p><a href='index.php?action=$action'>{%back to the list}</a>";
+		$maintext .= "</table>";
+
+		# If the ID is a field in CQP, render the corresponding XML files
+		if ( $entryxml['cqp'] ) {
+			$recid = $record['id']; $cqpfld = $entryxml['cqp'];
+			# $cqlquery = "SELECT id, title FROM text WHERE {$entryxml['cqp']}='$recid'";
+			
+			$cql = "Matches = <text> [] :: text_$cqpfld='$recid'";
+
+			include ("$ttroot/common/Sources/cwcqp.php");
+			$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+			$cqpfolder = $settings['cqp']['searchfolder'];
+			$cqp = new CQP();
+			$cqp->exec($cqpcorpus); // Select the corpus
+			$cqp->exec("set PrettyPrint off");
+			$cqpquery = "Matches = $cql";
+			$size = $cqp->exec("size Matches");
+			
+			if ( $size > 0 ) {
+			
+				$cqpquery = "tabulate Matches match text_id match text_title";
+				$results = $cqp->exec($cqpquery);
 		
+				$maintext .= "<h2>Corresponding files</h2>";
+				foreach ( $results as $line ) {
+					list ( $cid, $texttit ) = explode ( "\t", $line );
+					$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$texttit</a>";
+				};	
+			
+			};
+			
+		};
+		
+		$maintext .="<hr><p><a href='index.php?action=$action'>{%back to the list}</a>";
 		if ( $username ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&id={$_GET['id']}'>edit</a>";
 	
 	} else if ( $_GET['f'] ) {
