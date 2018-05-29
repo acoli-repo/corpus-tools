@@ -337,6 +337,7 @@
 			
 				$cqpquery = "tabulate Matches match text_id $morecols";
 				$results = $cqp->exec($cqpquery);
+				$results = $cqp->exec($cqpquery); // TODO: Why do we need this a second time?
 		
 				$maintext .= "<h2>Corresponding files</h2>";
 				foreach ( $results as $line ) {
