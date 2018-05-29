@@ -339,7 +339,7 @@
 				$results = $cqp->exec($cqpquery);
 				$results = $cqp->exec($cqpquery); // TODO: Why do we need this a second time?
 		
-				$maintext .= "<h2>Corresponding files</h2>";
+				$maintext .= "<h2>Corresponding files</h2>$size => $cqpquery";
 				foreach ( $results as $line ) {
 					$lcnt++;
 					list ( $cid, $texttit ) = explode ( "\t", $line );
