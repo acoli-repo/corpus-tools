@@ -318,7 +318,7 @@
 			$recid = $record['id']; $cqpfld = $entryxml['cqp'];
 			# $cqlquery = "SELECT id, title FROM text WHERE {$entryxml['cqp']}='$recid'";
 			
-			$cql = "Matches = <text> [] :: match.text_$cqpfld='$recid'";
+			$cql = "Matches = <text> [] :: match.text_$cqpfld=\"$recid\"";
 
 			include ("$ttroot/common/Sources/cwcqp.php");
 			$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
@@ -331,7 +331,6 @@
 			$size = $cqp->exec("size Matches");
 			
 			# TODO: get morecols to show the desired title
-				$maintext .= "$cql <- $cqpcorpus";
 			
 			if ( $size > 0 ) {
 			
