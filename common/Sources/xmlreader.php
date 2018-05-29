@@ -328,10 +328,10 @@
 			$cqp->exec($cqpcorpus); // Select the corpus
 			$cqp->exec("set PrettyPrint off");
 			$cqpquery = "Matches = $cql";
+			$cqp->exec($cqpquery);
 			$size = $cqp->exec("size Matches");
 			
 			# TODO: get morecols to show the desired title
-			$maintext .= "<p>$size corresponding XML files for $cql";
 			
 			if ( $size > 0 ) {
 			
