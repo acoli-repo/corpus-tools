@@ -15,6 +15,10 @@
 	
 		// CQP based collation
 
+		if ( file_exists("tmp/recqp.pid") ) {
+			fatal ("The corpus is currently being regenerated, please try again later.");
+		};
+		
 		include ("$ttroot/common/Sources/cwcqp.php");
 
 		$baselevel = $_POST['level'] or $baselevel = $settings['collaction']['baselevel'] or $baselevel = "l";
@@ -54,11 +58,15 @@
 		$size = $cqp->exec("size Matches");
 
 		$mtch = "match"; 
+		
+		if ( file_exists("cqp/{$baselevel}_facs.avs") && file_exists("cqp/{$baselevel}_bbox.avs") ) { 
+			$bbs = ", $mtch {$baselevel}_bbox, $mtch {$baselevel}_facs"; 
+		} else print "cqp/{$baselevel}_facs.avs";
 			
 		$perpage = $_GET['perpage'] or $perpage = 50;
 		$start = $_GET['start'] or $start = 0;
 		$end = $start+$perpage;
-		$cqpquery = "tabulate Matches $start $end $mtch id, $mtch text_id, $mtch word, $mtch;";	# match page_facs
+		$cqpquery = "tabulate Matches $start $end $mtch id, $mtch text_id, $mtch word, $mtch$bbs;";	# match page_facs
 		$results = $cqp->exec($cqpquery);
 		$results = $cqp->exec($cqpquery); // TODO: Why do we need this a second time?
 		if ( $size > $perpage ) {
@@ -72,7 +80,7 @@
 		if ( $debug ) $maintext .= "<p>$cqpquery";
 		$xidxcmd = findapp('tt-cwb-xidx');
 		foreach ( explode("\n", $results ) as $res ) {
-			list ( $id, $cid, $word, $ids, $fld1, $fld2 ) = explode("\t", $res );
+			list ( $id, $cid, $word, $ids, $bbox, $facs ) = explode("\t", $res );
 			$tmp = explode(" ", $ids); $leftpos = array_shift($tmp); $rightpos = array_pop($tmp);
 			if ( !$leftpos ) continue;
 
@@ -87,11 +95,15 @@
 			$resxml = shell_exec($cmd);
 			$cnt++;
 		
+			if ( $bbox != "" && $bbox != "_" ) {
+				$divheight = 40; if ( $facs ) $glfacs = $facs;
+				$facsdiv = "<div bbox='$bbox' class='linediv' id='$cid:$id' tid='$id' style='display: inline-block; width: 300px; height: {$divheight}px; background-image: url(\"Facsimile/$facs\"); background-size: cover;' facs='Facsimile/$facs'></div><br>";
+			} else $facsdiv = "";
 			if ( $cid2 != "" && $cid2 == $_GET['from'] ) {
-				$baserow = "<tr><td><a href='index.php?action=file&cid=$cid&jmp=$id'><b>$cid2</b></a></td><td class=wits wit=$cid2 id=bf>$resxml</td></tr>
+				$baserow = "<tr><td><a href='index.php?action=file&cid=$cid&jmp=$id'><b>$cid2</b></a></td><td class=wits wit=$cid2 id=bf>$facsdiv$resxml</td></tr>
 					<tr><td colspan=2><hr>";
 			} else 
-				$witrows .= "<tr><td><a href='index.php?action=file&cid=$cid&jmp=$id'>$cid2</a></td><td wit=$cid2 class=wits>$resxml</td></tr>";
+				$witrows .= "<tr><td><a href='index.php?action=file&cid=$cid&jmp=$id'>$cid2</a></td><td wit=$cid2 class=wits style='border-bottom: 1px solid #ffddaa;'>$facsdiv$resxml</td></tr>";
 		};
 		$maintext .= "<table id=mtxt>$baserow$witrows</table><hr><p>$cnt witnesses &bull; <a href='' id='dltei' download='app.xml' taget='_blank'>download TEI app</a>";
 		$maintext .= "
@@ -101,6 +113,41 @@
 	tok[apps] { text-decoration: underline; };
 </style>
 ";
+
+		# Show the linediv images
+		$mask = $_GET['mask'] or $mask = 5;
+		$maintext .= "<img src='Facsimile/$glfacs' id='facsimg' style='display: none;'/>"; // Keep the last facs image as the facsimg for the width - assume all images to have the same size...
+		$maintext .= "\n\n<script language=Javascript>
+				var facsimg = document.getElementById('facsimg');
+				var linedivs = document.getElementsByClassName('linediv');
+				for ( var i=0; i<linedivs.length; i++ ) {
+					var linediv = linedivs[i]; 
+
+					// TODO: wait untill loaded
+					facsimg.src = linediv.getAttribute('facs'); // load the current image into the facsimg
+					var bbox = linediv.getAttribute('bbox').split(' ');
+					
+					// allow showing a mask - ie some space around the bbox
+					bbox[0] = bbox[0] - $mask;
+					bbox[1] = bbox[1] - $mask;
+					bbox[2] = bbox[2] - (0-$mask);
+					bbox[3] = bbox[3] - (0-$mask);
+					
+					// Never scale more than 50% up
+					var imgscale  = Math.min(1.2, linediv.offsetHeight/(bbox[3]-bbox[1]));
+
+					var bih = facsimg.naturalHeight*imgscale;
+					var biw = bih*(facsimg.naturalWidth/facsimg.naturalHeight);
+					var bix = bbox[0]*imgscale;
+					var biy = bbox[1]*imgscale;
+
+					linediv.style.width = (bbox[2]-bbox[0])*imgscale + 'px'; // We might have made the div too wide
+					linediv.style.height = (bbox[3]-bbox[1])*imgscale + 'px';
+					linediv.style['background-size'] = biw+'px '+bih+'px';
+					linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';
+
+				};
+			</script>";
 
 	} else {
 	
