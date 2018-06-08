@@ -108,6 +108,7 @@ var wits = document.getElementsByClassName("wits");
 var apps = [];
 for ( var w = 0; w<wits.length; w++ ) {
 	var witness=wits[w];
+	console.log(witness);
 	var wid = witness.getAttribute('wit');
 	var its = witness.getElementsByTagName("tok");
 	for ( var a = 0; a<its.length; a++ ) {
@@ -119,20 +120,25 @@ for ( var w = 0; w<wits.length; w++ ) {
 		if ( !apps[appid] ) apps[appid] = [];
 		if ( !apps[appid][form] ) apps[appid][form] = "";
 		apps[appid][form] += wid + '; ';
+		console.log(appid + " : " + form + " = " + wid + " < " + apps[appid][form] );
 	};
 };
 	
 // Show the apparatus on the bf element
-if ( document.getElementById('bf') != null) {
+if ( document.getElementById('bf') != null ) {
+	console.log("building app");
 	var its = document.getElementById('bf').getElementsByTagName("tok");
+	console.log(its);
 	teiapp = "<l>";
 	for ( var a = 0; a<its.length; a++ ) {
-		var tok=its[a]; 
+		var tok=its[a]; console.log(its + "("+a+")"); console.log(tok);
 		var appid = tok.getAttribute('appid');
 		var form = tok.getAttribute('form');
 		if ( !form ) form = tok.innerHTML;
+		console.log(tok + " = " + appid + " = " + apps[appid]);
 		if ( apps[appid] == null ) continue;
 		var keys = Object.keys(apps[appid]);
+		console.log(keys);
 		if ( keys.length > 1 ) {
 			var appstring = '';
 			teiapp += "\n<w><app>";

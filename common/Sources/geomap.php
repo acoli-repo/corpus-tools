@@ -12,7 +12,7 @@ $ftit = $settings['geomap']['cqp']['title'] or $ftit = "id";
 $docname = $settings['geomap']['documents'] or $docname = "documents";
 $pagtit = $settings['geomap']['title'] or $pagtit = "Document Map";
 
-$apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B6JSu5Ne7WkNSE"; # Use our key when no other key is defined  
+$apikey = $settings['geomap']['apikey'];  
   
 
 if ( $act == "xml" ) {
@@ -48,19 +48,37 @@ if ( $act == "xml" ) {
 	$maintext .= "</ul>";
 	$jsondata = "[ ".join(", ", array_values($jsonpoints))." ]";
 
-	// Larger circles indicate more documents from that location.
-	$maintext  .= "
-	<div id=\"map\" style='width: 100%; height: 600px;'></div>
-	<script>
-	  $moresettings
-	  var defzoom = 8;
-	  var jsondata = '$jsondata';
-	  var doctxt = '{%$docname}';
-	</script>
-	<script src=\"$jsurl/geomap.js\"></script>
-	<script async defer src=\"https://maps.googleapis.com/maps/api/js?key=$apikey&callback=initMap\"></script>
-	<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%back to text view}</a></p>";
-
+	// Draw the actual map - in Google when we have a google API, otherwise in OSM
+	if ( $apikey ) {
+		$maintext  .= "
+		<div id=\"map\" style='width: 100%; height: 600px;'></div>
+		<script>
+		  $moresettings
+		  var defzoom = 8;
+		  var jsondata = '$jsondata';
+		  var doctxt = '{%$docname}';
+		</script>
+		<script src=\"$jsurl/geomap.js\"></script>
+		<script async defer src=\"https://maps.googleapis.com/maps/api/js?key=$apikey&callback=initMap\"></script>
+		<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%back to text view}</a></p>";
+	} else {
+		$maintext  .= "
+		<div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
+		<script>
+		  $moresettings
+		  var defzoom = 8;
+		  var jsondata = '$jsondata';
+		  var doctxt = '{%$docname}';
+		</script>
+		<script src=\"$jsurl/geomap-osm.js\"></script>
+	    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css\"/>
+	    <script src=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js\"></script>
+		<script>
+		  initMap();
+		</script>
+		<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%back to text view}</a></p>";
+	};
+	
 } else if ( $act == "view" ) {
 
 
@@ -161,23 +179,47 @@ if ( $act == "xml" ) {
 		};
 	};
 		
-	// Larger circles indicate more documents from that location.
-	$maintext  .= "
-	<h1>{%$pagtit}</h1>
+	// Draw the actual map - in Google when we have a google API, otherwise in OSM
+	if ( $apikey ) {
+		$maintext  .= "
+		<h1>{%$pagtit}</h1>
 
-	$fileheader
+		$fileheader
 
-	$areaswitch
+		$areaswitch
 
-	<div id=\"map\" style='width: 100%; height: 600px;'></div>
-	<script>
-	  $moresettings
-	  var jsondata = '$jsondata';
-	  var doctxt = '{%$docname}';
-	</script>
-	<script src=\"$jsurl/geomap.js\"></script>
-	<script async defer src=\"https://maps.googleapis.com/maps/api/js?key=$apikey&callback=initMap\"></script>
-	";
+		<div id=\"map\" style='width: 100%; height: 600px;'></div>
+		<script>
+		  $moresettings
+		  var jsondata = '$jsondata';
+		  var doctxt = '{%$docname}';
+		</script>
+		<script src=\"$jsurl/geomap.js\"></script>
+		<script async defer src=\"https://maps.googleapis.com/maps/api/js?key=$apikey&callback=initMap\"></script>
+		";
+	} else {
+		$maintext  .= "
+		<h1>{%$pagtit}</h1>
+
+		$fileheader
+
+		$areaswitch
+
+		<div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
+		<script>
+		  $moresettings
+		  var jsondata = '$jsondata';
+		  var doctxt = '{%$docname}';
+		</script>
+		<script src=\"$jsurl/geomap-osm.js\"></script>
+	    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css\"/>
+	    <script src=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js\"></script>
+		<script>
+		  initMap();
+		</script>
+		";
+	};
+	
 };
 
 
