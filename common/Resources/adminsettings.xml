@@ -63,9 +63,11 @@
 			location can be found in the XML file.
 		</desc>
 		<att key="startpos" display="Starting coordinates on the map"/> 	
+		<att key="apikey" display="To use Google Maps instead of OSM you need to provide a Google Maps API key"/> 	
 		<att key="zoom" display="Starting zoom factor of the map" default="8"/> 	
 		<att key="documents" display="Name of a file" default="documents"/> 	
 		<att key="title" display="Title of the sound map" default="Document Map"/>
+		<att key="cluster" display="Cluster marker when too close - only available in OSM" default="0"/>
 		<item key="cqp" display="Settings for the CQP interaction">
 			 <att key="place" display="text attribute containing the placename"/> 
 			 <att key="geo"  display="text attribute containing the geolocation"/> 
