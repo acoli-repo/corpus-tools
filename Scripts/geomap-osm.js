@@ -41,6 +41,10 @@
 	var infowindow = []; 
 	var marker = [];
 
+	if ( typeof cluster != "undefined" ) {
+		var markers = L.markerClusterGroup();
+	};
+	
 	// Place all the document markers
 	for ( var i=0; i<doclist.length; i++ ) {
 		doc = doclist[i];
@@ -69,12 +73,19 @@
 			htmltxt = '<div><h2>' + doc.location + '</h2><p><a href="index.php?action=geomap&act=view&place=' + doc.location + ' &lat=' + doc.lat + '&lng=' + doc.lng + '">' + doc.cnt + ' ' + doctxt + '</a></p>';
 		};
 
-		marker[i] = L.circleMarker([npos.lat, npos.lng], {color: mcol, weight: 1}).addTo(map)
-			.bindPopup(htmltxt);
-		marker[i].setRadius(5);
+		if ( typeof cluster != "undefined" ) {
+			marker[i] = L.marker([npos.lat, npos.lng]).bindPopup(htmltxt);
+			markers.addLayer(marker[i]);
+		} else {
+			marker[i] = L.circleMarker([npos.lat, npos.lng], {color: mcol, weight: 1}).addTo(map).bindPopup(htmltxt);
+			marker[i].setRadius(5);
+		};
 
 	};
-
+	if ( typeof cluster != "undefined" ) {
+		map.addLayer(markers);
+	};
+	
   }
     
   function zoomto ( geo, zoom ) {

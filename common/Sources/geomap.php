@@ -14,6 +14,13 @@ $pagtit = $settings['geomap']['title'] or $pagtit = "Document Map";
 
 $apikey = $settings['geomap']['apikey'];  
   
+if ( $settings['geomap']['cluster'] ) {
+	$cluster = "	    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css\"/>
+	    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.Default.css\"/>
+		<script src=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster-src.js\"></script>
+		<script language=Javascript>var cluster = 1;</script>
+	";
+};
 
 if ( $act == "xml" ) {
 
@@ -214,6 +221,7 @@ if ( $act == "xml" ) {
 		<script src=\"$jsurl/geomap-osm.js\"></script>
 	    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css\"/>
 	    <script src=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js\"></script>
+		$cluster
 		<script>
 		  initMap();
 		</script>
