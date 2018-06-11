@@ -42,7 +42,14 @@
 	var marker = [];
 
 	if ( typeof cluster != "undefined" ) {
-		var markers = L.markerClusterGroup();
+ 		var markers = L.markerClusterGroup();
+ 		// TODO: do we want the clusters to count the number of markers, or the number of documents?
+ 		// countCluster gives the total count, cluster.getChildCount the number of markers
+// 		var markers = L.markerClusterGroup({
+// 			iconCreateFunction: function(cluster) {
+// 				return L.divIcon({ html: '<b>' + countCluster(cluster) + '</b>' });
+// 			}
+// 		});
 	};
 	
 	// Place all the document markers
@@ -75,6 +82,7 @@
 
 		if ( typeof cluster != "undefined" ) {
 			marker[i] = L.marker([npos.lat, npos.lng]).bindPopup(htmltxt);
+			marker[i].doccount = doc.cnt;
 			markers.addLayer(marker[i]);
 		} else {
 			marker[i] = L.circleMarker([npos.lat, npos.lng], {color: mcol, weight: 1}).addTo(map).bindPopup(htmltxt);
@@ -87,6 +95,17 @@
 	};
 	
   }
+    
+  function countCluster(cluster) {
+  	var totcnt = 0;
+	for ( var i=0; i<cluster._markers.length; i++ ) {
+		totcnt += cluster._markers[i].doccount;
+	};
+	for ( var i=0; i<cluster._childClusters.length; i++ ) {
+		totcnt += countCluster(cluster._childClusters[i]);
+	};
+	return totcnt;
+  }; 
     
   function zoomto ( geo, zoom ) {
   	var pos = geo.split(' ');

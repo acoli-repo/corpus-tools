@@ -24,7 +24,7 @@
 
 		$type = $_POST['type']; if ( !$type ) fatal ("POST data incorrectly set");
 
-		$target_folder = $settings['files'][$type]['folder']; if ( !$type ) fatal ("Data folder not found");
+		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed for upload");
 		if ( !is_dir($target_folder) ) mkdir($target_folder); # Create the folder if needed
 
 		$target_file = $target_folder."/".basename($_FILES["upfile"]["name"]);
@@ -78,11 +78,54 @@
 		};
 		exit;
 
-	} else if ( $act == "download" ) {
+	} else if ( $act == "delete" ) {
+
+		$type = $_GET['type']; 
+		if ( !$type ) fatal ("Filetype incorrectly set");
+		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed to delete");
 	
 		# Check if this is not in Resources
 		$filename = $_GET['file'];
+		if ( substr($filename, 0, strlen($target_folder) ) != $target_folder ) fatal( "File does not belong to the selected filetype" );
+		if ( strstr($filename, "Resources") ) fatal ("Not allowed to delete file");
+		if ( strstr($filename,"..") ) fatal ("Not allowed");
+		if ( !file_exists($filename) ) fatal ("No such file: $filename");
+		if ( !is_writable($filename) ) fatal ("Not allowed to delete file: $filename");
+
+		if ( $_GET['confirm'] ) {
+			# Now really remove the file
+			$basename = preg_replace("/.*\//", "", $filename);
+			if ( !file_exists("Trash") ) mkdir ("Trash");
+			if ( is_writable("Trash") ) {
+				rename($filename, "Trash/$basename");
+				echo "<p>The file $filename has been deleted (moved to the Trash folder).";
+			} else {
+				unlink($filename);
+				echo "<p>The file $filename has been deleted.";
+			};
+					
+			header("location:index.php?action=$action&act=list&type=$type");
+		} else {
+			# Check for confirmation
+			$confirm = "index.php?action=$action&act=$act&type=$type&confirm=1&file=$filename";
+			$maintext .= "<h1>Delete File</h1>
+				<p>You have selected to delete the following file: <b>$filename</b>
+				<p>If this file is used in the system, this might disrupt TEITOK, are you sure you want to continue?
+				<p><button onClick=\"window.open('$confirm', '_self')\">Confirm</button>";
+				
+		};	
+
+	} else if ( $act == "download" ) {
+
+		$type = $_GET['type']; 
+		if ( !$type ) fatal ("Filetype incorrectly set");
+		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed for download");
+	
+		# Check if this is not in Resources
+		$filename = $_GET['file'];
+		if ( substr($filename, 0, strlen($target_folder) ) != $target_folder ) fatal( "File does not belong to the selected filetype" );
 		if ( strstr($filename, "Resources") ) fatal ("Not allowed to download files from Resources");
+		if ( strstr($filename, "Resources") ) fatal ("Not allowed to download file");
 		if ( strstr($filename,"..") ) fatal ("Not allowed");
 		if ( !file_exists($filename) ) fatal ("No such file: $filename");
 	
@@ -180,9 +223,9 @@
 		$files = glob($glob, GLOB_BRACE);
 		foreach ( $files as $line ) {
 			$maintext .= "<tr><td><a href='$baseurl$line' target=file>view</a> 
-				<td> <a href='index.php?action=$action&act=download&file=$line' target=file>download</a> 
-				<td> {$line}
-				<td align=right>".human_filesize(filesize($line));
+				<td> <a href='index.php?action=$action&act=download&type={$typedef['folder']}&file=$line' target=file>download</a> 
+				<td> {$line}";
+			if ( !$settings['upload']['nodelete'] ) $maintext .= "<td align=right>".human_filesize(filesize($line))."<td><a href='index.php?action=$action&act=delete&type={$typedef['folder']}&file=$line'>delete</a>";
 			$totsize += filesize($line); $cnt++;
 		};
 		$maintext .= "

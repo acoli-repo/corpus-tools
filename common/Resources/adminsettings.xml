@@ -528,10 +528,10 @@
     	</list>
 	</item>
 	
-    <item key="xdxf" display="Settings for the (XDXF) dictionarie(s)">
+    <item key="xdxf" display="Settings for the (XDXF) dictionaries">
     	<desc>
     		TEITOK can display dictionaries in XML formats such as XDXF and the TEI
-    		dictionary format. This section defines the dictionarie(s) to be displayed,
+    		dictionary format. This section defines the dictionaries to be displayed,
     		with a definition about where the relevant parts of the dictionary are in the
     		XML file, and how they can be searched. Furthermore, it is possible to associate
     		one dictionary with the CQP corpus, in two directions: under the dictionary entry,

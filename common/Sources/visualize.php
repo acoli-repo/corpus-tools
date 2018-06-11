@@ -90,7 +90,7 @@
 					$fldname = pattname($fld);
 					$cmd = "join tmp/$tmpfile.2.txt tmp/$tmpfile.3.txt | perl $ttroot/common/Scripts/collocate.pl --selsize=$size --corpussize=$corpussize --fldname='$fldname' --span=1";
 					$json = shell_exec($cmd); 
-				
+									
 				} else if ( $act == "collocations" || $_POST['mode'] == "collocations" ) {
 				
 					$maintext .= "<h1>Collocations</h1>";
@@ -130,6 +130,16 @@
 					$cmd = "echo 'Matches = $cql; $grquery;' | $ttcqp --output=json";
 					if ( $debug ) $maintext .= "<!-- $cmd -->";
 					$json = shell_exec($cmd);
+
+					if ( preg_match("/Error: (.*)/", $json, $matches) ) { 
+						$tterror = $matches[1];
+						if ( preg_match("/failed to open: cqp\/(.*)\.corpus/", $json, $matches) ) { 
+							$errortxt = "Incorrect request: This corpus has no attribute <i>{$matches[1]}</i>";
+						} else if ( preg_match("/failed to open: cqp\/(.*)\.rng/", $json, $matches) ) { 
+							$errortxt = "Incorrect request: This corpus has no attribute <i>{$matches[1]}</i>";
+						} else $errortxt = $tterror;						
+						fatal("$errortxt");
+					};
 				
 					# See if we can find a name for this query
 					if ( preg_match("/group Matches (.*)/", $grquery, $matches ) ) {
