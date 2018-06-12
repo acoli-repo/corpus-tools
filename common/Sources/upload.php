@@ -1,6 +1,5 @@
 <?php
-	// Script to upload different files
-	// Also helps to track missing and unused images
+	// Script to upload different files (and delete them)
 	// (c) Maarten Janssen, 2015
 
 	check_login();

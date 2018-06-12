@@ -99,10 +99,17 @@
 		};
 		$maintext .= "<p>$cnt missing image files";		
 
+		if ( $settings['files']['facsimile'] || !is_array($settings['files']) ) {
+			$deletable = true;
+			$deltype = $settings['files'][$type]['delete'] or $deltype = $settings['files']['delete'];
+			if ( $deltype == "none" || ( $deltype == "sudo" && $user['permissions'] != "admin" ) )  $deletable = false;
+		};
+
 		$maintext .= "<h2>Facsimile images that are not in a &lt;pb&gt; in any XML file</h2>"; $cnt = 0;
 		foreach ( scandir("Facsimile") as $imgfile ) {
 			if ( exif_imagetype("Facsimile/$imgfile") && !$imgfls[$imgfile] ) {
-				$maintext .= "<p><a href='Facsimile/$imgfile'>$imgfile</a>";
+				if ( $deletable ) $dellink = "<a href='index.php?action=upload&act=delete&type=facsimile&file=Facsimile/$imgfile'>(delete image)</a> &nbsp; ";
+				$maintext .= "<p>$deltype$dellink<a href='Facsimile/$imgfile'>$imgfile</a>";
 				$cnt++;
 			};
 		};
