@@ -519,9 +519,19 @@
 			(for the folder xmlfiles) can be uploaded, but other types of uploadable files can
 			be defined here.
     	</desc>
+		<att key="delete" display="Who should be allowed to delete files" default="admin">
+			<val key="admin" display="Any staff member of the corpus"/>
+			<val key="su" display="Only admin users"/>
+			<val key="none" display="Nobody"/>
+		</att>
     	<list display="Type of uploadable files">
 	    	<att key="key" display="ID of the file type"/>
 	    	<att key="display" display="Name of the file type"/>
+	    	<att key="delete" display="Who should be allowed to delete these files" default="admin">
+				<val key="admin" display="Any staff member of the corpus"/>
+				<val key="su" display="Only admin users"/>
+				<val key="none" display="Nobody"/>
+	    	</att>
 	    	<att key="folder" display="Folder where uploaded files are stored"/>
 	    	<att key="extension" display="Acceptable file extension (*.xxx,*.yyy)"/>
 	    	<att key="description" display="Description of the file type"/>

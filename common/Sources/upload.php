@@ -83,6 +83,8 @@
 		$type = $_GET['type']; 
 		if ( !$type ) fatal ("Filetype incorrectly set");
 		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed to delete");
+		$deltype = $settings['files'][$type]['delete'] or $deltype = $settings['files']['delete'];
+		if ( $deltype == "none" || ( $deltype == "sudo" && $user['permissions'] != "admin" ) )  fatal ("Filetype not allowed to delete");
 	
 		# Check if this is not in Resources
 		$filename = $_GET['file'];
@@ -224,8 +226,9 @@
 		foreach ( $files as $line ) {
 			$maintext .= "<tr><td><a href='$baseurl$line' target=file>view</a> 
 				<td> <a href='index.php?action=$action&act=download&type={$typedef['folder']}&file=$line' target=file>download</a> 
-				<td> {$line}";
-			if ( !$settings['upload']['nodelete'] ) $maintext .= "<td align=right>".human_filesize(filesize($line))."<td><a href='index.php?action=$action&act=delete&type={$typedef['folder']}&file=$line'>delete</a>";
+				<td> {$line} <td align=right>".human_filesize(filesize($line));
+			$deltype = $settings['files'][$type]['delete'] or $deltype = $settings['files']['delete'];
+			if ( $deltype != "none" && ( $deltype != "sudo" || $user['permissions'] == "admin" ) )  $maintext .= "<td><a href='index.php?action=$action&act=delete&type=$type&file=$line'>delete</a>";
 			$totsize += filesize($line); $cnt++;
 		};
 		$maintext .= "
