@@ -562,10 +562,9 @@
 				$idlist = explode ( " ", $match );
 				if ( count($idlist) > $maxmatchlength )  $maxmatchlength = count($idlist);
 				if ( count($idlist) < $minmatchlength )  $minmatchlength = count($idlist);
-				$m1 = $idlist[0]; 
-				$m2 = end($idlist); 
+				$m1 = $idlist[0];  $m1x = $m1;
+				$m2 = end($idlist);   $m2x = $m2;
 				
-
 				$cmd = "$xidxcmd --filename=$fileid --cqp='$outfolder' $expand $leftpos $rightpos";
 				$resxml = shell_exec($cmd);
 				if ( $debug ) $maintext .= "<pre>$cmd\n".htmlentities($xidxres)."</pre>";
@@ -606,9 +605,7 @@
 				
 				# Remove HTML like code
 				$resxml = preg_replace ( "/<\/?(table|tr|td|div|font)[^>]*\/>/", "", $resxml);
-				
-				
-				
+								
 				# Somehow, the XML fragment is too long sometimes, repaired that here for now
 				$resxml = preg_replace ( "/<$/", "", $resxml);
 
@@ -628,18 +625,21 @@
 				} else {
 					// Show as KWIC
 					$rescol = "#ffffaa";
-					$resxml = preg_replace ( "/(<tok[^>]*id=\"$m1\")/", "</td><td style='text-align: center; font-weight: bold;'>\\1", $resxml);
+					$resxml = preg_replace ( "/(<tok[^>]*id=\"$m1\")/", "</td><td style='text-align: center; font-weight: bold;' m1=\"$m1x\" m2=\"$m2x\">\\1", $resxml);
 					$resxml = preg_replace ( "/(id=\"$m2\".*?<\/tok>)/smi", "\\1</td><td style='text-align: $rca;'>", $resxml);
 					$resstyle = "style='text-align: $lca;'";
-					$moreactions .= "\nhllist('$match', 'r-$i', '#ffffff'); ";
-				};
+					// TODO: This colors dtoks pink in KWIC only when they are partially part of the result - but for the final token does not work if more than 2 dtoks
+					$tmp = explode(" ", $match); $m1t = array_shift($tmp); $m2t = array_pop($tmp); if ( !$m2t ) $m2t = $m1t;
+					if ( preg_match("/d-.*-[^1]/", $m1t ) ) $moreactions .= "\nhllist('$m1t', 'r-$i', '#ffffff'); ";
+					if ( preg_match("/d-.*-1/", $m2t ) ) $moreactions .= "\nhllist('$m2t', 'r-$i', '#ffffff'); ";
+				}; 
 				
 				if ( !$noprint ) $editxml .= "\n<tr id=\"r-$i\" tid=\"$fileid\"><td><a href='index.php?action=$fileview&amp;cid=$fileid&amp;jmp=$match' style='font-size: 10pt; padding-right: 5px;' title='$fileid' target=view>{%context}</a></td>
 					$audiobut
 					<td $resstyle>$resxml</td></tr>";
 
 
-			};
+			}; 
 
 			# empty tags are working horribly in browsers - change
 			$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
@@ -733,6 +733,7 @@
 			
 						function hllist ( ids, container, color ) {
 							idlist = ids.split(' ');
+							console.log(idlist);
 							for ( var i=0; i<idlist.length; i++ ) {
 								var id = idlist[i];
 								// node = getElementByXpath('//*[@id=\"'+container+'\"]//*[@id=\"'+id+'\"]');
@@ -740,8 +741,7 @@
 								if ( node ) {
 									if ( node.nodeName == 'DTOK' ) { 
 										node = node.parentNode; 
-										// console.log(node);
-										if ( color == '#ffffaa' ) {
+										if ( color == '#ffffaa' ) { 
 											node.style['background-color'] = '#ffeeaa';
 											node.style.backgroundColor= '#ffeeaa'; 
 										} else {
