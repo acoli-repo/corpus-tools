@@ -787,6 +787,11 @@
 			";
 		$cqll = str_replace("'", "&#039;", $cql);
 		$maintext .= " - <a href='index.php?action=cqp&cql=".urlencode($cqll)."'>{%Direct query URL}</a>";
+		
+		if ( $settings['geomap'] ) {
+			if ( $subtit ) $cqptit = "&cqptit=".urlencode($subtit);
+			$maintext .= " - <a href='index.php?action=geomap&cql=".urlencode($cqll)."$cqptit'>{%Visualize on the map}</a>";
+		};
 
 		
 		# Do not allow frequency counts if we already have a pre-select CQL

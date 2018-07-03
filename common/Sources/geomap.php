@@ -146,13 +146,27 @@ if ( $act == "xml" ) {
 	$cqp->exec($cqpcorpus); // Select the corpus
 	$cqp->exec("set PrettyPrint off");
 
-	$cqpquery = "Matches = <text_$geofld != \"_\"> []"; # This should become "" again
+	if ( $_GET['cql'] ) {
+		
+		$cqpquery = $_GET['cql']; 
+		$cqptit = $_GET['cqptit'] or $cqptit = htmlentities($cqpquery);
+		$cqptit = "<table><tr><td>{%Search Query}: <a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a></td><td>$cqptit</table></p>";
+		if ( !strstr("Matches", $cqpquery ) ) $cqpquery = "Matches = $cqpquery"; 
+		
+		if ( !strstr("<text", $cqpquery ) ) { 
+			// TODO: for (probably) word-based results, we should have pins show counts
+			$docname = "results";
+		};
+		
+	} else {
+		$cqpquery = "Matches = <text_$geofld != \"_\"> []"; # This should become "" again
+	};	
 	$cqp->exec($cqpquery); 
 
 	$size = $cqp->exec("size Matches");
 
 	$cqpquery = "group Matches match text_$geoplace by match text_$geofld";
-	$results = $cqp->exec($cqpquery);
+	$results = $cqp->exec($cqpquery); 
 
 	$sep = "";
 	foreach ( explode ( "\n", $results ) as $line ) {	
@@ -162,7 +176,7 @@ if ( $act == "xml" ) {
 		$lat = preg_replace("/,.*/", "", $lat);
 		$lng = preg_replace("/,.*/", "", $lng);
 		$cnt += 0;
-		if ($lat) {
+		if ( $lat != "" && $lat != "_" && ceil($lat) > 0 ) {
 			$tot{$geo} += $cnt;
 			$jsonpoints{$geo} = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$name\", \"cnt\": ".$tot{$geo}." }";
 			$sep = ", ";
@@ -194,6 +208,7 @@ if ( $act == "xml" ) {
 		$fileheader
 
 		$areaswitch
+		$cqptit
 
 		<div id=\"map\" style='width: 100%; height: 600px;'></div>
 		<script>
@@ -211,6 +226,7 @@ if ( $act == "xml" ) {
 		$fileheader
 
 		$areaswitch
+		$cqptit
 
 		<div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
 		<script>

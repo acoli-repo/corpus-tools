@@ -53,7 +53,11 @@
 				</script>";
 			
 	} else if ( ( file_exists("Scripts/recqp.pl") || file_exists("../common/Scripts/recqp.pl") ) && !$_GET['check'] && !$_GET['force'] ) {
-			
+
+
+		if ( ( file_exists("cqp/word.corpus")	&& !is_writable("cqp/word.corpus") ) || !is_writable("cqp") ) 
+			fatal("The permissions on the CQP files prevent the system from writing them");		
+
 		if ( file_exists("Scripts/recqp.pl") ) $scriptname = "Scripts/recqp.pl"; else $scriptname = "../common/Scripts/recqp.pl";	
 		$maintext .= "
 			<p>Currently, the CQP Corpus called {$settings['cqp']['corpus']} is regenerated based on the current
