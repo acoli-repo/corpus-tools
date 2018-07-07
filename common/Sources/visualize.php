@@ -1,235 +1,326 @@
 <?php
 
-		# Show Google Visualization for data
-		if ( !$_POST ) $_POST = $_GET;
-		
-		$cntcols = 1; $headrow = 'false';
-		$ttcqp = findapp("tt-cqp");
+	# Show Google Visualization for data
+	if ( !$_POST ) $_POST = $_GET;
+	
+	$cntcols = 1; $headrow = 'false';
+	$ttcqp = findapp("tt-cqp");
 
-		if ( $act == "cql" ) {
+	if ( $act == "store" ) {
+
+		// Store a CQL query
 		
-				$maintext .= "<h1>CQP Statistics</h1>
+		if ( !$_POST ) $_POST = $_GET;
+		else $tostored = 1;
 		
-					<p>Below you can define a base query, and a grouping query
-			
-					<form action='index.php?action=$action' method=post>
-						<p>Base query: <input size=70 name=cql value=\"{$_GET['cql']}\">
-						<p>Grouping query: <input size=70 name=query value=\"{$_GET['query']}\">
-						<hr>
-						<input type=submit value=Show>
-					</form>";
+		if ( !$_SESSION['myqueries'] ) $_SESSION['myqueries'] = array();
+		$sq['display'] = $_POST['cqltit'];
+		$sq['name'] = $_POST['name'];
+		$sq['cql'] = $_POST['cql'];
 		
+		$_SESSION['myqueries'][urlencode($_GET['cql'])] = $sq;
+
+		if ( $tostored ) print "<p>CQL query stored - reloading to stored queries
+			<script language=Javascript>top.location='index.php?action=$action&act=stored';</script>";
+		else print "<p>CQL query stored - reloading to search results
+			<script language=Javascript>top.location='index.php?action=cqp&cql=".urlencode($_POST['cql'])."';</script>";
+		exit;		
+
+	} else if ( $act == "storedit" ) {
+	
+		$sq = $_SESSION['myqueries'][urlencode($_GET['cql'])];
+		$maintext .= "<h1>{%Edit stored CQL query}</h1>
+			<form action='index.php?action=$action&act=store&cql={$_GET['cql']}' method=post>
+			<table>
+			<tr><th>{%Name}<td><input size=30 name=name value='{$sq['name']}'>
+			<tr><th>{%Description}<td><input size=80 name=cqltit value='{$sq['display']}'>
+			<tr><th>{%CQL Query}<td><input size=80 name=cql value='{$sq['cql']}'>
+			</table>
+			<p><input type=submit value='{%Save}'>
+			</form>
+			";
+	
+	} else if ( $act == "stored" ) {
+	
+		// Show stored CQL queries
+		
+		$maintext .= "<h1>{%Stored CQL queries}</h1>
+			<form action='index.php?action=visualize&act=compare' id='visualize' name='visualize' method=post>
+			<table>";
+		
+		$useridtxt = $shortuserid;
+		if ( file_exists("Users/cql_$useridtxt.xml") ) {
+			$xmlq = simplexml_load_file("Users/cql_$useridtxt.xml");
+			$maintext .= "<tr><th colspan=4>{%Permanently stored queries}";
+			foreach ( $xmlq->xpath("//query") as $sq ) {
+				$done[$sq['cql'].""] = 1; 
+				$display = $sq['name'] or $display = $sq['display'] or $display = $sq['cql'];
+				if ( $sq['display'] && $sq['name'] ) $desc = "<span title='".urldecode($sq['cql'])."'>{$sq['display']}</span>"; else $desc = $sq['display'] or $desc = $cql; if ( $desc == $display ) $desc = "";
+				$cqltxt = urlencode($sq['cql']);
+				$maintext .= "<tr><td><input type=checkbox name='myqueries[$cqltxt]' value='1'><td>$display<td><a href='index.php?action=$action&act=storedit&cql=$cqltxt'>{%edit}</a><td><a href='index.php?action=cqp&cql=$cqltxt'>{%view}</a><td>$desc";
+			};
+		};
+		if ( $_SESSION['myqueries'] ) {
+			$maintext .= "<tr><th colspan=4>{%Session-based queries}";
+			foreach ( $_SESSION['myqueries'] as $cql => $sq ) {
+				if ( $done[$sq['cql']] ) continue;
+				$display = $sq['name'] or $display = $sq['display'] or $display = $cql;
+				if ( $sq['display'] && $sq['name'] ) $desc = "<span title='".urldecode($sq['cql'])."'>{$sq['display']}</span>"; else $desc = $cql; if ( $desc == $display ) $desc = "";
+				$cqltxt = $cql;
+				$maintext .= "<tr><td><input type=checkbox name='myqueries[$cqltxt]' value='1'><td>$display<td><a href='index.php?action=$action&act=storedit&cql=$cqltxt'>{%edit}</a><td><a href='index.php?action=cqp&cql=$cqltxt'>{%view}</a><td>$desc";
+			};
+		};
+		
+		
+		$maintext .= "</table><hr>
+			<script language=Javascript>
+				function doqueries(url) {
+					document.visualize.action = url;
+					document.visualize.submit();
+				};
+			</script>";
+
+		$maintext .= "<a onClick=\"doqueries('index.php?action=visualize&act=compare');\">{%Compare queries}</a>";
+		if ( $settings['geomap'] ) {
+			if ( $subtit ) $cqptit = "&cqptit=".urlencode($subtit);
+			$maintext .= " - <a onClick=\"doqueries('index.php?action=geomap');\">{%Visualize on the map}</a>";
+		};
+
+	} else if ( $act == "cql" ) {
+		
+			$maintext .= "<h1>CQP Statistics</h1>
+	
+				<p>Below you can define a base query, and a grouping query
+		
+				<form action='index.php?action=$action' method=post>
+					<p>Base query: <input size=70 name=cql value=\"{$_GET['cql']}\">
+					<p>Grouping query: <input size=70 name=query value=\"{$_GET['query']}\">
+					<hr>
+					<input type=submit value=Show>
+				</form>";
+	
 				
+	} else {
+	
+		if ( $_GET['json'] or $_POST['json'] ) {
+
+
+			$title = $_POST['title'] or $title = "Data Visualization";
+			$maintext .= "<h1>$title</h1>";
+	
+			if ( $_POST['description'] ) {
+				$maintext .= "<p>{$_POST['description']}</p><hr>";
+			};
+	
+			$json = $_GET['json'] or $json = $_POST['json'];
+	
+		} else if ( $act == "compare" ) {
+
+			$maintext .= "<h1>{%Query Comparison}</h1>";
+			foreach ( $_POST['myqueries'] as $cql => $val ) {
+				$sq = $_SESSION['myqueries'][$cql];
+				$display = $sq['name'] or $display = $sq['display'] or $display = $cql;
+				$cmd = "echo 'Matches = {$sq['cql']}; size Matches $fld;'| $ttcqp";
+				$num = shell_exec($cmd); $num = chop($num);
+				$data .= "\n\t['$display', $num], ";	
+			};
+			$json = "[[{'id':'form', 'label':'Query name'},  {'id':'count', 'label':'Count', 'type':'number'} ], $data]";
+
+		} else if ( $_GET['cql'] or $_POST['cql'] ) {
+		
+			if ( $settings['cqp']['defaults']['registry'] ){
+				$reg = " --cqlfolder={$settings['cqp']['defaults']['registry']}";
+			};
+
+			$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "[]";
+
+			if ( preg_match("/ *\[([^\]]+)\](?: *within .*)?$/", $cql, $matches) || preg_match("/ *\[([^\]]+)\] *:: *(.*?)(?: *within .*)?$/", $cql, $matches) ) {
+				$pmatch = $matches[1]; $smatch = $matches[2];
+				if ( $smatch ) $srest = " :: $smatch"; # TODO : Check if we want to keep everything
+				foreach ( explode ( ' & ', $pmatch ) as $pmp ) {
+					if ( preg_match("/ *([^ ]+) *= *\"([^\"]*)\" */", $pmp, $matches) ) $cqlname .= "<p>{%".pattname($matches[1], false)."} = <b>".$matches[2]."</b>";
+					else $cqlname .= "<p>$pmp";
+				};
+				foreach ( explode ( ' & ', $smatch ) as $smp ) {
+					if ( preg_match("/match\.([^ ]+) *= *\"([^\"]*)\"/", $smp, $matches) ) $cqlname .= "<p>{%".pattname($matches[1])."} = <b>".$matches[2]."</b>";
+					else $cqlname .= "<p>$smp";
+				};
+			};
+			
+			if ( $cqlname ) {
+				$cqltxt = "<span title='".htmlentities($cql)."'>$cqlname</span>";
+			} else {
+				$cqltxt = htmlentities($cql);
+			};
+
+			if ( $act == "keywords" || $_POST['mode'] == "keyness" ) {
+				$maintext .= "<h1>{%Keywords}</h1>";
+
+
+				$fld = $_POST['fld'] or $fld = "word";
+				$fldname = pattname($fld);
+
+				if ( $settings['cqp']['frequency']['refcorpus'] ) {
+					$refcorpus = $settings['cqp']['frequency']['refcorpus'];
+					$refcorpustxt = $settings['cqp']['frequency']['refcorpus'] or $refcorpustxt = $refcorpus;
+				} else {
+					$refcorpus = $cqpcorpus;
+					$refcorpustxt = "(internal)";
+				};
+
+				$tmpfile = time();
+
+				$maintext .= "<table>
+								<tr><th>{%Search query}:<td>$cqltxt</tr>
+								<tr><th>{%Keyness}:<td><span title='$cmd'>{%Field}: $fld, {%Reference corpus}: $refcorpustxt</span></tr>
+							</table>";
+
+				$cmd = "echo 'Matches = $cql; stats Matches $fld :: type:keywords context:$dir$context' | $ttcqp --output=json";
+				$json = shell_exec($cmd);
+
+				$fldname = pattname($fld);
+				$cmd = "join tmp/$tmpfile.2.txt tmp/$tmpfile.3.txt | perl $ttroot/common/Scripts/collocate.pl --selsize=$size --corpussize=$corpussize --fldname='$fldname' --span=1";
+				$json = shell_exec($cmd); 
+								
+			} else if ( $act == "collocations" || $_POST['mode'] == "collocations" ) {
+			
+				$maintext .= "<h1>{%Collocations}</h1>";
+			
+				$tmpfile = time();
+
+				$moredirect .= "&context=".urlencode($_POST['context']);
+				$moredirect .= "&dir=".urlencode($_POST['dir']);
+				$moredirect .= "&fld=".urlencode($_POST['fld']);
+
+				$context = $_POST['context'] or $context = 5;
+				$dirdir = array ( "" => "Left/Right", "-" => "Left", "+" => "Right"  );
+				$dir = $_POST['dir'] or $dir = ""; $dirtxt = "{%{$dirdir[$dir]}}";
+				$fld = $_POST['fld'] or $fld = "word";
+				$fldname = pattname($fld);
+
+				$maintext .= "<table>
+								<tr><th>{%Search query}:<td>$cqltxt</tr>
+								<tr><th>{%Collocates}:<td><span title='$cmd'>{%Direction}: $dirtxt; {%Context}: $context; {%Field}: {%$fldname}</span></tr>
+							</table>";
+	
+				$cmd = "echo 'Matches = $cql; stats Matches $fld :: context:$dir$context' | $ttcqp --output=json";
+				if ( $debug ) $maintext .= "<!-- $cmd -->";
+				$json = shell_exec($cmd);
+				
+				$headrow = "false"; 
+
+				$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi-square}'>{%Chi-square}</option><option value=5 title='{%Mutual information}'>{%MI}</option></select>";
+				$cntcols = 5;
+			
+			} else {
+				$maintext .= "<h1>Corpus Distribution</h1>";
+			
+				$moredirect = "&query=".urlencode($_POST['query']);
+			
+				$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
+				$cmd = "echo 'Matches = $cql; $grquery;' | $ttcqp --output=json";
+				if ( $debug ) $maintext .= "<!-- $cmd -->";
+				$json = shell_exec($cmd);
+
+				if ( preg_match("/Error: (.*)/", $json, $matches) ) { 
+					$tterror = $matches[1];
+					if ( preg_match("/failed to open: cqp\/(.*)\.corpus/", $json, $matches) ) { 
+						$errortxt = "Incorrect request: This corpus has no attribute <i>{$matches[1]}</i>";
+					} else if ( preg_match("/failed to open: cqp\/(.*)\.rng/", $json, $matches) ) { 
+						$errortxt = "Incorrect request: This corpus has no attribute <i>{$matches[1]}</i>";
+					} else $errortxt = $tterror;						
+					fatal("$errortxt");
+				};
+			
+				# See if we can find a name for this query
+				if ( preg_match("/group Matches (.*)/", $grquery, $matches ) ) {
+					$groupflds = explode(" ", $matches[1]); $sep = "";
+					foreach ( $groupflds as $grfld ) {
+						$grfld = preg_replace("/.*\./", "", $grfld);
+						if ( !$mainfld ) $mainfld = $grfld;
+						$grnames .= $sep."<b>".pattname($grfld)."</b>"; $sep = " + ";
+					};
+					$grtxt = "Group by:  $grnames";
+				} else $grtxt = $grquery;
+			
+				$maintext .= "<table>
+								<tr><th>{%Search query}:<td>$cqltxt</tr>
+								<tr><th>{%Group query}:<td>$grtxt</tr>
+							</table>";
+
+				$wpmdesc = "Words per million"; $wpmtxt = "WPM";
+				if ( strpos($json, "%Tot") != false ) {
+					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>{%Count}</option><option value=2 title='{%Total occurrences}'>{%Total}</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
+					$cntcols = 3;
+				} else {
+					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>{%Count}</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
+					$cntcols = 2;
+				};
+				
+				$headrow = "false"; 
+				$cqltxt = str_replace("'", "&#039;", $cql);
+
+			};
+			$maintext .= "<hr>";
+
+			if ( $debug ) $maintext .= $debugtxt;
+
 		} else {
 		
-			if ( $_GET['json'] or $_POST['json'] ) {
-	
-	
-				$title = $_POST['title'] or $title = "Data Visualization";
-				$maintext .= "<h1>$title</h1>";
+			# TODO: Should we provide some default JSON?
 		
-				if ( $_POST['description'] ) {
-					$maintext .= "<p>{$_POST['description']}</p><hr>";
-				};
+		};
+
+	if ( $json ) {
+
+		$apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B6JSu5Ne7WkNSE"; # Use our key when no other key is defined  
 		
-				$json = $_GET['json'] or $json = $_POST['json'];
-		
-			
-			} else if ( $_GET['cql'] or $_POST['cql'] ) {
-			
-				if ( $settings['cqp']['defaults']['registry'] ){
-					$reg = " --cqlfolder={$settings['cqp']['defaults']['registry']}";
-				};
+		if ( $mainfld == "text_geo" || $fldi[0]['var'] == "geo"  ) { $moregs .= "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
 
-				$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "[]";
+		if ( $_GET['charttype'] ) $inittype = "'{$_GET['charttype']}'";
+				$maintext .= " 
+					<div id='linkfield' style='float: right; z-index: 100; cursor: pointer;'></div>
+					<p>
+					{%Graph}:
+					<select name=graph id=graphselect onChange=\"drawGraph(this.value);\">
+					<option value='table'>{%Table}</option>
+					<option value='pie'>{%Pie}</option>
+					<option value='piehole'>{%Donut}</option>
+					<option value='bars'>{%Bar Chart}</option>
+					<option value='lines'>{%Line Chart}</option>
+					<option value='scatter'>{%Scatter Chart}</option>
+					<option value='histogram'>{%Histogram}</option>
+					<option value='trendline'>{%Trendline}</option>
+					<option value='totals'>{%Statistics}</option>
+					$moregs
+					</select>
+					$wpmsel
+					|
+					{%Download}:
+					<select name=download onClick=\"downloadData(this.value);\">
+					<option value=''>{%[select]}</option>
+					<option value='svg' class='imgbut' title='Download image as Scalable Vector Graphics'>{%SVG}</option>
+					<option value='png' class='imgbut' title='Download image as Portable Network Graphics'>{%PNG}</option>
+					<option value='csv' title='Download data as Comma-Separated Values'>{%CSV}</option>
+					<option value='json' title='Download data in Javascript Object Notation'>{%JSON}</option>
+					</select>
+					</p>
+					<div style='width: 100%;' id=googlechart></div>
+					";
 
-				if ( preg_match("/ *\[([^\]]+)\](?: *within .*)?$/", $cql, $matches) || preg_match("/ *\[([^\]]+)\] *:: *(.*?)(?: *within .*)?$/", $cql, $matches) ) {
-					$pmatch = $matches[1]; $smatch = $matches[2];
-					if ( $smatch ) $srest = " :: $smatch"; # TODO : Check if we want to keep everything
-					foreach ( explode ( ' & ', $pmatch ) as $pmp ) {
-						if ( preg_match("/ *([^ ]+) *= *\"([^\"]*)\" */", $pmp, $matches) ) $cqlname .= "<p>{%".pattname($matches[1], false)."} = <b>".$matches[2]."</b>";
-						else $cqlname .= "<p>$pmp";
-					};
-					foreach ( explode ( ' & ', $smatch ) as $smp ) {
-						if ( preg_match("/match\.([^ ]+) *= *\"([^\"]*)\"/", $smp, $matches) ) $cqlname .= "<p>{%".pattname($matches[1])."} = <b>".$matches[2]."</b>";
-						else $cqlname .= "<p>$smp";
-					};
-				};
-				
-				if ( $cqlname ) {
-					$cqltxt = "<span title='".htmlentities($cql)."'>$cqlname</span>";
-				} else {
-					$cqltxt = htmlentities($cql);
-				};
-
-				if ( $act == "keywords" || $_POST['mode'] == "keyness" ) {
-					$maintext .= "<h1>Keywords</h1>";
+		$maintext .= "<hr><p><a target=help href='http://teitok.corpuswiki.org/site/index.php?action=help&id=visualize'>{%Help}</a>";
+		if ( $cql && !$_GET['cql'] ) {
+			$maintext .= " &bull; <a href='index.php?action=$action&cql=".urlencode($cql)."&mode={$_POST['mode']}".$moredirect."'>{%Direct URL}</a>";
+		};
 
 
-					$fld = $_POST['fld'] or $fld = "word";
-					$fldname = pattname($fld);
-
-					if ( $settings['cqp']['frequency']['refcorpus'] ) {
-						$refcorpus = $settings['cqp']['frequency']['refcorpus'];
-						$refcorpustxt = $settings['cqp']['frequency']['refcorpus'] or $refcorpustxt = $refcorpus;
-					} else {
-						$refcorpus = $cqpcorpus;
-						$refcorpustxt = "(internal)";
-					};
-
-					$tmpfile = time();
-	
-					$maintext .= "<table>
-									<tr><th>{%Search query}:<td>$cqltxt</tr>
-									<tr><th>{%Keyness}:<td><span title='$cmd'>{%Field}: $fld, {%Reference corpus}: $refcorpustxt</span></tr>
-								</table>";
-
-					$cmd = "echo 'Matches = $cql; stats Matches $fld :: type:keywords context:$dir$context' | $ttcqp --output=json";
-					$json = shell_exec($cmd);
-
-					$fldname = pattname($fld);
-					$cmd = "join tmp/$tmpfile.2.txt tmp/$tmpfile.3.txt | perl $ttroot/common/Scripts/collocate.pl --selsize=$size --corpussize=$corpussize --fldname='$fldname' --span=1";
-					$json = shell_exec($cmd); 
-									
-				} else if ( $act == "collocations" || $_POST['mode'] == "collocations" ) {
-				
-					$maintext .= "<h1>Collocations</h1>";
-				
-					$tmpfile = time();
-
-					$moredirect .= "&context=".urlencode($_POST['context']);
-					$moredirect .= "&dir=".urlencode($_POST['dir']);
-					$moredirect .= "&fld=".urlencode($_POST['fld']);
-	
-					$context = $_POST['context'] or $context = 5;
-					$dirdir = array ( "" => "Left/Right", "-" => "Left", "+" => "Right"  );
-					$dir = $_POST['dir'] or $dir = ""; $dirtxt = "{%{$dirdir[$dir]}}";
-					$fld = $_POST['fld'] or $fld = "word";
-					$fldname = pattname($fld);
-	
-					$maintext .= "<table>
-									<tr><th>{%Search query}:<td>$cqltxt</tr>
-									<tr><th>{%Collocates}:<td><span title='$cmd'>{%Direction}: $dirtxt; {%Context}: $context; {%Field}: {%$fldname}</span></tr>
-								</table>";
-		
-					$cmd = "echo 'Matches = $cql; stats Matches $fld :: context:$dir$context' | $ttcqp --output=json";
-					if ( $debug ) $maintext .= "<!-- $cmd -->";
-					$json = shell_exec($cmd);
+			# Create a pie-chart option
+			$maintext .= " 
+				<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>
+				<script type=\"text/javascript\" src=\"https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js\"></script>
+				<script type=\"text/javascript\" src=\"$jsurl/visualize.js\"></script>
+				<script type=\"text/javascript\">
 					
-					$headrow = "false"; 
-
-					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi-square}'>{%Chi-square}</option><option value=5 title='{%Mutual information}'>{%MI}</option></select>";
-					$cntcols = 5;
-				
-				} else {
-					$maintext .= "<h1>Corpus Distribution</h1>";
-				
-					$moredirect = "&query=".urlencode($_POST['query']);
-				
-					$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
-					$cmd = "echo 'Matches = $cql; $grquery;' | $ttcqp --output=json";
-					if ( $debug ) $maintext .= "<!-- $cmd -->";
-					$json = shell_exec($cmd);
-
-					if ( preg_match("/Error: (.*)/", $json, $matches) ) { 
-						$tterror = $matches[1];
-						if ( preg_match("/failed to open: cqp\/(.*)\.corpus/", $json, $matches) ) { 
-							$errortxt = "Incorrect request: This corpus has no attribute <i>{$matches[1]}</i>";
-						} else if ( preg_match("/failed to open: cqp\/(.*)\.rng/", $json, $matches) ) { 
-							$errortxt = "Incorrect request: This corpus has no attribute <i>{$matches[1]}</i>";
-						} else $errortxt = $tterror;						
-						fatal("$errortxt");
-					};
-				
-					# See if we can find a name for this query
-					if ( preg_match("/group Matches (.*)/", $grquery, $matches ) ) {
-						$groupflds = explode(" ", $matches[1]); $sep = "";
-						foreach ( $groupflds as $grfld ) {
-							$grfld = preg_replace("/.*\./", "", $grfld);
-							if ( !$mainfld ) $mainfld = $grfld;
-							$grnames .= $sep."<b>".pattname($grfld)."</b>"; $sep = " + ";
-						};
-						$grtxt = "Group by:  $grnames";
-					} else $grtxt = $grquery;
-				
-					$maintext .= "<table>
-									<tr><th>{%Search query}:<td>$cqltxt</tr>
-									<tr><th>{%Group query}:<td>$grtxt</tr>
-								</table>";
-
-					$wpmdesc = "Words per million"; $wpmtxt = "WPM";
-					if ( strpos($json, "%Tot") != false ) {
-						$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>{%Count}</option><option value=2 title='{%Total occurrences}'>{%Total}</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
-						$cntcols = 3;
-					} else {
-						$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>{%Count}</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
-						$cntcols = 2;
-					};
-					
-					$headrow = "false"; 
-					$cqltxt = str_replace("'", "&#039;", $cql);
-
-				};
-				$maintext .= "<hr>";
-
-				if ( $debug ) $maintext .= $debugtxt;
-
-			} else {
-			
-				# TODO: Should we provide some default JSON?
-			
-			};
-
-		if ( $json ) {
-
-			$apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B6JSu5Ne7WkNSE"; # Use our key when no other key is defined  
-			
-			if ( $mainfld == "text_geo" || $fldi[0]['var'] == "geo"  ) { $moregs .= "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
-	
-			if ( $_GET['charttype'] ) $inittype = "'{$_GET['charttype']}'";
-					$maintext .= " 
-						<div id='linkfield' style='float: right; z-index: 100; cursor: pointer;'></div>
-						<p>
-						{%Graph}:
-						<select name=graph id=graphselect onChange=\"drawGraph(this.value);\">
-						<option value='table'>{%Table}</option>
-						<option value='pie'>{%Pie}</option>
-						<option value='piehole'>{%Donut}</option>
-						<option value='bars'>{%Bar Chart}</option>
-						<option value='lines'>{%Line Chart}</option>
-						<option value='scatter'>{%Scatter Chart}</option>
-						<option value='histogram'>{%Histogram}</option>
-						<option value='trendline'>{%Trendline}</option>
-						<option value='totals'>{%Statistics}</option>
-						$moregs
-						</select>
-						$wpmsel
-						|
-						{%Download}:
-						<select name=download onClick=\"downloadData(this.value);\">
-						<option value=''>{%[select]}</option>
-						<option value='svg' class='imgbut' title='Download image as Scalable Vector Graphics'>{%SVG}</option>
-						<option value='png' class='imgbut' title='Download image as Portable Network Graphics'>{%PNG}</option>
-						<option value='csv' title='Download data as Comma-Separated Values'>{%CSV}</option>
-						<option value='json' title='Download data in Javascript Object Notation'>{%JSON}</option>
-						</select>
-						</p>
-						<div style='width: 100%;' id=googlechart></div>
-						";
-
-			$maintext .= "<hr><p><a target=help href='http://teitok.corpuswiki.org/site/index.php?action=help&id=visualize'>{%Help}</a>";
-			if ( $cql && !$_GET['cql'] ) {
-				$maintext .= " &bull; <a href='index.php?action=$action&cql=".urlencode($cql)."&mode={$_POST['mode']}".$moredirect."'>{%Direct URL}</a>";
-			};
-	
-	
-					# Create a pie-chart option
-					$maintext .= " 
-						<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>
-						<script type=\"text/javascript\" src=\"https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js\"></script>
-						<script type=\"text/javascript\" src=\"$jsurl/visualize.js\"></script>
-						<script type=\"text/javascript\">
-						
 			google.charts.load('current', {'packages':['corechart', 'table', 'bar', 'line', 'scatter' $morel ] $moreo });
 
 			var json = $json;
@@ -241,8 +332,8 @@
 			google.charts.setOnLoadCallback(function() { drawGraph($inittype); });
 
 			</script>
-				";
-			
+			";
+		
 		} else {
 	
 			# $maintext .= "<h1>Data Visualization</h1>";

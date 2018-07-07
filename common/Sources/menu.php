@@ -64,7 +64,7 @@
   		if ( count(scandir("pagetrans")) > 2 ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=pagetrans'>Page-by-Page</a></ul>"; 
   		$tmp = ""; if ( $action == "files" ) $tmp = "class=\"selected\""; 
   		if ( file_exists("xmlfiles") ) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
-  		if (file_exists("Resources/filelist.xml")) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=filelist'>File repository</a></ul>";
+
   		$menu .= $adminitems;
 	} else if ( $_SESSION['extid'] ) {
 		foreach ( $_SESSION['extid'] as $idtype => $val ) { 

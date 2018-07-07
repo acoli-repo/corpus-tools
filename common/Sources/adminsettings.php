@@ -92,11 +92,20 @@
 			<p style='color: #666666;'>{$defnode['display']}
 			$deftxt 
 			<p>Current value: <b>$valdef</b>
-			<form action=\"index.php?action=$action&act=save\" method=post>
+			<form action=\"index.php?action=$action&act=save\" method=post name=myform id=myform>
 			<textarea style='display: none;' type=hidden name=xpath>$xptxt</textarea>
 			";
 		
-		if ( $defnode && $defnode->val ) {
+		if ( $defnode && $defnode->val && $defnode['listvals'] ) {
+			foreach ( $defnode->val as $option ) {
+				if ( $option["key"] == $valtxt ) $seltxt = "selected"; else $seltxt = "";
+				if ( $option['deprecated'] ) $deptxt = " (deprecated)";  else $deptxt = ""; # $seltxt .= " disabled";
+				if ( !$option['deprecated'] || $option["key"] == $valtxt ) $optionlist .= "<tr><th>{$option['display']}<td><a onclick='console.log(this); document.myform.newval.value=this.innerText;'>{$option['key']}</a><td>$deptxt</tr>";
+			};
+			$maintext .= "<p>New value: <input name=newval size=100 style='width: 80%;' value=\"$valtxt\">
+				<p>Possible values (click to select):
+				<table>$optionlist</table>";
+		} else if ( $defnode && $defnode->val ) {
 			foreach ( $defnode->val as $option ) {
 				if ( $option["key"] == $valtxt ) $seltxt = "selected"; else $seltxt = "";
 				if ( $option['deprecated'] ) $deptxt = " (deprecated)";  else $deptxt = ""; # $seltxt .= " disabled";

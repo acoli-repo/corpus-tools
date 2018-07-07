@@ -786,13 +786,14 @@
 			<span onclick=\"document.cqlform.action = 'index.php?action=$action&act=download'; document.cqlform.submit();\">{%Download results as TXT}</span>
 			";
 		$cqll = str_replace("'", "&#039;", $cql);
-		$maintext .= " - <a href='index.php?action=cqp&cql=".urlencode($cqll)."'>{%Direct query URL}</a>";
 		
-		if ( $settings['geomap'] ) {
-			if ( $subtit ) $cqptit = "&cqptit=".urlencode($subtit);
-			$maintext .= " - <a href='index.php?action=geomap&cql=".urlencode($cqll)."$cqptit'>{%Visualize on the map}</a>";
-		};
-
+		if ( $subtit ) $cqptit = "&cqltit=".urlencode($subtit);
+		$maintext .= " - <a href='index.php?action=visualize&act=store&cql=".urlencode($cqll)."$cqptit'>{%Remember query}</a>";
+		
+		$useridtxt = $shortuserid;
+		if ( $_SESSION['myqueries'] || file_exists("Users/cql_$useridtxt.xml") )
+			$maintext .= " - <a href='index.php?action=visualize&act=stored&cql=".urlencode($cqll)."'>{%Stored queries}</a>";
+		
 		
 		# Do not allow frequency counts if we already have a pre-select CQL
 		if ( !findapp("tt-cqp") ) {
