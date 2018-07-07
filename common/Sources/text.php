@@ -423,6 +423,49 @@
 		$moreaction .= "\n";
 	};
 
+	$cql = $_GET['cql'];
+	if ( $cql != "" ){
+		// In case we have a (set of) CQL query - first load the results
+		$collist = array( '#fff2a8', '#ffb7b7', '#a8d1ff', '#d1a8ff', '#d1ffa8', '#b7ffb7', '#b7b7ff', '#ffd4b7', 'cyan', 'green-dark', 'green', 'green-light', 'black' );
+		include ("$ttroot/common/Sources/cwcqp.php");
+		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+  
+		$cqp = new CQP();
+		$cqp->exec($cqpcorpus); // Select the corpus
+		$cqp->exec("set PrettyPrint off");
+
+		$cqpp = explode ( "||", urldecode($cql) );
+		$cqpptit = explode ( "||", urldecode($_GET['cqlname']) );
+		foreach ( $cqpp as $i => $cql ) { 
+			$cqpquery = $cql;
+			if ( strstr($cqpquery, "<text" ) ) continue; 
+			if ( !strstr($cqpquery, "Matches" ) ) $cqpquery = "Matches = $cql"; 
+			if ( !strstr($cqpquery, "::" ) ) {
+				$sep = "::";
+			} else {
+				$sep = "&";
+			};
+			$cqpquery = str_replace(" within text", "", $cqpquery)." $sep match.text_id=\"xmlfiles/$fileid\"";
+			$cqp->exec($cqpquery); 
+			$cqpquery = "size Matches";
+			$size = $cqp->exec($cqpquery); 
+			if ( $size > 0 ) {
+				$cqpquery = "tabulate Matches match id";
+				$results = $cqp->exec($cqpquery); 
+			
+				$sep = "";
+				foreach ( explode ( "\n", $results ) as $line ) {	
+					list ( $tokid ) = explode ( "\t", $line );
+					$moreactions .= "highlight('$tokid', '{$collist[$i]}'); ";
+				}; 
+			
+				$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][urlencode($cql)]['name'] or $cqlname = $_SESSION['myqueries'][urlencode($cql)]['display'] or $cqlname = $cql;
+				$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cqlname);
+			};
+		}; 
+		if ( $cqptit ) $maintext .= "<table><tr><td>{%Search Query}: </td><td>$cqptit</table><hr>";
+	};
+
 	$hltit = $_POST['hltit'] or $hltit = $_GET['hltit'];
 	if ( $hltit ) $pagenav .= "<p>{$hltit}<hr>";
 

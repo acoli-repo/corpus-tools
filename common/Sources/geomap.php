@@ -124,6 +124,7 @@ if ( $act == "xml" ) {
 
 		// In case we have a (set of) CQL query - first load the results
 		$cqpp = explode ( "||", urldecode($cql) );
+		$cqpptit = explode ( "||", urldecode($_GET['cqlname']) );
 		foreach ( $cqpp as $i => $cql ) { 
 			if ( strstr($cql, "<text" ) ) $txttype[$i] = 1; else $txttype[$i] = 0; 
 			if ( !strstr($cql, "Matches" ) ) $cql = "Matches = $cql"; 
@@ -131,7 +132,7 @@ if ( $act == "xml" ) {
 
 			$cqpquery = "group Matches match text_id by match text_$geofld";
 			$results = $cqp->exec($cqpquery); 
-			print $results;
+
 			$sep = "";
 			foreach ( explode ( "\n", $results ) as $line ) {	
 				list ( $geo, $id, $cnt ) = explode ( "\t", $line );
@@ -140,7 +141,8 @@ if ( $act == "xml" ) {
 				};
 			};
 
-			$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cql);
+			$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][urlencode($cql)] or $cqlname = $cql;
+			$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cqlname);
 
 		}; 
 		$cqptit = "<table><tr><td>{%Search Query}: </td><td>$cqptit</table><hr>";
@@ -173,7 +175,7 @@ if ( $act == "xml" ) {
 					if ( !$txttype[$i] ) $cnttxt = $cnt; else $cnttxt = "&nbsp;";
 					$matchcnt .= "<span style='background-color: {$collist[$i]}; color: white; font-size: 10px; padding-left: 3px; padding-right: 3px;'>$cnttxt</span> ";
 				};
-				if ( !$docmatch || $matchcnt ) $maintext .= "<tr><td>$matchcnt<td><a href='index.php?action=file&cid=$cid'>$title</a></tr>";
+				if ( !$docmatch || $matchcnt ) $maintext .= "<tr><td>$matchcnt<td><a href='index.php?action=file&cid=$cid&cql={$_GET['cql']}'>$title</a></tr>";
 			};
 		};
 		$maintext .= "</table>";
@@ -201,6 +203,7 @@ if ( $act == "xml" ) {
 		
 		$cqpquery = $_GET['cql']; 
 		$cqpp = explode ( "||", $cqpquery );
+		$cqpptit = explode ( "||", urldecode($_GET['cqlname']) );
 		$cqptit = $_GET['cqptit'];
 		if ( $cqptit != "" ) {
 			$cqptit = "<a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> $cqptit";
@@ -208,7 +211,9 @@ if ( $act == "xml" ) {
 			if ( count($cqpp) == 1 ) $cqptit .= "<a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> ".htmlentities($cqpquery);
 			else {
 				foreach ( $cqpp as $i => $cql ) { 
-					$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cql);
+					$tmp = trim(urlencode($cql));
+					$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][$tmp]['name'] or $cqlname = $_SESSION['myqueries'][$tmp]['display'] or $cqlname = $cql;
+					$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cqlname);
 				};
 			};
 		};

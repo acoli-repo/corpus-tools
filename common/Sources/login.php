@@ -35,6 +35,18 @@
 					exit;
 				};
 				
+				// See if we have any stored queries to load
+				$useridtxt = $record['short'];
+				if ( file_exists("Users/cql_$useridtxt.xml") ) {
+					$xmlq = simplexml_load_file("Users/cql_$useridtxt.xml");
+					foreach ( $xmlq->xpath("//query") as $sq ) {
+						$sqarray['cql'] = $sq['cql']."";
+						$sqarray['name'] = $sq['name']."";
+						$sqarray['display'] = $sq['display']."";
+						$_SESSION['myqueries'][urlencode($sq['cql'])] = $sqarray;
+					};
+				};
+						
 				// Now - reload 
 				if ( $_GET['goon'] ) $newurl = "top.location='{$_GET['goon']}';";
 				else if ( $_GET['action'] == "login" ) $newurl = "top.location='?action=admin';";

@@ -43,7 +43,6 @@
 	} else if ( $act == "stored" ) {
 	
 		// Show stored CQL queries
-		
 		$maintext .= "<h1>{%Stored CQL queries}</h1>
 			<form action='index.php?action=visualize&act=compare' id='visualize' name='visualize' method=post>
 			<table>";
