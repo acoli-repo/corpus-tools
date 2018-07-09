@@ -779,8 +779,8 @@
  				$maintext .= "<tr><td><a href='index.php?action=$action&cid=$cid&treeid=$forestid'>Sentence&nbsp;{$sentid}</a>
  								<td>$sentence";
  			};
-			$maintext .= "</table></div><hr><a href='index.php?action=$action'>More files</a> &bull; <a href='index.php?action=$action&act=xpath&cid=$cid'>{%Search in this file}</a>";
-			if ( !$settings['psdx']['nodownload'] ) $maintext .= " &bull; <a href='index.php?action=$action&act=download&cid=$cid'>{%Download file}</a>";
+			$maintext .= "</table></div><hr><a href='index.php?action=$action'>{%more files}</a> &bull; &bull; <a href='index.php?action=file&cid=$cid&jmp=$sentid'>{%to text mode}</a> <a href='index.php?action=$action&act=xpath&cid=$cid'>{%search in this file}</a>";
+			if ( !$settings['psdx']['nodownload'] ) $maintext .= " &bull; <a href='index.php?action=$action&act=download&cid=$cid'>{%download file}</a>";
 		};
 
 	} else {

@@ -98,6 +98,12 @@
 			 <att key="name" display="XPath for the placename within the node"/>
 			 <att key="desc" display="XPath for the description (placename type) within the node"/>
 		</item>
+		<item key="osm" display="Setting for the Nominatum script to lookup geolocation data">
+			 <att key="xpath" display="XPath for the XML node where the placename is found, and where the geolocation is stored (defaults to the settings in CQP for text_geo)"/>
+			 <att key="replace" display="A regular expression to modify the name field"/>
+			 <att key="to" display="Replacement for the replace value"/>
+			 <att key="assign" display="Which data from OSM to assign to the name node (city, county, state, country)"/>
+		</item>
 		<item key="areas" display="Areas to jump to on the map">
 			<desc>If not all the documents on the document map are together, say if most of
 			them are in Spain, but some are on the Canary Islands, you can specify jump points

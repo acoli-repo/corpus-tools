@@ -423,7 +423,7 @@
 		$moreaction .= "\n";
 	};
 
-	$cql = $_GET['cql'];
+	$cql = $_GET['cql'] or $cql = $_POST['cql'];
 	if ( $cql != "" ){
 		// In case we have a (set of) CQL query - first load the results
 		$collist = array( '#fff2a8', '#ffb7b7', '#a8d1ff', '#d1a8ff', '#d1ffa8', '#b7ffb7', '#b7b7ff', '#ffd4b7', 'cyan', 'green-dark', 'green', 'green-light', 'black' );
@@ -460,7 +460,7 @@
 				}; 
 			
 				$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][urlencode($cql)]['name'] or $cqlname = $_SESSION['myqueries'][urlencode($cql)]['display'] or $cqlname = $cql;
-				$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cqlname);
+				$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='font-size: 10px; background-color: {$collist[$i]}; margin-right: 8px; padding: 2px;'>$size</span> ".htmlentities($cqlname);
 			};
 		}; 
 		if ( $cqptit ) $maintext .= "<table><tr><td>{%Search Query}: </td><td>$cqptit</table><hr>";
