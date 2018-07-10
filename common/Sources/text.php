@@ -423,7 +423,7 @@
 		$moreaction .= "\n";
 	};
 
-	$cql = $_GET['cql'] or $cql = $_POST['cql'];
+	$cql = $_GET['cql'] or $cql = $_POST['cql']; 
 	if ( $cql != "" ){
 		// In case we have a (set of) CQL query - first load the results
 		$collist = array( '#fff2a8', '#ffb7b7', '#a8d1ff', '#d1a8ff', '#d1ffa8', '#b7ffb7', '#b7b7ff', '#ffd4b7', 'cyan', 'green-dark', 'green', 'green-light', 'black' );
@@ -434,10 +434,13 @@
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
 
-		$cqpp = explode ( "||", urldecode($cql) );
-		$cqpptit = explode ( "||", urldecode($_GET['cqlname']) );
+		if ( is_array($cql) ) $cqpp = $cql; # For structured POST queries 
+		else $cqpp = explode ( "||", urldecode($cql) );
+		if ( is_array($_POST['cqlname']) ) $cqpptit = $_POST['cqlname']; # For structured POST queries 
+		else $cqpptit = explode ( "||", urldecode($_GET['cqlname']) );
 		foreach ( $cqpp as $i => $cql ) { 
-			$cqpquery = $cql;
+			if ( !$cql ) continue; 
+			$cqpquery = $cql;  
 			if ( strstr($cqpquery, "<text" ) ) continue; 
 			if ( !strstr($cqpquery, "Matches" ) ) $cqpquery = "Matches = $cql"; 
 			if ( !strstr($cqpquery, "::" ) ) {
@@ -464,7 +467,7 @@
 			};
 		}; 
 		if ( $cqptit ) $maintext .= "<table><tr><td>{%Search Query}: </td><td>$cqptit</table><hr>";
-	};
+	}; 
 
 	$hltit = $_POST['hltit'] or $hltit = $_GET['hltit'];
 	if ( $hltit ) $pagenav .= "<p>{$hltit}<hr>";
