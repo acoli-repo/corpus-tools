@@ -12,6 +12,8 @@
 	$tmp = explode(" ", $highl);
 	$tid = $tmp[0];	
 
+	if ( $settings['xmlfile']['basedirection'] ) $morestyle .= "direction: {$settings['xmlfile']['basedirection']}";
+
 	if ( $act == "save" ) {
 		foreach ( $_POST['bbox'] as $key => $bbox ) {
 			$elm = current($ttxml->xml->xpath("//lb[@id='$key'] | //l[@id='$key']"));
@@ -167,7 +169,7 @@
 					";
 
 				} else $lineimg = "";
-				$maintext .= "\n<tr><th title=\"$lineid\">$linenr<td>$lineimg<div style='padding: 3px; margin-top: 5px; background-color: #eeeeee;'>$linetxt</div>";
+				$maintext .= "\n<tr><th title=\"$lineid\">$linenr<td>$lineimg<div style='padding: 3px; margin-top: 5px; background-color: #eeeeee; $morestyle'>$linetxt</div>";
 			}; 
 
 			if ( $highl ) $hltok = "highlight('$highl', true);";

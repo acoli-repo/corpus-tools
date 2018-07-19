@@ -670,6 +670,20 @@
         	</item>
     	</item>
 	</item>
+
+    <item key="transliteration" display="Automatic transliteration">
+		<desc>
+			<p>For corpora not in Latin script, it is often a desirable feature to provide a romanized version of the
+			text. In this section you can define how each character gets transliterated.</p>
+		</desc>
+		<att key="from" display="Original alphabet"/>
+		<att key="to" display="Transliterated alphabet"/>
+        <list display="Character list">
+			<att key="key" display="Identifier"/>
+			<att key="from" display="Original character"/>
+			<att key="to" display="Transliterated character"/>
+        </list>
+	</item>
 	
 	<!-- CDD (see PS) maybe not to be included here -->
 	<!-- Filelist (see PS) maybe not to be included here -->
