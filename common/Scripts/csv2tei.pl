@@ -142,7 +142,7 @@ while ( <FILE> ) {
 			$xml = $parser->load_xml(location => $fn);
 		};
 		if ( !$xml ) { print "Unable to parse: $fn"; exit; };
-	} else {
+	} elsif ( !$nocreate ) {
 		if ( $template ) {
 			$tei = $template;
 		} elsif ( $notext ) {
@@ -156,6 +156,8 @@ while ( <FILE> ) {
 </TEI>";
 		};
 		$xml = $parser->load_xml(string => $tei);
+	} else {
+		next;
 	};	
 
 	# Check whether we should create a new file
@@ -216,6 +218,7 @@ sub xpathset ( $xquery, $xml, $val ) {
 
 sub makenode ( $xml, $xquery ) {
 	my ( $xml, $xquery ) = @_;
+	if ( $xquery eq '' ) { return; };
 	@tmp = $xml->findnodes($xquery); 
 	if ( scalar @tmp ) { 
 		$node = shift(@tmp);

@@ -7,6 +7,7 @@
 	
 	if ( !$_GET['cid'] ) $_GET['cid'] = $_POST['fileid'];	
 
+	if ( $settings['xmlfile']['basedirection'] ) $morestyle .= "direction: {$settings['xmlfile']['basedirection']}";
 
 	if ( $_GET['cid'] ) {
 		require ("$ttroot/common/Sources/ttxml.php");
@@ -189,7 +190,6 @@
 			$sxe = simplexml_load_string($pagebody, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$sxe && $value ) {
 				# This is not proper XML - try to repair
-				# print "\n<p>Repairing XML - $toninsert";
 				$toinsert = preg_replace("/\&(?![a-z+];)/", "&amp;", $toinsert);
 				$sxe = simplexml_load_string($pagebody, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);					
 			};
@@ -251,11 +251,81 @@
 		};				
 		
 	
+	} else if ( $act == "insert" && $ttxml->xml && $_GET['pageid'] ) {
+
+		# Insert a new page
+		$pageid = $_GET['pageid'];
+		$pagexp = "//text/page[@id='$pageid']";
+		$pagexml = current($ttxml->xml->xpath($pagexp));
+	
+		if ( !$pagexml ) fatal("Page not found: $pageid");
+		
+		$insert = new SimpleXMLElement("<page></page>");
+		simplexml_insert_after($insert, $pagexml);
+
+		$options = "";
+		foreach ( $ttxml->xml->xpath("//text//page") as $page ) {
+			$pagetxt = $page['n'] or $pagetxt = $page['id'];
+			if ( $page == $pagexml )  $sel = "selected"; else $sel = "";	
+			if ( $pagetxt ) $options .= "<option value='{$page['id']}'>$pagetxt</option>";
+		}; 
+		$maintext .= "<h1>Insert Page</h1><h2>".$ttxml->title()."</h2>"; 
+		# Display the teiHeader data as a table
+		$maintext .= $ttxml->tableheader(); 
+		$maintext .= "
+				
+				<form action='index.php?action=$action&act=addpage&cid=$ttxml->fileid' method=post>
+				<img id=sim name=sim src='' style='float: right; width: 200px;' onClick=\"window.open(this.src, '_new');\">
+				
+				<p>Insert a new page <select name=beforeafter><option value='before'>before</option><option value='after'>after</option></select>
+				page <select name=pageid>$options</select>
+				
+				<p>Facsimile image: <input name=facs size=60 onChange='showimg(this);'>
+				
+				<p>Page number:  <input name=n size=10>
+				
+				<p><input type=submit value=Insert>
+				<a href='index.php?action=$action&cid=$ttxml->fileid&page=$pageid'>cancel</a></form>
+				<script language=Javascript>
+					function showimg(data) {
+						document.getElementById('sim').src = data.value;
+					};
+				</script>
+				";
+
+		
+	} else if ( $act == "addpage" && $ttxml->xml && $_POST['pageid'] ) {
+
+		# Insert a new page
+		$pageid = $_POST['pageid'];
+		$pagexp = "//text/page[@id='$pageid']";
+		$pagexml = current($ttxml->xml->xpath($pagexp));
+	
+		if ( !$pagexml ) fatal("Page not found: $pageid");
+		
+		$insert = new SimpleXMLElement("<page></page>");
+		if ( $_POST['facs'] ) $insert['facs'] = $_POST['facs'];
+		if ( $_POST['n'] ) $insert['n'] = $_POST['n'];
+		simplexml_insert_after($insert, $pagexml, $_POST['beforeafter']);
+
+		$pn = 1; // Renumber
+		foreach ( $ttxml->xml->xpath("//page") as $page ) {
+			$page['id'] = "page-".$pn++;
+			if ( $page == $pagexml ) {
+				$newid = "page-".$pn;
+			};
+		};
+
+		file_put_contents("pagetrans/$ttxml->filename", $ttxml->asXML());
+		print "<p>Your page has been inserted. Reloading to $newid
+			<script language=Javascript>top.location='index.php?action=$action&cid={$_GET['cid']}&page=$newid';</script>";
+		exit;
+		
 	} else if ( $act == "status" && $ttxml->xml ) {
 	
 		$maintext .= "<h1>Facsimile Page-by-Page Transcription (pre TEI)</h1>";
-		# $maintext .= "<p style='color: #888888'>This page-by-page transcription tool is still in beta at this point - use with care, and please inform us about bugs or suggestions for improvements.</p><hr>";
 		$maintext .= "<h2>".$ttxml->title()."</h2>"; 
+
 		# Display the teiHeader data as a table
 		$maintext .= $ttxml->tableheader(); 
 
@@ -363,6 +433,7 @@
 			$imgsrc = $pagexml['facs'];
 			$imgsrc = preg_replace("/^Facsimile\//", "" , $imgsrc );
 			if ( !strstr($imgsrc, "http") ) $imgsrc = "Facsimile/$imgsrc";
+			
 			$maintext .= "<img src='$imgsrc' style='display: none;' id='facsimg'/>";
 			$maintext .= "<table style='width: 100%;' id='lines'>";
 			foreach ( $pagexml->xpath(".//line") as $line ) {
@@ -402,7 +473,7 @@
 					// Add the data of the line
 					$maintext .= "\n<tr><td style='padding-bottom: 20px;'>
 					<div bbox='{$line['bbox']}'  rotate='{$line['rotate']}' class='resize' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
-					<span style='margin-bottom: 20px;'>$statbox <textarea style='font-size: 16px; width: 96%; height: 30px; margin-top: 5px;' name='ta[{$line['id']}]' id='line-{$line['id']}' onkeyup='chareq(this);' >$linetxt</textarea></span>
+					<span style='margin-bottom: 20px;'>$statbox <textarea style='font-size: 16px; width: 96%; height: 30px; margin-top: 5px; $morestyle' name='ta[{$line['id']}]' id='line-{$line['id']}' onkeyup='chareq(this);' >$linetxt</textarea></span>
 					<input type=hidden name=\"bb[{$line['id']}]\" id='bb-{$line['id']}' style='width: 100%;' value=\"{$line['bbox']}\"/>
 					";
 
@@ -411,29 +482,39 @@
 			};
 			$maintext .= "</table>
 			<script language=Javascript>
+				function showlines () {
+					for ( var i=0; i<linedivs.length; i++ ) {
+						var linediv = linedivs[i];
+						var bbox = linediv.getAttribute('bbox').split(' ');
+						// Never scale more than 50% up
+						var imgscale  = Math.min(1.5, linediv.offsetWidth/(bbox[2]-bbox[0]));
+
+						var biw = facsimg.naturalWidth*imgscale;
+						var bih = biw*(facsimg.naturalHeight/facsimg.naturalWidth);
+						var bix = bbox[0]*imgscale;
+						var biy = bbox[1]*imgscale;
+
+						linediv.style.width = (bbox[2]-bbox[0])*imgscale + 'px'; // We might have made the div too wide
+						linediv.style.height = (bbox[3]-bbox[1])*imgscale + 'px';
+						linediv.style['background-size'] = biw+'px '+bih+'px';
+						linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';
+						linediv.setAttribute('orgbpos', '-'+bix+'px -'+biy+'px');
+	
+					};			
+				};
+
 				var facsimg = document.getElementById('facsimg');
 				var linedivs = document.getElementById('lines').getElementsByTagName('div');
-				for ( var i=0; i<linedivs.length; i++ ) {
-					var linediv = linedivs[i];
-					var bbox = linediv.getAttribute('bbox').split(' ');
-					// Never scale more than 50% up
-					var imgscale  = Math.min(1.5, linediv.offsetWidth/(bbox[2]-bbox[0]));
-
-					var biw = facsimg.naturalWidth*imgscale;
-					var bih = biw*(facsimg.naturalHeight/facsimg.naturalWidth);
-					var bix = bbox[0]*imgscale;
-					var biy = bbox[1]*imgscale;
-
-					linediv.style.width = (bbox[2]-bbox[0])*imgscale + 'px'; // We might have made the div too wide
-					linediv.style.height = (bbox[3]-bbox[1])*imgscale + 'px';
-					linediv.style['background-size'] = biw+'px '+bih+'px';
-					linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';
-					linediv.setAttribute('orgbpos', '-'+bix+'px -'+biy+'px');
-	
+				
+				facsimg.onload = function () {
+					// Wait until image is loaded before resizing the background
+				   showlines();
 				};
+				
 			</script>
 			<script language=Javascript src='http://code.interactjs.io/v1.3.0/interact.min.js'></script>
 			<script language=Javascript>
+
 
 
 			interact('.resize')
@@ -515,6 +596,11 @@
 				$crop = "width: 200%; float: left;";
 			else 
 				$crop = "width: 100%";
+				
+			$imgsrc = $pagexml['facs'];
+			$imgsrc = preg_replace("/^Facsimile\//", "" , $imgsrc );
+			if ( !strstr($imgsrc, "http") ) $imgsrc = "Facsimile/$imgsrc";
+				
 			$maintext .= "<p>
 				<div id='buttons' style='padding: 2px; height: 20px; z-index: 200; left: 5px; top: 5px; width: 50%;'>
 				<span onClick='togglefull();' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='fullscreen mode'>Fullscreen</span>
@@ -527,7 +613,7 @@
 				<div id=transtab style='background-color: white;'>
 				<div style='position: fixed; right: 5px; top: 5px; width: 300px; height: 300px; display: none; background-image: url(Facsimile/{$pagexml['facs']});' id='overlay'></div>
 				<table style='width: 100%;'><tr>
-				<td style='width: 50%'><div style='overflow: hidden;'><img id=facs src=\"Facsimile/{$pagexml['facs']}\" style=\"$crop\" onmousemove='zoomIn(event)' onmouseout='zoomOut();'/></div>
+				<td style='width: 50%'><div style='overflow: hidden;'><img id=facs src=\"$imgsrc\" style=\"$crop\" onmousemove='zoomIn(event)' onmouseout='zoomOut();'/></div>
 				<td style='width: 50%; vertical-align: top;'><textarea id='textfld' name=newcontent onkeyup='chareq(this);' style='padding: 5px; width: 100%; height: {$imgheight}px; border: none; font-size: 16px;' >$oldcontent</textarea></table>
 				</div>";
 						
@@ -555,6 +641,7 @@
 				- <a href='index.php?action=$action&cid=$ttxml->fileid&act=status'>Status</a>
 				- <a href='index.php?action=$action&act=conversions' target=help>Special characters</a>
 				- <a href='index.php?action=regionedit&cid=$ttxml->filename&pageid={$pagexml['id']}'>Edit line regions</a>
+				- <a href='index.php?action=$action&act=insert&cid=$ttxml->filename&pageid={$pagexml['id']}'>Insert page</a>
 				</form>
 				";
 			
@@ -586,6 +673,18 @@
 		<hr><p><a href='index.php?action=pdf2tei'>Create new page-by-page file</a>";
 		
 	};
-	
+
+	function simplexml_insert_after(SimpleXMLElement $insert, SimpleXMLElement $target, $beforeafter = "after" )
+	{
+		$target_dom = dom_import_simplexml($target);
+		$insert_dom = $target_dom->ownerDocument->importNode(dom_import_simplexml($insert), true);
+		if ( $beforeafter == "before" ) {
+			return $target_dom->parentNode->insertBefore($insert_dom, $target_dom);
+		} else if ($target_dom->nextSibling) {
+			return $target_dom->parentNode->insertBefore($insert_dom, $target_dom->nextSibling);
+		} else {
+			return $target_dom->parentNode->appendChild($insert_dom);
+		}
+	}	
 	
 ?>

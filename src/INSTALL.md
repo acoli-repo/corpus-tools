@@ -1,16 +1,18 @@
 # TEITOK TOOLS
 
-This folders contain some tools that make TEITOK work faster and more smoothly. These are
-source code files that need to be compiled on the local server
+This folder contains some dedicated command-line tools that make TEITOK work faster. Not all of these
+tools are required for TEITOK to work, this is what they do:
+
+* TT-CWB-ENCODE is the encoding tool that creates a CWB corpus directly from the XML files
+
+* TT-XIDX is a tool that renders an XML fragment for tokens and regions in the CWB corpus
+
+* TT-CQP is dedicated CQL interpreter that has improved support for statistical data and can work with dependency relations
 
 * NeoTagXML is the TEITOK internal POS tagger that tags directly on XML files. It is a rewrite
 of the NeoTag tagger, and reads directly from TEITOK settings.xml files to obtain parameter settings.
 
 * NeoTagTrain is the training program to create parameter files for NeoTagXML
-
-* TEITOK-verticalize is a program that creates .vrt files from TEITOK that can be used for CWB or NoSketchEngine - (deprecated)
-
-* XPath-Query is a quick tool to run an XPath query on a collection of XML files - (deprecated)
 
 ## Compilation instructions
 
@@ -21,8 +23,6 @@ settings.xml where the executable is located.
 These programs only have two dependencies: [http://pugixml.org/](PUGIXML), and if you have an older
 version of C++ also [http://www.boost.org/](BOOST). So depending on your C++ version, you should use either
 the C++11 method or the BOOST method below.
-
-TT-CQP can either use BOOST or C++11 with a c++ version > 4.9. You can compile it with either of these commands:
 
 ### Compile with C++ > 4.9
 

@@ -923,7 +923,7 @@ class cqlresult {
 						
 					} else if ( output == "json" ) {
 						coll = replace_all(coll, "'", "\\'");
-						cout << "['" << coll << "'," << obs << "," << csize  << "," << exp;
+						if ( coll != "" ) { cout << "['" << coll << "'," << obs << "," << csize  << "," << exp; };
 					} else {	
 						cout << coll << "\t" << obs << "\t" << csize  << "\t" << exp;
 					};

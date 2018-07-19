@@ -314,6 +314,10 @@
 		</att> 
 		<att key="textnotes" display="Note elements are part of the text"/> 
 		<att key="autonumber" display="Automatically number lines (1/0)" default="0"/> 
+		<att key="basedirection" display="Base text direction" default="ltr">
+			<val key="ltr" display="Left-to-right"/>
+			<val key="rtl" display="Right-to-left"/>
+		</att>
 		<att key="paged" display="Show one page at a time" default="0">
 			<val key="0" display="Show the entire text"/>
 			<val key="1" display="Only show one page at a time (unless specified differently)"/>
