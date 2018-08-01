@@ -149,26 +149,29 @@
 	$defaultview = $settings['xmlfile']['defaultview'];
 	// Calculate where to start from settings and cookies
 	if ( ( strpos($defaultview, "interpret") && !$_COOKIE['toggleint'] ) || $_COOKIE['toggleint'] == "true" ) {
-		$moreactions .= "\n				toggleint();";
+		$postjsactions .= "\n				toggleint();";
 	};
 	if ( ( strpos($defaultview, "breaks") && !$_COOKIE['toggleshow'] ) || $_COOKIE['toggleshow'] == "true" ) {
-		$moreactions .= "\n				toggleshow();";
+		$postjsactions .= "\n				toggleshow();";
 	};
 	if ( ( strpos($defaultview, "pb") ) || $_COOKIE['pb'] == "true" ) {
-		$moreactions .= "\n				toggletn('pb');";
+		$postjsactions .= "\n				toggletn('pb');";
 	};
 	if ( ( strpos($defaultview, "lb") ) || $_COOKIE['lb'] == "true" ) {
-		$moreactions .= "\n				toggletn('lb');";
+		$postjsactions .= "\n				toggletn('lb');";
 	};
 	if ( ( strpos($defaultview, "colors") && !$_COOKIE['togglecol'] ) || $_COOKIE['togglecol'] == "true" ) {
-		$moreactions .= "\n				togglecol();";
+		$postjsactions .= "\n				togglecol();";
 	};
 	if ( ( strpos($defaultview, "images") && !$_COOKIE['toggleimg'] ) || $_COOKIE['toggleimg'] == "true" ) {
-		$moreactions .= "\n				toggleimg();";
+		$postjsactions .= "\n				toggleimg();";
 	};
 	
 	if ( $settings['xmlfile']['autonumber'] == "1" ) {
-		$moreactions .= "\n				var autonumber = 1;";
+		$postjsactions .= "\n				var autonumber = 1;";
+	};
+	if ( $settings['xmlfile']['adminfacs'] == "1" && !$username ) {
+		$prejsactions .= "\n				var nofacs = 1;";
 	};
 	
 
@@ -181,7 +184,7 @@
 			 $fdlist .= "\n				formdir['$key'] = '$val';";
 		};
 	};
-	if ( $fdlist ) { $moreactions .= "\n				var formdir = [];$fdlist"; };
+	if ( $fdlist ) { $postjsactions .= "\n				var formdir = [];$fdlist"; };
 	$lablist = $_COOKIE['labels'] or $lablist = $settings['xmlfile']['defaultlabels'];
 	if ( $lablist ) {
 		$labarray = explode(",", $lablist);
@@ -261,12 +264,12 @@
 	if ( $tagstxt ) $showoptions .= " - {%Tags}: $tagstxt ";
 	if ( $labarray ) {
 		$labtxt = join ( "','", $labarray );
-		$moreactions .= "\n				labels=['$labtxt'];";
+		$postjsactions .= "\n				labels=['$labtxt'];";
 	};
 	if ( $showform ) {
-		$moreactions .= "\n				setForm('$showform');";
+		$postjsactions .= "\n				setForm('$showform');";
 	} else {
-		$moreactions .= "\n				setbut('but-pal');";
+		$postjsactions .= "\n				setbut('but-pal');";
 	};
 	// Set a default writing direction when defined
 	if ( $settings['xmlfile']['basedirection'] ) {
@@ -349,7 +352,7 @@
 	$result = $xml->xpath("//*[@start]"); 
 	if ( $result && $audiobit ) {
 		$showoptions .= " <button id='btn-audio' style='background-color: #ffffff;' onClick=\"toggleaudio();\">{%$audiobut}</button> ";
-		$moreactions .= "makeaudio();";
+		$postjsactions .= "makeaudio();";
 	};
 
 	if ( $showoptions != "" ) {
@@ -418,7 +421,7 @@
 		$moreaction .= "\n";
 		foreach ( $xml->xpath("//tok[@$att=\"$val\"]") as $hltok ) {
 			$hlid = $hltok['id'];
-			$moreactions .= "highlight('$hlid', '$hlcol'); ";
+			$postjsactions .= "highlight('$hlid', '$hlcol'); ";
 		};
 		$moreaction .= "\n";
 	};
@@ -459,7 +462,7 @@
 				$sep = "";
 				foreach ( explode ( "\n", $results ) as $line ) {	
 					list ( $tokid ) = explode ( "\t", $line );
-					$moreactions .= "highlight('$tokid', '{$collist[$i]}'); ";
+					$postjsactions .= "highlight('$tokid', '{$collist[$i]}'); ";
 				}; 
 			
 				$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][urlencode($cql)]['name'] or $cqlname = $_SESSION['myqueries'][urlencode($cql)]['display'] or $cqlname = $cql;
@@ -491,6 +494,7 @@
 		<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 		$pagenav
 		<div id=mtxt>".$editxml."</div>
+		<script language=Javascript>$prejsactions</script>
 		<script language=Javascript src='$jsurl/getplaintext.js'></script>
 		<script language=Javascript src='$jsurl/tokedit.js'></script>
 		<script language=Javascript src='$jsurl/tokview.js'></script>
@@ -507,7 +511,7 @@
 			var orgXML = document.getElementById('mtxt').innerHTML;
 			var tid = '$fileid'; 
 			var previd = '{$_GET['tid']}';
-			$moreactions
+			$postjsactions
 			var jmps = '$highlights'; var jmpid;
 			if ( jmps ) { 
 				var jmpar = jmps.split(' ');

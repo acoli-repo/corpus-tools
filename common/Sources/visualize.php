@@ -43,6 +43,7 @@
 	} else if ( $act == "stored" ) {
 	
 		// Show stored CQL queries
+
 		$maintext .= "<h1>{%Stored CQL queries}</h1>
 			<form action='index.php?action=visualize&act=compare' id='visualize' name='visualize' method=post>
 			<table>";
@@ -272,9 +273,9 @@
 
 	if ( $json ) {
 
-		$apikey = $settings['geomap']['apikey'] or $apikey = "AIzaSyBOJdkaWfyEpmdmCsLP0B6JSu5Ne7WkNSE"; # Use our key when no other key is defined  
+		$apikey = $settings['geomap']['apikey']; # Use our key when no other key is defined  
 		
-		if ( $mainfld == "text_geo" || $fldi[0]['var'] == "geo"  ) { $moregs .= "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
+		if ( ( $mainfld == "text_geo" || $fldi[0]['var'] == "geo" ) && $apikey  ) { $moregs .= "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
 
 		if ( $_GET['charttype'] ) $inittype = "'{$_GET['charttype']}'";
 				$maintext .= " 

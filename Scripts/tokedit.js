@@ -227,9 +227,12 @@ function formify () {
 		pbnum.setAttribute('title', 'page number');
 		pb.appendChild(pbnum);
 
+		if (  typeof(nofacs) == "undefined" ) {
+			pb.setAttribute('admin', "1");
+		};
+
 		// Make img for all pb facs
-		if (  typeof(nofacs) == "undefined"
-				&& pb.getAttribute('facs') 
+		if (  pb.getAttribute('facs') 
 				&& ( pb.getAttribute("admin") != "1" || username )
 				&& pb.getAttribute("img") != "yes" 
 			) { // Set a marker to say we already made an img

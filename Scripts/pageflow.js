@@ -253,6 +253,7 @@ function optshow() {
 
 function fontzoom (factor) {
 	var toks = mtxt.getElementsByTagName("tok");
+	if ( typeof(toks[0]) != 'object' ) return;
 	if ( !fontsize ) fontsize = window.getComputedStyle(toks[0], null).getPropertyValue('font-size').replace('px', '') * 1;
 	fontsize = Math.floor(fontsize) + factor;
 	for ( var a = 0; a<toks.length; a++ ) {
@@ -405,7 +406,7 @@ function redraw() {
 	var cropside = page.getAttribute('crop'); // Deprecated
 	if ( cropside == "left" ) { pbrend = "0,0,50,100" };
 	if ( cropside == "right" ) { pbrend = "50,0,100,100" };
-	if ( pbrend != "" ) {
+	if ( pbrend != null && pbrend != "" ) {
 		bbrend = pbrend.split(",");
 		var tmp = bbrend[2]-bbrend[0];
 		pbzoom = 1/(tmp/100);
