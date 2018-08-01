@@ -166,6 +166,14 @@
 			$version = $tmp[0];
 			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
 
+			$tmp = file_get_contents("http://www.teitok.org/latest.xml");
+			$tmp = simplexml_load_string($tmp, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
+			if ( $tmp ) {
+				$latest = $tmp->xpath("//info")[0];
+				$maintext .= "<p style='font-size: small; color: #999999;'>Latest version: {$latest['version']}, {$latest['date']}" ;
+			};
+			
+			// TODO: Can we update via the GUI?
 // 			if ( $user['permissions'] == "admin" && is_writable($gitfldr) ) {
 // 				$maintext .= " (<a href='index.php?action=admin&act=update'>update</a>)";
 // 			};
