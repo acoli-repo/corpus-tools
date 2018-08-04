@@ -96,7 +96,7 @@
 	if ( $act == "freq" ) {
 		# Show frequency distribution (group) for a given Match
 		
-		$maintext .= "<h2>Frequency Information</h2>";
+		$maintext .= "<h2>{%Frequency Information}</h2>";
 
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
@@ -110,7 +110,7 @@
 
 		$size =$cqp->exec("size Matches");
 
-		$maintext .= "<p>Search query: ".htmlentities($cql);
+		$maintext .= "<p>{%Search query}: ".htmlentities($cql);
 
 		$query = $_POST['query'] or $query = $_GET['query'] or $query = "[]";
 		$results = $cqp->exec($query);
@@ -124,14 +124,14 @@
 		if ( $settings['cqp']['frequency'][$query] ) $queryname = $settings['cqp']['frequency'][$query]['display'];
 		else $queryname = $query;
 
-			$maintext .= "<p>Group query: <b>$queryname</b>";
+			$maintext .= "<p>{%Group query}: <b>$queryname</b>";
 		
 			$maintext .= "<table>";
 		
 		if ( $fileonly ) {
-			$freqnum = "# Texts";
+			$freqnum = "# {%Texts}";
 		} else {
-			$freqnum = "Frequency";
+			$freqnum = "{%Frequency}";
 		};
 		
 		if ( preg_match ( "/group Matches match ([^ ]+) by match ([^ ]+)/", $query, $matches )  ) {

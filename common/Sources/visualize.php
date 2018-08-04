@@ -118,13 +118,15 @@
 
 			$maintext .= "<h1>{%Query Comparison}</h1>";
 			foreach ( $_POST['myqueries'] as $cql => $val ) {
-				$sq = $_SESSION['myqueries'][$cql];
+				$sq = $_SESSION['myqueries'][$cql] or $sq = $val;
+				if ( $sq['cql'] == "" ) continue;
 				$display = $sq['name'] or $display = $sq['display'] or $display = $cql;
 				$cmd = "echo 'Matches = {$sq['cql']}; size Matches $fld;'| $ttcqp";
 				$num = shell_exec($cmd); $num = chop($num);
 				$data .= "\n\t['$display', $num], ";	
 			};
 			$json = "[[{'id':'form', 'label':'Query name'},  {'id':'count', 'label':'Count', 'type':'number'} ], $data]";
+			$nodirect = 1; // This relies on POST
 
 		} else if ( $_GET['cql'] or $_POST['cql'] ) {
 		
@@ -309,7 +311,8 @@
 					";
 
 		$maintext .= "<hr><p><a target=help href='http://teitok.corpuswiki.org/site/index.php?action=help&id=visualize'>{%Help}</a>";
-		if ( $cql && !$_GET['cql'] ) {
+		
+		if ( $cql && !$_GET['cql'] && !$nodirect ) {
 			$maintext .= " &bull; <a href='index.php?action=$action&cql=".urlencode($cql)."&mode={$_POST['mode']}".$moredirect."'>{%Direct URL}</a>";
 		};
 

@@ -31,6 +31,7 @@ class TTXML
 		if (!$fileid) $fileid = $_POST['id'] or $fileid = $_GET['id'] or $fileid = $_GET['cid'];
 		$this->fileid = $fileid;
 		if ( !preg_match("/\./", $fileid) && $fileid ) $fileid .= ".xml";
+		$oid = $fileid;
 		
 		if ( !$this->fileid  && $fatal ) { 
 			fatal ( "No XML file selected." );  

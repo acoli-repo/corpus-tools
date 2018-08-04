@@ -428,6 +428,9 @@
 				<form action='index.php?action=$action&act=save&cid=$ttxml->xmlid' method=post>
 				<input type=hidden name=pageid value=\"{$pagexml['id']}\">
 						";
+						
+		// Add a session logout tester
+		$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
 		
 		if ( $pagexml->xpath(".//line") ) {
 			$imgsrc = $pagexml['facs'];

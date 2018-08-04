@@ -86,6 +86,7 @@
 			</table>
 			<p><input type=submit value='Go'>
 			</form>";
+
 			
 			
 	} else if ( $act == "raw" ) {
@@ -203,7 +204,9 @@
 			if ( $editable ) $maintext .= "<p><input type=submit value=Save></form>";
 			
 			$maintext .= "<hr>";
-			
+
+			// Add a session logout tester
+			$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
 			
 		
 			if ( $_GET['show'] == "all" ) $maintext .= "<a href='index.php?action=$action&cid=$fileid&form=$showform&show='>show only tagged tokens</a>";

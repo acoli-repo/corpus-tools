@@ -157,6 +157,7 @@
 		<att key="tokxpath" display="Which XML elements to export as tokens" default="//tok"/>	
 		<att key="multiseperator" display="Symbol used for separating multi-value sattributes" default=","/>	
 		<att key="withemptytext" display="Whether to include texts with no tokens (0/1)" default="0"/>	
+		<att key="longbox" display="Whether to use a textarea instead of an input for the CQP query (0/1)" default="0"/>	
 		<att key="toktype" display="How to export mtok and dtok" default="td" >	
 			<desc>
 				TEITOK can contain not only tokens, but also grammatical words (dtok) and multi-word expressions (mtok). Here

@@ -468,6 +468,20 @@
 			};
 			</script>
 			";
+
+		# To make sure that we can modify our query, create a hidden post 
+		$maintext .= "\n<form action='' method=post id=resubmit name=resubmit>";
+		foreach ( $_POST as $key => $val ) {
+			$maintext .= "<input type=hidden name=$key value='$val'>";
+			if ( is_array($val) ) {
+				foreach ( $val as $key2 => $val2 )
+					$maintext .= "\n    <input type=hidden id='rs$key$key2' name={$key}[$key2] value='$val2'>";
+			} else {
+				$maintext .= "\n  <input type=hidden name=$key id='rs$key' value='$val'>";
+			};
+		};
+		$maintext .= "\n</form>";
+
 	};
 		
 ?>

@@ -426,8 +426,8 @@
 		$moreaction .= "\n";
 	};
 
-	$cql = $_GET['cql'] or $cql = $_POST['cql']; 
-	if ( $cql != "" ){
+	$cql = $_POST['myqueries'] or $cql = $_GET['cql'] or $cql = $_POST['cql']; 
+	if ( $cql != "" || is_array($cql) ){
 		// In case we have a (set of) CQL query - first load the results
 		$collist = array( '#fff2a8', '#ffb7b7', '#a8d1ff', '#d1a8ff', '#d1ffa8', '#b7ffb7', '#b7b7ff', '#ffd4b7', 'cyan', 'green-dark', 'green', 'green-light', 'black' );
 		include ("$ttroot/common/Sources/cwcqp.php");
@@ -441,11 +441,14 @@
 		else $cqpp = explode ( "||", urldecode($cql) );
 		if ( is_array($_POST['cqlname']) ) $cqpptit = $_POST['cqlname']; # For structured POST queries 
 		else $cqpptit = explode ( "||", urldecode($_GET['cqlname']) );
+		
 		foreach ( $cqpp as $i => $cql ) { 
-			if ( !$cql ) continue; 
-			$cqpquery = $cql;  
+			$cqpquery = $cql['cql'] or $cqpquery = $cql;  
+			if ( !$cqpquery || is_array($cqpquery) ) continue; 
+			
+			
 			if ( strstr($cqpquery, "<text" ) ) continue; 
-			if ( !strstr($cqpquery, "Matches" ) ) $cqpquery = "Matches = $cql"; 
+			if ( !strstr($cqpquery, "Matches" ) ) $cqpquery = "Matches = $cqpquery"; 
 			if ( !strstr($cqpquery, "::" ) ) {
 				$sep = "::";
 			} else {
@@ -465,7 +468,7 @@
 					$postjsactions .= "highlight('$tokid', '{$collist[$i]}'); ";
 				}; 
 			
-				$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][urlencode($cql)]['name'] or $cqlname = $_SESSION['myqueries'][urlencode($cql)]['display'] or $cqlname = $cql;
+				$cqlname = $cql['display'] or $cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][urlencode($cql)]['name'] or $cqlname = $_SESSION['myqueries'][urlencode($cql)]['display'] or $cqlname = $cql;
 				$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='font-size: 10px; background-color: {$collist[$i]}; margin-right: 8px; padding: 2px;'>$size</span> ".htmlentities($cqlname);
 			};
 		}; 

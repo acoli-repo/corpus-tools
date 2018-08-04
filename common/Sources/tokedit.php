@@ -529,6 +529,9 @@
 		
 		</form>
 		";
+
+		// Add a session logout tester
+		$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
 	
 	} else {
 		print "Oops"; exit;

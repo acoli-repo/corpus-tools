@@ -198,7 +198,6 @@ if ( $act == "xml" ) {
 	$cqp->exec($cqpcorpus); // Select the corpus
 	$cqp->exec("set PrettyPrint off");
 
-
 	if ( $_GET['cql'] ) {
 		
 		$cqpquery = $_GET['cql']; 
@@ -229,9 +228,15 @@ if ( $act == "xml" ) {
 		$cqpp = array(); $i = 0; $sep = "";
 		foreach ( $_POST['myqueries'] as $cql => $val ) {
 			$sq = $_SESSION['myqueries'][$cql];
-			$cqlt = $sq['cql'];
-			$_GET['cql'] .= $sep.$cql; $sep = "||";
+			if ( !$sq ) $sq = $val;
+			$cqlt = $sq['cql']; 
 			$display = $sq['name'] or $display = $sq['display'] or $display = $cqlt;
+			if ( $display == "" ) continue;
+			if ( preg_match("/^\d+$/", $cql) ) {
+				$cql = $cqlt;
+				$_GET['cqltit'] .= $display.$cql;
+			};
+			$_GET['cql'] .= $sep.$cql; $sep = "||";
 			array_push($cqpp, $cqlt);
 			$cqptit .= "<tr><td><a href='index.php?action=cqp&cql=$cql'>{%view}</a><td><span style='color: {$collist[$i]}'>&#9641;</span><td>$display</tr>";
 			$i++;	
