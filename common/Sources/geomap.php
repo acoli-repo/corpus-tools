@@ -70,36 +70,22 @@ if ( $act == "xml" ) {
 	$maintext .= "</ul>";
 	$jsondata = "[ ".join(", ", array_values($jsonpoints))." ]";
 
-	// Draw the actual map - in Google when we have a google API, otherwise in OSM
-	if ( $apikey ) {
-		$maintext  .= "
-		<div id=\"map\" style='width: 100%; height: 600px;'></div>
-		<script>
-		  $moresettings
-		  var defzoom = 8;
-		  var jsondata = '$jsondata';
-		  var doctxt = '{%$docname}';
-		</script>
-		<script src=\"$jsurl/geomap.js\"></script>
-		<script async defer src=\"https://maps.googleapis.com/maps/api/js?key=$apikey&callback=initMap\"></script>
-		<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%back to text view}</a></p>";
-	} else {
-		$maintext  .= "
-		<div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
-		<script>
-		  $moresettings
-		  var defzoom = 8;
-		  var jsondata = '$jsondata';
-		  var doctxt = '{%$docname}';
-		</script>
-		<script src=\"$jsurl/geomap-osm.js\"></script>
-	    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css\"/>
-	    <script src=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js\"></script>
-		<script>
-		  initMap();
-		</script>
-		<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%back to text view}</a></p>";
-	};
+	// Draw the actual map
+	$maintext  .= "
+	<div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
+	<script>
+	  $moresettings
+	  var defzoom = 8;
+	  var jsondata = '$jsondata';
+	  var doctxt = '{%$docname}';
+	</script>
+	<script src=\"$jsurl/geomap.js\"></script>
+	<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css\"/>
+	<script src=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js\"></script>
+	<script>
+	  initMap();
+	</script>
+	<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%back to text view}</a></p>";
 	
 } else if ( $act == "view" ) {
 
@@ -318,55 +304,35 @@ if ( $act == "xml" ) {
 	
 	$moresettings .= "var cql='".urlencode($_GET['cql'])."';";
 		
-	// Draw the actual map - in Google when we have a google API, otherwise in OSM
-	if ( $apikey ) {
-		$maintext  .= "
-		<h1>{%$pagtit}</h1>
+	// Draw the actual map 
+	if ( $settings['geomap']['osmlayer'] ) $moresettings .= "var tilelayer = '{$settings['geomap']['osmlayer']}'; ";
+	if ( $settings['geomap']['osmlayertit'] ) $moresettings .= "var tiletit = '{$settings['geomap']['osmlayertit']}'; ";
 
-		$fileheader
+	$maintext  .= "
+	<h1>{%$pagtit}</h1>
 
-		$areaswitch
-		$cqptit
+	$fileheader
 
-		<div id=\"map\" style='width: 100%; height: 600px;'></div>
-		<script>
-		  $moresettings
-		  var jsondata = '$jsondata';
-		  var doctxt = '{%$docname}';
-		</script>
-		<script src=\"$jsurl/geomap.js\"></script>
-		<script async defer src=\"https://maps.googleapis.com/maps/api/js?key=$apikey&callback=initMap\"></script>
-		";
-	} else {
+	$areaswitch
+	$cqptit
+
+	<div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
+	<script>
+	  $moresettings
+	  $cqpjson
+	  var jsondata = '$jsondata';
+	  var doctxt = '{%$docname}';
+	</script>
+	<script src=\"$jsurl/geomap.js\"></script>
+	<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css\"/>
+	<script src=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js\"></script>
+	<style>.legend { background-color:rgba(255, 255, 255, 0.7); }</style>
+	$cluster
+	<script>
+	  initMap();
+	</script>
+	";
 	
-		if ( $settings['geomap']['osmlayer'] ) $moresettings .= "var tilelayer = '{$settings['geomap']['osmlayer']}'; ";
-		if ( $settings['geomap']['osmlayertit'] ) $moresettings .= "var tiletit = '{$settings['geomap']['osmlayertit']}'; ";
-	
-		$maintext  .= "
-		<h1>{%$pagtit}</h1>
-
-		$fileheader
-
-		$areaswitch
-		$cqptit
-
-		<div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
-		<script>
-		  $moresettings
-		  $cqpjson
-		  var jsondata = '$jsondata';
-		  var doctxt = '{%$docname}';
-		</script>
-		<script src=\"$jsurl/geomap-osm.js\"></script>
-	    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css\"/>
-	    <script src=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js\"></script>
-		<style>.legend { background-color:rgba(255, 255, 255, 0.7); }</style>
-		$cluster
-		<script>
-		  initMap();
-		</script>
-		";
-	};
 	
 };
 
