@@ -131,6 +131,7 @@ if ( $act == "xml" ) {
 
 			$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][urlencode($cql)] or $cqlname = $cql;
 			$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cqlname);
+			$cqlname = preg_replace("\"", "&quot;", $cqlname);
 			$cqpjson .= "{\"set\": $i, \"name\": \"$cqlname\", \"query\": \"$cqpquery\"},";
 
 		}; 
@@ -202,6 +203,7 @@ if ( $act == "xml" ) {
 				foreach ( $cqpp as $i => $cql ) { 
 					$tmp = trim(urlencode($cql));
 					$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][$tmp]['name'] or $cqlname = $_SESSION['myqueries'][$tmp]['display'] or $cqlname = $cql;
+					$cqlname = preg_replace("\"", "&quot;", $cqlname);
 					$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cqlname);
 					$cqpjson .= "{\"set\": $i, \"name\": \"$cqlname\", \"query\": \"$cqpquery\"},";
 				};
@@ -230,7 +232,8 @@ if ( $act == "xml" ) {
 			$_GET['cql'] .= $sep.$cql; $sep = "||";
 			array_push($cqpp, $cqlt);
 			$cqptit .= "<tr><td title='$cql'><a href='index.php?action=cqp&cql=$cql'><span style='color: {$collist[$i]}'>&#9641;</span><td>$display</a></tr>";
-			$cqpjson .= "{\"set\": $i, \"name\": \"$display\", \"query\": \"".preg_replace("\"", "&quot;", $cqlt)."\"},";
+			$cqlname = preg_replace("\"", "&quot;", $display);
+			$cqpjson .= "{\"set\": $i, \"name\": \"$cqlname\", \"query\": \"".preg_replace("\"", "&quot;", $cqlt)."\"},";
 			$i++;	
 		};
 

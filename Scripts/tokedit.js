@@ -227,7 +227,7 @@ function formify () {
 		pbnum.setAttribute('title', 'page number');
 		pb.appendChild(pbnum);
 
-		if (  typeof(nofacs) == "undefined" ) {
+		if ( typeof(nofacs) != "undefined" && nofacs == 1 ) {
 			pb.setAttribute('admin', "1");
 		};
 
