@@ -23,7 +23,7 @@ if ( $settings['geomap']['cluster'] ) {
 		<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css\"/>
 	    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.Default.css\"/>
 		<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.0.6/dist/css/leaflet.extra-markers.min.css\"/>
-		<link rel=\"stylesheet\" href=\"Resources/clusterpies.css\"/>
+		<link rel=\"stylesheet\" href=\"$jsurl/clusterpies.css\"/>
 		<script src=\"https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.0.6/src/assets/js/leaflet.extra-markers.min.js\"></script>
 		<script src=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster-src.js\"></script>
 		<script language=Javascript>var cluster = {$settings['geomap']['cluster']}; var markertype = '{$settings['geomap']['markertype']}';</script>
