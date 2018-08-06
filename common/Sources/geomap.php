@@ -64,7 +64,7 @@ if ( $act == "xml" ) {
 		$maintext .= "<li>$place"; if ( $desc ) $maintext .= ": $desc";
 		
 		$descs{$geo} .= "<p>$desc</p>"; $desctxt = $descs{$geo};
-		$jsonpoints{$geo} = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
+		if ( $lng && $lat ) $jsonpoints{$geo} = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
 
 	};
 	$maintext .= "</ul>";

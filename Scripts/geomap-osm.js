@@ -1,4 +1,4 @@
-  // Script to display jsondata onto Google maps
+  // Script to display jsondata onto OpenStreetMaps
   // (c) Maarten Janssen 2016
 
   // jsondata format: [ { "lat": lat, "lng": lng, "location": placename, "cnt": nr of docs } ]
@@ -184,7 +184,7 @@
 		map.addLayer(markers);
 	};
 	
-	if ( typeof cqpjson != "undefined" ) {
+	if ( document.getElementById('cqplegend') ) {
 
 		// Show the queries in a legenda
 		var legendtxt = document.getElementById('cqplegend').outerHTML;
