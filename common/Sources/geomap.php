@@ -360,6 +360,7 @@ if ( $act == "xml" ) {
 		<script src=\"$jsurl/geomap-osm.js\"></script>
 	    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css\"/>
 	    <script src=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js\"></script>
+		<style>.legend { background-color:rgba(255, 255, 255, 0.7); }</style>
 		$cluster
 		<script>
 		  initMap();
