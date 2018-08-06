@@ -16,16 +16,18 @@ $apikey = $settings['geomap']['apikey'];
 
 $collist = array( 'blue', 'red', 'purple', 'violet', 'pink', 'orange-dark', 'orange', 'blue-dark', 'cyan', 'green-dark', 'green', 'green-light', 'black' );
 
-if ( $settings['geomap']['markertype'] == "cluster" ) $settings['geomap']['cluster'] = 1; 
+if ( $settings['geomap']['markertype'] == "cluster" || $settings['geomap']['markertype'] == "pie" ) $settings['geomap']['cluster'] = 1; 
   
 if ( $settings['geomap']['cluster'] ) {
 	$cluster = "	    
 		<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css\"/>
 	    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.Default.css\"/>
 		<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.0.6/dist/css/leaflet.extra-markers.min.css\"/>
+		<link rel=\"stylesheet\" href=\"Resources/clusterpies.css\"/>
 		<script src=\"https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.0.6/src/assets/js/leaflet.extra-markers.min.js\"></script>
 		<script src=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster-src.js\"></script>
 		<script language=Javascript>var cluster = {$settings['geomap']['cluster']}; var markertype = '{$settings['geomap']['markertype']}';</script>
+		<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
 	";
 } else if ( $settings['geomap']['markertype'] ) {
 	$cluster = "
@@ -143,9 +145,11 @@ if ( $act == "xml" ) {
 
 			$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][urlencode($cql)] or $cqlname = $cql;
 			$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cqlname);
+			$cqpjson .= "{\"set\": $i, \"name\": \"$cqlname\", \"query\": \"$cqpquery\"},";
 
 		}; 
 		$cqptit = "<table><tr><td>{%Search Query}: </td><td>$cqptit</table><hr>";
+		if ( $cqpjson ) $cqpjson = "var cqpjson = [$cqpjson];";
 		$showall = " (<a href='index.php?action=geomap&act=view&place={$_GET['place']}&lat={$_GET['lat']}&lng={$_GET['lng']}'>{%show all}</a>)";
 	};
 	
@@ -213,6 +217,7 @@ if ( $act == "xml" ) {
 					$tmp = trim(urlencode($cql));
 					$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][$tmp]['name'] or $cqlname = $_SESSION['myqueries'][$tmp]['display'] or $cqlname = $cql;
 					$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cqlname);
+					$cqpjson .= "{\"set\": $i, \"name\": \"$cqlname\", \"query\": \"$cqpquery\"},";
 				};
 			};
 		};
@@ -238,11 +243,13 @@ if ( $act == "xml" ) {
 			};
 			$_GET['cql'] .= $sep.$cql; $sep = "||";
 			array_push($cqpp, $cqlt);
-			$cqptit .= "<tr><td><a href='index.php?action=cqp&cql=$cql'>{%view}</a><td><span style='color: {$collist[$i]}'>&#9641;</span><td>$display</tr>";
+			$cqptit .= "<tr><td title='$cql'><a href='index.php?action=cqp&cql=$cql'><span style='color: {$collist[$i]}'>&#9641;</span><td>$display</a></tr>";
+			$cqpjson .= "{\"set\": $i, \"name\": \"$display\", \"query\": \"".preg_replace("\"", "&quot;", $cqlt)."\"},";
 			$i++;	
 		};
 
-		$cqptit = "<table><tr><td><a href='index.php?action=visualize&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table>$cqptit</table></table></p>";
+		$cqptit = "<table style='display: none;'><tr><td><a href='index.php?action=visualize&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table id='cqplegend'>$cqptit</table></table></p>";
+		if ( $cqpjson ) $cqpjson = "var cqpjson = [$cqpjson];";
 		
 	} else {
 		$cqpquery = "Matches = <text_$geofld != \"_\"> []"; # TODO: This should become "" again
@@ -346,6 +353,7 @@ if ( $act == "xml" ) {
 		<div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
 		<script>
 		  $moresettings
+		  $cqpjson
 		  var jsondata = '$jsondata';
 		  var doctxt = '{%$docname}';
 		</script>

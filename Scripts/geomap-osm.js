@@ -57,13 +57,18 @@
 	if ( typeof cluster != "undefined" ) {
  		// var markers = L.markerClusterGroup();
  		// countCluster gives back a counting object
- 		var markers = L.markerClusterGroup({
-			// zoomToBoundsOnClick: false,
-	 		iconCreateFunction: function(cluster) {
-			 		var cdata = countCluster(cluster);
-	 				return L.ExtraMarkers.icon({ number: cdata.cnt, icon: 'fa-number', markerColor: cdata.color, prefix: 'fa', shape: 'square' });
- 			}
- 		});
+ 		var markers;
+ 		if ( markertype == "pie" ) {
+ 			markers = L.markerClusterGroup({
+				// zoomToBoundsOnClick: false,
+	 			iconCreateFunction: defineClusterIcon
+ 			});
+ 		} else {
+ 			markers = L.markerClusterGroup({
+				// zoomToBoundsOnClick: false,
+	 			iconCreateFunction: defineClusterMarker
+ 			});
+		};
 		markers.on('clustermouseover', function(c) {
 			  var ll = c.layer.getLatLng();
 			  var clusterdata = countCluster(c.layer);
@@ -93,6 +98,7 @@
 
           
 	// Place all the document markers
+	var point;
 	for ( var i=0; i<doclist.length; i++ ) {
 		doc = doclist[i];
 		// coordinates need to be string for CQP match
@@ -111,11 +117,13 @@
 			htmltxt = '<div><h2>' + doc.location + '</h2><p>' + doc.desc + '</p>';
 		} else {
 			var tmp = doc.cnt.split(",");
-			marktot = 0; marktxt = '<table>';
+			doc.setcnt = {};
+			doc.marktot = 0; marktxt = '<table>';
 			for (j = 0; j < tmp.length; j++) {
 				var tmp2 = tmp[j].split(":");
-				var mset = tmp2[0]; mdoc = tmp2[1]; mcnt = tmp2[2];
-				marktot += mcnt * 1;
+				mset = tmp2[0]; mdoc = tmp2[1]; mcnt = tmp2[2];
+				doc.setcnt[mset] = mcnt;
+				doc.marktot += mcnt * 1;
 				markercol = collist[mset];
 				if ( cqlset[mset].includes('%3Ctext') ) {
 					marktxt += '<tr><td><span style="color: '+markercol+'">&#9641;</span><td align=right>' + mcnt + ' ' + doctxt + '</tr>';
@@ -131,11 +139,16 @@
 		};
 
 		if ( typeof cluster != "undefined" ) {
-			var myMarker = L.ExtraMarkers.icon({
-				icon: 'fa-number',
-				number: marktot,
-				markerColor: markercol
-			  });			
+			var myMarker;
+			if ( typeof markertype != "undefined" && markertype == "pie" ) {
+				myMarker = defineIcon(doc);			
+			} else {
+				myMarker = L.ExtraMarkers.icon({
+					icon: 'fa-number',
+					number: doc.marktot,
+					markerColor: markercol
+				  });			
+			};
 			marker[i] = L.marker([npos.lat, npos.lng], {icon: myMarker}).bindPopup(htmltxt);
 			marker[i].doccount = doc.cnt;
 			marker[i].on('mouseover', function (e) {
@@ -171,8 +184,94 @@
 		map.addLayer(markers);
 	};
 	
+	if ( typeof cqpjson != "undefined" ) {
+
+		// Show the queries in a legenda
+		var legendtxt = document.getElementById('cqplegend').outerHTML;
+				
+		var legend = L.control( {position: 'topright'} );
+		legend.onAdd = function () {
+			var div = L.DomUtil.create( 'div', 'info legend' );
+			div.innerHTML = legendtxt;
+			return div;
+		};
+		legend.addTo( map );		
+	};
+	
   }
-    
+
+
+  function defineClusterMarker(cluster) {
+	var cdata = countCluster(cluster);
+	return L.ExtraMarkers.icon({ number: cdata.cnt, icon: 'fa-number', markerColor: cdata.color, prefix: 'fa', shape: 'square' });
+  }
+
+	function defineIcon(doc) {
+		var cdata = {}; 
+		cdata.cnt = doc.marktot;
+		
+		var	strokeWidth = 1, // Set clusterpie stroke width
+			r = 25, // Calculate clusterpie radius...
+			iconDim = (r+strokeWidth)*2;  // ...and divIcon dimensions (leaflet really want to know the size)
+		
+		var data = Object.keys(doc.setcnt).map(function(key) {
+		  return {"key": Number(key) + "", "cnt": Number(doc.setcnt[key])};
+		});	
+
+		// Bake an svg pie chart
+		var html = bakeThePie({data: data,
+								valueFunc: function(d){return d.cnt;},
+								strokeWidth: 1,
+								outerRadius: r,
+								innerRadius: r-12,
+								pieLabel: cdata.cnt,
+								pieLabelClass: 'marker-cluster-pie-label',
+								pathClassFunc: function(d){return "category-"+d.data.key;},
+							  }); 
+		
+		// Create a new divIcon and assign the svg markup to the html property
+		var myIcon = new L.DivIcon({
+				html: html,
+				className: 'marker-cluster', 
+				iconSize: new L.Point(iconDim, iconDim)
+			});
+			
+		return myIcon;
+	};
+
+	function defineClusterIcon(cluster) {
+
+		var cdata = countCluster(cluster);
+		
+		var	strokeWidth = 1, // Set clusterpie stroke width
+			r = 25, // Calculate clusterpie radius...
+			iconDim = (r+strokeWidth)*2;  // ...and divIcon dimensions (leaflet really want to know the size)
+		
+		var data = Object.keys(cdata.mcnt).map(function(key) {
+		  return {"key": Number(key) + "", "cnt": cdata.mcnt[key]};
+		});	
+
+		// Bake an svg pie chart
+		var html = bakeThePie({data: data,
+								valueFunc: function(d){return d.cnt;},
+								strokeWidth: 1,
+								outerRadius: r,
+								innerRadius: r-12,
+								pieLabel: cdata.cnt,
+								pieLabelClass: 'marker-cluster-pie-label',
+								pathClassFunc: function(d){return "category-"+d.data.key;},
+							  }); 
+		
+		// Create a new divIcon and assign the svg markup to the html property
+		var myIcon = new L.DivIcon({
+				html: html,
+				className: 'marker-cluster', 
+				iconSize: new L.Point(iconDim, iconDim)
+			});
+			
+		return myIcon;
+	}
+ 			    
   function countCluster(cluster) {
   	var cdata = { cnt: 0, doccnt: 0, color: 'yellow', mcnt: {}, mdcnt: {} };
 	for ( var i=0; i<cluster._markers.length; i++ ) {
@@ -217,3 +316,68 @@
   function rescale (num) {
   	return Math.log(num)+1;
   };
+
+/*function that generates a svg markup for the pie chart*/
+function bakeThePie(options) {
+    /*data and valueFunc are required*/
+    if (!options.data || !options.valueFunc) {
+        return '';
+    }
+    var data = options.data,
+        valueFunc = options.valueFunc,
+        r = options.outerRadius?options.outerRadius:28, //Default outer radius = 28px
+        rInner = options.innerRadius?options.innerRadius:r-10, //Default inner radius = r-10
+        strokeWidth = options.strokeWidth?options.strokeWidth:1, //Default stroke is 1
+        pathClassFunc = options.pathClassFunc?options.pathClassFunc:function(){return '';}, //Class for each path
+        pieClass = 'marker-cluster-pie', //Class for the whole pie
+        pieLabel = options.pieLabel, //Label for the whole pie
+        pieLabelClass = 'marker-cluster-pie-label',//Class for the pie label
+        
+        origo = (r+strokeWidth), //Center coordinate
+        w = origo*2, //width and height of the svg element
+        h = w,
+        donut = d3.layout.pie(),
+        arc = d3.svg.arc().innerRadius(rInner).outerRadius(r);
+        
+    //Create an svg element
+    var svg = document.createElementNS(d3.ns.prefix.svg, 'svg');
+    //Create the pie chart
+    var vis = d3.select(svg)
+        .data([data])
+        .attr('class', pieClass)
+        .attr('width', w)
+        .attr('height', h);
+        
+    var arcs = vis.selectAll('g.arc')
+        .data(donut.value(valueFunc))
+        .enter().append('svg:g')
+        .attr('class', 'arc')
+        .attr('transform', 'translate(' + origo + ',' + origo + ')');
+    
+    arcs.append('svg:path')
+        .attr('class', pathClassFunc)
+        .attr('stroke-width', strokeWidth)
+        .attr('d', arc);
+                
+    vis.append('text')
+        .attr('x',origo)
+        .attr('y',origo)
+        .attr('class', pieLabelClass)
+        .attr('text-anchor', 'middle')
+        //.attr('dominant-baseline', 'central')
+        /*IE doesn't seem to support dominant-baseline, but setting dy to .3em does the trick*/
+        .attr('dy','.3em')
+        .text(pieLabel);
+    //Return the svg-markup rather than the actual element
+    return serializeXmlNode(svg);
+}
+
+/*Helper function*/
+function serializeXmlNode(xmlNode) {
+    if (typeof window.XMLSerializer != "undefined") {
+        return (new window.XMLSerializer()).serializeToString(xmlNode);
+    } else if (typeof xmlNode.xml != "undefined") {
+        return xmlNode.xml;
+    }
+    return "";
+}

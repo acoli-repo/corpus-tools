@@ -72,6 +72,7 @@
 			<val key="circle" display="Circles"/>
 			<val key="pin" display="Pins"/>
 			<val key="cluster" display="Clustered pins"/>
+			<val key="pie" display="Clustered pie charts"/>
 		</att>
 		<att key="osmlayer" display="URL to use for the OpenStreetMap visualization" default="MapBox" listvals="1">
 			<val key="https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw" display="MapBox"/>
