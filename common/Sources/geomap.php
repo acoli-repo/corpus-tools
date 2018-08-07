@@ -320,6 +320,7 @@ if ( $act == "xml" ) {
 	$cqptit
 
 	<div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
+
 	<script>
 	  $moresettings
 	  $cqpjson
@@ -334,6 +335,7 @@ if ( $act == "xml" ) {
 	<script>
 	  initMap();
 	</script>
+	<hr>
 	";
 	
 	

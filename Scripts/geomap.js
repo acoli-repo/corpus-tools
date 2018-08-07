@@ -185,7 +185,6 @@
 	};
 	
 	if ( document.getElementById('cqplegend') ) {
-
 		// Show the queries in a legenda
 		var legendtxt = document.getElementById('cqplegend').outerHTML;
 				
@@ -200,12 +199,13 @@
 	
   }
 
-
+  // Create a marker icon old style
   function defineClusterMarker(cluster) {
 	var cdata = countCluster(cluster);
 	return L.ExtraMarkers.icon({ number: cdata.cnt, icon: 'fa-number', markerColor: cdata.color, prefix: 'fa', shape: 'square' });
   }
 
+	// Create a marker icon as a pie chart
 	function defineIcon(doc) {
 		var cdata = {}; 
 		cdata.cnt = doc.marktot;
@@ -381,3 +381,4 @@ function serializeXmlNode(xmlNode) {
     }
     return "";
 }
+

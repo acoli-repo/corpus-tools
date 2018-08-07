@@ -33,6 +33,7 @@ $tmp = XML::LibXML->load_xml(
 	$settings = $tmp;
 	$cqp = $settings->findnodes('//cqp/sattributes/item[@key="text"]/item[@key="geo"]')->item(0);
 	$osm = $settings->findnodes('//geomap/osm')->item(0);
+	if ( !$osm ) { $osm = XML::LibXML->load_xml(string => "<osm atts='geo'/>")->firstChild; };
 	$tmp = $cqp->getAttribute("xpath"); 
 	if ( $atts eq '' ) { $atts = $osm->getAttribute("atts"); };
 	if ( $exclude eq '' ) { $exclude = $osm->getAttribute("exclude"); };
