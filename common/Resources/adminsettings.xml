@@ -314,6 +314,7 @@
 			<val key="nolb" display="Only interpret lb as a manuscript line"/>
 			<val key="lbl" display="Interpret both lb and l as manuscript lines"/>
 		</att> 
+		<att key="search" display="Enable search inside (0/1)" default="0"/> 
 		<att key="textnotes" display="Note elements are part of the text"/> 
 		<att key="autonumber" display="Automatically number lines (1/0)" default="0"/> 
 		<att key="adminfacs" display="Visibility of the facsimile images" default="0"> 
