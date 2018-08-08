@@ -16,7 +16,10 @@ $apikey = $settings['geomap']['apikey'];
 
 $collist = array( 'blue', 'red', 'purple', 'violet', 'pink', 'orange-dark', 'orange', 'blue-dark', 'cyan', 'green-dark', 'green', 'green-light', 'black' );
 
-if ( $settings['geomap']['markertype'] == "cluster" || $settings['geomap']['markertype'] == "pie" ) $settings['geomap']['cluster'] = 1; 
+$markertype = $_GET['marker'] or $markertype = $settings['geomap']['markertype'];
+
+if ( $markertype == "pie" || $markertype == "cluster"  ) 
+	$settings['geomap']['cluster'] = 1; 
   
 if ( $settings['geomap']['cluster'] ) {
 	$cluster = "	    
@@ -26,14 +29,14 @@ if ( $settings['geomap']['cluster'] ) {
 		<link rel=\"stylesheet\" href=\"$jsurl/clusterpies.css\"/>
 		<script src=\"https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.0.6/src/assets/js/leaflet.extra-markers.min.js\"></script>
 		<script src=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster-src.js\"></script>
-		<script language=Javascript>var cluster = {$settings['geomap']['cluster']}; var markertype = '{$settings['geomap']['markertype']}';</script>
+		<script language=Javascript>var cluster = {$settings['geomap']['cluster']}; var markertype = '{$markertype}';</script>
 		<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
 	";
-} else if ( $settings['geomap']['markertype'] ) {
+} else if ( $markertype ) {
 	$cluster = "
 		<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.0.6/dist/css/leaflet.extra-markers.min.css\"/>
 		<script src=\"https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.0.6/src/assets/js/leaflet.extra-markers.min.js\"></script>
-		<script language=Javascript>var markertype = '{$settings['geomap']['markertype']}';</script>
+		<script language=Javascript>var markertype = '{$markertype}';</script>
 	";
 };
 
@@ -130,12 +133,15 @@ if ( $act == "xml" ) {
 			};
 
 			$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][urlencode($cql)] or $cqlname = $cql;
-			$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cqlname);
-			$cqlname = preg_replace("\"", "&quot;", $cqlname);
+			$display = htmlentities($cqlname);
+			$cqptit .= "<tr><td title='$cqpquery'><a href='index.php?action=cqp&cql=$cqpquery'><span style='color: {$collist[$i]}'>&#9641;</span><td>$display</a></tr>";
+			$cqlname = preg_replace("/\"/", "&quot;", $cqlname);
+			$cqpquery = preg_replace("/\"/", "&quot;", $cqpquery);
 			$cqpjson .= "{\"set\": $i, \"name\": \"$cqlname\", \"query\": \"$cqpquery\"},";
 
 		}; 
-		$cqptit = "<table><tr><td>{%Search Query}: </td><td>$cqptit</table><hr>";
+		$cqptit = "<table style='display: none;'><tr><td><a href='index.php?action=visualize&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table id='cqplegend'>$cqptit</table></table></p>";
+		//$cqptit = "<table><tr><td>{%Search Query}: </td><td>$cqptit</table><hr>";
 		if ( $cqpjson ) $cqpjson = "var cqpjson = [$cqpjson];";
 		$showall = " (<a href='index.php?action=geomap&act=view&place={$_GET['place']}&lat={$_GET['lat']}&lng={$_GET['lng']}'>{%show all}</a>)";
 	};
@@ -196,20 +202,24 @@ if ( $act == "xml" ) {
 		$cqpptit = explode ( "||", urldecode($_GET['cqlname']) );
 		$cqptit = $_GET['cqptit'];
 		if ( $cqptit != "" ) {
-			$cqptit = "<a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> $cqptit";
+			$cqptit = "<tr><td>$cqptit";
 		} else {
 			if ( count($cqpp) == 1 ) $cqptit .= "<a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> ".htmlentities($cqpquery);
 			else {
 				foreach ( $cqpp as $i => $cql ) { 
 					$tmp = trim(urlencode($cql));
 					$cqlname = $cqpptit[$i] or $cqlname = $_SESSION['myqueries'][$tmp]['name'] or $cqlname = $_SESSION['myqueries'][$tmp]['display'] or $cqlname = $cql;
-					$cqlname = preg_replace("\"", "&quot;", $cqlname);
-					$cqptit .= "<p><a href='index.php?action=cqp&cql=$cqpquery'>{%view}</a> <span style='color: {$collist[$i]}'>&#9641;</span> ".htmlentities($cqlname);
+					$display = htmlentities($cqlname);
+					$cqptit .= "<tr><td title='$cqpquery'><a href='index.php?action=cqp&cql=$cqpquery'><span style='color: {$collist[$i]}'>&#9641;</span><td>$display</a></tr>";
+					$cqlname = preg_replace("/\"/", "&quot;", $cqlname);
+					$cqpquery = preg_replace("/\"/", "&quot;", $cqpquery);
 					$cqpjson .= "{\"set\": $i, \"name\": \"$cqlname\", \"query\": \"$cqpquery\"},";
 				};
 			};
 		};
-		$cqptit = "<table><tr><td>{%Search Query}: </td><td>$cqptit</table></p>";
+		$cqptit = "<table style='display: none;'><tr><td><a href='index.php?action=visualize&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table id='cqplegend'>$cqptit</table></table></p>";
+		// $cqptit = "<table><tr><td>{%Search Query}: </td><td>$cqptit</table></p>";
+		if ( $cqpjson ) $cqpjson = "var cqpjson = [$cqpjson];";
 		
 		if ( !strstr("<text", $cqpquery ) ) { 
 			// TODO: for (probably) word-based results, we should have pins show counts
@@ -229,13 +239,14 @@ if ( $act == "xml" ) {
 				$cql = $cqlt;
 				$_GET['cqltit'] .= $display.$cql;
 			};
-			$_GET['cql'] .= $sep.$cql; $sep = "||";
-			array_push($cqpp, $cqlt);
+			$_GET['cql'] .= $sep.$cql; $_GET['cqlname'] .= $sep.$display; $sep = "||";
 			$cqptit .= "<tr><td title='$cql'><a href='index.php?action=cqp&cql=$cql'><span style='color: {$collist[$i]}'>&#9641;</span><td>$display</a></tr>";
-			$cqlname = preg_replace("\"", "&quot;", $display);
-			$cqpjson .= "{\"set\": $i, \"name\": \"$cqlname\", \"query\": \"".preg_replace("\"", "&quot;", $cqlt)."\"},";
+			$cqlname = preg_replace("/\"/", "&quot;", $display);
+			$cqpjson .= "{\"set\": $i, \"name\": \"$cqlname\", \"query\": \"".preg_replace("/\"/", "&quot;", $cqlt)."\"},";
 			$i++;	
 		};
+		
+		$direct = "index.php?action=$action&cql={$_GET['cql']}&cqlname={$_GET['cqlname']}";
 
 		$cqptit = "<table style='display: none;'><tr><td><a href='index.php?action=visualize&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table id='cqplegend'>$cqptit</table></table></p>";
 		if ( $cqpjson ) $cqpjson = "var cqpjson = [$cqpjson];";
@@ -244,6 +255,7 @@ if ( $act == "xml" ) {
 		$cqpquery = "Matches = <text_$geofld != \"_\"> []"; # TODO: This should become "" again
 		$_GET['cql'] = $cqpquery;
 		$cqpp = array($cqpquery);
+		$bottomactions = $bsep."<a href='index.php?action=multisearch&act=map'>{%Search on map}</a>"; $bsep = " &bull; ";
 	};	
 	
 	unset($tot); unset($jsonpoints); 
@@ -311,6 +323,8 @@ if ( $act == "xml" ) {
 	if ( $settings['geomap']['osmlayer'] ) $moresettings .= "var tilelayer = '{$settings['geomap']['osmlayer']}'; ";
 	if ( $settings['geomap']['osmlayertit'] ) $moresettings .= "var tiletit = '{$settings['geomap']['osmlayertit']}'; ";
 
+	if ( $direct ) { $bottomactions = $bsep."<a href='$direct'>{%Direct URL}</a>"; $bsep = " &bull; "; };
+
 	$maintext  .= "
 	<h1>{%$pagtit}</h1>
 
@@ -335,7 +349,8 @@ if ( $act == "xml" ) {
 	<script>
 	  initMap();
 	</script>
-	<hr>
+	<hr> 
+	$bottomactions
 	";
 	
 	

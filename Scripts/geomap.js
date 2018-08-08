@@ -158,7 +158,7 @@
 		} else if ( typeof markertype != "undefined" && markertype == "pin" ) {
 			var myMarker = L.ExtraMarkers.icon({
 				icon: 'fa-number',
-				number: marktot,
+				number: doc.marktot,
 				markerColor: markercol
 			  });			
   			marker[i] = L.marker([npos.lat, npos.lng], {icon: myMarker}).addTo(map).bindPopup(htmltxt);

@@ -125,6 +125,7 @@
 		<tr><th>{%Query Name}<th>{%CQL Query}
 		$querylines
 		</table>
+		<span onClick=\"addline('', '')\" style='font-size: 12pt; color: #666666;' title='{%add line}'>&nbsp; ⊕</span>
 		<p><input type=submit value=\"{%Search}\">
 		</form>
 		$querylist
