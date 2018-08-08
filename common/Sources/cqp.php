@@ -788,11 +788,11 @@
 		$cqll = str_replace("'", "&#039;", $cql);
 		
 		if ( $subtit ) $cqptit = "&cqltit=".urlencode($subtit);
-		$maintext .= " - <a href='index.php?action=visualize&act=store&cql=".urlencode($cqll)."$cqptit'>{%Remember query}</a>";
+		$maintext .= " - <a href='index.php?action=multisearch&act=store&cql=".urlencode($cqll)."$cqptit'>{%Remember query}</a>";
 		
 		$useridtxt = $shortuserid;
 		if ( $_SESSION['myqueries'] || file_exists("Users/cql_$useridtxt.xml") )
-			$maintext .= " - <a href='index.php?action=visualize&act=stored&cql=".urlencode($cqll)."'>{%Stored queries}</a>";
+			$maintext .= " - <a href='index.php?action=multisearch&act=stored&cql=".urlencode($cqll)."'>{%Stored queries}</a>";
 		
 		
 		# Do not allow frequency counts if we already have a pre-select CQL

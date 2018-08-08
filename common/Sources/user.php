@@ -40,7 +40,7 @@
 		if ( $user['group'] ) $grouptxt = "<tr><th>Group:<td>{$user['group']}";
 		$useridtxt = $shortuserid;
 		
-		if ( $_SESSION['myqueries'] || file_exists("Users/cql_$useridtxt.xml") ) $more .= "<p><a href='index.php?action=visualize&act=stored'>{%Stored CQL queries}</a>";
+		if ( $_SESSION['myqueries'] || file_exists("Users/cql_$useridtxt.xml") ) $more .= "<p><a href='index.php?action=multisearch&act=stored'>{%Stored CQL queries}</a>";
 		if ( file_exists("Users/ann_$useridtxt.xml") ) $more .= "<p><a href='index.php?action=classify'>{%Custom annotations}</a>";
 		
 		$maintext .= "

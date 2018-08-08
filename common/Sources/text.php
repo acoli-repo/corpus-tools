@@ -446,7 +446,6 @@
 			$cqpquery = $cql['cql'] or $cqpquery = $cql;  
 			if ( !$cqpquery || is_array($cqpquery) ) continue; 
 			
-			
 			if ( strstr($cqpquery, "<text" ) ) continue; 
 			if ( !strstr($cqpquery, "Matches" ) ) $cqpquery = "Matches = $cqpquery"; 
 			if ( !strstr($cqpquery, "::" ) ) {
@@ -544,9 +543,15 @@
 		$maintext .= "$sep<a href='index.php?action=getxml&cid=$fileid'>{%Download XML}</a> &bull; ";
 		$sep = "";
 	};
-	if ( $settings['download']['disabled'] != "1" ) 
+	if ( $settings['download']['disabled'] != "1" ) {
 		$maintext .= "$sep<a onClick='exporttxt();' style='cursor: pointer;'>{%Download current view as TXT}</a>
-		";
+		"; $sep = " &bull; ";
+	};
+	
+	if ( $settings['xmlfile']['search'] ) {
+		$maintext .= "$sep<a href='index.php?action=multisearch&cid=$fileid'>{%Search inside}</a>
+		"; $sep = " &bull; ";
+	};
 	
 	if ( $audiobit ) {
 		if ( $username ) $maintext .= " &bull; <a href='index.php?action=audiomanage&cid=$fileid'>{%Audio management}</a>";

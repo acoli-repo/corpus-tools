@@ -140,7 +140,7 @@ if ( $act == "xml" ) {
 			$cqpjson .= "{\"set\": $i, \"name\": \"$cqlname\", \"query\": \"$cqpquery\"},";
 
 		}; 
-		$cqptit = "<table style='display: none;'><tr><td><a href='index.php?action=visualize&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table id='cqplegend'>$cqptit</table></table></p>";
+		$cqptit = "<table style='display: none;'><tr><td><a href='index.php?action=multisearch&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table id='cqplegend'>$cqptit</table></table></p>";
 		//$cqptit = "<table><tr><td>{%Search Query}: </td><td>$cqptit</table><hr>";
 		if ( $cqpjson ) $cqpjson = "var cqpjson = [$cqpjson];";
 		$showall = " (<a href='index.php?action=geomap&act=view&place={$_GET['place']}&lat={$_GET['lat']}&lng={$_GET['lng']}'>{%show all}</a>)";
@@ -217,7 +217,7 @@ if ( $act == "xml" ) {
 				};
 			};
 		};
-		$cqptit = "<table style='display: none;'><tr><td><a href='index.php?action=visualize&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table id='cqplegend'>$cqptit</table></table></p>";
+		$cqptit = "<table style='display: none;'><tr><td><a href='index.php?action=multisearch&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table id='cqplegend'>$cqptit</table></table></p>";
 		// $cqptit = "<table><tr><td>{%Search Query}: </td><td>$cqptit</table></p>";
 		if ( $cqpjson ) $cqpjson = "var cqpjson = [$cqpjson];";
 		
@@ -227,7 +227,7 @@ if ( $act == "xml" ) {
 		};
 
 	} else if ( $_POST['myqueries'] ) {
-
+		
 		$cqpp = array(); $i = 0; $sep = "";
 		foreach ( $_POST['myqueries'] as $cql => $val ) {
 			$sq = $_SESSION['myqueries'][$cql];
@@ -239,16 +239,19 @@ if ( $act == "xml" ) {
 				$cql = $cqlt;
 				$_GET['cqltit'] .= $display.$cql;
 			};
+			if ( strstr($cql, "%3D") ) 
+				$cql = urldecode($cql);
 			$_GET['cql'] .= $sep.$cql; $_GET['cqlname'] .= $sep.$display; $sep = "||";
 			$cqptit .= "<tr><td title='$cql'><a href='index.php?action=cqp&cql=$cql'><span style='color: {$collist[$i]}'>&#9641;</span><td>$display</a></tr>";
 			$cqlname = preg_replace("/\"/", "&quot;", $display);
 			$cqpjson .= "{\"set\": $i, \"name\": \"$cqlname\", \"query\": \"".preg_replace("/\"/", "&quot;", $cqlt)."\"},";
+			array_push($cqpp, $cql);
 			$i++;	
 		};
 		
 		$direct = "index.php?action=$action&cql={$_GET['cql']}&cqlname={$_GET['cqlname']}";
 
-		$cqptit = "<table style='display: none;'><tr><td><a href='index.php?action=visualize&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table id='cqplegend'>$cqptit</table></table></p>";
+		$cqptit = "<table style='display: none;'><tr><td><a href='index.php?action=multisearch&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table id='cqplegend'>$cqptit</table></table></p>";
 		if ( $cqpjson ) $cqpjson = "var cqpjson = [$cqpjson];";
 		
 	} else {
@@ -323,7 +326,9 @@ if ( $act == "xml" ) {
 	if ( $settings['geomap']['osmlayer'] ) $moresettings .= "var tilelayer = '{$settings['geomap']['osmlayer']}'; ";
 	if ( $settings['geomap']['osmlayertit'] ) $moresettings .= "var tiletit = '{$settings['geomap']['osmlayertit']}'; ";
 
-	if ( $direct ) { $bottomactions = $bsep."<a href='$direct'>{%Direct URL}</a>"; $bsep = " &bull; "; };
+	if ( $direct ) { $bottomactions .= $bsep."<a href='$direct'>{%Direct URL}</a>"; $bsep = " &bull; "; };
+
+	if ( $_GET['cql'] ) { $bottomactions .= $bsep."<a href='index.php?action=multisearch&act=map&cql={$_GET['cql']}&cqlname={$_GET['cqlname']}'>{%Edit queries}</a>"; $bsep = " &bull; "; };
 
 	$maintext  .= "
 	<h1>{%$pagtit}</h1>
