@@ -314,6 +314,7 @@
 			<val key="nolb" display="Only interpret lb as a manuscript line"/>
 			<val key="lbl" display="Interpret both lb and l as manuscript lines"/>
 		</att> 
+		<att key="wordfld" display="Which form to use as the default 'word'" default="form"/> 
 		<att key="search" display="Enable search inside (0/1)" default="0"/> 
 		<att key="textnotes" display="Note elements are part of the text"/> 
 		<att key="autonumber" display="Automatically number lines (1/0)" default="0"/> 
@@ -330,7 +331,13 @@
 			<val key="1" display="Only show one page at a time (unless specified differently)"/>
 			<val key="2" display="Always only show one page at a time"/>
 		</att>
-		<item key="teiHeader" display="items from the teiHeader to display" deprecated="1"/>
+		<item key="teiHeader" display="Define additional teiHeader templates">
+			<list>
+				<att key="key" display="Name of the template file (teiheader-XXX.tpl)"/>
+				<att key="display" display="Display name for the template"/>
+				<att key="condition" display="XPath condition for the template to show"/>		
+			</list>	
+		</item>
 		<item key="pattributes" display="Positional attributes (token-level)">
 			<item key="forms" display="Word form definitions">
 				<list>
@@ -369,17 +376,22 @@
 			</item>
 		</item>
 		<item key="sattributes" display="Structural attributes (above token-level)">
-			<list display="List of sattributes for the level">
-				<att key="color" display="Colour for the tag value"/>
-				<att key="key" display="Attribute name of the tag"/>
-				<att key="level" display="XML tag"/>
-				<att key="noshow" display="Do not show this level" default="0"/>
-				<att key="display" display="Name of the tag"/>
-				<att key="short" display="Short name of the tag (for th)"/>
-				<att key="admin" display="Admin">
-					<val key="1" display="Only visible for admin users"/>
-					<val key="0" display="Visible for everyone"/>
-				</att>
+			<list display="Sattribute level">
+				<att key="key" display="ID for this level"/>
+				<att key="level" display="Name of the sattribute"/>
+				<att key="display" display="Display name for the level"/>
+				<list display="List of sattributes for the level">
+					<att key="color" display="Colour for the tag value"/>
+					<att key="key" display="Attribute name of the tag"/>
+					<att key="level" display="XML tag"/>
+					<att key="noshow" display="Do not show this level" default="0"/>
+					<att key="display" display="Name of the tag"/>
+					<att key="short" display="Short name of the tag (for th)"/>
+					<att key="admin" display="Admin">
+						<val key="1" display="Only visible for admin users"/>
+						<val key="0" display="Visible for everyone"/>
+					</att>
+				</list>
 			</list>
 		</item>
 	</item>
