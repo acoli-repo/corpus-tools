@@ -58,35 +58,54 @@
 			$maintext .= "<h1>Create HTML Page</h1>";
 			$idfield = "<p>Filename: <input name=newid value='{$_GET['name']}' size=40>";
 		} else {
-			if ( !$fflang ) { $fflang = "xxx"; }; # hack to force opening non-localized file
+			if ( !$fflang ) { $fflang = $settings['languages']['default']; }; # hack to force opening non-localized file
 			
 			$content = getlangfile($ffid, true, $fflang);
-			if ( $getlangfile_lastfile == "" ) $newfile = " - file to be created";
-			else if ( substr($getlangfile_lastfile,0,10) == "$ttroot/common/" ) $newfile = " - file to be created from the default ".substr($getlangfile_lastfile,16);
-			else if ( $getlangfile_lastfile != "Pages/$id.html" ) $newfile = " - file to be created from $getlangfile_lastfile - ";
+			$newfile = "<p style='color: red;'><i>New file, will be created upon saving</i>";
+			if ( $getlangfile_lastfile == "" ) $newfile .= "";
+			else if ( substr($getlangfile_lastfile,0,10) == "$ttroot/common/" ) $newfile .= " - pre-filled with content from ".substr($getlangfile_lastfile,16);
+			else if ( $getlangfile_lastfile != "Pages/$id.html" ) $newfile .= " - pre-filled with content from $getlangfile_lastfile";
 
 			if ( file_exists("Pages/$id.html") && !is_writable("Pages/$id.html") ) {
 				fatal ("Due to file permissions, $id.html cannot be edited, please contact the server administrator");
 			};
 			
 			$maintext .= "<h1>Edit HTML Page</h1>
-				<h2>Page name: $id.html$newfile</h2>";
+				<h2>Page name: $id.html</h2>$newfile";
 			$idfield = "<input type=hidden name=id value='$id'>";
 		};
 
 		if ( $id != "new" ) {
 			if ( $filedescs[$ffid] ) $maintext .= "<i>{$filedescs[$ffid]}</i>"; 
-			if ( $fflang != "xxx" ) $maintext .= " - for language $fflang";
 		} else if ( preg_match("/-([^.]+)/", $_GET['name'], $matches ) ) { 
 			$fflang = $matches[1];
-			$maintext .= "For language: $fflang"; 
 		};
+		
+		$sep = "";
+		foreach ( $settings['languages']['options'] as $key => $langset ) {
+			$display = $langset['name'] or $display = $key; 
+			if ( $key == $fflang ) {
+				$othertxt .= "$sep<b><u>$display</u></b>";
+				$sep = " &bull; ";
+			} else if ( !file_exists("Pages/$ffid-$key.html") ) {
+				$othertxt .= "$sep<a href='index.php?action=$action&id=$ffid-$key' title='missing' style='color: red; font-weight: bold;'>$display</a>";
+				$sep = " &bull; ";
+			} else {
+				$othertxt .= "$sep<a href='index.php?action=$action&id=$ffid-$key' title='existing' style='color: blue; font-weight: bold;'>$display</a>";
+				$sep = " &bull; ";
+			};
+		};
+		$maintext .= "<p>Interface languages: $othertxt";
 		
 		$maintext .= "<script type=\"text/javascript\" src=\"$tinymceurl\"></script>";
 		$maintext .= '<script type="text/javascript">
 			tinymce.init({
 				selector: "textarea",
 				convert_urls: false,
+				setup: function (ed) {
+					ed.on("change", function () {
+						onupdate();
+					})},
 				plugins: [
 					 "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
 					 "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
@@ -97,15 +116,23 @@
 			    width: "100%",
 			    height: 400
 			 });
+			 function onupdate () {
+				 window.onbeforeunload = function () {
+					return \'Your XML has been changed, unsaved changes will be lost.\';
+				 };
+			 };
 			</script>';
 			
 		$maintext .= "
 			<p><form action='index.php?action=$action&act=save' method=post>
 			$idfield
-			<textarea name=content>$content</textarea>
+			<textarea name=content onChange='onupdate'>$content</textarea>
 			<p><input type=submit value=Save> <a href='index.php?action=$action&act=trash&id=$id'>move to trash</a>
 			</form>
 			";
+
+		// Add a session logout tester
+		$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
 		
 		
 	} else {
