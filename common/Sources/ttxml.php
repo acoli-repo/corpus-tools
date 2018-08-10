@@ -287,7 +287,7 @@ class TTXML
 		return $context;
 	}
 	
-	function page ( $pagid ) {
+	function page ( $pagid = "" ) {
 		global $action; # global $settings;
 		
 		$editxml = $this->rawtext;
