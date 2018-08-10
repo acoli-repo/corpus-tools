@@ -21,7 +21,7 @@ class TTXML
 	public $pagnav; # The page navigation bar
 	public $facsimg; # The facsimile image for the page
 
-	function __construct($fileid = "", $fatal = 1, $options ) {	
+	function __construct($fileid = "", $fatal = 1, $options = "" ) {	
 		global $xmlfolder; global $baseurl;
 		
 		# Use $_GET to find the file
