@@ -13,7 +13,7 @@ if (document.addEventListener) {
 };
 
 function fstoggle() {
-	if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== null) {
+	if ( ( document.webkitIsFullScreen && typeof(document.webkitIsFullScreen) != "undefined" ) || document.mozFullScreen || ( document.msFullscreenElement !== null && typeof(document.msFullscreenElement) != "undefined" ) ) {
 	} else {
 		unfullscreen();
 	};	

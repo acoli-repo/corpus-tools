@@ -68,7 +68,7 @@ if ( $act == "xml" ) {
 		
 		$descs{$geo} .= "<p>$desc</p>"; $desctxt = $descs{$geo};
 		if ( $lng != "" && $lat != "" ) $jsonpoints{$geo} = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
-
+		
 	};
 	$maintext .= "</ul>";
 	$jsondata = "[ ".join(", ", array_values($jsonpoints))." ]";
@@ -256,7 +256,6 @@ if ( $act == "xml" ) {
 		
 	} else {
 		$cqpquery = "Matches = <text_$geofld != \"_\"> []"; # TODO: This should become "" again
-		$_GET['cql'] = $cqpquery;
 		$cqpp = array($cqpquery);
 		$bottomactions = $bsep."<a href='index.php?action=multisearch&act=map'>{%Search on map}</a>"; $bsep = " &bull; ";
 	};	
@@ -289,7 +288,7 @@ if ( $act == "xml" ) {
 			$lat = preg_replace("/,.*/", "", $lat);
 			$lng = preg_replace("/,.*/", "", $lng);
 			$cnt += 0;
-			if ( $lat != "" && $lat != "_" && ceil($lat) > 0 ) {
+			if ( $lat != "" && $lat != "_" && $lng != "" && $lat != "" ) {
 				$tot{$geo}{$i} += $cnt; 
 				$dcnt{$geo}{$i} += 1;
 				$cnttxt = ""; $sep = "";
@@ -297,7 +296,7 @@ if ( $act == "xml" ) {
 					$mdoc = $dcnt{$geo}{$mset};
 					$cnttxt .= $sep."$mset:$mdoc:$mcnt"; $sep = ","; 
 				};
-				if ( $lng != "" && $lat != "" ) $jsonpoints{$geo} = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$name\", \"cnt\": \"$cnttxt\" }";
+				$jsonpoints{$geo} = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$name\", \"cnt\": \"$cnttxt\" }";
 			};
 		};
 	};
@@ -310,7 +309,7 @@ if ( $act == "xml" ) {
 		$moresettings .= " var defpos = {lat: $lat, lng: $lng };";
 	};
 
-	$fileheader = getlangfile("geomaptext");
+	$fileheader = getlangfile("geomaptext", "edit");
 	
 	if ( $settings['geomap']['areas'] ) {
 		$areaswitch = "<p>{%Jump to}: "; $sep = "";
@@ -329,6 +328,8 @@ if ( $act == "xml" ) {
 	if ( $direct ) { $bottomactions .= $bsep."<a href='$direct'>{%Direct URL}</a>"; $bsep = " &bull; "; };
 
 	if ( $_GET['cql'] ) { $bottomactions .= $bsep."<a href='index.php?action=multisearch&act=map&cql={$_GET['cql']}&cqlname={$_GET['cqlname']}'>{%Edit queries}</a>"; $bsep = " &bull; "; };
+
+	$bottomactions .= $bsep."<a onClick='fullscreen();'>{%Fullscreen}</a>";
 
 	$maintext  .= "
 	<h1>{%$pagtit}</h1>

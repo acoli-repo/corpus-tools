@@ -230,30 +230,31 @@
 		return $text;
 	};
 	
-	function getlangfile ( $ffid, $common = false, $flang = null ) {
-		global $lang; global $settings; global $getlangfile_lastfile;  global $ttroot;
-		if ( $flang === null ) $flang = $lang;
+	function getlangfile ( $ffid, $common = false, $flang = null, $options ) {
+		global $lang; global $settings; global $getlangfile_lastfile;  global $ttroot; global $username, $action;
+		if ( $flang === null ) $flang = $lang; $html = "";
 		$deflang = $settings['languages']['default'] or $deflang = "en";
-		# print "$ttroot/common/Pages/{$ffid}-$flang.html"; exit;
+
 		
 		if ( file_exists("Pages/{$ffid}-$flang.html") ) {
 			$getlangfile_lastfile = "Pages/{$ffid}-$flang.html";
-			return file_get_contents($getlangfile_lastfile);
 		} else if ( file_exists("Pages/{$ffid}.html") ) {
 			$getlangfile_lastfile = "Pages/{$ffid}.html";
-			return file_get_contents($getlangfile_lastfile);
 		} else if ( file_exists("Pages/{$ffid}-$deflang.html") ) {
 			$getlangfile_lastfile = "Pages/{$ffid}-$deflang.html";
-			return file_get_contents($getlangfile_lastfile);
 		} else if ( $common && file_exists("$ttroot/common/Pages/{$ffid}-$flang.html") ) {
 			$getlangfile_lastfile = "$ttroot/common/Pages/{$ffid}-$flang.html";
-			return file_get_contents($getlangfile_lastfile);
 		} else if ( $common && file_exists("$ttroot/common/Pages/{$ffid}.html") ) {
 			$getlangfile_lastfile = "$ttroot/common/Pages/{$ffid}.html";
-			return file_get_contents($getlangfile_lastfile);
 		};
-		# return "?? $ttroot/common/Pages/{$ffid}.html";	
-		return "";
+		$html = file_get_contents($getlangfile_lastfile);
+
+		if ( $username && $action != "pageedit") {
+			$editname = "{$ffid}-$flang";
+			$html = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id=$editname'>edit text</a></div>".$html;
+		};
+		
+		return $html;
 	};
 
 	function findapp ( $appname ) {

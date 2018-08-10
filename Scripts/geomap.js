@@ -14,10 +14,15 @@
   };  
   if ( tiletit != '' ) { tiletit = ', '+ tiletit; };
 
+	document.addEventListener('webkitfullscreenchange', switchedfull, false);
+	document.addEventListener('mozfullscreenchange', switchedfull, false);
+	document.addEventListener('fullscreenchange', switchedfull, false);
+	document.addEventListener('MSFullscreenChange', switchedfull, false);
 
   function initMap() {
 	
 	var doclist = JSON.parse(jsondata);
+	console.log(doclist);
          
 	// Calculate min and max cnt to display value-based markers
 	var totcnt = 0; var maxcnt = 0; var mincnt = 999999;
@@ -89,7 +94,7 @@
 				  .setContent(putxt)
 				  .openOn(map);
 			  }).on('clustermouseout',function(c){
-				   // map.closePopup();
+				   map.closePopup();
 			  }).on('clusterclick',function(c){
 			  	   c.zoomToBounds;
 				   map.closePopup();
@@ -284,7 +289,7 @@
 			cdata.mcnt[mset] += mcnt*1; 
 			cdata.doccnt += 1;
 			if ( !cdata.mdcnt[mset] ) cdata.mdcnt[mset] = 0;
-			cdata.mdcnt[mset] += 1; 
+			cdata.mdcnt[mset] += mdoc*1; 
 		}; 
 	};
 	for ( var i=0; i<cluster._childClusters.length; i++ ) {
@@ -382,3 +387,33 @@ function serializeXmlNode(xmlNode) {
     return "";
 }
 
+function switchedfull() {
+
+	if ( ( document.webkitIsFullScreen && typeof(document.webkitIsFullScreen) != "undefined" ) || document.mozFullScreen || ( document.msFullscreenElement !== null && typeof(document.msFullscreenElement) != "undefined" ) ) {
+		mapdiv.style['position'] = 'fixed';
+		mapdiv.style['z-index'] = '5000';
+		mapdiv.style.height = "100%";
+		mapdiv.style.width = "100%";
+		mapdiv.style.top = '0';
+		mapdiv.style.left = '0';
+	} else {
+		mapdiv.style['position'] = 'relative';
+		mapdiv.style['left'] = '';
+		mapdiv.style['top'] = '';
+		mapdiv.style['width'] = mapdiv.parentNode.width;
+		mapdiv.style['height'] = '100%';
+	};
+
+};
+
+function fullscreen() {
+
+	if (document.documentElement.requestFullScreen) {  
+	  document.documentElement.requestFullScreen();  
+	} else if (document.documentElement.mozRequestFullScreen) {  
+	  document.documentElement.mozRequestFullScreen();  
+	} else if (document.documentElement.webkitRequestFullScreen) {  
+	  document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);  
+	};  
+		
+};

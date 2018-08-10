@@ -323,7 +323,7 @@ function scalefacs(e) {
 
 function switchedfull (e) {
 	// Called after changing fullscreen mode (manually or automatically)
-	if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+	if ( ( document.webkitIsFullScreen && typeof(document.webkitIsFullScreen) != "undefined" ) || document.mozFullScreen || ( document.msFullscreenElement !== null && typeof(document.msFullscreenElement) != "undefined" ) ) {
 		unfullscreen();
 		resetfacs(1);
 	} else {
@@ -501,6 +501,7 @@ function textscroll(e) {
 		i++;
 	};
 }
+
 
 function scrollToElementD(elm){
 	var topPos = elm.offsetTop;

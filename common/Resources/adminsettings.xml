@@ -308,7 +308,7 @@
 		</desc>
 		<att key="defaultform" display="Default word form"/> 
 		<att key="defaultview" display="Default view options"/>  
-		<att key="xpath" display="XPath to the text body (//text)"/> 
+		<att key="xpath" display="XPath to the text body" default="//text"/> 
 		<att key="linebreaks" display="Interpret linebreaks as lb before tokenization (1/0)" default="0"/> 
 		<att key="l" display="How to interpret linebreaks">
 			<val key="nolb" display="Only interpret lb as a manuscript line"/>
@@ -331,7 +331,7 @@
 			<val key="1" display="Only show one page at a time (unless specified differently)"/>
 			<val key="2" display="Always only show one page at a time"/>
 		</att>
-		<item key="teiHeader" display="Define additional teiHeader templates">
+		<item key="teiHeader" display="Define custom teiHeader template list">
 			<list>
 				<att key="key" display="Name of the template file (teiheader-XXX.tpl)"/>
 				<att key="display" display="Display name for the template"/>
