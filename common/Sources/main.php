@@ -132,7 +132,7 @@
 
 	# Create an edit HTML button	
 	if ( $username ) {
-		$edithtml = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id={$action}-$lang'>edit text</a></div>";
+		$edithtml = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id={$action}-$lang'>edit page</a></div>";
 	};
 			
 	## Determine which action to perform
