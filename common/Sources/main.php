@@ -129,24 +129,31 @@
 		print "<script langauge=Javasript>top.location='index.php?action=admin&act=checksettings';</script>";
 		exit;
 	};
-	
+
+	# Create an edit HTML button	
+	if ( $username ) {
+		$edithtml = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id={$action}-$lang'>edit text</a></div>";
+	};
 			
 	## Determine which action to perform
 	if ( file_exists( "Pages/$action-$lang.html" ) ) {
 		# Local page - language depedent
-		$maintext = file_get_contents ( "Pages/$action-$lang.html" );
+		$maintext = $edithtml.file_get_contents ( "Pages/$action-$lang.html" );
 	} else if ( file_exists( "Pages/$action.html" ) ) {
 		# Local page - no language
-		$maintext = file_get_contents ( "Pages/$action.html" );
+		$maintext = $edithtml.file_get_contents ( "Pages/$action.html" );
 	} else if ( file_exists( "Pages/$action-$deflang.html" ) ) {
 		# Local page - default language
-		$maintext = file_get_contents ( "Pages/$action-$deflang.html" );
+		$maintext = $edithtml.file_get_contents ( "Pages/$action-$deflang.html" );
 	} else if ( file_exists( "Sources/$action.php" ) ) {
 		# Local script
 		include ( "Sources/$action.php" );
+	} else if ( file_exists( "$ttroot/common/Pages/$action-$lang.html" ) ) {
+		# Common page
+		$maintext = $edithtml.file_get_contents ( "$ttroot/common/Pages/$action-$lang.html" );
 	} else if ( file_exists( "$ttroot/common/Pages/$action.html" ) ) {
 		# Common page
-		$maintext = file_get_contents ( "$ttroot/common/Pages/$action.html" );
+		$maintext = $edithtml.file_get_contents ( "$ttroot/common/Pages/$action.html" );
 	} else if ( file_exists( "$ttroot/common/Sources/$action.php" ) ) {
 		# Common script
 		include ( "$ttroot/common/Sources/$action.php" );
