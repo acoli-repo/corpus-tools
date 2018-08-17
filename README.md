@@ -4,7 +4,7 @@ A web-based framework for creating and distributing textually and linguistically
 
 More information about the framework can be found on the TEITOK Home Page: http://www.teitok.org
 
-For support and recent developments, there is also a [https://groups.google.com/forum/#!forum/teitok Google group mailing list] and a [https://www.facebook.com/maartenes Facebook page] for TEITOK.
+For support and recent developments, there is also a [https://groups.google.com/forum/#!forum/teitok](Google group mailing list) and a [https://www.facebook.com/maartenes](Facebook page) for TEITOK.
 
 ## Download
 
