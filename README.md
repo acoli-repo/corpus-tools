@@ -2,7 +2,9 @@
 
 A web-based framework for creating and distributing textually and linguistically annotated corpora.
 
-More information about the framework can be found on the TEITOK Home Page: http://teitok.corpuswiki.org/site
+More information about the framework can be found on the TEITOK Home Page: http://www.teitok.org
+
+For support and recent developments, there is also a [https://groups.google.com/forum/#!forum/teitok Google group mailing list] and a [https://www.facebook.com/maartenes Facebook page] for TEITOK.
 
 ## Download
 
@@ -24,7 +26,7 @@ For the largest part, TEITOK is a PHP/Javascript which only requires a **teitok*
 
 After creating the folder structure, rename *myproject* to the name of your project, and open it in your browser. That will open the configuration script, which checks whether all required files are found and accessible. Once all potential problems have been resolved, move the *index-off.php* file in your project folder to *index.php* and reload your project page, which should start your (empty) project in TEITOK with some instructions on how to proceed. 
 
-More information about how to customize your TEITOK project can be found on the [TEITOK help page](teitok.corpuswiki.org/site/index.php?action=help)
+More information about how to customize your TEITOK project can be found on the [TEITOK help page](www.teitok.org/index.php?action=help)
 
 ### Dependencies
 - [Smarty Template engine](http://www.smarty.net/)
