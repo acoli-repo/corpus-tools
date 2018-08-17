@@ -1,5 +1,67 @@
 # Change Log
 
+## [Version 2.3](https://gitlab.com/maartenes/TEITOK/tags/v2.3) (Aug 6, 2018)
+
+### Improvements 
+
+* Added the option to compare searches on the map as pie charts
+* Added a session-timeout prevention module to keep the session alive during large edits
+* Added the option visualize comparisons between named CQL searches
+* Added in-document search using CQL
+* Added a script to lookup geocoordinates in OSM
+* You can now add pages in the page-by-page transcription
+
+### Bug fixes
+
+* Corrected an error preventing private facsimile images from being hidden
+* The admin module now shows whether you are running the latest version of TEITOK
+* Added internationalization to some missing items
+* Made the nest button work in CQP edit
+* Added support for RTL scripts in several modules
+
+## [Version 2.2](https://gitlab.com/maartenes/TEITOK/tags/v2.2) (Jul 7, 2018)
+
+### Improvements 
+
+* Added marker clustering to the map view
+* Added CQL search to map view
+* Added the option store and compare CQL searches
+
+### Bug fixes
+
+* Corrected several errors in the data visualization module
+
+
+## [Version 2.1](https://gitlab.com/maartenes/TEITOK/tags/v2.1) (Jun 11, 2018)
+
+### Improvements 
+
+* Moved from a single XML visualization to a customizable visualization with various views
+* Switched map view from Google Maps to OpenStreetMaps
+* Added the pageflow file view
+* Added a statistical overview to the data visualization
+* Added the wavesurfer visualization for time-aligned audio-based files
+* Added a user-based annotation module
+* Added the option to have visitor-login using ORCID
+* Added a beta version of a tool to convert sound files
+* Added a module to search for words in word-aligned facsimile images
+* Added a word-sketch module
+* Introduced a drag-and-drop file upload system
+* Introduced a beta version of a collation system
+* Added several options to the dependency tree module
+
+### Bug fixes
+
+* Roll-over tags now work correctly when no tags have been defined
+* Missing visualization elements are now created programmatically
+* Updated the admin settings module to include recently introduced options
+* The tokenization script can now introduce sentence boundaries
+* Prevented multi-edit to change potentially misaligned tokens
+* Solved some issues in the page-by-page transcription module
+* Improved the TT-CQP based data visualization
+* Improved the XML reader
+* Updated the Source installation instruction and loosened the dependency on Boost in favour of C++11
+* Solved several bugs in TT-CQP
 
 ## [Version 1.11](https://gitlab.com/maartenes/TEITOK/tags/v1.11) (Jan 15, 2018)
 

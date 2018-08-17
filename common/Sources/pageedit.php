@@ -62,7 +62,8 @@
 			
 			$content = getlangfile($ffid, true, $fflang);
 			$newfile = "<p style='color: red;'><i>New file, will be created upon saving</i>";
-			if ( $getlangfile_lastfile == "" ) $newfile .= "";
+			if ( $getlangfile_lastfile == "Pages/$ffid.html" && $id != $ffid && $fflang == $deflang ) { $id = $ffid; $newfile = ""; }
+			else if ( $getlangfile_lastfile == "" ) $newfile .= "";
 			else if ( substr($getlangfile_lastfile,0,10) == "$ttroot/common/" ) $newfile .= " - pre-filled with content from ".substr($getlangfile_lastfile,16);
 			else if ( $getlangfile_lastfile != "Pages/$id.html" ) $newfile .= " - pre-filled with content from $getlangfile_lastfile";
 
@@ -76,7 +77,7 @@
 		};
 
 		if ( $id != "new" ) {
-			if ( $filedescs[$ffid] ) $maintext .= "<i>{$filedescs[$ffid]}</i>"; 
+			if ( $filedescs[$ffid] ) $maintext .= "<p><i>{$filedescs[$ffid]}</i> $fflang $ffid $deflang $getlangfile_lastfile"; 
 		} else if ( preg_match("/-([^.]+)/", $_GET['name'], $matches ) ) { 
 			$fflang = $matches[1];
 		};
