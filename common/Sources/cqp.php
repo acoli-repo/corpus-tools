@@ -395,7 +395,7 @@
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
 			<form action='' method=post id=cqp name=cqp><p>{%CQP Query}: &nbsp; 
-				$cqlbox <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
+				$cqlbox <input type=submit value=\"{%Search}\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
 			$chareqjs
 			<script language=Javascript>
 			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
@@ -1247,14 +1247,14 @@
 		# Display the search screen with a CQP box only and a search-help
 
 		if ( $_GET['cid'] ) {	
-			$pagetit = "Search in document"; 
+			$pagetit = "{%Search in document}"; 
 			require ("$ttroot/common/Sources/ttxml.php");
 			$ttxml = new TTXML($cid, false);
 			$subtit .= "<h2>".$ttxml->title()."</h2>"; 
 			$subtit .= $ttxml->tableheader(); 
 			
 			$postaction = "index.php?action=file&cid=".$ttxml->fileid;
-		} else $pagetit = "Corpus Search";
+		} else $pagetit = "{%Corpus Search}";
 
 		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
 			$cqlbox = "<textarea name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
@@ -1267,7 +1267,7 @@
 
 			<form action='$postaction' method=post id=cqp name=cqp><p>CQP Query: &nbsp; 
 				$cqlbox
-				<input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
+				<input type=submit value=\"{%Search}\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
 			$chareqjs
 			<script language=Javascript>
 			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };

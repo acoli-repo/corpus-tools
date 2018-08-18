@@ -91,9 +91,11 @@ class TTXML
 	}
 	
 	function title() {
+		global $settings;
 		if (!$this->xml) return "";
 		if ( !$this->title ) {
-			$result = $this->xml->xpath("//title"); 
+			$titlexp = $settings['xmlfile']['title']."" or $titlexp = "//title";
+			$result = $this->xml->xpath($titlexp); 
 			$this->title = $result[0];
 			if ( $this->title == "" ) $this->title = "<i>{%Without Title}</i>";
 		};
