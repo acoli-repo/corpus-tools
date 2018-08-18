@@ -63,7 +63,7 @@
 	$sessionvar = "teitok-".preg_replace("/[^a-z0-9]/", "", $foldername); # Make the session relative to this project
 
 	# Determine which language to use
-	$deflang = $settings['languages']['defaults'] or $deflang = "en";
+	$deflang = $settings['languages']['default'] or $deflang = "en";
 	if ( $_GET['lang'] ) $lang = $_GET['lang'];
 	else if ( preg_match ( "/\/(...?)\/index\.php/", $_SERVER['REQUEST_URI'], $matches ) ) {
 		if ( $matches[1] != $foldername ) $lang = $matches[1];
