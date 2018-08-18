@@ -122,7 +122,8 @@
 	$xmlfolder = "xmlfiles";
 	$imagefolder = "Facsimile";
 	
-	include("$ttroot/common/Sources/menu.php");
+	if ( file_exists("Sources/menu.php") ) include("Sources/menu.php");
+	else include("$ttroot/common/Sources/menu.php");
 
 	# Check whether the settings actually belong to this project
 	if ( $user['permissions'] == "admin" && $foldername != $settings['defaults']['base']['foldername'] && $action != "admin" && $action != "adminsettings" && $action != "error"  && !$debug ) {

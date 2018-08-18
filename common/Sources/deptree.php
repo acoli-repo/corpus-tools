@@ -47,6 +47,57 @@
 		print "<script>top.location='{$_SERVER['REQUEST_URI']}';</script>";
 		exit;		
 
+	} else if ( $act == "conllu" ) {
+
+		$ccid = $ttxml->xmlid;
+		header('Content-Type: text/plain; charset=utf-8');
+		header('Content-Disposition: attachment; filename="'.$ccid.'.conllu"');
+		print "# newdoc id = $ccid\n\n";
+		if ( $_GET['sid'] ) $sid = "[@id=\"{$_GET['sid']}\"]";
+
+		$formfld = $settings['xmlfile']['wordfld'] or $formfld = "form";
+		foreach ( $ttxml->xml->xpath("//s$sid") as $sent ) {
+			$toks = $sent->xpath($toksel);
+			
+			if ( !$toks ) continue;
+			print "# sent_id = $ccid:{$sent['id']}\n";
+			$rawtext = trim(strip_tags($sent->asXML()));
+			print "# text = $rawtext\n";
+			$tnr = 0; $toklist = array ();
+			foreach ( $toks as $tok ) {
+				$form = forminherit($tok, $formfld);
+				if ( $form != "--" ) {
+					$tnr++;	 $toknr = $tnr;
+					$ids[$tok['id'].""] = $tnr;
+					
+					array_push($toklist, $tok);
+					
+				};
+			};
+
+			foreach ( $toklist as $tok ) {		
+			
+				$form = forminherit($tok, $formfld);
+				$lemma = $tok['lemma'] or $lemma = "_";
+				$tokid = $tok['id']."";
+				$tnr = $ids[$tokid];
+				
+				$upos = $tok['upos'] or $upos = $tok['pos'] or $upos = "_";
+				$xpos = $tok['xpos'] or $xpos = "_";
+				$head = $ids[$tok['head'].""] or $head = "0";
+				$feats = $tok['feats'] or $feats = "_";
+				$deprel = $tok['deprel'] or $deprel = "_";
+				$deps = $tok['deps'] or $deps = "_";
+				$misc = "_";
+				$maintok = "$form\t$lemma\t$upos\t$xpos\t$feats\t$head\t$deprel\t$deps\t$misc";
+					
+				print "$tnr\t$form\t$lemma\t$upos\t$xpos\t$feats\t$head\t$deprel\t$deps\t$misc\n";
+			
+			};
+
+		};
+		exit;
+
 	} else if ( $sid ) {
 
 		if ( $_POST['sent'] ) {	
@@ -216,6 +267,7 @@ $graphbase = base64_encode(str_replace('<svg ', '<svg xmlns="http://www.w3.org/2
 $maintext .= "
 	 &bull; <a href='data:image/svg+xml;base64,$graphbase' download=\"deptree.svg\">{%Download SVG}</a>
 	 &bull; <a id='pnglink' onMouseUp=\"makelink()\"  download=\"deptree.png\">{%Download PNG}</a>
+	 &bull; <a href='index.php?action=$action&act=conllu&cid={$ttxml->fileid}&sid={$sent['id']}'>{%Download CoNNL-U}</a>
 	<canvas style='display: none;' id='myCanvas' width='800' height='400' ></canvas>
 	<script language=Javascript>
 		var orgtoks = new Object();
@@ -410,7 +462,10 @@ $maintext .= "
 			
 			};
 			$maintext .= "</table>
-			<hr><p><a href='index.php?action=file&cid={$ttxml->fileid}'>{%Text view}</a>";
+			<hr><p><a href='index.php?action=file&cid={$ttxml->fileid}'>{%Text view}</a>
+				&bull;
+				<a href='index.php?action=$action&act=conllu&cid={$ttxml->fileid}'>{%Download CoNNL-U}</a>
+				";
 	
 		};
 	
