@@ -18,7 +18,8 @@
 			
 	$xml = $ttxml->xml;	
 			
-	$result = $xml->xpath("//title"); 
+	$titlexp = $settings['xmlfile']['title']."" or $titlexp = "//title";
+	$result = $xml->xpath($titlexp); 
 	$title = $result[0];
 	if ( $title == "" ) $title = "<i>{%Without Title}</i>";
 
