@@ -117,10 +117,12 @@
 			    width: "100%",
 			    height: 400
 			 });
+			 var changed = false;
+			 window.onbeforeunload = function () {
+				if ( changed ) return \'Your XML has been changed, unsaved changes will be lost.\';
+			 };
 			 function onupdate () {
-				 window.onbeforeunload = function () {
-					return \'Your XML has been changed, unsaved changes will be lost.\';
-				 };
+			 	changed = true;
 			 };
 			</script>';
 			
@@ -128,7 +130,7 @@
 			<p><form action='index.php?action=$action&act=save' method=post>
 			$idfield
 			<textarea name=content onChange='onupdate'>$content</textarea>
-			<p><input type=submit value=Save> <a href='index.php?action=$action&act=trash&id=$id'>move to trash</a>
+			<p><input type=submit value=Save onClick=\"changed = false;\"> <a href='index.php?action=$action&act=trash&id=$id'>move to trash</a>
 			</form>
 			";
 

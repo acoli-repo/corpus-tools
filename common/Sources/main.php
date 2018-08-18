@@ -164,6 +164,7 @@
 	} else {
 		# Nothing appropriate
 		$maintext = getlangfile ( "notfound", true );
+		header('HTTP/1.0 404 Not Found'); ## Hard code this as NOT an error page!
 		if ( $username ) {
 			$maintext .= "<hr><span class=adminpart><a href='index.php?action=pageedit&id=new&name=$action-$lang.html'>create</a> this as an HTML page</span>";
 		};		

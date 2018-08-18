@@ -169,7 +169,8 @@
 			$tmp = file_get_contents("http://www.teitok.org/latest.xml");
 			$tmp = simplexml_load_string($tmp, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
 			if ( $tmp ) {
-				$latest = $tmp->xpath("//info")[0];
+				$tmp2 = $tmp->xpath("//info");
+				$latest = $tmp2[0];
 				if ( $latest['version']."" != $version['version']."" ) $maintext .= " - Latest version: {$latest['version']}, {$latest['date']}" ;
 			};
 			
