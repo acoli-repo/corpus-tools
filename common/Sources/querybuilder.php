@@ -412,7 +412,7 @@
 					<span onClick=\"document.getElementById('optionbox').style.display = 'block';\">{%options}</span> 
 					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-top: -6px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\">x</span>$optiontext</div>";
 
-		$cqlfld = "
+		$cqlfld = " <!--- CQLFLD --->
 			<script language=Javascript>$prescript</script>
 			<form action='$postaction' method=post id=cqp name=cqp><p>CQP Query: &nbsp; 
 				$cqlbox
