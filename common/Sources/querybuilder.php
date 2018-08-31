@@ -25,7 +25,7 @@
 				.wrong { font-weight: bold; color: #ff0000; }
 			</style>
 			<input id='toklist' style='display: none;'>
-			<div id='cqlview'></div>
+			<div id='cqltoks'></div>
 			<h3>{%Token Search}</h3>"; };	
 
 		if ( $settings['cqp']['searchmethod'] == "word" && $act == "advanced" ) {
@@ -412,7 +412,7 @@
 					<span onClick=\"document.getElementById('optionbox').style.display = 'block';\">{%options}</span> 
 					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-top: -6px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\">x</span>$optiontext</div>";
 
-		$cqlfld = " <!--- CQLFLD --->
+		$cqlfld = "
 			<script language=Javascript>$prescript</script>
 			<form action='$postaction' method=post id=cqp name=cqp><p>CQP Query: &nbsp; 
 				$cqlbox
