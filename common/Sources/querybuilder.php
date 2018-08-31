@@ -422,7 +422,7 @@
 				$optionoption
 			</form>
 			$chareqjs
-			<div style='display: none;' class='helpbox' id='cqlview'><span style='margin-top: -6px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">x</span>$querytext</div>
+			<div style='display: none;' class='helpbox' id='cqlview'><span style='margin-top: -6px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">x</span></div>
 			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-top: -6px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">x</span>$querytext</div>
 			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>";
 
