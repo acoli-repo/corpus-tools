@@ -298,6 +298,7 @@
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
 			$subtit
+			<!-- one -->
 			$cqlfld
 
 			<script language=Javascript>
@@ -842,6 +843,7 @@
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>$pagetit</h1>
 
 			$subtit
+			<!-- two -->
 			$cqlfld
 			";
 

@@ -33,6 +33,7 @@ function addtoken() {
     	tokq = '[' + tokq + '] ';
     };
     
+    console.log(tokq);
 	document.getElementById('toklist').value += tokq;
     console.log(document.getElementById('toklist').value);
 	
