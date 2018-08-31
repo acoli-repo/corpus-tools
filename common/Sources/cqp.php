@@ -293,12 +293,11 @@
 
 		if ( !$fileonly || $user['permissions'] == "admin" ) $cqltxt = str_replace("'", "&#039;", $cql); # Best not show the query for doc-only searches...
 
-		include ("$ttroot/common/Sources/querybuilder.php");
+		require_once ("$ttroot/common/Sources/querybuilder.php");
 
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
 			$subtit
-			<!-- one -->
 			$cqlfld
 
 			<script language=Javascript>
@@ -814,7 +813,7 @@
 		else 
 			$cqlbox = "<input id='cqlfld' name=cql value='$cql' style='width: 600px;'/> ";
 		
-		include ("$ttroot/common/Sources/querybuilder.php");
+		require_once ("$ttroot/common/Sources/querybuilder.php");
 		
 		$maintext .= "
 			<form style='display: none;' action='' method=post id=cqp name=cqp><p>{%CQP Query}: &nbsp; 
@@ -838,12 +837,11 @@
 			$postaction = "index.php?action=file&cid=".$ttxml->fileid;
 		} else $pagetit = "{%Corpus Search}";
 
-		include ("$ttroot/common/Sources/querybuilder.php");
+		require_once ("$ttroot/common/Sources/querybuilder.php");
 
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>$pagetit</h1>
 
 			$subtit
-			<!-- two -->
 			$cqlfld
 			";
 
