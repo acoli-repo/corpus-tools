@@ -31,10 +31,6 @@
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$cqpfolder = $settings['cqp']['searchfolder'];
-	$cqpcols = array();
-	foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
-		if ( $username || !$item['admin'] ) array_push($cqpcols, $key); 
-	}; 
 
 	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 		
@@ -68,30 +64,6 @@
 	if ( !$cql ) $cql = stripslashes($_GET['cql']);
 	
 	# print_r($_POST); exit;
-
-	if (  $settings['input']['replace'] ) {
-		$chareqjs .= "<p>{%Special characters}: "; $sep = "";
-		foreach ( $settings['input']['replace'] as $key => $item ) {
-			$val = $item['value'];
-			$chareqjs .= "$sep $key = $val"; 
-			$charlist .= "ces['$key'] = '$val';";
-			$sep = ",";
-		};
-		$chareqtxt = $chareqjs; 
-		$chareqjs .= "
-			<script language=\"Javascript\">
-			var ces = {};
-			$charlist
-			function chareq (fld) {
-				for(i in ces) {
-					fld.value = fld.value.replace(i, ces[i]);
-				}
-			};
-			</script>
-		";
-		$chareqfn = "onkeyup=\"chareq(this);\"";
-	};			
-
 
 	if ( $act == "freq" ) {
 		# Show frequency distribution (group) for a given Match
@@ -279,31 +251,6 @@
 			};
 		}; 
 		
-		# If this is a word search - turn it into a CQP search
-		if ( !$cql && $_POST['vals'] ) {	
-			$cql = "["; $sep = "";
-			foreach ( $_POST['vals'] as $key => $val ) {
-				$type = $_POST['matches'][$key];
-				$attname = pattname($key) or $attname =  pattname('form');
-				if ( $val ) {
-					if ( $type == "startswith" ) {
-						$cql .= " $sep $key = \"$val.*\""; $sep = "&";
-						$subtit .= "<p>$attname = $val-";
-					} else if ( $type == "contains" ) {
-						$cql .= "$sep$key=\".*$val.*\""; $sep = " & ";
-						$subtit .= "<p>$attname <i>{%contains}</i> $val";
-					} else if ( $type == "endsin" ) {
-						$cql .= "$sep$key=\".*$val\""; $sep = " & ";
-						$subtit .= "<p>$attname -$val";
-					} else {
-						$cql .= "$sep$key=\"$val\""; $sep = " & ";
-						$subtit .= "<p>$attname = $val";
-					};
-				};
-			};
-			$cql .= "]";
-		};
-
 		# This is a document search - turn it into CCQP
 		if ( !$cql || $cql == "[]" ) {	
 			$cql = "<text> []";  $sep = "::"; $fileonly = true;
@@ -320,48 +267,6 @@
 			$fileonly = true; 
 		};
 		
-		if ( is_array($_POST['atts']) )
-		foreach ( $_POST['atts'] as $tmp => $val ) {
-			if ( !$val ) continue;
-			list ( $key, $type ) = explode ( ":", $tmp );
-			if ( strstr($key, '_' ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
-			list ( $keytype, $keyname ) = explode ( "_", $xkey );
-			$attitem = $settings['cqp']['sattributes'][$keytype][$keyname]; 
-				$attname = $attitem['display']; $atttype = $attitem['type'];
-				$attname = "{%$attname}";
-
-			# Account for multiple select
-			if ( is_array($val) ) {
-				$val = "#(".join("|", $val)."#)";
-			};
-
-			if ( $type == "start" ) {
-				$cql .= " $sep int(match.$xkey) >= $val"; $sep = "&";
-				if (!$_POST['atts']["$key:end"]) $subtit .= "<p>$attname > $val";
-			} else if ( $type == "end" ) {
-				$cql .= " $sep int(match.$xkey) <= $val"; $sep = "&";
-				if ( $start = $_POST['atts']["$key:start"] ) 
-					$subtit .= "<p>$attname: $start - $val";
-				else 
-					$subtit .= "<p>$attname < $val";
-			} else if ( $atttype == "long" ) {
-				$cql .= " $sep match.$xkey = \".*$val.*\" %cd"; $sep = "&";
-				$subtit .= "<p>$attname {%contains} <i>$val</i>";
-			} else {
-				$val = quotemeta($val);
-				$val = str_replace("#\\", "", $val);
-				if ( $attitem['values'] == "multi" ) {
-					$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
-					$subtit .= "<p>$attname = <i>$val</i>";
-					$val = "(.*$mvsep)?$val($mvsep.*)?"; # Brackets not supported in CQP
-				} else {
-					$subtit .= "<p>$attname = <i>$val</i>";
-				};
-				$cql .= " $sep match.$xkey = \"$val\""; $sep = "&";
-				if ( $attitem['type'] == "kselect" || $attitem['translate'] ) $val = "{%$key-$val}";
-				$val = stripslashes($val);
-			};
-		}; # if ( strstr($cql, "a.text") && !strstr($cql, "a:") ) { $cql = "a:$cql"; }
 
 		// Now that the we have the full CQL - make sure matches are always within a <text>
 		if ( !preg_match("/ within /", $cql) && !$fileonly ) $cql .= " within text";
@@ -387,16 +292,14 @@
 
 
 		if ( !$fileonly || $user['permissions'] == "admin" ) $cqltxt = str_replace("'", "&#039;", $cql); # Best not show the query for doc-only searches...
-		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
-			$cqlbox = "<textarea name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
-		else 
-			$cqlbox = "<input name=cql value='$cql' style='width: 600px;'/> ";
+
+		include ("$ttroot/common/Sources/querybuilder.php");
 
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
-			<form action='' method=post id=cqp name=cqp><p>{%CQP Query}: &nbsp; 
-				$cqlbox <input type=submit value=\"{%Search}\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
-			$chareqjs
+			$subtit
+			$cqlfld
+
 			<script language=Javascript>
 			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
 			</script>
@@ -905,345 +808,23 @@
 	} else if ( $act == "advanced" ) {
 		
 		# Display the search screen (advanced search)
-			
-		if ( file_exists("Pages/searchhelp.html") ) {
-			$maintext .= "<div id='helpbox' style='position: absolute; top: 70px; right: 20px'><a href='index.php?action=searchhelp'>{%help}</a></div>";
-		};
-
-		# $tokatts['word'] = $tokatts['form'] or $tokatts['word'] = "Written form"; --> how to do this?
-		if ( !in_array($wordfld, $cqpcols) )  array_unshift($cqpcols, $wordfld ); # We need the wordfld as a search option
-				
-		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
-
-			<!-- <h2>{%Advanced Search}</h2> -->
-			<form action='' method=post id=cqp name=cqp>";
-			
-		if ( $settings['cqp']['sattributes'] ) { $maintext .= "<table cellpadding=5><tr><td valign=top style='border-right: 1px solid #cccccc;'>
-			<h3>{%Text Search}</h3>"; };	
-
-		if ( $settings['cqp']['searchmethod'] == "word" ) {
-			$wdef = "checked";
-			$stmp = "<script language=Javascript>switchtype('st', 'word');</script>";
-		} else { $cdef = "checked"; };
-
-		if ( findapp("tt-cqp") ) {
-			// tt-cqp specific options
-			$extannfile = $_POST['extann'] or $extannfile = "Users/ann_{$user['short']}.xml";
-			if ( file_exists($extannfile) ) {
-				$extann = simplexml_load_file($extannfile);	
-				foreach ( $extann->xpath("//def/field") as $i => $deffld) { 
-					$tkey = $deffld['key'].'';
-					$tval = $deffld['short'] or $tval = $deffld['display'] or $tval = $deffld['key']; 
-					$extannfields["my_$tkey"] = "$tval"; 
-				};
-			};
-		};
-		
-		$maintext .= "
-				<p>{%Search method}:  &nbsp;
-					<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'cqp');\" $cdef> CQP &nbsp; &nbsp;
-					<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'word');\" $wdef> {%Word Search}
-				<script language=Javascript>
-				function switchtype ( tg, type ) { 
-					var types = [];
-					types['st'] = ['cqp', 'word'];
-					types['style'] = ['kwic', 'context'];
-					types['app'] = ['cqp-', 'tt-cqp-'];
-					for ( var i in types[tg] ) {
-						stype = types[tg][i]; 
-						document.getElementById(stype+'search').style.display = 'none';
-					};
-					document.getElementById(type+'search').style.display = 'block';
-				};
-				</script>
-				<div name='wordsearch' id='wordsearch' style='display: none;'><table>";
-				
-		foreach ( $cqpcols as $col ) {
-			$colname = pattname($col);
-			if ( !$colname ) $colname = "[$col]";
-			$tstyle = ""; 
-			$coldef = $settings['cqp']['pattributes'][$col];
-			if ( $coldef['admin'] == "1" ) {
-				$tstyle = " class=adminpart";
-				if ( !$username ) { continue; };
-			};
-			if ( $coldef['type'] == "mainpos" ) {
-				if ( !$tagset ) {
-					require ( "$ttroot/common/Sources/tttags.php" );
-					$tagset = new TTTAGS("", false);
-				}; $optlist = "";
-				foreach ( $tagset->taglist() as $letters => $name ) {
-					$optlist .= "<option value=\"$letters.*\">$name</option>";
-				};
-				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
-			} else if ( substr($coldef['type'], -6) == "select" ) {
-				$tmp = file_get_contents("$corpusfolder/$col.lexicon"); unset($optarr); $optarr = array();
-				foreach ( explode ( "\0", $tmp ) as $kva ) { 
-					if ( $kva ) {
-						if ( $coldef['values'] == "multi" ) {
-							$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
-							$kvl = explode ( $mvsep, $kva );
-						} else {
-							$kvl = array ( $kva );
-						}
-						
-						foreach ( $kvl as $kval ) {
-							if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
-							$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
-						};
-					};
-					foreach ( $kvl as $kval ) {
-						if ( $kval ) {
-							if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
-							if ( $coldef['type'] == "kselect" || $coldef['translate'] ) $kvaltxt = "{%$col-$kval}"; else $kvaltxt = $kval;
-							if ( ( $coldef['type'] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) 
-								$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
-						};
-					};
-				};
-				sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
-				if ( $coldef['select'] == "multi" ) $multiselect = "multiple";
-				
-				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col] $multiselect><option value=''>{%[select]}</option>$optlist</select>";
-
-			} else 
-				$maintext .= "<tr><td$tstyle>{%$colname}
-						      <td><select name=\"matches[$col]\"><option value='matches'>{%matches}</option><option value='startswith'>{%starts with}</option><option value='endsin'>{%ends in}</option><option value='contains'>{%contains}</option></select>
-						      <td><input name=vals[$col] size=40 $chareqfn>";
-		};
-
 		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
-			$cqlbox = "<textarea name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
+			$cqlbox = "<textarea id='cqlfld' name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
 		else 
-			$cqlbox = "<input name=cql value='$cql' style='width: 600px;'/> ";
+			$cqlbox = "<input id='cqlfld' name=cql value='$cql' style='width: 600px;'/> ";
 		
-		$maintext .= "</table>$chareqtxt</div>
-				<div name='cqpsearch' id='cqpsearch'>
-				<p>{%CQP Query}: &nbsp;  $cqlbox
-				$chareqjs 
-				$subheader
-				";
-
-			
-
-				
+		include ("$ttroot/common/Sources/querybuilder.php");
+		
 		$maintext .= "
-							$stmp
-
-			<p><b>{%Searchable fields}</b>
-			
-			<table>
+			<form style='display: none;' action='' method=post id=cqp name=cqp><p>{%CQP Query}: &nbsp; 
+				$cqlbox <input type=submit value=\"{%Search}\"> <span onClick=\"querybuilder('cqlfld');\">{%Query Builder}</span>
+			</form>
+			<div>$querytext</div>
+			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>
 			";
-			
-		foreach ( $cqpcols as $col ) {
-			$colname = pattname($col);
-			if ( $settings['cqp']['pattributes'][$col]['admin'] == "1" ) {
-				$maintext .= "<tr><th span='row'>$col<td class=adminpart>{%$colname}</tr>";				
-			} else {
-				$maintext .= "<tr><th span='row'>$col<td>{%$colname}</tr>";
-			};
-		};
-		$maintext .= "</table><div style='display: none' id='tt-cqp-search'><table>";
-		foreach ( $extannfields as $key => $display ) {
-			$maintext .= "<tr><th span='row'>$key<td>{%$display}</tr>";
-		};
-		$maintext .= "</table></div></div>
-			<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>";
-		
-		
-		// Preselect styles
-		if ( $settings['cqp']['defaults']['searchtype'] == "context" ) { 
-			$moreactions .= "switchtype('style', '{$settings['cqp']['defaults']['searchtype']}');"; 
-			$chcont = "checked";
-		} else { 
-			$moreactions .= "switchtype('style', 'kwic');"; 
-			$chkwic = "checked";
-		};
-		$maintext .= "
-				<p>{%Display method}: 
-				<input type=radio name=style value='kwic' onClick=\"switchtype('style', 'kwic');\" $chkwic> KWIC
-				<input type=radio name=style value='context' onClick=\"switchtype('style', 'context');\" $chcont> Context
-				";			
-		
-		// TODO: choose the CQP app (for now only for admin users)
-		$cqpopts = array();
-		if ( $cqpapp = findapp("cqp") ) array_push($cqpopts, "<input type=radio name=cqpapp value=\"$cqpapp\" checked onClick=\"switchtype('app', 'cqp-');\"> CQP");
-		if ( $cqpapp = findapp("tt-cqp") ) array_push($cqpopts, "<input type=radio name=cqpapp value=\"$cqpapp\" onClick=\"switchtype('app', 'tt-cqp-');\"> TT-CQP");
-		if ( $user['permissions'] == "admin" && count($cqpopts) > 1 ) $maintext .= "
-				<p>{%CQP application}: ".join("\n", $cqpopts);
-		
-		foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
-			if ( $settings['cqp']['defaults']['subtype'] == $key ) $sel = "checked"; else $sel = "";
-			if ( $key != "text" && $val['display'] ) $morecontext .= "<input type=radio name=substyle value='{$val['key']}' $sel> {$val['display']}";
-		};		
-		
-		
-		$cntlist1 = array ( 3,4,5,6,7 );
-		$defcnt = $settings['cqp']['defaults']['kwic'] or $defcnt = '5';
-		foreach ( $cntlist1 as $key ) { 
-			if ( $key == $defcnt ) $sel = "selected"; else $sel = "";
-			$cntopts1 .= "<option value='$key' $sel>$key</option>"; 
-		};
-		$cntlist2 = array ( 5, 15, 30, 50, 100 );
-		$defcnt = $settings['cqp']['defaults']['context'] or $defcnt = '30';
-		foreach ( $cntlist2 as $key ) { 			
-			if ( $key == $defcnt ) $sel = "selected"; else $sel = "";
-			$cntopts2 .= "<option value='$key' $sel>$key</option>"; 
-		};
-		
-		$maintext .= "
-				<div name='contextsearch' id='contextsearch' style='display: none;'>
-					<p>{%Display context}: 
-						<input type=radio name=substyle value='tok'>
-						{%Tokens}: <select name=tokcnt>$cntopts2</select>
-						$morecontext
-				</div>
-				<div name='kwicsearch' id='kwicsearch' $nokwic>
-					$formsel
-					<p>{%Context size}: <select name=context>$cntopts1</select>  {%words}
-				</div>
-				<p>{%Sort on}: <select name=sort>
-					<option value='word'>{%Word}</option>
-					<option value='word on matchend[1]..matchend[5]'>{%Right context}</option>
-					<option value='word on match[-1]..match[-5]'>{%Left context}</option>
-					<option value=''>{%Corpus order}</option>
-				</select> 
-				<p id='cqp-search'>{%Matching stategy}: <select name=strategy>
-					<option value='longest' selected>{%Longest match}</option>
-					<option value='shortest'>{%Shortest match}</option>
-				</select> 
-				</p>
-				
-				
-				
-			<script language=Javascript>
-			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
-			$moreactions
-			</script>";
-			
-		$maintext .= "\n\t<td valign=top>";  $hr = "";
-
-		# Deal with any additional level attributes (sentence, utterance)
-		if ( is_array ( $settings['cqp']['sattributes']))
-		foreach ( $settings['cqp']['sattributes'] as $xatts ) {
-			if ( !$xatts['display'] ) continue;
-			$maintext .= "$hr<h3>{%{$xatts['display']}}</h3><table>"; $hr = "<hr>";
-			foreach ( $xatts as $key => $item ) {
-				$xkey = "{$xatts['key']}_$key";
-				$val = $item['long']."" or $val = $item['display']."";
-				if ( $item['type'] == "group" ) { 
-					$maintext .= "<tr><td>&nbsp;<tr><td colspan=2 style='text-align: center; color: #992000; font-size: 10pt; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa;'>{%$val}";
-				} else {
-					if ( $item['nosearch'] || $val == "" ) $a = 1; # Ignore this in search 
-					else if ( $item['type'] == "range" ) 
-						$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
-					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
-						# Read this index file
-						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
-						foreach ( explode ( "\0", $tmp ) as $kva ) { 
-							if ( $kva ) {
-								if ( $item['values'] == "multi" ) {
-									$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
-									$kvl = explode ( $mvsep, $kva );
-								} else {
-									$kvl = array ( $kva );
-								}
-								
-								foreach ( $kvl as $kval ) {
-									if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
-									$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
-								};
-							};
-							foreach ( $kvl as $kval ) {
-								if ( $kval && $kval != "_" ) {
-									if ( $item['type'] == "kselect" || $item['translate'] ) $ktxt = "{%$key-$kval}"; 
-										else $ktxt = $kval;
-									$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
-								};
-							};
-						};
-						if ( $item['sort'] == "numeric" ) sort( $optarr, SORT_NUMERIC ); 
-						else sort( $optarr, SORT_LOCALE_STRING ); 
-						$optlist = join ( "", $optarr );
-						if ( $item['select'] == "multi" ) {
-							$multiselect = "multiple";  $msarr = "[]";
-							$mstext = "select choices";
-						} else {
-							$multiselect = ""; $msarr = "";
-							$mstext = "select";
-						};
-						$maintext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
-					} else 
-						$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' size=40>";
-				};
-			};
-			$maintext .= "</table>"; 
-		};	
-
-		# Deal with any stand-off annotation attributes (errors, etc.)
-		if ( is_array ( $settings['cqp']['annotations']))
-		foreach ( $settings['cqp']['annotations'] as $xatts ) {
-			if ( !$xatts['display'] || ( $xatts['admin'] && !$username ) ) continue;
-			if ( $xatts['admin'] ) $adms = " class=adminpart";
-			$maintext .= "$hr<div$adms><h3>{%{$xatts['display']}}</h3><table>"; $hr = "<hr>";
-			foreach ( $xatts as $key => $item ) {
-				$xkey = "{$xatts['key']}_$key";
-				$val = $item['long']."" or $val = $item['display']."";
-				if ( $item['type'] == "group" ) { 
-					$maintext .= "<tr><td>&nbsp;<tr><td colspan=2 style='text-align: center; color: #992000; font-size: 10pt; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa;'>{%$val}";
-				} else {
-					if ( $item['nosearch'] ) $a = 1; # Ignore this in search 
-					else if ( $item['type'] == "range" ) 
-						$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
-					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
-						# Read this index file
-						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
-						foreach ( explode ( "\0", $tmp ) as $kva ) { 
-							if ( $kva ) {
-								if ( $item['values'] == "multi" ) {
-									$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
-									$kvl = explode ( $mvsep, $kva );
-								} else {
-									$kvl = array ( $kva );
-								}
-								
-								foreach ( $kvl as $kval ) {
-									if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
-									$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
-								};
-							};
-							foreach ( $kvl as $kval ) {
-								if ( $kval && $kval != "_" ) {
-									if ( $item['type'] == "kselect" || $item['translate'] ) $ktxt = "{%$key-$kval}"; 
-										else $ktxt = $kval;
-									$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
-								};
-							};
-						};
-						if ( $item['sort'] == "numeric" ) sort( $optarr, SORT_NUMERIC ); 
-						else sort( $optarr, SORT_LOCALE_STRING ); 
-						$optlist = join ( "", $optarr );
-						if ( $item['select'] == "multi" ) {
-							$multiselect = "multiple";  $msarr = "[]";
-							$mstext = "select choices";
-						} else {
-							$multiselect = ""; $msarr = "";
-							$mstext = "select";
-						};
-						$maintext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
-					} else 
-						$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' size=40>";
-				};
-			};
-			$maintext .= "</table></div>"; 
-		};	
-
-		$maintext .= "</table>"; 
-		$maintext .= "<p><input type=submit value=\"{%Search}\"></form>";
-	
-			
 		
 	} else {
+	
 		# Display the search screen with a CQP box only and a search-help
 
 		if ( $_GET['cid'] ) {	
@@ -1256,28 +837,18 @@
 			$postaction = "index.php?action=file&cid=".$ttxml->fileid;
 		} else $pagetit = "{%Corpus Search}";
 
-		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
-			$cqlbox = "<textarea name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
-		else 
-			$cqlbox = "<input name=cql value='$cql' style='width: 600px;'/> ";
-			
-		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%$pagetit}</h1>
+		include ("$ttroot/common/Sources/querybuilder.php");
+
+		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>$pagetit</h1>
 
 			$subtit
-
-			<form action='$postaction' method=post id=cqp name=cqp><p>CQP Query: &nbsp; 
-				$cqlbox
-				<input type=submit value=\"{%Search}\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
-			$chareqjs
-			<script language=Javascript>
-			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
-			</script>
+			$cqlfld
 			";
 
 		$explanation = getlangfile("cqptext", true);
 		
 		$maintext .= $explanation;
 	
-	}; $maintext .= "<style>.adminpart { background-color: #eeeedd; padding: 5px; }</style>";
+	}; 
 
 ?>

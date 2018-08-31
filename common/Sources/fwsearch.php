@@ -17,10 +17,11 @@
 	else 
 		$cqlbox = "<input name=cql value='$cql' style='width: 600px;'/> ";
 	
-	$maintext .= "<h1>{%Facsimile Word Search}</h1>
+	include ("$ttroot/common/Sources/querybuilder.php");
+	
+	$maintext .= "<h1>{%Facsimile Search}</h1>
 			<div name='cqpsearch' id='cqpsearch'>
-			<form action='index.php?action=$action' method=post>
-			<p>{%CQP Query}: &nbsp;  $cqlbox <input type='submit' value='{%Search}'>
+			$cqlfld
 			$chareqjs 
 			$subheader
 			";
@@ -89,7 +90,7 @@
 
 			if ( $bbox == "" || $facs == "" || $cid == "" ) continue;
 			$divheight = 40; if ( $facs ) $glfacs = $facs;
-			$facsdiv = "<div bbox='$bbox' class='linediv' id='$cid:$id' tid='$id' style='display: inline-block; width: 300px; height: {$divheight}px; background-image: url(\"Facsimile/$facs\"); background-size: cover;'></div>";
+			$facsdiv = "<div bbox='$bbox' class='linediv' id='$cid:$id' tid='$id' bgimg='Facsimile/$facs' style='display: inline-block; width: 300px; height: {$divheight}px; background-image: url(\"$jsurl/load_img.gif\"); background-size: cover;'></div>";
 			$cid2 = preg_replace("/.*?\/([^\/]+)\.xml/", "\\1", $cid);
 			$maintext .= "<tr><td><a href='index.php?action=file&cid=$cid&jmp=$id'>$cid2</a><td>$resxml<td>$facsdiv";
 		};
@@ -99,19 +100,28 @@
 		$mask = $_GET['mask'] or $mask = 5;
 	
 		$maintext .= "\n\n<script language=Javascript>
-				var facsimg = document.getElementById('facsimg');
 				var linedivs = document.getElementsByClassName('linediv');
+				var facslist = [];
 				for ( var i=0; i<linedivs.length; i++ ) {
 					var linediv = linedivs[i]; 
+
+					facslist[i] = new Image ();
+					facslist[i].setAttribute('divid',  linediv.getAttribute('id'));
+					var src = linediv.getAttribute('bgimg');
+					facslist[i].onload = function () { scalefacs(this, $mask) };
+					facslist[i].src = src;
+				}				
+
+				function scalefacs ( facsimg, mask = 5 ) {
+					var divid = facsimg.getAttribute('divid');
+					var linediv = document.getElementById(divid);
 					var bbox = linediv.getAttribute('bbox').split(' ');
 					
 					// allow showing a mask - ie some space around the bbox
-					console.log(bbox);
 					bbox[0] = bbox[0] - $mask;
 					bbox[1] = bbox[1] - $mask;
 					bbox[2] = bbox[2] - (0-$mask);
 					bbox[3] = bbox[3] - (0-$mask);
-					console.log(bbox);
 					
 					// Never scale more than 50% up
 					var imgscale  = Math.min(1.2, linediv.offsetHeight/(bbox[3]-bbox[1]));
@@ -121,14 +131,24 @@
 					var bix = bbox[0]*imgscale;
 					var biy = bbox[1]*imgscale;
 
+					linediv.style['background-image'] = 'url('+facsimg.src+')';
+
 					linediv.style.width = (bbox[2]-bbox[0])*imgscale + 'px'; // We might have made the div too wide
 					linediv.style.height = (bbox[3]-bbox[1])*imgscale + 'px';
 					linediv.style['background-size'] = biw+'px '+bih+'px';
 					linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';
-
 				};
 			</script>";
 		
+	} else {
+	
+			$pagetit = "Facsimile search"; 
+
+			$explanation = getlangfile("fwsearchtext", true);
+	
+			$maintext .= $explanation;
+	
 	};
+	
 
 ?>

@@ -22,7 +22,6 @@
   function initMap() {
 	
 	var doclist = JSON.parse(jsondata);
-	console.log(doclist);
          
 	// Calculate min and max cnt to display value-based markers
 	var totcnt = 0; var maxcnt = 0; var mincnt = 999999;
