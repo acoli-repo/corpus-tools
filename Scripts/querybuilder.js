@@ -32,8 +32,9 @@ function addtoken() {
     if ( tokq != '' ) {
     	tokq = '[' + tokq + '] ';
     };
-
+    
 	document.getElementById('toklist').value += tokq;
+    console.log(document.getElementById('toklist').value);
 	
 	cqlparse(document.getElementById('toklist').value, 'cqlview');
 
