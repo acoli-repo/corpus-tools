@@ -61,6 +61,8 @@ function cqlparse(cql, divid) {
 	
 	if ( divid != 'cqltoks' ) {
 		div.innerHTML = '<span style="margin-top: -6px; float: right;" onClick="this.parentNode.style.display = \'none\';">x</span><p class=\"caption\">'+cqltit+'</p>';
+	} else {
+		div.innerHTML = '';
 	};
 	
 	console.log(cql);
