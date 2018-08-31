@@ -33,11 +33,9 @@ function addtoken() {
     	tokq = '[' + tokq + '] ';
     };
     
-    console.log(tokq);
 	document.getElementById('toklist').value += tokq;
-    console.log(document.getElementById('toklist').value);
 	
-	cqlparse(document.getElementById('toklist').value, 'cqlview');
+	cqlparse(document.getElementById('toklist').value, 'cqltoks');
 
 };
 
@@ -60,7 +58,14 @@ function cqlparse(cql, divid) {
 	var div = document.getElementById(divid);
 	if ( typeof(div) == "undefined" ) return;
 	if ( typeof(cqltit) == "undefined" ) var cqltit = 'CQL Query Visualization';
-	div.innerHTML = '<span style="margin-top: -6px; float: right;" onClick="this.parentNode.style.display = \'none\';">x</span><p class=\"caption\">'+cqltit+'</p>';
+	
+	if ( divid != 'cqltoks' ) {
+		div.innerHTML = '<span style="margin-top: -6px; float: right;" onClick="this.parentNode.style.display = \'none\';">x</span><p class=\"caption\">'+cqltit+'</p>';
+	};
+	
+	console.log(cql);
+	console.log(divid);
+	console.log(div);
 	
 	var tmp = cql.split("::"); 
 	var parts = tmp[0]; var global = tmp[1];
