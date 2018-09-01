@@ -1,6 +1,6 @@
 var newcql;
 var newparse;
-var pretoks = [];
+var pretoks = []; var error;
 var cqpid = ''; var defid = 'cqlfld';
 
 function addtoken() {
@@ -49,15 +49,28 @@ function showcql() {
 
 	cqlparse(cql, divid);
 
+	// Unhide the visualization
 	document.getElementById(divid).style.display = 'block';
+
+	// Hide the qb
+	document.getElementById('qbframe').style.display = 'none';
 	
+};
+
+function i18n ( text ) {
+	var trans = jstrans[text];
+	if ( typeof(trans) == "undefined" ) trans = text; 
+	return trans;
 };
 
 function cqlparse(cql, divid) {
 	
 	var div = document.getElementById(divid);
 	if ( typeof(div) == "undefined" ) return;
-	if ( typeof(cqltit) == "undefined" ) var cqltit = 'CQL Query Visualization';
+
+	// Some default texts that we want to have translated
+	cqltit = i18n('CQL Query Visualization');
+	anytok = i18n('any token');
 	
 	if ( divid != 'cqltoks' ) {
 		div.innerHTML = '<span style="margin-top: -6px; float: right;" onClick="this.parentNode.style.display = \'none\';">x</span><p class=\"caption\">'+cqltit+'</p>';
@@ -65,16 +78,13 @@ function cqlparse(cql, divid) {
 		div.innerHTML = '';
 	};
 	
-	console.log(cql);
-	console.log(divid);
-	console.log(div);
-	
 	var tmp = cql.split("::"); 
 	var parts = tmp[0]; var global = tmp[1];
 	var warnings = '';
 	
 	// Parse the main query
-	var i = 0;
+	var i = 0;	
+
 	while ( parts.match(/^\s*\[([^\]]*)\]/) ) {
 		if ( parts.match(/^\s*\[([^\]]*)\]/) ) {
 			i++; // This is a token
@@ -83,29 +93,34 @@ function cqlparse(cql, divid) {
 			tokdiv.className = 'tokdiv';
 			tokdiv.title = '['+tok+']';
 			var rlist = tok.split ( ' & ' );
+				
+			// Add the caption
+			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">' + i + '</p>' ;
+
+			if ( tok == "" ) {
 				var para = document.createElement("p");
-				var node = document.createTextNode('part ' + i);
-				para.appendChild(node);				
-				para.className = 'caption';
-				para.style['margin-top'] = '-6px';
+				para.innerHTML = '<i>' + anytok + '<i>';				
 				tokdiv.appendChild(para);
-			for ( i=0; i<rlist.length; i++ ) {
-				var tmp = /^(.*?) *(!?=) *(.*)$/.exec(rlist[i]); 
-				var left = tmp[1].trim(); var eq = tmp[2]; var right = tmp[3];
-				leftname = pattname[left]; 
-				if ( typeof(leftname) == 'undefined' ) {
-					if ( left == 'word' ) {
-						leftname = 'word';
-					} else {
-						leftname = '<span class=wrong>'+left+'</span>';
-						warnings += '<li>Undefined pattribute: <b>' + left + '</b></li>';
+			} else {
+				for ( i=0; i<rlist.length; i++ ) {	
+					if ( rlist[i] == '' ) continue; 
+					var tmp = /^(.*?) *(!?[=>]+) *(.*)$/.exec(rlist[i]); 
+					var left = tmp[1].trim(); var eq = tmp[2]; var right = tmp[3];
+					leftname = pattname[left]; 
+					if ( typeof(leftname) == 'undefined' ) {
+						if ( left == 'word' ) {
+							leftname = 'word';
+						} else {
+							leftname = '<span class=wrong>'+left+'</span>';
+							warnings += '<li>Undefined pattribute: <b>' + left + '</b></li>';
+						};
 					};
-				};
-				var rtxt = leftname + ' ' + eq + ' ' + right;
-				var para = document.createElement("p");
-				para.innerHTML = rtxt;				
-				tokdiv.appendChild(para);
-			}; 
+					var rtxt = leftname + ' ' + eq + ' ' + right;
+					var para = document.createElement("p");
+					para.innerHTML = rtxt;				
+					tokdiv.appendChild(para);
+				}; 
+			};
 			div.appendChild(tokdiv);
 		};
 		parts = parts.replace(/^\s*\[([^\]]*)\]/, '');
@@ -123,8 +138,10 @@ function cqlparse(cql, divid) {
 				globdiv.appendChild(para);
 		var rlist = global.split ( ' & ' );
 		for ( i=0; i<rlist.length; i++ ) {
-			var tmp = /^(.*) *(!?=) * (.*)$/.exec(rlist[i]); 
-			var leftx = tmp[1].trim(); var eq = tmp[2]; var right = tmp[3];
+			var tmp = /^(.*?) *(!?[<>=]+) * (.*)$/.exec(rlist[i]); 
+			var leftx = tmp[1].trim(); 
+			leftx = leftx.replace(/int\((.*)\)/, "$1"); 
+			var eq = tmp[2]; var right = tmp[3];
 			var tmp = leftx.split('.'); var leftm = tmp[0]; var left = tmp[1];
 			var rtxt = pattname[left] + ' ' + eq + ' ' + right;
 			var para = document.createElement("p");
@@ -150,6 +167,10 @@ function showqb(useid = '') {
 
 	// Unhide the qbframe
 	document.getElementById('qbframe').style.display = 'block';
+
+	// Hide the visualization
+	document.getElementById('cqlview').style.display = 'none';
+	
 
 };
 
@@ -182,7 +203,18 @@ function updatequery() {
         	tokq += toksep + parse[2] + ' = "' + val + '"';
         	toksep = ' & ';
         } else if ( parse[1] == 'atts' ) {
-        	glq += glsep + 'match.' + parse[2] + ' = "' + val + '"';
+        	var tmp = /^(.*):(.*)/.exec(parse[2]);
+        	if ( tmp != null ) {
+        		if ( tmp[2] == "start" ) {
+		        	glq += glsep + 'int(match.' + tmp[1] + ') >= ' + val + '';
+        		} else if ( tmp[2] == "end" ) {
+		        	glq += glsep + 'int(match.' + tmp[1] + ') <= ' + val + '';
+        		} else {
+        			error = 'Unknown construction: ' + parse[2];
+        		};
+        	} else {
+	        	glq += glsep + 'match.' + parse[2] + ' = "' + val + '"';
+	        };
         	glsep = ' & ';
         };
     }	

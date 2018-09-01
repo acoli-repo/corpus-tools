@@ -149,6 +149,7 @@
 			};
 		};
 		$prescript .= "var pattname = []; $jsnames";
+		$prescript .= "\nvar jstrans = []; jstrans['CQL Query Visualization'] = '{%CQL Query Visualization}'; jstrans['any token'] = '{%any token}';";
 
 		$optiontext .= "<script language=Javascript>	
 					function switchtype ( tg, type ) { 
@@ -409,7 +410,7 @@
 			$cqlbox = "<input id='cqlfld' name=cql value='$cql' style='width: 600px;'/> ";
 
 		if ( $action == "cqp" ) $optionoption = "|
-					<span onClick=\"document.getElementById('optionbox').style.display = 'block';\">{%options}</span> 
+					<a onClick=\"document.getElementById('optionbox').style.display = 'block';\">{%options}</a> 
 					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-top: -6px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\">x</span>$optiontext</div>";
 
 		$cqlfld = "
@@ -417,8 +418,8 @@
 			<form action='$postaction' method=post id=cqp name=cqp><p>CQP Query: &nbsp; 
 				$cqlbox
 				<input type=submit value=\"{%Search}\"> 
-					<span onClick=\"showqb('cqlfld');\">{%query builder}</span>
-					| <span onClick=\"showcql();\">{%visualize}</span>
+					<a onClick=\"showqb('cqlfld');\">{%query builder}</a>
+					| <a onClick=\"showcql();\">{%visualize}</a>
 				$optionoption
 			</form>
 			$chareqjs
