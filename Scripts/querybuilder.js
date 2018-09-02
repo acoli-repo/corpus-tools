@@ -68,6 +68,8 @@ function cqlparse(cql, divid) {
 	var div = document.getElementById(divid);
 	if ( typeof(div) == "undefined" ) return;
 
+	cql = cql.replace(/ within text/, '');
+
 	// Some default texts that we want to have translated
 	cqltit = i18n('CQL Query Visualization');
 	anytok = i18n('any token');
@@ -85,17 +87,37 @@ function cqlparse(cql, divid) {
 	// Parse the main query
 	var i = 0;	
 
-	while ( parts.match(/^\s*\[([^\]]*)\]/) ) {
-		if ( parts.match(/^\s*\[([^\]]*)\]/) ) {
+	var partpat = /^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?|\s*<([^>]*)>/;
+	while ( parts.match(partpat) ) {
+		if ( parts.match(/^\s*<(?!\/)([^>]*)>/) ) {
+			var tmp = /^\s*<([^> ]*)(.*)>/.exec(parts); var reg = tmp[1]; var rest = tmp[2]
+			
+			var tokdiv = document.createElement("div");
+			tokdiv.className = 'tokdiv';
+			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+i18n('region start')+'</p><p>'+i18n('Region')+': ' + reg + '</p>';
+			div.appendChild(tokdiv);
+		} else if ( parts.match(/^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?/) ) {
 			i++; // This is a token
-			var tmp = /^\s*\[([^\]]*)\]/.exec(parts); var tok = tmp[1];
+			var tokparts = /^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?/.exec(parts); 
+			var tok = tokparts[2];
 			var tokdiv = document.createElement("div");
 			tokdiv.className = 'tokdiv';
 			tokdiv.title = '['+tok+']';
 			var rlist = tok.split ( ' & ' );
 				
 			// Add the caption
-			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">' + i + '</p>' ;
+			var morec = ''; // caption additions
+			if ( tokparts[1] != undefined ) {
+				if( tokparts[1] == '@' ) { morec += ' (target)'; } else if (tokparts[1]!= '' )  { morec += ' ('+tokparts[1].replace(/:$/, '')+')'; } 
+			};
+			if ( tokparts[3] != undefined && tokparts[3] != ''  ) { 
+				var reptxt = '';
+				if ( tokparts[3] == '?' ) reptxt = i18n('optional'); 
+				if ( tokparts[3] == '*' ) reptxt = i18n('optional (multiple)'); 
+				if ( tokparts[3] == '+' ) reptxt = i18n('1 or more'); 
+				morec += ' - ' + reptxt; 
+			}; 
+			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">' + i +  morec + '</p>' ;
 
 			if ( tok == "" ) {
 				var para = document.createElement("p");
@@ -123,7 +145,11 @@ function cqlparse(cql, divid) {
 			};
 			div.appendChild(tokdiv);
 		};
-		parts = parts.replace(/^\s*\[([^\]]*)\]/, '');
+		parts = parts.replace(partpat, '');
+	};
+	if ( !parts.match(/^\s*$/) ) {
+		// We are left with unparsable material
+		warnings += '<li>Unparsable segment: <b>' + parts.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</b></li>';
 	};
 	
 	// Parse the global restrictions
@@ -203,6 +229,15 @@ function updatequery() {
         	tokq += toksep + parse[2] + ' = "' + val + '"';
         	toksep = ' & ';
         } else if ( parse[1] == 'atts' ) {
+			var matchtype = '';
+			if ( document.querySelector('[name="matches['+parse[2]+']"]') ) { matchtype = document.querySelector('[name="matches['+parse[2]+']"]').value; };
+			if ( matchtype == 'contains' ) {
+				val = '.*' + val + '.*';
+			} else if ( matchtype == 'startswith' ) {
+				val = val + '.*';
+			} else if ( matchtype == 'endsin' ) {
+				val = val + '.*';
+			};
         	var tmp = /^(.*):(.*)/.exec(parse[2]);
         	if ( tmp != null ) {
         		if ( tmp[2] == "start" ) {

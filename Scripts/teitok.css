@@ -41,3 +41,12 @@
 #pageflow { box-sizing: border-box; }
 #pageflow #toolbar { color: white; }
 #facsview { color: #dddddd; text-align: right;  }
+
+/* Style for the Query Builder */
+.tokdiv { border: 1px solid #aaaaaa; padding: 5px; background-color: #ffffff; display: inline-block; margin-bottom: 10px; margin-right: 5px; vertical-align: middle;  }
+.globdiv { border-left: 1px solid #aaaaaa; padding: 5px; background-color: #ffffee; display: inline-block; margin-bottom: 10px; margin-right: 5px; vertical-align: middle;  }
+.tokdiv p { font-size: smaller; margin: 2px; }
+.globdiv p { font-size: smaller; }
+.helpbox { border: 1px solid #444444; background-color: #f3f3f3; padding: 5px; }
+.caption { margin-top: -4px; margin-bottom: 3px; font-size: smaller; color: #888888; }
+.wrong { font-weight: bold; color: #ff0000; }

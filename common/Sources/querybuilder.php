@@ -9,21 +9,12 @@
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 	if ( !in_array($wordfld, $cqpcols) )  array_unshift($cqpcols, $wordfld ); # We need the wordfld as a search option
 				
-		$querytext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Query Builder}</h1>
+		$querytext .= "<h2 style='text-align: left; margin-bottom: 20px;'>{%Query Builder}</h2>
 
 			<form action='' method=post id=querybuilder name=querybuilder onsubmit=\"updatequery(); return false;\">";
 			
 		if ( $settings['cqp']['sattributes'] ) { $querytext .= "<table cellpadding=5><tr><td valign=top style='border-right: 1px solid #cccccc;'>
 			
-			<style>
-				.tokdiv { border: 1px solid #aaaaaa; padding: 5px; background-color: #eeeeee; display: inline-block; margin-bottom: 10px; margin-right: 5px; vertical-align: middle;  }
-				.globdiv { border-left: 1px solid #aaaaaa; padding: 5px; background-color: #eeffee; display: inline-block; margin-bottom: 10px; margin-right: 5px; vertical-align: middle;  }
-				.tokdiv p { font-size: smaller; margin: 2px; }
-				.globdiv p { font-size: smaller; }
-				.helpbox { border: 1px solid #444444; background-color: #fefeee; padding: 5px; }
-				.caption { margin-top: -4px; margin-bottom: 3px; font-size: smaller; color: #888888; }
-				.wrong { font-weight: bold; color: #ff0000; }
-			</style>
 			<input id='toklist' style='display: none;'>
 			<div id='cqltoks'></div>
 			<h3>{%Token Search}</h3>"; };	
@@ -338,6 +329,7 @@
 						$querytext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
 					} else 
 						$querytext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' size=40>";
+						if ( $item['type'] == "long" ) $querytext .= "<input type='hidden' name=matches[$xkey] value='contains'>";
 				};
 			};
 			$querytext .= "</table>"; 
@@ -411,7 +403,7 @@
 
 		if ( $action == "cqp" ) $optionoption = "|
 					<a onClick=\"document.getElementById('optionbox').style.display = 'block';\">{%options}</a> 
-					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-top: -6px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\">x</span>$optiontext</div>";
+					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-top: -6px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\">&times;</span>$optiontext</div>";
 
 		$cqlfld = "
 			<script language=Javascript>$prescript</script>
@@ -423,8 +415,8 @@
 				$optionoption
 			</form>
 			$chareqjs
-			<div style='display: none;' class='helpbox' id='cqlview'><span style='margin-top: -6px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">x</span></div>
-			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-top: -6px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">x</span>$querytext</div>
+			<div style='display: none;' class='helpbox' id='cqlview'><span style='margin-top: -6px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span></div>
+			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-top: -6px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>$querytext</div>
 			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>";
 
 	
