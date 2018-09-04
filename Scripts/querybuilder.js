@@ -89,13 +89,23 @@ function cqlparse(cql, divid) {
 
 	var partpat = /^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?|\s*<([^>]*)>/;
 	while ( parts.match(partpat) ) {
-		if ( parts.match(/^\s*<(?!\/)([^>]*)>/) ) {
-			var tmp = /^\s*<([^> ]*)(.*)>/.exec(parts); var reg = tmp[1]; var rest = tmp[2]
+		if ( parts.match(/^\s*<(\/?)([^>]*)>/) ) {
+			var tmp = /^\s*<(\/?)([^>]*)>/.exec(parts); var reg = tmp[2];
+			var begend = 'start'; if ( tmp[1] == '/' ) begend = 'end';
+			
+			if ( reg.match(/(.*)_(.*)(!?[=<>]*)(.*)/) ) {
+				var tmp = /(.*)_([^=]*) *(!?[=<>]*) *(.*?)$/.exec(reg); 
+				console.log(tmp);
+				var reg = tmp[2]; // set the main region
+				reg = tmp[1] + '<p>'+tmp[2]+' '+tmp[3]+' '+tmp[4];
+			};
 			
 			var tokdiv = document.createElement("div");
 			tokdiv.className = 'tokdiv';
-			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+i18n('region start')+'</p><p>'+i18n('Region')+': ' + reg + '</p>';
+			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+i18n('region '+begend)+'</p><p>'+i18n('region')+': ' + reg + '</p>';
 			div.appendChild(tokdiv);
+			tokdiv.style.backgroundColor = '#ffffee';
+			
 		} else if ( parts.match(/^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?/) ) {
 			i++; // This is a token
 			var tokparts = /^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?/.exec(parts); 

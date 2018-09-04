@@ -154,7 +154,8 @@
 						};
 						document.getElementById(type+'search').style.display = 'block';
 					};
-					</script>";
+					</script>
+					<h2>{%Search Options}</h2>";
 					
 		if ( $act == "advanced" ) 
 			$querytext .= "
@@ -394,7 +395,7 @@
 		};	
 
 		$querytext .= "</table>"; 
-		$querytext .= "<p><input type=submit value=\"{%Create query}\"> <span onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</span></form>";
+		$querytext .= "<p><input type=submit value=\"{%Create query}\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a></form>";
 	
 		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
 			$cqlbox = "<textarea id='cqlfld' name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
@@ -402,21 +403,21 @@
 			$cqlbox = "<input id='cqlfld' name=cql value='$cql' style='width: 600px;'/> ";
 
 		if ( $action == "cqp" ) $optionoption = "|
-					<a onClick=\"document.getElementById('optionbox').style.display = 'block';\">{%options}</a> 
-					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-top: -6px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\">&times;</span>$optiontext</div>";
+					<a title=\"{%define search options}\" onClick=\"document.getElementById('optionbox').style.display = 'block';\">{%options}</a> 
+					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-right: -5px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\">&times;</span>$optiontext</div>";
 
 		$cqlfld = "
 			<script language=Javascript>$prescript</script>
 			<form action='$postaction' method=post id=cqp name=cqp><p>CQP Query: &nbsp; 
 				$cqlbox
 				<input type=submit value=\"{%Search}\"> 
-					<a onClick=\"showqb('cqlfld');\">{%query builder}</a>
-					| <a onClick=\"showcql();\">{%visualize}</a>
+					<a onClick=\"showqb('cqlfld');\" title=\"{%define a CQL query}\">{%query builder}</a>
+					| <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a>
 				$optionoption
 			</form>
 			$chareqjs
-			<div style='display: none;' class='helpbox' id='cqlview'><span style='margin-top: -6px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span></div>
-			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-top: -6px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>$querytext</div>
+			<div style='display: none;' class='helpbox' id='cqlview'><span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span></div>
+			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>$querytext</div>
 			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>";
 
 	
