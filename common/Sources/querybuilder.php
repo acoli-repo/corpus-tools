@@ -19,7 +19,7 @@
 			<div id='cqltoks'></div>
 			<h3>{%Token Search}</h3>"; };	
 
-		if ( $settings['cqp']['searchmethod'] == "word" && $act == "advanced" ) {
+		if ( $settings['cqp']['searchmethod'] == "word" && $act == "direct" ) {
 			$wdef = "checked";
 			$stmp = "<script language=Javascript>switchtype('st', 'word');</script>";
 		} else { $cdef = "checked"; };
@@ -157,7 +157,7 @@
 					</script>
 					<h2>{%Search Options}</h2>";
 					
-		if ( $act == "advanced" ) 
+		if ( $act == "direct" ) 
 			$querytext .= "
 					<p>{%Search method}:  &nbsp;
 						<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'cqp');\" $cdef> CQP &nbsp; &nbsp;
@@ -416,7 +416,7 @@
 				$optionoption
 			</form>
 			$chareqjs
-			<div style='display: none;' class='helpbox' id='cqlview'><span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span></div>
+			<div style='display: none;' class='helpbox' id='cqlview'></div>
 			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>$querytext</div>
 			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>";
 

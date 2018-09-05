@@ -75,7 +75,7 @@ function cqlparse(cql, divid) {
 	anytok = i18n('any token');
 	
 	if ( divid != 'cqltoks' ) {
-		div.innerHTML = '<span style="margin-top: -6px; float: right;" onClick="this.parentNode.style.display = \'none\';">x</span><p class=\"caption\">'+cqltit+'</p>';
+		div.innerHTML = '<span style="margin-top: -2px; margin-right: -5px; float: right;" onClick="this.parentNode.style.display = \'none\';">x</span><p class=\"caption\">'+cqltit+'</p>';
 	} else {
 		div.innerHTML = '';
 	};
@@ -95,9 +95,8 @@ function cqlparse(cql, divid) {
 			
 			if ( reg.match(/(.*)_(.*)(!?[=<>]*)(.*)/) ) {
 				var tmp = /(.*)_([^=]*) *(!?[=<>]*) *(.*?)$/.exec(reg); 
-				console.log(tmp);
 				var reg = tmp[2]; // set the main region
-				reg = tmp[1] + '<p>'+tmp[2]+' '+tmp[3]+' '+tmp[4];
+				reg = tmp[1] + '<p>'+tmp[2]+' '+tmp[3]+' '+tmp[4]; // Add the region restriction 
 			};
 			
 			var tokdiv = document.createElement("div");

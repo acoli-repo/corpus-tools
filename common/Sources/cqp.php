@@ -805,7 +805,7 @@
 		};		
 		
 
-	} else if ( $act == "advanced" ) {
+	} else if ( $act == "direct"  ) {
 		
 		# Display the search screen (advanced search)
 		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
