@@ -268,7 +268,7 @@ function updatequery() {
 	cqpfld.value = newcql;
 	
 	// If the CQL field is hidden, auto submit
-	if ( cqpfld.form.style['display'] == "none" ) {
+	if ( typeof(direct) != "undefined" ) {
 		cqpfld.form.submit();
 	} else {
 		document.getElementById('qbframe').style.display = "none";

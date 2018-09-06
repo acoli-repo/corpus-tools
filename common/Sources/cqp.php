@@ -12,6 +12,8 @@
 
 	$fileview = $settings['defaults']['fileview'] or $fileview = "file";
 
+	if ( $act == "advanced" || $settings['defaults']['qb'] == "direct" ) $showdirect = true;
+
 	include ("$ttroot/common/Sources/cwcqp.php");
 
 	$outfolder = $settings['cqp']['folder'] or $outfolder = "cqp";
@@ -304,6 +306,9 @@
 			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
 			</script>
 			";
+
+		if ( $showdirect ) $maintext .= "\n<!-- auto visualize -->\n<script language=Javascript>showcql('cqlfld'); var direct = 1;</script>";
+
 
 		if ( $audioelm ) {
 			$maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>";
@@ -803,26 +808,7 @@
 				<br></div>
 				";
 		};		
-		
-
-	} else if ( $act == "direct"  ) {
-		
-		# Display the search screen (advanced search)
-		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
-			$cqlbox = "<textarea id='cqlfld' name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
-		else 
-			$cqlbox = "<input id='cqlfld' name=cql value='$cql' style='width: 600px;'/> ";
-		
-		require_once ("$ttroot/common/Sources/querybuilder.php");
-		
-		$maintext .= "
-			<form style='display: none;' action='' method=post id=cqp name=cqp><p>{%CQP Query}: &nbsp; 
-				$cqlbox <input type=submit value=\"{%Search}\"> <span onClick=\"querybuilder('cqlfld');\">{%Query Builder}</span>
-			</form>
-			<div>$querytext</div>
-			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>
-			";
-		
+				
 	} else {
 	
 		# Display the search screen with a CQP box only and a search-help
@@ -848,6 +834,8 @@
 		$explanation = getlangfile("cqptext", true);
 		
 		$maintext .= $explanation;
+
+		if ( $showdirect ) $maintext .= "\n<!-- auto open -->\n<script language=Javascript>showqb('cqlfld'); var direct = 1;</script>";
 	
 	}; 
 

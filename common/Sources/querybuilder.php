@@ -17,7 +17,7 @@
 			
 			<input id='toklist' style='display: none;'>
 			<div id='cqltoks'></div>
-			<h3>{%Token Search}</h3>"; };	
+			<h3>{%Text Search}</h3>"; };	
 
 		if ( $settings['cqp']['searchmethod'] == "word" && $act == "direct" ) {
 			$wdef = "checked";
@@ -395,7 +395,8 @@
 		};	
 
 		$querytext .= "</table>"; 
-		$querytext .= "<p><input type=submit value=\"{%Create query}\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a></form>";
+		if ( $showdirect ) $searchmake = "Search"; else $searchmake = "Create query"; 
+		$querytext .= "<p><input type=submit value=\"{%$searchmake}\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a></form>";
 	
 		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
 			$cqlbox = "<textarea id='cqlfld' name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
