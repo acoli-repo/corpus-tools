@@ -25,18 +25,24 @@
 		exit;		
 
 	} else if ( $act == "storedit" ) {
+
+		require_once ("$ttroot/common/Sources/querybuilder.php");
 	
 		$sq = $_SESSION['myqueries'][urlencode($_GET['cql'])];
 		$maintext .= "<h1>{%Edit stored CQL query}</h1>
+			<script language=Javascript>$prescript</script>
 			<form action='index.php?action=$action&act=store&cql={$_GET['cql']}' method=post>
 			<table>
 			<tr><th>{%Name}<td><input size=30 name=name value='{$sq['name']}'>
 			<tr><th>{%Description}<td><input size=80 name=cqltit value='{$sq['display']}'>
-			<tr><th>{%CQL Query}<td><input size=80 name=cql value='{$sq['cql']}'>
+			<tr><th>{%CQL Query}<td><input size=80 name=cql id=cqlfld value='{$sq['cql']}'> <a onClick=\"showqb('cqlfld');\" title=\"{%define a CQL query}\">{%query builder}</a>
+					| <a onClick=\"showcql('cqlfld');\" title=\"{%visualize your CQL query}\">{%visualize}</a>
 			</table>
 			<p><input type=submit value='{%Save}'> &bull; <a href='index.php?action=$action&act=stored'>{%cancel}</a>
 			</form>
-			";
+			<div style='display: none;' class='helpbox' id='cqlview'></div>
+			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>$querytext</div>
+			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>";
 	
 	} else if ( $act == "stored" ) {
 	
@@ -86,6 +92,9 @@
 
 	} else {
 
+		// Load the Query Builder
+		require_once ("$ttroot/common/Sources/querybuilder.php");
+
 		// Deal with named queries
 		// From the stored user queries
 		$useridtxt = $shortuserid;
@@ -108,10 +117,11 @@
 		if ( $querylist ) {
 			$querylist = "<h2>{%Stored queries}</h2><table>$querylist</table>
 			<script language=Javascript>
-				function addquery (cql, name ) {
+				var cqlfld;
+				function addquery ( cql, name ) {
 					// Find the first empty query line
 					var i=0; fnd = 0;
-					var namefld; var cqlfld;
+					var namefld; 
 					while ( !fnd ) {
 						namefld = document.getElementById('name'+i);
 						cqlfld = document.getElementById('query'+i);
@@ -208,6 +218,15 @@
 			$subtit
 			$explanation
 
+			<script language=Javascript>
+				$prescript
+				function doqb() {
+					addquery ( '', '' ) // Adding a query will set cqlfld to the first empty CQL field
+					var cqlid = cqlfld.getAttribute('id');
+					console.log(cqlid);
+					showqb(cqlid);
+				};
+			</script>
 			<form action='$postaction' method=post>
 			<table id='inputtable'>
 			<tr><th>{%Query Name}<th>{%CQL Query}
@@ -215,9 +234,14 @@
 			</table>
 			<span onClick=\"addline('', '')\" style='font-size: 12pt; color: #666666;' title='{%add line}'>&nbsp; ⊕</span>
 			<p><input type=submit value=\"{%Search}\">
+					<a onClick=\"doqb();\" title=\"{%define a CQL query}\">{%query builder}</a>
 			</form>
+			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>$querytext</div>
 			$querylist
+			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>
 			";
+
+
 	};	
 
 ?>

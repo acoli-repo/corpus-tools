@@ -28,12 +28,12 @@
 	
 	<item key="defaults" display="Some global settings">
 	    <att key="fileview" display="Default fileview" default="text">
-		<desc>
-			Since version 2, TEITOK has a number of different ways to view a TEI/XML file: as text, 
-			as a waveform, as a facsimile image, etc. Here you can define which of those views should be
-			used as the default to display a TEI/XML file, which will then be used in all cases unless 
-			another view is selected.
-		</desc>
+			<desc>
+				Since version 2, TEITOK has a number of different ways to view a TEI/XML file: as text, 
+				as a waveform, as a facsimile image, etc. Here you can define which of those views should be
+				used as the default to display a TEI/XML file, which will then be used in all cases unless 
+				another view is selected.
+			</desc>
 	    	<val key="text" display="Text view"/>
 	    	<val key="facsview" display="Facsimile view"/>
 	    	<val key="pageflow" display="Page flow view"/>
@@ -43,6 +43,10 @@
 		</att>
 	    <item key="title" display="Title of the page">
 	    	<att key="display" display="Display name"/>
+		</item>
+	    <item key="qb" display="How the Query Builder is used" default="click">
+	    	<att key="click" display="Show QB and Visualizer on button click"/>
+	    	<att key="direct" display="Show QB and Visualizer by default"/>
 		</item>
 	    <item key="base" display="HTML base setting for the site">
 		    <att key="foldername" display="Foldername of the project - used for session and to check these settings belong to this project"/> 

@@ -58,7 +58,9 @@ function showcql() {
 };
 
 function i18n ( text ) {
-	var trans = jstrans[text];
+	var trans;
+	if ( typeof(jstrans) == "undefined" ) trans = text; 
+	else trans = jstrans[text];
 	if ( typeof(trans) == "undefined" ) trans = text; 
 	return trans;
 };
@@ -137,7 +139,7 @@ function cqlparse(cql, divid) {
 					if ( rlist[i] == '' ) continue; 
 					var tmp = /^(.*?) *(!?[=>]+) *(.*)$/.exec(rlist[i]); 
 					var left = tmp[1].trim(); var eq = tmp[2]; var right = tmp[3];
-					leftname = pattname[left]; 
+					if ( typeof(pattname) != "undefined" ) leftname = pattname[left]; 
 					if ( typeof(leftname) == 'undefined' ) {
 						if ( left == 'word' ) {
 							leftname = 'word';
@@ -193,7 +195,7 @@ function cqlparse(cql, divid) {
 		
 };
 
-function showqb(useid = '') {
+function showqb( useid = '' ) {
 
 	if ( useid != '' ) cqpid = useid;
 	if ( cqpid == '' ) cqpid = defid;
