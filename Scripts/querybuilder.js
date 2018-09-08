@@ -214,7 +214,7 @@ function showqb( useid = '' ) {
 
 };
 
-function updatequery() {
+function updatequery(nodirect = false) {
 
 	if ( cqpid == '' ) cqpid = defid;
 	
@@ -294,8 +294,8 @@ function updatequery() {
 	cqpfld.value = newcql;
 	
 	// If the CQL field is hidden, auto submit
-	if ( typeof(direct) != "undefined" ) {
-		cqpfld.form.submit();
+	if ( typeof(direct) != "undefined"  ) {
+		if ( !nodirect ) cqpfld.form.submit();
 	} else {
 		document.getElementById('qbframe').style.display = "none";
 	};

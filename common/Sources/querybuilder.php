@@ -362,7 +362,10 @@
 		};	
 
 		$querytext .= "</table>"; 
-		if ( $showdirect ) $searchmake = "Search"; else $searchmake = "Create query"; 
+		if ( $showdirect ) {
+			$searchmake = "Search"; 
+			$prescript .= "var direct = 1;";
+		} else $searchmake = "Create query"; 
 		$querytext .= "<p><input type=submit value=\"{%$searchmake}\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a></form>";
 	
 		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
@@ -375,8 +378,17 @@
 					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-right: -5px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\">&times;</span>$optiontext</div>";
 
 		$cqlfld = "
-			<script language=Javascript>$prescript</script>
-			<form action='$postaction' method=post id=cqp name=cqp><p>CQP Query: &nbsp; 
+			<script language=Javascript>
+				$prescript
+				function checksearch (frm) {
+					if ( frm.cqlfld.value == '' ) {
+						updatequery(true); 
+						if ( frm.cqlfld.value == '[] within text' ) frm.cqlfld.value = '';
+						if ( frm.cqlfld.value == '' ) return false;
+					};
+				}; 
+			</script>
+			<form action='$postaction' onsubmit=\"return checksearch(this);\" method=post id=cqp name=cqp><p>CQP Query: &nbsp; 
 				$cqlbox
 				<input type=submit value=\"{%Search}\"> 
 					<a onClick=\"showqb('cqlfld');\" title=\"{%define a CQL query}\">{%query builder}</a>
