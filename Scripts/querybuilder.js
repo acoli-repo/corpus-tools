@@ -220,7 +220,7 @@ function updatequery() {
 	if ( typeof(cqpfld) == "undefined" ) { return false; }; // In case the field does not exist
 
 	// Build the actual CQL query
-	var toksep = ''; var glsep = ''; var tokq = ''; var glq = '';
+	var toksep = ''; var glsep = ''; var tokq = ''; var glq = ''; var globaltype = '';
     var flds = document.getElementById('querybuilder').elements;   
     for(i = 0; i < flds.length; i++) {                    
         var name = flds[i].getAttribute('name');  
@@ -249,7 +249,10 @@ function updatequery() {
 			} else if ( matchtype == 'endsin' ) {
 				val = val + '.*';
 			};
-        	var tmp = /^(.*):(.*)/.exec(parse[2]);
+        	var tmp = /^(.*?)_(.*)$/.exec(parse[2]);
+        	var gltype = tmp[1]; var glatt = tmp[2];
+        	if ( globaltype == '' ) globaltype = gltype; else if ( globaltype != gltype ) globaltype = '---'; 
+        	var tmp = /^(.*?):(.*)$/.exec(parse[2]);
         	if ( tmp != null ) {
         		if ( tmp[2] == "start" ) {
 		        	glq += glsep + 'int(match.' + tmp[1] + ') >= ' + val + '';
@@ -265,7 +268,16 @@ function updatequery() {
         };
     }	
     newcql = document.getElementById('toklist').value;
+    
+    // Make it a text-based search if there are only token restrictions
+    if ( newcql == '' && tokq == '' && glq != '' ) {
+		if ( globaltype == 'text' ) newcql = '<text> []';
+		else if ( globaltype != '---' ) newcql = ''; // TODO: We should do something with region-based searches
+    };
+
     if ( tokq != '' || newcql == '' ) newcql += '[' + tokq + ']';
+    
+    // Add the global query
     if ( glq != '' ) newcql += ' :: ' + glq;
 	cqpfld.value = newcql;
 	
