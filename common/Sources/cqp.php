@@ -269,10 +269,6 @@
 			$fileonly = true; 
 		};
 		
-
-		// Now that the we have the full CQL - make sure matches are always within a <text>
-		if ( !preg_match("/ within /", $cql) && !$fileonly ) $cql .= " within text";
-
 		$cqpapp = $_POST['cqpapp'] or $cqpapp = $_GET['cqpapp'] or $cqpapp = "/usr/local/bin/cqp";
 		$cqp = new CQP("", $cqpapp);
 
@@ -641,7 +637,6 @@
 			
 						function hllist ( ids, container, color ) {
 							idlist = ids.split(' ');
-							console.log(idlist);
 							for ( var i=0; i<idlist.length; i++ ) {
 								var id = idlist[i];
 								// node = getElementByXpath('//*[@id=\"'+container+'\"]//*[@id=\"'+id+'\"]');

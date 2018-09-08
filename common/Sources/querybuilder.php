@@ -157,67 +157,41 @@
 					</script>
 					<h2>{%Search Options}</h2>";
 					
-		if ( $act == "direct" ) 
-			$querytext .= "
-					<p>{%Search method}:  &nbsp;
-						<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'cqp');\" $cdef> CQP &nbsp; &nbsp;
-						<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'word');\" $wdef> {%Word Search}
-						<div name='wordsearch' id='wordsearch' style='display: none;'>
-						<table>$wordsearchtxt</table>
-						$chareqtxt
-					</div>
-				
-					<div name='cqpsearch' id='cqpsearch'>
-					<p>{%CQP Query}: &nbsp;  <input name=cql value='$cql' style='width: 600px;'/>
-					$chareqjs 
-					$subheader
-				$stmp
-				<p><b>{%Searchable fields}</b>
-			
-				<table>
-				$fieldlisttxt
-				</table>
-				</div></div>
-				<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>";
-		else 
-			$querytext .= "
-					<script language=Javascript>
-					function switchtype ( tg, type ) { 
-						var types = [];
-						types['st'] = ['cqp', 'word'];
-						types['style'] = ['kwic', 'context'];
-						types['app'] = ['cqp-', 'tt-cqp-'];
-						for ( var i in types[tg] ) {
-							stype = types[tg][i]; 
-							document.getElementById(stype+'search').style.display = 'none';
-						};
-						document.getElementById(type+'search').style.display = 'block';
+
+		$querytext .= "
+				<script language=Javascript>
+				function switchtype ( tg, type ) { 
+					var types = [];
+					types['st'] = ['cqp', 'word'];
+					types['style'] = ['kwic', 'context'];
+					types['app'] = ['cqp-', 'tt-cqp-'];
+					for ( var i in types[tg] ) {
+						stype = types[tg][i]; 
+						document.getElementById(stype+'search').style.display = 'none';
 					};
-					</script>
-						<table>$wordsearchtxt</table>
-						<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
-						<button type='button' onClick='addtoken();'>{%Add token}</button>
-						$chareqjs 
-					
-					
-					$subheader
-				$stmp
-				</div></div>
-				";
+					document.getElementById(type+'search').style.display = 'block';
+				};
+				</script>
+					<table>$wordsearchtxt</table>
+					<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
+					<button type='button' onClick='addtoken();'>{%Add token}</button>
+					$chareqjs 
+				
+				
+				$subheader
+			$stmp
+			</div></div>
+			";
 				
 		
 		// Preselect styles
-		if ( $settings['cqp']['defaults']['searchtype'] == "context" ) { 
+		if ( $settings['cqp']['defaults']['searchtype'] ) { 
 			$moreactions .= "switchtype('style', '{$settings['cqp']['defaults']['searchtype']}');"; 
-			$chcont = "checked";
-		} else { 
-			$moreactions .= "switchtype('style', 'kwic');"; 
-			$chkwic = "checked";
 		};
 		$optiontext .= "
 				<p>{%Display method}: 
-				<input type=radio name=style value='kwic' onClick=\"switchtype('style', 'kwic');\" $chkwic> KWIC
-				<input type=radio name=style value='context' onClick=\"switchtype('style', 'context');\" $chcont> Context
+				<input type=radio name=style value='kwic' onClick=\"switchtype('style', 'kwic');\"> KWIC
+				<input type=radio name=style value='context' onClick=\"switchtype('style', 'context');\"> Context
 				";			
 		
 		// TODO: choose the CQP app (for now only for admin users)
@@ -267,14 +241,7 @@
 					<option value='longest' selected>{%Longest match}</option>
 					<option value='shortest'>{%Shortest match}</option>
 				</select> 
-				</p>
-				
-				
-				
-			<script language=Javascript>
-			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
-			$moreactions
-			</script>";
+				</p>";
 			
 		$querytext .= "\n\t<td valign=top>";  $hr = "";
 

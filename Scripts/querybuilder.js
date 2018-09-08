@@ -87,11 +87,14 @@ function cqlparse(cql, divid) {
 	var warnings = '';
 	
 	// Parse the main query
-	var i = 0;	
+	var toknr = 0;	
 
 	var partpat = /^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?|\s*<([^>]*)>/;
 	while ( parts.match(partpat) ) {
 		if ( parts.match(/^\s*<(\/?)([^>]*)>/) ) {
+			
+			// This is a region
+			
 			var tmp = /^\s*<(\/?)([^>]*)>/.exec(parts); var reg = tmp[2];
 			var begend = 'start'; if ( tmp[1] == '/' ) begend = 'end';
 			
@@ -108,7 +111,7 @@ function cqlparse(cql, divid) {
 			tokdiv.style.backgroundColor = '#ffffee';
 			
 		} else if ( parts.match(/^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?/) ) {
-			i++; // This is a token
+			toknr++; // This is a token
 			var tokparts = /^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?/.exec(parts); 
 			var tok = tokparts[2];
 			var tokdiv = document.createElement("div");
@@ -128,7 +131,7 @@ function cqlparse(cql, divid) {
 				if ( tokparts[3] == '+' ) reptxt = i18n('1 or more'); 
 				morec += ' - ' + reptxt; 
 			}; 
-			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">' + i +  morec + '</p>' ;
+			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">' + toknr +  morec + '</p>' ;
 
 			if ( tok == "" ) {
 				var para = document.createElement("p");
@@ -272,13 +275,22 @@ function updatequery() {
     // Make it a text-based search if there are only token restrictions
     if ( newcql == '' && tokq == '' && glq != '' ) {
 		if ( globaltype == 'text' ) newcql = '<text> []';
-		else if ( globaltype != '---' ) newcql = ''; // TODO: We should do something with region-based searches
+		else {
+			if ( globaltype != '---' ) {
+				newcql = '<'+globaltype+'> []+'; // TODO: We should do something with region-based searches
+				glq += ' within '+globaltype;
+			};
+		};
     };
 
     if ( tokq != '' || newcql == '' ) newcql += '[' + tokq + ']';
     
     // Add the global query
     if ( glq != '' ) newcql += ' :: ' + glq;
+    
+    // Unless there is a within, add within text
+	if ( !newcql.match(/ within /) ) newcql += ' within text';
+    
 	cqpfld.value = newcql;
 	
 	// If the CQL field is hidden, auto submit
