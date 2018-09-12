@@ -44,7 +44,7 @@
 
 /* Style for the Query Builder */
 .tokdiv { border: 1px solid #aaaaaa; padding: 5px; background-color: #ffffff; display: inline-block; margin-bottom: 10px; margin-right: 5px; vertical-align: middle;  }
-.globdiv { border-left: 1px solid #aaaaaa; padding: 5px; background-color: #ffffee; display: inline-block; margin-bottom: 10px; margin-right: 5px; vertical-align: middle;  }
+.globdiv { border-left: 1px solid #aaaaaa; padding: 5px; background-color: #eeffee; display: inline-block; margin-bottom: 10px; margin-right: 5px; vertical-align: middle;  }
 .tokdiv p { font-size: smaller; margin: 2px; }
 .globdiv p { font-size: smaller; }
 .helpbox { border: 1px solid #444444; background-color: #f3f3f3; padding-left: 10px; padding-right: 10px; }

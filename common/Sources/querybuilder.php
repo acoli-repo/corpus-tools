@@ -398,6 +398,7 @@
 			$chareqjs
 			<div style='display: none;' class='helpbox' id='cqlview'></div>
 			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>$querytext</div>
+			<script language='Javascript' src=\"$jsurl/cqlparser.js\"></script>
 			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>";
 
 	

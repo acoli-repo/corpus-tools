@@ -14,14 +14,16 @@ function addtoken() {
         if ( val == '' ) continue;
         var parse = /(.*)\[(.*)\]/g.exec(name);                     
         if ( parse == null ) continue;
-        var matchtype = document.querySelector('[name="matches['+parse[2]+']"]').value;
-        if ( matchtype == 'contains' ) {
-        	val = '.*' + val + '.*';
-        } else if ( matchtype == 'startswith' ) {
-        	val = val + '.*';
-        } else if ( matchtype == 'endsin' ) {
-        	val = val + '.*';
-        };
+        if ( flds[i].nodeName == "INPUT" ) {
+			var matchtype = document.querySelector('[name="matches['+parse[2]+']"]').value;
+			if ( matchtype == 'contains' ) {
+				val = '.*' + val + '.*';
+			} else if ( matchtype == 'startswith' ) {
+				val = val + '.*';
+			} else if ( matchtype == 'endsin' ) {
+				val = '.*' + val;
+			};
+		};
         if ( parse[1] == 'vals' ) {
         	tokq += toksep + parse[2] + ' = "' + val + '"';
         	toksep = ' & ';
@@ -70,8 +72,6 @@ function cqlparse(cql, divid) {
 	var div = document.getElementById(divid);
 	if ( typeof(div) == "undefined" ) return;
 
-	cql = cql.replace(/ within text/, '');
-
 	// Some default texts that we want to have translated
 	cqltit = i18n('CQL Query Visualization');
 	anytok = i18n('any token');
@@ -89,113 +89,85 @@ function cqlparse(cql, divid) {
 	// Parse the main query
 	var toknr = 0;	
 
-	var partpat = /^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?|\s*<([^>]*)>/;
-	while ( parts.match(partpat) ) {
-		if ( parts.match(/^\s*<(\/?)([^>]*)>/) ) {
-			
-			// This is a region
-			
-			var tmp = /^\s*<(\/?)([^>]*)>/.exec(parts); var reg = tmp[2];
-			var begend = 'start'; if ( tmp[1] == '/' ) begend = 'end';
-			
-			if ( reg.match(/(.*)_(.*)(!?[=<>]*)(.*)/) ) {
-				var tmp = /(.*)_([^=]*) *(!?[=<>]*) *(.*?)$/.exec(reg); 
-				var reg = tmp[2]; // set the main region
-				reg = tmp[1] + '<p>'+tmp[2]+' '+tmp[3]+' '+tmp[4]; // Add the region restriction 
-			};
-			
+	// Run the parser (PEGJS)
+	var parser = PARSER;
+	var parsed = parser.parse(cql);
+	
+	var globaltxt = i18n('globals');
+	if ( cql.match(/<text> \[\] :: / ) ) globaltxt = i18n('Document Search'); else 
+	for ( var i=0; i < parsed.items.length; i++ ) {
+		var item = parsed.items[i];
+		console.log(item);
+		
+		if ( item.type == 'token' ) {
+			toknr++;
 			var tokdiv = document.createElement("div");
 			tokdiv.className = 'tokdiv';
-			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+i18n('region '+begend)+'</p><p>'+i18n('region')+': ' + reg + '</p>';
+			var moretxt = '';
+			if ( item.name != null ) moretxt += " [" + item.name + "]";
+			if ( item.multiplier != null ) moretxt += " (" + item.multiplier + ")";
+			var tokendef = showtokenexpression(item.rule);
+			if ( tokendef == '' ) tokendef = '<i>' + i18n('any token') + '</i>';
+			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+ toknr + moretxt +'</p><p>' + tokendef + '</p>';
+			div.appendChild(tokdiv);
+		} else if ( item.type == 'region' ) {
+			var tokdiv = document.createElement("div");
+			tokdiv.className = 'tokdiv';
+			var moretxt = '';
+			if ( item.multiplier == '' ) moretxt += " (" + item.multiplier + ")";
+			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">region</p><p>' + item.name + '</p>';
 			div.appendChild(tokdiv);
 			tokdiv.style.backgroundColor = '#ffffee';
-			
-		} else if ( parts.match(/^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?/) ) {
-			toknr++; // This is a token
-			var tokparts = /^\s*(@|[a-z0-9]+:)?\[([^\]]*)\]([*?+]|{\d+,\d+})?/.exec(parts); 
-			var tok = tokparts[2];
-			var tokdiv = document.createElement("div");
-			tokdiv.className = 'tokdiv';
-			tokdiv.title = '['+tok+']';
-			var rlist = tok.split ( ' & ' );
-				
-			// Add the caption
-			var morec = ''; // caption additions
-			if ( tokparts[1] != undefined ) {
-				if( tokparts[1] == '@' ) { morec += ' (target)'; } else if (tokparts[1]!= '' )  { morec += ' ('+tokparts[1].replace(/:$/, '')+')'; } 
-			};
-			if ( tokparts[3] != undefined && tokparts[3] != ''  ) { 
-				var reptxt = '';
-				if ( tokparts[3] == '?' ) reptxt = i18n('optional'); 
-				if ( tokparts[3] == '*' ) reptxt = i18n('optional (multiple)'); 
-				if ( tokparts[3] == '+' ) reptxt = i18n('1 or more'); 
-				morec += ' - ' + reptxt; 
-			}; 
-			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">' + toknr +  morec + '</p>' ;
-
-			if ( tok == "" ) {
-				var para = document.createElement("p");
-				para.innerHTML = '<i>' + anytok + '<i>';				
-				tokdiv.appendChild(para);
-			} else {
-				for ( i=0; i<rlist.length; i++ ) {	
-					if ( rlist[i] == '' ) continue; 
-					var tmp = /^(.*?) *(!?[=>]+) *(.*)$/.exec(rlist[i]); 
-					var left = tmp[1].trim(); var eq = tmp[2]; var right = tmp[3];
-					if ( typeof(pattname) != "undefined" ) leftname = pattname[left]; 
-					if ( typeof(leftname) == 'undefined' ) {
-						if ( left == 'word' ) {
-							leftname = 'word';
-						} else {
-							leftname = '<span class=wrong>'+left+'</span>';
-							warnings += '<li>Undefined pattribute: <b>' + left + '</b></li>';
-						};
-					};
-					var rtxt = leftname + ' ' + eq + ' ' + right;
-					var para = document.createElement("p");
-					para.innerHTML = rtxt;				
-					tokdiv.appendChild(para);
-				}; 
-			};
-			div.appendChild(tokdiv);
 		};
-		parts = parts.replace(partpat, '');
-	};
-	if ( !parts.match(/^\s*$/) ) {
-		// We are left with unparsable material
-		warnings += '<li>Unparsable segment: <b>' + parts.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</b></li>';
+		
 	};
 	
-	// Parse the global restrictions
-	if ( typeof(global) != 'undefined' && global != '' ) {
-		var globdiv = document.createElement("div");
-		globdiv.className = 'globdiv';
-				var para = document.createElement("p");
-				var node = document.createTextNode('global');
-				para.appendChild(node);				
-				para.className = 'caption';
-				para.style['margin-bottom'] = '-5px';
-				globdiv.appendChild(para);
-		var rlist = global.split ( ' & ' );
-		for ( i=0; i<rlist.length; i++ ) {
-			var tmp = /^(.*?) *(!?[<>=]+) * (.*)$/.exec(rlist[i]); 
-			var leftx = tmp[1].trim(); 
-			leftx = leftx.replace(/int\((.*)\)/, "$1"); 
-			var eq = tmp[2]; var right = tmp[3];
-			var tmp = leftx.split('.'); var leftm = tmp[0]; var left = tmp[1];
-			var rtxt = pattname[left] + ' ' + eq + ' ' + right;
-			var para = document.createElement("p");
-			var node = document.createTextNode(rtxt);
-			para.appendChild(node);				
-			globdiv.appendChild(para);
-		}; 
-		div.appendChild(globdiv);
+	if ( parsed.globals != null && parsed.globals != '' ) {
+		var tokdiv = document.createElement("div");
+		tokdiv.className = 'globdiv';
+		tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+ globaltxt +'</p><p>' + showtokenexpression(parsed.globals) + '</p>';
+		div.appendChild(tokdiv);
 	};
-			
+		
 	if ( warnings != '' ) {
 		div.innerHTML += '<div style="font-size: smaller;">Errors: <ul>' + warnings + '</ul></div>';
 	};	
 		
+};
+
+function showtokenexpression ( list ) {
+	var result = ''; var sep = '';
+	
+	for ( var i=0; i<list.length; i++ ) {
+		var left = ""; var right = "";
+		var expr = list[i].expr;
+		if ( expr.group ) {
+			var join = ''; if ( list[i].join != null ) join = list[i].join + ' ';
+			result += sep + join + '<p style="inline-block; border: 1px solid #aaaaaa; padding: 3px; ">' + showtokenexpression(expr.group) + '</p>'; sep = '<br>';
+		} else {
+			left = patt2name(expr[0]);
+			right = patt2name(expr[2]);
+			var join = ''; if ( list[i].join != null ) join = list[i].join + ' ';
+			result += sep + join + left + " " + expr[1] + " " + right; sep = '<br>';
+		};
+	};
+
+	return result;
+
+};
+
+function patt2name (it) {
+	var name = '';
+	if ( it.patt ) {
+		name = pattname[it.patt]; 
+	} else if ( it.satt ) {
+		name = pattname[it.satt.patt]; 
+	} else if (it.number) {
+		name = '<b>' + it.number + '</b>';
+	} else if (it.re) {
+		name = '<i>' + it.re + '</i>';
+	};
+	return name;
 };
 
 function showqb( useid = '' ) {
@@ -232,13 +204,15 @@ function updatequery(nodirect = false) {
         var parse = /(.*)\[(.*)\]/g.exec(name);                     
         if ( parse == null ) continue;
         if ( parse[1] == 'vals' ) {
-			var matchtype = document.querySelector('[name="matches['+parse[2]+']"]').value;
-			if ( matchtype == 'contains' ) {
-				val = '.*' + val + '.*';
-			} else if ( matchtype == 'startswith' ) {
-				val = val + '.*';
-			} else if ( matchtype == 'endsin' ) {
-				val = val + '.*';
+	        if ( flds[i].nodeName == "INPUT" ) {
+				var matchtype = document.querySelector('[name="matches['+parse[2]+']"]').value;
+				if ( matchtype == 'contains' ) {
+					val = '.*' + val + '.*';
+				} else if ( matchtype == 'startswith' ) {
+					val = val + '.*';
+				} else if ( matchtype == 'endsin' ) {
+					val = '.*' + val;
+				};
 			};
         	tokq += toksep + parse[2] + ' = "' + val + '"';
         	toksep = ' & ';
@@ -250,7 +224,7 @@ function updatequery(nodirect = false) {
 			} else if ( matchtype == 'startswith' ) {
 				val = val + '.*';
 			} else if ( matchtype == 'endsin' ) {
-				val = val + '.*';
+				val = '.*' + val;
 			};
         	var tmp = /^(.*?)_(.*)$/.exec(parse[2]);
         	var gltype = tmp[1]; var glatt = tmp[2];
