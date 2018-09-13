@@ -139,8 +139,11 @@
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = '{%{$xatt['display']}}'; ";
 			};
 		};
-		$prescript .= "var pattname = []; $jsnames";
-		$prescript .= "\nvar jstrans = []; jstrans['CQL Query Visualization'] = '{%CQL Query Visualization}'; jstrans['any token'] = '{%any token}';";
+		
+		// Pass i18n to Javascript
+		$prescript .= "var pattname = [];\n var jstrans = []; \n$jsnames";
+		$tojstrans = array ("CQL Query Visualization", "any token", "and", "or", "globals", "group", "name" );
+		foreach ( $tojstrans as $tmp ) $prescript .= " jstrans['$tmp'] = '{%$tmp}';";
 
 		$optiontext .= "<script language=Javascript>	
 					function switchtype ( tg, type ) { 

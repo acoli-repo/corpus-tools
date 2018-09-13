@@ -49,4 +49,6 @@
 .globdiv p { font-size: smaller; }
 .helpbox { border: 1px solid #444444; background-color: #f3f3f3; padding-left: 10px; padding-right: 10px; }
 .caption { margin-top: -2px; margin-bottom: 3px; font-size: smaller; color: #888888; }
+.blocksep { width: 100%; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa; color: #888888; background-color: #eeeeee; margin-bottom: 9px; text-align: center; }
+.andor { color: #888888; font-weight: bold; }
 .wrong { font-weight: bold; color: #ff0000; }

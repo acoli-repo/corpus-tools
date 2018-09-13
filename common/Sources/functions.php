@@ -230,7 +230,7 @@
 		return $text;
 	};
 	
-	function getlangfile ( $ffid, $common = false, $flang = null, $options ) {
+	function getlangfile ( $ffid, $common = false, $flang = null, $options = null ) {
 		global $lang; global $settings; global $getlangfile_lastfile;  global $ttroot; global $username, $action;
 		if ( $flang === null ) $flang = $lang; $html = "";
 		$deflang = $settings['languages']['default'] or $deflang = "en";

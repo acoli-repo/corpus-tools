@@ -61,6 +61,10 @@ function showcql() {
 
 function i18n ( text ) {
 	var trans;
+	
+	var totext = []; totext['|'] = 'or'; totext['&'] = 'and';
+	if ( typeof(totext[text]) != "undefined" ) text = totext[text]; 
+
 	if ( typeof(jstrans) == "undefined" ) trans = text; 
 	else trans = jstrans[text];
 	if ( typeof(trans) == "undefined" ) trans = text; 
@@ -86,25 +90,64 @@ function cqlparse(cql, divid) {
 	var parts = tmp[0]; var global = tmp[1];
 	var warnings = '';
 	
-	// Parse the main query
-	var toknr = 0;	
-
 	// Run the parser (PEGJS)
 	var parser = PARSER;
 	var parsed = parser.parse(cql);
 	
 	var globaltxt = i18n('globals');
-	if ( cql.match(/<text> \[\] :: / ) ) globaltxt = i18n('Document Search'); else 
-	for ( var i=0; i < parsed.items.length; i++ ) {
-		var item = parsed.items[i];
-		console.log(item);
+	if ( cql.match(/<text> \[\] :: / ) ) globaltxt = i18n('Document Search'); else {
+		var listdiv = showtokenlist(parsed.items);
+			listdiv.style['display'] = 'inline-block';
+		div.appendChild(listdiv);
+	};
+	
+	
+	if ( parsed.globals != null && parsed.globals != '' ) {
+		var tokdiv = document.createElement("div");
+		tokdiv.className = 'globdiv';
+		tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+ globaltxt +'</p><p>' + showtokenexpression(parsed.globals) + '</p>';
+		div.appendChild(tokdiv);
+	};
 		
-		if ( item.type == 'token' ) {
+	if ( warnings != '' ) {
+		div.innerHTML += '<div style="font-size: smaller;">Errors: <ul>' + warnings + '</ul></div>';
+	};	
+		
+};
+
+function showtokenlist ( list ) {
+
+	var div = document.createElement("div");
+
+	// TODO: how to number tokens within a group?
+	var toknr = 0;	
+
+	for ( var i=0; i < list.length; i++ ) {
+		var item = list[i];
+		
+		if ( item.type == 'group' ) {
+			var tokdiv = document.createElement("div");
+			tokdiv.className = 'tokdiv';
+			var listdiv = document.createElement("div");
+			for ( var i=0; i<item.items.length; i++ ) {
+				var li = item.items[i];
+				var newblock = showtokenlist(li.expr);
+				if ( li.join ) {
+					var tmp = document.createElement("div");
+					tmp.className = 'blocksep';
+					tmp.innerHTML = i18n(li.join);
+					listdiv.appendChild(tmp);
+				};
+				listdiv.appendChild(newblock);
+			};
+			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+ i18n('group') +'</p><p>' + listdiv.innerHTML + '</p>';
+			div.appendChild(tokdiv);
+		} else if ( item.type == 'token' ) {
 			toknr++;
 			var tokdiv = document.createElement("div");
 			tokdiv.className = 'tokdiv';
 			var moretxt = '';
-			if ( item.name != null ) moretxt += " [" + item.name + "]";
+			if ( item.name != null ) moretxt += " " + i18n('name') + ': ' + item.name + "";
 			if ( item.multiplier != null ) moretxt += " (" + item.multiplier + ")";
 			var tokendef = showtokenexpression(item.rule);
 			if ( tokendef == '' ) tokendef = '<i>' + i18n('any token') + '</i>';
@@ -121,18 +164,10 @@ function cqlparse(cql, divid) {
 		};
 		
 	};
+	console.log(div);
 	
-	if ( parsed.globals != null && parsed.globals != '' ) {
-		var tokdiv = document.createElement("div");
-		tokdiv.className = 'globdiv';
-		tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+ globaltxt +'</p><p>' + showtokenexpression(parsed.globals) + '</p>';
-		div.appendChild(tokdiv);
-	};
-		
-	if ( warnings != '' ) {
-		div.innerHTML += '<div style="font-size: smaller;">Errors: <ul>' + warnings + '</ul></div>';
-	};	
-		
+	return div;
+
 };
 
 function showtokenexpression ( list ) {
@@ -142,12 +177,12 @@ function showtokenexpression ( list ) {
 		var left = ""; var right = "";
 		var expr = list[i].expr;
 		if ( expr.group ) {
-			var join = ''; if ( list[i].join != null ) join = list[i].join + ' ';
+			var join = ''; if ( list[i].join != null ) join = ' <span class="andor">' + i18n(list[i].join) + '</span> ';
 			result += sep + join + '<p style="inline-block; border: 1px solid #aaaaaa; padding: 3px; ">' + showtokenexpression(expr.group) + '</p>'; sep = '<br>';
 		} else {
 			left = patt2name(expr[0]);
 			right = patt2name(expr[2]);
-			var join = ''; if ( list[i].join != null ) join = list[i].join + ' ';
+			var join = ''; if ( list[i].join != null ) join = ' <span class="andor">' + i18n(list[i].join) + '</span> ';
 			result += sep + join + left + " " + expr[1] + " " + right; sep = '<br>';
 		};
 	};
