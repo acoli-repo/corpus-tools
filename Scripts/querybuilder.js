@@ -2,6 +2,7 @@ var newcql;
 var newparse;
 var pretoks = []; var error;
 var cqpid = ''; var defid = 'cqlfld';
+var warnings = '';
 
 function addtoken() {
 
@@ -88,11 +89,17 @@ function cqlparse(cql, divid) {
 	
 	var tmp = cql.split("::"); 
 	var parts = tmp[0]; var global = tmp[1];
-	var warnings = '';
+
+	warnings = '';
 	
 	// Run the parser (PEGJS)
-	var parser = PARSER;
-	var parsed = parser.parse(cql);
+	var parser = PARSER; var parsed;
+ 	try {
+ 		parsed = parser.parse(cql);
+ 	} catch (err) {
+ 		parsed = { 'items': [] };
+ 		warnings += '<li>' + err;
+ 	};
 	
 	var globaltxt = i18n('globals');
 	if ( cql.match(/<text> \[\] :: / ) ) globaltxt = i18n('Document Search'); else {
@@ -148,7 +155,7 @@ function showtokenlist ( list ) {
 			tokdiv.className = 'tokdiv';
 			var moretxt = '';
 			if ( item.name != null ) moretxt += " " + i18n('name') + ': ' + item.name + "";
-			if ( item.multiplier != null ) moretxt += " (" + item.multiplier + ")";
+			if ( item.multiplier != null ) moretxt += " (" + multitxt(item.multiplier) + ")";
 			var tokendef = showtokenexpression(item.rule);
 			if ( tokendef == '' ) tokendef = '<i>' + i18n('any token') + '</i>';
 			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+ toknr + moretxt +'</p><p>' + tokendef + '</p>';
@@ -157,17 +164,41 @@ function showtokenlist ( list ) {
 			var tokdiv = document.createElement("div");
 			tokdiv.className = 'tokdiv';
 			var moretxt = '';
-			if ( item.multiplier == '' ) moretxt += " (" + item.multiplier + ")";
-			tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">region</p><p>' + item.name + '</p>';
+			if ( item.multiplier == '' ) moretxt += " (" + multitxt(item.multiplier) + ")";
+			var regionname = item.name;
+			if ( item.rule ) {
+				left = patt2name(item.rule[0], regionname);
+				right = patt2name(item.rule[2]);
+				var tokendef = left + " " + item.rule[1] + " " + right; 
+				tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">region : ' + regionname + '</p><p>' + tokendef + '</p>';
+			} else {
+				tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">region : ' + regionname + '</p>';
+			};
 			div.appendChild(tokdiv);
 			tokdiv.style.backgroundColor = '#ffffee';
 		};
 		
 	};
-	console.log(div);
 	
 	return div;
 
+};
+
+function multitxt ( ex ) {
+	var txt = '';
+	if ( ex == '+' ) {
+		txt = '1 ' + i18n('or more');	
+	} else if ( ex == '*' ) {
+		txt = '0 ' + i18n('or more');	
+	} else if ( ex == '?' ) {
+		txt = i18n('optional');	
+	} else if ( ex.match(/{\d+,\d+}/ ) ) {
+		txt = ex; // between a and b	
+	} else {
+		txt = ex;
+	};
+	
+	return txt;
 };
 
 function showtokenexpression ( list ) {
@@ -191,10 +222,21 @@ function showtokenexpression ( list ) {
 
 };
 
-function patt2name (it) {
+function patt2name (it, region='') {
 	var name = '';
 	if ( it.patt ) {
-		name = pattname[it.patt]; 
+		var patt = it.patt;
+		if ( region ) patt = region + '_' + patt;
+		name = pattname[patt]; 
+		if ( typeof(name) == "undefined" ) {
+			if ( it.patt == "word" ) {
+				name = '<i>' + it.patt + '</i>';
+				warnings += '<li>Non-recommendable pattribute : <b>' + it.patt + '</b>';
+			} else {
+				name = '<i class=wrong>' + it.patt + '</i>';
+				warnings += '<li>Undefined pattribute : <b>' + it.patt + '</b>';
+			};
+		};
 	} else if ( it.satt ) {
 		name = pattname[it.satt.patt]; 
 	} else if (it.number) {

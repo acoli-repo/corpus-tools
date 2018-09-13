@@ -142,7 +142,7 @@
 		
 		// Pass i18n to Javascript
 		$prescript .= "var pattname = [];\n var jstrans = []; \n$jsnames";
-		$tojstrans = array ("CQL Query Visualization", "any token", "and", "or", "globals", "group", "name" );
+		$tojstrans = array ("CQL Query Visualization", "any token", "and", "or", "globals", "group", "name", "or more", "optional" );
 		foreach ( $tojstrans as $tmp ) $prescript .= " jstrans['$tmp'] = '{%$tmp}';";
 
 		$optiontext .= "<script language=Javascript>	
