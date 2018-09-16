@@ -102,7 +102,7 @@ function cqlparse(cql, divid) {
  	};
 	
 	var globaltxt = i18n('globals');
-	if ( cql.match(/<text> \[\] :: / ) ) globaltxt = i18n('Document Search'); else {
+	if ( cql.match(/^<text> \[\]/ ) ) globaltxt = i18n('Document Search'); else {
 		var listdiv = showtokenlist(parsed.items);
 			listdiv.style['display'] = 'inline-block';
 		div.appendChild(listdiv);
@@ -113,6 +113,11 @@ function cqlparse(cql, divid) {
 		var tokdiv = document.createElement("div");
 		tokdiv.className = 'globdiv';
 		tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+ globaltxt +'</p><p>' + showtokenexpression(parsed.globals) + '</p>';
+		div.appendChild(tokdiv);
+	} else if ( cql == '<text> []' ) {
+		var tokdiv = document.createElement("div");
+		tokdiv.className = 'globdiv';
+		tokdiv.innerHTML += '<p class="caption" style="margin-top: -6px;">'+ globaltxt +'</p><p>' + i18n('List all documents') + '</p>';
 		div.appendChild(tokdiv);
 	};
 		
@@ -266,6 +271,7 @@ function showqb( useid = '' ) {
 function updatequery(nodirect = false) {
 
 	if ( cqpid == '' ) cqpid = defid;
+	var docquery = false; // This is a document-only query
 	
 	// Determine which field to update
 	var cqpfld = document.getElementById(cqpid); 
@@ -324,9 +330,11 @@ function updatequery(nodirect = false) {
     newcql = document.getElementById('toklist').value;
     
     // Make it a text-based search if there are only token restrictions
-    if ( newcql == '' && tokq == '' && glq != '' ) {
-		if ( globaltype == 'text' ) newcql = '<text> []';
-		else {
+    if ( newcql == '' && tokq == '' ) {
+		if ( globaltype == 'text' || globaltype == '' ) {
+			newcql = '<text> []';
+			docquery = true;
+		} else {
 			if ( globaltype != '---' ) {
 				newcql = '<'+globaltype+'> []+'; // TODO: We should do something with region-based searches
 				glq += ' within '+globaltype;
@@ -340,7 +348,7 @@ function updatequery(nodirect = false) {
     if ( glq != '' ) newcql += ' :: ' + glq;
     
     // Unless there is a within, add within text
-	if ( !newcql.match(/ within /) ) newcql += ' within text';
+	if ( !newcql.match(/ within /) && !docquery ) newcql += ' within text';
     
 	cqpfld.value = newcql;
 	

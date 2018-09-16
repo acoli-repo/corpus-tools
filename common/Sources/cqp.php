@@ -265,7 +265,7 @@
 		};
 		
 		# Check whether we are asked to only list files
-		if ( $_GET['fileonly'] || $_POST['fileonly'] ) { 
+		if ( $_GET['fileonly'] || $_POST['fileonly'] || substr($cql,0,6) == "<text>" ) { 
 			$fileonly = true; 
 		};
 		
@@ -299,8 +299,13 @@
 			$cqlfld
 
 			<script language=Javascript>
-			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
+			function cqpdo(elm) {
+				console.log(typeof(elm)); 
+				if ( typeof(elm) == 'string ')  document.cqp.cql.value = elm;
+				else document.cqp.cql.value = elm.innerHTML; 
+			};
 			</script>
+
 			";
 
 		if ( $showdirect ) $maintext .= "\n<!-- auto visualize -->\n<script language=Javascript>showcql('cqlfld'); var direct = 1;</script>";
@@ -824,6 +829,14 @@
 
 			$subtit
 			$cqlfld
+
+			<script language=Javascript>
+			function cqpdo(elm, autorun = false) {
+				if ( typeof(elm) == 'string' )  document.cqp.cql.value = elm;
+				else document.cqp.cql.value = elm.innerHTML; 
+				if ( autorun ) document.cqp.submit();
+			};
+			</script>
 			";
 
 		$explanation = getlangfile("cqptext", true);
