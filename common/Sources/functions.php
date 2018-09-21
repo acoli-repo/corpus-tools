@@ -734,6 +734,8 @@
 
 	function pattname ( $key, $dolang = true ) {
 		global $settings, $wordfld;
+		$cqpattname = $settings['cqp']['pattributes'][$key]['display'];
+		if ( $cqpattname ) return $cqpattname;
 		$pattfld = pattsett($key);
 		if ( $pattfld ) {
 			$name = $pattfld['long'] or $name = $pattfld['display'];

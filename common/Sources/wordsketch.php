@@ -1,6 +1,6 @@
 <?php
 
-	// Use tt-cqp to calculate a word-sketch for corpora with dependency relations (head, deps)
+	// Use tt-cqp to calculate a word-sketch for corpora with dependency relations (head, deprel)
 	// (c) Maarten Janssen, 2018
 	
 	if ( !$_POST ) $_POST = $_GET;
@@ -28,7 +28,7 @@
 			</table>
 			<hr>";
 		
-		$cqp = "Matches = $cql; stats Matches $fld :: context:head measure:all show:deps;";	
+		$cqp = "Matches = $cql; stats Matches $fld :: context:head measure:all show:deprel;";	
 			
 		$cmd = "echo '$cqp' | /usr/local/bin/tt-cqp";
 		$results = shell_exec($cmd);
@@ -36,16 +36,16 @@
 		// if ( $debug ) { $maintext .= "<pre>$cmd</pre>"; };
 		
 		foreach ( explode("\n", $results ) as $res ) {
-			list ( $word, $deps, $cnt, $tot, $exp, $chi2, $mutinf ) = explode("\t", $res );
+			list ( $word, $deprel, $cnt, $tot, $exp, $chi2, $mutinf ) = explode("\t", $res );
 			$exp = sprintf("%.4f", $exp);
-			$sketchlist[$deps][$word] = array ( $cnt, $tot, $exp, $chi2, $mutinf );
+			$sketchlist[$deprel][$word] = array ( $cnt, $tot, $exp, $chi2, $mutinf );
 		};
 
-		foreach ( $sketchlist as $deps => $wordlist ) {
-			if ( !$deps || count($wordlist) == 0 ) continue;
-			$depsname = $edgelabels[$deps.""]['display'] or $depsname = $deps;
+		foreach ( $sketchlist as $deprel => $wordlist ) {
+			if ( !$deprel || count($wordlist) == 0 ) continue;
+			$deprelname = $edgelabels[$deprel.""]['display'] or $deprelname = $deprel;
 			$maintext .= "<table style='float: left;'>
-				<tr><th colspan=6><b onClick=\"visualize('$deps', '$depsname');\">$depsname</b></tr>
+				<tr><th colspan=6><b onClick=\"visualize('$deprel', '$deprelname');\">$deprelname</b></tr>
 				<tr><th>{%$fldname}<th>{%Observed}<th>{%Total}<th>{%Expected}<th title='{%Chi Square}'>{%Chi2}<th title='{%Mutual Information}'>{%MI}";
 
 			$sort_col = array();
@@ -56,7 +56,7 @@
 			array_multisort($sort_col, SORT_NUMERIC, $wordlist, SORT_ASC );
 			
 			$i = 0; $maxshow = $_GET['max'] or $maxshow = 10;
-			$json .= "\n\t'$deps':[[{'key':'$fld','label':'$fldname'},\n{'key':'obs','label':'Observed'},\n{'key':'tot','label':'Total'},\n{'key':'exp','label':'Expected'},\n{'key':'chi2','label':'Chi Square'},\n{'key':'mi','label':'Mutual Information'}],\n";
+			$json .= "\n\t'$deprel':[[{'key':'$fld','label':'$fldname'},\n{'key':'obs','label':'Observed'},\n{'key':'tot','label':'Total'},\n{'key':'exp','label':'Expected'},\n{'key':'chi2','label':'Chi Square'},\n{'key':'mi','label':'Mutual Information'}],\n";
 			foreach ( array_reverse($wordlist) as $collocate => $data ) {
 				if ( $i < $maxshow ) $maintext .= "<tr><td>$collocate<td>".join("<td>", $data);
 				$i++;
@@ -80,6 +80,43 @@
 				<input name='json'>
 				<input name='title'>
 			</form>";
+	} else {
+
+		$nowsfld = array("head", "deps", "deprel"); // Fields to ignore for context
+		foreach ( $settings['cqp']['pattributes'] as $key => $kva ) { 
+			if ( in_array($key, $nowsfld) ) continue;
+			$options .= "<option value='$key'>{%{$kva['display']}}</option>";
+		};
+		
+		$qbnosearch = true;	
+		require_once ("$ttroot/common/Sources/querybuilder.php");
+				
+		$maintext .= "<h1>{%Word Sketches}</h1>
+				<script language=Javascript>
+					$prescript
+					function checksearch (frm) {
+						if ( frm.cqlfld.value == '' ) {
+							updatequery(true); 
+							if ( frm.cqlfld.value == '[] within text' ) frm.cqlfld.value = '';
+							if ( frm.cqlfld.value == '' ) return false;
+						};
+					}; 
+				</script>
+		
+			<form action='index.php?action=$action' method=post>
+					<p>{%CQL Query}: &nbsp;  $cqlbox
+					<input type=submit value=\"{%Search}\"> 
+						<a onClick=\"showqb('cqlfld');\" title=\"{%define a CQL query}\">{%query builder}</a>
+						| <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a>
+					</p>
+			<p>{%Sketch field}: <select name=fld><option value=''>[{%select}]</option>$options</select>
+			<p><input type=submit value=Create>
+			</form>
+				<div style='display: none;' class='helpbox' id='cqlview'></div>
+				<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>$querytext</div>
+				<script language='Javascript' src=\"$jsurl/cqlparser.js\"></script>
+				<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>
+			";
 		
 	};
 

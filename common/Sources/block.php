@@ -14,7 +14,7 @@
 	$stype = $_GET['elm'] or $stype = "s";
 	if ( $stype == "1" ) $stype = "s";
 
-	// TODO: should this be textedit.js?
+	// TODO: should this use textedit.js?
 
 	// When so indicated, load the external PSDX file so we can link to existing trees
 	if ( $settings['psdx'] && file_exists( "Annotations/$xmlid.psdx") ) {
@@ -24,8 +24,10 @@
 	$blockdef = $settings['xmlfile']['sattributes'][$stype];
 	$defdef = array ( "s" => "Sentence", "p" => "Paragraph", ); 
 	
+	if ( $_GET['jmp'] ) $sel = "[.//tok[@id='{$_GET['jmp']}']]";
+	
 	$stype = str_replace("|", "| //", $stype);
-	$result = $xml->xpath("//$stype"); 
+	$result = $xml->xpath("//$stype$sel"); 
 	if ( $result > 100 ) { 
 		$result = array_slice($result, 0, 100);
 	};

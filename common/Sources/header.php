@@ -10,15 +10,22 @@
 	$result = $xml->xpath("//title"); 
 	$title = $result[0];
 
-	$tplfile = $_POST['tpl'] or $tplfile = $_GET['tpl'] or $tplfile = "teiHeader-edit.tpl";
-
-	if ( file_exists("Resources/teiHeader-$tplfile.tpl") ) $tplfile = "teiHeader-$tplfile.tpl";
-
-	if ( !file_exists("Resources/$tplfile") && $act != "rawview" ) fatal ("No such header template: $tplfile");
-	$text = file_get_contents("Resources/$tplfile");
 	$maintext .= "<h2>$fileid</h2><h1>$title </h1>";
-	if ( $act != "rawview" ) $maintext .= "<h2>Template: $tplfile</h2>";
 
+	$tplfile = $_POST['tpl'] or $tplfile = $_GET['tpl'];
+	
+	if ( !$tplfile && !$settings['teiheader'] ) {
+		$tplfile = "teiHeader-edit.tpl";
+
+
+		if ( file_exists("Resources/teiHeader-$tplfile.tpl")  && !$settings['teiheader'] ) $tplfile = "teiHeader-$tplfile.tpl";
+
+		if ( !file_exists("Resources/$tplfile") && $act != "rawview" && !$settings['teiheader'] ) fatal ("No such header template: $tplfile");
+		$text = file_get_contents("Resources/$tplfile");
+		if ( $act != "rawview" ) $maintext .= "<h2>Template: $tplfile</h2>";
+	
+	};
+	
 	if ( $act == "save" ) {
 		check_login();
 
@@ -80,7 +87,61 @@
 		$teiheader = current($xml->xpath("//teiHeader"));
 		$maintext .= showxml($teiheader);
 		$maintext .= "<hr><p>".$ttxml->viewswitch();
+	
+	} else if ( $act == "edit" && $settings['teiheader'] && !$tplfile ) {
+	
+		check_login();
+		if  ( !$corpusfolder ) $corpusfolder = "cqp";
+
+		$maintext .= "<h2>Editing from XML</h2>
+			<table>";
+		foreach ( $settings['teiheader'] as $headerfield ) {
 		
+			$xquery = $headerfield['key'];
+			
+			$result = $xml->xpath($xquery); 
+			$tmp = $result[0];
+			if ( !$result ) $to = "";
+			else if ( $tmp->children() ) {
+				$to = $tmp->asXML();
+				$to = preg_replace ("/^<[^>]+>/", "", $to); # Get the innerXML
+				$to = preg_replace ("/<\/[^>]+>$/", "", $to); # Get the innerXML
+			} else $to = $tmp."";
+
+			$xquery = str_replace("'", '&#039;', $xquery);
+						
+			$xval = str_replace('"', '&quot;', $to.""); # $to->asXML()
+			$xval = str_replace("'", '&#039;', $xval);
+
+			if ( $headerfield['select'] ) {
+				$optionlist = "";
+				if ( !$xval ) $optionlist = "<option value=''>[{%select}]</option>"; 
+				foreach ( $headerfield['select'] as $option ) {
+					if ( $xval == $option['key'] ) $sel = "selected"; else $sel = ""; 
+					$optionlist .= "<option value='{$option['key']}' $sel>{%{$option['display']}}</option>"; 
+				};
+				$editfld = "<select name=\"values[$key]\">$optionlist</select>";				
+			} else if ( $headerfield['cqp'] ) {
+				$optionlist = ""; $xkey = $headerfield['cqp'];
+				if ( !$xval ) $optionlist = "<option value=''>[{%select}]</option>"; 
+				foreach ( explode ( "\0", file_get_contents("$corpusfolder/$xkey.avs") ) as $kva ) { 
+					if ( $kva == "" || $kva == "_" ) continue; 
+					if ( $xval == $kva ) $sel = "selected"; else $sel = ""; 
+					$optionlist .= "<option value='{$kva}' $sel>{$kva}</option>"; 
+				};
+				$editfld = "<select name=\"values[$key]\">$optionlist</select>";				
+			} else {
+				$rowcnt = min(8,ceil(strlen($xval)/80));
+				$editfld = "<textarea name=\"values[$key]\" cols='80' rows='$rowcnt'>$xval</textarea>";
+			};
+						
+			$existing = "<input type=hidden name='queries[$key]' value='$xquery'>";
+
+			$maintext .= "<tr><td>{%{$headerfield['display']}}<td>$editfld $existing";
+
+		};
+		$maintext .= "</table>";
+	
 	} else if ( $act == "edit" ) {
 	
 		check_login();

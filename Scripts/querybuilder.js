@@ -229,6 +229,7 @@ function showtokenexpression ( list ) {
 
 function patt2name (it, region='') {
 	var name = '';
+	if ( typeof(pattname) == "undefined" ) return it.patt; 
 	if ( it.patt ) {
 		var patt = it.patt;
 		if ( region ) patt = region + '_' + patt;
@@ -247,7 +248,16 @@ function patt2name (it, region='') {
 	} else if (it.number) {
 		name = '<b>' + it.number + '</b>';
 	} else if (it.re) {
-		name = '<i>' + it.re + '</i>';
+		if ( it.re.match(/^([a-zA-Z0-9]+)\.\*$/) ) {
+	        var tmp = /^([a-zA-Z0-9]+)\.\*$/.exec(it.re);                     
+			name = '[' + i18n('starts with') + '] ' + '<i>' + tmp[1] + '</i>';
+		} else if ( it.re.match(/^\.\*([a-zA-Z0-9]+)$/) ) {
+	        var tmp = /^\.\*([a-zA-Z0-9]+)$/.exec(it.re);                     
+			name = '[' + i18n('ends in') + '] ' + '<i>' + tmp[1] + '</i>';
+		} else if ( it.re.match(/^\.\*([a-zA-Z0-9]+)\.\*$/) ) {
+	        var tmp = /^\.\*([a-zA-Z0-9]+)\.\*$/.exec(it.re);                     
+			name = '[' + i18n('contains') + '] ' + '<i>' + tmp[1] + '</i>';
+		} else name = '<i>' + it.re + '</i>';
 	};
 	return name;
 };
