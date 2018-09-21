@@ -498,23 +498,16 @@
 
 		};
 		
-		# Delimit the context where needed
-		if ( $settings['xmlfile']['paged'] ) {
-		
-			$tokpos = strpos($file, "id=\"$tokid\"");
-			$pbef = rstrpos($file, "<pb", $tokpos) or $pbef = strpos($file, "<text");
-			$paft = strpos($file, "<pb", $tokpos) or $pbef = strpos($file, "</text");
-			$span = $paft-$pbef;
-			$editxml = substr($file, $pbef, $span);
-			
-		} else {
-			$result = $xml->xpath($mtxtelement); 
-			$txtxml = $result[0]; 
-			$editxml = $txtxml->asXML();
-		};
+		// Get the first parent node for the context
+		$xp = "//tok[@id='$tokid']/..";
+		$result = $xml->xpath($xp); 
+		$txtxml = $result[0];
+		$editxml = $txtxml->asXML();
+
 		
 		# empty tags are working horribly in browsers - change
 		$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
+		
 		
 		# Show the context
 		$maintext .= "<hr><div id=mtxt>".$editxml."</div>
