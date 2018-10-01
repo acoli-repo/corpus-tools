@@ -248,7 +248,9 @@ function patt2name (it, region='') {
 	} else if (it.number) {
 		name = '<b>' + it.number + '</b>';
 	} else if (it.re) {
-		if ( it.re.match(/^([a-zA-Z0-9]+)\.\*$/) ) {
+		if ( it.re == ''  ) {
+			name = '(' + i18n('empty') + ')';
+		} else if ( it.re.match(/^([a-zA-Z0-9]+)\.\*$/) ) {
 	        var tmp = /^([a-zA-Z0-9]+)\.\*$/.exec(it.re);                     
 			name = '[' + i18n('starts with') + '] ' + '<i>' + tmp[1] + '</i>';
 		} else if ( it.re.match(/^\.\*([a-zA-Z0-9]+)$/) ) {
