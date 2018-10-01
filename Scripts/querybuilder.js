@@ -229,8 +229,8 @@ function showtokenexpression ( list ) {
 
 function patt2name (it, region='') {
 	var name = '';
-	if ( typeof(pattname) == "undefined"  ) return it.patt; 
 	if ( it.patt ) {
+		if ( typeof(pattname) == "undefined"  ) return it.patt; 
 		var patt = it.patt;
 		if ( region ) patt = region + '_' + patt;
 		name = pattname[patt]; 
