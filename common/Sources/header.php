@@ -16,7 +16,7 @@
 	
 	if ( !$tplfile && !$settings['teiheader'] ) $tplfile = "teiHeader-edit.tpl";
 
-	if ( $tplfile  ) {
+	if ( $tplfile  ) {	
 		if ( file_exists("Resources/teiHeader-$tplfile.tpl")  && !$settings['teiheader'] ) $tplfile = "teiHeader-$tplfile.tpl";
 
 		if ( !file_exists("Resources/$tplfile") && $act != "rawview" && !$settings['teiheader'] ) fatal ("No such header template: $tplfile");
