@@ -105,6 +105,14 @@ use XML::LibXML;
 		$ttnode->setAttribute('id', "ftn-$cnt");
 	}; 
 	
+	# Number the footnotes
+	$cnt = 0;
+	if ( $debug ) { print "Finding anon : $mtxtelem//anon\n"; };
+	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//anon")) {
+		$cnt++;
+		$ttnode->setAttribute('id', "an-$cnt");
+	}; 
+	
 	# Number the critical elements
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//app")) {

@@ -14,16 +14,14 @@
 
 	$tplfile = $_POST['tpl'] or $tplfile = $_GET['tpl'];
 	
-	if ( !$tplfile && !$settings['teiheader'] ) {
-		$tplfile = "teiHeader-edit.tpl";
+	if ( !$tplfile && !$settings['teiheader'] ) $tplfile = "teiHeader-edit.tpl";
 
-
+	if ( $tplfile  ) {
 		if ( file_exists("Resources/teiHeader-$tplfile.tpl")  && !$settings['teiheader'] ) $tplfile = "teiHeader-$tplfile.tpl";
 
 		if ( !file_exists("Resources/$tplfile") && $act != "rawview" && !$settings['teiheader'] ) fatal ("No such header template: $tplfile");
 		$text = file_get_contents("Resources/$tplfile");
-		if ( $act != "rawview" ) $maintext .= "<h2>Template: $tplfile</h2>";
-	
+		if ( $act != "rawview" ) $maintext .= "<h2>Template: $tplfile</h2>";	
 	};
 	
 	if ( $act == "save" ) {
@@ -125,7 +123,7 @@
 				$optionlist = ""; $xkey = $headerfield['cqp'];
 				if ( !$xval ) $optionlist = "<option value=''>[{%select}]</option>"; 
 				foreach ( explode ( "\0", file_get_contents("$corpusfolder/$xkey.avs") ) as $kva ) { 
-					if ( $kva == "" || $kva == "_" ) continue; 
+					if ( $kva == "" || $kva == "_" ) continue; // Do not add rows without values 
 					if ( $xval == $kva ) $sel = "selected"; else $sel = ""; 
 					$optionlist .= "<option value='{$kva}' $sel>{$kva}</option>"; 
 				};

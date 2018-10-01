@@ -331,7 +331,8 @@ $maintext .= "
 		foreach ( $ttxml->xml->xpath("//s") as $sent ) {
 			$tnr = 0; $verticalized = "";	
 			unset($heads); unset($tid);
-			foreach ( $sent->xpath(".//tok") as $tok ) {		
+			// TODO: do DTOK!!!
+			foreach ( $sent->xpath(".//tok[not(dtok)] | //dtok") as $tok ) {		
 				$form = forminherit($tok, $formfld);
 				if ( $form != "--" ) {
 					$tnr++;	

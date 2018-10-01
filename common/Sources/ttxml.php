@@ -22,7 +22,7 @@ class TTXML
 	public $facsimg; # The facsimile image for the page
 
 	function __construct($fileid = "", $fatal = 1, $options = "" ) {	
-		global $xmlfolder; global $baseurl;
+		global $xmlfolder; global $baseurl; global $settings;
 		
 		# Use $_GET to find the file
 		if ( !$xmlfolder ) $xmlfolder = "xmlfiles";
@@ -87,6 +87,11 @@ class TTXML
 				else if ( !strstr($audiourl, 'Audio') ) $audiourl = $baseurl."Audio/$audiourl"; 
 			};
 			$this->audiourl = $audiourl;
+		};		
+		
+		// If we have pseudonimization rules, pseudonimize the text
+		if ( $settings['anonimization'] && !$settings['anonimization']['manual'] ) {
+			$this->pseudo();
 		};		
 	}
 	
@@ -531,6 +536,57 @@ class TTXML
 		if ( $this->fileid ) $filetosave = $this->fileid;
 		file_put_contents("xmlfiles/$filetosave", $this->xml->asXML());
 	}
+	
+	// Functions for assigning pseudonyms to <anon> elements
+	var $pseudo = array ( ); var $pseudodone = array(); var $caserules = array ();
+	function pseudo() {
+		global $settings;
+		if ( $settings['anonimization'] ) {
+			foreach ( $settings['anonimization']['values'] as $key => $val ) $this->pseudo[$key] = explode(",", $val['vals']); 
+			foreach ( $settings['anonimization']['caserules'] as $key => $val ) $this->caserules[$key] = $val; 
+		};
+		foreach ( $this->xml->xpath("//anon") as $anon ) {
+			$deanon = $this->deanon($anon);
+		};
+	}
+
+	function deanon( $anon ) {
+		global $settings;
+		$full = $anon['type']."-".$anon['subtype'];
+		$name = $anon['type'];
+		if ( !$deanon ) {
+			$n = $anon['n'];
+			if ( $n && $this->pseudodone[$full.$n] ) {
+				list ( $deanon, $name ) = $this->pseudodone[$full.$n];
+			} else {
+				$options = array ( $anon['type']."-".$anon['subtype'],  $anon['type'] );
+				while ( !$deanon && $options ) {
+					$option = array_pop($options)."";
+					if ( is_array($this->pseudo[$option]) ) {
+						$deanon = array_pop($this->pseudo[$option]);
+						$name = $settings['anonimization']['values']["$option"]['display'];
+					};
+				};
+			};
+			if ( $deanon ) {
+				$this->pseudodone[$full.$n] = array ( $deanon, $name );
+				$case = $anon['case']."";
+				if ( $this->caserules[$case] ) {
+					$from = $this->caserules[$case]['from'] or $from = '$';
+					$deanon = preg_replace("/$from/", $this->caserules[$case ]['to'], $deanon);
+				};
+			};
+		};
+		if ( !$deanon ) {
+			$deanon = ucfirst($anon['type']);
+			if ( $anon['n'] ) $deanon .= " ".$anon['n'];
+		};
+		if ( !$deanon ) $deanon = "Anon";
+		$anon[0] = $deanon;
+		$anon['title'] = "{%Anonimized} {%$name}";
+		
+		return $deanon;
+	}	
 	
 };
 
