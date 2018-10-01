@@ -229,6 +229,7 @@ function showtokenexpression ( list ) {
 
 function patt2name (it, region='') {
 	var name = '';
+		console.log(it);
 	if ( it.patt ) {
 		if ( typeof(pattname) == "undefined"  ) return it.patt; 
 		var patt = it.patt;
@@ -245,9 +246,10 @@ function patt2name (it, region='') {
 		};
 	} else if ( it.satt ) {
 		name = pattname[it.satt.patt]; 
-	} else if (it.number) {
+	} else if ( it.number ) {
 		name = '<b>' + it.number + '</b>';
-	} else if (it.re) {
+	} else if ( typeof(it.re) != 'undefined' ) {
+		console.log(it.re);
 		if ( it.re == ''  ) {
 			name = '(' + i18n('empty') + ')';
 		} else if ( it.re.match(/^([a-zA-Z0-9]+)\.\*$/) ) {
