@@ -247,8 +247,8 @@ function patt2name (it, region='') {
 		if ( typeof(pattname) == "undefined"  ) return it.satt.patt; 
 		name = pattname[it.satt.patt]; 
 		if ( typeof(name) == "undefined" ) {
-			name = '<i class=wrong>' + it.patt + '</i>';
-			warnings += '<li>Undefined sattribute : <b>' + it.patt + '</b>';
+			name = '<i class=wrong>' + it.satt.patt + '</i>';
+			warnings += '<li>Undefined sattribute : <b>' + it.satt.patt + '</b>';
 		};
 	} else if ( it.number ) {
 		name = '<b>' + it.number + '</b>';
