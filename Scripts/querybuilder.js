@@ -233,7 +233,8 @@ function patt2name (it, region='') {
 		if ( typeof(pattname) == "undefined" ) return it.patt; 
 		var patt = it.patt;
 		if ( region ) patt = region + '_' + patt;
-		name = pattname[patt]; 
+		if ( pattname[patt].display ) name =  pattname[patt].display;
+		else name = pattname[patt]; 
 		if ( typeof(name) == "undefined" ) {
 			if ( it.patt == "word" ) {
 				name = '<i>' + it.patt + '</i>';
@@ -245,7 +246,9 @@ function patt2name (it, region='') {
 		};
 	} else if ( it.satt ) {
 		if ( typeof(pattname) == "undefined"  ) return it.satt.patt; 
-		name = pattname[it.satt.patt]; 
+		patt = it.satt.patt;
+		if ( pattname[patt].display ) name =  pattname[patt].display;
+		else name = pattname[it.satt.patt];
 		if ( typeof(name) == "undefined" ) {
 			name = '<i class=wrong>' + it.satt.patt + '</i>';
 			warnings += '<li>Undefined sattribute : <b>' + it.satt.patt + '</b>';
@@ -326,6 +329,8 @@ function updatequery(nodirect = false) {
 				val = val + '.*';
 			} else if ( matchtype == 'endsin' ) {
 				val = '.*' + val;
+			} else if ( typeof(pattname) != 'undefined' && pattname[parse[2]].values == 'multi' ) {
+				val = '.*' + val + '.*'; // TODO: '(.+,|)' + val + '(,.+|)';
 			};
         	var tmp = /^(.*?)_(.*)$/.exec(parse[2]);
         	var gltype = tmp[1]; var glatt = tmp[2];

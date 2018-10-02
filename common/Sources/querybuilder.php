@@ -64,7 +64,7 @@
 		// define the word search		
 		foreach ( $cqpcols as $col ) {
 			$colname = pattname($col); 
-			$jsnames .= "pattname['$col'] = '{%$colname}'; ";
+			$jsnames .= "pattname['$col'] = {'display': '{%$colname}'}; ";
 			if ( !$colname ) $colname = "[$col]";
 			$tstyle = ""; 
 			$coldef = $settings['cqp']['pattributes'][$col];
@@ -136,7 +136,7 @@
 		foreach ( $settings['cqp']['sattributes'] as $lvl ) {
 			foreach ( $lvl as $xatt ) {
 				if ( !$xatt['display'] || !$xatt['key'] || !is_array($xatt) ) continue;
-				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = '{%{$xatt['display']}}'; ";
+				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";
 			};
 		};
 		

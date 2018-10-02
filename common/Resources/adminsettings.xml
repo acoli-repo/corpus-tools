@@ -248,7 +248,10 @@
 						<val key="1" display="Visible only for admin users"/>
 						<val key="0" display="Visible for everyone"/>
 		    		</att>
-		    		<att key="sort" display="Sort method for select lists"/>
+		    		<att key="sort" display="Sort method for select lists" default="string">
+						<val key="string" display="Sort as string (based on the server localation)"/>
+						<val key="numeric" display="Sort as numbers"/>
+		    		</att>
 					<att key="external" display="Lookup if the XPath is in an external file"/>
 				</list>
 			</list>
