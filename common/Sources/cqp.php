@@ -418,7 +418,7 @@
 					if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" ) {
 						if ( $settings['cqp']['sattributes']['text'][$attit]['values'] == "multi" ) {
 							$fatts[$key] = ""; $sep = "";
-							foreach ( explode(", ", $fatt) as $fattp ) { $fatts[$key] .= "$sep{%$attit-$fattp}"; $sep = ", "; };
+							foreach ( explode(",", $fatt) as $fattp ) { $fatts[$key] .= "$sep{%$attit-$fattp}"; $sep = ", "; };
 						} else $fatts[$key] = "{%$attit-$fatt}";
 					};
 				};
