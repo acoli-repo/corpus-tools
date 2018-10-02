@@ -416,7 +416,10 @@
 					$attit = $atttik[$key];
 					$tmp = $settings['cqp']['sattributes']['text'][$attit]['type'];
 					if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" ) {
-						$fatts[$key] = "{%$attit-$fatt}";
+						if ( $settings['cqp']['sattributes']['text'][$attit]['values'] == "multi" ) {
+							$fatts[$key] = ""; $sep = "";
+							foreach ( explode(", ", $fatt) as $fattp ) { $fatts[$key] .= "$sep{%$attit-$fattp}"; $sep = ", "; };
+						} else $fatts[$key] = "{%$attit-$fatt}";
 					};
 				};
 				$maintext .= "<tr><td><a href='index.php?action=$fileview&cid={$fid}'>{$fidtxt}</a><td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>".join ( "<td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>", $fatts );

@@ -330,7 +330,7 @@ function updatequery(nodirect = false) {
 			} else if ( matchtype == 'endsin' ) {
 				val = '.*' + val;
 			} else if ( typeof(pattname) != 'undefined' && pattname[parse[2]].values == 'multi' ) {
-				val = '.*' + val + '.*'; // TODO: '(.+,|)' + val + '(,.+|)';
+				val = '.*' + val + '.*'; // TODO: '(.+,|)' + val + '(,.+|)'; - and this should not visualize as [contains] (maybe)
 			};
         	var tmp = /^(.*?)_(.*)$/.exec(parse[2]);
         	var gltype = tmp[1]; var glatt = tmp[2];
