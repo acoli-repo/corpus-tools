@@ -229,7 +229,6 @@ function showtokenexpression ( list ) {
 
 function patt2name (it, region='') {
 	var name = '';
-		console.log(it);
 	if ( it.patt ) {
 		if ( typeof(pattname) == "undefined"  ) return it.patt; 
 		var patt = it.patt;
@@ -245,6 +244,7 @@ function patt2name (it, region='') {
 			};
 		};
 	} else if ( it.satt ) {
+		if ( typeof(pattname) == "undefined"  ) return it.satt.patt; 
 		name = pattname[it.satt.patt]; 
 	} else if ( it.number ) {
 		name = '<b>' + it.number + '</b>';
