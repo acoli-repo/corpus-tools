@@ -98,7 +98,12 @@
 		};
 		exit;
 
-	} else if ( $sid ) {
+	} else if ( $sid || $_GET['jmp'] ) {
+
+		$jump = $_GET['jmp'];
+		if ( !$sid && $jump ) {
+			$sid =	current($ttxml->xml->xpath("//s[.//tok[@id='$jump']]/@id"));
+		};
 
 		if ( $_POST['sent'] ) {	
 			$sent = simplexml_load_string($_POST['sent']);
@@ -240,7 +245,7 @@ $graph
 <script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>
 <hr>
 <p>
-	<a href='index.php?action=file&cid={$ttxml->fileid}&tid=$sid'>{%Text view}</a>
+	<a href='index.php?action=text&cid={$ttxml->fileid}&tid=$sid'>{%Text view}</a>
 	&bull;
 	<a href='index.php?action=block&cid={$ttxml->fileid}&tid=$sid&elm=s'>{%Sentence view}</a>
 ";
@@ -473,6 +478,7 @@ $maintext .= "
 	};	
 
 	function drawtree ( $node, $tokform = "form" ) {
+		$jump = $_GET['jmp'];
 		$treetxt = ""; if ( $_GET['form'] ) $tokform = $_GET['form'];
 		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight; global $maxwidth;
 
@@ -488,7 +494,8 @@ $maintext .= "
 			if ( $text == "--" ) continue;
 			if ( $text == "" ) $text = "∅";
 			if ( $tok['pos'] != "PUNCT" || $showpunct ) {
-				$svgtxt .= "\n\t<text text-anchor='middle' tokid=\"{$tok['id']}\" font-size=\"12pt\" type=\"tok\" head=\"{$tok['head']}\" deprel=\"{$tok['deprel']}\" $onclick>$text</text> ";
+				if ( $jump != '' && $jump == $tok['id'] ) { $highl = " font-weight='bold' fill='#aa2200' "; } else { $highl = ""; };
+				$svgtxt .= "\n\t<text text-anchor='middle' tokid=\"{$tok['id']}\" font-size=\"12pt\" type=\"tok\" head=\"{$tok['head']}\" deprel=\"{$tok['deprel']}\" $onclick $highl>$text</text> ";
 			};
 		};
 		$svgtxt .= "</svg>";

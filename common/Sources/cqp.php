@@ -254,7 +254,7 @@
 		}; 
 		
 		# This is a document search - turn it into CCQP
-		if ( !$cql || $cql == "[]" ) {	
+		if ( !$cql ) {	// This used to also do [] but that is now done by QB
 			$cql = "<text> []";  $sep = "::"; $fileonly = true;
 		} else if ( strstr($cql, '<text> [] ::') ) { 
 			$sep = "&"; $fileonly = true;
@@ -283,8 +283,6 @@
 			if ( $_POST['strategy'] && !$fileonly ) {
 				$cmd = "set MatchingStrategy {$_POST['strategy']}";
 				$cqp->exec($cmd); // Select the corpus
-				// TODO: make this show on the right position
-				// $maintext .= "<p>{%Matching strategy}: {%{$_POST['strategy']}}";
 			};
 		};
 

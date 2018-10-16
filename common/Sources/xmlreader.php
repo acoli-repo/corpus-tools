@@ -350,7 +350,7 @@
 						if ( preg_match("/([^\/.]+)\.xml/", $cid, $matches) ) { $xmlid = $matches[1]; };
 						$texttit = $xmlid;			
 					};
-					$maintext .= "<p>$lcnt. <a href='index.php?action=file&cid=$cid'>$texttit</a>";
+					if ( $cid ) $maintext .= "<p>$lcnt. <a href='index.php?action=file&cid=$cid'>$texttit</a>";
 				};	
 			
 			};
