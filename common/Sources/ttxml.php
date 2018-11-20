@@ -389,8 +389,8 @@ class TTXML
 			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $npid = $matches[1]; };
 			if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) { $npag = $matches[1]; };
 			
-			if ( $npid ) $nnav = "<a href='index.php?action=$action&cid=$this->fileid&pageid=$npid&pbtype=$pbtype'>> $npag</a>";
-			else $nnav = "<a href='index.php?action=$action&cid=$this->fileid&pageid=$npag'>> $npag</a>";
+			if ( $npid ) $nnav = "<a id=nextpag href='index.php?action=$action&cid=$this->fileid&pageid=$npid&pbtype=$pbtype'>> $npag</a>";
+			else $nnav = "<a id=nextpag href='index.php?action=$action&cid=$this->fileid&pageid=$npag'>> $npag</a>";
 		};
 		
 		# Find the previous page/chapter (for navigation)
@@ -402,7 +402,7 @@ class TTXML
 			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $bpid = $matches[1]; };
 			if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) { $bpag = $matches[1]; } else { $bpag = ""; };
 			if ( $bpid  )  $bnav = "<a href='index.php?action=$action&cid=$this->fileid&pageid=$bpid$pbsel'>$bpag <</a> ";
-			else $bnav = "<a href='index.php?action=$action&cid=$this->fileid&page=$bpag'>$bpag <</a>";
+			else $bnav = "<a id=prevpag href='index.php?action=$action&cid=$this->fileid&page=$bpag'>$bpag <</a>";
 			if ( !$firstpage ) { $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a> &nbsp; $bnav"; };
 		};
 

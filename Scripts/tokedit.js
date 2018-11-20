@@ -872,10 +872,6 @@ function forminherit ( tok, fld ) {
 		};
 		return difffrm;
 	};
-	// If there is a form to inherit from, display that
-	if ( inheritfrom != undefined ) {
-		return forminherit(tok, inheritfrom);
-	};
 	// When transliterating, find the form and transliterate
 	var transfrom = formdef[fld]['transliterate'];
 	if ( transfrom != undefined ) {
@@ -888,10 +884,15 @@ function forminherit ( tok, fld ) {
 		};
 		return transform;
 	};
+	// If there is a form to inherit from, display that
+	if ( inheritfrom != undefined ) {
+		return forminherit(tok, inheritfrom);
+	};
 	return tok.innerHTML;
 };
 
 function transliterate ( form ) {
+	console.log(form);
 	if ( typeof(transl) != 'object' ) { console.log('no transliteration'); return form; };
 	if ( transt.length == 0 ) { // Make an array out of the object on the first call
 		for ( var a in transl ) {

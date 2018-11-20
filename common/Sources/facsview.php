@@ -123,6 +123,8 @@
 			var tmp = tok.getAttribute('bbox');
 			while ( !imgloaded ) { await sleep(10); };
 			if ( !tmp ) { 
+				// Hide the token if it has no bbox
+				tok.style.display = 'none';
 				return -1; 
 			};
 			var bbox = tmp.split(' ');
@@ -167,6 +169,17 @@
 			imgdiv.style.transform = 'scale('+scl+','+scl+')';
 			imgdiv.style['transform-origin'] = 'left top';
 		};
+		document.body.onkeydown = function(e) { 
+			if ( e.key == 'ArrowLeft' ) {
+				var np = document.getElementById('prevpag');
+				console.log(np);
+				if ( np ) np.click();
+			} else if ( e.key == 'ArrowRight' ) {
+				var np = document.getElementById('nextpag');
+				console.log(np);
+				if ( np ) np.click();
+			} ;
+		}; 
 	</script>
 	<br style='clear: both; margin-top: 10px; margin-top: 10px;'/>
 	<hr>

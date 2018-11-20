@@ -23,7 +23,18 @@
 	
 	$blockdef = $settings['xmlfile']['sattributes'][$stype];
 	$defdef = array ( "s" => "Sentence", "p" => "Paragraph", ); 
-	
+
+	// Set a default writing direction when defined
+	$dirxpath = $settings['xmlfile']['direction'];
+	if ( $dirxpath ) {
+		$textdir = current($xml->xpath($dirxpath));
+	};
+	if ( $textdir ) {
+		$dircss = "direction: $textdir";
+	} else if ( $settings['xmlfile']['basedirection'] ) {
+		$dircss = "direction: {$settings['xmlfile']['basedirection']}";
+	};
+		
 	if ( $_GET['jmp'] ) $sel = "[.//tok[@id='{$_GET['jmp']}']]";
 	
 	$stype = str_replace("|", "| //", $stype);
@@ -61,7 +72,7 @@
 			$nrblock .= " 
 				<td style='width: 30px;font-size: 10pt;  text-align: right;'>$sentid </table></div>";
 		}  else {
-			if ( $username ) "<a href='index.php?action=sentedit&cid=$fileid&sid={$sent['id']}'>$sentid</a>";
+			if ( $username ) $sentnumtxt = "<a href='index.php?action=sentedit&cid=$fileid&sid={$sent['id']}'>$sentid</a>";
 			else $sentnumtxt = "$sentid";
 
 			$nrblock = "
@@ -76,7 +87,7 @@
 			<div style='width: 90%; border-bottom: 1px solid #66aa66; margin-bottom: 6px; padding-bottom: 6px;'>
 			$nrblock
 			<div style='padding-left: $pl;'>
-			$stxt";
+			<div style='$dircss'>$stxt</div>";
 		foreach ( $settings['xmlfile']['sattributes'][$stype] as $item ) {
 			$key = $item['key'];
 			$atv = preg_replace("/\/\//", "<lb/>", $sent[$key]);	
