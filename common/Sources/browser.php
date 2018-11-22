@@ -111,8 +111,10 @@
 		
 		foreach ( $vals as $val => $cnt ) {
 			$oval = $val;
-			if ( $val == "" || $val == "_" ) $val = "({%none})";
-			else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
+			if ( $val == "" || $val == "_" ) {
+				if ( !$settings['cqp']['listnone'] ) continue;
+				$val = "({%none})";
+			} else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
 			$maintext .= "<li key='$val'><a href='index.php?action=$action&class=$class&val=$oval'>$val</a></li>";
 		}; 
 		$maintext .= "</ul><script language=Javascript>sortList(document.getElementById('sortlist'));</script>";
