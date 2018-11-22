@@ -8,7 +8,7 @@
 	$maintext .= "<h1>{%Document Browser}</h1>";
 
 	$titlefld = $settings['cqp']['titlefld'];
-	if ( $titlefld ) 
+	if ( !$titlefld ) 
 		if ( $settings['cqp']['sattributes']['text']['title'] ) $titlefld = "text_title"; else $titlefld = "text_id";
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
