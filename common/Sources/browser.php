@@ -33,13 +33,15 @@
 		$stop = $start + $max;
 		if ( $size > $max ) $nav = " - {%showing} $start - $stop";
 		
-		$catq = "tabulate Matches $start $stop match text_id, match text_title";
-		// $maintext .= "<p>$cqpquery; $catq;";
-		$results = $cqp->exec($catq); 
+		if ( $size > 0 ) {
+			$catq = "tabulate Matches $start $stop match text_id, match text_title";
+			// $maintext .= "<p>$cqpquery; $catq;";
+			$results = $cqp->exec($catq); 
 		
-		foreach ( explode("\n", $results) as $result ) {
-			list ( $cid, $title ) = explode("\t", $result);
-			$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$title</a>";
+			foreach ( explode("\n", $results) as $result ) {
+				list ( $cid, $title ) = explode("\t", $result);
+				$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$title</a>";
+			};
 		};
 
 	} else if ( $class ) {
@@ -53,9 +55,10 @@
 		$list = file_get_contents("$cqpfolder/text_$class.avs");
 
 		foreach ( explode("\0", $list) as $val ) {
+			$oval = $val;
 			if ( $val == "" || $val == "_" ) $val = "({%none})";
 			else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
-			$maintext .= "<p><a href='index.php?action=$action&class=$class&val=$val'>$val</a>";
+			$maintext .= "<p><a href='index.php?action=$action&class=$class&val=$oval'>$val</a>";
 		}; 
 	
 	} else {
