@@ -84,9 +84,9 @@
 		
 			foreach ( explode("\n", $results) as $result ) {
 				list ( $cid, $title ) = explode("\t", $result); 
-// 				if ( $titlefld == "text_id" ) {
-// 					$title = preg_replace("/.*\/(.*?)\.xml/", "$1", $cid);
-// 				};
+				if ( $titlefld == "text_id" ) {
+					$title = preg_replace("/.*\/(.*?)\.xml/", "$1", $cid);
+				};
 				if ( $cid && $title ) $maintext .= "<li key='$title'><a href='index.php?action=file&cid=$cid'>$title</a></li>";
 			};
 			$maintext .= "</ul>";
