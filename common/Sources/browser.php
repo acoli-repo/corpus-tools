@@ -65,6 +65,12 @@
 		$list = file_get_contents("$cqpfolder/text_$class.avs");
 
 		foreach ( explode("\0", $list) as $val ) {
+			if ( $item['values'] == "multi" ) {
+				foreach ( explode(",", $val) as $pval ) $vals[trim($pval)]++;
+			} else $vals[$val]++;
+		};
+		
+		foreach ( $vals as $val => $cnt ) {
 			$oval = $val;
 			if ( $val == "" || $val == "_" ) $val = "({%none})";
 			else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
@@ -82,8 +88,8 @@
 			if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
 			$cat = $item['display']; # $val = $item['long'] or 
 	
-			
-			if ( $item['type'] == "select" || $item['type'] == "kselect" ) {	
+			if ( ( $item['type'] == "select" || $item['type'] == "kselect" ) 
+					&& !$item['admin'] || $username ) {	
 				$maintext .= "<p><a href='index.php?action=$action&class=$key'>$cat</a>";
 			};
 	
