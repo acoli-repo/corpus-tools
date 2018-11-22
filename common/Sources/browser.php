@@ -12,6 +12,8 @@
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
 
+	if ( $settings['defaults']['locale'] ) $localebit = ", '{$settings['defaults']['locale']}'";
+
 	$maintext .= "
 		<script language=Javascript>
 			function sortList(ul){
@@ -25,11 +27,8 @@
 					};
 				}
 
-				// Sort the lis in descending order
-				lis.sort(function(a, b){
-				   return b.getAttribute('key') < 
-						  a.getAttribute('key');
-				});
+				// Sort the lis in descending order - locale dependent
+				lis.sort((a, b) => a.getAttribute('key').localeCompare(b.getAttribute('key')$localebit));
 				console.log(lis);
 
 				// Add them into the ul in order
@@ -80,7 +79,7 @@
 			<hr><ul id=sortlist>";
 	
 		if ( $size > 0 ) {
-			$catq = "tabulate Matches $start $stop match text_id, match $tilefld";
+			$catq = "tabulate Matches $start $stop match text_id, match $titlefld";
 			$results = $cqp->exec($catq); 
 		
 			foreach ( explode("\n", $results) as $result ) {
