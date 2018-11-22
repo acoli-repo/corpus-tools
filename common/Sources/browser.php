@@ -48,7 +48,8 @@
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
 
-		$cqpquery = "Matches = <text> [] :: match.text_$class = '$val'";
+		if ( $item['values'] == "multi" ) $cqpquery = "Matches = <text> [] :: match.text_$class = '.*$val.*'";
+		else $cqpquery = "Matches = <text> [] :: match.text_$class = '$val'";
 		$cqp->exec($cqpquery);
 
 		$oval = $val;
@@ -121,11 +122,9 @@
 			if ( ( $item['type'] == "select" || $item['type'] == "kselect" ) 
 					&& ( !$item['admin'] || $username ) ) {	
 				$maintext .= "<li key='$cat'><a href='index.php?action=$action&class=$key'>$cat</a></li>";
-			};
-			$maintext .= "</ul><script language=Javascript>sortlist(document.getElementById('sortlist'));</script>";
-	
-	
+			};	
 		};
+		$maintext .= "</ul>"; //<script language=Javascript>sortlist(document.getElementById('sortlist'));</script>";
 	};
 
 	
