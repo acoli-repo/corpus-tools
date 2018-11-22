@@ -80,7 +80,7 @@
 			foreach ( explode("\n", $results) as $result ) {
 				list ( $cid, $title ) = explode("\t", $result);
 				if ( !$title ) {
-					$fileid = preg_replace("//\/(.*?)\.xml)", "\\1", $cid);
+					$fileid = preg_replace("/\/(.*?)\.xml/", "\\1", $cid);
 					$title = "<i>$fileid</i>"; 
 				};
 				if ( $cid ) $maintext .= "<li key='$title'><a href='index.php?action=file&cid=$cid'>$title</a></li>";
