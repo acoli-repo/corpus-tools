@@ -73,7 +73,9 @@
 	
 	} else {
 	
-		$maintext .= "<p><a href='index.php?action=$action'>{%Documents}</a>
+		$doctitle = getlangfile("browsertext", true);
+	
+		$maintext .= "$doctitle
 			<hr>";
 		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
 
