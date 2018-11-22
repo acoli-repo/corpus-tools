@@ -7,6 +7,8 @@
 	
 	$maintext .= "<h1>{%Document Browser}</h1>";
 
+	$titlefld = $settings['cqp']['titlefld'] or $titlefld = "text_title";
+
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
 
@@ -39,6 +41,11 @@
 		";
 	
 	if ( $class && $val ) {
+
+		// Do not allow searches while the corpus is being rebuilt...
+		if ( file_exists("tmp/recqp.pid") ) {
+			fatal ( "Search is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
+		};
 
 		include ("$ttroot/common/Sources/cwcqp.php");
 		$item = $settings['cqp']['sattributes']['text'][$class];
@@ -73,16 +80,18 @@
 			<hr><ul id=sortlist>";
 	
 		if ( $size > 0 ) {
-			$catq = "tabulate Matches $start $stop match text_id, match text_title";
-			// $maintext .= "<p>$cqpquery; $catq;";
+			$catq = "tabulate Matches $start $stop match text_id, match $tilefld";
 			$results = $cqp->exec($catq); 
 		
 			foreach ( explode("\n", $results) as $result ) {
-				list ( $cid, $title ) = explode("\t", $result);
+				list ( $cid, $title ) = explode("\t", $result); 
+				if ( $titlefld == "text_id" ) {
+					$title = preg_replace("/.*\/(.*?)\.xml/", "$1", $cid);
+				};
 				if ( $cid && $title ) $maintext .= "<li key='$title'><a href='index.php?action=file&cid=$cid'>$title</a></li>";
 			};
 			$maintext .= "</ul>";
-		};
+		} else if ( $username ) $maintext .= "<p class=adminpart>Failed query: ".htmlentities($cqpquery);
 
 	} else if ( $class ) {
 	
