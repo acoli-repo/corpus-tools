@@ -9,6 +9,34 @@
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+
+	$maintext .= "
+		<script language=Javascript>
+			function sortList(ul){
+				var new_ul = ul.cloneNode(false);
+
+				// Add all lis to an array
+				var lis = [];
+				for(var i = ul.childNodes.length; i--;){
+					if(ul.childNodes[i].nodeName === 'LI') {
+						lis.push(ul.childNodes[i]);
+					};
+				}
+
+				// Sort the lis in descending order
+				lis.sort(function(a, b){
+				   return b.getAttribute('key') < 
+						  a.getAttribute('key');
+				});
+				console.log(lis);
+
+				// Add them into the ul in order
+				for(var i = 0; i < lis.length; i++)
+					new_ul.appendChild(lis[i]);
+				ul.parentNode.replaceChild(new_ul, ul);
+			};
+		</script>
+		";
 	
 	if ( $class && $val ) {
 
@@ -41,7 +69,7 @@
 
 		$maintext .= "<p><a href='index.php?action=$action'>{%Documents}</a> > <a href='index.php?action=$action&class=$class'>{%$cat}</a> > $val
 			<p>$size {%documents} $nav
-			<hr>";
+			<hr><ul id=sortlist>";
 	
 		if ( $size > 0 ) {
 			$catq = "tabulate Matches $start $stop match text_id, match text_title";
@@ -50,8 +78,9 @@
 		
 			foreach ( explode("\n", $results) as $result ) {
 				list ( $cid, $title ) = explode("\t", $result);
-				$maintext .= "<p><a href='index.php?action=file&cid=$cid'>$title</a>";
+				if ( $cid ) $maintext .= "<li key='$title'><a href='index.php?action=file&cid=$cid'>$title</a></li>";
 			};
+			$maintext .= "</ul>";
 		};
 
 	} else if ( $class ) {
@@ -60,7 +89,7 @@
 		$cat = $item['display'];
 		
 		$maintext .= "<p><a href='index.php?action=$action'>{%Documents}</a> > {%$cat}
-			<hr>";
+			<hr><ul id=sortlist>";
 		
 		$list = file_get_contents("$cqpfolder/text_$class.avs");
 
@@ -74,28 +103,31 @@
 			$oval = $val;
 			if ( $val == "" || $val == "_" ) $val = "({%none})";
 			else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
-			$maintext .= "<p><a href='index.php?action=$action&class=$class&val=$oval'>$val</a>";
+			$maintext .= "<li key='$val'><a href='index.php?action=$action&class=$class&val=$oval'>$val</a></li>";
 		}; 
+		$maintext .= "</ul><script language=Javascript>sortList(document.getElementById('sortlist'));</script>";
 	
 	} else {
 	
 		$doctitle = getlangfile("browsertext", true);
 	
 		$maintext .= "$doctitle
-			<hr>";
+			<hr><ul id=sortlist>";
 		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
 
 			if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
 			$cat = $item['display']; # $val = $item['long'] or 
 	
 			if ( ( $item['type'] == "select" || $item['type'] == "kselect" ) 
-					&& !$item['admin'] || $username ) {	
-				$maintext .= "<p><a href='index.php?action=$action&class=$key'>$cat</a>";
+					&& ( !$item['admin'] || $username ) ) {	
+				$maintext .= "<li key='$cat'><a href='index.php?action=$action&class=$key'>$cat</a></li>";
 			};
+			$maintext .= "</ul><script language=Javascript>sortlist(document.getElementById('sortlist'));</script>";
 	
 	
 		};
 	};
+
 	
 
 ?>
