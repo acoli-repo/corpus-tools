@@ -133,7 +133,7 @@
 			$cat = $item['display']; # $val = $item['long'] or 
 	
 			if ( ( $item['type'] == "select" || $item['type'] == "kselect" ) 
-					&& ( !$item['noshow'] && !$item['admin']  ) || $username ) ) {	
+					&& ( ( !$item['noshow'] && !$item['admin']  ) || $username ) ) {	
 				$maintext .= "<li key='$cat'><a href='index.php?action=$action&class=$key'>$cat</a></li>";
 			};	
 		};
