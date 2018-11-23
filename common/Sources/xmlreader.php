@@ -300,6 +300,10 @@
 		
 		<table>";
 		foreach ( $entryxml->children() as $fldrec ) {
+			if ( $fldrec['type'] == "separator" ) {
+				$maintext .= "<tr><th colspan=2>{%$fldrec}</th></tr>";
+				continue;
+			};
 			if ( $fldrec['xpath'] ) {
 				$key = $fldrec['xpath']."";
 			} else {
