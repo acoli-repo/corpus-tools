@@ -301,7 +301,7 @@
 		<table>";
 		foreach ( $entryxml->children() as $fldrec ) {
 			if ( $fldrec['type'] == "separator" ) {
-				$maintext .= "<tr><th colspan=2>{%$fldrec}</th></tr>";
+				$maintext .= "<tr><th colspan=2 span='column'>{%$fldrec}</th></tr>";
 				continue;
 			};
 			if ( $fldrec['xpath'] ) {
@@ -313,7 +313,7 @@
 			$fldval = current($record->xpath($key));
 			if ( !$fldval ) continue;
 			if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
-			$maintext .= "<tr><th>{%$val}<td>$fldval";
+			$maintext .= "<tr><th span='row'>{%$val}<td>$fldval";
 		}; 
 		$maintext .= "</table>";
 
