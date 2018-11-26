@@ -2,38 +2,38 @@
 
 	# Show Google Visualization for data
 	if ( !$_POST ) $_POST = $_GET;
-	
+
 	$cntcols = 1; $headrow = 'false';
 	$ttcqp = findapp("tt-cqp");
 
 	if ( $act == "cql" ) {
-		
+
 			$maintext .= "<h1>CQP Statistics</h1>
-	
+
 				<p>Below you can define a base query, and a grouping query
-		
+
 				<form action='index.php?action=$action' method=post>
 					<p>Base query: <input size=70 name=cql value=\"{$_GET['cql']}\">
 					<p>Grouping query: <input size=70 name=query value=\"{$_GET['query']}\">
 					<hr>
 					<input type=submit value=Show>
 				</form>";
-	
-				
+
+
 	} else {
-	
+
 		if ( $_GET['json'] or $_POST['json'] ) {
 
 
 			$title = $_POST['title'] or $title = "Data Visualization";
 			$maintext .= "<h1>$title</h1>";
-	
+
 			if ( $_POST['description'] ) {
 				$maintext .= "<p>{$_POST['description']}</p><hr>";
 			};
-	
+
 			$json = $_GET['json'] or $json = $_POST['json'];
-	
+
 		} else if ( $act == "compare" ) {
 
 			$maintext .= "<h1>{%Query Comparison}</h1>";
@@ -43,13 +43,13 @@
 				$display = $sq['name'] or $display = $sq['display'] or $display = $cql;
 				$cmd = "echo 'Matches = {$sq['cql']}; size Matches $fld;'| $ttcqp";
 				$num = shell_exec($cmd); $num = chop($num);
-				$data .= "\n\t['$display', $num], ";	
+				$data .= "\n\t['$display', $num], ";
 			};
 			$json = "[[{'id':'form', 'label':'Query name'},  {'id':'count', 'label':'Count', 'type':'number'} ], $data]";
 			$nodirect = 1; // This relies on POST
 
 		} else if ( $_GET['cql'] or $_POST['cql'] ) {
-		
+
 			if ( $settings['cqp']['defaults']['registry'] ){
 				$reg = " --cqlfolder={$settings['cqp']['defaults']['registry']}";
 			};
@@ -68,7 +68,7 @@
 					else $cqlname .= "<p>$smp";
 				};
 			};
-			
+
 			if ( $cqlname ) {
 				$cqltxt = "<span title='".htmlentities($cql)."'>$cqlname</span>";
 			} else {
@@ -102,12 +102,12 @@
 
 				$fldname = pattname($fld);
 				$cmd = "join tmp/$tmpfile.2.txt tmp/$tmpfile.3.txt | perl $ttroot/common/Scripts/collocate.pl --selsize=$size --corpussize=$corpussize --fldname='$fldname' --span=1";
-				$json = shell_exec($cmd); 
-								
+				$json = shell_exec($cmd);
+
 			} else if ( $act == "collocations" || $_POST['mode'] == "collocations" ) {
-			
+
 				$maintext .= "<h1>{%Collocations}</h1>";
-			
+
 				$tmpfile = time();
 
 				$moredirect .= "&context=".urlencode($_POST['context']);
@@ -124,38 +124,87 @@
 								<tr><th>{%Search query}:<td>$cqltxt</tr>
 								<tr><th>{%Collocates}:<td><span title='$cmd'>{%Direction}: $dirtxt; {%Context}: $context; {%Field}: {%$fldname}</span></tr>
 							</table>";
-	
+
 				$cmd = "echo 'Matches = $cql; stats Matches $fld :: context:$dir$context' | $ttcqp --output=json";
 				if ( $debug ) $maintext .= "<!-- $cmd -->";
 				$json = shell_exec($cmd);
-				
-				$headrow = "false"; 
+
+				$headrow = "false";
 
 				$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi-square}'>{%Chi-square}</option><option value=5 title='{%Mutual information}'>{%MI}</option></select>";
 				$cntcols = 5;
-			
+
 			} else {
 				$maintext .= "<h1>Corpus Distribution</h1>";
-			
-				$moredirect = "&query=".urlencode($_POST['query']);
-			
-				$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
-				$cmd = "echo 'Matches = $cql; $grquery;' | $ttcqp --output=json";
-				if ( $debug ) $maintext .= "<!-- $cmd -->";
-				$json = shell_exec($cmd);
 
-				if ( preg_match("/Error: (.*)/", $json, $matches) ) { 
+				$moredirect = "&query=".urlencode($_POST['query']);
+
+				$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
+				if ( $ttcqp && !$usecwb ) {
+					// Use tt-cqp by default
+
+					$cmd = "echo 'Matches = $cql; $grquery;' | $ttcqp --output=json";
+					if ( $debug ) $maintext .= "<!-- $cmd -->";
+					$json = shell_exec($cmd);
+
+					// Bug in tt-cqp: remove lines with no category
+					$json = preg_replace("/\n\[[^'][^\]]+\],\s*/", "", $json);
+
+				} else {
+
+					// Fallback in case tt-cqp is not installed
+					// TODO: resolve/improve this fallback
+					
+					include ("$ttroot/common/Sources/cwcqp.php");
+					$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+					$cqpfolder = $settings['cqp']['searchfolder'];
+					if  ( !$corpusfolder ) $corpusfolder = "cqp";
+					# Check whether the registry file exists
+					if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
+						# For backward compatibility, always check the central registry
+						$registryfolder = "/usr/local/share/cwb/registry/";
+					};
+					if ( !file_exists($registryfolder.'/'.strtolower($cqpcorpus)) ) {
+						fatal ( "Corpus $cqpcorpus has no registry file" );
+					};
+
+					// Turn the grquery back
+					$grquery = preg_replace("/([^ ]+)\.([^ ]+)/", "\\1 \\2", $grquery);
+
+					$cqp = new CQP();
+					$cqp->exec($cqpcorpus); // Select the corpus
+					$cqp->exec("set PrettyPrint off");
+					$cqpquery = "Matches = $cql";
+					$cqp->exec($cqpquery);
+					$results = $cqp->exec($grquery);
+
+					$label = "Group";
+					$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}], ";
+					foreach ( explode("\n", $results) as $line ) {
+						list ( $grp, $cnt ) = explode ( "\t", $line );
+						if ( $grp && $cnt ) $json .= "['$grp', $cnt], ";
+					};
+					$json .= "]";
+
+					if ( preg_match("/group Matches match (.*)/", $grquery, $matches ) ) {
+					$grtxt = pattname($matches[1]);
+				} else $grtxt = $grquery;
+
+				};
+
+				if ( preg_match("/Error: (.*)/", $json, $matches) ) {
 					$tterror = $matches[1];
-					if ( preg_match("/failed to open: cqp\/(.*)\.corpus/", $json, $matches) ) { 
+					if ( preg_match("/failed to open: cqp\/(.*)\.corpus/", $json, $matches) ) {
 						$errortxt = "Incorrect request: This corpus has no attribute <i>{$matches[1]}</i>";
-					} else if ( preg_match("/failed to open: cqp\/(.*)\.rng/", $json, $matches) ) { 
+					} else if ( preg_match("/failed to open: cqp\/(.*)\.rng/", $json, $matches) ) {
 						$errortxt = "Incorrect request: This corpus has no attribute <i>{$matches[1]}</i>";
-					} else $errortxt = $tterror;						
+					} else $errortxt = $tterror;
 					fatal("$errortxt");
 				};
-			
+
 				# See if we can find a name for this query
-				if ( preg_match("/group Matches (.*)/", $grquery, $matches ) ) {
+				if ( !$grtxt && preg_match("/group Matches (.*)/", $grquery, $matches ) ) {
 					$groupflds = explode(" ", $matches[1]); $sep = "";
 					foreach ( $groupflds as $grfld ) {
 						$grfld = preg_replace("/.*\./", "", $grfld);
@@ -163,8 +212,8 @@
 						$grnames .= $sep."<b>".pattname($grfld)."</b>"; $sep = " + ";
 					};
 					$grtxt = "Group by:  $grnames";
-				} else $grtxt = $grquery;
-			
+				} else if ( !$grtxt ) $grtxt = $grquery;
+
 				$maintext .= "<table>
 								<tr><th>{%Search query}:<td>$cqltxt</tr>
 								<tr><th>{%Group query}:<td>$grtxt</tr>
@@ -178,8 +227,8 @@
 					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>{%Count}</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
 					$cntcols = 2;
 				};
-				
-				$headrow = "false"; 
+
+				$headrow = "false";
 				$cqltxt = str_replace("'", "&#039;", $cql);
 
 			};
@@ -188,19 +237,19 @@
 			if ( $debug ) $maintext .= $debugtxt;
 
 		} else {
-		
+
 			# TODO: Should we provide some default JSON?
-		
+
 		};
 
 	if ( $json ) {
 
-		$apikey = $settings['geomap']['apikey']; # Use our key when no other key is defined  
-		
+		$apikey = $settings['geomap']['apikey']; # Use our key when no other key is defined
+
 		if ( ( $mainfld == "text_geo" || $fldi[0]['var'] == "geo" ) && $apikey  ) { $moregs .= "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
 
 		if ( $_GET['charttype'] ) $inittype = "'{$_GET['charttype']}'";
-				$maintext .= " 
+				$maintext .= "
 					<div id='linkfield' style='float: right; z-index: 100; cursor: pointer;'></div>
 					<p>
 					{%Graph}:
@@ -231,19 +280,19 @@
 					";
 
 		$maintext .= "<hr><p><a target=help href='http://teitok.corpuswiki.org/site/index.php?action=help&id=visualize'>{%Help}</a>";
-		
+
 		if ( $cql && !$_GET['cql'] && !$nodirect ) {
 			$maintext .= " &bull; <a href='index.php?action=$action&cql=".urlencode($cql)."&mode={$_POST['mode']}".$moredirect."'>{%Direct URL}</a>";
 		};
 
 
 			# Create a pie-chart option
-			$maintext .= " 
+			$maintext .= "
 				<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>
 				<script type=\"text/javascript\" src=\"https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js\"></script>
 				<script type=\"text/javascript\" src=\"$jsurl/visualize.js\"></script>
 				<script type=\"text/javascript\">
-					
+
 			google.charts.load('current', {'packages':['corechart', 'table', 'bar', 'line', 'scatter' $morel ] $moreo });
 
 			var json = $json;
@@ -256,14 +305,14 @@
 
 			</script>
 			";
-		
+
 		} else {
-	
+
 			# $maintext .= "<h1>Data Visualization</h1>";
 			$maintext .= "<p>No data to visualize";
-	
+
 		};
 	};
 
-		
+
 ?>
