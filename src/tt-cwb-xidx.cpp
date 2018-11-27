@@ -1,6 +1,3 @@
-#include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
@@ -10,11 +7,11 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <arpa/inet.h>
+#include "functions.hpp"
 
 #define BUFSIZE 4096
 
 using namespace std;
-using namespace boost;
 
 map<string, string> clarg;
 string cqpfolder;
@@ -43,13 +40,13 @@ string read_file_range ( int from, int to, string filename ) {
 	// int buf[BUFSIZE];
 	char chr = 'x';
 
-	// char * result; 
+	// char * result;
 	string value;
 	int i, bufpos;
-	
+
 	FILE* stream = fopen ( filename.c_str() , "rb" );
 
-	if ( stream == NULL ) { 
+	if ( stream == NULL ) {
 		if ( verbose ) { cout << "File could not be opened: " << filename << endl; };
 		return "";
 	};
@@ -73,7 +70,7 @@ string read_file_range ( int from, int to, string filename ) {
 	if ( debug > 6 ) { cout << "String " << value << endl; };
 
 	fclose(stream);
-	
+
 	return value;
 };
 
@@ -97,7 +94,7 @@ string read_file_tonull ( int from, FILE *stream ) {
 };
 
 string cwb_pos_2_val(string att, int pos) {
-	
+
 	string filename; FILE * file;
 
 	filename = cqpfolder + "/" + att + ".corpus";
@@ -143,12 +140,12 @@ int cwb_rng_2_avx(string att, int pos) {
 		};
 	};
 	fclose (file);
-	
+
 	return res;
 };
 
 string cwb_rng_2_val(string att, int pos) {
-	
+
 	string filename; FILE * file;
 
 	int rangeidx = cwb_rng_2_avx(att, pos);
@@ -170,7 +167,7 @@ string cwb_rng_2_val(string att, int pos) {
 };
 
 string cwb_avx_2_val(string att, int rangeidx) {
-	
+
 	string filename; FILE * file;
 
 	filename = cqpfolder + "/" + att + ".avx";
@@ -192,17 +189,17 @@ string cwb_avx_2_val(string att, int rangeidx) {
 void cwb_expand_rng( int posa, int posb, int *rpos1, int *rpos2, string att ) {
 	string filename; FILE * file; int avx; int res = -1;
 	int max; // This should be the number of positions in the file
-	int pos1; int pos2; 
+	int pos1; int pos2;
 
 	filename = cqpfolder + "/" + att + ".rng";
 	file = fopen ( filename.c_str() , "rb" );
-	
+
 	if ( debug > 3 ) { cout << "Getting enclosing range from " << filename << endl; };
-	
+
 	// Determine filesize so that we do not seek beyond it
 	fseek(file, 0L, SEEK_END);
 	max = ftell(file)/4; // we read 4 bytes
-	
+
 	for ( int i=0; i<max; i=i+2 ) {
 		pos1 = read_network_number (i, file);
 		if ( debug > 6 ) { cout << "Range 1 at " << i << " = " << pos1 << endl; };
@@ -224,7 +221,7 @@ void cwb_expand_rng( int posa, int posb, int *rpos1, int *rpos2, string att ) {
 
 		};
 	};
-	
+
 	if ( pos2 < posb ) {
 		// Range not large enough, move second position out
 		for ( int i=0; i<max; i=i+2 ) {
@@ -241,13 +238,13 @@ void cwb_expand_rng( int posa, int posb, int *rpos1, int *rpos2, string att ) {
 				};
 			};
 		};
-	}; 
-	
+	};
+
 	fclose (file);
 };
 
 string cwb_rng_2_xml(int pos1, int pos2) {
-	
+
 	string filename; FILE * file; int rpos;
 
 	// Establish which XML file the pos range belongs to
@@ -260,10 +257,10 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 
 	// Check that the positions belong to the same file
 	// TODO: it merely returns, whereas it should throw an exception
- 	if ( textid1 != textid2 ) { 
+ 	if ( textid1 != textid2 ) {
 		if ( verbose ) { cout << "Corpus positions " << pos1 << " and " << pos2 << " do not belong to the same XML file" << endl;  };
 		return "";
- 	};	
+ 	};
 
 	// get the name of the file
 	xmlfile = cwb_avx_2_val("text_id", textid1);
@@ -276,7 +273,7 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 	fclose(file);
 
 	int rpos1, rpos2; rpos2 = 0;
-	
+
 	if ( clarg.find("expand")  != clarg.end() ) {
 		// Asked to expand to level X - try it
 		if ( debug > 3 ) { cout << "Expanding " << pos1 << " - " << pos2 << " to " << clarg["expand"] << endl; };
@@ -288,7 +285,7 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 		pos2 = min(pos2+context, textrng1);
 		if ( debug > 3 ) { cout << "Expanding context with " << context << " to " << pos1 << " - " << pos2 << endl; };
 	};
-		
+
 	if ( rpos2 == 0 ) {
 		// Get simple corpus positions - lookup the corresponding XML positions
 		if ( debug > 4 ) { cout << "Getting XML for " << pos1 << " - " << pos2 << endl; };
@@ -298,29 +295,29 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 		rpos2 = read_network_number(pos2*2+1,file);
 		fclose(file);
 		if ( debug > 0 ) { cout << "XML Range positions for " << pos1 << "-" << pos2 << " in " << filename << " = " << rpos1 << "-" << rpos2 << endl; };
-	};		
-	
+	};
+
 	if ( verbose ) { cout << "XML filename: " << xmlfile << endl; };
 	string value = read_file_range(rpos1, rpos2, xmlfile);
-	
+
 	if ( debug > 2 ) {
-		cout << "--------------------------" << endl; 
+		cout << "--------------------------" << endl;
 	};
-	
+
 	return value;
 };
 
 int main (int argc, char *argv[]) {
-	
+
 	string avls[10]; int x=0;
 
 	// Read in all the command-line arguments
 	for ( int i=1; i< argc; ++i ) {
 		string argm = argv[i];
-		
+
 		if ( argm.substr(0,2) == "--" ) {
 			int spacepos = argm.find("=");
-			
+
 			if ( spacepos == -1 ) {
 				string akey = argm.substr(2);
 				clarg[akey] = "1";
@@ -329,14 +326,14 @@ int main (int argc, char *argv[]) {
 				string aval = argm.substr(spacepos+1);
 				clarg[akey] = aval;
 			};
-		} else { avls[x] = argm; x++; };	
+		} else { avls[x] = argm; x++; };
 	};
-	
-	if ( clarg.find("version") != clarg.end() ) { 
+
+	if ( clarg.find("version") != clarg.end() ) {
 		cout << "tt-cwb-xidx version 1.0" << endl;
-		return -1; 
+		return -1;
 	};
-	
+
 	if ( clarg.find("cqp") != clarg.end() ) { cqpfolder = clarg["cqp"];  } else { cqpfolder = "cqp"; };
 	if ( clarg.find("filename") != clarg.end() ) { xmlfile = clarg["filename"];  };
 	string patt = ""; if ( clarg.find("P") != clarg.end() ) { patt = clarg["P"];  };
@@ -345,39 +342,40 @@ int main (int argc, char *argv[]) {
 	if ( clarg.find("debug") != clarg.end() ) { debug = atoi(clarg["debug"].c_str()); };
 
 	if ( clarg.find("context") != clarg.end() ) { context = atoi(clarg["context"].c_str()); } else { context = 0; };
-	
+
 	if ( clarg.find("from") != clarg.end() ) { avls[0] = clarg["from"];  };
 	if ( clarg.find("to") != clarg.end() ) { avls[1] = clarg["to"];  };
 
-	
-	if ( avls[0] == "" ) { 
-		string input_line; list<string> inputs; int pos1; int pos2;
+
+	if ( avls[0] == "" ) {
+		string input_line; vector<string> inputs; int pos1; int pos2;
 	    while(cin) {
     	    getline(cin, input_line);
-			split(inputs, input_line, is_any_of("\t ")); 
+			inputs = split(input_line, "\t");
 			string arg1;string arg2;
-			arg1 = inputs.front(); 
-			inputs.pop_front();
-			arg2 = inputs.front(); 
-			
-			try { 
-				pos1 = atoi(arg1.c_str()); 
-				pos2 = atoi(arg2.c_str()); 
-			} catch( const std::exception& e ) { continue; }; 
-			
+			arg1 = inputs.front();
+			// inputs.pop_front();
+			inputs.erase(inputs.begin());
+			arg2 = inputs.front();
+
+			try {
+				pos1 = atoi(arg1.c_str());
+				pos2 = atoi(arg2.c_str());
+			} catch( const std::exception& e ) { continue; };
+
 			cout << cwb_rng_2_xml ( pos1, pos2 ) << endl;
     	};
 	} else {
 		// Items given on the command line
 		if ( avls[1] == "" ) { avls[1] = avls[0]; };
 		int pos1; int pos2;
-	
+
 		pos1 = atoi(avls[0].c_str());
 		pos2 = atoi(avls[1].c_str());
 
 		cout << cwb_rng_2_xml ( pos1, pos2 ) << endl;
 	};
-	
+
 	// terminate
 	return 0;
 }
