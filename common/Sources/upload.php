@@ -148,7 +148,7 @@
 		$maintext .= "<h1>File Upload</h1>
 				<h2>{$typedef['display']}</h2>";
 
-		if ( !$settings['files']['nodropzone'] ) {
+		if ( !$settings['files']['nodropzone'] && !$_GET['nodropzone'] ) {
 			// Dropzone.js
 
 			if ( $type == "facsimile" ) {
@@ -218,12 +218,6 @@
 				<h2>Stored Files</h2>
 				<table cellpadding='5px'>
 				";
-
-		# Create the folder if it does not exist
-		$fldr = $typedef['folder'];
-		if ( !is_dir($typedef['folder']) ) {
-			mkdir($typedef['folder']);
-		}
 
 		# First - read all the files
 		$glob = "{$typedef['folder']}/{{$typedef['extension']}}";
