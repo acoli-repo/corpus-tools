@@ -354,7 +354,6 @@ int main (int argc, char *argv[]) {
 			inputs = split(input_line, "\t");
 			string arg1;string arg2;
 			arg1 = inputs.front();
-			// inputs.pop_front();
 			inputs.erase(inputs.begin());
 			arg2 = inputs.front();
 

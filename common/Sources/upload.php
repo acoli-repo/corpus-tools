@@ -3,7 +3,7 @@
 	// (c) Maarten Janssen, 2015
 
 	check_login();
-	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
+	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']);
 
 	# If not defined in settings, predefine which files go where
 	if ( !$settings['files'] ) {
@@ -18,7 +18,7 @@
 		);
 		$nodef = 1;
 	};
-	
+
 	if ( $act == "save" ) {
 
 		$type = $_POST['type']; if ( !$type ) fatal ("POST data incorrectly set");
@@ -68,10 +68,10 @@
 					};
 				};
 			}
-		} else { 	
-			if ( !$dropzone ) 
+		} else {
+			if ( !$dropzone )
 				print "<p>Nothing received to upload";
-			else 
+			else
 				header("HTTP/1.0 422 No file"); ## Throw an error to let Dropzone know it went wrong
 				print '{"error": "no file received"}';
 		};
@@ -79,12 +79,12 @@
 
 	} else if ( $act == "delete" ) {
 
-		$type = $_GET['type']; 
+		$type = $_GET['type'];
 		if ( !$type ) fatal ("Filetype incorrectly set");
 		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed to delete");
 		$deltype = $settings['files'][$type]['delete'] or $deltype = $settings['files']['delete'];
 		if ( $deltype == "none" || ( $deltype == "sudo" && $user['permissions'] != "admin" ) )  fatal ("Filetype not allowed to delete");
-	
+
 		# Check if this is not in Resources
 		$filename = $_GET['file'];
 		if ( substr($filename, 0, strlen($target_folder) ) != $target_folder ) fatal( "File does not belong to the selected filetype" );
@@ -104,7 +104,7 @@
 				unlink($filename);
 				echo "<p>The file $filename has been deleted.";
 			};
-					
+
 			header("location:index.php?action=$action&act=list&type=$type");
 		} else {
 			# Check for confirmation
@@ -113,15 +113,15 @@
 				<p>You have selected to delete the following file: <b>$filename</b>
 				<p>If this file is used in the system, this might disrupt TEITOK, are you sure you want to continue?
 				<p><button onClick=\"window.open('$confirm', '_self')\">Confirm</button>";
-				
-		};	
+
+		};
 
 	} else if ( $act == "download" ) {
 
-		$type = $_GET['type']; 
+		$type = $_GET['type'];
 		if ( !$type ) fatal ("Filetype incorrectly set");
 		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed for download");
-	
+
 		# Check if this is not in Resources
 		$filename = $_GET['file'];
 		if ( substr($filename, 0, strlen($target_folder) ) != $target_folder ) fatal( "File does not belong to the selected filetype" );
@@ -129,7 +129,7 @@
 		if ( strstr($filename, "Resources") ) fatal ("Not allowed to download file");
 		if ( strstr($filename,"..") ) fatal ("Not allowed");
 		if ( !file_exists($filename) ) fatal ("No such file: $filename");
-	
+
 		$finfo = new finfo(FILEINFO_MIME);
 		header('Content-disposition: attachment; filename="'.basename($filename).'"');
         header('Content-Length: '.filesize($filename));
@@ -137,9 +137,9 @@
 		$cmd = "cat $filename";
 		passthru($cmd);
 		exit;
-	
+
 	} else if ( $act == "list" ) {
-	
+
 		$type = $_GET['type'];
 		$typedef = $settings['files'][$type];
 		$accept = str_replace('*', '', $typedef['extension']);
@@ -150,7 +150,7 @@
 
 		if ( !$settings['files']['nodropzone'] ) {
 			// Dropzone.js
-			
+
 			if ( $type == "facsimile" ) {
 				$capture = "capture: \"camera\",";
 			} else if ( $type == "audio" ) {
@@ -180,23 +180,23 @@
 					Drop files here or click to upload.
 					<br/>Accepted files: $accept
 					<br/>Maximum file size (accepted by server): $maxsize Mb
-				</div>				
+				</div>
 				<div class=\"fallback\">
-					<input type=file name=upfile accept=\"$accept\"> 
-					<input type=submit value=Save name=submit> 
+					<input type=file name=upfile accept=\"$accept\">
+					<input type=submit value=Save name=submit>
 				</div>
   				</form>
 				</div>
 			";
-			
+
 		} else {
 			// Simple style
-			
-		
+
+
 			$maxsize = min(intval(ini_get("upload_max_filesize")), intval(ini_get("post_max_size")), intval(ini_get("memory_limit")));
 			if ( $maxsize < 20 ) $warning = "<i style='color: #888888;'> - ask system admistrator to increase upload_max_filesize, post_max_size, and memory_limit to upload larger files</i>";
 			$maxsize .= "Mb";
-		
+
 			if ( !is_dir($typedef['folder']) ) {
 				$maintext .= "<p style='font-weight: bold; color: #992000;'>Folder {$typedef['folder']} does not exist, please contact admin</p>";
 			} else if ( !is_writable($typedef['folder']) ) {
@@ -206,25 +206,31 @@
 					<p>Accepted extensions: <i>{$typedef['extension']}</i>
 					<p>Maximum file size: <i>$maxsize</i> $warning
 					<input type=hidden name=type value='$type'>
-					<p>Add new file: 
-						<input type=file name=upfile accept=\"$accept\"> 
-						<input type=submit value=Save name=submit> 
+					<p>Add new file:
+						<input type=file name=upfile accept=\"$accept\">
+						<input type=submit value=Save name=submit>
 					</form> ";
 			};
-		};	
-			
-		
+		};
+
+
 		$maintext .= "<hr>
 				<h2>Stored Files</h2>
 				<table cellpadding='5px'>
 				";
 
+		# Create the folder if it does not exist
+		$fldr = $typedef['folder'];
+		if ( !is_dir($typedef['folder']) ) {
+			mkdir($typedef['folder']);
+		}
+
 		# First - read all the files
 		$glob = "{$typedef['folder']}/{{$typedef['extension']}}";
 		$files = glob($glob, GLOB_BRACE);
 		foreach ( $files as $line ) {
-			$maintext .= "<tr><td><a href='$baseurl$line' target=file>view</a> 
-				<td> <a href='index.php?action=$action&act=download&type={$typedef['folder']}&file=$line' target=file>download</a> 
+			$maintext .= "<tr><td><a href='$baseurl$line' target=file>view</a>
+				<td> <a href='index.php?action=$action&act=download&type={$typedef['folder']}&file=$line' target=file>download</a>
 				<td> {$line} <td align=right>".human_filesize(filesize($line));
 			$deltype = $settings['files'][$type]['delete'] or $deltype = $settings['files']['delete'];
 			if ( $deltype != "none" && ( $deltype != "sudo" || $user['permissions'] == "admin" ) )  $maintext .= "<td><a href='index.php?action=$action&act=delete&type=$type&file=$line'>delete</a>";
@@ -234,21 +240,21 @@
 			<tr><td><td><td style='border-top: 1px solid #999999; color: #666666'>$cnt files<td align=right style='border-top: 1px solid #999999; color: #666666'>".human_filesize($totsize)."
 			</table>
 			<hr><p><a href='index.php?action=$action'>select a different file type</a>";
-		
+
 	} else {
-	
+
 		$maintext .= "<h1>File Upload</h1>
-		
+
 			<h3>Select a type of file to upload</h3>
-		
+
 			<table>";
-			
+
 		foreach ( $settings['files'] as $key => $val ) {
 			if ( !$nodef || is_dir($val['folder']) ) {
 				$maintext .= "<tr><td><a href='index.php?action=$action&act=list&type=$key'>{$val['display']}</a><td>{$val['description']}";
 			};
 		};
-	
+
 	};
 
 	function human_filesize($bytes, $decimals = 2) {
@@ -256,7 +262,7 @@
 	  $factor = floor((strlen($bytes) - 1) / 3);
 	  return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor];
 	}
-	
+
 	function parseint ($string) {
 	  $sz = 'BKMGTP';
 	  $exp = strpos($sz,substr($string,-1));
