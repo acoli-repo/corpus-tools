@@ -112,7 +112,7 @@
 		};
 
 		foreach ( $vals as $val => $cnt ) {
-			$oval = $val;
+			$oval = urlencode($val);
 			if ( $val == "" || $val == "_" ) {
 				if ( !$settings['cqp']['listnone'] ) continue;
 				$val = "({%none})";
