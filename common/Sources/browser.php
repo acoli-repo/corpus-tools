@@ -141,8 +141,8 @@
 	};
 
 	if ( $username ) {
-			$maintext .= "<div class=adminpart>The files shown here are only the files in the indexed (CQP) corpus -
-				to see all XML files, click <a href='index.php?action=files'>here>,
+			$maintext .= "<hr><div class=adminpart>The files shown here are only the files in the indexed (CQP) corpus -
+				to see all XML files, click <a href='index.php?action=files'>here</a>,
 				and to update the CQP corpus, click <a href='index.php?action=recqp'>here</a> </div>";
 	};
 
