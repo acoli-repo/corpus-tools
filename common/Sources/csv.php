@@ -139,7 +139,7 @@ if ( $act == "export" && $_POST['queries']  ) {
 			";
 	};
 
-	$maintext .= "<table><tr>";
+	$maintext .= "<table><tr><td>";
 	
 	// Show the header line if there is one
 	if ( count($header) ) {
@@ -158,9 +158,11 @@ if ( $act == "export" && $_POST['queries']  ) {
 	};
 	
 	foreach ( $lines as $idx => $line ) {
+		if ( !$line ) continue;
 			$maintext .= "<tr>";
 			$linea = explode("\t", $line);
 			$posta = explode("\t", $postcsv[$idx]);
+			$maintext .= "<td><input type=checkbox name='sel[$idx]' id='$idx' class=selbox>";
 		foreach ( $linea as $nr => $fld ) {
 			if ( $header[$nr] == "[fn]" ) { 
 				$filename = preg_replace("/.*\//", "", $fld);
@@ -170,7 +172,7 @@ if ( $act == "export" && $_POST['queries']  ) {
 				if ( $posta[0] == $linea[0] ) {	
 					$fld = $posta[$nr];
 				};
-				$fldtxt = "<input size=40 name=vals[$idx][$nr] value=\"$fld\">";			
+				$fldtxt = "<input size=40 name=vals[$idx][$nr] id='valfld-$idx' value=\"$fld\">";			
 			} else {
 				$fldtxt = $fld;
 			};
@@ -178,12 +180,49 @@ if ( $act == "export" && $_POST['queries']  ) {
 		};	
 	};
 			
-	$cnt = count($lines);
+	$cnt = count($lines); $rcnt = count($lines[0]);
 	$maintext .= "</table><hr>$cnt rows";
 	
 	if ( $act == "edit" ) {
 		$maintext .= "
 			<p><input type=submit value=\"Save Changes\"> <a href='index.php?action=$action'>cancel</a> | <a href='index.php?action=$action&act=upload&file=$file'>upload modified CSV</a> </form>";
+			
+		# Only for one lines
+		if ( $rcnt==1 ) $maintext .= "<hr><p>Change selected rows - from: <input size=25 id=fromre> - to: <input size=25 id=tore> <button onClick='multichange();'>Change</button> <a onClick='selall(1);'>Select all</a> &bull; <a onClick='selall(0);'>Select empty fields</a>
+			<script language=Javascript>
+				function selall(ala) {
+				  checkboxes = document.getElementsByClassName('selbox');
+				  for (i=0; i<checkboxes.length; i++) {
+				    checkbox = checkboxes[i];
+					var id = checkbox.getAttribute('id');
+					var varfld = document.getElementById('valfld-'+id);
+					if ( ala || varfld.value == '' ) { checkbox.checked = true; };	
+				  };	
+				};
+				function multichange() {
+					var fromval = document.getElementById('fromre').value;
+					var tore = document.getElementById('tore').value;
+					if ( tore != '' ) { 
+					  checkboxes = document.getElementsByClassName('selbox');
+					  for (i=0; i<checkboxes.length; i++) {
+						checkbox = checkboxes[i];
+						var id = checkbox.getAttribute('id');
+						var varfld = document.getElementById('valfld-'+id);
+						if ( checkbox.checked ) {
+							var fromre = new RegExp(fromval);
+							if ( ( fromval == '' && varfld.value == '' ) || ( fromval != '' && varfld.value.match(fromre) ) ) {
+								if ( fromval == '' ) {
+									toval = tore;
+								} else {
+									toval = varfld.value.replace(fromre, tore);
+								};
+								varfld.value = toval;
+							};
+						};		
+					  };	
+					};
+				};
+			</script>";
 	} else {
 		$maintext .= " &bull; <a href='index.php?action=$action&act=choose'>back to file list</a>";
 		if ( count($lines) < 1000 ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&file=$file'>edit</a>";
