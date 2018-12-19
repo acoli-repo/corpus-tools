@@ -423,7 +423,7 @@ void treatfile ( string filename ) {
 				};
 
 				write_range_value (pos1, pos2, "text", formkey, formval);
-			}; r
+			}; 
 		} else if ( taglvl != "" ) {
 			// Add non-text level attributes (skip empty elements)
 			string xpath = "//text//" + taglvl;
