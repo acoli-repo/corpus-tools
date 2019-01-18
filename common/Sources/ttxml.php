@@ -99,9 +99,13 @@ class TTXML
 		global $settings;
 		if (!$this->xml) return "";
 		if ( !$this->title ) {
-			$titlexp = $settings['xmlfile']['title']."" or $titlexp = "//title";
-			$result = $this->xml->xpath($titlexp); 
-			$this->title = $result[0];
+			if ( $settings['xmlfile']['title'] == "[id]" ) {
+				$this->title = $fileid;
+			} else {
+				$titlexp = $settings['xmlfile']['title']."" or $titlexp = "//title";
+				$result = $this->xml->xpath($titlexp); 
+				$this->title = $result[0];
+			};
 			if ( $this->title == "" ) $this->title = "<i>{%Without Title}</i>";
 		};
 		return $this->title;
