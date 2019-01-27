@@ -51,7 +51,11 @@
 			} if ( move_uploaded_file($_FILES["upfile"]["tmp_name"], $target_file) ) {
 				if ( !$dropzone ) {
 					echo "<p>The file ". basename( $_FILES["upfile"]["name"]). " has been uploaded.";
-					header("location:index.php?action=$action&act=list&type=$type");
+					if ( $_POST['goon'] ) {
+						$newurl = $_POST['goon'];
+					} else $newurl = "index.php?action=$action&act=list&type=$type";
+					header("location:$newurl");
+					print "<script language=Javascript>top.location='$newurl';</script>"; exit;
 				} else {
 					print "{\"ok\": \"file has been uploaded to $target_file\"}";
 				};

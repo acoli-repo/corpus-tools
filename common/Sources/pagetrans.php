@@ -606,7 +606,7 @@
 						<input type=file name=upfile accept=\"$accept\">
 						<input name=filename type=hidden value=\"{$pagexml['facs']}\">
 						<input name=type type=hidden value=\"facs\">
-						<input name=goon type=hidden value=\"back\">
+						<input name=goon type=hidden value=\"index.php?action=$action&cid={$_GET['cid']}&page={$pagexml['id']}\">
 						<input type=submit value=Save name=submit>
 					</form> ";				
 			} else {
