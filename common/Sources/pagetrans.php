@@ -33,6 +33,9 @@
 	if ( $act == "save" ) {
 	
 		$pagexml = current($ttxml->xml->xpath("//page[@id='{$_POST['pageid']}']"));
+		if ( $_POST['folionr'] ) {
+			$pagexml['n'] = $_POST['folionr'];
+		};
 		if ( $_POST['tok'] ) {
 			foreach ( $_POST['tok'] as $key => $val ) {
 				$tokxml = current($pagexml->xpath(".//tok[@id='$key']"));
@@ -419,16 +422,17 @@
 			$bnav = "<a href='index.php?action=$action&act=$act&cid=$fileid&page={$prev['id']}'>[{$prev['id']}] <</a> ";
 		};
 
-		$folionr = $pagexml['n'] or $folionr = $pagexml['id'];
+		$folionr = $pagexml['n'];
 
 		# Build the page navigation
-		$maintext .= "<table style='width: 100%'><tr> 
+		$maintext .= "
+				<form action='index.php?action=$action&act=save&cid=$ttxml->xmlid' method=post>
+				<table style='width: 100%'><tr> 
 						<td style='width: 33%' align=left>$bnav
-						<td style='width: 33%' align=center>{%Page} $folionr
+						<td style='width: 33%' align=center>{%Page}/{%Folio} <input size=5 name=folionr value=\"$folionr\"> ({$pagexml['id']})
 						<td style='width: 33%' align=right>$nnav
 						</table>
 						<hr>
-				<form action='index.php?action=$action&act=save&cid=$ttxml->xmlid' method=post>
 				<input type=hidden name=pageid value=\"{$pagexml['id']}\">
 						";
 						
@@ -606,7 +610,7 @@
 						<input type=file name=upfile accept=\"$accept\">
 						<input name=filename type=hidden value=\"{$pagexml['facs']}\">
 						<input name=type type=hidden value=\"facs\">
-						<input name=goon type=hidden value=\"index.php?action=$action&cid={$_GET['cid']}&page={$pagexml['id']}\">
+						<input name=goon type=hidden value=\"index.php?action=$action&cid={$_GET['cid']}&pageid={$pagexml['id']}\">
 						<input type=submit value=Save name=submit>
 					</form> ";				
 			} else {
