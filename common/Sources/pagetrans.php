@@ -15,8 +15,11 @@
 		$ttxml = new TTXML($_GET['cid'], false, "pagetrans");
 		if ( !$ttxml->xml ) fatal("Could not load page-by-page XML file: {$_GET['cid']}");
 
-		if ( $ttxml->asXML() == "<text/>" ) {
+		$tmp = $ttxml->xml->xpath("//text"); $textnode = $tmp[0];
+		if ( $textnode->asXML() == "<text/>" ) {
 			# Completely empty - add a page
+			$pagexml = $textnode->addChild("page");
+			$pagexml["id"] = "page-1";
 		};
 
 		if ( !$ttxml->xml->xpath("//page") ) fatal("This is not a page-by-page edit XML file");
@@ -587,9 +590,27 @@
 				print "<p>Assigned FACS automatically to the page - reloading
 					<script language=Javascript>location.reload();</script>"; exit;
 			};
+
+			$imgsrc = $pagexml['facs'];
+			$imgsrc = preg_replace("/^Facsimile\//", "" , $imgsrc );
+			if ( !strstr($imgsrc, "http") ) $imgsrc = "Facsimile/$imgsrc";
 			
 			if ( !strstr("http", $pagexml['facs']) && !file_exists("Facsimile/{$pagexml['facs']}") ) {
 				# TODO: create an upload button to upload the facs
+				$imgfld = "<h2>Facsimile Image missing</h2>
+					<p>Please upload a facsimile image ({$pagexml['facs']})</p>
+					</form>
+					<p><form action='index.php?action=upload&act=save' method=post enctype=\"multipart/form-data\">
+					<input type=hidden name=type value='$type'>
+					<p>Add new file:
+						<input type=file name=upfile accept=\"$accept\">
+						<input name=filename type=hidden value=\"{$pagexml['facs']}\">
+						<input name=type type=hidden value=\"facs\">
+						<input name=goon type=hidden value=\"back\">
+						<input type=submit value=Save name=submit>
+					</form> ";				
+			} else {
+				$imgfld = "<img id=facs src=\"$imgsrc\" style=\"$crop\" onmousemove='zoomIn(event)' onmouseout='zoomOut();'/>";
 			};
 			
 					
@@ -600,9 +621,6 @@
 			else 
 				$crop = "width: 100%";
 				
-			$imgsrc = $pagexml['facs'];
-			$imgsrc = preg_replace("/^Facsimile\//", "" , $imgsrc );
-			if ( !strstr($imgsrc, "http") ) $imgsrc = "Facsimile/$imgsrc";
 				
 			$maintext .= "<p>
 				<div id='buttons' style='padding: 2px; height: 20px; z-index: 200; left: 5px; top: 5px; width: 50%;'>
@@ -616,7 +634,7 @@
 				<div id=transtab style='background-color: white;'>
 				<div style='position: fixed; right: 5px; top: 5px; width: 300px; height: 300px; display: none; background-image: url(Facsimile/{$pagexml['facs']});' id='overlay'></div>
 				<table style='width: 100%;'><tr>
-				<td style='width: 50%'><div style='overflow: hidden;'><img id=facs src=\"$imgsrc\" style=\"$crop\" onmousemove='zoomIn(event)' onmouseout='zoomOut();'/></div>
+				<td style='width: 50%;  vertical-align: top;'><div style='overflow: hidden;'>$imgfld</div>
 				<td style='width: 50%; vertical-align: top;'><textarea id='textfld' name=newcontent onkeyup='chareq(this);' style='padding: 5px; width: 100%; height: {$imgheight}px; border: none; font-size: 16px;' >$oldcontent</textarea></table>
 				</div>";
 						

@@ -26,7 +26,9 @@
 		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed for upload");
 		if ( !is_dir($target_folder) ) mkdir($target_folder); # Create the folder if needed
 
-		$target_file = $target_folder."/".basename($_FILES["upfile"]["name"]);
+		if ( $_POST["filename"] ) {
+			$target_file = $target_folder."/".$_POST["filename"];
+		} else  $target_file = $target_folder."/".basename($_FILES["upfile"]["name"]);
 		$uploadOk = 1;
 		$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
 

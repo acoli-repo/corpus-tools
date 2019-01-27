@@ -5,6 +5,9 @@
 	
 	check_login();
 
+	// Check for pdfimages
+	$pdfimg = findapp("pdfimages");
+
 	if ( $_POST['xmlid'] ) {
 		set_time_limit(300);
 		
@@ -244,26 +247,33 @@
 		$maintext .= "<p><input checked type=radio name=header value='empty' onChange='metachoose(this);'> Leave empty";
  		
  		
-		$maintext .= "<hr><h2>Content</h2>
-			<h3>PDF Document</h3>
+		$maintext .= "<hr><h2>Content</h2>";
 		
-		<p>
-			For security, all images are uploaded as PDF - to upload images, please first combine them into a PDF, which 
-			you can do with various programs or sites such as <a href='http://jpg2pdf.com/' target=_new>jpg2pdf</a>.
-			Uploading or downloading PDF files can take a considerable amount of time, so wait for the browser to finish...
+		if ( $pdfimg ) { // Only show the PDF parse options if we have 
+			$maintext .= "
+				<h3>PDF Document</h3>
 		
-		<p><input type=radio name=source value=\"file\"> Upload a PDF file <input type='file' name=\"pdffile\" accept=\"application/pdf\">
-		<p><input type=radio name=source value=url> Download PDF form URL : <input name='pdfurl'  size=70>
+			<p>
+				For security, all images are uploaded as PDF - to upload images, please first combine them into a PDF, which 
+				you can do with various programs or sites such as <a href='http://jpg2pdf.com/' target=_new>jpg2pdf</a>.
+				Uploading or downloading PDF files can take a considerable amount of time, so wait for the browser to finish...
 		
-		<p>Type of PDF document: 
-			<select name=pagtype>
-				<option value=1>image-based, 1 folio per page</option>
-				<option value=2>image-based, 2 folios per page</option>
-				<option value='gs'>text-based, render with ghostscript</option>
-			</select>
-		<p>Number of initial pages to skip: <select name=offset><option value='0' selected>0</option><option value='1'>1</option><option value='2'>2</option><option value='3'>3</option><option value='4'>4</option></select>
-		";
+			<p><input type=radio name=source value=\"file\"> Upload a PDF file <input type='file' name=\"pdffile\" accept=\"application/pdf\">
+			<p><input type=radio name=source value=url> Download PDF form URL : <input name='pdfurl'  size=70>
 		
+			<p>Type of PDF document: 
+				<select name=pagtype>
+					<option value=1>image-based, 1 folio per page</option>
+					<option value=2>image-based, 2 folios per page</option>
+					<option value='gs'>text-based, render with ghostscript</option>
+				</select>
+			<p>Number of initial pages to skip: <select name=offset><option value='0' selected>0</option><option value='1'>1</option><option value='2'>2</option><option value='3'>3</option><option value='4'>4</option></select>
+			";
+		} else {
+			$maintext .= "<p class=adminpart>Parsing the PDF into images is done using <tt>pdfimages</tt> which is not installed on the server.";
+		};
+		
+			
 		$maintext .= "<hr>
 		<h3>Post-processing</h3>
 
