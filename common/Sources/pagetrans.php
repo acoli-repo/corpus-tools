@@ -275,7 +275,7 @@
 			if ( $page == $pagexml )  $sel = "selected"; else $sel = "";	
 			if ( $pagetxt ) $options .= "<option value='{$page['id']}'>$pagetxt</option>";
 		}; 
-		$maintext .= "<h1>Insert Page</h1><h2>".$ttxml->title()."</h2>"; 
+		$maintext .= "<h1>Add Page</h1><h2>".$ttxml->title()."</h2>"; 
 		# Display the teiHeader data as a table
 		$maintext .= $ttxml->tableheader(); 
 		$maintext .= "
@@ -283,7 +283,7 @@
 				<form action='index.php?action=$action&act=addpage&cid=$ttxml->fileid' method=post>
 				<img id=sim name=sim src='' style='float: right; width: 200px;' onClick=\"window.open(this.src, '_new');\">
 				
-				<p>Insert a new page <select name=beforeafter><option value='before'>before</option><option value='after'>after</option></select>
+				<p>Insert a new page <select name=beforeafter><option value='after'>after</option><option value='before'>before</option></select>
 				page <select name=pageid>$options</select>
 				
 				<p>Facsimile image: <input name=facs size=60 onChange='showimg(this);'>
@@ -666,7 +666,7 @@
 				- <a href='index.php?action=$action&cid=$ttxml->fileid&act=status'>Status</a>
 				- <a href='index.php?action=$action&act=conversions' target=help>Special characters</a>
 				- <a href='index.php?action=regionedit&cid=$ttxml->filename&pageid={$pagexml['id']}'>Edit line regions</a>
-				- <a href='index.php?action=$action&act=insert&cid=$ttxml->filename&pageid={$pagexml['id']}'>Insert page</a>
+				- <a href='index.php?action=$action&act=insert&cid=$ttxml->filename&pageid={$pagexml['id']}'>Add page</a>
 				</form>
 				";
 			
@@ -682,7 +682,8 @@
 			
 		foreach ( scandir("pagetrans") as $file ) {
 			if ( substr($file,0,1) != "." ) {
-				$done = 0; $tot = 0;
+				$done = 0; $tot = 0; $resp = "";
+
 				foreach ( explode("\n", shell_exec("grep '<page ' pagetrans/$file")) as $line ) {
 					if ( strstr($line, 'status="2"') != false ) $done++;
 					if ( strstr($line, 'page') != false ) $tot++;
