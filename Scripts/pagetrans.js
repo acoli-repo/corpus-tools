@@ -77,8 +77,8 @@ function cropbgimg ( divelm, bboxtxt, bgsrc = '', keep = 'width', maxscale = 1.2
 
 function changestatus(elm, status='', max='') {
 	// Change the status of a line (verified, unverified, ...)
-	var statcols = ['#dddddd', '#ffcc44', '#66ff66', '#ff0000'];
-	var stattxt = ['unverified', 'partially verified', 'verified', 'locked'];
+	var statcols = ['#dddddd', '#ffcc44', '#66ff66', '#00ff00', '#ff0000'];
+	var stattxt = ['unverified', 'partially verified', 'verified', 'locked', 'XML error'];
 	var lineid = elm.getAttribute('tid');
 	var statfld = document.getElementById('linestat-'+lineid);
 	var curstat;
@@ -104,6 +104,16 @@ var linestats = document.getElementsByClassName('linestat');
 for ( var i=0; i<linestats.length; i++ ) {
 	linestat = linestats[i];
 	statval = document.getElementById('linestat-'+linestat.getAttribute('tid')).value;
+	var rawxml = document.getElementById('line-'+linestat.getAttribute('tid')).value;
+	rawxml = '<line>' + rawxml + '</line>';
+	
+	var oParser = new DOMParser();
+	var oDOM = oParser.parseFromString(rawxml, 'text/xml');
+
+	if ( oDOM.documentElement.nodeName == 'parsererror' ) {
+		statval = 4;
+	};
+	
 	if ( statval != '' ) {
 		changestatus(linestat, statval);
 	};
@@ -239,4 +249,28 @@ function zoomOut() {
 	if ( !zoomset ) return -1;
 	var element = document.getElementById("overlay");
 	element.style.display = "none";
+}
+
+function checkxml(fld) {
+	var rawxml = '<line>' + fld.value + '</line>';
+	var type = fld.getAttribute('id').substring(0,3);
+	console.log(rawxml);
+	var linestat; var lineid;
+	if ( type == "tok" ) {
+		lineid = fld.parentNode.getAttribute('tid');
+	} else if ( type == "lin" ) {
+		lineid = fld.getAttribute('id').substring(5,fld.getAttribute('id').length);		
+	};
+	if ( lineid ) { linestat = document.getElementById('statbox-'+lineid); };
+
+	var oParser = new DOMParser();
+	var oDOM = oParser.parseFromString(rawxml, 'text/xml');
+
+	if ( oDOM.documentElement.nodeName == 'parsererror' ) {
+		linestat.style.backgroundColor = '#ff0000'; 	
+		changestatus(linestat, 4);
+	} else {
+		linestat.style.backgroundColor = '#ffffff'; 	
+		changestatus(linestat, statval);
+	};						
 }

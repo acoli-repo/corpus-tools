@@ -483,7 +483,7 @@
 					// Add the data of the line
 					$maintext .= "\n<tr><td style='padding-bottom: 20px;'>
 					<div bbox='{$line['bbox']}'  rotate='{$line['rotate']}' class='resize' id='reg_{$line['id']}' tid='{$line['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
-					<span style='margin-bottom: 20px;'>$statbox <textarea style='font-size: 16px; width: 96%; height: 30px; margin-top: 5px; $morestyle' name='ta[{$line['id']}]' id='line-{$line['id']}' onkeyup='chareq(this);' >$linetxt</textarea></span>
+					<span style='margin-bottom: 20px;'>$statbox</span> <textarea style='font-size: 16px; width: 96%; height: 30px; margin-top: 5px; $morestyle' name='ta[{$line['id']}]' id='line-{$line['id']}' onkeyup='chareq(this); checkxml(this);' >$linetxt</textarea>
 					<input type=hidden name=\"bb[{$line['id']}]\" id='bb-{$line['id']}' style='width: 100%;' value=\"{$line['bbox']}\"/>
 					";
 
@@ -491,6 +491,7 @@
 						
 			};
 			$maintext .= "</table>
+
 			<script language=Javascript>
 				function showlines () {
 					for ( var i=0; i<linedivs.length; i++ ) {
