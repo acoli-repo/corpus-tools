@@ -14,11 +14,11 @@
 		# First, determine the filename
 		$cardid = $_POST['fname'];
 		$cardid = preg_replace("/[+ '\"]+/", "_", $cardid); # Remove problematic characters from the name
+		if ( substr($cardid, -4) != ".xml" ) { # Add .xml to the end of the filename
+			$cardid .= ".xml";
+		};
 		if ( $_POST['folder'] ) $filename = "{$_POST['folder']}/$cardid"; 
 		else $filename = $cardid;
-		if ( substr($cardid, -4) != ".xml" ) { # Add .xml to the end of the filename
-			$filename .= ".xml";
-		};
 		if ( file_exists("$xmlfolder/$cardid") ) {
 			fatal("File $cardid already exists");
 		}; 
@@ -108,11 +108,16 @@
 
 
 		if ( $newtext ) { 
+			
+			# Hack converting all HTML entities to Unicode, minus those that make XML invalid... (prob not perfect)
 			$newtext = str_replace('&lt;', 'x<x', $newtext);
 			$newtext = str_replace('&gt;', 'x>x', $newtext);
+			$newtext = str_replace('&amp;', 'x&x', $newtext);
 			$newtext = html_entity_decode($newtext);
 			$newtext = str_replace( 'x<x', '&lt;', $newtext);
 			$newtext = str_replace( 'x>x', '&gt;', $newtext);
+			$newtext = str_replace( 'x&x', '&amp;', $newtext);
+			
 			if ( !$settings['newfile']['keepbr'] && !$_POST['keepbr']  ) { 
 				 # Interpret 2x <br/> as <p>, change <br/> to <lb/>
 				$newtext = preg_replace("/<br *\/><br *\/>/", "</p>\n\n<p>", $newtext);
