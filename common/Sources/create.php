@@ -108,7 +108,11 @@
 
 
 		if ( $newtext ) { 
+			$newtext = str_replace('&lt;', 'x<x', $newtext);
+			$newtext = str_replace('&gt;', 'x>x', $newtext);
 			$newtext = html_entity_decode($newtext);
+			$newtext = str_replace( 'x<x', '&lt;', $newtext);
+			$newtext = str_replace( 'x>x', '&gt;', $newtext);
 			if ( !$settings['newfile']['keepbr'] && !$_POST['keepbr']  ) { 
 				 # Interpret 2x <br/> as <p>, change <br/> to <lb/>
 				$newtext = preg_replace("/<br *\/><br *\/>/", "</p>\n\n<p>", $newtext);
