@@ -470,9 +470,14 @@ class TTXML
 		}; 
 
 		foreach ( $settings['views'] as $key => $item ) {	
+			# Check whether we should do this
 			$dothis = 1;
 			if ( $item['xprest'] ) {
 				$tmp = $this->xml->xpath($item['xprest']);
+				if ( $tmp ) $dothis = 0;
+			};
+			if ( $item['xpcond'] ) {
+				$tmp = $this->xml->xpath($item['xpcond']);
 				if ( !$tmp ) $dothis = 0;
 			};
 			if ( $dothis ) { // View condition
