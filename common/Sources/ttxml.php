@@ -456,7 +456,7 @@ class TTXML
 	}
 
 	function viewswitch($initial = true, $withself = false ) {
-		global $settings; global $username; global $action;
+		global $settings; global $username; global $action; global $xml;
 
 		$viewopts['text'] = "Text view";
 		
@@ -470,7 +470,12 @@ class TTXML
 		}; 
 
 		foreach ( $settings['views'] as $key => $item ) {	
-			if ( 1 == 1 ) { // View condition
+			$dothis = 1;
+			if ( $item['xprest'] ) {
+				$tmp = $this->xml->xpath($item['xprest']);
+				if ( !$tmp ) $dothis = 0;
+			};
+			if ( $dothis ) { // View condition
 				$lvltxt = $item['display'];
 				$viewopts[$key] = $lvltxt;
 			}; 
