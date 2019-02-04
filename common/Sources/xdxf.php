@@ -217,6 +217,12 @@
 		
 		} else {
 
+			if ( ( $dict['index'] && $_GET['index'] != "0" ) || $_GET['index'] ) {
+				$indexlist = 1;
+				$ixp = $dict['index'];
+				if ( $ixp == "" || $ixp == "1" ) $xip = "{#//k}";
+			};
+			
 			$xml = new DOMDocument();
 			$xml->load($filename);
 			if ( !$xml ) { print "Dict XML Error"; exit; };
@@ -233,7 +239,7 @@
 					if ( $match == "match" ) {
 						$restr .= $kn."[.='$tq']"; // Match
 					} else if ( $match == "contains" ) {
-						$restr .= $kn."[contains(.,'$tq')]"; // Contains
+						$restr .= ".//".$kn."[contains(.,'$tq')]"; // Contains
 					} else if ( $match == "starts" ) {
 						# TODO: this only shows the first item, make this actually work
 						$restr .= $kn."[starts-with(.,'$tq')]"; // Starts with
@@ -281,6 +287,10 @@
 					$tmp = $xpath->query($hwxpath, $entry); $ark = $tmp->item(0)->textContent;
 					if ( $dict['cqp'] && $arid && $linkdict ) $entryxml = "<div onClick=\"window.open('index.php?action=$action&act=view&id=$arid', '_self')\">".$entryxml."</div>";
 					else if ( $username && $arid ) $entryxml = " <a onClick=\"window.open('index.php?action=$action&act=edit&id=$arid', '_self')\">edit</a> ".$entryxml;
+					if ( $ixp && $entryxml && !$id && $count > 1 ) {
+						$entrytext = xpathrun($ixp, simplexml_import_dom($entry));
+						$entryxml = "<a href='index.php?action=$action&id=$arid'>$entrytext</a>";
+					};
 					array_push ( $sortarray, "<div k=\"$ark\">".$entryxml."</div>" );
 					if ( $cnt++ > $max ) break;
 					if ( $count == 1 ) $id = $arid; 

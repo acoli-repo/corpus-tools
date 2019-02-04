@@ -308,7 +308,7 @@
 	
 	
 		$maintext .= "\n\n<hr/><p><input type=submit value='Create XML File' onClick=\"return runsubmit();\">
-			 - instead of the methods here, you can also create a new XML <a href='index.php?action=pdf2tei'>starting from a PDF document</a>
+			 - instead of the methods here, you can also create a new XML <a href='index.php?action=pdf2tei'>starting from a PDF document or Facsimile images</a>
 			</form>
 			<script language=Javascript>
 			function runsubmit() {
