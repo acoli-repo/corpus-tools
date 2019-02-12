@@ -4,15 +4,40 @@
 	$ttxml = new TTXML();
 	$fileid = $ttxml->fileid;
 	
-	
 	if ( $act == "edit" ) $editmode = " - {%Edit mode}";
 	$maintext .= "
 		<h2>{%Waveform view}$editmode</h2>
 		<h1>".$ttxml->title()."</h1>";
 	// $maintext .= $ttxml->tableheader();
 	
+	$utttag = $settings['xmlfile']['defaults']['speechturn'] or $utttag = strtoupper($_GET["utt"]) or $utttag = "U"; // Make it possible to use <p> instead of <u>
+ 	$tmp = "//".strtolower($utttag)."[not(@id)]"; // print $tmp; exit;
+	if ( $username && $ttxml->xml->xpath($tmp) ) {
+		$maintext .= "<p class=wrong>The waveform function will not work properly since the XML file has not been (properly) numbered -
+						all utterances need a unique identifier to work properly. You can renumber by clicking <a href='index.php?action=rawedit&cid=$ttxml->fileid'>here</a> 
+						and then click save.</p>";
+	};
+	if ( $username && !$ttxml->xml->xpath("/TEI/teiHeader") ) {
+		$maintext .= "<p class=wrong>The XML does not have a proper set-up with a /TEI/teiHeader. You should resolve this before editing this file.</p>";
+	};
+	
 	$audiourl = $ttxml->audiourl; 
 	if ( $audiourl == "" ) fatal ("XML file has no media element providing a URL to the sound file");
+
+	$audiolink = preg_replace("/.*Audio\//", "", $audiourl); // Kill folder from Audio file name
+	if ( $username && !preg_match("^http:", $audiourl) && !file_exists("Audio/$audiolink") ) {
+		$maintext .= "<p>The audio file for this file ({$audiolink}) does not exist on the server - please upload it first.		
+					</form>
+					<p><form action='index.php?action=upload&act=save' method=post enctype=\"multipart/form-data\">
+					<p>Add new file:
+						<input type=file name=upfile accept=\"$accept\">
+						<input name=filename type=hidden value=\"{$audiolink}\">
+						<input name=type type=hidden value=\"audio\">
+						<input name=goon type=hidden value=\"index.php?action=$action&cid={$_GET['cid']}\">
+						<input type=submit value=Save name=submit>
+					</form> ";	
+		$nofile = 1;			
+	};
 
 	if ( $act == "save" ) {
 	
@@ -30,7 +55,7 @@
  					<script language=Javascript>top.location='index.php?action=renumber&cid=$ttxml->filename&nexturl=$nexturl';</script>"; 
     	exit;
 	
-	} else {
+	} else if ( !$nofile ) {
 		$maintext .= "
 		<!-- Sound file: $audiourl -->
 		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.4.0/wavesurfer.min.js\"></script>
@@ -62,8 +87,6 @@
 		";
 
 		$editxml = $ttxml->asXML();
-
-		$utttag = $settings['xmlfile']['defaults']['speechturn'] or $utttag = strtoupper($_GET["utt"]) or $utttag = "U"; // Make it possible to use <p> instead of <u>
 		
 		$setedit = "false";
 		if ( count($ttxml->xml->xpath("//".strtolower($utttag))) == 0 && $username ) {

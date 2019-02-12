@@ -35,7 +35,7 @@
 		foreach ( $_POST['values'] as $key => $value ) {
 			$xquery = $_POST['queries'][$key];
 			print "\n<p>$xquery => $value ";
-			
+			$verbose = 1;
 			# If there is a new value to save, make sure the node exists (or create it)
 			if ( $value ) { $dom = createnode($dom, $xquery); };
 			

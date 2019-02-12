@@ -18,10 +18,7 @@
 			
 	$xml = $ttxml->xml;	
 			
-	$titlexp = $settings['xmlfile']['title']."" or $titlexp = "//title";
-	$result = $xml->xpath($titlexp); 
-	$title = $result[0];
-	if ( $title == "" ) $title = "<i>{%Without Title}</i>";
+	$title = $ttxml->title;
 
 	// on "paged" display, determine what to show
 	if ( !$_GET['pbtype'] && is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['element'] ) { 

@@ -106,7 +106,10 @@ class TTXML
 				$result = $this->xml->xpath($titlexp); 
 				$this->title = $result[0];
 			};
-			if ( $this->title == "" ) $this->title = "<i>{%Without Title}</i>";
+			if ( $this->title == "" ) {
+				if (  $settings['xmlfile']['title'] ) $this->title = "<i>{%Without Title}</i>";
+				else $this->title = $this->xmlid;
+			};
 		};
 		return $this->title;
 	}

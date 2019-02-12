@@ -84,6 +84,8 @@ if ( !$doc ) {
 if ( $rawxml =~ /(<$mtxtelm>|<$mtxtelm [^>]*>).*?<\/$mtxtelm>/gsmi ) { $tagtxt = $&; $head = $`; $foot = $'; }
 else { print "No element <$mtxtelm>"; exit; };
 
+ 
+
 if ( $linebreaks ) {
 	if ( $debug ) {
 		print "\n\n----------------\nBEFORE PARAGRAPHS\n----------------\n$tagtxt----------------\n";
@@ -95,6 +97,9 @@ if ( $linebreaks ) {
 	$tagtxt =~ s/\n\n/<\/p>\n\n<p><lb\/>/g;
 	$tagtxt =~ s/\n(?!<p>|\n|<\/text>)/\n<lb\/>/g; # This places <lb/> before tags that should not have one...
 };
+
+# There are some element that should never be inside a word - such as paragraphs. So add whitespace inside those to prevent errors
+$tagtxt =~ s/(<\/(p|div)>)(<(p|div))(?=[ >])/\1\n\3/g;
 
 # Deal with |~ encode line endings (from with page-by-page files)
 $tagtxt =~ s/\s*\|~\s*((<[pl]b[^>]*>\s*?)*)\s*/\1/gsmi;
@@ -446,9 +451,11 @@ if ( $sentsplit ) {
 		$teitext =~ s/(<\/[^>]+>)$/<\/s>\1/;
 	};
 
+	# Put the notes back
 	while ( $teitext =~ /<ntn n="(\d+)"\/>/ ) {
 		$notenr = $1; $notetxt = $notes[$notenr]; 
-		$teitext =~ s/<ntn n="(\d+)"\/>/$notetxt/;
+		$notecode = $&;
+		$teitext =~ s/\Q$notecode\E/$notetxt/;
 	};
 
 	$presplit = $teitext; 
@@ -472,9 +479,11 @@ if ( $sentsplit ) {
 	
 } else {
 
-	while ( $teitext =~ /<ntn (\d+)\/>/ ) {
+	# Put the notes back
+	while ( $teitext =~ /<ntn n="(\d+)"\/>/ ) {
 		$notenr = $1; $notetxt = $notes[$notenr]; 
-		$teitext =~ s/<ntn (\d+)\/>/$notetxt/;
+		$notecode = $&;
+		$teitext =~ s/\Q$notecode\E/$notetxt/;
 	};
 
 };
@@ -510,7 +519,7 @@ if ( !$doc ) {
 	}; 
 
 # Add a revisionDesc to indicate the file was tokenized
-$revnode = makenode($doc, "//teiHeader/revisionDesc/change[\@who=\"xmltokenize\"]");
+$revnode = makenode($doc, "/TEI/teiHeader/revisionDesc/change[\@who=\"xmltokenize\"]");
 $when = strftime "%Y-%m-%d", localtime;
 $revnode->setAttribute("when", $when);
 if ( $sentsplit == 2 ) {
@@ -526,6 +535,14 @@ $xmlfile = $doc->toString;
 if ( $test ) { 
 	print  $xmlfile;
 } else {
+
+	# Make a backup of the file
+	( $buname = $filename ) =~ s/xmlfiles.*\//backups\//;
+	$date = strftime "%Y%m%d", localtime; 
+	$buname =~ s/\.xml/-$date.nt.xml/;
+	$cmd = "/bin/cp $filename $buname";
+	`$cmd`;
+
 	open FILE, ">$filename";
 	print FILE $xmlfile;
 	close FILE;
