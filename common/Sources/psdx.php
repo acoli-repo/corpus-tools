@@ -363,7 +363,12 @@
 		} else {
 
 			# Display potential pre-defined queries
-			if ($settings['psdx']['queries']) {
+			if (  $settings['psdx']['querypage'] ) {
+				$linktext = $settings['psdx']['querylink'] or $linktext = "Go to query page";
+				$maintext .= "<hr><h3>{%Predefined Queries}</h3>
+					<p><a href='{$settings['psdx']['querypage']}'>{%$linktext}</a>";
+
+			} else if ( $settings['psdx']['queries'] ) {
 				$maintext .= "<hr><h3>{%Predefined Queries}</h3>
 					<p>{%Click on one of the named queries below to copy it to the search window}";
 				foreach ( $settings['psdx']['queries'] as $key => $item ) { 
