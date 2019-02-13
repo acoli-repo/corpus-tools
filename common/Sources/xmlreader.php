@@ -115,8 +115,8 @@
 			};
 			if ( $fldrec['type'] == "rte" ) {
 				$fldtype = $fldrec->getName();
-				$trval = str_replace("&lt;", "<", $val)
-				$trval = str_replace("&gt;", ">", $trval)
+				$trval = str_replace("&lt;", "<", $val);
+				$trval = str_replace("&gt;", ">", $trval);
 				$val = "<$fldtype>$trval</$fldtype>";
 				replaceSimpleNode ( $fldval, $val);
 			} else if ( $fldrec['type'] == "xml" ) {
