@@ -453,6 +453,8 @@
     <item key="psdx" display="Settings for the PSDX files">
     	<att key="cqp" display="Use with CQP (1/0)" default="0"/> 
     	<att key="default" display="Default XPath search query"/>
+    	<att key="querypage" display="Provide a link to a separate page with pre-defined queries"/>
+    	<att key="querylink" display="Text to use for the querypage link" default="Go to query page"/>
         <item key="queries" display="List of XPath queries">
         	<list>
             	<att key="key" display="XPath query definition"/>

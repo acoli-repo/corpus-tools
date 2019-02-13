@@ -14,13 +14,14 @@
 		# First, determine the filename
 		$cardid = $_POST['fname'];
 		$cardid = preg_replace("/[+ '\"]+/", "_", $cardid); # Remove problematic characters from the name
-		if ( substr($cardid, -4) != ".xml" ) { # Add .xml to the end of the filename
-			$cardid .= ".xml";
+		$filename = $cardid;
+		$cardid = str_replace(".xml", "", $cardid);
+		if ( substr($filename, -4) != ".xml" ) { # Add .xml to the end of the filename
+			$filename .= ".xml";
 		};
-		if ( $_POST['folder'] ) $filename = "{$_POST['folder']}/$cardid"; 
-		else $filename = $cardid;
-		if ( file_exists("$xmlfolder/$cardid") ) {
-			fatal("File $cardid already exists");
+		if ( $_POST['folder'] ) $filename = "{$_POST['folder']}/$filename"; 
+		if ( file_exists("$xmlfolder/$filename") ) {
+			fatal("File $filename already exists");
 		}; 
 	
 		# Then, deal with the teiHeader or template
@@ -33,6 +34,20 @@
 			$file = $_POST['tei']; 
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { print "Failing to read/parse $xmltemplate<hr>"; print $file; exit; };			
+		} else if ( $_POST['header'] == "audio" ) {
+			$soundtype = $_POST['soundtype'] or $soundtype = "wav";
+			$file = "<TEI>
+<teiHeader>
+<recordingStmt>
+<recording type=\"audio\">
+<media mimeType=\"audio/$soundtype\" url=\"Audio/$cardid.$soundtype\"> <desc></desc>
+</media>
+</recording>
+</recordingStmt>
+</teiHeader> 
+<text xml:space=\"preserve\"></text>
+</TEI>";
+			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		} else if ( $_POST['header'] == "existing" ) {
 			$file = file_get_contents("xmlfiles/{$_POST['fromfile']}"); 
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
@@ -140,9 +155,9 @@
 			$newfile = preg_replace("/<text/", "<text id=\"$fileid\"", $newfile);
 		};
 		
-		saveMyXML($newfile, $cardid);
+		saveMyXML($newfile, $filename);
 		print "<p>New XML file has been created. Reloading to edit mode.
-			<script language=Javascript>top.location='index.php?action=file&cid=$cardid&display=shand'</script>"; exit;
+			<script language=Javascript>top.location='index.php?action=file&cid=$filename&display=shand'</script>"; exit;
 
 	} else {
 	
@@ -233,11 +248,15 @@
 
 	
 		# Copy from an existing XML file
-		$maintext .= "<p><input type=radio name=header value='existing' onChange='metachoose(this);'> Use a existing XML file
+		$maintext .= "<p><input type=radio name=header value='existing' onChange='metachoose(this);'> Use an existing XML file
 			<div id='existing' style='display: none; padding-left: 40px;'>
 				<p>Enter filename: <input name=fromfile size=50> <input type=checkbox value=1 name=keeptext> Keep text content as well"; 
 		$maintext .= "</div>";
 
+		# If we have sound files defined, also allow starting from a sound-file
+		if ( $settings['files']['audio'] ) {
+			$maintext .= "<p><input type=radio name=header value='audio' onChange='metachoose(this);'> Transcribe from a sound file";
+		};
 
 
 		$maintext .= "\n\n<hr/><h2>Initial Content</h2>";

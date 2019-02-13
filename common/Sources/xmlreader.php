@@ -33,6 +33,10 @@
 		$entry = file_get_contents("Resources/$xmlfile-entry.xml");
 	};
 	
+	if ( !file_exists("Resources/$xmlfile.xml") ) {
+		file_put_contents("Resources/$xmlfile.xml", "<database></database>");
+	};
+	
 	if ( $entry == "" && $username ) {
 		# Not defined yet
 		if ( $xmlfile && file_exists("Resources/$xmlfile.xml") ) {
@@ -55,7 +59,7 @@
 	if ( $xmlfile && file_exists("Resources/$xmlfile.xml") ) {
 		# Read XML file only when defined
 		$xml = simplexml_load_file("Resources/$xmlfile.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		if ( !$xml ) fatal ( "Failed to load XML file" );
+		if ( gettype($xml) != "object" ) fatal ( "Failed to load XML file" );
 
 		$entryxml = simplexml_load_string($entry, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		$recname = $entryxml->getName().""; 
@@ -96,8 +100,9 @@
 				$newid = "rec-$newnum";
 			};
 			$record['id'] = $newid;
+			$id = $newid;
 		};
-			
+				
 		foreach ( $_POST['newvals'] as $cn => $val ) {
 			$key = $_POST['newflds'][$cn];
 			$fldval = current($record->xpath($key));
@@ -108,16 +113,16 @@
 				$key = "//{$recname}[@id='$id']/$key";
 				$fldval = xpathnode($record, $key); 
 			};
-			if ( $fldrec['type'] == "xml" ) {
-				$somexml = 1;
-				$val = str_replace("<", "x(x", $val); # TODO: This should become an addChild	
-				$val = str_replace(">", "x)x", $val); # TODO: This should become an addChild	
-					$val = preg_replace("/^<[^>]+>|<[^>]+>$", "", $val); # TODO: This should become innerXML or replace	
-				$fldval[0] = $val;			
+			if ( $fldrec['type'] == "rte" ) {
+				$fldtype = $fldrec->getName();
+				$val = "<$fldtype>".html_entity_decode($val)."</$fldtype>";
+				replaceSimpleNode ( $fldval, $val);
+			} else if ( $fldrec['type'] == "xml" ) {
+				replaceSimpleNode ( $fldval, $val );
 			} else {
 				$fldval[0] = $val;
 			};
-		};
+		}; 
 		
 		if ($somexml) {
 			$textxml = $xml->asXML();
@@ -177,7 +182,7 @@
 			
 	} else if ( $act == "edit" && $id ) {
 	
-		check_login();
+		check_login(); 
 		if ( !is_writable("Resources/$xmlfile.xml") ) {
 			fatal ("Due to file permissions, the file $xmlfile.xml cannot be edited, please contact the server administrator");
 		};
@@ -192,11 +197,11 @@
 			$tmp = explode ( ",", $itemtitle );
 			while ( !$tit && $tick++ < 100 ) $tit = current($record->xpath(array_shift($tmp)));
 		};
-						
+
 		$maintext .= "<h2>$tit</h2>
 		
 		<form action='index.php?action=$action&act=save&id=$id' id=frm name=frm method=post>
-		<table>";
+		<table style='width: 100%'>";
 		if ( $id == "new" ) $maintext .= "<tr><th>Record ID<td><input name=newid value='' size=10>";
  
  		$cn = 0;
@@ -208,18 +213,38 @@
 				$key = $fldrec->getName();
 			};
 			$val = $fldrec."" or $val = $key;
-			if ( $record ) $fldval = current($record->xpath($key));
+			if ( $record ) $fldval = current($record->xpath($key));				
+
 			if ( $fldrec['type'] == "xml" )  {
 				$xmlnum++;
+				if ( $fldval ) $initcontent = $fldval[1]->asXML();
+				$initcontent = htmlentities($initcontent);
 				$xmlupdate .= "document.getElementById(\"frm$key\").value = editor.getSession().getValue(); ";
-				$maintext .= "\n<tr><th>{%$val}<td><div id=\"editor\" style='width: 100%; height: 80px;'>".htmlentities($fldval[1]->asXML())."</div><textarea id='frm$key' name=newvals[$cn] style='display:none'>$fldval</textarea>";
-			} else if ( $fldrec['type'] == "text" )  $maintext .= "<tr><th>{%$val}<td><textarea  name=newvals[$cn] style='width: 100%; height: 50px;'>$fldval</textarea>";
-			else $maintext .= "<tr><th>{%$val}<td><input name=newvals[$cn] value='$fldval' size=80>";
+				$maintext .= "\n<tr><th>{%$val}<td><div id=\"editor\" style='width: 100%; height: 80px;'>$initcontent</div><textarea id='frm$key' name=newvals[$cn] style='display:none'>$fldval</textarea>";
+			} else if ( $fldrec['type'] == "text" )  $maintext .= "<tr><th>{%$val}<td><textarea  name=newvals[$cn] style='width: 100%; height: 150px;'>$fldval</textarea>";
+			else if ( $fldrec['type'] == "rte" ) {
+				if ( $fldval ) $initcontent = $fldval[1]->asXML();
+				$maintext .= "<tr><th>{%$val}<td><textarea class='rte' name=newvals[$cn] style='width: 100%; height: 50px;'>".$initcontent."</textarea>";
+			} else $maintext .= "<tr><th>{%$val}<td><input name=newvals[$cn] value='$fldval' size=80>";
 			$maintext .= "<input type=hidden name=newflds[$cn] value=\"$key\">";
+
 		}; 
 		$maintext .= "</table>
 		<p><input type=submit value=Save  onClick=\"runsubmit();\">
 		</form>
+		<script type=\"text/javascript\" src=\"$tinymceurl\"></script>
+		<script type=\"text/javascript\">
+			tinyMCE.init({
+				selector : \"textarea.rte\",
+			  menu: {
+				edit: {title: \"Edit\", items: \"undo redo | cut copy paste pastetext | searchreplace | selectall\"},
+				insert: {title: \"Insert\", items: \"charmap pagebreak\"},
+				format: {title: \"Format\", items: \"bold italic | formats | removeformat | code\"},
+			  },
+			    width: \"100%\",
+			    height: 200,
+			});
+		</script>
 		<hr>";
 		
 		if ( $id != "new" ) $maintext .= "
@@ -313,7 +338,10 @@
 			$fldval = current($record->xpath($key));
 			if ( !$fldval ) continue;
 			if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
-			$maintext .= "<tr><th span='row'>{%$val}<td>$fldval";
+			if ( $fldrec['type'] == "xml" || $fldrec['type'] == "rte" ) {
+				if ( !$fldrec['notitle'] ) $maintext .= "<tr><th colspan=2>{%$val}</th>";
+				$maintext .= "<tr><td colspan=2>".$fldval->asXML();
+			} else $maintext .= "<tr><th span='row'>{%$val}<td>$fldval";
 		}; 
 		$maintext .= "</table>";
 
@@ -554,5 +582,13 @@
 		if ( $username ) $maintext .= " - <a href='index.php?action=$linkaction&act=edit&id=new' class=adminpart>add new $recname</a>";
 	};
 	
+	function replaceSimpleNode( $orgnode, $dostring ) {	
+		$domToChange = dom_import_simplexml($orgnode);
+		$domReplace = dom_import_simplexml(simplexml_load_string($dostring));
+	
+		$nodeImport  = $domToChange->ownerDocument->importNode($domReplace, TRUE);
+	
+		$domToChange->parentNode->replaceChild($nodeImport, $domToChange);
+	};
 
 ?>
