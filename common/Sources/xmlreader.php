@@ -118,6 +118,7 @@
 				$trval = str_replace("&lt;", "<", $val);
 				$trval = str_replace("&gt;", ">", $trval);
 				$val = "<$fldtype>$trval</$fldtype>";
+				print $val; exit;
 				replaceSimpleNode ( $fldval, $val);
 			} else if ( $fldrec['type'] == "xml" ) {
 				replaceSimpleNode ( $fldval, $val );
