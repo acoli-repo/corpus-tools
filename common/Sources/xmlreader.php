@@ -115,7 +115,7 @@
 				$fldval = xpathnode($record, $key); 
 			}
 			if ( $fldrec['type'] == "rte" ) {
-				$fldtype = $fldrec->getName();
+				$fldtype = $fldrec['xpath'] or $fldtype = $fldrec->getName();
 				$trval = html_entity_decode($val);
 				$trval = str_replace("&lt;", "<", $trval);
 				$trval = str_replace("&gt;", ">", $trval);
