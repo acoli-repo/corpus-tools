@@ -134,7 +134,7 @@
 
 			if ( ( $item['type'] == "select" || $item['type'] == "kselect" )
 					&& ( ( !$item['noshow'] && !$item['admin']  ) || $username ) ) {
-				$maintext .= "<li key='$cat'><a href='index.php?action=$action&class=$key'>$cat</a></li>";
+				$maintext .= "<li key='$cat'><a href='index.php?action=$action&class=$key'>{%$cat}</a></li>";
 			};
 		};
 		$maintext .= "</ul>"; //<script language=Javascript>sortlist(document.getElementById('sortlist'));</script>";

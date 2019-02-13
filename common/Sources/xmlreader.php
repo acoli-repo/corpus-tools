@@ -241,6 +241,18 @@
 				insert: {title: \"Insert\", items: \"charmap pagebreak\"},
 				format: {title: \"Format\", items: \"bold italic | formats | removeformat | code\"},
 			  },
+  				convert_urls: false,
+				plugins: [
+					 \"lists charmap searchreplace\",
+					 \"paste pagebreak code\"
+			   ],
+			    extended_valid_elements: \"supplied,add,unclear,ex,hi[rend],b,i,b/strong,i/em\",
+			    custom_elements: \"~supplied,~add,~unclear,~ex,~hi[rend]\",
+			    valid_children : \"+p[supplied|add|unclear|ex|hi]\",
+			    paste_word_valid_elements: \"b,i,b/strong,i/em,h1,h2,p\",
+				content_css: \"Resources/xmlstyles.css\", 
+				toolbar: \"undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent \", 
+
 			    width: \"100%\",
 			    height: 200,
 			});
