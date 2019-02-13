@@ -4,8 +4,8 @@
 var endtime = 0; // Disable stop at end time
 var showaudio = false;
 var playimage = false;
-var playimg1 = 'http://alfclul.clul.ul.pt/teitok/common/Images/playbutton.gif';
-var playimg2 = 'http://alfclul.clul.ul.pt/teitok/common/Images/playbutton2.gif';
+var playimg1 = 'Images/playbutton.gif';
+var playimg2 = 'Images/playbutton2.gif';
 var audiolist = new Array();
 
 // We should check whether we can play this sound
