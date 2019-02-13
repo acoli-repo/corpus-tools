@@ -115,7 +115,9 @@
 			};
 			if ( $fldrec['type'] == "rte" ) {
 				$fldtype = $fldrec->getName();
-				$val = "<$fldtype>".html_entity_decode($val)."</$fldtype>";
+				$trval = str_replace("&lt;", "<", $val)
+				$trval = str_replace("&gt;", ">", $trval)
+				$val = "<$fldtype>$trval</$fldtype>";
 				replaceSimpleNode ( $fldval, $val);
 			} else if ( $fldrec['type'] == "xml" ) {
 				replaceSimpleNode ( $fldval, $val );
@@ -351,7 +353,7 @@
 			if ( !$fldval ) continue;
 			if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
 			if ( $fldrec['type'] == "xml" || $fldrec['type'] == "rte" ) {
-				if ( !$fldrec['notitle'] ) $maintext .= "<tr><th>{%$val}</th><td colspan=2>".$fldval->asXML();
+				if ( !$fldrec['notitle'] ) $maintext .= "<tr><th span='row'>{%$val}</th><td colspan=2>".$fldval->asXML();
 				else $maintext .= "<tr><td colspan=2>".$fldval->asXML();
 			} else $maintext .= "<tr><th span='row'>{%$val}<td>$fldval";
 		}; 
