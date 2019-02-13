@@ -107,18 +107,21 @@
 			$key = $_POST['newflds'][$cn];
 			$fldval = current($record->xpath($key));
 			$fldrec = current($entryxml->xpath($key));
+			if ( !$fldrec ) $fldrec = current($entryxml->xpath("*[@xpath=\"$key\"]"));
 			print "<p>$key: $fldval (".gettype($fldval).") => $val";
 			if ( $val != "" && gettype($fldval) != "object" ) { # When child does not exist
 				# $fldval = $record->addChild($key);
 				$key = "//{$recname}[@id='$id']/$key";
 				$fldval = xpathnode($record, $key); 
-			};
+			}
 			if ( $fldrec['type'] == "rte" ) {
 				$fldtype = $fldrec->getName();
-				$trval = str_replace("&lt;", "<", $val);
+				$trval = html_entity_decode($val);
+				$trval = str_replace("&lt;", "<", $trval);
 				$trval = str_replace("&gt;", ">", $trval);
+				$trval = str_replace("<b/>", "", $trval);
+				$trval = str_replace("<i/>", "", $trval);
 				$val = "<$fldtype>$trval</$fldtype>";
-				print $val; exit;
 				replaceSimpleNode ( $fldval, $val);
 			} else if ( $fldrec['type'] == "xml" ) {
 				replaceSimpleNode ( $fldval, $val );
