@@ -351,8 +351,8 @@
 			if ( !$fldval ) continue;
 			if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
 			if ( $fldrec['type'] == "xml" || $fldrec['type'] == "rte" ) {
-				if ( !$fldrec['notitle'] ) $maintext .= "<tr><th colspan=2>{%$val}</th>";
-				$maintext .= "<tr><td colspan=2>".$fldval->asXML();
+				if ( !$fldrec['notitle'] ) $maintext .= "<tr><th>{%$val}</th><td colspan=2>".$fldval->asXML();
+				else $maintext .= "<tr><td colspan=2>".$fldval->asXML();
 			} else $maintext .= "<tr><th span='row'>{%$val}<td>$fldval";
 		}; 
 		$maintext .= "</table>";
