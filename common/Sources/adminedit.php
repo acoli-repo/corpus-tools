@@ -13,6 +13,7 @@
 		"xmlstyles.css" => "CSS definitions for the actual text in the XML files",
 		"teiHeader.tpl" => "Header info - short style",
 		"teiHeader-long.tpl" => "Header info - long style",
+		"teiHeader-edit.tpl" => "Header info - edit version",
 		"settings.xml" => "Overall TEITOK settings",
 		"userlist.xml" => "File with user permissions",
 		"tagset.xml" => "Definition of the tagset",

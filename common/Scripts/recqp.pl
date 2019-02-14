@@ -46,7 +46,7 @@ close FILE;
 
 $timelapse = $endtime - $starttime;
 $tmp = `wc -c cqp/word.corpus`;
-$size = $tmp/4;
+$size = $tmp/4; $, = "\t";
 open FILE, ">tmp/lastupdate.log";
 print FILE localtime($starttime), $timelapse, $size;
 close FILE;

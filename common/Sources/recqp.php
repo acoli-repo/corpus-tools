@@ -27,11 +27,11 @@
 		};
 	};
 
-	$lastupdate = "<i>Never updated before</i>";
+	$lastupdate = "<i>Never generated before</i>";
 	$tmp = file_get_contents("tmp/lastupdate.log");
 	if ( $tmp ) {
 		list ( $start, $lapse, $size ) = explode("\t", $tmp);
-		$lastupdate = "Started $start - created corpus of $size tokens in $lapse seconds";
+		$lastupdate = "Started $start - generated corpus of $size tokens in $lapse seconds";
 	};
 
 	# First - check whether the process is not already running
@@ -50,7 +50,7 @@
 				</ol>
 			<p>Step 2 tends to be fast, while steps 1 can take several minutes. 
 			
-			<p>Last update: $lastupdate
+			<p> - Last regeneration: $lastupdate
 		
 			<hr><pre>$logtxt</pre>
 			
