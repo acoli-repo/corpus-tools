@@ -27,6 +27,13 @@
 		};
 	};
 
+	$lastupdate = "<i>Never updated before</i>";
+	$tmp = file_get_contents("tmp/lastupdate.log");
+	if ( $tmp ) {
+		list ( $start, $lapse, $size ) = explode("\t", $tmp);
+		$lastupdate = "Started $start - created corpus of $size tokens in $lapse seconds";
+	};
+
 	# First - check whether the process is not already running
 	if ( file_exists("tmp/recqp.pid") ) {
 	
@@ -42,6 +49,8 @@
 					<li> Make : create all the necessary files for the CQP corpus
 				</ol>
 			<p>Step 2 tends to be fast, while steps 1 can take several minutes. 
+			
+			<p>Last update: $lastupdate
 		
 			<hr><pre>$logtxt</pre>
 			

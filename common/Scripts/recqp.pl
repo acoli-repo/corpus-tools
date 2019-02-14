@@ -17,6 +17,7 @@ if ( $settings->findnodes("//cqp/defaults/\@registry") ) {
 
 open FILE, ">tmp/recqp.pid";$\ = "\n";
 
+$starttime = time(); 
 print FILE 'Regeneration started on '.localtime();
 print FILE 'Process id: '.$$;
 print FILE "CQP Corpus: $cqpcorpus";
@@ -38,6 +39,14 @@ print FILE "command:
 `/usr/local/bin/cwb-makeall  -r $regfolder $cqpcorpus`;
 
 print FILE '----------------------';
+$endtime = time();
 print FILE 'Regeneration completed on '.localtime();
 `mv tmp/recqp.pid tmp/recqp.log`;
+close FILE;
+
+$timelapse = $endtime - $starttime;
+$tmp = `wc -c cqp/word.corpus`;
+$size = $tmp/4;
+open FILE, ">tmp/lastupdate.log";
+print FILE localtime($starttime), $timelapse, $size;
 close FILE;
