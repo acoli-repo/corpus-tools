@@ -133,6 +133,8 @@
 			$newtext = str_replace( 'x>x', '&gt;', $newtext);
 			$newtext = str_replace( 'x&x', '&amp;', $newtext);
 			
+			$newtext = utf8_encode($newtext); # Correcting UTF8 errors 0xa0			
+
 			if ( !$settings['newfile']['keepbr'] && !$_POST['keepbr']  ) { 
 				 # Interpret 2x <br/> as <p>, change <br/> to <lb/>
 				$newtext = preg_replace("/<br *\/><br *\/>/", "</p>\n\n<p>", $newtext);

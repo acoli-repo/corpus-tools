@@ -310,6 +310,7 @@
 
 
 		if ( $audioelm ) {
+			$maintext .= "<script language='Javascript'>var playimg1 = '$playimg';</script>";
 			$maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>";
 			$maintext .= "<div style='display: none;'><audio id=\"track\" src=\"http://alfclul.clul.ul.pt/teitok/site/Audio/mini.wav\" controls ontimeupdate=\"checkstop();\"></audio></div>";
 		};

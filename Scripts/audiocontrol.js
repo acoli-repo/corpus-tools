@@ -4,8 +4,10 @@
 var endtime = 0; // Disable stop at end time
 var showaudio = false;
 var playimage = false;
-var playimg1 = 'Images/playbutton.gif';
-var playimg2 = 'Images/playbutton2.gif';
+if ( typeof(playimg1) == undefined || typeof(playimg1) == 'undefined' ) {
+	var playimg1 = 'Images/playbutton.gif';
+};
+var playimg2 = playimg1.replace('button.gif', 'button2.gif');
 var audiolist = new Array();
 
 // We should check whether we can play this sound
