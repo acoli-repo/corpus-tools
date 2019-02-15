@@ -61,6 +61,10 @@ class CQP
 		} else {
 			// print "<p>ERROR: CQP backend startup failed .. $version";  exit;
 		};
+		
+		// Select the corpus by default
+		$this->exec($cqpcorpus); // Select the corpus
+		$this->exec("set PrettyPrint off");
 
     }
 
