@@ -27,7 +27,7 @@ class CQP
 	
 	## PHPCQP object constructor
     function CQP($registryfolder = "", $cqpapp = "/usr/local/bin/cqp") {
-    	global $settings;
+    	global $settings; global $cqpcorpus;
     	if ( $registryfolder == "" ) { 
 			$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
     	};
