@@ -133,7 +133,7 @@
 			$newtext = str_replace( 'x>x', '&gt;', $newtext);
 			$newtext = str_replace( 'x&x', '&amp;', $newtext);
 			
-			$newtext = utf8_encode($newtext); # Correcting UTF8 errors 0xa0			
+			$newtext = utf8_encode(utf8_decode($newtext)); # Correcting UTF8 errors 0xa0			
 
 			libxml_use_internal_errors(true);
 			$newentry = simplexml_load_string($newtext, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
