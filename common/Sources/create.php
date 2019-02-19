@@ -356,7 +356,7 @@
 	 * Calls helper function for HTML 4 entity decoding.
 	 * Per: http://www.lazycat.org/software/html_entity_decode_full.phps
 	 */
-	function decode_entities_full($string, $quotes = ENT_COMPAT, $charset = 'ISO-8859-1') {
+	function decode_entities_full($string, $quotes = ENT_COMPAT, $charset = 'UTF-8') {
 	  return html_entity_decode(preg_replace_callback('/&([a-zA-Z][a-zA-Z0-9]+);/', 'convert_entity', $string), $quotes, $charset); 
 	}
 
