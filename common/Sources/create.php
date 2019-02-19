@@ -159,7 +159,7 @@
 		
 		# Make sure the ID is in the <text> element
 		if ( !preg_match("/<text[^>]+id=/", $newfile) ) {
-			$newfile = preg_replace("/<text/", "<text id=\"$fileid\"", $newfile);
+			$newfile = preg_replace("/<text(?=[ >])/", "<text id=\"$fileid\"", $newfile);
 		};
 		
 		saveMyXML($newfile, $filename);
