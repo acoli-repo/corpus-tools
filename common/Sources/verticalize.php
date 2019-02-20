@@ -159,8 +159,9 @@
 				if ( $node[$postag] || $_GET['show'] != "tagged" ) {
 					$maintext .= "\n<tr><td><a target=new href='index.php?action=tokedit&cid=$fileid&tid={$node['id']}'>".$node['id'].'</a>';
 					foreach ( $showfields as $fld ) {
-						if ( $fld == "pform" ) $val = htmlentities($node->asXML());
-						else $val = $node[$fld];
+						if ( $fld == "pform" ) {
+							$val = $node->asXML();
+						} else $val = $node[$fld];
 						
 						if ( $val == "" && $_POST['inherit'] && $settings['xmlfile']['pattributes']['forms'] ) $val = forminherit($node, $fld);
 						$coldir = $settings['xmlfile']['pattributes']['forms'][$fld]['direction'];
