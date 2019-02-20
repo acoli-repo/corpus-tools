@@ -118,7 +118,7 @@
 				$editfields = explode ( ",", $toedit );
 			};
 		};	
-		unset($editfields['pform']);
+		
 		$max = $_POST['max'] or $max = $_GET['max'] or $max = 100;
 		$start = $_POST['start'] or $start = $_GET['start'] or $start = 1;
 		$start--;
@@ -148,6 +148,7 @@
 			$maintext .= "<th>$tittxt";
 		};
 		if ( $username && is_array($editfields) ) foreach ( $editfields as $fld ) {
+			if ( $fld == "pform" ) continue;
 			$tittxt = $settings['xmlfile']['pattributes']['forms'][$fld]['display'] or 
 			$tittxt = $settings['xmlfile']['pattributes']['tags'][$fld]['display']; 
 			$maintext .= "<th>$tittxt";
@@ -172,7 +173,8 @@
 					};
 					if ( is_array($editfields) )
 					foreach ( $editfields as $fld ) {
-						if ( $fld == "pform" ) $val = $node->asXML(); // TODO: This is ... not ideal, better solution?
+						if ( $fld == "pform" ) continue;
+						if ( $fld == "pform" ) $val = htmlentities($node->asXML()); // TODO: This is ... not ideal, better solution?
 						else $val = $node[$fld]; 
 						$nid = $node['id'];
 						$maintext .= "<td><input name='{$fld}[{$nid}]' value=\"$val\">";
