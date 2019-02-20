@@ -166,7 +166,7 @@
 			$version = $tmp[0];
 			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
 
-			$tmp = file_get_contents("http://www.teitok.org/latest.xml");
+			$tmp = file_get_contents("http://www.teitok.org/latest.php?url={$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}&version={$version['version']}");
 			$tmp = simplexml_load_string($tmp, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
 			if ( $tmp ) {
 				$tmp2 = $tmp->xpath("//info");
