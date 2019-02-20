@@ -163,7 +163,7 @@
 							$val = $node->asXML();
 						} else $val = $node[$fld];
 						
-						if ( $val == "" && $_POST['inherit'] && $settings['xmlfile']['pattributes']['forms'] ) $val = forminherit($node, $fld);
+						if ( $val == "" && ( $_POST['inherit'] || $_GET['inherit'] ) && $settings['xmlfile']['pattributes']['forms'] ) $val = forminherit($node, $fld);
 						$coldir = $settings['xmlfile']['pattributes']['forms'][$fld]['direction'];
 						if ( $coldir ) $colstyle = " style='direction: $coldir; padding-right: 10px;'"; else $colstyle = "";
 						
