@@ -118,6 +118,7 @@
 				$editfields = explode ( ",", $toedit );
 			};
 		};	
+		unset($editfields['pform'])
 		$max = $_POST['max'] or $max = $_GET['max'] or $max = 100;
 		$start = $_POST['start'] or $start = $_GET['start'] or $start = 1;
 		$start--;
