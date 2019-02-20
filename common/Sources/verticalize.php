@@ -111,10 +111,10 @@
 			$editfields = array_keys($_POST['edit']);
 			# foreach ( $editfields as $fld ) if ( !in_array($fld, $showfields) ) array_push($showfields,$fld);
 		} else {
-			$toshow = $_GET['showfields'] or $toshow = $settings['xmlfile']['vertfields'] or $toshow = "pform,lemma,pos,mfs";
+			$toshow = $_GET['showfields'] or $toshow = $settings['xmlfile']['vertfields'] or $toshow = "pform,nform";
 			$showfields = explode ( ",", $toshow );
 			if ( $editable ) {
-				$toedit = $_GET['editfields'] or $toedit = $toshow;
+				$toedit = $_GET['editfields'] or $toedit = "nform,lemma,pos";
 				$editfields = explode ( ",", $toedit );
 			};
 		};	
@@ -159,7 +159,7 @@
 				if ( $node[$postag] || $_GET['show'] != "tagged" ) {
 					$maintext .= "\n<tr><td><a target=new href='index.php?action=tokedit&cid=$fileid&tid={$node['id']}'>".$node['id'].'</a>';
 					foreach ( $showfields as $fld ) {
-						if ( $fld == "pform" ) $val = $node->asXML();
+						if ( $fld == "pform" ) $val = htmlentities($node->asXML());
 						else $val = $node[$fld];
 						
 						if ( $val == "" && $_POST['inherit'] && $settings['xmlfile']['pattributes']['forms'] ) $val = forminherit($node, $fld);
