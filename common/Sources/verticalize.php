@@ -191,6 +191,7 @@
 							$maintext .= "<td>$val";
 						};
 						foreach ( $editfields as $fld ) {
+							if ( $fld == "pform" ) continue;
 							if ( $fld == "pform" ) $val = $dnode."";
 							else $val = $dnode[$fld];
 							$nid = $dnode['id'];
