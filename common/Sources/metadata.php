@@ -1,10 +1,9 @@
 <?php
 
 	$tmp = file_get_contents("$ttroot/common/Resources/teiheader.xml");
-	$defaults = simplexml_load_string($tmp, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-	if ( !$defaults ) {
+	$defaults = simplexml_load_string($tm, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+	if ( false === $defaults ) {
 		if ( $username ) {
-			print_r(libxml_get_errors()); exit;
 			fatal("Unable to load default teiheader ($ttroot/common/Resources/teiHeader.xml)");
 		} else fatal("An error occurred");
 	};
