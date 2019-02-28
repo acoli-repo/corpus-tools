@@ -76,6 +76,8 @@
 		$switch = "<a href='index.php?action=rawedit&cid=$fileid&full=1'>switch to full XML including header</a>";
 	}; $switch .= " &bull; <a href='index.php?action=file&cid=$fileid&full=1'>back to view mode</a>";
 
+	$editxml = preg_replace( "/<text([^>]*)\/>/", "<text\\1>\n</text>", $editxml );
+
 	if ( $_GET['view'] != "wysiwyg" ) $editxml = htmlentities($editxml, ENT_COMPAT, 'UTF-8');
 	
 	$maintext .= "

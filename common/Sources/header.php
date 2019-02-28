@@ -2,22 +2,24 @@
 	// Script to allow viewing and editing teiHeader data
 	// (c) Maarten Janssen, 2015
 
-	require("$ttroot/common/Sources/ttxml.php");
-	$ttxml = new TTXML();	
-	$xml = $ttxml->xml;
-	$fileid = $ttxml->fileid;
+	if ( $act != "details" ) {
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();	
+		$xml = $ttxml->xml;
+		$fileid = $ttxml->fileid;
 
-	$result = $xml->xpath("//title"); 
-	$title = $result[0];
+		$result = $xml->xpath("//title"); 
+		$title = $result[0];
 
-	$maintext .= "<h2>$fileid</h2><h1>$title </h1>";
-
+		$maintext .= "<h2>$fileid</h2><h1>$title </h1>";
+	};
+	
 	$tplfile = $_POST['tpl'] or $tplfile = $_GET['tpl'];
 	
 	if ( !$tplfile && !$settings['teiheader'] ) $tplfile = "teiHeader-edit.tpl";
 
-	if ( $tplfile  ) {	
-		if ( file_exists("Resources/teiHeader-$tplfile.tpl")  && !$settings['teiheader'] ) $tplfile = "teiHeader-$tplfile.tpl";
+	if ( $tplfile ) {	
+		if ( file_exists("Resources/teiHeader-$tplfile.tpl") ) $tplfile = "teiHeader-$tplfile.tpl";
 
 		if ( !file_exists("Resources/$tplfile") && $act != "rawview" && !$settings['teiheader'] ) fatal ("No such header template: $tplfile");
 		$text = file_get_contents("Resources/$tplfile");
@@ -86,17 +88,48 @@
 		$maintext .= showxml($teiheader);
 		$maintext .= "<hr><p>".$ttxml->viewswitch();
 	
-	} else if ( $act == "edit" && $settings['teiheader'] && !$tplfile ) {
+	} else if ( $settings['teiheader'] && $act == "details" ) {
+
+		$defaults = simplexml_load_file("$ttroot/common/Resources/teiheader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		if ( !$defaults ) fatal("Unable to load default teiheader");
+
+		$maintext .= "<h1>Details about the metadata fields</h1>
+			<table>
+			<tr><th>Field Name<th>Local description<th>Default description<th>XPath query";
+		foreach ( $settings['teiheader'] as $headerfield ) {
+			$xquery = $headerfield['xpath'] or $xquery = $headerfield['key'];
+			
+			$desc = $headerfield['description'];
+			$defdesc = current($defaults->xpath($xquery)); 
+			
+			$maintext .= "<tr><th>{$headerfield['display']}<td>$desc<td>$defdesc<td>$xquery";
+		};
+		$maintext .= "</table>";
 	
-		check_login();
+	} else if ( $settings['teiheader'] && !$tplfile ) {
+	
+		# New edit method, to become default
+		$defaults = simplexml_load_file("$ttroot/common/Resources/teiheader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		if ( !$defaults ) fatal("Unable to load default teiheader");
+	
+		if ( $act == "edit" ) check_login();
 		if  ( !$corpusfolder ) $corpusfolder = "cqp";
 
-		$maintext .= "<h2>Editing from XML</h2>
-			<table>";
-		foreach ( $settings['teiheader'] as $headerfield ) {
+		$maintext .= "<h2>Header Data</h2>";
 		
-			$xquery = $headerfield['key'];
+		$text = "<table>";
 			
+		foreach ( $settings['teiheader'] as $headerfield ) {
+			$xquery = $headerfield['xpath'] or $xquery = $headerfield['key'];
+			
+			$desc = $headerfield['description'];
+			if ( !$desc ) $desc = current($defaults->xpath($xquery)); 
+			
+			if ( $headerfield['type'] == "sep" ) {
+				$text .= "<tr><th colspan=2>{$headerfield['display']}";
+				continue;
+			};
+									
 			$result = $xml->xpath($xquery); 
 			$tmp = $result[0];
 			if ( !$result ) $to = "";
@@ -111,15 +144,7 @@
 			$xval = str_replace('"', '&quot;', $to.""); # $to->asXML()
 			$xval = str_replace("'", '&#039;', $xval);
 
-			if ( $headerfield['select'] ) {
-				$optionlist = "";
-				if ( !$xval ) $optionlist = "<option value=''>[{%select}]</option>"; 
-				foreach ( $headerfield['select'] as $option ) {
-					if ( $xval == $option['key'] ) $sel = "selected"; else $sel = ""; 
-					$optionlist .= "<option value='{$option['key']}' $sel>{%{$option['display']}}</option>"; 
-				};
-				$editfld = "<select name=\"values[$key]\">$optionlist</select>";				
-			} else if ( $headerfield['cqp'] ) {
+			if ( $headerfield['type'] == "select" && $headerfield['cqp'] ) {
 				$optionlist = ""; $xkey = $headerfield['cqp'];
 				if ( !$xval ) $optionlist = "<option value=''>[{%select}]</option>"; 
 				foreach ( explode ( "\0", file_get_contents("$corpusfolder/$xkey.avs") ) as $kva ) { 
@@ -127,19 +152,26 @@
 					if ( $xval == $kva ) $sel = "selected"; else $sel = ""; 
 					$optionlist .= "<option value='{$kva}' $sel>{$kva}</option>"; 
 				};
-				$editfld = "<select name=\"values[$key]\">$optionlist</select>";				
+				$editfld = "<select name=\"values[$xquery]\">$optionlist</select>";				
 			} else {
 				$rowcnt = min(8,ceil(strlen($xval)/80));
-				$editfld = "<textarea name=\"values[$key]\" cols='80' rows='$rowcnt'>$xval</textarea>";
+				$editfld = "<textarea name=\"values[$xquery]\" cols='80' rows='$rowcnt'>$xval</textarea>";
 			};
 						
-			$existing = "<input type=hidden name='queries[$key]' value='$xquery'>";
+			$existing = "<input type=hidden name='queries[$xquery]' value='$xquery'>";
 
-			$maintext .= "<tr><td>{%{$headerfield['display']}}<td>$editfld $existing";
+			$text .= "<tr><td title='$desc'>{%{$headerfield['display']}}<td>$editfld $existing";
 
 		};
-		$maintext .= "</table>";
-	
+		$text .= "</table>";
+
+		$maintext .= "
+			<form action='index.php?action=$action&act=save&cid=$ttxml->fileid' method=post>
+			<input type=hidden name=tpl value='$tplfile'>
+			$text
+			<p><input type=submit value=Save>
+			</form>";
+			
 	} else if ( $act == "edit" ) {
 	
 		check_login();

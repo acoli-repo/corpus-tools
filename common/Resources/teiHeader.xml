@@ -1,35 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TEI>
-    <teiHeader>
-    	<fileDesc>
-    		<titleStmt>
-    			<author tt:section='title' tt:name="Author (XML)">Author of the XML</author>
-    			<title tt:section='title' tt:name="Title">Title of the XML</title>
-    			<sponsor tt:section='responsibility' tt:name="Sponsor">Sponsoring institution</sponsor>
-    			<funder tt:section='responsibility' tt:name="Funder">Funding institution</funder>
-    		</titleStmt>
-			<publicationStmt>
-				<publisher tt:section="digital" tt:name="Publisher (XML)">Publisher of the XML</publisher>
-	            <idno tt:section="digital" tt:name="ID of the XML">Identification number of the electronic document</idno>
-	            <date tt:section="digital" tt:name="Publication date (XML)">Publication date of the XML</date>
-			</publicationStmt>
-    	</fileDesc>
-         <sourceDesc>
-            <bibl>
-               <title tt:section='source' tt:name="Title">Title of the original text</title>
-               <author tt:section='source' tt:name="Author">Author of the original text</author>
-               <date tt:section='source' tt:name="Text date">Date of the original text</date>
-            </bibl>
-         </sourceDesc>
- 		<profileDesc>
- 			<textDesc>
- 				<channel>Whether this is a spoken or written text</channel>
- 			</textDesc>
+	<teiHeader>
+		<fileDesc display="Description of the digital file">
+			<titleStmt>
+				<title>Title of the text</title>
+				<respStmt>
+					<resp n="transcription" ida="n">Person responsible for the transcription of this text</resp>
+					<resp n="revision" ida="n">Person responsible for the revision of this text</resp>
+					<resp n="tagging" ida="n">Person responsible for the POS tagging of this text</resp>
+				</respStmt>
+				<funder>Funding body for the project</funder>
+			</titleStmt>
+			<sourceDesc>
+				<msDesc display='Description of a manuscript this text is transcribed from'>
+					<msIdentifier>
+						<idno>Unique ID for this manuscript</idno>
+						<institution>Institution where the manuscript is held</institution>
+						<repository>Repository the manuscript belongs to</repository>
+						<collection>Collection the manuscript belongs to</collection>
+						<settlement>Place/Settlement where the manuscript is held</settlement>
+					</msIdentifier>
+				</msDesc>
+				<recordingStmt display='The description of an audio/video recording for this file'>
+					<recording>
+						<media url="Filename of the audio file (url or local file)"/>
+						<date>Date the recording was made</date>
+					</recording>
+				</recordingStmt>
+			</sourceDesc>
+		</fileDesc>
+		<profileDesc>
+			<particDesc>
+				<listPerson>
+					<person id="Unique ID for the student/speaker/author of this text">
+						<persName>
+							<name>Name of the author</name>
+						</persName>
+						<birth when="Year of birth of the student/speaker/author">
+							<placeName geo="Geolocation coordinates (lat lng) of the birth place of the student/speaker/author">Birth place of the student/speaker/author</placeName>
+							<date>Date of birth of the student/speaker/author</date>
+						</birth>
+						<langKnowledge display="Languages the author/student/speaker knows">
+							<langKnown level="first" ida="level">Native language of the student/speaker/author</langKnown>
+							<langKnown level="native" ida="level">Other languages spoken by the student/speaker/author as native language</langKnown>
+							<langKnown level="foreign" ida="level">Other languages learnt by the student/speaker/author as non-native language</langKnown>
+						</langKnowledge>
+						<langLearning lang="ISO 639-2 code for the language the student is learning" nontei="1" display='Description of the language learning circumstances(Learner corpus)'>
+							<time months="Duration (in months) the student has been learning this L2"/>
+							<previous>Previous course taken by the student for this L2</previous>
+							<stay>
+								<time months="Duration (in months) the student spent in a country the this L2 is spoken"/>
+							</stay>
+							<proficiency>Proficiency level of the student in this L2 prior to the current course</proficiency>
+						</langLearning>
+						<sex type="gender of the student/speaker/author (m/f)"/>
+						<age>Age (in years) of the student/speaker/author</age>
+						<nationality key="ISO 3166 code for the nationality of the student/speaker/author">Nationality of the student/speaker/author</nationality>
+					</person>
+				</listPerson>
+			</particDesc>
 			<langUsage>
-				<language tt:section="miscellaneous" tt:name="Language" ident="Code of the main language of the text">Main language of the text</language>
+				<language ident="ISO 639-2 code for the language in which this text is written"/>
 			</langUsage>
+			<textDesc>
+				<channel mode="Written or Spoken"/>
+			</textDesc>
+			<taskDesc display="Description of the task this text was created for" nontei="1">
+				<task id="Unique ID for the task of this text">
+					<title>Description of the task (as given to the student)</title>
+					<affiliation>Institution where the current L2 course is given</affiliation>
+					<genre>Genre of the task</genre>
+					<setting>Settings of the task (time-limited, with reference material, etc.)</setting>
+					<type>Type of task</type>
+					<description>Relevant background details about the task</description>
+					<date>Date the task was handed in</date>
+				</task>
+			</taskDesc>
+			<settingDesc>
+				<setting>
+					<date when="Best guess year for this text">Date this text was written</date>
+					<name type="place" geo="Geolocation (lat lng) for the place where this manuscript was written">Place this text was written</name>
+				</setting>
+			</settingDesc>
+			<textClass>Type of text</textClass>
 		</profileDesc>
-   </teiHeader>
-    <text>
-    </text>
+		<encodingDesc>
+			<projectDesc>
+				<title>Title of the project</title>
+			</projectDesc>
+		</encodingDesc>
+	</teiHeader>
 </TEI>

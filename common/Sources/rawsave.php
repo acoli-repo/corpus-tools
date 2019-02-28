@@ -24,10 +24,18 @@
 		if ( $_POST['rawxml'] ) {
 		
 			if ( $_GET['type'] == "full" ) {
+
+				if ( substr($_POST['rawxml'],0,4) != "<TEI" ) {
+					fatal("You cannot remove the &lt;TEI&gt; from the XML");
+				}; 
 			
 				$newfile = $_POST['rawxml'];
 				
 			} else {
+
+				if ( substr($_POST['rawxml'],0,5) != "<text" ) {
+					fatal("You cannot remove the &lt;text&gt; from the text body");
+				}; 
 
 				$savexml =  $_POST['rawxml'];
 				# Protect & in the xml - if they are not already HTML codes
@@ -39,9 +47,6 @@
 				if ( !$mtxtnode ) { fatal("<p>Error. There is no element $mtxtelement in this XML file"); };
 				
 				if ( preg_match("/^<([^> ]+)/", $mtxtnode[0]->asXML(), $matches ) ) $tag = $matches[1]; else $tag = "text";
-				if ( strstr($mtxtnode[0]->asXML(), "<![CDATA[") && !strstr($savexml, "<![CDATA[") ) {
-					$savexml = "<$tag><![CDATA[".$savexml."]]></$tag>";
-				};
 
 				$mtxtnode[0][0] = "#!XMLHERE!#";
 				$newfile = preg_replace( "/<[^>]+>#!XMLHERE!#<\/[^>]+>/", $savexml, $xml->asXML() );

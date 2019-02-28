@@ -182,6 +182,10 @@ class TTXML
 				'edit' => array ( "display" => "edit header data", "edit" => 1 ),
 				);
 			$sep = "";
+			if ( $username && $settings['teiheader'] ) {
+				$moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid' class=adminpart>{%edit header data}</a>";
+					$sep = "&bull;";
+			};
 			foreach ( $headeroptions as $key => $item ) {
 				if ( $key ) $tfn = "teiHeader-$key.tpl"; else $tfn = "teiHeader.tpl";
 				if ( !file_exists("Resources/$tfn") ) continue;
@@ -195,7 +199,7 @@ class TTXML
 				};
 				$tpl = $key;
 				if ( $item['edit'] ) {
-					if ($username) $moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
+					if ($username && !$settings['teiheader'] ) $moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
 					$sep = "&bull;";
 				} else if ( $item['admin'] ) {
 					if ($username) $moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl$edittxt' class=adminpart>{$item['display']}</a>";

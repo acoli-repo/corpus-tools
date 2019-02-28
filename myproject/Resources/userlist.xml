@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<userlist>
-    <user email="maarten@clul.ul.pt" password="ge5ZDmqpbbvT2" permissions="admin" short="MJXXSU">
-    	Maarten Janssen
-    </user>
-    <user email="nobody@nowhere.com" password="defaultpassword" permissions="admin" short="CHANGE!">
-    	Default TEITOK Admin user
-    </user>
-</userlist>

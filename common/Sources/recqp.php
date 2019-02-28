@@ -12,6 +12,12 @@
 
 	# Check whether registry file matches our corpus
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "$thisdir/cqp";
+
+	# Unless we have a recqp.pl script, we need tt-cwb-encode
+	if ( !file_exists("Scripts/recqp.pl") ) {
+		$tmp = findapp("tt-cwb-encode");
+		if ( !$tmp ) fatal("Regenerating the CQP index relies on tt-cwb-encode, which is not installed on your server - $tmp");
+	};
 	
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$registryfile = $registryfolder.strtolower($cqpcorpus);

@@ -375,7 +375,7 @@
 	if ( $username ) {
 		
 		# TODO: Check why this fails in the new version
-		# if ( preg_match("/<text[^>]*>\s*<\/text>/", $editxml) ) $emptyxml = 1;
+		if ( preg_match("/<text[^>]*>\s*<\/text>/", $editxml) ) $emptyxml = 1;
 		
 		if ( $tokcheck ) { 
 			$maintext .= "<p class=adminpart>			
@@ -395,9 +395,9 @@
 		
 			$maintext .= "<div class=adminpart>
 			<p>This XML has not been tokenized yet, and only the text is shown below. To edit, click  
-			<a href='index.php?action=rawedit&cid=$fileid'>here</a>.
-			<br>If you wish to tokenize the XML and proceed to the tokenized edit mode, click
-			<a href='index.php?action=tokenize&id=$fileid&display=tok'>here</a></div>
+			<a href='index.php?action=rawedit&cid=$fileid'>here</a>.</p>
+			<p><i>To tokenize the text and start editing token-level attributes, select
+				the tokenization link from the bottom of the page</i></div>
 				<hr>";
 			
 			if ( $settings['xmlfile']['linebreaks'] && !strpos($editxml, "</p>") ) {
@@ -604,6 +604,11 @@
 		};		
 
 		$maintext .= "<ul>";
+		
+		if ( !$tokcheck && $username && !$emptyxml ) {
+			$maintext .= "<li><a href='index.php?action=tokenize&id=$fileid&display=tok'>Tokenize the text</a> (will introduce token nodes into the XML)</li>";
+		};
+		
 		if ( glob("backups/$xmlid-*") ) { 
 			$maintext .= "<li><a href='index.php?action=backups&cid=$fileid'>Recover a previous version of this file</a>
 				<br> Last change to this file: <b>$fdate</b>";
@@ -613,10 +618,6 @@
 			if ( $_GET['pageid'] ) $pnr = "&pageid=".$_GET['pageid'];
 			else if ( $_GET['page'] ) $pnr = "&page=".$_GET['page'];
 			$maintext .= "<li><a href='index.php?action=verticalize&act=define&cid=$fileid$pnr'>View verticalized version of this text</a>";
-		};
-		
-		if ( $audiobit ) {
-			$maintext .= "<li><a href='index.php?action=audioalign&cid=$fileid'>Edit audio alignment</a>";
 		};
 		
 		if (is_array($filesources)) 
