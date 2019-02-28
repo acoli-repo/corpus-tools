@@ -1,6 +1,7 @@
 <?php
 
-	$defaults = simplexml_load_file("$ttroot/common/Resources/teiheader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+	$tmp = file_get_contents("$ttroot/common/Resources/teiheader.xml");
+	$defaults = simplexml_load_string($tmp, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$defaults ) {
 		if ( $username ) {
 			print_r(libxml_get_errors()); exit;
