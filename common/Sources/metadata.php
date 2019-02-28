@@ -2,7 +2,7 @@
 
 	$defaults = simplexml_load_file("$ttroot/common/Resources/teiheader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$defaults )
-	if ( $username ) fatal("Unable to load default teiheader ($ttroot/common/Resources/teiheader.xml)");
+	if ( $username ) fatal("Unable to load default teiheader ($ttroot/common/Resources/teiHeader.xml)");
 	else fatal("An error occurred");
 	
 	$maintext .= "<h1>Metadata Helper</h1>
