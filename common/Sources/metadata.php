@@ -1,13 +1,8 @@
 <?php
 
-	$tmp = file_get_contents("$ttroot/common/Resources/teiheader.xml");
-	$defaults = simplexml_load_string($tm, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-	if ( false === $defaults ) {
-		if ( $username ) {
-			fatal("Unable to load default teiheader ($ttroot/common/Resources/teiHeader.xml)");
-		} else fatal("An error occurred");
-	};
-	
+	$defaults = simplexml_load_file("$ttroot/common/Resources/teiHeader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+	if ( !$defaults ) fatal("Unable to load default teiheader");
+
 	$maintext .= "<h1>Metadata Helper</h1>
 		<p>This page describes some recommended fields for the teiHeader metadata, as used in various TEITOK projects.";
 	
