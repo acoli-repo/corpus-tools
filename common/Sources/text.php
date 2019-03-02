@@ -18,7 +18,7 @@
 			
 	$xml = $ttxml->xml;	
 			
-	$title = $ttxml->title;
+	$title = $ttxml->title();
 
 	// on "paged" display, determine what to show
 	if ( !$_GET['pbtype'] && is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['element'] ) { 
@@ -98,7 +98,7 @@
 	};
 
 	if ( $username ) $txtid = $fileid; else $txtid = $xmlid;
-	$maintext .= "<h2>$txtid</h2><h1>$title </h1>";
+	$maintext .= "<h2>$txtid</h2><h1>$title</h1>";
 
 
 	if ( $username && !is_writable("$xmlfolder/$fileid") ) {

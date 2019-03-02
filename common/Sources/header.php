@@ -2,7 +2,7 @@
 	// Script to allow viewing and editing teiHeader data
 	// (c) Maarten Janssen, 2015
 
-	if ( $act != "details" ) {
+	if ( $act != "details" && $act != "makesettings" ) {
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();	
 		$xml = $ttxml->xml;
@@ -90,21 +90,102 @@
 	
 	} else if ( $settings['teiheader'] && $act == "details" ) {
 
-		$defaults = simplexml_load_file("$ttroot/common/Resources/teiheader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		$defaults = simplexml_load_file("$ttroot/common/Resources/teiHeader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$defaults ) fatal("Unable to load default teiheader");
 
-		$maintext .= "<h1>Details about the metadata fields</h1>
+		# Read CQP data
+		$cqpdefs = $settings['cqp']['sattributes']['text']; 
+
+		$maintext .= "<h1>Metadata fields defined in this corpus</h1>
 			<table>
-			<tr><th>Field Name<th>Local description<th>Default description<th>XPath query";
+			<tr><th>Field Name<th>Description (<i>Default</i>)<th>CQP field<th>XPath query";
 		foreach ( $settings['teiheader'] as $headerfield ) {
 			$xquery = $headerfield['xpath'] or $xquery = $headerfield['key'];
 			
 			$desc = $headerfield['description'];
 			$defdesc = current($defaults->xpath($xquery)); 
+			if ( !$defdesc ) {
+				$defdesc = "<span style='color: #ff9999'>Non-standard field</span>";
+			};
+	
+			if ( $desc ) {
+				$desc .= "<br><i>$defdesc</i>";
+			} else $desc = "<i>$defdesc</i>";	
+
+			$cqp = $headerfield['cqp'];
+			$cqpdef = $cqpdefs[$cqp.''];
+			$cqpfld = str_replace("text_", "", $cqpdef['key']);
+			unset($cqpdefs[$cqp.""]); 
 			
-			$maintext .= "<tr><th>{$headerfield['display']}<td>$desc<td>$defdesc<td>$xquery";
+			if ( $cqpdef['display'] ) {
+				$cqp .= "<br><i>{$cqpdef['display']}</i>";
+				if ( $cqpdef['xpath'] != $xquery ) {
+					$cqpwarn .= "<p>$cqpfld: {$cqpdef['display']} = {$cqpdef['xpath']} != {$xquery}";
+				};
+			} else if ( $cqp ) {
+				$cqpwarn .= "<p>$cqp: Not defined in CQP section";
+			};
+			
+			$maintext .= "<tr><th>{$headerfield['display']}<td>$desc<td>$cqp<td>$xquery";
 		};
 		$maintext .= "</table>";
+		
+		foreach ( $cqpdefs as $rest ) {
+			if ( !is_array($rest) ) continue;
+			$resttxt .= "<p>{$rest['key']}: {$rest['display']} = {$rest['xpath']}";
+		};
+		
+		if ( $resttxt ) $maintext .= "<h2>Non-used CQP fields</h2>$resttxt";
+		if ( $cqpwarn ) $maintext .= "<h2>CQP field mismatches</h2>$cqpwarn";
+	
+		if ( $resttxt || $cqpwarn  ) {
+			$maintext .= "<hr><p><a href='index.php?action=$action&act=recqp'>Rebuild CQP fields</a>";
+		};
+
+
+	} else if ($act == "makesettings" ) {
+	
+		check_login();
+		# Temporary function to create settings definitions from teiHeader-edit.tpl
+
+		$headerfile = file_get_contents("Resources/teiHeader-edit.tpl");
+		$maintext .= "<h1>Building Settings</h1>";
+
+		$defaults = simplexml_load_file("$ttroot/common/Resources/teiHeader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+
+		$rows = "	<teiheader>\n";
+		if ( $headerfile ) {
+			preg_match_all ( "/<tr><th>(.*?)<\/th><td>(.*?)<\/td>/", $headerfile, $matches );
+			for ( $i = 0; $i<count($matches[0]); $i++ ) {
+				$name = preg_replace("/{%(.*?)}/", "\\1", $matches[1][$i]); 
+				$xpath = preg_replace("/{#(.*?)}/", "\\1", $matches[2][$i]);
+				
+				# Correct the XPath
+				if ( substr($xpath, 0, 11) == "//teiHeader" ) $xpath = str_replace("//teiHeader", "/TEI/teiHeader", $xpath);
+				$xpath = str_replace('"', "'", $xpath);				
+				$node = $defaults->xpath($xpath); # Check whether it exists
+							
+				$rows .= "		<item xpath=\"$xpath\" display=\"$name\"/>\n";
+			};
+		};
+		$rows .= "	</teiheader>\n";
+		
+
+		if ( !$settings['teiheader'] ) {
+			$tmp = file_get_contents("Resources/settings.xml");
+			$tmp = str_replace("\n</ttsettings>", "$rows\n</ttsettings>", $tmp);
+
+			$newxml = simplexml_load_string($tmp, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+			file_put_contents("Resources/settings.xml", $newxml->asXML()); 
+
+			$maintext .= "<p>New section saved</p><pre>".htmlentities($rows)."</pre>";
+		} else 		$maintext .= "<p>Section exists, but content would be as follows</p><pre>".htmlentities($rows)."</pre>";
+		
+
+		
+	} else if ( $settings['teiheader'] && $act == "recqp" ) {
+
+		
 	
 	} else if ( $settings['teiheader'] && !$tplfile ) {
 	

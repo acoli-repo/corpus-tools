@@ -700,6 +700,23 @@
     	</item>
 	</item>
 
+    <item key="teiheader" display="teiHeader Metadata">
+		<desc>
+			<p>The metadata per XML file are defined in the teiHeader. Here you can define which data in that header
+			are searchable, editable, and displayed; fixed, non-editable fields had best be defined in a template, 
+			and it is always possible to add metadata in the XML editor.</p>
+		</desc>
+        <list display="Metadata field">
+			<att key="key" display="Identifier"/>
+			<att key="xpath" display="XPath to this metadata field"/>
+			<att key="display" display="Display name"/>
+			<att key="cqp" display="Corresponding CQP sattribute"/>
+			<att key="description" display="Textual description of this metadata field"/>
+			<att key="noedit" display="Do not include in header edit"/>
+			<att key="noshow" display="Do not include in long header display"/>
+        </list>
+	</item>
+
     <item key="transliteration" display="Automatic transliteration">
 		<desc>
 			<p>For corpora not in Latin script, it is often a desirable feature to provide a romanized version of the

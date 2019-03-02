@@ -137,7 +137,7 @@
 			$maintext .= "<li><a href='index.php?action=useredit'>edit users</a>";
 			$maintext .= "<li><a href='index.php?action=adminsettings'>edit settings</a>";
 			$maintext .= "<li><a href='index.php?action=adminedit'>edit resource files</a>";
-			$maintext .= "<li><a href='index.php?action=headermake'>edit teiHeader files</a>";
+			// $maintext .= "<li><a href='index.php?action=headermake'>edit teiHeader files</a>";
 		};
 				
 		if ( ( $filelist || file_exists("Resources/filelist.xml" ) ) && allowedforme("filelist") )

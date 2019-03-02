@@ -33,7 +33,11 @@ li.collapsibleListClosed{
     ".ulmake(current($defaults->xpath("//teiHeader")), "/TEI/teiHeader")."</li>
    </ul>
    
-   <table><tr><th>XPath<th>Description$valuelist</table>";
+   <p onClick=\"document.getElementById('xtab').style.display='block';\" ><img style='margin-right: 5px; margin-left: 12px' src='http://code.iamkate.com/javascript/collapsible-lists/button-closed.png'> Editable fields</p> <table id=xtab style='display: none;'><tr><th>XPath<th>Description$valuelist</table>";
+   
+   if ( $settings['teiheader'] ) $maintext .= "<hr><p><a href='index.php?action=header&act=details'>Go to your project metadata definitions</a>";
+   else $maintext .= "<hr><p style='wrong'>Your settings file does not yet define metadata fields - the old
+   	methods (using teiHeader-edit.tpl) will gradually become obsolete. Click <a href='index.php?action=header&act=makesettings'>here</a> to create the new settings";
 
 	$maintext .= "<script language=Javascript>CollapsibleLists.applyTo(document.getElementById('mainlist'))</script>";
 
@@ -52,11 +56,11 @@ li.collapsibleListClosed{
 			$listtxt .= "\n<li><b $style>$chn</b>";
 			if ( count($child->children()) ) {
 				if ( $child['display'] ) $listtxt .= ": <i>".$child['display']."</i>";
-				$listtxt .= ulmake($child, "$xp/$chn");
 			} else {
 				$listtxt .= ": <span title='$xp/$chn'>".$child."<span>";
 				if ( $child."" != "" ) $valuelist .= "<tr><td>$xp/$chn<td>$child";
 			};
+			$listtxt .= ulmake($child, "$xp/$chn");
 			$listtxt .= "</li>";
 		};
 		foreach ( $node->attributes() as $att ) {

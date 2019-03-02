@@ -2,7 +2,7 @@
 <TEI>
 	<teiHeader>
 		<fileDesc display="Description of the digital file">
-			<titleStmt>
+			<titleStmt display="Information about the title of this work and those responsible for its content">
 				<title>Title of the text</title>
 				<respStmt>
 					<resp n="transcription" ida="n">Person responsible for the transcription of this text</resp>
@@ -11,7 +11,7 @@
 				</respStmt>
 				<funder>Funding body for the project</funder>
 			</titleStmt>
-			<sourceDesc>
+			<sourceDesc display="Description of the source from which this digital text was derived">
 				<msDesc display='Description of a manuscript this text is transcribed from'>
 					<msIdentifier>
 						<idno>Unique ID for this manuscript</idno>
@@ -29,8 +29,8 @@
 				</recordingStmt>
 			</sourceDesc>
 		</fileDesc>
-		<profileDesc>
-			<particDesc>
+		<profileDesc display="description of non-bibliographic aspects of the text">
+			<particDesc display="Description of the participants in this text">
 				<listPerson>
 					<person id="Unique ID for the student/speaker/author of this text">
 						<persName>
@@ -59,10 +59,10 @@
 					</person>
 				</listPerson>
 			</particDesc>
-			<langUsage>
-				<language ident="ISO 639-2 code for the language in which this text is written"/>
+			<langUsage display="Language(s) used in this text">
+				<language ident="ISO 639-2 code for the language in which this text is written">Language in which this text is written</language>
 			</langUsage>
-			<textDesc>
+			<textDesc display="Situational parameters for this text">
 				<channel mode="Written or Spoken"/>
 			</textDesc>
 			<taskDesc display="Description of the task this text was created for" nontei="1">
@@ -73,7 +73,7 @@
 					<setting>Settings of the task (time-limited, with reference material, etc.)</setting>
 					<type>Type of task</type>
 					<description>Relevant background details about the task</description>
-					<date>Date the task was handed in</date>
+					<date when="Year the task was handed in">Date the task was handed in</date>
 				</task>
 			</taskDesc>
 			<settingDesc>
@@ -84,7 +84,7 @@
 			</settingDesc>
 			<textClass>Type of text</textClass>
 		</profileDesc>
-		<encodingDesc>
+		<encodingDesc display="Relationship between the electronic text and the source">
 			<projectDesc>
 				<title>Title of the project</title>
 			</projectDesc>
