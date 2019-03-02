@@ -25,17 +25,13 @@
 		
 			if ( $_GET['type'] == "full" ) {
 
-				if ( substr($_POST['rawxml'],0,4) != "<TEI" ) {
-					fatal("You cannot remove the &lt;TEI&gt; from the XML");
-				}; 
+				$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+				if ( !$xml ) { fatal("<p>Error opening XML file"); };
+				# TODO: We should check this is still TEI - but checking for /TEI will fail on <TEI.2>
 			
 				$newfile = $_POST['rawxml'];
 				
 			} else {
-
-				if ( substr($_POST['rawxml'],0,5) != "<text" ) {
-					fatal("You cannot remove the &lt;text&gt; from the text body");
-				}; 
 
 				$savexml =  $_POST['rawxml'];
 				# Protect & in the xml - if they are not already HTML codes
