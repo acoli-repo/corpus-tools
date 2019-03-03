@@ -33,13 +33,15 @@
 			<particDesc display="Description of the participants in this text">
 				<listPerson>
 					<person id="Unique ID for the student/speaker/author of this text">
-						<persName>
-							<name>Name of the author</name>
-						</persName>
+						<name>Name of the student/speaker/author</name>
 						<birth when="Year of birth of the student/speaker/author">
 							<placeName geo="Geolocation coordinates (lat lng) of the birth place of the student/speaker/author">Birth place of the student/speaker/author</placeName>
 							<date>Date of birth of the student/speaker/author</date>
 						</birth>
+						<death when="Year of death of the student/speaker/author">
+							<placeName geo="Geolocation coordinates (lat lng) of the death place of the student/speaker/author">Death place of the student/speaker/author</placeName>
+							<date>Date of death of the student/speaker/author</date>
+						</death>
 						<langKnowledge display="Languages the author/student/speaker knows">
 							<langKnown level="first" ida="level">Native language of the student/speaker/author</langKnown>
 							<langKnown level="native" ida="level">Other languages spoken by the student/speaker/author as native language</langKnown>
@@ -51,10 +53,12 @@
 							<stay>
 								<time months="Duration (in months) the student spent in a country the this L2 is spoken"/>
 							</stay>
-							<proficiency>Proficiency level of the student in this L2 prior to the current course</proficiency>
+							<proficiency>Proficiency level the student is training for</proficiency>
 						</langLearning>
 						<sex type="gender of the student/speaker/author (m/f)"/>
 						<age>Age (in years) of the student/speaker/author</age>
+						<occupation>Occupation of the student/speaker/author</occupation>
+						<residence>Place of residence of the student/speaker/author</residence>
 						<nationality key="ISO 3166 code for the nationality of the student/speaker/author">Nationality of the student/speaker/author</nationality>
 					</person>
 				</listPerson>

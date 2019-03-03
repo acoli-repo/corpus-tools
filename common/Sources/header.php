@@ -2,7 +2,7 @@
 	// Script to allow viewing and editing teiHeader data
 	// (c) Maarten Janssen, 2015
 
-	if ( $act != "details" && $act != "makesettings" ) {
+	if ( $act != "details" && $act != "makesettings" && $act != "recqp" ) {
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();	
 		$xml = $ttxml->xml;
@@ -100,6 +100,12 @@
 			<table>
 			<tr><th>Field Name<th>Description (<i>Default</i>)<th>CQP field<th>XPath query";
 		foreach ( $settings['teiheader'] as $headerfield ) {
+
+			if ( $headerfield['type'] == "sep" ) {
+				$maintext .= "<tr><th colspan=8>{$headerfield['display']}";
+				continue;
+			};
+			
 			$xquery = $headerfield['xpath'] or $xquery = $headerfield['key'];
 			
 			$desc = $headerfield['description'];
@@ -120,10 +126,10 @@
 			if ( $cqpdef['display'] ) {
 				$cqp .= "<br><i>{$cqpdef['display']}</i>";
 				if ( $cqpdef['xpath'] != $xquery ) {
-					$cqpwarn .= "<p>$cqpfld: {$cqpdef['display']} = {$cqpdef['xpath']} != {$xquery}";
+					$cqpwarn .= "<p>$cqpfld: {$cqpdef['display']} = {$cqpdef['xpath']} != {$xquery} (<a href='index.php?action=$action&act=recqp&set=change&fld={$headerfield['cqp']}&xpath=".urlencode($xquery)."'>change</a>)";
 				};
 			} else if ( $cqp ) {
-				$cqpwarn .= "<p>$cqp: Not defined in CQP section";
+				$cqpwarn .= "<p>$cqp: Not defined in CQP section (<a href='index.php?action=$action&act=recqp&set=add&fld=$cqp&name={$headerfield['display']}&xpath=".urlencode($xquery)."'>add</a>)";
 			};
 			
 			$maintext .= "<tr><th>{$headerfield['display']}<td>$desc<td>$cqp<td>$xquery";
@@ -132,16 +138,13 @@
 		
 		foreach ( $cqpdefs as $rest ) {
 			if ( !is_array($rest) ) continue;
-			$resttxt .= "<p>{$rest['key']}: {$rest['display']} = {$rest['xpath']}";
+			$resttxt .= "<p>{$rest['key']}: {$rest['display']} = {$rest['xpath']} (<a href='index.php?action=$action&act=recqp&set=del&fld={$rest['key']}'>remove</a>)";
 		};
 		
-		if ( $resttxt ) $maintext .= "<h2>Non-used CQP fields</h2>$resttxt";
-		if ( $cqpwarn ) $maintext .= "<h2>CQP field mismatches</h2>$cqpwarn";
-	
-		if ( $resttxt || $cqpwarn  ) {
-			$maintext .= "<hr><p><a href='index.php?action=$action&act=recqp'>Rebuild CQP fields</a>";
+		if ( $username ) {
+			if ( $resttxt ) $maintext .= "<h2>Non-used CQP fields</h2>$resttxt";
+			if ( $cqpwarn ) $maintext .= "<h2>CQP field mismatches</h2>$cqpwarn";
 		};
-
 
 	} else if ($act == "makesettings" ) {
 	
@@ -185,7 +188,38 @@
 		
 	} else if ( $settings['teiheader'] && $act == "recqp" ) {
 
-		
+		check_login();
+		if ( !$settingsxml ) { fatal("Failed to load settings.xml");};
+
+		if ( $_GET['fld'] && $_GET['set'] != "add" ) {
+			$fld = current($settingsxml->xpath("//cqp/sattributes/item[@key=\"text\"]/item[@key=\"{$_GET['fld']}\"]"));
+		};
+
+		if ( $_GET['set'] == "del" && $fld ) {
+			unset($fld[0][0]);
+		} else if ( $_GET['set'] == "change" && $fld ) {
+			$fld['xpath'] = $_GET['xpath'];
+		} else if ( $_GET['set'] == "add" ) {
+			$prnt = current($settingsxml->xpath("//cqp/sattributes/item[@key=\"text\"]"));
+			$fld = $prnt->addChild('item');
+			$fld['key'] = $_GET['fld'];
+			$fld['xpath'] = $_GET['xpath'];			
+			$fld['display'] = $_GET['name'];			
+			print htmlentities($prnt->asXML()); 
+		};
+
+		# Save a backup copy
+		$date = date("Ymd"); 
+		$buname = "settings-$date.xml";
+		if ( !file_exists("backups/$buname") ) {
+			copy ( "Resources/settings.xml", "backups/$buname");
+		};
+	
+		# Now save the actual file
+		file_put_contents("Resources/settings.xml", $settingsxml->asXML());
+		print "<p>File saved. Reloading.
+			<script language=Javascript>top.location='index.php?action=$action&act=details';</script>
+			"; exit;
 	
 	} else if ( $settings['teiheader'] && !$tplfile ) {
 	

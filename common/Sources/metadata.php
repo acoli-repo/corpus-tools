@@ -4,7 +4,9 @@
 	if ( !$defaults ) fatal("Unable to load default teiheader");
 
 	$maintext .= "<h1>Metadata Helper</h1>
-		<p>This page describes some recommended fields for the teiHeader metadata, as used in various TEITOK projects.";
+		<p>This page describes some recommended fields for the teiHeader metadata, as used in various TEITOK projects.
+			The top gives the structure with its default interpretations, where items in red (and everything below them) are not (currently) standard TEI 
+			elements. The bottom gives a list of defined fields with their explanation.";
 	
 	$maintext .= "<div style='display: none;' id='metadata'>".$defaults->asXML()."</div>";
 
@@ -33,7 +35,21 @@ li.collapsibleListClosed{
     ".ulmake(current($defaults->xpath("//teiHeader")), "/TEI/teiHeader")."</li>
    </ul>
    
-   <p onClick=\"document.getElementById('xtab').style.display='block';\" ><img style='margin-right: 5px; margin-left: 12px' src='http://code.iamkate.com/javascript/collapsible-lists/button-closed.png'> Editable fields</p> <table id=xtab style='display: none;'><tr><th>XPath<th>Description$valuelist</table>";
+   <p onClick=\"togglextab()\" ><img id=ximg style='margin-right: 5px; margin-left: 12px' src='http://code.iamkate.com/javascript/collapsible-lists/button-closed.png'> Editable fields</p> <table id=xtab style='display: none;'><tr><th>XPath<th>Description$valuelist</table>
+   <script language=Javascript>
+   		var xto = 0;
+		function togglextab() {
+			if ( xto ) {
+				document.getElementById('ximg').src = 'http://code.iamkate.com/javascript/collapsible-lists/button-closed.png';
+				document.getElementById('xtab').style.display='none';
+				xto = 0;
+			} else {
+				document.getElementById('ximg').src = 'http://code.iamkate.com/javascript/collapsible-lists/button-open.png';
+				document.getElementById('xtab').style.display='block';
+				xto = 1;
+			};
+		};
+   </script>";
    
    if ( $settings['teiheader'] ) $maintext .= "<hr><p><a href='index.php?action=header&act=details'>Go to your project metadata definitions</a>";
    else $maintext .= "<hr><p style='wrong'>Your settings file does not yet define metadata fields - the old
