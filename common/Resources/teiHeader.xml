@@ -5,7 +5,6 @@
 			<titleStmt display="Information about the title of this work and those responsible for its content">
 				<title>Title of the text</title>
 				<author>Author of the original text</author>
-				<date when="Best guess year for the original text (for searching)" nontei="1">Date of the original text (for mixed corpora)</date>
 				<respStmt>
 					<resp n="transcription" ida="n">Person responsible for the transcription of this text</resp>
 					<resp n="revision" ida="n">Person responsible for the revision of this text</resp>
