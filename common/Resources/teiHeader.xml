@@ -100,7 +100,7 @@
 			<settingDesc>
 				<setting>
 					<date when="Best guess year for this text">Date this text was written</date>
-					<name type="place" geo="Geolocation (lat lng) for the place where this manuscript was written">Place this text was written</name>
+					<name type="place" ida="type" geo="Geolocation (lat lng) for the place where this manuscript was written">Place this text was written</name>
 				</setting>
 			</settingDesc>
 			<textClass>Type of text</textClass>
