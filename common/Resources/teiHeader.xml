@@ -4,12 +4,15 @@
 		<fileDesc display="Description of the digital file">
 			<titleStmt display="Information about the title of this work and those responsible for its content">
 				<title>Title of the text</title>
+				<author>Author of the original text</author>
+				<date when="Best guess year for the original text (for searching)" nontei="1">Date of the original text (for mixed corpora)</date>
 				<respStmt>
 					<resp n="transcription" ida="n">Person responsible for the transcription of this text</resp>
 					<resp n="revision" ida="n">Person responsible for the revision of this text</resp>
+					<resp n="normalization" ida="n">Person responsible for the normalization of this text</resp>
 					<resp n="tagging" ida="n">Person responsible for the POS tagging of this text</resp>
 				</respStmt>
-				<funder>Funding body for the project</funder>
+				<funder>Funding body for the text or project</funder>
 			</titleStmt>
 			<sourceDesc display="Description of the source from which this digital text was derived">
 				<msDesc display='Description of a manuscript this text is transcribed from'>
@@ -24,9 +27,22 @@
 				<recordingStmt display='The description of an audio/video recording for this file'>
 					<recording>
 						<media url="Filename of the audio file (url or local file)"/>
+						<desc>Description of the recording</desc>
 						<date>Date the recording was made</date>
 					</recording>
 				</recordingStmt>
+				<biblStruct>
+					<monogr display='Information about a monograph this text was transcribed from'>
+						<author>Monograph author</author>
+						<title>Monograph title</title>
+						<edition>Monograph edition</edition>
+						<imprint>
+							<publisher>Monograph publisher</publisher>
+							<pubPlace>Monograph publication place</pubPlace>
+							<date>Monograph publication date</date>
+						</imprint>
+					</monogr>
+				</biblStruct>
 			</sourceDesc>
 		</fileDesc>
 		<profileDesc display="description of non-bibliographic aspects of the text">
@@ -47,7 +63,7 @@
 							<langKnown level="native" ida="level">Other languages spoken by the student/speaker/author as native language</langKnown>
 							<langKnown level="foreign" ida="level">Other languages learnt by the student/speaker/author as non-native language</langKnown>
 						</langKnowledge>
-						<langLearning lang="ISO 639-2 code for the language the student is learning" nontei="1" display='Description of the language learning circumstances(Learner corpus)'>
+						<langLearning lang="ISO 639-2 code for the language the student is learning" nontei="1" display='Description of the language learning circumstances (Learner corpus)'>
 							<time months="Duration (in months) the student has been learning this L2"/>
 							<previous>Previous course taken by the student for this L2</previous>
 							<stay>
@@ -64,16 +80,18 @@
 				</listPerson>
 			</particDesc>
 			<langUsage display="Language(s) used in this text">
-				<language ident="ISO 639-2 code for the language in which this text is written">Language in which this text is written</language>
+				<language ident="ISO 639-2 code for the language in which this text is written" dir="Writing direction of the text">Language in which this text is written</language>
 			</langUsage>
 			<textDesc display="Situational parameters for this text">
 				<channel mode="Written or Spoken"/>
+				<domain>Domain of the text</domain>
 			</textDesc>
 			<taskDesc display="Description of the task this text was created for" nontei="1">
 				<task id="Unique ID for the task of this text">
 					<title>Description of the task (as given to the student)</title>
 					<affiliation>Institution where the current L2 course is given</affiliation>
 					<genre>Genre of the task</genre>
+					<extent>Extent of the task</extent>
 					<setting>Settings of the task (time-limited, with reference material, etc.)</setting>
 					<type>Type of task</type>
 					<desc>Relevant background details about the task</desc>
@@ -89,7 +107,7 @@
 			<textClass>Type of text</textClass>
 		</profileDesc>
 		<encodingDesc display="Relationship between the electronic text and the source">
-			<projectDesc>
+			<projectDesc id="Unique ID for the project (to link to external descriptions)">
 				<title>Title of the project</title>
 			</projectDesc>
 		</encodingDesc>

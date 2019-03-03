@@ -7,7 +7,8 @@
 	$maintext .= "<h1>Metadata Helper</h1>
 		<p>This page describes some recommended fields for the teiHeader metadata, as used in various TEITOK projects.
 			The top gives the structure with its default interpretations, where items in red (and everything below them) are not (currently) standard TEI 
-			elements. The bottom gives a list of defined fields with their explanation.";
+			elements. The bottom gives a list of defined fields with their explanation.
+			<hr>";
 	
 	$maintext .= "<div style='display: none;' id='metadata'>".$defaults->asXML()."</div>";
 
@@ -36,7 +37,7 @@ li.collapsibleListClosed{
     ".ulmake(current($defaults->xpath("//teiHeader")), "/TEI/teiHeader")."</li>
    </ul>
    
-   <p onClick=\"togglextab()\" ><img id=ximg style='margin-right: 5px; margin-left: 12px' src='http://code.iamkate.com/javascript/collapsible-lists/button-closed.png'> Editable fields</p> <table id=xtab style='display: none;'><tr><th>XPath<th>Description$valuelist</table>
+   <p onClick=\"togglextab()\" ><img id=ximg style='margin-right: 5px; margin-left: 12px' src='http://code.iamkate.com/javascript/collapsible-lists/button-closed.png'> List of fields</p> <table id=xtab style='display: none;'><tr><th>XPath<th>Description$valuelist</table>
    <script language=Javascript>
    		var xto = 0;
 		function togglextab() {
@@ -52,7 +53,7 @@ li.collapsibleListClosed{
 		};
    </script>";
    
-   if ( $settings['teiheader'] ) $maintext .= "<hr><p><a href='index.php?action=header&act=details'>Go to your project metadata definitions</a>";
+   if ( $settings['teiheader'] && strpos($_SERVER['host'], "www.teitok.org") === false ) $maintext .= "<hr><p><a href='index.php?action=header&act=details'>Go to the project metadata definitions</a>";
    else $maintext .= "<hr><p style='wrong'>Your settings file does not yet define metadata fields - the old
    	methods (using teiHeader-edit.tpl) will gradually become obsolete. Click <a href='index.php?action=header&act=makesettings'>here</a> to create the new settings";
 
@@ -61,7 +62,7 @@ li.collapsibleListClosed{
 	function ulmake ( $node, $xp = "" ) {
 		global $valuelist; global $fields;
 		
-		$listtxt = "<ul>";
+		$listtxt = "";
 		foreach ( $node->children() as $child ) {
 			
 			if ( $child['ida'] ) $atts = "[@n=\"{$child[$child['ida']]}\"]"; 
@@ -80,7 +81,10 @@ li.collapsibleListClosed{
 				if ( $child['display'] ) $listtxt .= ": <i>".$child['display']."</i>";
 			} else {
 				$listtxt .= ": <span title='$xp/$chn'>".$child."<span>";
-				if ( $child."" != "" ) $valuelist .= "<tr><td>$xp/$chn<td>$child";
+				if ( $child."" != "" ) {
+					if ( $child->xpath("ancestor-or-self::*[@nontei=\"1\"]") ) $style = "style='color: #aa0000' title='non-standard'"; else $style = "";
+					$valuelist .= "<tr><td $style>$xp/$chn<td>$child";
+				};
 			};
 			$listtxt .= ulmake($child, "$xp/$chn");
 			$listtxt .= "</li>";
@@ -89,10 +93,12 @@ li.collapsibleListClosed{
 			$nn = $att->getName();
 			if ( $nn != "ida" && $nn != "nontei" && $nn != "display" && $nn != $node['ida']."" ) {
 				$listtxt .= "\n<li><b $style>@$nn</b>:  <span title='$xp/@$nn'>".$att."</span>";
-				$valuelist .= "<tr><td>$xp/@$nn<td>$att";
+				if ( $node->xpath("ancestor-or-self::*[@nontei=\"1\"]") ) $style = "style='color: #aa0000' title='non-standard'"; else $style = "";
+				$valuelist .= "<tr><td $style>$xp/@$nn<td>$att";
 			};
 		};
-		$listtxt .= "\n</ul>";
+		if ( $listtxt != "" ) { $listtxt = "<ul>\n$listtxt\n</ul>"; };
+		
 		
 		return $listtxt;
 	};
