@@ -76,7 +76,7 @@
 					<genre>Genre of the task</genre>
 					<setting>Settings of the task (time-limited, with reference material, etc.)</setting>
 					<type>Type of task</type>
-					<description>Relevant background details about the task</description>
+					<desc>Relevant background details about the task</desc>
 					<date when="Year the task was handed in">Date the task was handed in</date>
 				</task>
 			</taskDesc>

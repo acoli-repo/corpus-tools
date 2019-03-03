@@ -1,5 +1,6 @@
 <?php
 
+	$fields = simplexml_load_file("$ttroot/common/Resources/teifields.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	$defaults = simplexml_load_file("$ttroot/common/Resources/teiHeader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$defaults ) fatal("Unable to load default teiheader");
 
@@ -58,7 +59,7 @@ li.collapsibleListClosed{
 	$maintext .= "<script language=Javascript>CollapsibleLists.applyTo(document.getElementById('mainlist'))</script>";
 
 	function ulmake ( $node, $xp = "" ) {
-		global $valuelist;
+		global $valuelist; global $fields;
 		
 		$listtxt = "<ul>";
 		foreach ( $node->children() as $child ) {
@@ -66,10 +67,15 @@ li.collapsibleListClosed{
 			if ( $child['ida'] ) $atts = "[@n=\"{$child[$child['ida']]}\"]"; 
 			else $atts = "";
 			
-			if ( $child['nontei'] ) $style = " style='color: #aa0000' title='non-standard'"; else $style = "";
+			if ( $child['nontei'] ) $style = " style='color: #aa0000' title='non-standard element'"; else $style = "";
+			
+			$chfn = $child->getName();
+			$tmp = $fields->xpath("//field[@name=\"$chfn\"]");
+			$tnode = current($tmp); 
+			$ctit = $tnode['gloss'].": ".$tnode;
 			
 			$chn = $child->getName().$atts;
-			$listtxt .= "\n<li><b $style>$chn</b>";
+			$listtxt .= "\n<li><b $style title=\"$ctit\">$chn</b>";
 			if ( count($child->children()) ) {
 				if ( $child['display'] ) $listtxt .= ": <i>".$child['display']."</i>";
 			} else {
