@@ -54,7 +54,7 @@ li.collapsibleListClosed{
    </script>";
    
    if ( $settings['teiheader'] && strpos($_SERVER['host'], "www.teitok.org") === false ) $maintext .= "<hr><p><a href='index.php?action=header&act=details'>Go to the project metadata definitions</a>";
-   else $maintext .= "<hr><p style='wrong'>Your settings file does not yet define metadata fields - the old
+   else if ( $username && !$settings['teiheader'] ) $maintext .= "<hr><p style='wrong'>Your settings file does not yet define metadata fields - the old
    	methods (using teiHeader-edit.tpl) will gradually become obsolete. Click <a href='index.php?action=header&act=makesettings'>here</a> to create the new settings";
 
 	$maintext .= "<script language=Javascript>CollapsibleLists.applyTo(document.getElementById('mainlist'))</script>";
