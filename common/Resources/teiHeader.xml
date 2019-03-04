@@ -3,7 +3,7 @@
 	<teiHeader>
 		<fileDesc display="Description of the digital file">
 			<titleStmt display="Information about the title of this work and those responsible for its content">
-				<title>Title of the text</title>
+				<title>Title of the (digital) text</title>
 				<author>Author of the original text</author>
 				<respStmt>
 					<resp n="transcription" ida="n" nontei="1">Person responsible for the transcription of this text</resp>
@@ -14,7 +14,7 @@
 				<funder>Funding body for the text or project</funder>
 			</titleStmt>
 			<sourceDesc display="Description of the source from which this digital text was derived">
-				<msDesc display='Description of a manuscript this text is transcribed from'>
+				<msDesc display='Description of a manuscript this text is transcribed from' group="hist">
 					<msIdentifier>
 						<idno>Unique ID for this manuscript</idno>
 						<institution>Institution where the manuscript is held</institution>
@@ -22,6 +22,21 @@
 						<collection>Collection the manuscript belongs to</collection>
 						<settlement>Place/Settlement where the manuscript is held</settlement>
 					</msIdentifier>
+					<msContent>
+						<summary>Summary of the content of a manuscript</summary>
+					</msContent>
+					<physDesc>
+						<objectDesc form="Physical form of a manuscript">
+							<supportDesc>
+								<support>Description of the support of a manuscript</support>
+								<foliation>Numbering system of the manuscript pages</foliation>
+							</supportDesc>
+						</objectDesc>
+						<handDesc>Description of the hands in a manuscript</handDesc>
+					</physDesc>
+					<history>
+						<origin>Description of the history of a manuscript</origin>
+					</history>
 				</msDesc>
 				<recordingStmt display='The description of an audio/video recording for this file'>
 					<recording>
@@ -58,16 +73,14 @@
 							<date>Date of death of the student/speaker/author</date>
 						</death>
 						<langKnowledge display="Languages the author/student/speaker knows">
-							<langKnown level="first" ida="level">Native language of the student/speaker/author</langKnown>
+							<langKnown level="first" tag="ISO 639-2 code for the native language of the student/speaker/author" ida="level">Native language of the student/speaker/author</langKnown>
 							<langKnown level="native" ida="level">Other languages spoken by the student/speaker/author as native language</langKnown>
 							<langKnown level="foreign" ida="level">Other languages learnt by the student/speaker/author as non-native language</langKnown>
 						</langKnowledge>
 						<langLearning lang="ISO 639-2 code for the language the student is learning" nontei="1" display='Description of the language learning circumstances (Learner corpus)'>
-							<time months="Duration (in months) the student has been learning this L2"/>
+							<duration months="Duration (in months) the student has been learning this L2"/>
 							<previous>Previous course taken by the student for this L2</previous>
-							<stay>
-								<time months="Duration (in months) the student spent in a country the this L2 is spoken"/>
-							</stay>
+							<stay duration="Duration (in months) the student spent in a country the this L2 is spoken">Country where student spent in a country the this L2 is spoken</stay>
 							<proficiency>Proficiency level the student is training for</proficiency>
 						</langLearning>
 						<sex type="gender of the student/speaker/author (m/f)"/>
@@ -91,15 +104,15 @@
 					<affiliation>Institution where the current L2 course is given</affiliation>
 					<genre>Genre of the task</genre>
 					<extent>Extent of the task</extent>
-					<setting>Settings of the task (time-limited, with reference material, etc.)</setting>
+					<taskSetting>Settings of the task (time-limited, with reference material, etc.)</taskSetting>
 					<type>Type of task</type>
 					<desc>Relevant background details about the task</desc>
 					<date when="Year the task was handed in">Date the task was handed in</date>
 				</task>
 			</taskDesc>
-			<settingDesc>
+			<settingDesc display="Description of the context of the text">
 				<setting>
-					<date when="Best guess year for this text">Date this text was written</date>
+					<date when="Best guess year for this text">Date this text was written (when there are multiple )</date>
 					<name type="place" ida="type" geo="Geolocation (lat lng) for the place where this manuscript was written">Place this text was written</name>
 				</setting>
 			</settingDesc>
@@ -107,7 +120,7 @@
 		</profileDesc>
 		<encodingDesc display="Relationship between the electronic text and the source">
 			<projectDesc id="Unique ID for the project (to link to external descriptions)">
-				<title>Title of the project</title>
+				<title nontei="1">Title of the project</title>
 			</projectDesc>
 		</encodingDesc>
 	</teiHeader>
