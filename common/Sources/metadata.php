@@ -8,7 +8,8 @@
 		<p>This page describes some recommended fields for the teiHeader metadata, as used in various TEITOK projects.
 			TEITOK files do not always follow TEI to the letter, as is explained <a href='http://www.teitok.org/index.php?action=help&id=teixml.html'>here</a>.
 			The top gives the structure with its default interpretations, where items in red (and everything below them) are not (currently) standard TEI 
-			elements. The bottom gives a list of defined fields with their explanation. In both, you can see the standard TEI definition for each field
+			elements, while items in blue are standard TEI elements used differently. 
+			The bottom gives a list of defined fields with their explanation. In both, you can see the standard TEI definition for each field
 			by moving your mouse over it. Clicking in the list will bring you to the corresponding page in the TEI P5 guidelines.
 			<hr>";
 	
@@ -70,12 +71,18 @@ li.collapsibleListClosed{
 			if ( $child['ida'] ) $atts = "[@n=\"{$child[$child['ida']]}\"]"; 
 			else $atts = "";
 			
-			if ( $child['nontei'] ) $style = " style='color: #aa0000' title='non-standard element'"; else $style = "";
+			if ( $child['nontei'] == "1" ) $style = " style='color: #aa0000' title='non-standard element'"; 
+			else if ( $child['nontei'] == "2" ) $style = " style='color: #0000aa'";
+			else $style = "";
 			
 			$chfn = $child->getName();
 			$tmp = $fields->xpath("//field[@name=\"$chfn\"]");
 			$tnode = current($tmp); 
-			$ctit = $tnode['gloss'].": ".$tnode;
+			if ( $tnode ) $ctit = $tnode['gloss'].": ".$tnode;
+			else {
+				$ctit = "non-standard element";
+				if ( !$style ) $style = " style='color: #aa6666'";
+			};
 			
 			$chn = $child->getName().$atts;
 			$listtxt .= "\n<li><b $style title=\"$ctit\">$chn</b>";
@@ -94,7 +101,7 @@ li.collapsibleListClosed{
 		foreach ( $node->attributes() as $att ) {
 			$nn = $att->getName();
 			if ( $nn != "ida" && $nn != "nontei" && $nn != "display" &&  $nn != "group" && $nn != $node['ida']."" ) {
-				$listtxt .= "\n<li><b $style>@$nn</b>:  <span title='$xp/@$nn'>".$att."</span>";
+				$listtxt .= "\n<li><b>@$nn</b>:  <span title='$xp/@$nn'>".$att."</span>";
 				if ( $node->xpath("ancestor-or-self::*[@nontei=\"1\"]") ) $style = "style='color: #aa0000' title='non-standard'"; else $style = "";
 				$valuelist .= "<tr><td $style>$xp/@$nn<td>$att";
 			};

@@ -6,10 +6,10 @@
 				<title>Title of the (digital) text</title>
 				<author>Author of the original text</author>
 				<respStmt>
-					<resp n="transcription" ida="n" nontei="1">Person responsible for the transcription of this text</resp>
-					<resp n="revision" ida="n" nontei="1">Person responsible for the revision of this text</resp>
-					<resp n="normalization" ida="n" nontei="1">Person responsible for the normalization of this text</resp>
-					<resp n="tagging" ida="n" nontei="1">Person responsible for the POS tagging of this text</resp>
+					<resp n="transcription" ida="n" nontei="2">Person responsible for the transcription of this text</resp>
+					<resp n="revision" ida="n" nontei="2">Person responsible for the revision of this text</resp>
+					<resp n="normalization" ida="n" nontei="2">Person responsible for the normalization of this text</resp>
+					<resp n="tagging" ida="n" nontei="2">Person responsible for the POS tagging of this text</resp>
 				</respStmt>
 				<funder>Funding body for the text or project</funder>
 			</titleStmt>
@@ -103,7 +103,7 @@
 					<title>Description of the task (as given to the student)</title>
 					<affiliation>Institution where the current L2 course is given</affiliation>
 					<genre>Genre of the task</genre>
-					<extent>Extent of the task</extent>
+					<extent>Extent of the task (typically in words)</extent>
 					<taskSetting>Settings of the task (time-limited, with reference material, etc.)</taskSetting>
 					<type>Type of task</type>
 					<desc>Relevant background details about the task</desc>
@@ -120,7 +120,8 @@
 		</profileDesc>
 		<encodingDesc display="Relationship between the electronic text and the source">
 			<projectDesc id="Unique ID for the project (to link to external descriptions)">
-				<title nontei="1">Title of the project</title>
+				<title nontei="2">Title of the project</title>
+				<desc nontei="2">Description of the project</desc>
 			</projectDesc>
 		</encodingDesc>
 	</teiHeader>
