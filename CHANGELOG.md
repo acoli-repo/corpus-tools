@@ -1,5 +1,50 @@
 # Change Log
 
+## [Version 2.5](https://gitlab.com/maartenes/TEITOK/tags/v2.5) (Mar 3, 2019)
+
+### Improvements 
+
+* Centralized the teiHeader metadata into a single set of data in the settings
+* Added a description of the most common metadata for different types of corpora
+* Added the Query Builder - an improved option over the inaccurately named "advanced search"
+* Added CQL visualizer, which attempts to give a visual representation of a CQL search
+* Added a document browser, allowing visitors to browse texts by categories
+* Added a central teitok.css which provides necessary style elements
+* Added default projects for spoken, historic, and learner corpora
+* Made OpenStreetMaps the default map visualization
+* Added the option to place PSDX queries on a separate page
+* Added a log to recqp to show how long regeneration took last time
+* Added the option to create new XML files for audio transcriptions
+* Added CONLL-U export to the dependency tree module
+* Added word highlighting to several modules used for text view
+* You can now edit HTML pages directly while viewing them 
+* Pagetrans and wavesurfer now ask you to upload the facsimile/sound file if it does not exist
+* XML documents now no longer show 'Without title' for projects without titles
+* Added an anonymization module for privacy-sensitive data
+
+### Bug fixes
+
+* Solved some bugs in the pageflow module which made it work only in certain browsers
+* Solved some bugs which made facsimile images show where they should not
+* Changed lingering references to other sites to www.teitok.org
+* Added missing default explanation pages
+* Solved some tokenization issues in the tokenizer that made notes disappear
+* Added text-direction support to sentence (block) view
+* Cleaned up obsolete code for shorthand, input, Google maps, and advanced search
+* Solved a bug that made some new XML files created from HTML turn into invalid XML
+* Made page navigation work better in facsview
+* Made facsimile display wait for the image to be loaded
+* Solved a bug that made the default interface language not get selected properly
+* Made it possible to use a project-specific menu module
+* Improve the module comparing different CQL queries
+* Solved several bugs in the page-by-page transcription
+* Built in checks that core elements did not get deleted in rawsave
+* Moved tokenization button to the bottom of the text to avoid accidental tokenization
+* Delimited context display in tokedit
+* File upload can now be given a pre-given filename
+* Added a fallback for visualiation if tt-cqp is not installed
+* Removed dependencies on BOOST
+
 ## [Version 2.3](https://gitlab.com/maartenes/TEITOK/tags/v2.3) (Aug 6, 2018)
 
 ### Improvements 

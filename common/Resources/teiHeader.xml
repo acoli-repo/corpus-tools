@@ -6,10 +6,10 @@
 				<title>Title of the text</title>
 				<author>Author of the original text</author>
 				<respStmt>
-					<resp n="transcription" ida="n">Person responsible for the transcription of this text</resp>
-					<resp n="revision" ida="n">Person responsible for the revision of this text</resp>
-					<resp n="normalization" ida="n">Person responsible for the normalization of this text</resp>
-					<resp n="tagging" ida="n">Person responsible for the POS tagging of this text</resp>
+					<resp n="transcription" ida="n" nontei="1">Person responsible for the transcription of this text</resp>
+					<resp n="revision" ida="n" nontei="1">Person responsible for the revision of this text</resp>
+					<resp n="normalization" ida="n" nontei="1">Person responsible for the normalization of this text</resp>
+					<resp n="tagging" ida="n" nontei="1">Person responsible for the POS tagging of this text</resp>
 				</respStmt>
 				<funder>Funding body for the text or project</funder>
 			</titleStmt>

@@ -1,8 +1,0 @@
-<TEI>
-<teiHeader/>
-<text>
-<u who="INF1">This is a little text <pause type="short"/> with some pauses</u>
-<u who="INF2">Are you sure <gap/> <unclear>us</unclear> what you want?</u>
-<u who="INF1"><del reason="repetition">I</del> I was a <del reason="truncated">li</del> bit <pause type="long"/> confused</u>
-</text>
-</TEI>
