@@ -22,9 +22,9 @@ At this moment, the repository is private to protect users, until security issue
 
 ## Installation
 
-For the largest part, TEITOK is a PHP/Javascript which only requires a **teitok** folder under the WWW root, with both the **common** folder and one or more project folders inside. The best way to set this up is to clone this Git project to your computer, create the folder teitok and copy the **myproject** to there. On top of that, create a symbolic link called *common* inside the teitok folder that points to the *common* folder in the Git project. That way, TEITOK will always used the latest updates after you update your Git files.
+For the largest part, TEITOK is a PHP/Javascript which only requires a **teitok** folder under the WWW root, with both the **common** folder and one or more project folders inside. The best way to set this up is to clone this Git project to your computer, create the folder teitok and copy the folder **check** to there. On top of that, create a symbolic link called *common* inside the teitok folder that points to the *common* folder in the Git project. That way, TEITOK will always used the latest updates after you update your Git files.
 
-After creating the folder structure, rename *myproject* to the name of your project, and open it in your browser. That will open the configuration script, which checks whether all required files are found and accessible. Once all potential problems have been resolved, move the *index-off.php* file in your project folder to *index.php* and reload your project page, which should start your (empty) project in TEITOK with some instructions on how to proceed. 
+After creating the folder structure, open the **check** folder in your browser. That will open the configuration script, which checks whether all required files are found and accessible. Once all potential problems have been resolved, copy any of default project in the **projects** folder to the teitok folder, renaming it to match your corpus. That should start your (empty) project in TEITOK (with settings already partially tuned to the type of corpus you selected) with some instructions on how to proceed. 
 
 More information about how to customize your TEITOK project can be found on the [TEITOK help page](www.teitok.org/index.php?action=help)
 

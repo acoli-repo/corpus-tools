@@ -121,8 +121,10 @@
 		<encodingDesc display="Relationship between the electronic text and the source">
 			<projectDesc id="Unique ID for the project (to link to external descriptions)">
 				<title nontei="2">Title of the project</title>
+				<leader>Leader/coordinator of the project</leader>
 				<desc nontei="2">Description of the project</desc>
 			</projectDesc>
+			<editorialDecl>Editorial principles used in the transcription</editorialDecl>
 		</encodingDesc>
 	</teiHeader>
 </TEI>

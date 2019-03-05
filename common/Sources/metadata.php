@@ -40,7 +40,7 @@ li.collapsibleListClosed{
     ".ulmake(current($defaults->xpath("//teiHeader")), "/TEI/teiHeader")."</li>
    </ul>
    
-   <p onClick=\"togglextab()\" ><img id=ximg style='margin-right: 5px; margin-left: 12px' src='http://code.iamkate.com/javascript/collapsible-lists/button-closed.png'> List of (most) relevant fields</p> <table id=xtab style='display: none;'><tr><th>XPath<th>Description$valuelist</table>
+   <p onClick=\"togglextab()\" ><img id=ximg style='margin-right: 5px; margin-left: 12px' src='http://code.iamkate.com/javascript/collapsible-lists/button-closed.png'> List of recommendable fields</p> <table id=xtab style='display: none;'><tr><th>XPath<th>Description$valuelist</table>
    <script language=Javascript>
    		var xto = 0;
 		function togglextab() {
@@ -91,7 +91,11 @@ li.collapsibleListClosed{
 			} else {
 				$listtxt .= ": <span title='$xp/$chn'>".$child."<span>";
 				if ( $child."" != "" ) {
-					if ( $child->xpath("ancestor-or-self::*[@nontei=\"1\"]") ) $style = "style='color: #aa0000' title='non-standard'"; else $style = "title='$ctit' onClick=\"window.open('https://www.tei-c.org/release/doc/tei-p5-doc/en/html/ref-$chfn.html', 'tei-c');\"";
+					if ( $child->xpath("ancestor-or-self::*[@nontei=\"1\"]") ) $style = "style='color: #aa0000' title='non-standard'"; 
+					else {
+						$style = "title='$ctit' onClick=\"window.open('https://www.tei-c.org/release/doc/tei-p5-doc/en/html/ref-$chfn.html', 'tei-c');\"";
+						if ( $child['nontei'] == "2" ) $style .= " style='color: #0000aa'";
+					};
 					$valuelist .= "<tr><td $style>$xp/$chn<td>$child";
 				};
 			};
