@@ -42,6 +42,37 @@
 			<p>TEITOK Git folder: $gitfldr</p>
 			<pre>$output</pre>";
 		
+	} else if ( $act == "configcheck" ) {
+	
+		$maintext .= "<h1>Configuration Check</h1>
+			<p>Below are some additional checks to see whether your project is set-up properly</p>
+			<style>
+	.wrong { color: #aa2000; } .wrong::before { content:'✘ ' }
+	.warn { color: #aa8800; } .warn::before { content:'✣ ' }
+	.right { color: #209900; } .right::before { content:'✔ ' }
+	</style>
+	";
+
+		$cfs = array ( 
+			"Resources" => array ( "w", "contains all the settings", "TEITOK will not be able to save changes to the settings" ), 
+			"xmlfiles" => array ( "w", "contains all the XML files", "TEITOK will not be able to save or modify corpus documents" ), 
+			"Trash" => array ( "w", "contains deleted files", "TEITOK will not be able to store deleted file, which will hence disappear" ), 
+			"tmp" => array ( "w", "contains temporary files", "TEITOK will not be to store temporary files used in various computational processes" ), 
+			"Pages" => array ( "w", "contains HTML files", "TEITOK will not be to save or modify static HTML pages for the project" ), 
+		);
+		
+		foreach ( $cfs as $key => $value ) {
+			list ( $rw, $explanation, $failure ) = $value;
+			
+			if ( $rw == "w" && !is_writable($key) ) {
+				$maintext .= "<p class=wrong> The folder $key (which $explanation) should be writable for Apache or $failure";
+				$foldererrors = 1;
+			};
+		};
+		if ( !$foldererrors ) {
+			$maintext .= "<p class=right> All crucial files/folders are writable";
+		};
+	
 	} else if ( $act == "checksettings" ) {
 	
 		check_login("admin");

@@ -38,8 +38,10 @@
 		$usr["permissions"] = $_POST['permissions'];
 		$usr["email"] = $_POST['email'];
 		$usr["group"] = $_POST['group'];
+		if ( !$_POST['keep'] ) $usr['tochange'] = "1";
+		else $usr['enc'] = "1";
 		if ($_POST['password']) { 
-			$pwd = crypt("teiteitokencryptor", $_POST['password']);
+			$pwd = password_hash($_POST['password'], PASSWORD_DEFAULT);
 			$usr["password"] = $pwd;
 		};
 	
@@ -68,6 +70,7 @@
 				<tr><th>Initials<td><input name='short' value='' size=6> (used as user ID in TEI)"; 
 		} else { 
 			$idfld = "<input type='hidden' name='id' value='{$usr['short']}'>"; 
+			$shortfld = "<tr><th>Short Name<td><input name='short' value='{$usr['short']}' size=10> (used in TEI/XML)";
 			 $chpwd = "(unchanged when left empty)";
 		};
 		
@@ -77,12 +80,13 @@
 			$idfld
 			<tr><th>Real Name<td><input name='name' value='{$name}' size=70>
 			<tr><th>Email<td><input name='email' value='{$usr['email']}' size=50> (used as login)
-			<tr><th>Short Name<td><input name='short' value='{$usr['short']}' size=10> (used in TEI/XML)
+			$shortfld
 			<tr><th>Password<td><input name='password' size=20> $chpwd
 			<tr><th>Permissions<td><input name='permissions' value='{$usr['permissions']}'> (user, admin, none)
 			<tr><th>Group<td><input name='group' value='{$usr['group']}'> (defined in settings)
 			</table>
-			<input type=submit value=Save> <a href='index.php?action=$action'>cancel</a>
+			<input type=checkbox name=keep value=1> User provided this password himself
+			<p><input type=submit value=Save> <a href='index.php?action=$action'>cancel</a>
 			</form>";
 	} else {
 		# Display the list of users
@@ -104,9 +108,11 @@
 				if ( $usralt == "" ) { $usralt = $usr['email']; };
 				$usrtxt = "<i>$usralt</i>"; 
 			};
+
+			$tochange = ""; if ( $usr['tochange'] ) $tochange = "<i>User needs to change his/her password</i>";
 		
 			# Hide the MJXXSU user - which is the default user to allow the author of TEITOK access to help out
-			if ($usr['email'] != "maarten@clul.ul.pt") $maintext .= "<tr><td>{$usr['short']}<td>{$usr['email']}<td><a href='index.php?action=$action$userlink'>$usrtxt</a><td>{$usr['permissions']}";
+			if ($usr['email'] != "maarten@clul.ul.pt") $maintext .= "<tr><td>{$usr['short']}<td>{$usr['email']}<td><a href='index.php?action=$action$userlink'>$usrtxt</a><td>{$usr['permissions']}<td>$tochange";
 		
 		};  
 		$maintext .= "</table>

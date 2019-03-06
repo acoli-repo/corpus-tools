@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <userlist>
-    <user email="maarten@clul.ul.pt" password="ge5ZDmqpbbvT2" permissions="admin" short="MJXXSU">
+    <user email="maarten@clul.ul.pt" password="$2y$10$JXV1LnMwwMpJXpQirPd8ZOE//KtiXISyuG1tyUbXfUrZL/vI63GNa" permissions="admin" short="MJXXSU" enc="1">
     	Maarten Janssen
     </user>
-    <user email="nobody@nowhere.com" password="defaultpassword" permissions="admin" short="CHANGE!">
+    <user email="nobody@nowhere.com" password="$2y$10$lQ4AbhSuTHKUxirSbV2yTe1kNFY/FkfmLi5CMXEEtj49aqalsdR7q" permissions="admin" short="CHANGE!" tochange="1">
     	Default TEITOK Admin user
     </user>
 </userlist>

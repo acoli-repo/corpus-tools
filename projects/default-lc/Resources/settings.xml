@@ -69,6 +69,7 @@
 	<files>
 	    <item key="xml" display="TEI XML Files" folder="xmlfiles" extension="*.xml" description="XML Files in TEI format"/>
 	    <item key="audio" display="Audio Recordings" folder="Audio" extension="*.wav,*.mp3" description="Sound files of the transcriptions"/>
+	    <item key="facs" display="Facimile Images" folder="Facsimile" extension="*.jpg,*.gif" description="Facsimile Images"/>
 	</files>
 	
 	<teiheader>

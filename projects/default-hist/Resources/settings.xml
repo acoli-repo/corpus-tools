@@ -25,38 +25,33 @@
 	<!-- Definition of the CQP corpus created from the XML files -->
 	<cqp corpus="TT-DEFHIST" searchfolder="xmlfiles">	
 		<pattributes>
+			<item key="fform" display="Expanded form"/>
 			<item key="nform" display="Normalized form"/>
 			<item key="pos" display="POS Tag"/>
 			<item key="lemma" display="Lemma"/>
-			<item key="ipa" display="IPA"/>
 		</pattributes>
 		<sattributes>
 		    <item key="text" level="text" display="Document Seach">
     			<item key="year" display="Year" type="range"/>
 	    		<item key="author" display="Author" long="Author name" type="long"/>
 	    	</item>
-	    	<item level="u" key="u" display="Utterance">
-		    	<item key="who" display="Speaker ID" type="" xpath="@who"/>
-    			<item key="start" display="Start" nosearch="1" xpath="@start"/>
-	    		<item key="end" display="End" nosearch="1" xpath="@end"/>
-		    </item>
 		</sattributes>
-	    <defaults searchtype="context" subtype="u"/>
 	</cqp>
 
 	<!-- Definition of the items to be used in the XML files -->	
-	<xmlfile defaultform="form" defaultview="interpret" xpath="//text" paged="0">
+	<xmlfile defaultform="form" defaultview="interpret" xpath="//text" paged="1">
 		<pattributes>
 			<forms>
 				<item key="pform" display="Transcription"/>
-				<item key="form" display="Written form" color="#990000"/>
-				<item key="nform" display="Normalized form" inherit="form" color="#990099"/> 
+				<item key="form" display="Written form" color="#990000" admin="1" noshow="1"/>
+				<item key="fform" display="Expanded form" inherit="form" color="#990099"/> 
+				<item key="dipl" display="Diplomatic form" noedit="1" subtract="form" inherit="fform" color="#990099"/> 
+				<item key="nform" display="Normalized form" inherit="fform" color="#990099"/> 
 			</forms>
 			
 			<tags>			
 				<item key="pos" display="POS tag"/>
 				<item key="lemma" display="Lemma"/>
-				<item key="ipa" display="IPA"/>
 			</tags>
 		</pattributes>
 		<sattributes>
@@ -67,7 +62,7 @@
 	<!-- file uploads -->
 	<files>
 	    <item key="xml" display="TEI XML Files" folder="xmlfiles" extension="*.xml" description="XML Files in TEI format"/>
-	    <item key="audio" display="Audio Recordings" folder="Audio" extension="*.wav,*.mp3" description="Sound files of the transcriptions"/>
+	    <item key="facs" display="Facimile Images" folder="Facsimile" extension="*.jpg,*.gif" description="Facsimile Images"/>
 	</files>
 
 	<teiheader>

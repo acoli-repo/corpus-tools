@@ -16,11 +16,22 @@
 		$record['permissions'] = $xrec['permissions'].''; 
 		$record['group'] = $xrec['group'].''; 
 		$record['fullname'] = $xrec.''; 
-		
+
+		// This is for a smooth transition to a more secure encryption method
+		if ( !$xrec['enc'] && !$xrec['tochange'] ) {
+			if ( $_POST['password'] == $xrec['password']  || $xrec['password'] == crypt("teiteitokencryptor", $_POST['password'] ) ) {
+				# Password correct, but now save it as a more secure password
+				 $pwd = password_hash($_POST['password'], PASSWORD_DEFAULT);
+				 $xrec['password'] = $pwd;
+				 $xrec['enc'] = "1";
+				file_put_contents("Resources/userlist.xml", $uxml->asXML());
+			} else {
+				fatal ("wrong password");
+			};
+		};
+	
 		## Check whether the password is correct
-		if ( ( $_POST['password'] == $xrec['password'] 
-				|| crypt("teiteitokencryptor", $_POST['password']) == $xrec['password'] ) 
-			&& $_POST['password'] )  { 
+		if ( password_verify($_POST['password'], $xrec['password']) )  { 
 			if ( $record['permissions'] != "none"  ){
 				$_SESSION[$sessionvar] = $record; 
 				
@@ -29,11 +40,12 @@
 				
 				actionlog ( "user {$_POST['login']}" );
 				
-				// Check if this is not a default password that needs to be modified
-				if ( $xrec['password'] == $settings['defaults']['password'] ) {
+				// Check if this is not a admin-provided password that needs to be modified
+				if ( $xrec['tochange'] ) {
 					header("location:index.php?action=user&act=pwdchange&forced=1");
 					exit;
 				};
+				print "New"; exit;
 				
 				// See if we have any stored queries to load
 				$useridtxt = $record['short'];
@@ -77,7 +89,7 @@
 			exit();
 	};
 		
-	if ( $user['recid'] == "" ) { // && $action != "login" 
+	if ( $user['email'] == "" ) { // && $action != "login" 
 		$action = "login";
 		$maintext .= "<h1>{%Login}</h1>";
 		$maintext .= "<form action=\"?action=login\" method=post>
