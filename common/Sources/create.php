@@ -154,8 +154,17 @@
 			$element->parentNode->replaceChild($newelement, $element); 
 		};			
 				
+		
+		# Now add a revision statement
+		$dom = dom_import_simplexml($xml)->ownerDocument; #->ownerDocument		
+		$xp = "/TEI/teiHeader/revisionDesc/change";
+		createnode($dom, $xp);
+		$node = current($xml->xpath($xp));
+		$node[0] = "XML file created";
+		$node['when'] = date("Y-m-d");
+		$node['who'] = $user['short'];
+
 		$newfile = $xml->asXML();
-		# print "<pre>".htmlentities($newfile); exit;
 		
 		# Make sure the ID is in the <text> element
 		if ( !preg_match("/<text[^>]+id=/", $newfile) ) {

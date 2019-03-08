@@ -59,7 +59,7 @@
 	<teiheader>
 		<item xpath="/TEI/teiHeader/fileDesc/titleStmt/title" display="Title" cqp="title"/>
 		<item xpath="/TEI/teiHeader/fileDesc/titleStmt/author" display="Author" cqp="author"/>
-		<item xpath="/TEI/teiHeader/profileDesc/settingDesc/setting/date/@when" cqp="year">
+		<item xpath="/TEI/teiHeader/profileDesc/settingDesc/setting/date/@when" cqp="year"/>
 		<item xpath="/TEI/teiHeader/profileDesc/textClass" display="Text type"/>
 	</teiheader>
 	

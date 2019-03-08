@@ -101,7 +101,7 @@
 		createnode($dom, $xp);
 		$node = current($xml->xpath($xp));
 		$node[0] = "XML file created from PDF";
-		$node['when'] = date("Y-M-d");
+		$node['when'] = date("Y-m-d");
 		fwrite($logfile, "Added creation metadata to teiHeader\n");
 		
 		while ( file_exists("$savefolder/$fileid$ext.xml" ) ) {
