@@ -225,7 +225,7 @@
 	
 		# New edit method, to become default
 		$defaults = simplexml_load_file("$ttroot/common/Resources/teiheader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		if ( !$defaults ) fatal("Unable to load default teiheader");
+		if ( !$defaults ) fatal("Unable to load default teiheader: $ttroot/common/Resources/teiheader.xml");
 	
 		if ( $act == "edit" ) check_login();
 		if  ( !$corpusfolder ) $corpusfolder = "cqp";
