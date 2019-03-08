@@ -45,7 +45,6 @@
 					header("location:index.php?action=user&act=pwdchange&forced=1");
 					exit;
 				};
-				print "New"; exit;
 				
 				// See if we have any stored queries to load
 				$useridtxt = $record['short'];

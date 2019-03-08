@@ -22,9 +22,9 @@
 						<collection>Collection the manuscript belongs to</collection>
 						<settlement>Place/Settlement where the manuscript is held</settlement>
 					</msIdentifier>
-					<msContent>
+					<msContents>
 						<summary>Summary of the content of a manuscript</summary>
-					</msContent>
+					</msContents>
 					<physDesc>
 						<objectDesc form="Physical form of a manuscript">
 							<supportDesc>

@@ -29,6 +29,9 @@
 			<item key="pos" display="POS Tag"/>
 			<item key="lemma" display="Lemma"/>
 			<item key="ipa" display="IPA"/>
+			<item key="rpos" display="Reg POS Tag"/>
+			<item key="llemma" display="Lex Lemma"/>
+			<item key="error" display="Error code"/>
 		</pattributes>
 		<sattributes>
 		    <item key="text" level="text" display="Document Seach">			
@@ -51,13 +54,17 @@
 			<forms>
 				<item key="pform" display="Transcription"/>
 				<item key="form" display="Written form" color="#990000"/>
-				<item key="nform" display="Normalized form" inherit="form" color="#990099"/> 
+				<item key="ort" display="Orthographically corrected form" inherit="form" color="#009999"/> 
+				<item key="reg" display="Syntactically corrected form" inherit="nform" color="#990099" admin="1"/> 
+				<item key="lex" display="Lexically corrected form" inherit="reg" color="#009900" admin="1"/> 
 			</forms>
 			
 			<tags>			
-				<item key="pos" display="POS tag"/>
-				<item key="lemma" display="Lemma"/>
-				<item key="ipa" display="IPA"/>
+				<item key="pos" display="POS tag" type="pos" color="#990099"/>
+				<item key="lemma" display="Lemma" color="#999900"/>
+				<item key="rpos" display="Reg POS tag" color="#009999"/>
+				<item key="llemma" display="Lex lemma" color="#009999"/>
+				<item key="error" display="Error code" color="#999900"/>
 			</tags>
 		</pattributes>
 		<sattributes>
