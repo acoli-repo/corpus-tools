@@ -1,6 +1,6 @@
 /* global settings */
 p, td, body {
-	font-family: 'Libre Baskerville', Serif;
+	font-family: 'Open Sans', Sans;
 	font-size: 11pt;
 }
 th {
@@ -12,7 +12,7 @@ th {
 
 /* headings */
 h1 {
-	color: #996666;
+	color: #aa0000;
 	font-size: 16pt;
 	margin-bottom: 10px;
 	margin-top: 10px;

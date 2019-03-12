@@ -80,7 +80,7 @@
 				(there might be things on the list that are non-translatable in your project, such as folder 
 				names).
 
-			<p>To swith to a different language to allow you to localize your site before offering 
+			<p>To switch to a different language to allow you to localize your site before offering 
 				the new and yet incomplete language to your site, type in the ISO code of the language below:
 				<form action='index.php'><input type=hidden name=action value='home'><input name=lang size=5> <input type=submit value='Start Browsing'></form>
 

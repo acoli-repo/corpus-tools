@@ -1,4 +1,5 @@
 use XML::LibXML;
+use POSIX qw(strftime);
 
 $scriptname = $0;
 
@@ -44,9 +45,10 @@ print FILE 'Regeneration completed on '.localtime();
 `mv tmp/recqp.pid tmp/recqp.log`;
 close FILE;
 
+$starttxt = strftime("%Y-%m-%d", localtime($starttime));
 $timelapse = $endtime - $starttime;
 $tmp = `wc -c cqp/word.corpus`;
 $size = $tmp/4; $, = "\t";
 open FILE, ">tmp/lastupdate.log";
-print FILE localtime($starttime), $timelapse, $size;
+print FILE $starttxt, $timelapse, $size;
 close FILE;

@@ -298,7 +298,7 @@ class TTXML
 				if ( $sent[$key] ) $context .= "<p title=\"{$val['display']}\" $style>$sent[$key]</p>";
 			};
 		} else {
-			# Show a reasonably sized context
+			# TODO: Show a reasonably sized context
 			# Until defined, just show nothing
 		};
 		

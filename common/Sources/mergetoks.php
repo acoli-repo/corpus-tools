@@ -36,7 +36,7 @@
 		if ($_POST['newxml']) {
 
 		
-			$fullxml = $_POST['fullxml'];
+			$fullxml = str_replace("\r", "", $_POST['fullxml']); # TODO: does this always contain \r? And the raw XML never?
 			$newxml = $_POST['newxml'];
 
 			$file = str_replace($fullxml, $newxml, $file);
@@ -179,7 +179,7 @@
 					$maintext .= "<textarea name='newxml' style='width: 100%; height: 50px;'>".$newxml."</textarea>";
 				} else {
 					$maintext .= "<textarea name='newxml' style='width: 100%; height: 50px; display: none'>".$newxml."</textarea>";
-					$maintext .= "<div style='background-color: #ffffaa; padding: 5px;'>".htmlentitieS($newxml)."</div>";
+					$maintext .= "<div style='background-color: #ffffaa; padding: 5px;'>".htmlentities($newxml)."</div>";
 				};
 				$maintext .= "<p>Pre-visualization (token only)</p>
 					<script language=Javascript src='$jsurl/tokedit.js'></script>

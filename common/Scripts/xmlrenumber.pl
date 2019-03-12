@@ -4,7 +4,7 @@ use XML::LibXML;
  
  GetOptions ( ## Command line options
             'debug' => \$debug, # debugging mode
-            'force' => \$force, # tag even if already tagged
+            'override' => \$override, # do no renumber existing IDs
             'test' => \$test, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
             'mtxtelem=s' => \$mtxtelem, # language of input
@@ -32,13 +32,30 @@ use XML::LibXML;
 	
 	if ( $mtxtelem eq '' ) { $mtxtelem = "//text"; }; # Do we want this?
 	if ( $mtxtelem ne '' && $mtxtelem !~ /\// ) { $mtxtelem = "//$mtxtelem"; };
+
+	# Find the last token number
+	$max = 0;
+	foreach $ttnode ($tmpdoc->findnodes("//tok")) {
+		$tid = 	$ttnode->getAttribute('id');
+		if ( $tid =~ /^w-(\d+)$/ ) {
+			if ( $1 > $max ) { $max = $1;};
+		};
+	};
 	
 	# Number the tokens
-	$cnt = 0;
+	if ( !$override ) {
+		$cnt = $max + 1;
+	} else {
+		$cnt = 1;
+	};
 	if ( $debug ) { print "Finding toks : //tok\n"; };
 	foreach $ttnode ($tmpdoc->findnodes("//tok")) {
-		$cnt++;
-		$ttnode->setAttribute('id', "w-$cnt");
+		print "\nID: ".$ttnode->getAttribute('id'); 
+		if ( $ttnode->getAttribute('id') eq '' || $override ) {	
+			print "Renumbering to w-$cnt";
+			$ttnode->setAttribute('id', "w-$cnt");
+			$cnt++;
+		};
 		$dcnt = 0;
 		if ( $debug ) { print "\n- $cnt\t".$ttnode->textContent; };
 		foreach $ddnode ( $ttnode->findnodes("dtok") ) {

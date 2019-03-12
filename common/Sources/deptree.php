@@ -219,6 +219,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 		};
 	
 		$maintext .= "\n
+<div>
 $graph
 </div>
 <style>
@@ -301,7 +302,7 @@ $maintext .= "
 	} else if ( $act == "parse" ) {
 		
 		check_login();
-		
+
 		$filename = $xmlfolder."/".$ttxml->fileid;
 		if ( !file_exists($filename) ) { fatal ( "File does not exist: $filename" ); };
 		
@@ -374,7 +375,7 @@ $maintext .= "
 				$parsetxt .= "<hr>".$response;
 				
 				foreach ( explode ( "\n", $response ) as $line ) {
-					list ( $tnr, $word, $lemma, $upos, $xpos, $feats, $head, $drel, $x1, $tokid ) = split ( "\t", $line );
+					list ( $tnr, $word, $lemma, $upos, $xpos, $feats, $head, $drel, $x1, $tokid ) = explode ( "\t", $line );
 					if ( $word ) {
 						$tid[$tnr] = $tokid;
 						$heads[$tokid] = $head;

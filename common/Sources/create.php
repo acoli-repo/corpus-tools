@@ -133,7 +133,9 @@
 			$newtext = str_replace( 'x>x', '&gt;', $newtext);
 			$newtext = str_replace( 'x&x', '&amp;', $newtext);
 			
-			$newtext = utf8_encode(utf8_decode($newtext)); # Correcting UTF8 errors 0xa0			
+			# TODO: This needs to be done differently since it can only handle ISO characters like this
+			# $newtext = utf8_encode(utf8_decode($newtext)); # Correcting UTF8 errors 0xa0			
+			$newtext = mb_convert_encoding($newtext, "UTF-8");
 
 			libxml_use_internal_errors(true);
 			$newentry = simplexml_load_string($newtext, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);

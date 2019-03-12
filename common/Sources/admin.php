@@ -72,6 +72,16 @@
 		if ( !$foldererrors ) {
 			$maintext .= "<p class=right> All crucial files/folders are writable";
 		};
+		
+		# Check if the Javascript files are accessible
+		$maintext .= "<p id=js class=wrong> Javascript files are not accessible from $jsurl - please change
+			<script language=Javascript>
+				var img = new Image();
+				img.onload = function () {
+				   document.getElementById('js').style.display = 'none';
+				}
+				img.src = '$jsurl/load_img.gif';
+			</script>";
 	
 	} else if ( $act == "checksettings" ) {
 	
