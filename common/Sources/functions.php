@@ -748,8 +748,8 @@
 
 	if (!function_exists('password_hash')) {
 		# For older versions of PHP, use crypt for password_hash
-		function password_hash($pwd, "$1$rtarQ84V$sGphrvSho5lhNE.O/WkZn1") {
-			return crypt($password);
+		function password_hash($pwd, $salt) {
+			return crypt($password, "$1$rtarQ84V$sGphrvSho5lhNE.O/WkZn1");
 		};
 		function password_verify($pwd1, $pwd2) { 
 			if ( $pwd1 == password_hash($pwd2, DEFAULT_PASSWORD) ) return true;
