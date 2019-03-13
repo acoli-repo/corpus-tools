@@ -745,5 +745,15 @@
 		if ( $dolang ) return $key;
 		return "<i>$key</i>";
 	};
+
+	if (!function_exists('password_hash')) {
+		# For older versions of PHP, use crypt for password_hash
+		function password_hash($pwd, $salt) {
+			return crypt($password);
+		};
+		function password_verify($pwd1, $pwd2) { 
+			return hash_equals($pwd1, password_hash($pwd2, DEFAULT_PASSWORD));
+		};		
+	};
 	
 ?>
