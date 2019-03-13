@@ -749,7 +749,7 @@
 	if (!function_exists('password_hash')) {
 		# For older versions of PHP, use crypt for password_hash
 		function password_hash($pwd, $salt) {
-			return crypt($password, "teitokdefaultsalt");
+			return crypt($pwd, "teitokdefaultsalt");
 		};
 		function password_verify($pwd1, $pwd2) { 
 			if ( $pwd1 == password_hash($pwd2, DEFAULT_PASSWORD) ) return true;
