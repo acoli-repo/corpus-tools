@@ -6,7 +6,17 @@
 	$ufile = file_get_contents ("Resources/userlist.xml");
 	$uxml = simplexml_load_string($ufile);
 	// $sessionvar = "teitok-$foldername";
-	
+
+	if (!function_exists('password_hash')) {
+		function password_hash($pwd, $salt) {
+			return crypt($password);
+		}
+		function password_verify($pwd1, $pwd2) )  { 
+			if ( $pwd1 == crypt($pwd2) ) return true;
+			return false;
+		};		
+	}	
+
 	if ( $_POST["login"] ) {
 		# Lookup the data for this user in the STAFF database
 		$result = $uxml->xpath("//user[@email='{$_POST['login']}']"); 
