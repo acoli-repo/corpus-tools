@@ -752,7 +752,8 @@
 			return crypt($password);
 		};
 		function password_verify($pwd1, $pwd2) { 
-			return hash_equals($pwd1, password_hash($pwd2, DEFAULT_PASSWORD));
+			if ( $pwd1 == password_hash($pwd2, DEFAULT_PASSWORD) ) return true;
+			return false;
 		};		
 	};
 	
