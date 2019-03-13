@@ -752,7 +752,7 @@
 			return crypt($pwd, "teitokdefaultsalt");
 		};
 		function password_verify($pwd1, $pwd2) { 
-			if ( $pwd1 == password_hash($pwd2, DEFAULT_PASSWORD) ) return true;
+			if ( $pwd2 == password_hash($pwd1, DEFAULT_PASSWORD) ) return true;
 			return false;
 		};		
 	};
