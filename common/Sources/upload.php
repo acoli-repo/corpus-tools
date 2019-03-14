@@ -148,6 +148,7 @@
 
 		$type = $_GET['type'];
 		$typedef = $settings['files'][$type];
+		if ( $typedef['admin'] ) check_login("admin"); 
 		$accept = str_replace('*', '', $typedef['extension']);
 		$maxsize = min(intval(ini_get("upload_max_filesize")), intval(ini_get("post_max_size")), intval(ini_get("memory_limit")));
 
@@ -251,7 +252,7 @@
 
 		foreach ( $settings['files'] as $key => $val ) {
 			if ( !$nodef || is_dir($val['folder']) ) {
-				$maintext .= "<tr><td><a href='index.php?action=$action&act=list&type=$key'>{$val['display']}</a><td>{$val['description']}";
+				if ( !$val['admin'] || $user['permissions'] == "admin" ) $maintext .= "<tr><td><a href='index.php?action=$action&act=list&type=$key'>{$val['display']}</a><td>{$val['description']}";
 			};
 		};
 

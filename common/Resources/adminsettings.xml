@@ -708,6 +708,10 @@
 		</desc>
         <list display="Metadata field">
 			<att key="key" display="Identifier"/>
+			<att key="type" display="Type of field">
+				<val key="sep" display="Separator" default="fld"/>
+				<val key="fld" display="Metadata field"/>
+			</att>
 			<att key="xpath" display="XPath to this metadata field"/>
 			<att key="display" display="Display name"/>
 			<att key="cqp" display="Corresponding CQP sattribute"/>
