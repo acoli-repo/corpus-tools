@@ -83,6 +83,13 @@
 				img.src = '$jsurl/load_img.gif';
 			</script>";
 	
+		# Check if all form inherit properly
+		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $val ) {
+			if ( $key == "pform" || $key == "form" ) continue; # <pform> and @form inherit automiatically
+			if ( !$val['inherit'] ) $maintext .= "<p class=wrong>$key ({$val['display']}) is not inheriting";
+			else if ( !$settings['xmlfile']['pattributes']['forms'][$val['inherit']] ) $maintext .= "<p class=wrong>$key ({$val['display']}) inherits from @{$val['inherit']}, which does not exist";
+		};
+	
 	} else if ( $act == "checksettings" ) {
 	
 		check_login("admin");

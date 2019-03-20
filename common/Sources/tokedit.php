@@ -176,7 +176,7 @@
 		$xmlword = preg_replace("/<\/?d?tok[^>]*>/", "", $xmlword); // Remove all dtoks from the raw XML - will be edited separately
 		$xmlword = preg_replace("/<\/?morph[^>]*>/", "", $xmlword); // Remove all morph from the raw XML - will be edited separately
 		$xmlword = str_replace("'", "&#039;", $xmlword); // Protect quotes
-		$maintext .= "<tr><td>XML<td>Raw XML value<td><input size=60 name=word id='word' value='$xmlword'>";
+		$maintext .= "<tr><td>pform<td>Inner XML value<td><input size=60 name=word id='word' value='$xmlword'>";
 
 		// Show all the defined forms and make them editable
 		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {

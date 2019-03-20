@@ -53,22 +53,25 @@
 		<pattributes>
 			<forms>
 				<item key="pform" display="Transcription"/>
-				<item key="form" display="Written form" color="#990000"/>
-				<item key="ort" display="Orthographically corrected form" inherit="form" color="#009999"/> 
-				<item key="reg" display="Syntactically corrected form" inherit="nform" color="#990099" admin="1"/> 
-				<item key="lex" display="Lexically corrected form" inherit="reg" color="#009900" admin="1"/> 
+				<item key="form" display="Written form" color="#990000" admin="1" noshow="1"/>
+				<item key="ort" display="Orthographically corrected form" inherit="form" color="#990099"/> 
+				<item key="gram" display="Morphosyntactically corrected form" inherit="ort" color="#009999"/> 
+				<item key="lex" display="Lexically corrected form" inherit="gram" color="#900090"/> 
 			</forms>
 			
 			<tags>			
-				<item key="pos" display="POS tag" type="pos" color="#990099"/>
-				<item key="lemma" display="Lemma" color="#999900"/>
-				<item key="rpos" display="Reg POS tag" color="#009999"/>
-				<item key="llemma" display="Lex lemma" color="#009999"/>
-				<item key="error" display="Error code" color="#999900"/>
+				<item key="opos" type="pos" display="Ort POS tag"/>
+				<item key="olemma" display="Ort Lemma"/>
+				<item key="gpos" type="pos" display="Gram POS tag" inherit="opos"/>
+				<item key="lpos" display="Lex POS tag" inherit="gpos"/>
+				<item key="llemma" display="Lex Lemma" inherit="olemma"/>
 			</tags>
 		</pattributes>
 		<sattributes>
-			<item key="gloss" display="Translation gloss (English)"/>
+			<item key="s" level="s" display="Sentence">
+			       <item key="th" display="Target Hypothesis" color="#33aa33"/>
+			       <item key="note" display="Note" color="#aa3333" admin="1"/>
+			</item>
 		</sattributes>
 	</xmlfile>
 

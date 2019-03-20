@@ -11,70 +11,7 @@
 	$cardid = $_POST['id'] or $cardid = $_GET['id'] or $cardid = $_GET['cid'];
 	$fileid = $cardid;
 	
-	if ( $cardid && $_GET['php'] ) { 
-		# In PHP this gets too slow for larger XML files - replaced by Perl (below)
-		
-		if ( !file_exists("$xmlfolder/$cardid") ) { print "No such letter"; exit; };
-		
-		$file = file_get_contents("$xmlfolder/$cardid"); 
-		$newxml = simplexml_load_string($file);
-		
-		if ( !$newxml ) {
-			print "Something went wrong with the XML - please contact the operator. Created XML:
-				$rawishtext
-				
-				<hr>
-				
-				$file";
-			exit;
-		};
-		
-		# Number the tokens
-		$wcnt = 1;
-		$result = $newxml->xpath("//$mtxtelement//tok"); 
-		foreach ( $result as $node ) {
-			$node['id'] = "w-$wcnt"; $dcnt = 1;
-			$result2 = $node->xpath("dtok"); 
-			foreach ( $result2 as $dnode ) {
-				$dnode['id'] = "d-$wcnt-$dcnt"; $dcnt++;
-			};
-			$wcnt++; 
-		};
-
-		# Number the paragraphs
-		$wcnt = 1;
-		$result = $newxml->xpath("//$mtxtelement//p"); 
-		foreach ( $result as $node ) {
-			$node['id'] = "p-$wcnt"; $wcnt++;
-		};
-
-		# Number the sentences
-		$wcnt = 1;
-		$result = $newxml->xpath("//$mtxtelement//s | //$mtxtelement//l"); 
-		foreach ( $result as $node ) {
-			$node['id'] = "s-$wcnt"; $wcnt++;
-		};
-
-		# Number the empty elements
-		$wcnt = 1;
-		$result = $newxml->xpath("//$mtxtelement//lb | //$mtxtelement//pb  | //$mtxtelement//cb | //$mtxtelement//gap | //$mtxtelement//deco"); 
-		foreach ( $result as $node ) {
-			$node['id'] = "e-$wcnt"; $wcnt++;
-		};
-
-		# print "MYXML: ".$newxml->asXML(); exit;
-		saveMyXML($newxml->asXML(), $cardid);
-
-		if ( $_GET['nexturl'] )
-			$nexturl = $_GET['nexturl'];
-		else if ( $_GET['tid'] )
-			$nexturl = "index.php?action=tokedit&cid=$cardid&tid={$_GET['tid']}";
-		else 
-			$nexturl = "index.php?action=file&id=$cardid";
-		$maintext .= "<hr><p>Your text has been renumbered - reloading to <a href='$nexturl'>the edit page</a>";
-		$maintext .= "<script langauge=Javasript>top.location='$nexturl';</script>";
-		
-	} else if ( $cardid )  {
+	if ( $cardid )  {
 
 		# Build the UNIX command
 		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot"; };
@@ -83,12 +20,37 @@
 		$res = shell_exec($cmd);
 		for ( $i=0; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...
 		
-		if ( $_GET['nexturl'] )
+		if ( $_GET['nexturl'] ) {
 			$nexturl = $_GET['nexturl'];
-		else if ( $_GET['tid'] )
-			$nexturl = "index.php?action=tokedit&cid=$cardid&tid={$_GET['tid']}";
-		else 
+		} else if ( $_GET['tid'] ) {
+			$newtid = $_GET['tid'];
+			$posdir = $_GET['dir'];
+			if ( $posdir ) {
+				# Find the token to the left or right
+				if ( !$forcerenum || $posdir == "after" ) { # renumbering + before will get the same tokid
+					require ("$ttroot/common/Sources/ttxml.php");
+					$ttxml = new TTXML();
+					$oldnode = current($ttxml->xml->xpath("//tok[@id='{$_GET['tid']}']"));
+					if ( $oldnode ) {
+						if ( $posdir == "after" ) {
+							$newnode = current($oldnode->xpath("following::tok"));
+						} else {
+							$newnode = current($oldnode->xpath("preceding::tok[1]"));
+						};
+					} else {
+						fatal("No such node: {$_GET['tid']}"); 
+					};
+					if ( $newnode ) { 
+						$newtid = $newnode['id'];
+					} else {
+						fatal("Oops - creation of the new node failed");
+					};
+				};
+			};
+			$nexturl = "index.php?action=tokedit&cid=$cardid&tid=$newtid";
+		} else {
 			$nexturl = "index.php?action=file&id=$cardid";
+		};
 		$maintext .= "<hr><p>Your text has been renumbered - reloading to <a href='$nexturl'>the edit page</a>";
 		$maintext .= "<script langauge=Javasript>top.location='$nexturl';</script>";
 		

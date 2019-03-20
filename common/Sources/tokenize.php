@@ -279,6 +279,8 @@
 		if ( $settings['xmlfile']['linebreaks'] ) { $lbcmd = " --linebreaks "; };
 		if ( $_GET['s'] ) { $lbcmd .= " --s={$_GET['s']} "; }; # Sentence split
 
+		if ( $settings['defaults']['tokenizer']['sentences'] ) $lbcmd .= " --sent=1";
+
 		# Build the UNIX command
 		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot"; };
 		$cmd = "/usr/bin/perl $scrt/common/Scripts/xmltokenize.pl --mtxtelm=$mtxtelm --filename='xmlfiles/$fileid' $lbcmd ";

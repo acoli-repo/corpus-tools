@@ -120,7 +120,7 @@
 					
 		saveMyXML($file, $fileid);
 				
-		$nexturl = "index.php?action=renumber&cid=$fileid&tid=$ntid";
+		$nexturl = "index.php?action=renumber&cid=$fileid&tid=$tokid&dir=$nodedir";
 		$maintext .= "<hr><p>Your tok has been inserted - reloading to <a href='$nexturl'>the edit page</a>";
 		$maintext .= "<script langauge=Javasript>top.location='$nexturl';</script>";		
 	

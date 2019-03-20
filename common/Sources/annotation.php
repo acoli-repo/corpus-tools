@@ -1,6 +1,6 @@
 <?php
 	$annotation = $_GET['annotation'] or $annotation = $_SESSION['annotation'];
-	$colorlist = array ( "#ff9999", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66");
+	$colorlist = array ( "#ff9999", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#ff9999", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#ff9999", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66");
 	
 	if ( !$annotation ) {
 		if ( is_array($settings['annotations']) && count($settings['annotations']) == 1 ) {
@@ -35,6 +35,13 @@
 	};
 	$headertxt = current($andef->xpath("desc")); 
 	if ( $headertxt ) $headertxt .= "<hr>";
+
+	# Read the actual annotation for this file (if any)
+	$filename = "Annotations/{$annotation}_".$fileid;
+	$antxt = file_get_contents($filename);
+	if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
+	$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		
 	$result = $andef->xpath("//interp"); 
 	if ( $andef['keepxml'] ) { $keepxml = 1; } else { $keepxml = 0; };
 	$moreactions .= "var keepxml = $keepxml; var interp = [];\n"; 
@@ -58,22 +65,19 @@
 		if ( $tmp['colored'] ) {
 			foreach ( $tmp->children() as $tmp2 ) {
 				$color = $tmp2['color']."";
+				# Check if this one exists
+				if ( !$anxml->xpath("//span[@{$tmp['key']}=\"{$tmp2['value']}\"]") ) { continue; };
 				if ( $color == "" ) $color = array_shift($colorlist);
 				$markfeat = $tmp['key'].""; 
 				$markcolor[$tmp2["value"].""] = $color; 
-				$markbuttons .= "<span style=\"border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '{$tmp2['value']}');\">{$tmp2['value']}</span> ";
+				$spantit = ""; if ( $tmp2['display'] ) $spantit = "title=\"{%{$tmp2['display']}}\"";
+				$markbuttons .= "<span $spantit style=\"border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '{$tmp2['value']}');\">{$tmp2['value']}</span> ";
 			};
 			if ( $markbuttons ) $annotations = "$markbuttons<hr>";
 		};
 		$moreactions .= "interp['{$tmp['key']}'] = '{$tmp['long']}'; ";
 	};
 	$moreactions .= "var markfeat = '$markfeat'; ";
-
-	# Read the actual annotation for this file (if any)
-	$filename = "Annotations/{$annotation}_".$fileid;
-	$antxt = file_get_contents($filename);
-	if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
-	$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 
 	# Make a clean version of the text
 	$cleaned = $ttxml->rawtext;
@@ -332,16 +336,24 @@
 				foreach ( $tagset as $key => $val ) {
 					$rodata .= " $key=\"{$segment[$key]}\"";
 				};
+				$segmenttxt = $segment."";
+				if ( $segment['idx'] ) {
+					# A substring - mark it up
+					list ( $pa, $pb ) = explode("-", $segment['idx']);
+					$pre = mb_substr($segment, 0, $pa);
+					$middle = mb_substr($segment, $pa, $pb-$pa);
+					$post = mb_substr($segment, $pb);
+					$segmenttxt = "<span style='opacity: 0.2; font-weight: normal;'>".$pre."</span>".$middle."<span style='opacity: 0.2; font-weight: normal'>".$post."</span>";
+				};
 				$markupcolor = $markcolor[$segment[$markfeat].""]; 
 				$rodata .= " markupcolor=\"$markupcolor\"";
 				$newrow = "<tr onMouseOver=\"markout(this, 1)\" onMouseOut=\"unmarkout();\" $rodata class=\"segment\" toklist='$tokenlist'>";
-				$newrow .= "<td><a href='index.php?action=$action&annotation=$annotation&act=redit&sid=$sid&cid=$fileid'\" style=\"text-decoration: none;\"><span style=\"color: $markupcolor; font-size: large;\">&blacksquare;</span> ".$segment."</a>";
+				$newrow .= "<td><a href='index.php?action=$action&annotation=$annotation&act=redit&sid=$sid&cid=$fileid'\" style=\"text-decoration: none;\"><span style=\"color: $markupcolor; font-size: large;\">&blacksquare;</span> <ann>".$segmenttxt."</ann></a>";
 				$newrow .= "</tr>"; array_push($sortrows, $newrow);
 			};
 			natsort($sortrows); $annotations .= "<table >".join("\n", $sortrows)."</table>";
 		};
 		if ( $username ) $annotations .= "<hr><p><a href='index.php?action=$action&annotation=$annotation&cid={$_GET['cid']}&act=list'>{%show as list}</a>";
-	
 
 
 		if ( $username ) {

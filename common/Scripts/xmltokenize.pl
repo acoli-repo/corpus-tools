@@ -438,12 +438,12 @@ if ( $sentsplit ) {
 	
 	# Start by making a <s> inside each <p> or <head>, fallback to <div>, or else just the outer xml (<text>) 
 	if ( $teitext =~ /<\/(p|head)>/ ) {
-		$teitext =~ s/(<p [^>]+>)/\1<s>/g;
+		$teitext =~ s/(<p(?=[ >])[^>]*>)/\1<s>/g;
 		$teitext =~ s/(<\/p>)/<\/s>\1/g;
-		$teitext =~ s/(<head [^>]+>)/\1<s>/g;
+		$teitext =~ s/(<head(?=[ >])[^>]*>)/\1<s>/g;
 		$teitext =~ s/(<\/head>)/<\/s>\1/g;
 	} elsif ( $teitext =~ /<\/div>/ ) {
-		$teitext =~ s/(<div [^>]+>)/\1<s>/g;
+		$teitext =~ s/(<div(?=[ >])[^>]*>)/\1<s>/g;
 		$teitext =~ s/(<\/div>)/<\/s>\1/g;
 	} else {
 		# Add a sentence start at the beginning of the mtxt
@@ -457,7 +457,7 @@ if ( $sentsplit ) {
 		$notecode = $&;
 		$teitext =~ s/\Q$notecode\E/$notetxt/;
 	};
-
+	
 	$presplit = $teitext; 
 	
 	# Now - add </s><s> after every sentence-final token

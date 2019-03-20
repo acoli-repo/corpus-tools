@@ -463,7 +463,7 @@ class TTXML
 	}
 
 	function viewswitch($initial = true, $withself = false ) {
-		global $settings; global $username; global $action; global $xml;
+		global $settings; global $username; global $action; global $xml; 
 
 		$viewopts['text'] = "Text view";
 		
@@ -487,6 +487,13 @@ class TTXML
 				$tmp = $this->xml->xpath($item['xpcond']);
 				if ( !$tmp ) $dothis = 0;
 			};
+			if ( $item['filerest'] ||  $item['filecond'] ) {
+				$filerest = $item['filerest'];
+				$filerest = preg_replace("/\[fn\]/", $this->filename, $filerest);
+				$filerest = preg_replace("/\[id\]/", $this->xmlid, $filerest);
+			};
+			if ( $item['filecond'] && !file_exists($filerest) ) $dothis = 0;
+			if ( $item['filerest'] && file_exists($filerest) ) $dothis = 0;
 			if ( $dothis ) { // View condition
 				$lvltxt = $item['display'];
 				$viewopts[$key] = $lvltxt;

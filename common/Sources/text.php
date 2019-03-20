@@ -571,6 +571,13 @@
 				if ( $item['rerest'] && preg_match("/{$item['rerest']}/", $editxml ) ) continue;
 				if ( $item['xpcond'] && !$xml->xpath($item['xpcond']) ) continue;
 				if ( $item['xprest'] && $xml->xpath($item['xprest']) ) continue;
+				if ( $item['filerest'] ||  $item['filecond'] ) {
+					$filerest = $item['filerest'];
+					$filerest = preg_replace("/\[fn\]/", $ttxml->filename, $filerest);
+					$filerest = preg_replace("/\[id\]/", $ttxml->xmlid, $filerest);
+				};
+				if ( $item['filecond'] && !file_exists($filerest) ) continue;
+				if ( $item['filerest'] && file_exists($filerest) ) continue;
 				if ( $item['type'] == "php" ) {
 					$url = $item['action'];
 					$url = str_replace("[id]", $fileid, $url );
