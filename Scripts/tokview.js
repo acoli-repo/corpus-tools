@@ -88,7 +88,7 @@ function showtokinfo(evt, element, poselm) {
     		};
     	};
     	if ( textvalue == "null" || typeof(textvalue) == "undefined" ) { 
-    		textvalue = ""; 
+    		textvalue = element.innerText; 
     	};
     	tablerows = '<tr><th colspan=2><b>' + textvalue + '</b></th></tr>';
     	for ( ia=0; ia<attributelist.length; ia++ ) {
@@ -141,7 +141,7 @@ function showtokinfo(evt, element, poselm) {
 				var att2 = attributelist[j];
 				var attname = attributenames[att2];
 				if ( !attname ) { attname = att2; };
-				if (parent.getAttribute(att2)) {
+				if ( parent.getAttribute(att2) ) {
 					var rowval = parent.getAttribute(att2);
 					if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att2] && tagdef[att2]['type'] == 'pos' ) { rowval = treatpos(parent, att2, 'full'); }; 
 					tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + rowval + '</td></tr>';
