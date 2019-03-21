@@ -128,6 +128,28 @@ function showtokinfo(evt, element, poselm) {
 				tokinfo.innerHTML += '<hr><table width=\'100%\'>' + tablerows + '</table>';
     		}; 
 		};
+
+    	// now look for mtoks
+    	var parent = element.parentNode; console.log(parent);
+		if ( parent.tagName == "MTOK" && !done[parent.getAttribute('id')] ) { // TODO: this only works for the direct parent
+			shownrows = 1;
+			done[parent.getAttribute('id')] = 1;
+			var form = parent.getAttribute('form');
+			if ( !form ) { form = parent.innerText; };
+			tablerows = '<tr><th colspan=2>' + form + '</th></tr>';
+			for ( j=0; j<attributelist.length; j++ ) {
+				var att2 = attributelist[j];
+				var attname = attributenames[att2];
+				if ( !attname ) { attname = att2; };
+				if (parent.getAttribute(att2)) {
+					var rowval = parent.getAttribute(att2);
+					if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att2] && tagdef[att2]['type'] == 'pos' ) { rowval = treatpos(parent, att2, 'full'); }; 
+					tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + rowval + '</td></tr>';
+				};
+			}; 
+			tokinfo.innerHTML += '<hr><table width=\'100%\'>' + tablerows + '</table>';
+		};
+
 		    	   	
 		if ( shownrows )  { tokinfo.style.display = 'block'; };
 		var foffset = offset(showelement);

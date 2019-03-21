@@ -140,7 +140,7 @@ use XML::LibXML;
 	$teitext = $tmpdoc->toString;
 		
 			
-print "-- renumbering complete\n";
+print "\n-- renumbering complete\n";
 if ( $debug ) {
 	# binmode ( STDOUT, ":utf8" );
 	print $teitext;

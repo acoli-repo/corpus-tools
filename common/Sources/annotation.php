@@ -340,8 +340,9 @@
 				if ( $segment['idx'] ) {
 					# A substring - mark it up
 					list ( $pa, $pb ) = explode("-", $segment['idx']);
-					$pre = mb_substr($segment, 0, $pa);
-					$middle = mb_substr($segment, $pa, $pb-$pa);
+					if ( !$pb ) $pb = $pa;
+					$pre = mb_substr($segment, 0, $pa-1);
+					$middle = mb_substr($segment, $pa-1, $pb-$pa+1);
 					$post = mb_substr($segment, $pb);
 					$segmenttxt = "<span style='opacity: 0.2; font-weight: normal;'>".$pre."</span>".$middle."<span style='opacity: 0.2; font-weight: normal'>".$post."</span>";
 				};

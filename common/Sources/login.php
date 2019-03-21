@@ -5,7 +5,6 @@
 	# Read the userlist 
 	$ufile = file_get_contents ("Resources/userlist.xml");
 	$uxml = simplexml_load_string($ufile);
-	// $sessionvar = "teitok-$foldername";
 
 	if ( $_POST["login"] ) {
 		# Lookup the data for this user in the STAFF database
@@ -88,6 +87,7 @@
 			exit();
 	};
 		
+	## When we are not logged in at this point, show the login
 	if ( $user['email'] == "" ) { // && $action != "login" 
 		$action = "login";
 		$maintext .= "<h1>{%Login}</h1>";
@@ -114,6 +114,6 @@
 		
 		if ( $debug ) $maintext .= "<p style='color: #999999'>You are using: {$_SERVER['HTTP_USER_AGENT']}";
 				
-	} # else { $maintext .= "logged in as $username"; };
+	};
 
 ?>

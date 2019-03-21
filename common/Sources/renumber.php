@@ -13,7 +13,7 @@
 	
 	if ( $cardid )  {
 
-		# Build the UNIX command
+		# Build the UNIX command that does the actual renumbering
 		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot"; };
 		$cmd = "/usr/bin/perl $scrt/common/Scripts/xmlrenumber.pl --filename='xmlfiles/$fileid' ";
 		# print $cmd; exit;
