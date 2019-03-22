@@ -27,6 +27,7 @@ function clickEvent(evt) {
 	if ( element.parentNode && element.parentNode.parentNode && element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; };
 
     if (element.tagName == "TOK" ) {
+    	console.log(tid);
     	if ( username ) {
     		if ( typeof(tid) == "undefined" ) { // For KWIC rows
 				var mtch = document.evaluate("ancestor::tr[@tid]", element, null, XPathResult.ANY_TYPE, null); 
@@ -130,7 +131,7 @@ function showtokinfo(evt, element, poselm) {
 		};
 
     	// now look for mtoks
-    	var parent = element.parentNode; console.log(parent);
+    	var parent = element.parentNode;
 		if ( parent.tagName == "MTOK" && !done[parent.getAttribute('id')] ) { // TODO: this only works for the direct parent
 			shownrows = 1;
 			done[parent.getAttribute('id')] = 1;

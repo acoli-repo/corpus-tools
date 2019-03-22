@@ -235,11 +235,12 @@ function formify () {
 		if (  pb.getAttribute('facs') 
 				&& ( pb.getAttribute("admin") != "1" || username )
 				&& pb.getAttribute("img") != "yes" 
+				&& typeof(noimg) == null
 			) { // Set a marker to say we already made an img
 			var pbimg = pb.getAttribute('facs');
 			pb.setAttribute("img", "yes");
 
-			var imgsrc
+			var imgsrc;
 			if ( pb.getAttribute('facsimg') ) {
 				imgsrc = pb.getAttribute('facsimg');
 			} else {

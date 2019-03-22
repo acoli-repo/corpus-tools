@@ -103,8 +103,106 @@
 	$blockname = $blockdef['display'] or $blockname = $defdef[$stype] or $blockname = $stype;
 	$maintext .= "<h2>{%$blockname view}</h2><h1>".$ttxml->title()."</h1>";
 	$maintext .= $ttxml->tableheader();
-				
-	$maintext .= "<div id='mtxt'>$editxml</div>";
+			#Build the view options
+			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+				$formcol = $item['color'];
+				# Only show forms that are not admin-only
+				if ( $username || !$item['admin'] ) {
+					if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+					$ikey = $item['inherit'];
+					if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract']
+						$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+						$fbc++;
+					};
+					if ( $key != "pform" ) {
+						if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+						$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+					};
+				};
+			};
+			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+				$val = $item['display'];
+				if ( preg_match("/ $key=/", $editxml) ) {
+					if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
+					if ( !$item['admin'] || $username ) {
+						if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+						$attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+						$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+						$pcolor = $item['color'];
+						$tagstxt .= " <button id='tbt-$key' style='background-color: #$bc; color: $pcolor;$bgcol' onClick=\"toggletag('$key')\">{%$val}</button>";
+					};
+				} else if ( is_array($labarray) && ($akey = array_search($key, $labarray)) !== false) {
+					unset($labarray[$akey]);
+				};
+			};
+
+			$showform = $_POST['showform'] or $showform = $_GET['showform'] or $showform = 'form';
+			if ( $showform == "word" ) $showform = $wordfld;
+
+			# Only show text options if there is more than one form to show
+			if ( $fbc > 1 ) {
+				$viewoptions .= "<p>{%Text}: $formbuts"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
+
+				$showoptions .= " - <button id='btn-col' style='background-color: #ffffff;' title='{%color-code form origin}' onClick=\"togglecol();\">{%Colors}</button> ";
+				$sep = " - ";
+			};
+			
+				$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
+				$jsontrans = array2json($settings['transliteration']);
+
+				if ( $tagstxt ) $showoptions .= "<p>{%Tags}: $tagstxt ";
+
+			$maintext .= "
+					$viewoptions $showoptions						<hr>
+				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
+				$countrow
+				<div id='mtxt'$tba><text><table $direc>$editxml</table></text></div>
+
+					<script language=Javascript src='$jsurl/tokedit.js'></script>
+					<script language=Javascript src='$jsurl/tokview.js'></script>
+					<script language=Javascript>
+						var username = '$username';
+						var formdef = $jsonforms;
+						var orgtoks = new Object();
+						var noimg = true;
+						var tid = '$ttxml->fileid';
+						var attributelist = Array($attlisttxt);
+						$attnamelist
+						formify();
+						var orgXML = document.getElementById('mtxt').innerHTML;
+						setForm('$showform');
+
+						function hllist ( ids, container, color ) {
+							idlist = ids.split(' ');
+							for ( var i=0; i<idlist.length; i++ ) {
+								var id = idlist[i];
+								// node = getElementByXpath('//*[@id=\"'+container+'\"]//*[@id=\"'+id+'\"]');
+								node = document.getElementById(container+'_'+id);
+								if ( node ) {
+									if ( node.nodeName == 'DTOK' ) {
+										node = node.parentNode;
+										if ( color == '#ffffaa' ) {
+											node.style['background-color'] = '#ffeeaa';
+											node.style.backgroundColor= '#ffeeaa';
+										} else {
+											node.style['background-color'] = '#ffcccc';
+											node.style.backgroundColor= '#ffcccc';
+										};
+									} else {
+										node.style['background-color'] = color;
+										node.style.backgroundColor= color;
+									};
+								};
+							};
+						};
+						function getElementByXpath(path) {
+							return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+						}
+					</script>
+
+				<script language=Javascript>$moreactions</script>
+				";
+			
 
 	$maintext .= "<hr><p>".$ttxml->viewswitch();
 	
