@@ -20,6 +20,7 @@
 		};
 
 		if ( $grouprec['actions'] && in_array($action, explode(",", $grouprec['actions'])) ) return; // An allowed action for this group		
+		if ( $grouprec['restrictions'] && !in_array($action, explode(",", $grouprec['restrictions'])) ) return; // An allowed action for this group		
 
 		// We did not get permissions - figure out which error to display		
 		if ( !in_array($user['permissions'], explode(",", $checktype)) ) { 

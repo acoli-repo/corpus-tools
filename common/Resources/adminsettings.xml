@@ -27,6 +27,7 @@
 	</item>
 	
 	<item key="defaults" display="Some global settings">
+	    <att key="nofiles" display="Do not allow visitors to see the XML file listing" default="0">
 	    <att key="fileview" display="Default fileview" default="text">
 			<desc>
 				Since version 2, TEITOK has a number of different ways to view a TEI/XML file: as text, 
@@ -671,6 +672,8 @@
 			<p>In this section you can control who has access to what in your project. You can
 			set-up groups that only have access to a limited set of functions, and to allow
 			guests to have access to certain functions, you can have them login using their ORCID.</p>
+			<p>Group permissions allow you to define custom groups that have only certain permissions,
+			either explicitly allowing actions, or disallowing them.</p>
 			<p>To enable ORCID login, you need to enable the <a href='https://orcid.org/developer-tools'>ORCID developer
 			tools</a>, and copy both the public and the private key to
 			here. The login screen will show the application name on top of the login request, so make sure
@@ -684,7 +687,8 @@
     		<list display="List of groups">
     			<att key="key" display="Name of the group"/>
     			<att key="message" display="Error message for actions disallowed for this group"/>
-    			<att key="actions" display="List of actions allowed for this group"/>
+    			<att key="actions" display="List of actions allowed for this group (comma-separated)"/>
+    			<att key="restrictions" display="List of actions not allowed for this group (comma-separated)"/>
     		</list>
     	</item>
     	<item key="orcid" display="ORCID">
