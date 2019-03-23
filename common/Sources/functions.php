@@ -9,6 +9,7 @@
 		if ( $settings['permissions']['groups'] ) $grouprec = $settings['permissions']['groups'][$user['group'].""];
 				
 		if ( $user['permissions'] == "admin" ) return; # Always allow admin
+		
 		if ( $checktype != "" && in_array($user['permissions'], explode(",", $checktype)) ) return; // explicitly allowed for this type
 		
 		if ( is_array($_SESSION['extid']) ) { // Check whether we are logged in with an appropriate external ID
@@ -17,7 +18,9 @@
 				if ( is_array($extfunc) && in_array($action, array_keys($extfunc)) ) return; // allowed for extid users
 			};
 		};
-		
+
+		if ( $grouprec['actions'] && in_array($action, explode(",", $grouprec['actions'])) ) return; // An allowed action for this group		
+
 		// We did not get permissions - figure out which error to display		
 		if ( !in_array($user['permissions'], explode(",", $checktype)) ) { 
 			if ( $usergroups[$checktype]['message'] )

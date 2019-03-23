@@ -74,6 +74,15 @@
 			 $chpwd = "(unchanged when left empty)";
 		};
 		
+		if ( $settings['permissions']['groups'] ) {
+			foreach ( $settings['permissions']['groups']  as $key => $val ) {
+				$seld = ""; if ( $usr['group'] == $key ) $seld = "selected";
+				$tmp = $val['display'] or $tmp = $key;
+				$grouplist .= "<option value='$key'>$tmp</option>";
+			};
+			$grouprow = "<tr><th>Group<td><select name='group'><option value=''>(no group)</option>$grouplist</select> - use 'custom' under permissions to use groups"; 
+		};
+		
 		$maintext .= "<h1>User Edit</h1>
 			<form action='index.php?action=$action&act=save' method=post>
 			<table>
@@ -82,8 +91,8 @@
 			<tr><th>Email<td><input name='email' value='{$usr['email']}' size=50> (used as login)
 			$shortfld
 			<tr><th>Password<td><input name='password' size=20> $chpwd
-			<tr><th>Permissions<td><input name='permissions' value='{$usr['permissions']}'> (user, admin, none)
-			<tr><th>Group<td><input name='group' value='{$usr['group']}'> (defined in settings)
+			<tr><th>Permissions<td><input name='permissions' value='{$usr['permissions']}'> (user, admin, custom, none)
+			$grouprow
 			</table>
 			<input type=checkbox name=keep value=1> User provided this password himself
 			<p><input type=submit value=Save> <a href='index.php?action=$action'>cancel</a>

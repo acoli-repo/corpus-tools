@@ -282,7 +282,7 @@
 	function settingstable ( $valnode, $defnode, $showunused = false ) {
 		global $user;
 
-		if ( !$valnode ) return "";
+		if ( $valnode == null ) return "";
 		if ( $valnode->asXML() == "" ) return "";
 		if ( !$defnode ) return "<i style='color: #992000'>Unknown field</i>";
 		
