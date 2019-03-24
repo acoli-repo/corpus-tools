@@ -5,6 +5,8 @@
 
 	$cntcols = 1; $headrow = 'false';
 	$ttcqp = findapp("tt-cqp");
+	
+	if ( $_GET['cwb'] || $settings['cqp']['ttcqp'] == "0" ) $usecwb = 1;
 
 	if ( $act == "cql" ) {
 
@@ -140,7 +142,8 @@
 				$moredirect = "&query=".urlencode($_POST['query']);
 
 				$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
-				if ( $ttcqp && !$usecwb ) {
+				if ( $ttcqp && !$usecwb  ) {
+				
 					// Use tt-cqp by default
 
 					$cmd = "echo 'Matches = $cql; $grquery;' | $ttcqp --output=json";
@@ -154,7 +157,8 @@
 
 					// Fallback in case tt-cqp is not installed
 					// TODO: resolve/improve this fallback
-					
+										print "Using CQP"; exit;
+
 					include ("$ttroot/common/Sources/cwcqp.php");
 					$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
 					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
@@ -285,15 +289,16 @@
 			$maintext .= " &bull; <a href='index.php?action=$action&cql=".urlencode($cql)."&mode={$_POST['mode']}".$moredirect."'>{%Direct URL}</a>";
 		};
 
-
-			# Create a pie-chart option
+			# Create the actual visualization
 			$maintext .= "
 				<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>
 				<script type=\"text/javascript\" src=\"https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js\"></script>
 				<script type=\"text/javascript\" src=\"$jsurl/visualize.js\"></script>
+				<div id='notloaded'><i>The visualization in TEITOK relies on the Google visualization library, which does not seem to have been loaded correclty.</i></div>
 				<script type=\"text/javascript\">
 
 			google.charts.load('current', {'packages':['corechart', 'table', 'bar', 'line', 'scatter' $morel ] $moreo });
+			document.getElementById('notloaded').style.display = 'none';
 
 			var json = $json;
 			var cql = '".str_replace("'", "&#039;", $cql)."';

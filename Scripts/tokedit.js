@@ -232,10 +232,13 @@ function formify () {
 		};
 
 		// Make img for all pb facs
+		console.log('doing imgs');
+		console.log(pb);
+		console.log(typeof(noimg));
 		if (  pb.getAttribute('facs') 
 				&& ( pb.getAttribute("admin") != "1" || username )
 				&& pb.getAttribute("img") != "yes" 
-				&& typeof(noimg) == null
+				&& ( typeof(noimg) == 'undefined' || typeof(noimg) == null )
 			) { // Set a marker to say we already made an img
 			var pbimg = pb.getAttribute('facs');
 			pb.setAttribute("img", "yes");
