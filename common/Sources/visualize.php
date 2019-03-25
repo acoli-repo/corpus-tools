@@ -157,7 +157,6 @@
 
 					// Fallback in case tt-cqp is not installed
 					// TODO: resolve/improve this fallback
-										print "Using CQP"; exit;
 
 					include ("$ttroot/common/Sources/cwcqp.php");
 					$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
