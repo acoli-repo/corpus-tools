@@ -174,7 +174,7 @@
 		// show the innerHTML
 		$xmlword = $token->asXML(); 
 		$xmlword = preg_replace("/<\/?d?tok[^>]*>/", "", $xmlword); // Remove all dtoks from the raw XML - will be edited separately
-		$xmlword = preg_replace("/<\/?morph[^>]*>/", "", $xmlword); // Remove all morph from the raw XML - will be edited separately
+		$xmlword = preg_replace("/<\/?m(?=[ >])[^>]*>/", "", $xmlword); // Remove all morphological elements from the raw XML - will be edited separately
 		$xmlword = str_replace("'", "&#039;", $xmlword); // Protect quotes
 		$maintext .= "<tr><td>pform<td>Transcription (Inner XML)<td><input size=60 name=word id='word' value='$xmlword'>";
 
@@ -311,14 +311,14 @@
 		
 
 		// Show all the Morphemes
-		if ( $settings['annotations']['morph'] ) {
-			$result2 = $token->xpath("morph"); $dtk = 0;
+		if ( $settings['annotations']['m'] ) {
+			$result2 = $token->xpath("m"); $dtk = 0;
 			foreach ( $result2 as $dtoken ) {
 				$did = $dtoken['id']; $dtk++; 
 				if ( !$did ) { 
-					$warning = "<div class=warning>MORPH without @id, which will not allow TEITOK 
+					$warning = "<div class=warning>M(orphology) without @id, which will not allow TEITOK 
 						tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$fileid\">here</a> to renumber the XML file
-						which will provide all TOK, DTOK, and MORPH with an @id.</div>";
+						which will provide all TOK, DTOK, and M with an @id.</div>";
 					$did = $token['id'].'-'.$dtk; 
 				};
 				$dform = $dtoken['form'];
@@ -328,7 +328,7 @@
 					<input type=hidden name='dtok[$did]' size=70 value='$rawdxml'>
 					<table>
 					";
-				foreach ( $settings['annotations']['morph'] as $key => $item ) {
+				foreach ( $settings['annotations']['m'] as $key => $item ) {
 					if ( !is_array($item) ) continue;
 					$atv = $dtoken[$key]; 
 					$val = $item['display'];

@@ -27,7 +27,7 @@
 	</item>
 	
 	<item key="defaults" display="Some global settings">
-	    <att key="nofiles" display="Do not allow visitors to see the XML file listing" default="0">
+	    <att key="nofiles" display="Do not allow visitors to see the XML file listing" default="0"/>
 	    <att key="fileview" display="Default fileview" default="text">
 			<desc>
 				Since version 2, TEITOK has a number of different ways to view a TEI/XML file: as text, 

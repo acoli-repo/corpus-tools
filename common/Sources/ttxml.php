@@ -507,7 +507,7 @@ class TTXML
 					else $viewopts['annotation'] = "Create ".$val['display'];
 				} else if ( $val['type'] == "psdx" && file_exists("Annotations/$this->xmlid.psdx") ) {
 					$viewopts['psdx'] = $val['display'];
-				} else if ( $val['type'] == "morph" && strstr($this->rawtext, "<morph") ) {
+				} else if ( $val['type'] == "m" && strstr($this->rawtext, "<m ") ) {
 					$viewopts['igt'] = $val['display'];
 				};
 			}; 
