@@ -15,6 +15,15 @@ supplied { color: #200099;  }
 #mtxt hr { background-color: #aaaaaa; }
 unclear { background-color: #cceecc; }
 
+hi[rend=dropcap] {
+  float: left;
+  font-size: 60px;
+  line-height: 45px;
+  padding-top: 4px;
+  padding-right: 4px;
+  padding-left: 2px;
+}
+
 /* Spoken specific CSS */
 
 /* Utterance display */

@@ -1,12 +1,12 @@
 var cntcols; var data; var options; var headrow;
 var chart; var charttype; var cnttype;
 
-function downloadData ( dltype='csv' ) {
+function downloadData ( dltype='tsv' ) {
 	if ( dltype == 'json' ) {
 		window.open('data:text/csv;base64,' + btoa(JSON.stringify(json)), '_self');
 	} else if ( dltype == 'csv' ) {
 		data = google.visualization.arrayToDataTable(json, headrow);
-		var csv = google.visualization.dataTableToCsv(data);
+		var csv = "SEP=,\n" + google.visualization.dataTableToCsv(data);
 		window.open('data:text/csv;base64,' + btoa(csv), '_self');
 	} else if ( dltype == 'png' ) {
 		var uri = chart.getImageURI();

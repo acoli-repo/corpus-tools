@@ -63,6 +63,7 @@
 			$annotationrows .= "<tr><th>{$tmp['display']}<td><input name=news[$i][{$tmp['key']}] style='width: 100%'/>";
 		};
 		if ( $tmp['colored'] ) {
+			if ( $tmp['title'] ) $markbuttons = "<h3>{$tmp['display']}</h3>";
 			foreach ( $tmp->children() as $tmp2 ) {
 				$color = $tmp2['color']."";
 				# Check if this one exists
