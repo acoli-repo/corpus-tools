@@ -13,7 +13,7 @@
 
 			<form action='' method=post id=querybuilder name=querybuilder onsubmit=\"updatequery(); return false;\">";
 			
-		if ( $settings['cqp']['sattributes'] ) { $querytext .= "<table cellpadding=5><tr><td valign=top style='border-right: 1px solid #cccccc;'>
+		if ( $settings['cqp']['sattributes'] ) { $querytext .= "<table class=qbt cellpadding=5><tr><td valign=top style='border-right: 1px solid #cccccc;'>
 			
 			<input id='toklist' style='display: none;'>
 			<div id='cqltoks'></div>
@@ -80,7 +80,7 @@
 				foreach ( $tagset->taglist() as $letters => $name ) {
 					$optlist .= "<option value=\"$letters.*\">$name</option>";
 				};
-				$wordsearchtxt .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
+				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
 			} else if ( substr($coldef['type'], -6) == "select" ) {
 				$tmp = file_get_contents("$corpusfolder/$col.lexicon"); unset($optarr); $optarr = array();
 				foreach ( explode ( "\0", $tmp ) as $kva ) { 
@@ -109,10 +109,10 @@
 				sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
 				if ( $coldef['select'] == "multi" ) $multiselect = "multiple";
 				
-				$wordsearchtxt .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col] $multiselect><option value=''>{%[select]}</option>$optlist</select>";
+				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name=vals[$col] $multiselect><option value=''>{%[select]}</option>$optlist</select>";
 
 			} else 
-				$wordsearchtxt .= "<tr><td$tstyle>{%$colname}
+				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}
 						      <td><select name=\"matches[$col]\"><option value='matches'>{%matches}</option><option value='startswith'>{%starts with}</option><option value='endsin'>{%ends in}</option><option value='contains'>{%contains}</option></select>
 						      <td><input name=vals[$col] size=40 $chareqfn>";
 		};
@@ -127,7 +127,7 @@
 				$fieldlisttxt .= "<tr><th span='row'>$col<td>{%$colname}</tr>";
 			};
 		};
-		$fieldlisttxt .= "</table><div style='display: none' id='tt-cqp-search'><table>";
+		$fieldlisttxt .= "</table><div style='display: none' id='tt-cqp-search'><table  class=qbt >";
 		foreach ( $extannfields as $key => $display ) {
 			$fieldlisttxt .= "<tr><th span='row'>$key<td>{%$display}</tr>";
 		};
@@ -175,7 +175,7 @@
 					document.getElementById(type+'search').style.display = 'block';
 				};
 				</script>
-					<table>$wordsearchtxt</table>
+					<table  class=qbt >$wordsearchtxt</table>
 					<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
 					<button type='button' onClick='addtoken();'>{%Add token}</button>
 					$chareqjs 
@@ -252,7 +252,7 @@
 		if ( is_array ( $settings['cqp']['sattributes']))
 		foreach ( $settings['cqp']['sattributes'] as $xatts ) {
 			if ( !$xatts['display'] ) continue;
-			$querytext .= "$hr<h3>{%{$xatts['display']}}</h3><table>"; $hr = "<hr>";
+			$querytext .= "$hr<h3>{%{$xatts['display']}}</h3><table  class=qbt >"; $hr = "<hr>";
 			foreach ( $xatts as $key => $item ) {
 				$xkey = "{$xatts['key']}_$key";
 				$val = $item['long']."" or $val = $item['display']."";
@@ -311,7 +311,7 @@
 		foreach ( $settings['cqp']['annotations'] as $xatts ) {
 			if ( !$xatts['display'] || ( $xatts['admin'] && !$username ) ) continue;
 			if ( $xatts['admin'] ) $adms = " class=adminpart";
-			$querytext .= "$hr<div$adms><h3>{%{$xatts['display']}}</h3><table>"; $hr = "<hr>";
+			$querytext .= "$hr<div$adms><h3>{%{$xatts['display']}}</h3><table  class=qbt >"; $hr = "<hr>";
 			foreach ( $xatts as $key => $item ) {
 				$xkey = "{$xatts['key']}_$key";
 				$val = $item['long']."" or $val = $item['display']."";

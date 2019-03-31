@@ -312,7 +312,7 @@
 
 		} else {
 
-			# $maintext .= "<h1>Data Visualization</h1>";
+			$maintext .= "<h1>Data Visualization</h1>";
 			$maintext .= "<p>No data to visualize";
 
 		};
