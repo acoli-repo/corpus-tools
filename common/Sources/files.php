@@ -1,6 +1,6 @@
 <?php
 	// Script to allow viewing the XML file tree
-	// Not typically very useful for visitors
+	// Not typically very useful for visitors (superceded by browse)
 	// (c) Maarten Janssen, 2015
 
 	if ( $settings['defaults']['nofiles'] ) check_login();
