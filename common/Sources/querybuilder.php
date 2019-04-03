@@ -86,7 +86,7 @@
 					$tagbuilder = "
 					<div id='tbframe' class='helpbox' style='display: none; width: 50%;'>
 					<span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>
-					<h2>{%Tag Builder}: {%$colname}</h2>
+					<h3>{%Tag Builder}: {%$colname}</h3>
 					<form>
 					";
 					if ( !$tagset ) {
