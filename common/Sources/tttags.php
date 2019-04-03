@@ -73,11 +73,11 @@ class TTTAGS
 		foreach ( $this->tagset['positions'] as $key => $val ) {
 			if ( $val['multi'] ) {
 				foreach ( $val['multi'] as $key2 => $val2 ) {
-					$pname = $val2['lang-'.$lang] or $pname = "{%".$val2['display']."}";
+					$pname = $val2['display-'.$lang] or $pname = "{%".$val2['display']."}";
 					$optionarray[$key2] = $pname;
 				};
 			} else {
-				$pname = $val['lang-'.$lang] or $pname = "{%".$val['display']."}";
+				$pname = $val['display-'.$lang] or $pname = "{%".$val['display']."}";
 				$optionarray[$key] = $pname;
 			};
 		};

@@ -309,7 +309,9 @@ function updatequery(nodirect = false) {
         if ( parse == null ) continue;
         if ( parse[1] == 'vals' ) {
 	        if ( flds[i].nodeName == "INPUT" ) {
-				var matchtype = document.querySelector('[name="matches['+parse[2]+']"]').value;
+				var tmp = document.querySelector('[name="matches['+parse[2]+']"]');
+				var matchtype;
+				if ( tmp ) matchtype = tmp.value; else matchtype = '';
 				if ( matchtype == 'contains' ) {
 					val = '.*' + val + '.*';
 				} else if ( matchtype == 'startswith' ) {
@@ -385,4 +387,29 @@ function updatequery(nodirect = false) {
 		
 	return false; // Always fail - we do not want to actually execute this form
 	
+};
+
+// Tag builder
+
+function tagbuilder (fld) {
+	tagfld = fld;
+	document.getElementById('tbframe').style.display = 'block';
+	// filltag();
+};
+function filltag (add=0) {
+	var fulltag = document.getElementById('mainpos').value;
+	var maintag = fulltag.substr(0,1); 
+	for ( var i=0; i<taglen[maintag]; i++ ) {
+		var valfld = 'posopt-' + maintag + '-' + (i+1);
+		fulltag += document.getElementById(valfld).value;
+	}; 
+	var newtag = fulltag.replace(/\.+$/, '') + '.*';
+	if ( add ) document.getElementById(tagfld).value += '|' + newtag;
+	else document.getElementById(tagfld).value = newtag;
+	document.getElementById('tbframe').style.display = 'none';
+};
+function changepos (elm) {
+	if (tagprev) document.getElementById('posopt-' + tagprev).style.display = 'none';
+	tagprev = elm.value;
+	document.getElementById('posopt-' + tagprev).style.display = 'block';
 };

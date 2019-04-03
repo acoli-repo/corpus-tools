@@ -81,6 +81,52 @@
 					$optlist .= "<option value=\"$letters.*\">$name</option>";
 				};
 				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
+			} else if ( $coldef['type'] == "pos" ) {
+				if( !$tagbuilder && file_exists("Resources/tagset.xml") ) {
+					$tagbuilder = "
+					<div id='tbframe' class='helpbox' style='display: none; width: 50%;'>
+					<span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>
+					<h2>{%Tag Builder}: {%$colname}</h2>
+					<form>
+					";
+					if ( !$tagset ) {
+						require ( "$ttroot/common/Sources/tttags.php" );
+						$tagset = new TTTAGS("", false);
+					}; $optlist = "";
+					foreach ( $tagset->taglist() as $letters => $name ) {
+						$mainlist .= "<option value=\"$letters\">$name</option>";
+						$letter = substr($letters,0,1);
+						$inneropts = "<table>"; $taglen = 0;
+						foreach ( $tagset->tagset['positions'][$letter] as $pos => $opt ) {
+							if ( !is_array($opt) ) continue;
+							$innerlist = ""; $taglen++;
+							foreach ( $opt as $key => $val ) {
+								if ( !is_array($val) ) continue;
+								$display = $val['display-'.$lang] or $display = $val['display'] or $display = $key;
+								$innerlist .= "<option value='{$val['key']}'>$display</option>";
+							};
+							$display = $opt['display-'.$lang] or $display = $opt['display'] or $display = $pos;
+							$inneropts .= "<tr><th>$display<td><select id='posopt-$letters-$pos'><option value='.' selected>[{%any}]</option>$innerlist</select>";
+						};
+						$taglens .= " taglen['$letter'] = $taglen;";
+						$inneropts .= "</table>";
+						
+						$posopts .= "<div id='posopt-$letters' style='display: none;'>$inneropts</div>";
+					};
+					$tagbuilder .= "
+						<p>{%Main POS}: <select id='mainpos' onChange='changepos(this);'><option disabled selected>[{%select}]</option>$mainlist</select>
+						$posopts
+						<p><input type='button' value=\"{%Insert}\" onClick=\"filltag();\"> 
+						<input type='button' value=\"{%Append}\" onClick=\"filltag(1);\">
+						</form></div>
+						<script language='Javascript'>
+							var tagfld; var tagprev;
+							var taglen = []; $taglens
+						</script>";
+				};
+				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}
+					<td style='text-align: center;'><a onClick=\"tagbuilder('val-$col');\">{%tag builder}</a>
+					<td><input name=vals[$col] id='val-$col' size=40>";
 			} else if ( substr($coldef['type'], -6) == "select" ) {
 				$tmp = file_get_contents("$corpusfolder/$col.lexicon"); unset($optarr); $optarr = array();
 				foreach ( explode ( "\0", $tmp ) as $kva ) { 
@@ -399,6 +445,7 @@
 				$optionoption
 			</form>
 			$chareqjs
+			$tagbuilder
 			<div style='display: none;' class='helpbox' id='cqlview'></div>
 			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>$querytext</div>
 			<script language='Javascript' src=\"$jsurl/cqlparser.js\"></script>

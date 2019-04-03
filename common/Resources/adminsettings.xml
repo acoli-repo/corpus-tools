@@ -197,6 +197,7 @@
 				<att key="xpath" display="XPath for the value lookup" default="@key"/>
 				<att key="type" display="Type of feature">
 					<val key="mainpos" display="Main part-of-speech tag"/>
+					<val key="pos" display="Position-based POS tag"/>
 					<val key="select" display="Select existing value"/>
 					<val key="kselect" display="Select + translate" deprecated="1"/>
 				</att>
