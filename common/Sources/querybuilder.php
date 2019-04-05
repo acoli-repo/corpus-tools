@@ -85,7 +85,7 @@
 				if( !$tagbuilder && file_exists("Resources/tagset.xml") ) {
 					$tagbuilder = "
 					<div id='tbframe' class='helpbox' style='display: none; width: 50%;'>
-					<span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>
+					<span style='margin-right: -5px; float: right; cursor: pointer;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>
 					<h3>{%Tag Builder}: {%$colname}</h3>
 					<form>
 					";
@@ -424,7 +424,7 @@
 
 		if ( $action == "cqp" ) $optionoption = "|
 					<a title=\"{%define search options}\" onClick=\"document.getElementById('optionbox').style.display = 'block';\">{%options}</a> 
-					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-right: -5px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\">&times;</span>$optiontext</div>";
+					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-right: -5px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\" title=\"{%close}\">&times;</span>$optiontext</div>";
 
 		$cqlfld = "
 			<script language=Javascript>
@@ -447,7 +447,7 @@
 			$chareqjs
 			$tagbuilder
 			<div style='display: none;' class='helpbox' id='cqlview'></div>
-			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>$querytext</div>
+			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-right: -5px; float: right; cursor: pointer;' onClick=\"this.parentNode.style.display = 'none';\" title=\"{%close}\">&times;</span>$querytext</div>
 			<script language='Javascript' src=\"$jsurl/cqlparser.js\"></script>
 			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>";
 

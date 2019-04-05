@@ -388,7 +388,7 @@
 			
 			$maintext .= "<div class=adminpart>
 			<p>This XML does not (yet) have a text content. To edit the raw XML of the file, click  
-			<a href='index.php?action=rawedit&cid=$fileid&full=1'>here</a>.
+			<a href='index.php?action=rawedit&cid=$fileid&full=1'>here</a>.</div>
 				<hr>";
 			
 		} else {
