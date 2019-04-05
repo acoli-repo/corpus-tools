@@ -513,12 +513,12 @@ class TTXML
 			}; 
 		}; 
 		
-		// TODO: Make these check for @bbox on <lb/> and <tok/> respectively
-		if ( !$settings['views'] && strstr($this->rawtext, "bbox=") ) {
+		// TODO: Check that this does not get too slow
+		if ( !$settings['views'] && $this->xml->xpath("//lb[@bbox]") ) {
 			$lvltxt = $settings['views']['lineview']['display'] or $lvltxt = "Manuscript line";
 			$viewopts['lineview'] = "{$lvltxt} view";
 		};
-		if ( !$settings['views'] && strstr($this->rawtext, "bbox=") ) {
+		if ( !$settings['views'] && $this->xml->xpath("//tok[@bbox]") ) {
 			$lvltxt = $settings['views']['facsview']['display'] or $lvltxt = "Facsimile";
 			$viewopts['facsview'] = "{$lvltxt} view";
 		};

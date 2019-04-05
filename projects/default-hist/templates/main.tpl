@@ -6,18 +6,18 @@
   <meta name="author" content="author">
   <meta name="robots" content="noindex,nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href='https://fonts.googleapis.com/css?family=Libre Baskerville' rel='stylesheet'>
+  <link href='https://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet'>
   <link rel="stylesheet" type="text/css" href="Resources/xmlstyles.css" media="screen">
   <link rel="stylesheet" type="text/css" href="Resources/htmlstyles.css" media="screen">
   <link rel="shortcut icon" href="favicon.ico">
   <title>{$title}</title>
 </head>
 <body style='height: 100%; padding: 0; margin: 0;'>
-	<div style='position: fixed; background-image: url(https://blog.spoongraphics.co.uk/wp-content/uploads/2012/textures/24.jpg); opacity: 0.4; padding: 0; margin: 0; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.7;'>&nbsp;</div>
-	<div style="position: fixed; background-color: white;margin-left: 180px; width: 100%; height: 100%; opacity: 0.95; z-index: 2;">&nbsp;</div>	
+	<div style='position: fixed; padding: 0; margin: 0; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.7;'>&nbsp;</div>
+	<div style="position: fixed; background-color: white; margin-left: 180px; width: 100%; height: 100%; opacity: 0.95; z-index: 2;">&nbsp;</div>	
 
 	<div style="width: 180px; height: 100%; text-align: center; border-right: 0.5px solid #aaaaff; position: fixed; top: 0px; left: 0px; z-index: 100;" id=menu>
-        	<div style='font-size: 36px; font-weight: bold; color: #996666; padding-top: 10px; padding-bottom: 0px; text-align: center;'>{$title}</div>
+        	<div style='font-size: 36px; font-weight: bold; color: #000088; padding-top: 10px; padding-bottom: 0px; text-align: center;'>{$title}</div>
         	<div style='font-size: 18px; padding-top: 0px; padding-bottom: 10px; text-align: center;'>{$langtxt}</div>
 			{$menu}
 	</div>

@@ -55,7 +55,9 @@
 			</tags>
 		</pattributes>
 		<sattributes>
-			<item key="gloss" display="Translation gloss (English)"/>
+		    <item level="s" key="s" display="Sentence">
+    			<item key="gloss" display="Translation gloss (English)" color="#009900"/>
+		    </item>
 		</sattributes>
 	</xmlfile>
 
