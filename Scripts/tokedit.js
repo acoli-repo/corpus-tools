@@ -232,6 +232,7 @@ function formify () {
 		};
 
 		// Make img for all pb facs
+		// TODO: make this work with IIIF
 		console.log('doing imgs');
 		console.log(pb);
 		console.log(typeof(noimg));
@@ -283,18 +284,23 @@ function formify () {
 			if ( cropside == "left" && pbrend == "" ) { pbrend = "0,0,50,100" };
 			if ( cropside == "right" && pbrend == "" ) { pbrend = "50,0,100,100" };
 
-			// TODO: make this use percentages (or bbox)
-			var pbzoom = 100;
 			if ( pbrend == "0,0,50,100" ) {
 				rlimg.style['cssFloat'] = 'left';
-				pbzoom = 200;
+				rlimg.style.width = '200%';
 			} else if ( pbrend == "50,0,100,100"  ) {
 				rlimg.style['cssFloat'] = 'right';
-				pbzoom = 200;
+				rlimg.style.width = '200%';
+			} else if ( pbrend ) {
+				var tmp = pbrend.split(",");
+				var cutout = tmp[2]-tmp[0];
+				var pbzoom = 10000/cutout;
+				rlimg.style.width = pbzoom + '%';
+				// TODO: resize the div vertically and move left/up	
+			} else {
+				rlimg.style.width = '100%';
 			};
 			imgelm.style['overflow'] = 'hidden';
 
-			rlimg.style.width = pbzoom+'%';
 
 			if ( pb.getAttribute('url') ) { imgelm.setAttribute('url', pb.getAttribute('url')); };
 			if ( pb.getAttribute("admin") === "1"  ) { 	

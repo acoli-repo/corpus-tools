@@ -398,8 +398,9 @@ function tagbuilder (fld) {
 };
 function filltag (add=0) {
 	var fulltag = document.getElementById('mainpos').value;
-	var maintag = fulltag.substr(0,1); 
-	for ( var i=0; i<taglen[maintag]; i++ ) {
+	var maintag = fulltag; 
+	console.log(maintag + ' > ' + taglen[maintag.substr(0,1)]);
+	for ( var i=maintag.length-1; i<taglen[maintag.substr(0,1)]; i++ ) {
 		var valfld = 'posopt-' + maintag + '-' + (i+1);
 		fulltag += document.getElementById(valfld).value;
 	}; 

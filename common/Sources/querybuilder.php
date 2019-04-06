@@ -98,7 +98,7 @@
 						$letter = substr($letters,0,1);
 						$inneropts = "<table>"; $taglen = 0;
 						foreach ( $tagset->tagset['positions'][$letter] as $pos => $opt ) {
-							if ( !is_array($opt) ) continue;
+							if ( !is_array($opt) || $pos == "multi" ) continue;
 							$innerlist = ""; $taglen++;
 							foreach ( $opt as $key => $val ) {
 								if ( !is_array($val) ) continue;
@@ -106,7 +106,7 @@
 								$innerlist .= "<option value='{$val['key']}'>$display</option>";
 							};
 							$display = $opt['display-'.$lang] or $display = $opt['display'] or $display = $pos;
-							$inneropts .= "<tr><th>$display<td><select id='posopt-$letters-$pos'><option value='.' selected>[{%any}]</option>$innerlist</select>";
+							if ( $pos > $tagset->tagset['positions'][$letter]['maintag']) $inneropts .= "<tr><th>$display<td><select id='posopt-$letters-$pos'><option value='.' selected>[{%any}]</option>$innerlist</select>";
 						};
 						$taglens .= " taglen['$letter'] = $taglen;";
 						$inneropts .= "</table>";
