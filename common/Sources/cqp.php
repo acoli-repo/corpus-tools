@@ -600,7 +600,7 @@
 		};
 
 		if ( !$fileonly && !$nomatch ) $maintext .= "
-			<span onclick=\"document.cqlform.action = 'index.php?action=$action&act=download'; document.cqlform.submit();\">{%Download results as TXT}</span>
+			<a onclick=\"document.cqlform.action = 'index.php?action=$action&act=download'; document.cqlform.submit();\">{%Download results as TXT}</a>
 			";
 		$cqll = str_replace("'", "&#039;", $cql);
 

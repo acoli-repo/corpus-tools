@@ -159,20 +159,44 @@ class TTXML
 			else $tpl = $_GET['tpl'];
 		};
 
-		// Create a header with information about the first from the teiHeader
-		$opts = explode(",", $tpl); array_push($opts, "");
-		while ( $tplfile == "" && count($opts) ) {
-			$opt = array_shift($opts);
-			if ( file_exists("Resources/teiHeader-$opt.tpl") ) {
-				$tplfile = "Resources/teiHeader-$opt.tpl";
-			} else if ( file_exists("Resources/teiHeader$opt.tpl") ) {
-				$tplfile =  "Resources/teiHeader$opt.tpl";
+		if ( file_exists("Resources/teiHeader.tpl") ) {
+			// Create a header with information about the first from the teiHeader
+			$opts = explode(",", $tpl); array_push($opts, "");
+			while ( $tplfile == "" && count($opts) ) {
+				$opt = array_shift($opts);
+				if ( file_exists("Resources/teiHeader-$opt.tpl") ) {
+					$tplfile = "Resources/teiHeader-$opt.tpl";
+				} else if ( file_exists("Resources/teiHeader$opt.tpl") ) {
+					$tplfile =  "Resources/teiHeader$opt.tpl";
+				};
 			};
+		
+			$header = file_get_contents($tplfile);
+			$tableheader .= xpathrun($header, $this->xml);
+		} else {
+			
+			if ( $tpl == "" ) $tpl = "short";
+		
+			$tableheader .= "<table>";
+			foreach ( $settings['teiheader'] as $key => $val ) {
+				$disp = $val['display'] or $disp = $key;
+				if ( $val['type'] == "sep" ) {
+					$tableheader .= "<tr><th colspan=2>{%$disp}";
+					continue;
+				};
+				$xval = current($this->xml->xpath($val['xpath']));
+				if ( $xval && ( !$val['admin'] || $username ) ) {
+					if ( in_array($tpl, explode(",", $val['show'])) || ( !$val['show'] && $tpl == "long" ) ) {
+						$tableheader .= "<tr><th>{%$disp}<td>".preg_replace( "/^<[^>]+>|<[^>]+>$/", "", $xval->asXML());
+					} else {
+						$moretoshow = 1;
+					};
+				};
+			};
+			$tableheader .= "</table>";
+		
 		};
 		
-		$header = file_get_contents($tplfile);
-		$tableheader .= xpathrun($header, $this->xml);
-
 		# Show alternative header views
 		if ( $showbottom ) {
 			if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$this->fileid";
@@ -188,7 +212,7 @@ class TTXML
 			};
 			foreach ( $headeroptions as $key => $item ) {
 				if ( $key ) $tfn = "teiHeader-$key.tpl"; else $tfn = "teiHeader.tpl";
-				if ( !file_exists("Resources/$tfn") ) continue;
+				if ( !file_exists("Resources/$tfn") && ( !$moretoshow || $key != "long" ) && ( !$tpl || $key != "" ) ) continue;
 				if ( $_GET['tpl'] == $key ) continue;
 				$cond = $item['condition'];
 				if ( $cond ) {
