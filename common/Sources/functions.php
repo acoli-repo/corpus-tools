@@ -760,5 +760,12 @@
 			return false;
 		};		
 	};
+
+	if (!function_exists('mb_convert_encoding')) {
+		# When not defined (why??) make a similar function
+		function mb_convert_encoding ( $string, $to, $from = "UTF-8") {
+			return iconv($from, $to, $string);
+		};
+	};
 	
 ?>

@@ -286,7 +286,7 @@
 					<option value='word on match[-1]..match[-5]'>{%Left context}</option>
 					<option value=''>{%Corpus order}</option>
 				</select> 
-				<p id='cqp-search'>{%Matching stategy}: <select name=strategy>
+				<p id='cqp-search'>{%Matching strategy}: <select name=strategy>
 					<option value='longest' selected>{%Longest match}</option>
 					<option value='shortest'>{%Shortest match}</option>
 				</select> 
