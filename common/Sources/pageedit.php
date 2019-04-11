@@ -76,6 +76,9 @@
 			$idfield = "<input type=hidden name=id value='$id'>";
 		};
 
+		# Protect the i18n inside the content to avoid internationalization
+		$content = str_replace("%", "&percnt;", $content);
+
 		if ( $id != "new" ) {
 			if ( $filedescs[$ffid] ) $maintext .= "<p><i>{$filedescs[$ffid]}</i> $fflang $ffid $deflang $getlangfile_lastfile"; 
 		} else if ( preg_match("/-([^.]+)/", $_GET['name'], $matches ) ) { 

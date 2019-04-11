@@ -23,12 +23,9 @@
 		else if ( file_exists('/usr/local/lib/smarty/libs/Smarty.class.php') ) 
 			define('SMARTY_DIR', '/usr/local/lib/smarty/libs/');
 	};
-	if ( !file_exists(SMARTY_DIR . 'Smarty.class.php') && 1==2 ) {
-		# Locate any Smarty.class.php - too slow so throw an error anyway
-		$smartypath = str_replace("Smarty.class.php", "", file_locate('Smarty.class.php'));
-		if ( $smartypath ) print "Smarty found in non-standard location: <b>$smartypath</b>. Please indicate this path in index.php or install Smarty again.";
-		else print "Smarty engine not installed or not found. Please install Smarty.";
-		exit;
+	if ( !file_exists(SMARTY_DIR . 'Smarty.class.php') ) {
+		// $smartypath = str_replace("Smarty.class.php", "", file_locate('Smarty.class.php')); //too slow so throw an error anyway
+		fatal("Smarty engine not installed or not found. Please install Smarty or indicate where it can be found.");
 	};
 	include(SMARTY_DIR . 'Smarty.class.php');
 	
