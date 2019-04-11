@@ -223,13 +223,13 @@ class TTXML
 				};
 				$tpl = $key;
 				if ( $item['edit'] ) {
-					if ($username && !$settings['teiheader'] ) $moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=$tpl' class=adminpart>{$item['display']}</a>";
+					if ($username && !$settings['teiheader'] ) $moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=$tpl' class=adminpart>{%{$item['display']}}</a>";
 					$sep = "&bull;";
 				} else if ( $item['admin'] ) {
-					if ($username) $moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl$edittxt' class=adminpart>{$item['display']}</a>";
+					if ($username) $moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl$edittxt' class=adminpart>{%{$item['display']}}</a>";
 					$sep = "&bull;";
 				} else {
-					$moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl'>{$item['display']}</a>";
+					$moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl'>{%{$item['display']}}</a>";
 					$sep = "&bull;";
 				};
 			};

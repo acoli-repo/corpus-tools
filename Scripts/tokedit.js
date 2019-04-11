@@ -578,7 +578,17 @@ function setForm ( type ) {
 		};
 		
 	// };
-	
+
+	// Do the <c> to allow for normalizing spaces
+	var cs = document.getElementsByTagName("c");
+	for ( var a = 0; a<cs.length; a++ ) {
+		var ci = cs[a];	
+		if ( !ci.hasAttribute('pform') ) { ci.setAttribute('pform', ci.innerHTML) }; // explicitly store
+		var thisform = forminherit(ci,type); 
+		if ( type == "pform" ) thisform = ci.getAttribute('pform');
+		ci.innerHTML = thisform; console.log(type + ' = [' + thisform + ']'); console.log(ci);
+	};
+		
 	var toks = document.getElementsByTagName("tok");
 	for ( var a = 0; a<toks.length; a++ ) {
 		var tok = toks[a];		
