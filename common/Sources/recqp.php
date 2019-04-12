@@ -38,7 +38,7 @@
 	if ( $tmp ) {
 		list ( $start, $lapse, $size ) = explode("\t", $tmp);
 		$size = hrnum($size);
-		$lapse = gmdate("z H:i:s", $lapse);
+		$lapse = preg_replace("/ 0 ([^ ]+) /", " ", gmdate(" z days H hours i minutes s seconds", $lapse));
 		$lastupdate = "Started $start - generated corpus of $size tokens in $lapse seconds";
 	};
 
