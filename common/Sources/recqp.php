@@ -37,6 +37,8 @@
 	$tmp = file_get_contents("tmp/lastupdate.log");
 	if ( $tmp ) {
 		list ( $start, $lapse, $size ) = explode("\t", $tmp);
+		$size = hrnum($size);
+		$lapse = gmdate("z H:i:s", $lapse);
 		$lastupdate = "Started $start - generated corpus of $size tokens in $lapse seconds";
 	};
 

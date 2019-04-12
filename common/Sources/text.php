@@ -596,7 +596,7 @@
 
 			if ( !$frec ) { 
 				$maintext .= "<h3>XML File Repository - no record for $xmlid</h3>";
-				$maintext .= "<p><ul><li><a href='index.php?action=filelist&act=edit&id=new&newid={$xmlid}'>Create file repository record</a></ul>";
+				$maintext .= "<p><ul><li><a class=adminpart href='index.php?action=filelist&act=edit&id=new&newid={$xmlid}'>Create file repository record</a></ul>";
 			} else {
 				$maintext .= "<h3>XML File Repository</h3>
 				<table>";
