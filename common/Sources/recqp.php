@@ -38,7 +38,7 @@
 	if ( $tmp ) {
 		list ( $start, $lapse, $size ) = explode("\t", $tmp);
 		$size = hrnum($size);
-		$lapse = preg_replace("/ 0+ ([^ ]+) /", " ", date(" z \d\a\y\s H \h\o\u\\r\s i \m\i\\n\u\\t\\e\s s \s\\e\c\o\\n\d\s", $lapse));
+		$lapse = preg_replace("/ 0+ ([^ ]+) /g", " ", date(" z \d\a\y\s H \h\o\u\\r\s i \m\i\\n\u\\t\\e\s s \s\\e\c\o\\n\d\s", $lapse));
 		$lastupdate = "Started $start - generated corpus of $size tokens in $lapse";
 	};
 
