@@ -165,6 +165,9 @@ if ( $sentsplit != 2 ) {
 
 		$line =~ s/(\s+)/<\/tok>\1<tokk>/g;
 
+		# <split/> being a non-TEI indication to split - should lead to two tokens
+		$line =~ s/<split\/>/<\/tok><c form=" "><split\/><\/c><tokk>/g;
+
 		# Remove toks around only XML tags
 		$line =~ s/<tokk>((<[^>]+>)+)<\/tok>/\1/g;
 
@@ -353,7 +356,6 @@ if ( $sentsplit != 2 ) {
 			if ( $m =~ /<[^>]+>/ ) {
 				$frm = $m; $ffrm = "";
 				$frm =~ s/<del.*?<\/del>//g; # Delete deleted texts
-				$frm =~ s/ *<split\/> */ /g; # <split/> should tun into a space (non-TEI)
 				$frm =~ s/-<lb[^>]*\/>//g; # Delete hyphens before word-internal hyphens
 				if ( $frm eq "" ) { $frm = "--"; };
 			
