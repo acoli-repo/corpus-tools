@@ -353,6 +353,7 @@ if ( $sentsplit != 2 ) {
 			if ( $m =~ /<[^>]+>/ ) {
 				$frm = $m; $ffrm = "";
 				$frm =~ s/<del.*?<\/del>//g; # Delete deleted texts
+				$frm =~ s/ *<split\/> */ /g; # <split/> should tun into a space (non-TEI)
 				$frm =~ s/-<lb[^>]*\/>//g; # Delete hyphens before word-internal hyphens
 				if ( $frm eq "" ) { $frm = "--"; };
 			
