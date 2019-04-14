@@ -45,6 +45,16 @@
 	$sentnr = 1; $ewd = 25;
 	foreach ( $result as $sent ) {
 		$stxt = $sent->asXML(); 
+		
+		if ( $stype == "lb" ) {
+			$linepos = strpos($ttxml->rawtext, $stxt);
+			$nextlb = strpos($ttxml->rawtext, "<lb", $linepos+1);
+			$nextpb = strpos($ttxml->rawtext, "<pb", $linepos+1);
+			$lineend = min($nextlb, $nextpb) or $lineend = $nextlb or $lineend = $nextpb;
+			if ( !$lineend ) $lineend = strpos($ttxml->rawtext, "</text", $linepos+1);
+			$stxt = substr($ttxml->rawtext, $linepos, $lineend-$linepos);
+		};
+		
 		$sentid = $sent['n'] or $sentid = "[".$sentnr++."]";
 		$treelink = ""; $nrblock = "";
 		if ( $sent->xpath(".//tok[@head and @head != \"\"]") ) { 
