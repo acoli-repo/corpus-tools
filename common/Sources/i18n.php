@@ -68,13 +68,20 @@
 			include("$ttroot/common/Sources/i18n/i18n_$tolang.php");
 			$i18nglobal = $i18n;
 		};
+		
+		if ( file_exists("Resources/i18n_$tolang.txt") ) { // Local defs overrule global defs
+			foreach ( explode("\n", file_get_contents("Resources/i18n_$tolang.txt")) as $line ) {
+				list ( $from, $to ) = explode ( "\t", $line );
+				$i18ntxt[$from] = $to;
+			};
+		};
 
 		$maintext .= "
 			<form action='index.php?action=$action&act=savephp' method=post>
 			<input type=hidden name=lid value='$tolang'>
 			<table>";	
 		foreach ( $i18nauto as $from => $to ) {
-			$totxt = $i18nlocal[$to] or $totxt = $i18nglobal[$to];
+			$totxt = $i18nlocal[$to] or $totxt = $i18nglobal[$to] or $totxt = $i18ntxt[$to];
 
 			$maintext .= "<tr><td>$from<td><input size=60 name=totxt[$from] value=\"$totxt\">";	
 		};
