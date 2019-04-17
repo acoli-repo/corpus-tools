@@ -671,7 +671,7 @@
 			$maintext .= "<p>{%Collocation by}:
 				<input type=hidden name=mode value=''>
 				<select name='fld'>
-				<option value=''>{%[select]}</option>
+				<option value=''>[{%select}]</option>
 				$collopts
 			</select>
 				| Context size: <select name='context'><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option></select>
@@ -682,7 +682,7 @@
 			// TODO: what happened to the context by sattribute?
 
 			$maintext .= "<p>{%Frequency by}: <select onchange=\"freqchoose(this.value);\">
-				<option value=''>{%[select]}</option>
+				<option value=''>[{%select}]</option>
 				$freqopts
 			</select>
 			<p>$nofreqopts</p>

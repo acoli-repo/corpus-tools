@@ -287,7 +287,7 @@
 				if ( preg_match("/resblk c_pos='(\d+)'/", $line, $matches ) ) $cpos = $matches[1];
 				$maintext .= "<tr id=\"$i\"><td style='text-align: right; color: #cccccc;'>$cpos<td>$line";
 				foreach ( $opts as $key ) {
-					$maintext .= "<td><select name=vals[$cpos][$key]><option value=''>{%[select]}</option>$values</select>";
+					$maintext .= "<td><select name=vals[$cpos][$key]><option value=''>[{%select}]</option>$values</select>";
 				};
 			};
 			$maintext .= "</table></div>

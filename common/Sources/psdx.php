@@ -430,7 +430,7 @@
 									$multiselect = ""; $msarr = "";
 									$mstext = "select";
 								};
-								$maintext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
+								$maintext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>[{%$mstext}]</option>$optlist</select>";
 							} else 
 								$maintext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' size=40>";
 						};

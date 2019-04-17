@@ -272,7 +272,7 @@
 					|
 					{%Download}:
 					<select name=download onClick=\"downloadData(this.value);\">
-					<option value=''>{%[select]}</option>
+					<option value=''>[{%select}]</option>
 					<option value='svg' class='imgbut' title='Download image as Scalable Vector Graphics'>{%SVG}</option>
 					<option value='png' class='imgbut' title='Download image as Portable Network Graphics'>{%PNG}</option>
 					<option value='csv' title='Download data as Comma-Separated Values'>{%CSV}</option>

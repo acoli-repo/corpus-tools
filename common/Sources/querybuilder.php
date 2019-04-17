@@ -80,7 +80,7 @@
 				foreach ( $tagset->taglist() as $letters => $name ) {
 					$optlist .= "<option value=\"$letters.*\">$name</option>";
 				};
-				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
+				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>[{%select}]</option>$optlist</select>";
 			} else if ( $coldef['type'] == "pos" ) {
 				if( !$tagbuilder && file_exists("Resources/tagset.xml") ) {
 					$tagbuilder = "
@@ -155,7 +155,7 @@
 				sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
 				if ( $coldef['select'] == "multi" ) $multiselect = "multiple";
 				
-				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name=vals[$col] $multiselect><option value=''>{%[select]}</option>$optlist</select>";
+				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name=vals[$col] $multiselect><option value=''>[{%select}]</option>$optlist</select>";
 
 			} else 
 				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}
@@ -343,7 +343,7 @@
 							$multiselect = ""; $msarr = "";
 							$mstext = "select";
 						};
-						$querytext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
+						$querytext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>[{%$mstext}]</option>$optlist</select>";
 					} else 
 						$querytext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' size=40>";
 						if ( $item['type'] == "long" ) $querytext .= "<input type='hidden' name=matches[$xkey] value='contains'>";
@@ -402,7 +402,7 @@
 							$multiselect = ""; $msarr = "";
 							$mstext = "select";
 						};
-						$querytext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>{%[$mstext]}</option>$optlist</select>";
+						$querytext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>[{%$mstext}]</option>$optlist</select>";
 					} else 
 						$querytext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' size=40>";
 				};

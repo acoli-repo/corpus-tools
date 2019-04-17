@@ -75,3 +75,7 @@ anon::after { content: ']'; }
 	font-weight: normal;
 	font-style: normal;
 }
+
+/* Some common definitions for the XML styles */
+#mtxt mtok:hover { text-shadow: 1pt 1pt #99dd99;}
+

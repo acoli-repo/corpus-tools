@@ -695,7 +695,7 @@
 					sort( $optarr, SORT_STRING | SORT_NATURAL | SORT_FLAG_CASE ); # Used to be SORT_LOCALE_STRING
 					$optlist = join ( "", $optarr );
 
-					$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
+					$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>[{%select}]</option>$optlist</select>";
 
 				} else 
 					$maintext .= "<tr><td$tstyle>{%$colname}
@@ -818,7 +818,7 @@
 						
 						$optlist = join ( "", $optarr );
 						
-						$maintext .= "<tr><th>{%$val}<td><select name=atts[$xkey]><option value=''>{%[select]}</option>$optlist</select>";
+						$maintext .= "<tr><th>{%$val}<td><select name=atts[$xkey]><option value=''>[{%select}]</option>$optlist</select>";
 					} else 
 						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey] value='' size=40>";
 				};

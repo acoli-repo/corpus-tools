@@ -190,7 +190,7 @@
 				foreach ( $tagset->taglist() as $letters => $name ) {
 					$optlist .= "<option value=\"$letters.*\">$name</option>";
 				};
-				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>{%[select]}</option>$optlist</select>";
+				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>[{%select}]</option>$optlist</select>";
 			} else if ( substr($coldef['type'], -6) == "select" ) {
 				$tmp = file_get_contents("cqp/$col.lexicon"); unset($optarr); $optarr = array();
 				foreach ( explode ( "\0", $tmp ) as $kval ) { 
@@ -204,7 +204,7 @@
 				sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
 				if ( $coldef['select'] == "multi" ) $multiselect = "multiple";
 				
-				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col] $multiselect><option value=''>{%[select]}</option>$optlist</select>";
+				$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col] $multiselect><option value=''>[{%select}]</option>$optlist</select>";
 
 			} else 
 				$maintext .= "<tr><td$tstyle>{%$colname}

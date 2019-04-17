@@ -21,13 +21,13 @@
 		
 		include ("$ttroot/common/Sources/cwcqp.php");
 
-		$baselevel = $_POST['level'] or $baselevel = $settings['collaction']['baselevel'] or $baselevel = "l";
+		$baselevel = $_POST['level'] or $baselevel = $settings['collation']['baselevel'] or $baselevel = "l";
 		
 		$appid = $_POST['appid'];
 		$cql = "<".$baselevel."_appid=\"$appid\"> [];";
 		
 		$maintext .= "<h2>{%Collation on}: $appid</h2>$subtit<hr>";
-		$outfolder = $settings['cqp']['folder'] or $outfolder = "cqp";
+		$outfolder = $settings['cqp']['cqpfolder'] or $outfolder = "cqp";
 
 		// This version of CQP relies on XIDX - check whether program and file exist
 		$xidxcmd = findapp('tt-cwb-xidx');
