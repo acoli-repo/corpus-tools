@@ -222,12 +222,12 @@
 								<tr><th>{%Group query}:<td>$grtxt</tr>
 							</table>";
 
-				$wpmdesc = "Words per million"; $wpmtxt = "WPM";
+				$wpmdesc = "{%Words per million}"; $wpmtxt = "WPM";
 				if ( strpos($json, "%Tot") != false ) {
-					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>{%Count}</option><option value=2 title='{%Total occurrences}'>{%Total}</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
+					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>{%Count}</option><option value=2 title='{%Total occurrences}'>{%Total}</option><option value=3 title='$wpmdesc'>$wpmtxt</option></select>";
 					$cntcols = 3;
 				} else {
-					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>{%Count}</option><option value=3 title='{%$wpmdesc}'>$wpmtxt</option></select>";
+					$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Corpus occurrences}'>{%Count}</option><option value=3 title='$wpmdesc'>$wpmtxt</option></select>";
 					$cntcols = 2;
 				};
 

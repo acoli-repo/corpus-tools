@@ -1,5 +1,5 @@
 <?php
-	// Script to change {%xxx} in HTML 
+	// Script to change {%$xxx} in HTML 
 	// to its internationalized counterpart  
 	// Also allows staff to add missing i18n translations
 	// (c) Maarten Janssen, 2015
@@ -26,7 +26,63 @@
 		print "File saved. Reloading
 			<script language=Javascript>top.location='index.php?action=$action&act=view&lid=$newlang';</script>";
 		exit;
+
+	} else if ( $act == "savephp" && $_POST['lid'] ) {
 		
+		$lid = $_POST['lid'];
+		// Save the local i18n file
+		$outfile = "Sources/i18n_$lid.php";
+		$outtxt = '<?php';
+		$date = date("Y-m-d"); 
+		$outtxt .= "\n\t// Localization file created $date by {$user['fullname']}\n";
+		$outtxt .= '	$i18n = array (
+';
+		foreach ( $_POST['totxt'] as $from => $to ) {
+			if ( $to != "" ) $outtxt .= "\t\t\"$from\" => \"$to\",\n";
+		};
+		$outtxt .= '	);
+?>
+';
+		file_put_contents($outfile, $outtxt);
+		$maintext .= "<h1>Data saved</h1>
+			<p>Your localization file for <b>$lid</b> has been saved locally. Once completed, please consider sending us the complete
+				localization file, so that we can include it with the TEITOK repository, and other researchers can
+				profit from the localization files.";
+		
+	} else if ( $act == "makephp" ) {
+
+		// Save the local i18n file
+		$tolang = $_GET['lid'] or $tolang = $lang;
+		$maintext .= "<h1>Defining (new/local) Localization for language: $tolang</h1>
+			<p>Provide the translations for the terms below in order to get a localized version of TEITOK in $tolang
+			<hr>";
+		
+		// Load the auto file
+		require("$ttroot/common/Sources/i18n/i18n_auto.php"); 
+		$i18nauto = $i18n; 
+		if ( file_exists("Sources/i18n_$tolang.php") ) { // Local defs overrule global defs
+			include("Sources/i18n_$tolang.php");
+			$i18nlocal = $i18n;
+		};
+		if ( file_exists("$ttroot/common/Sources/i18n/i18n_$tolang.php") ) {
+			include("$ttroot/common/Sources/i18n/i18n_$tolang.php");
+			$i18nglobal = $i18n;
+		};
+
+		$maintext .= "
+			<form action='index.php?action=$action&act=savephp' method=post>
+			<input type=hidden name=lid value='$tolang'>
+			<table>";	
+		foreach ( $i18nauto as $from => $to ) {
+			$totxt = $i18nlocal[$to] or $totxt = $i18nglobal[$to];
+
+			$maintext .= "<tr><td>$from<td><input size=60 name=totxt[$from] value=\"$totxt\">";	
+		};
+		$maintext .= "</table>
+			<p><input type=Submit value=Save> 
+			</form>
+			";	
+
 	} else if ( $act == "view" && $_GET['lid'] ) {
 	
 		$langcode = $_GET['lid'];
@@ -84,9 +140,15 @@
 				the new and yet incomplete language to your site, type in the ISO code of the language below:
 				<form action='index.php'><input type=hidden name=action value='home'><input name=lang size=5> <input type=submit value='Start Browsing'></form>
 
-			<p><a href='index.php?action=$action&act=view'>view existing language files</a>
+			<p><a href='index.php?action=$action&act=view'>view existing language files</a>";
+		
+		foreach ( $settings['languages']['options'] as $key => $val ) {		
+			if ( !file_exists("$ttroot/common/Sources/i18n/i18n_$key.php") && !file_exists("Sources/i18n_$key.php") ) {
+				$maintext .= "<p>Missing localization file for $key (<a href='index.php?action=$action&act=makephp&lid=$key'>create</a>)";
+			};		
+		};	 
 			 
-			<h2>Missing Translation</h2>
+		$maintext .= "<h2>Missing Translation</h2>
 				<form action='index.php?action=$action&act=save' method=post>";
 		
 			foreach ( $_SESSION['mistrans'] as $langcode => $txtrec ) {

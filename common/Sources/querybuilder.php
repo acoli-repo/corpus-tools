@@ -412,10 +412,10 @@
 
 		$querytext .= "</table>"; 
 		if ( $showdirect ) {
-			$searchmake = "Search"; 
+			$searchmake = "{%Search}"; 
 			$prescript .= "var direct = 1;";
-		} else $searchmake = "Create query"; 
-		$querytext .= "<p><input type=submit value=\"{%$searchmake}\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a></form>";
+		} else $searchmake = "{%Create query}"; 
+		$querytext .= "<p><input type=submit value=\"$searchmake\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a></form>";
 	
 		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
 			$cqlbox = "<textarea id='cqlfld' name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";

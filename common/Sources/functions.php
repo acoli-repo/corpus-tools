@@ -190,23 +190,27 @@
 		return $num.$deg[$i];
 	};
 
-	function i18n ( $text ) {
-		global $lang; global $i18n; global $langprefix; global $deflang; global $debug; global $ttroot;
+	function i18n ( $text, $tolang = "" ) {
+		global $lang; global $i18n; global $langprefix; global $deflang; global $debug; global $ttroot; global $i18nlang;
+		if ( !$tolang ) $tolang = $lang;
 		
 		if ( strpos("{%", $text) == -1 ) return $text; # If there is nothing to translate - return to save time
 		
-		if ( !$i18n ) { # Read the translation defs - but do so only once
-			if ( file_exists("$ttroot/common/Sources/i18n/i18n_$lang.php") ) {
-				include("$ttroot/common/Sources/i18n/i18n_$lang.php");
+		if ( $i18nlang != $tolang ) { # Read the translation defs - but do so only once (or once per language)
+			if ( file_exists("Sources/i18n_$tolang.php") ) { // Local defs overrule global defs
+				include("Sources/i18n_$tolang.php");
+			} else if ( file_exists("$ttroot/common/Sources/i18n/i18n_$tolang.php") ) {
+				include("$ttroot/common/Sources/i18n/i18n_$tolang.php");
 			}
 
 			# Now read the local defs - which can override all global settings
-			if ( file_exists("Resources/i18n_$lang.txt") ) {
-				foreach ( explode ( "\n", file_get_contents("Resources/i18n_$lang.txt") ) as $line ) {
+			if ( file_exists("Resources/i18n_$tolang.txt") ) {
+				foreach ( explode ( "\n", file_get_contents("Resources/i18n_$tolang.txt") ) as $line ) {
 					list ( $org, $trans ) = explode ( "\t", $line );
 					$i18n[$org] = $trans;
 				};
 			};
+			$i18nlang = $tolang;
 		};
 				
 		preg_match_all ( "/\{%([^\}]+)\}/", $text, $matches );		

@@ -45,6 +45,15 @@
 	    <item key="title" display="Title of the page">
 	    	<att key="display" display="Display name"/>
 		</item>
+	    <item key="highlight" display="Highlighting search results">
+	    	<att key="color" display="Color to use for highlighting"/>
+		</item>
+	    <item key="tokenizer" display="Tokenizer">
+	    	<att key="sentences" display="Split into sentences?" default="0">
+				<val key="1" display="yes"/>
+				<val key="0" display="no"/>
+	    	</att>
+		</item>
 	    <item key="qb" display="How the Query Builder is used" default="click">
 	    	<att key="click" display="Show QB and Visualizer on button click"/>
 	    	<att key="direct" display="Show QB and Visualizer by default"/>

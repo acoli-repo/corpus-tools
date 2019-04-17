@@ -35,7 +35,7 @@
 		
 		$orcidlist = simplexml_load_file("Resources/orcidlist.xml");
 
-		$maintext .= "<h2>{%List of users that logged in using ORCID}</h2>
+		$maintext .= "<h2>List of users that logged in using ORCID</h2>
 			<table><th>Name<th>ORCID<th>Last login";
 		foreach ( $orcidlist->xpath("//user") as $tmp ) {
 			$maintext.= "<tr><td>{$tmp['realname']}
