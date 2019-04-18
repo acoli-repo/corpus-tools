@@ -58,6 +58,10 @@
 	    	<att key="click" display="Show QB and Visualizer on button click"/>
 	    	<att key="direct" display="Show QB and Visualizer by default"/>
 		</item>
+	    <item key="src" display="Alternative URLs for Javascript sources">
+	    	<att key="ace" display="ACE XML editor"/>
+	    	<att key="tinymce" display="TinyMCE HTML editor"/>
+		</item>
 	    <item key="base" display="HTML base setting for the site">
 		    <att key="foldername" display="Foldername of the project - used for session and to check these settings belong to this project"/> 
 		    <att key="url" display="Base URL for the site"/> 
@@ -174,6 +178,7 @@
 		<att key="multiseperator" display="Symbol used for separating multi-value sattributes" default=","/>	
 		<att key="withemptytext" display="Whether to include texts with no tokens (0/1)" default="0"/>	
 		<att key="longbox" display="Whether to use a textarea instead of an input for the CQP query (0/1)" default="0"/>	
+		<att key="titlefld" display="Which CQP sattribute to use as title (XPath)"/>	
 		<att key="toktype" display="How to export mtok and dtok" default="td" >	
 			<desc>
 				TEITOK can contain not only tokens, but also grammatical words (dtok) and multi-word expressions (mtok). Here
@@ -186,6 +191,10 @@
 			<val key="td" display="Export tok and dtok (treat mtok as sattribute)"/>
 			<val key="mt" display="Export only mtok and tok (collect dtok pattributes)"/>
 			<val key="t" display="Export only tok (treat mtok as sattribute, collect dtok pattributes)"/>
+		</att>
+		<att key="ttcqp" display="Use tt-cqp" default="1">
+			<val key="0" display="Avoid tt-cqp even if it exists"/>	
+			<val key="1" display="Use tt-cqp when it exists"/>	
 		</att>
 		<item key="defaults" display="Default values">
 			<att key="registry" display="Folder for the CQP registry data" default="cqp"/>	

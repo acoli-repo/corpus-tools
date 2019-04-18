@@ -394,7 +394,7 @@
 				if ( $audiofile ) {
 					if ( preg_match("/start=\"([^\"]*)\"/", $resxml, $matches ) ) $strt = $matches[1]; else $strt = 0;
 					if ( preg_match("/end=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1]; else $stp = 0;
-					if ( $settings['default']['playbutton'] ) $playimg = $settings['default']['playbutton'];
+					if ( $settings['defaults']['playbutton'] ) $playimg = $settings['defaults']['playbutton'];
 					else  if ( file_exists("Images/playbutton.gif") ) $playimg = "Images/playbutton.gif";
 					else $playimg = "http://alfclul.clul.ul.pt/teitok/site/Images/playbutton.gif";
 					$audiobut = "<td><img src=\"$playimg\" width=\"14\" height=\"14\" style=\"margin-right: 5px;\" onClick=\"playpart('$audiofile', $strt, $stp, this );\"></img></td>";
@@ -622,15 +622,10 @@
 				</div>";
 		} else if ( !$precql && !$nomatch && !$fileonly ) { # We actually do want text-based searches
 			$maintext .= "<hr>";
-			if ( $settings['cqp']['visualize'] == "cqp" ) {
-				$visaction = "cqp&act=freq";
-			} else {
-				$visaction = "visualize";
-			};
 
 			$maintext .= "<div style='display: block;' id='freqopts' name='freqopts'>
 				<h2>Frequency Options</h2>
-				<form action='index.php?action=$visaction' id=freqform name=freqform method=post>
+				<form action='index.php?action=visualize' id=freqform name=freqform method=post>
 				<p>Use the query above to calculate:";
 
 

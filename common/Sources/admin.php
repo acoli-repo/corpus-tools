@@ -177,7 +177,7 @@
 		if ( $settings['neotag'] && allowedforme("neotag") ) {
 				$maintext .= "<li>  <a href='index.php?action=neotag'>check or update</a> the NeoTag parameter set(s)";
 		};
-		if ( ( file_exists("Resources/tagset.xml") || $settings['tagset'] ) && allowedforme("tagset") ) {
+		if ( ( file_exists("Resources/tagset.xml") ) && allowedforme("tagset") ) {
 				$maintext .= "<li>  <a href='index.php?action=tagset'>check</a> the tagset";
 		};
 				
