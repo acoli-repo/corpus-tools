@@ -89,15 +89,6 @@
 			};
 		};
 
-		$maintext .= "<style>
-				.private { color: #999999; }
-				.rollovertable tr:nth-child(even) { background-color: #fafafa; }
-				.rollovertable tr:hover { background-color: #ffffeb; }
-				.rollovertable td { padding: 5px; }
-				a.black { color: black; }
-				a.black:hover { text-decoration: underline; }
-			</style>";
-
 		$tablerows = array();
 		foreach ( $i18nauto as $from => $to ) {
 			$cnt2++;
@@ -121,6 +112,27 @@
 			<hr><p>Translated $cnt1 of $cnt2 terms
 			";	
 
+	} else if ( $act == "savetxt" && $_POST['lid'] ) {
+
+		$lid = $_POST['lid'];
+		// Save the local i18n file
+		$outfile = "Resources/i18n_$lid.txt";
+		$outtxt = '';
+
+		foreach ( $_POST['totxt'] as $from => $to ) {
+			$cnt2++;
+			if ( $to != "" ) {
+				$cnt1++;
+				$outtxt .= "$from\t$to\n";
+			};
+		};
+		if ( $_POST['newfrom'] && $_POST['newto'] ) $outtxt .= "{$_POST['newfrom']}\t{$_POST['newto']}\n";
+
+		file_put_contents($outfile, $outtxt);
+		$maintext .= "<h1>Data saved</h1>
+			<p>Your project-specific localization file for <b>$lid</b> has been saved.
+			<hr><p><a href='index.php?action=$action'>Back</a>";
+	
 	} else if ( $act == "view" && $_GET['lid'] ) {
 	
 		$langcode = $_GET['lid'];
@@ -128,19 +140,46 @@
 		
 		$maintext .= "<h1>Internationalization: $langcode</h1>
 			<p>These are the project-specific internationalization definitions for: $langcode
-			<table>
+			<table class=rollovertable>
+			<form action='index.php?action=$action&act=savetxt' method=post>
+			<input type=hidden name=lid value='$langcode'>
 			<tr><th>English<th>$langcode";
+
+		// Load the auto file
+		require("$ttroot/common/Sources/i18n/i18n_auto.php"); 
+		$i18nauto = $i18n; 
+		if ( file_exists("Sources/i18n_$tolang.php") ) { // Local defs overrule global defs
+			include("Sources/i18n_$tolang.php");
+			$i18nlocal = $i18n;
+		};
+		if ( file_exists("$ttroot/common/Sources/i18n/i18n_$tolang.php") ) {
+			include("$ttroot/common/Sources/i18n/i18n_$tolang.php");
+			$i18nglobal = $i18n;
+		};
 		
 		foreach ( explode ( "\n", file_get_contents("Resources/i18n_$langcode.txt") ) as $line ) {
-			list ( $key, $val ) = explode ( "\t", $line );
-			$maintext .= "<tr><td>$key<td>$val";
+			
+			list ( $from, $to ) = explode ( "\t", $line );
+			if ( !$from ) continue;
+			$totxt = $i18nlocal[$to] or $totxt = $i18nglobal[$to];
+			if ( $totxt != $to ) {
+				$maintext .= "<tr><td>$from<td><input name=\"totxt[$from]\" value=\"$to\"><td>";
+			} else {
+				$maintext .= "<tr><td>$from<td>$to<td><i>Redundant: identical to standard localization</i>";
+			};
 		};
-		$maintext .= "</table>
+		$maintext .= "
+			<tr><td><input name=\"newfrom\" value=\"\"><td><input name=\"newto\" value=\"\"><td><i>Add line for a default localization you want to override locally</i>
+			</table>
+			<p><input type=submit value=Save>
+			</form>
 		
 		<hr><p><a href='index.php?action=$action&act=view'>other languages</a>
 		&bull; <a href='index.php?action=$action'>edit missing translations</a>
 		";
+		
 	} else if ( $act == "test" ) {
+	
 		print_r($_SESSION['mistrans']); exit;
 		
 	} else if ( $act == "view" ) {
@@ -149,14 +188,20 @@
 		
 		$maintext .= "<h1>Internationalization Files</h1>
 			<p>These are the project-specific internationalization definition files
-			";
+			<ul>";
 		
 		foreach ( $files as $line ) {
 			if ( preg_match("/i18n\_(.*)\.txt/", $line, $matches ) ) {
 				$langcode = $matches[1];
-				$maintext .= "<p><a href='index.php?action=$action&act=view&lid=$langcode'>$langcode</a>";
+				$langopt = $settings['languages']['options'][$langcode];
+				if ( $langopt ) {
+					$langtxt = $langopt['name'] or $langtxt = $langopt['menu'];
+					$langtxt = " = $langtxt"; 
+				} else $langtxt = " - <i>Not currently an interface language</i>";
+				$maintext .= "<li><a href='index.php?action=$action&act=view&lid=$langcode'>$langcode</a> $langtxt";
 			};
 		};
+		$maintext .= "</ul>";
 
 	} else if ( $act == "reset" ) {
 		
@@ -176,16 +221,21 @@
 
 			<p>To switch to a different language to allow you to localize your site before offering 
 				the new and yet incomplete language to your site, type in the ISO code of the language below:
-				<form action='index.php'><input type=hidden name=action value='home'><input name=lang size=5> <input type=submit value='Start Browsing'></form>
+				<form action='index.php'><input type=hidden name=action value='$action'><input name=lang size=5> <input type=submit value='Start Browsing'></form>";
 
-			<p><a href='index.php?action=$action&act=view'>view existing language files</a>";
+		$files = glob("Resources/i18n*");
+
+		if ( $files ) $maintext .= "<p><a href='index.php?action=$action&act=view'>view/edit existing language files</a>";
 		
 		foreach ( $settings['languages']['options'] as $key => $val ) {		
 			if ( !file_exists("$ttroot/common/Sources/i18n/i18n_$key.php") && !file_exists("Sources/i18n_$key.php") ) {
 				$maintext .= "<p>Missing localization file for $key (<a href='index.php?action=$action&act=makephp&lid=$key'>create</a>)";
 			};		
 		};	 
-			 
+		if ( !$settings['languages']['options'][$lang] && !file_exists("$ttroot/common/Sources/i18n/i18n_$lang.php") && !file_exists("Sources/i18n_$lang.php") ) {
+			$maintext .= "<p>Missing localization file for $lang (<a href='index.php?action=$action&act=makephp&lid=$lang'>create</a>)";
+		};		
+
 		$maintext .= "<h2>Missing Translation</h2>
 				<form action='index.php?action=$action&act=save' method=post>";
 		
@@ -234,5 +284,15 @@
 		";
 			
 	};		
+
+		$maintext .= "<style>
+				.private { color: #999999; }
+				.rollovertable tr:nth-child(even) { background-color: #fafafa; }
+				.rollovertable tr:hover { background-color: #ffffeb; }
+				.rollovertable td { padding: 5px; }
+				a.black { color: black; }
+				a.black:hover { text-decoration: underline; }
+			</style>";
+	
 
 ?>

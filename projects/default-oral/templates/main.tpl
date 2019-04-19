@@ -7,6 +7,7 @@
   <meta name="robots" content="noindex,nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet'>
+  <link rel="stylesheet" type="text/css" href="http://www.teitok.org/Scripts/teitok.css" media="screen">
   <link rel="stylesheet" type="text/css" href="Resources/xmlstyles.css" media="screen">
   <link rel="stylesheet" type="text/css" href="Resources/htmlstyles.css" media="screen">
   <link rel="shortcut icon" href="favicon.ico">
