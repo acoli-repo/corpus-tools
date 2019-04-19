@@ -56,18 +56,18 @@ use XML::LibXML;
 			$ttnode->setAttribute('id', "w-$cnt");
 			$cnt++;
 		};
-		$dcnt = 0;
+		$dcnt = 0; $tokid = $ttnode->getAttribute("id"); $tokid =~ s/w-//;
 		if ( $debug ) { print "\n- $cnt\t".$ttnode->textContent; };
 		foreach $ddnode ( $ttnode->findnodes("dtok") ) {
 			$dcnt++;
 			if ( $debug ) { print "\n  - $dcnt\t".$ddnode->getAttribute('form'); };
-			$ddnode->setAttribute('id', "d-$cnt-$dcnt");
+			$ddnode->setAttribute('id', "d-$tokid-$dcnt");
 		};
 		$dcnt = 0;
-		foreach $ddnode ( $ttnode->findnodes("morph") ) {
+		foreach $ddnode ( $ttnode->findnodes("m") ) {
 			$dcnt++;
 			if ( $debug ) { print "\n  - $dcnt\t".$ddnode->getAttribute('form'); };
-			$ddnode->setAttribute('id', "dm-$cnt-$dcnt");
+			$ddnode->setAttribute('id', "dm-$tokid-$dcnt");
 		};
 	}; 
 	# warn " - number of tokens: $cnt\n";
