@@ -34,20 +34,33 @@
 		$outfile = "Sources/i18n_$lid.php";
 		$outtxt = '<?php';
 		$date = date("Y-m-d"); 
-		$outtxt .= "\n\t// Localization file created $date by {$user['fullname']}\n";
+		$fullname = trim($user['fullname']);
+		$outtxt .= "\n\t// Localization file created $date by $fullname\n";
 		$outtxt .= '	$i18n = array (
 ';
 		foreach ( $_POST['totxt'] as $from => $to ) {
-			if ( $to != "" ) $outtxt .= "\t\t\"$from\" => \"$to\",\n";
+			$cnt2++;
+			if ( $to != "" ) {
+				$cnt1++;
+				$outtxt .= "\t\t\"$from\" => \"$to\",\n";
+			};
 		};
 		$outtxt .= '	);
 ?>
 ';
+
 		file_put_contents($outfile, $outtxt);
 		$maintext .= "<h1>Data saved</h1>
-			<p>Your localization file for <b>$lid</b> has been saved locally. Once completed, please consider sending us the complete
+			<p>Your localization file for <b>$lid</b> has been saved locally.";
+			
+		if ( $cnt1 < $cnt2 ) $maintext .= " Once (sufficiently) completed (currently translated $cnt1 of $cnt2 terms), please consider sending us the complete
 				localization file, so that we can include it with the TEITOK repository, and other researchers can
-				profit from the localization files.";
+				profit from the localization files.
+				<hr><p><a href='index.php?action=$action&act=makephp&lid={$_POST['lid']}'>Click here to edit again</a>";
+		else  $maintext .= "Please consider sending us the complete
+				localization file, so that we can include it with the TEITOK repository, and other researchers can
+				profit from the localization files.
+				<hr><p><a href='index.php?action=$action&act=makephp&lid={$_POST['lid']}'>Click here to edit again</a>";
 		
 	} else if ( $act == "makephp" ) {
 
@@ -76,18 +89,36 @@
 			};
 		};
 
+		$maintext .= "<style>
+				.private { color: #999999; }
+				.rollovertable tr:nth-child(even) { background-color: #fafafa; }
+				.rollovertable tr:hover { background-color: #ffffeb; }
+				.rollovertable td { padding: 5px; }
+				a.black { color: black; }
+				a.black:hover { text-decoration: underline; }
+			</style>";
+
+		$tablerows = array();
+		foreach ( $i18nauto as $from => $to ) {
+			$cnt2++;
+			
+			$totxt = $i18nlocal[$to] or $totxt = $i18nglobal[$to] or $totxt = $i18ntxt[$to];
+			if ( $totxt != "" ) $cnt1++;
+
+			array_push ( $tablerows, "<tr><td>$from<td><input size=60 name=\"totxt[$from]\" value=\"$totxt\">");	
+		};
+		natcasesort($tablerows);
+		$table = join("\n", $tablerows);
+
 		$maintext .= "
 			<form action='index.php?action=$action&act=savephp' method=post>
 			<input type=hidden name=lid value='$tolang'>
-			<table>";	
-		foreach ( $i18nauto as $from => $to ) {
-			$totxt = $i18nlocal[$to] or $totxt = $i18nglobal[$to] or $totxt = $i18ntxt[$to];
-
-			$maintext .= "<tr><td>$from<td><input size=60 name=totxt[$from] value=\"$totxt\">";	
-		};
-		$maintext .= "</table>
+			<table class=rollovertable>
+			$table
+			</table>
 			<p><input type=Submit value=Save> 
 			</form>
+			<hr><p>Translated $cnt1 of $cnt2 terms
 			";	
 
 	} else if ( $act == "view" && $_GET['lid'] ) {
