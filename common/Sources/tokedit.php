@@ -42,9 +42,15 @@
 		$rawtok = preg_replace( "/<\/?tok[^>]*>/", "", $token->asXML() );
 
 	if ( !$token['id'] || $token->xpath(".//dtok[not(@id)]") ) {
-		$warning = "<div class=warning>TOK or DTOK without @id, which will not allow TEITOK 
+		$warning = "<div class=warning>There are TOK or DTOK without @id, which will not allow TEITOK 
 			tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$fileid\">here</a> to renumber the XML file
 			which will provide all TOK and DTOK with an @id.</div>";
+	}
+
+	if ( $token->xpath(".//dtok[not(@form)]") ) {
+		$warning = "<div class=warning>There are DTOK without @form, which will make the dtoks not correctly 
+			export to the CQP corpus. Please provide a written form for each dtok, which should correspond
+			to the form of the word if it would not have been part of this contraction/clitic/...</div>";
 	}
 
 	$result = $xml->xpath("//title"); 
