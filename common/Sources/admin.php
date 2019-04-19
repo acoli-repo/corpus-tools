@@ -89,7 +89,24 @@
 			if ( !$val['inherit'] ) $maintext .= "<p class=wrong>$key ({$val['display']}) is not inheriting";
 			else if ( !$settings['xmlfile']['pattributes']['forms'][$val['inherit']] ) $maintext .= "<p class=wrong>$key ({$val['display']}) inherits from @{$val['inherit']}, which does not exist";
 		};
-	
+		
+		# Check that there is an i18n file for each interface language
+		foreach ( $settings['languages']['options'] as $key => $val ) {
+			if ( $key == "en" ) continue;
+			if ( !file_exists("$ttroot/common/Sources/i18n/i18n_$key.php") && !file_exists("Sources/i18n_$key.php") ) 
+				$maintext .= "<p>There is no localization file for {$val['display']} ($key) - <a href='index.php?action=i18n&act=makephp&lid=$key'>you should create one</a>";
+			else {
+				# Check that the i18n file is (more or less) up-to-date
+				if ( file_exists("Sources/i18n_$key.php") ) $langfl = "Sources/i18n_$key.php"; else $langfl = "$ttroot/common/Sources/i18n/i18n_$key.php";
+				$autocnt = count(explode("\n", file_get_contents("$ttroot/common/Sources/i18n/i18n_auto.php") )) - 5;
+				$langcnt = count(explode("\n", file_get_contents($langfl) )) - 5;
+				
+				if ( $langcnt < $autocnt/1.2 ) {
+					$maintext .= "<p class=warn>The localization file for {$val['name']} ($key) appears to be outdated, defining only $langcnt of the $autocnt localizable terms. <a href='index.php?action=i18n&act=makephp&lid=$key'>You should consider expanding it</a>";
+				};
+			}; 
+		};
+			
 	} else if ( $act == "checksettings" ) {
 	
 		check_login("admin");
