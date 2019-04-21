@@ -135,7 +135,8 @@
 			if ( $val['short-'.$lang] ) $valname .= " ({$val['short-'.$lang]})"; 
 			else if ( $val['short'] ) $valname .= " ({$val['short']})"; 
 			$maintext .= "<tr><th style='padding-left: 10px; padding-right: 10px; font-weight: bold; text-align: center; '>$key<th colspan=2 style='text-align: center;'>$valname";
-			foreach ( $val as $pos => $attr ) {
+			foreach ( $val as $key => $attr ) {
+				$pos = $attr['pos'];
 				if ( $pos == "multi" ) {
 					$maintext .= "<tr><td><th style='padding-left: 5px; padding-right: 5px;' colspan=2><table>";
 					foreach ( $attr as $key2 => $val2 ) {
