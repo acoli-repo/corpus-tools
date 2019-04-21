@@ -115,7 +115,7 @@
 			$querylist .= "<tr><td><td><a onClick=\"addquery('$cqltxt', '$name')\">{%use}</a><td>$name<td><span style='color: #cccccc'>$cql</span>";
 		};
 		if ( $querylist ) {
-			$querylist = "<h2>{%Stored queries}</h2><table>$querylist</table>
+			$querylist = "<h2>{%Stored CQL queries}</h2><table>$querylist</table>
 			<script language=Javascript>
 				var cqlfld;
 				function addquery ( cql, name ) {

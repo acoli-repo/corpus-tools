@@ -304,7 +304,7 @@
 			$resarr = explode ( "\n", $results ); $scnt = count($resarr);
 			$maintext .= "<p>$cnt {%results}";
 			if ( $scnt < $cnt ) {
-				$maintext .= " &bull; {%Showing} $start - $end *
+				$maintext .= " &bull; {%!showing} $start - $end *
 				(<a onclick=\"document.getElementById('rsstart').value ='$end'; document.resubmit.submit();\">{%next}</a>)";
 			};
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
@@ -350,7 +350,7 @@
 			$maintext .= "<p>$cnt {%results}";
 			if ( $scnt < $cnt ) {
 				$last = min($end,$cnt);
-				$maintext .= " &bull; {%Showing} $start - $last";
+				$maintext .= " &bull; {%!showing} $start - $last";
 				if ($end<$cnt) $maintext .= " (<a onclick=\"document.getElementById('rsstart').value ='$end';  document.resubmit.submit();\">{%next}</a>)";
 			};
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>";

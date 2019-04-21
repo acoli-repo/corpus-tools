@@ -360,7 +360,7 @@
 		$maintext .= "<p>$cnt {%results} for $cql";
 		if ( $scnt < $cnt ) { 
 			$last = min($end,$cnt);
-			$maintext .= " &bull; {%Showing} $start - $last";
+			$maintext .= " &bull; {%!showing} $start - $last";
 			if ($end<$cnt) {
 				$maintext .= " (<a onclick=\"document.getElementById('rsstart').value ='$end';  document.resubmit.submit();\">{%next}</a>)";
 				$maintext .= "<input type=hidden name=nextnum value='".($end+1)."'><input type=hidden name=cql value='$cql'>";

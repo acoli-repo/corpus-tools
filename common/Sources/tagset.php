@@ -82,7 +82,7 @@
 				};
 			};
 		};
-		$maintext .= "<hr><p><a href='index.php?action=$action'>{%Back to tagset}</a>";
+		$maintext .= "<hr><p><a href='index.php?action=$action'>{%back}</a>";
 		
 	} else if ( $act == "checkfile" ) {
 		check_login();
@@ -150,11 +150,11 @@
 					};
 					$maintext .= "</table>";
 				} else if ( is_array($attr) ) {
-					$attrname = $attr['lang-'.$lang] or $attrname = "{%{$attr['display']}}";
+					$attrname = $attr['display-'.$lang] or $attrname = "{%{$attr['display']}}";
 					$maintext .= "<tr><td>$pos<th style='padding-left: 5px; padding-right: 5px;'>$attrname<td style='border-bottom: 1px solid #aaaaaa;'><table>";
 					foreach ( $attr as $key2 => $val2 ) {
 						if ( is_array($val2) ) {
-							if ( $val2['lang-'.$lang] ) $key2val = $val2['lang-'.$lang]; 
+							if ( $val2['display-'.$lang] ) $key2val = $val2['display-'.$lang]; 
 								else if ( $val2['display'] ) $key2val = "{%{$val2['display']}}"; 
 								else $key2val = "<span style='color: #aaaaaa'><i>{%does not apply}</i></span>";
 							$maintext .= "<tr><td style=' width: 25px; text-align: center; border-right: 1px solid #aaaaaa;'>$key2<td style=' padding-left: 5px;' >$key2val";

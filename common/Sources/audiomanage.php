@@ -214,7 +214,7 @@
 		
 			$maintext .= "
 				<h2>$fileid</h2>
-				<h1>{%Sound conversion}: $soundfile</h1>
+				<h1>Sound conversion: $soundfile</h1>
 				
 				<h2>Current format</h2>
 				$infotable
@@ -301,12 +301,12 @@
 				if ( preg_match ( "/MSIE|Trident/i", $_SERVER['HTTP_USER_AGENT']) ) {	
 					// IE does not do sound - so just put up a warning
 					$audiobit .= "
-							<p><i><a href='{$medianode['url']}'>{%Audio fragment for this text}</a></i> - {%Consider using Chrome or Firefox for better audio support}</p>
+							<p><i><a href='{$medianode['url']}'>{%Audio}</a></i> - {%Consider using Chrome or Firefox for better audio support}</p>
 						"; 
 				} else {
 					$audiobit .= "<audio id=\"track\" src=\"{$medianode['url']}\" controls ontimeupdate=\"checkaudio();\">
 							<source  src=\"{$medianode['url']}\">
-							<p><i><a href='{$medianode['url']}'>{%Audio fragment for this text}</a></i></p>
+							<p><i><a href='{$medianode['url']}'>{%Audio}</a></i></p>
 						</audio>
 						"; 
 					$result = $medianode ->xpath("desc"); 
@@ -368,7 +368,7 @@
 	
 		$maintext .= "
 			<h2>$fileid</h2>
-			<h1>{%Audio management}</h1>";
+			<h1>Audio management</h1>";
 			
 		$soundfile = current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url"));
 		if ( !$soundfile ) $soundfile = current($ttxml->xml->xpath("//media/@url")); // maybe there is no mimeType
@@ -394,7 +394,7 @@
 		
 		$maintext .= "<audio id=\"track\" src=\"{$medianode['url']}\" controls ontimeupdate=\"checkaudio();\">
 				<source  src=\"{$medianode['url']}\">
-				<p><i><a href='{$medianode['url']}'>{%Audio fragment for this text}</a></i></p>
+				<p><i><a href='{$medianode['url']}'>{%Audio}</a></i></p>
 			</audio>
 
 			<h2>Audio options</h2>

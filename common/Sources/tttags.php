@@ -49,7 +49,7 @@ class TTTAGS
 		$table = "<h2>{%Tag}: $tag</h2>
 		<table cellpadding='5px'>";
 		$tagname = $tagoptions['lang-'.$lang] or $tagname = $tagoptions['display'];
-		$table .= "<tr><td>$pos1<th>{%Main pos}<td>$tagname</h2>";
+		$table .= "<tr><td>$pos1<th>{%Main POS}<td>$tagname</h2>";
 		for ( $i=1; $i<strlen($tag); $i++ ) {
 			$posx = substr($tag,$i,1);
 			if ($tagoptions[$i]['lang-'.$lang]) $key1val = "{%{$tagoptions[$i]['lang-'.$lang]}}"; 

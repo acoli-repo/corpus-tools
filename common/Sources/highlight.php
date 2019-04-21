@@ -214,7 +214,7 @@
 		
 		$maintext .= "</table>$chareqtxt</div>
 				<div name='cqpsearch' id='cqpsearch'>
-				<p>{%CQP Query}: &nbsp; <input name=cql size=70 value='{$cql}' $chareqfn>
+				<p>{%CQL Query}: &nbsp; <input name=cql size=70 value='{$cql}' $chareqfn>
 				$chareqjs 
 				$subheader
 				";

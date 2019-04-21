@@ -77,7 +77,7 @@
 			$nav = " - {%showing} $beg - $stop - $bnav";
 		};
 
-		$maintext .= "<p><a href='index.php?action=$action'>{%Documents}</a> > <a href='index.php?action=$action&class=$class'>{%$cat}</a> > $val
+		$maintext .= "<p><a href='index.php?action=$action'>{%!documents}</a> > <a href='index.php?action=$action&class=$class'>{%$cat}</a> > $val
 			<p>$size {%documents} $nav
 			<hr><ul id=sortlist>";
 
@@ -100,7 +100,7 @@
 		$item = $settings['cqp']['sattributes']['text'][$class];
 		$cat = $item['display'];
 
-		$maintext .= "<p><a href='index.php?action=$action'>{%Documents}</a> > {%$cat}
+		$maintext .= "<p><a href='index.php?action=$action'>{%!documents}</a> > {%$cat}
 			<hr><ul id=sortlist>";
 
 		$list = file_get_contents("$cqpfolder/text_$class.avs");

@@ -88,7 +88,7 @@ if ( $act == "xml" ) {
 	<script>
 	  initMap();
 	</script>
-	<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%back to text view}</a></p>";
+	<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%back to view}</a></p>";
 	
 } else if ( $act == "view" ) {
 
@@ -329,7 +329,7 @@ if ( $act == "xml" ) {
 
 	if ( $_GET['cql'] ) { $bottomactions .= $bsep."<a href='index.php?action=multisearch&act=map&cql={$_GET['cql']}&cqlname={$_GET['cqlname']}'>{%Edit queries}</a>"; $bsep = " &bull; "; };
 
-	$bottomactions .= $bsep."<a onClick='fullscreen();'>{%Fullscreen}</a>";
+	$bottomactions .= $bsep."<a onClick='fullscreen();'>{%!fullscreen}</a>";
 
 	$maintext  .= "
 	<h1>{%$pagtit}</h1>

@@ -29,7 +29,7 @@
 		
 	} else {
 		$maintext .= "<h1>{%Download XML}</h1>
-			<p>{%Select the way in which you want to download the XML for this file}";
+			<p>{%Select download format}";
 			
 		foreach ( $downloadoptions as $key => $val ) {
 			$maintext .= "<p><a href='index.php?action=$action&type=$key&cid=$fileid'>{%{$val['display']}}</a>";

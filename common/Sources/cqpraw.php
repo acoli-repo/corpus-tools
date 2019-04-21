@@ -312,7 +312,7 @@
 
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
-			<form action='' method=post id=cqp name=cqp><p>{%CQP Query}: &nbsp; <input name=cql size=80 value='{$cqltxt}'  $chareqfn> <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
+			<form action='' method=post id=cqp name=cqp><p>{%CQL Query}: &nbsp; <input name=cql size=80 value='{$cqltxt}'  $chareqfn> <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
 			$chareqjs
 			<script language=Javascript>
 			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
@@ -407,7 +407,7 @@
 			$resarr = explode ( "\n", $results ); $scnt = count($resarr);
 			$maintext .= "<p>$cnt {%results}";
 			if ( $scnt < $cnt ) { 
-				$maintext .= " &bull; {%Showing} $start - $end *
+				$maintext .= " &bull; {%!showing} $start - $end *
 				(<a onclick=\"document.getElementById('rsstart').value ='$end'; document.resubmit.submit();\">{%next}</a>)";
 			};
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
@@ -476,7 +476,7 @@
 			$maintext .= "<p>$scnt {%results}";
 			if ( $scnt < $cnt ) { 
 				$last = min($end,$cnt);
-				$maintext .= " &bull; {%Showing} $start - $last";
+				$maintext .= " &bull; {%!showing} $start - $last";
 				if ($end<$cnt) $maintext .= " (<a onclick=\"document.getElementById('rsstart').value ='$end';  document.resubmit.submit();\">{%next}</a>)";
 			};
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
@@ -705,7 +705,7 @@
 		
 			$maintext .= "</table>$chareqtxt</div>
 					<div name='cqpsearch' id='cqpsearch'>
-					<p>{%CQP Query}: &nbsp; <input name=cql size=70 value='{$cql}' $chareqfn>
+					<p>{%CQL Query}: &nbsp; <input name=cql size=70 value='{$cql}' $chareqfn>
 					$chareqjs 
 					$subheader
 					";
@@ -765,7 +765,7 @@
 						<option value='word on match[-1]..match[-5]'>{%Left context}</option>
 						<option value=''>{%Corpus order}</option>
 					</select> 
-					<p>{%Matching stategy}: <select name=strategy>
+					<p>{%Matching strategy}: <select name=strategy>
 						<option value='longest' selected>{%Longest match}</option>
 						<option value='shortest'>{%Shortest match}</option>
 					</select> 

@@ -174,7 +174,7 @@
 		$maintext .= "<h2>{%Define fields}</h2>
 		
 		<form action='index.php?action=$action&file=$file&act=define' method=post>
-		<p>{%Annotation name}: <input name=name value='{$extann['name']}' size=70>
+		<p>{%Title}: <input name=name value='{$extann['name']}' size=70>
 		<p>{%Description}: <br><textarea name=desc style='width: 100%; height: 100px;'>$desc</textarea>
 
 		<h2>Fields</h2>
@@ -208,7 +208,7 @@
 				<tr><td colspan=2><hr>
 			";
 
-		$maintext .= "</table><p><input type=submit value='{%Save}'> <a href='index.php?action=$action&file=$file'>{%Cancel}</a>
+		$maintext .= "</table><p><input type=submit value='{%Save}'> <a href='index.php?action=$action&file=$file'>{%!cancel}</a>
 		</form>
 		";
 
@@ -292,7 +292,7 @@
 			};
 			$maintext .= "</table></div>
 			<hr>
-			<p><input type=submit value={%Save}> <a href='index.php?action=$action&file=$file&act=list&fields=$optx'>{%Cancel}</a>
+			<p><input type=submit value={%Save}> <a href='index.php?action=$action&file=$file&act=list&fields=$optx'>{%!cancel}</a>
 			</form>";
 
 			$withxml = true;
@@ -364,7 +364,7 @@
 			};
 			$json .= "]";
 			$json = str_replace("'", "&#039;", $json);
-			$maintext .= " &bull; <a onclick='document.visualize.submit();'>{%Visualize}</a>";
+			$maintext .= " &bull; <a onclick='document.visualize.submit();'>{%!visualize}</a>";
 			$maintext .= "<form style='display: none;' action='index.php?action=visualize' method=post id=visualize name=visualize>
 				<input type=hidden name=json value='$json'>
 				</form>";

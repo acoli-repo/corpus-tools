@@ -23,7 +23,7 @@
 	
 			<form action='index.php'>
 				<input type=hidden name=action value='$action'>
-				{%Search query}: 
+				{%Search Query}: 
 				<input name=query size=60 value='$query'> <input type=submit value='{%Search}'>
 			</form>
 			";

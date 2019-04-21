@@ -95,7 +95,7 @@
 				$tmpfile = time();
 
 				$maintext .= "<table>
-								<tr><th>{%Search query}:<td>$cqltxt</tr>
+								<tr><th>{%Search Query}:<td>$cqltxt</tr>
 								<tr><th>{%Keyness}:<td><span title='$cmd'>{%Field}: $fld, {%Reference corpus}: $refcorpustxt</span></tr>
 							</table>";
 
@@ -123,8 +123,8 @@
 				$fldname = pattname($fld);
 
 				$maintext .= "<table>
-								<tr><th>{%Search query}:<td>$cqltxt</tr>
-								<tr><th>{%Collocates}:<td><span title='$cmd'>{%Direction}: $dirtxt; {%Context}: $context; {%Field}: {%$fldname}</span></tr>
+								<tr><th>{%Search Query}:<td>$cqltxt</tr>
+								<tr><th>{%Collocates}:<td><span title='$cmd'>{%Direction}: $dirtxt; {%!context}: $context; {%Field}: {%$fldname}</span></tr>
 							</table>";
 
 				$cmd = "echo 'Matches = $cql; stats Matches $fld :: context:$dir$context' | $ttcqp --output=json";
@@ -133,7 +133,7 @@
 
 				$headrow = "false";
 
-				$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi-square}'>{%Chi-square}</option><option value=5 title='{%Mutual information}'>{%MI}</option></select>";
+				$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi Square}'>{%Chi Square}</option><option value=5 title='{%Mutual Information}'>{%MI}</option></select>";
 				$cntcols = 5;
 
 			} else {
@@ -218,7 +218,7 @@
 				} else if ( !$grtxt ) $grtxt = $grquery;
 
 				$maintext .= "<table>
-								<tr><th>{%Search query}:<td>$cqltxt</tr>
+								<tr><th>{%Search Query}:<td>$cqltxt</tr>
 								<tr><th>{%Group query}:<td>$grtxt</tr>
 							</table>";
 

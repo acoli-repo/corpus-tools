@@ -88,7 +88,7 @@
 			foreach ( $formats as $key => $val ) {
 				$maintext .= "<p><a href='index.php?action=$action&cid=$cid&act=$act&type=$key'>$val</a>";
 			};
-			$maintext .= "<hr><p><a href='index.php?action=$action&cid=$cid'>{%back to file}</a></p>";
+			$maintext .= "<hr><p><a href='index.php?action=$action&cid=$cid'>{%back}</a></p>";
 		};
 		
 	} else if ( $act == "xpath" || $act == "query" ) {
@@ -246,7 +246,7 @@
 							$maintext .= "<hr>";
 							if ( $sentid && $fileid ) {
 								$maintext .= "<p>{%Text}: <a href='index.php?action=file&cid=$fileid'>$fileid</a>, 
-									{%Sentence}: <a href='index.php?action=$action&cid=$fileid&sentence=$sentid&node={$nodeid}' target=sent>$sentid</a></p>";
+									{%!sentence}: <a href='index.php?action=$action&cid=$fileid&sentence=$sentid&node={$nodeid}' target=sent>$sentid</a></p>";
 							} else if ( $fileid ) {
 								$maintext .= "<p>File: <a href='index.php?action=$action&cid=$fileid'>$fileid</a></p>";
 							};
@@ -701,7 +701,7 @@
 					}
 				};
 			};
-			$maintext .= "<h2>{%Tree} $treeid = {%Sentence} $sentid</h2>
+			$maintext .= "<h2>{%Tree} $treeid = {%!sentence} $sentid</h2>
 				<script language=Javascript src=\"$jsurl/tokedit.js\"></script>
 				<script language=Javascript>var tid = '$cid';</script>
 				<div id='mtxt' style='margin-bottom: 20px;'>$sentence</div>
@@ -799,7 +799,7 @@
 			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$anid'>".ucfirst($anid)."</a><td>";
 		};
 		$maintext .= "</table>";
-		if ( !$some ) $maintext .= "<p><i>{%No PSDX files found}</i>";
+		if ( !$some ) $maintext .= "<p><i>{%No results found}</i>";
 	
 	};
 

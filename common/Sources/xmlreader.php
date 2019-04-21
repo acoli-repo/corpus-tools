@@ -407,7 +407,7 @@
 			
 		};
 		
-		$maintext .="<hr><p><a href='index.php?action=$action'>{%back to the list}</a>";
+		$maintext .="<hr><p><a href='index.php?action=$action'>{%back to list}</a>";
 		if ( $username ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&id={$_GET['id']}'>edit</a>";
 	
 	} else if ( $_GET['f'] ) {
@@ -594,7 +594,7 @@
 		$maintext .= join("\n", $arraylines)."</table><hr><p>$totnum {%results} $showing
 				- <i style='color: #aaaaaa'>{%click on a value to reduce selection}</i> 
 				- <i style='color: #aaaaaa'>{%click on a column to sort}</i>
-				- <a style='color: #aaaaaa' href='index.php?action=$linkaction&act=search'>{%search}</a>
+				- <a style='color: #aaaaaa' href='index.php?action=$linkaction&act=search'>{%Search}</a>
 				";
 	
 		if ( $username ) $maintext .= " - <a href='index.php?action=$linkaction&act=edit&id=new' class=adminpart>add new $recname</a>";
