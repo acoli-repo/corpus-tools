@@ -112,7 +112,6 @@
 			<table style='width: 100%'>
 			<tr><td valign=top style='padding-right: 10px;'>
 			<h3>XPath Search</h3>
-			<p style='visibility: hidden; margin-top: -20px;'>{%Below you can search through the PSDX syntactic trees using XPath.} (<a href='index.php?action=xpath'>{%Help}</a>)
 			
 			<form action='index.php?action=$action&act=$act&cid=$searchfile' method=post id=xpf name=xpf>
 			<textarea style='width: 100%; height: 50px;' name='xpath' id=xpathfield>$xpath</textarea>
@@ -784,7 +783,7 @@
  				$maintext .= "<tr><td><a href='index.php?action=$action&cid=$cid&treeid=$forestid'>Sentence&nbsp;{$sentid}</a>
  								<td>$sentence";
  			};
-			$maintext .= "</table></div><hr><a href='index.php?action=$action'>{%more files}</a> &bull; &bull; <a href='index.php?action=file&cid=$cid&jmp=$sentid'>{%to text mode}</a> <a href='index.php?action=$action&act=xpath&cid=$cid'>{%search in this file}</a>";
+			$maintext .= "</table></div><hr><a href='index.php?action=$action'>{%more files}</a> &bull; &bull; <a href='index.php?action=file&cid=$cid&jmp=$sentid'>{%to text mode}</a> <a href='index.php?action=$action&act=xpath&cid=$cid'>{%Search in document}</a>";
 			if ( !$settings['psdx']['nodownload'] ) $maintext .= " &bull; <a href='index.php?action=$action&act=download&cid=$cid'>{%download file}</a>";
 		};
 

@@ -146,7 +146,9 @@
 								else $key2val = "{%{$val2['display']}}"; 
 							if ( $val2['short-'.$lang] ) $key2val .= " ({$val2['short-'.$lang]})"; 
 								else if ( $val2['short'] ) $key2val .= " ({$val2['short']})"; 
-							$maintext .= "<tr><td style=' width: 25px; text-align: center; border-right: 1px solid #aaaaaa;'><b>$key2</b><td style=' padding-left: 5px;' >$key2val";
+							if ( $val2['description'] && $_GET['display'] == "long" ) $key2val .= "<br><i style='color: #aaaaaa'>{$val2['description']}</i>";
+							if ( $val2['description'] ) $haslong = 1;
+							$maintext .= "<tr><td style=' width: 25px; text-align: center; border-right: 1px solid #aaaaaa;'><b>$key2</b><td style=' padding-left: 5px;' title='{$val2['description']}'>$key2val";
 						};
 					};
 					$maintext .= "</table>";
@@ -158,7 +160,9 @@
 							if ( $val2['display-'.$lang] ) $key2val = $val2['display-'.$lang]; 
 								else if ( $val2['display'] ) $key2val = "{%{$val2['display']}}"; 
 								else $key2val = "<span style='color: #aaaaaa'><i>{%does not apply}</i></span>";
-							$maintext .= "<tr><td style=' width: 25px; text-align: center; border-right: 1px solid #aaaaaa;'>$key2<td style=' padding-left: 5px;' >$key2val";
+							if ( $val2['description'] && $_GET['display'] == "long" ) $key2val .= "<br><i style='color: #aaaaaa'>{$val2['description']}</i>";
+							if ( $val2['description'] ) $haslong = 1;
+							$maintext .= "<tr><td style=' width: 25px; text-align: center; border-right: 1px solid #aaaaaa;'>$key2<td style=' padding-left: 5px;' title='{$val2['description']}'>$key2val";
 						};
 					};
 					$maintext .= "</table>";
@@ -167,8 +171,11 @@
 		};
 		$maintext .= "</table><hr><p><a href='index.php?action=$action&act=analyze'>{%Analyze a specific POS tag}</a>";
 		
+		if ( !$_GET['display'] == "long" && $haslong ) 
+			$maintext .= " &bull; <a href='index.php?action=$action&display=long'>{%Show details}</a>";
+
 		if ( $username )	
-			$maintext .= " &bull; <a href='index.php?action=$action&act=check'>{%Check tagset consistency}</a>";
+			$maintext .= " &bull; <a href='index.php?action=$action&act=check' style=adminpart>Check tagset consistency</a>";
 		
 	};
 

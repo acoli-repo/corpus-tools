@@ -600,7 +600,7 @@
 		};
 
 		if ( !$fileonly && !$nomatch ) $maintext .= "
-			<a onclick=\"document.cqlform.action = 'index.php?action=$action&act=download'; document.cqlform.submit();\">{%Download results as TXT}</a>
+			<a onclick=\"document.cqlform.action = 'index.php?action=$action&act=download'; document.cqlform.submit();\">{%Download results}</a>
 			";
 		$cqll = str_replace("'", "&#039;", $cql);
 
@@ -609,7 +609,7 @@
 
 		$useridtxt = $shortuserid;
 		if ( $_SESSION['myqueries'] || file_exists("Users/cql_$useridtxt.xml") )
-			$maintext .= " - <a href='index.php?action=multisearch&act=stored&cql=".urlencode($cqll)."'>{%Stored queries}</a>";
+			$maintext .= " - <a href='index.php?action=multisearch&act=stored&cql=".urlencode($cqll)."'>{%Stored CQL queries}</a>";
 
 
 		# Do not allow frequency counts if we already have a pre-select CQL

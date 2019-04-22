@@ -269,7 +269,7 @@
 			<p>
 			<a href='index.php?action=$action&id=$id'>{%back to view}</a>
 			&bull; 
-			<a href='index.php?action=$action&act=raw&id=$id'>{%edit raw XML}</a>
+			<a href='index.php?action=$action&act=raw&id=$id'>edit raw XML</a>
 			";
 		else  $maintext .= "
 			<p>

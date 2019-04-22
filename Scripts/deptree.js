@@ -83,3 +83,10 @@ function relink ( clicked ) {
 	};
 	
 };
+
+function makelink ( clicked ) {
+	var option = clicked[clicked.selectedIndex];
+	var link = option.getAttribute('link');
+	// console.log(link);
+	window.open(link, '_new');
+}

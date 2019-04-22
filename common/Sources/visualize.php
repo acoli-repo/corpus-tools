@@ -273,16 +273,16 @@
 					{%Download}:
 					<select name=download onClick=\"downloadData(this.value);\">
 					<option value=''>[{%select}]</option>
-					<option value='svg' class='imgbut' title='Download image as Scalable Vector Graphics'>{%SVG}</option>
-					<option value='png' class='imgbut' title='Download image as Portable Network Graphics'>{%PNG}</option>
-					<option value='csv' title='Download data as Comma-Separated Values'>{%CSV}</option>
-					<option value='json' title='Download data in Javascript Object Notation'>{%JSON}</option>
+					<option value='svg' class='imgbut' title='Download image as Scalable Vector Graphics'>SVG</option>
+					<option value='png' class='imgbut' title='Download image as Portable Network Graphics'>PNG</option>
+					<option value='csv' title='Download data as Comma-Separated Values'>CSV</option>
+					<option value='json' title='Download data in Javascript Object Notation'>JSON</option>
 					</select>
 					</p>
 					<div style='width: 100%;' id=googlechart></div>
 					";
 
-		$maintext .= "<hr><p><a target=help href='http://teitok.corpuswiki.org/site/index.php?action=help&id=visualize'>{%Help}</a>";
+		$maintext .= "<hr><p><a target=help href='http://teitok.corpuswiki.org/site/index.php?action=help&id=visualize'>{%!help}</a>";
 
 		if ( $cql && !$_GET['cql'] && !$nodirect ) {
 			$maintext .= " &bull; <a href='index.php?action=$action&cql=".urlencode($cql)."&mode={$_POST['mode']}".$moredirect."'>{%Direct URL}</a>";

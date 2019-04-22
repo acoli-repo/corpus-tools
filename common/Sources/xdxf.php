@@ -29,8 +29,8 @@
 		// Ask to choose a dictionary if there is more than one in the settings
 		
 		if ( $settings['xdxf'] ) {
-			$maintext .= "<h1>{%Dictionay Reader}</h1>
-				<p>{%Choose a dictionary from the list below}";
+			$maintext .= "<h1>{%Dictionary Reader}</h1>
+				<p>{%Select a document}";
 			foreach ( $settings['xdxf'] as $key => $dict ) {
 				$maintext .= "<p><a href='index.php?action=$action&did=$key'>{$dict['title']}</a>";
 			};

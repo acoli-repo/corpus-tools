@@ -59,12 +59,12 @@
 		$treelink = ""; $nrblock = "";
 		if ( $sent->xpath(".//tok[@head and @head != \"\"]") ) { 
 			$treelink .= "<a href='index.php?action=deptree&cid=$fileid&sid={$sent['id']}' title='dependency tree'>tree</a>"; 
-			$ewd = 50;
+			$ewd = 70;
 		};
 		if ( $sent['appid'] ) {
 			$cid = $xmlid;
 			$treelink .= "<a href='index.php?action=collate&act=cqp&baselevel=$stype&appid={$sent['appid']}&from=$cid' title='witness collation'>app</a>"; 
-			$ewd = 50;
+			$ewd = 70;
 		};
 		if ( $psdx  && $stype == "s" ) { // Allow a direct link to a PSDX tree 
 			$nrblock = "
@@ -91,10 +91,10 @@
 					$treelink
 				</div>";
 		
-			$pl = "50px";
+			$pl = $ewd."px";
 		};
 		$editxml .= "
-			<div style='width: 90%; border-bottom: 1px solid #66aa66; margin-bottom: 6px; padding-bottom: 6px;'>
+			<div style='width: 90%; border-bottom: 1px solid #66aa66; margin-bottom: 6px; padding-bottom: 6px; clear: left;'>
 			$nrblock
 			<div style='padding-left: $pl;'>
 			<div style='$dircss'>$stxt</div>";

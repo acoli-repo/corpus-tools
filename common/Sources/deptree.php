@@ -271,9 +271,13 @@ if ( $_GET['view'] != "graph" ) {
 $formfld = $_GET['form'] or $formfld = "";
 $graphbase = base64_encode(str_replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ', $graph));
 $maintext .= "
-	 &bull; <a href='data:image/svg+xml;base64,$graphbase' download=\"deptree.svg\">{%Download SVG}</a>
-	 &bull; <a id='pnglink' onMouseUp=\"makelink()\"  download=\"deptree.png\">{%Download PNG}</a>
-	 &bull; <a href='index.php?action=$action&act=conllu&cid={$ttxml->fileid}&sid={$sent['id']}'>{%Download CoNNL-U}</a>
+	 &bull; {%Download}: 
+	 	<select name='dlopt' onChange=\"makelink(this)\">
+	 		<option value=''>[{%select}]</option>
+	 		<option value='svg' link='data:image/svg+xml;base64,$graphbase'>SVG</option>
+			<option value='png' id='pnglink'>PNG</option>
+	 		<option value='conll-u' link='index.php?action=$action&act=conllu&cid={$ttxml->fileid}&sid={$sent['id']}'>CoNLL-U</option>
+	 	</select>
 	<canvas style='display: none;' id='myCanvas' width='800' height='400' ></canvas>
 	<script language=Javascript>
 		var orgtoks = new Object();
@@ -294,10 +298,13 @@ $maintext .= "
 		canvas.height = svgelm.height.baseVal.value;
 		canvas.width = svgelm.width.baseVal.value;
 		drawInlineSVG(svgelm, ctxt, function(){
-			document.getElementById('pnglink').href = canvas.toDataURL();
+			document.getElementById('pnglink').setAttribute('link', canvas.toDataURL());
 		});
 	</script>";
 
+# SVG:  value='data:image/svg+xml;base64,$graphbase' download=\"deptree.svg\"
+# PNG:  value='pnglink' download=\"deptree.png\"
+# CoNLL-U index.php?action=$action&act=conllu&cid={$ttxml->fileid}&sid={$sent['id']}
 
 	} else if ( $act == "parse" ) {
 		
@@ -479,6 +486,7 @@ $maintext .= "
 	};	
 
 	function drawtree ( $node, $tokform = "form" ) {
+		global $showpunct;
 		$jump = $_GET['jmp'];
 		$treetxt = ""; if ( $_GET['form'] ) $tokform = $_GET['form'];
 		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight; global $maxwidth;
@@ -494,7 +502,7 @@ $maintext .= "
 			$text = forminherit($tok, $tokform, false);
 			if ( $text == "--" ) continue;
 			if ( $text == "" ) $text = "∅";
-			if ( $tok['pos'] != "PUNCT" || $showpunct ) {
+			if ( strtoupper($tok['deprel']) != "PUNCT" || $showpunct ) {
 				if ( $jump != '' && $jump == $tok['id'] ) { $highl = " font-weight='bold' fill='#aa2200' "; } else { $highl = ""; };
 				$svgtxt .= "\n\t<text text-anchor='middle' tokid=\"{$tok['id']}\" font-size=\"12pt\" type=\"tok\" head=\"{$tok['head']}\" deprel=\"{$tok['deprel']}\" $onclick $highl>$text</text> ";
 			};

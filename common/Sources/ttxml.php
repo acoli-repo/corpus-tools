@@ -207,7 +207,7 @@ class TTXML
 				);
 			$sep = "";
 			if ( $username && $settings['teiheader'] ) {
-				$moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid' class=adminpart>{%edit header data}</a>";
+				$moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid' class=adminpart>edit header data</a>";
 					$sep = "&bull;";
 			};
 			foreach ( $headeroptions as $key => $item ) {

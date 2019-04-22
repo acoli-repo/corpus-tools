@@ -61,7 +61,7 @@
 
 		$size = $cqp->exec("size Matches");
 
-		# $maintext .= "<p>{%Search query}: ".htmlentities($cql);
+		# $maintext .= "<p>{%Search Query}: ".htmlentities($cql);
 			
 		if ( strpos($cql, "@") === false ) $mtch = "match"; else $mtch = "target";
 			

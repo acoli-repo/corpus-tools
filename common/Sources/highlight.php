@@ -84,7 +84,7 @@
 		if ( $size > 0 ) $results = $cqp->exec('tabulate Matches match .. matchend id');
 		$cqp->close();
 		
-		if ( $subtit ) $hltit = "<p>{%Highlighted in the text are words with the following characteristics:} ".$subtit;
+		if ( $subtit ) $hltit = "<p>{%Search:} ".$subtit;
 		
 		$jmp = str_replace("\n", " ", $results);
 		$tmp = explode ( " ", $jmp ); $size = count($tmp);

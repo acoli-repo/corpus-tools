@@ -96,6 +96,8 @@
 
 	if ( $act == "save" && $fileid ) {
 		
+		check_login();
+		
 		foreach ( $_POST['toks'] as $key => $val ) {
 			$sep = ""; $tt = "";
 			foreach ( $val as $key2 => $val2 ) {
@@ -164,6 +166,7 @@
 	} else if ( $fileid && $act == "delete" ) {
 
 		# TODO: This only works with spanGrp, should we make that customizable?
+		check_login();
 		
 		$antxt = file_get_contents($filename);
 		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
@@ -190,6 +193,8 @@
 				<script language=Javascript>top.location='index.php?action=$action&cid=$fileid&annotation=$annotation'</script>"; 
 
 	} else if ( $fileid && $act == "redit" ) {
+
+		check_login();
 
 		$sid = $_GET['sid'];
 
@@ -316,10 +321,16 @@
 		};
 		natsort($sortrows); $maintext .= "<table>".join("\n", $sortrows)."</table>";
 		
-		if ( $act == "edit" ) $maintext .= "<hr><p><a href='index.php?action=$action&annotation=$annotation&act=list&cid=$fileid'>{%back to list}</a>";
-		else {
+		if ( $act == "edit" ) {
+			check_login();
+			$maintext .= "<hr><p><a href='index.php?action=$action&annotation=$annotation&act=list&cid=$fileid'>{%back to list}</a>";
+		} else if ( !$username ) {
 			$maintext .= "<hr><p>
-				<a href='index.php?action=$action&annotation=$annotation&act=edit&&cid=$fileid'>{%edit list}</a>
+				<a href='index.php?action=$action&annotation=$annotation&act=&&cid=$fileid'>{%text view}</a>
+				";
+		} else {
+			$maintext .= "<hr><p>
+				<a href='index.php?action=$action&annotation=$annotation&act=edit&&cid=$fileid'>edit list</a>
 				&bull;
 				<a href='index.php?action=$action&annotation=$annotation&act=&&cid=$fileid'>{%text view}</a>
 				";

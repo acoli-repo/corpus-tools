@@ -4,7 +4,7 @@
 	$ttxml = new TTXML();
 	$fileid = $ttxml->fileid;
 	
-	if ( $act == "edit" ) $editmode = " - {%Edit mode}";
+	if ( $act == "edit" ) $editmode = " - <span class=adminpart>Edit mode</span>";
 	$maintext .= "
 		<h2>{%Waveform view}$editmode</h2>
 		<h1>".$ttxml->title()."</h1>";
@@ -56,6 +56,7 @@
     	exit;
 	
 	} else if ( !$nofile ) {
+	
 		$maintext .= "
 		<!-- Sound file: $audiourl -->
 		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.4.0/wavesurfer.min.js\"></script>
@@ -124,7 +125,7 @@
 			</div>
 	
 			<div id='utteditor' style='visibility: hidden; position: absolute; top: 120px; width: 650px; padding: 20px; left: 20px; background-color: #ffffee; border: 1px solid #999999; z-index: 500;'>
-			<h2>{%Edit utterance}</h2>
+			<h2>Edit utterance</h2>
 			<form action='' method=post id=uttform name=uttform onsubmit=\"return changeutt(this);\">
 			<p>Utterance: <input size=6 name='uttid' readonly style='border: none; background-color: rgba(0, 0, 0, 0);'> 
 			- Region: <input size=6 name='start' editable=false> - <input size=6 name='end' editable=false>
@@ -152,7 +153,7 @@
 		if ( $username && !$editmsg ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&cid=$ttxml->fileid'>Edit transcripion</a>";
 		if ( $username ) $maintext .= " &bull;  <a onClick='toelan(this);'>Export as ELAN</a>";
 		if ( $username ) $maintext .= " &bull; <a href='index.php?action=audiomanage&cid=$fileid'>Audio management</a>";
-		$maintext .= " &bull;  <a href='http://www.teitok.org/index.php?action=help&id=wavesurfer' target=help>{%Help}</a>";
+		$maintext .= " &bull;  <a href='http://www.teitok.org/index.php?action=help&id=wavesurfer' target=help>{%!help}</a>";
 		
 		if ( !$editmsg ) {
 			$jmp = $_GET['jump'] or $jmp = $_GET['tid'];
