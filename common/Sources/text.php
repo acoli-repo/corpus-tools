@@ -143,6 +143,8 @@
 		$attnamelist .= "\n				var floatnotes = true;";
 	};
 
+	if ( $settings['xmlfile']['mtokform'] ) $attnamelist .= "\nvar mtokform = true;";
+
 	# Define which view to show
 	$defaultview = $settings['xmlfile']['defaultview'];
 	// Calculate where to start from settings and cookies
@@ -356,12 +358,14 @@
 	
 	if ( $viewoptions != "" ) {
 		# Show the View options - hidden when Javascript does not fire.
+		if ( $user['permissions'] == "admin" ) $javawarning = "Javascript is not working; <a href='index.php?action=admin&act=configcheck'>check your settings</a> if Javascript is not turned off.";
+		else $javawarning = "{%Javascript seems to be turned off, or there was a communication error. Turn on Javascript for more display options.}"; 
 		$maintext .= "
 			<div style='display: none;' id=jsoptions><h2>{%View options}</h2>
 			$viewoptions
 			</div>
 			<div style='display: block; color: #992000;' id=nojs>
-			{%Javascript seems to be turned off, or there was a communication error. Turn on Javascript for more display options.}
+			$javawarning
 			</div>
 			<hr>
 			";
@@ -539,7 +543,7 @@
 		$sep = "";
 	};
 	if ( $settings['download']['disabled'] != "1" ) {
-		$maintext .= "$sep<a onClick='exporttxt();' style='cursor: pointer;'>{%Download current view as TXT}</a>
+		$maintext .= "$sep<a onClick='exporttxt();' style='cursor: pointer;'>{%Download text}</a>
 		"; $sep = " &bull; ";
 	};
 	

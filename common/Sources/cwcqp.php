@@ -31,7 +31,7 @@ class CQP
     	if ( $registryfolder == "" ) { 
 			$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
     	};
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		if ( $cqpcorpus == "" ) $cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 		if ( !file_exists($registryfolder."/".strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
 			# For backward compatibility, always check the central registry
 			$registryfolder = "/usr/local/share/cwb/registry/";
@@ -50,7 +50,7 @@ class CQP
 		$this->prcs = proc_open($cqpapp.' -r '.$registryfolder.' -c', $descriptorspec, $this->pipes, '-c', $env); # This should be -c
 		foreach ($this->pipes as $pipe) {
 			stream_set_blocking($pipe, false);
-		}
+		};
 		
 		$version = fread($this->pipes[1], 4096); # Read the version number;
 		if ( preg_match ( "/^CQP\s+(?:\w+\s+)*([0-9]+)\.([0-9]+)(?:\.b?([0-9]+))?(?:\s+(.*))?$/", $version, $matches) ) {
@@ -59,7 +59,7 @@ class CQP
 		  $this->beta_version = $matches[3] or $this->beta_version = 0;
 		  $this->compile_date = $matches[4] or $this->compile_date = "unknown";			
 		} else {
-			// print "<p>ERROR: CQP backend startup failed .. $version";  exit;
+			# print "<p>ERROR: CQP backend startup failed .. $version";  exit;
 		};
 		
 		// Select the corpus by default

@@ -5,7 +5,8 @@
 			TEITOK project sites can be presented in several languages. In these settings, you
 			can indicate which interface languages should be included. The actual internationalization
 			is taken care of by i18n files. An i18n file for the default TEITOK interface texts for
-			a number of languages is included with the TEITOK distribution, but given the flexible
+			a several languages is included with the TEITOK distribution, currently 
+			including Spanish, Portuguese, Dutch, Czech, Slovenian, and Catalan. But given the flexible
 			set-up of TEITOK, it will typically be necessary to add custom translation even for 
 			those languages (which can be provided in the <a href="index.php?action=i18n">internationalization section</a>).
 		</desc>
@@ -28,6 +29,7 @@
 	
 	<item key="defaults" display="Some global settings">
 	    <att key="nofiles" display="Do not allow visitors to see the XML file listing" default="0"/>
+	    <att key="playbutton" display="Image to use for the playbutton"/>
 	    <att key="fileview" display="Default fileview" default="text">
 			<desc>
 				Since version 2, TEITOK has a number of different ways to view a TEI/XML file: as text, 
@@ -67,6 +69,13 @@
 		    <att key="url" display="Base URL for the site"/> 
 		    <att key="javascript" display="URL to the Javascript folder" default="http://www.teitok.org/Scripts"/>
 		</item>
+	</item>
+	
+	<item key="views" display="Settings for the fileviews">
+		<list>
+			<att key="key" display="Action for the view"/>
+			<att key="display" display="Name of the view"/>
+		</list>
 	</item>
 	
 	<item key="geomap" display="Settings for the Geomap module">
@@ -341,6 +350,7 @@
 		<att key="title" display="What to use for the document title (XPath)"/>  
 		<att key="xpath" display="XPath to the text body" default="//text"/> 
 		<att key="linebreaks" display="Interpret linebreaks as lb before tokenization (1/0)" default="0"/> 
+		<att key="mtokform" display="Allow mtoks to have alternative orthographies" default="0"/> 
 		<att key="l" display="How to interpret linebreaks">
 			<val key="nolb" display="Only interpret lb as a manuscript line"/>
 			<val key="lbl" display="Interpret both lb and l as manuscript lines"/>
@@ -760,6 +770,21 @@
 			<att key="from" display="Original character"/>
 			<att key="to" display="Transliterated character"/>
         </list>
+	</item>
+
+    <item key="anonymization" display="Automatic anonymization">
+		<desc>
+			<p>For corpora with privacy sensitive data, TEITOK can do rule-based anonymization.</p>
+		</desc>
+		<att key="manual" display="Manually anonymized" default="0"/>
+    	<item key="values" display="Anonymization values">
+    		<list display="List of values">
+    		</list>
+    	</item>
+    	<item key="caserules" display="Rules for case inflection">
+    		<list display="List of case rule">
+    		</list>
+    	</item>
 	</item>
 	
 	<!-- collation not yet done -->

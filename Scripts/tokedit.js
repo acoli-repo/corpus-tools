@@ -146,10 +146,20 @@ function formify () {
 		if ( tokid && orgtoks[tokid] == undefined ) {
 			orgtoks[tokid] = tok.innerHTML;
 		};
-		// Make this node clickable
-		// Now done in tokview with a clickdetect
-		// if ( tok.getAttribute('id') && username != '' )
-		//	tok.onclick = function() { window.open('index.php?action=tokedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
+	};
+
+	var toks = mtxt.getElementsByTagName("mtok");
+	for ( var a = 0; a<toks.length; a++ ) {
+		var tok = toks[a];
+		if ( typeof(tok) != 'object' ) { continue; };
+		// When explicitly not having a form - don't show
+		if ( tok.innerHTML == '--' ) { 
+			tok.innerHTML = '';
+		};
+		tokid = tok.getAttribute('id');
+		if ( tokid && orgtoks[tokid] == undefined ) {
+			orgtoks[tokid] = tok.innerHTML;
+		};
 	};
 
 	var its = mtxt.getElementsByTagName("gap");
@@ -233,9 +243,6 @@ function formify () {
 
 		// Make img for all pb facs
 		// TODO: make this work with IIIF
-		console.log('doing imgs');
-		console.log(pb);
-		console.log(typeof(noimg));
 		if (  pb.getAttribute('facs') 
 				&& ( pb.getAttribute("admin") != "1" || username )
 				&& pb.getAttribute("img") != "yes" 
@@ -580,15 +587,29 @@ function setForm ( type ) {
 	// };
 
 	// Do the <c> to allow for normalizing spaces
-	var cs = document.getElementsByTagName("c");
-	for ( var a = 0; a<cs.length; a++ ) {
-		var ci = cs[a];	
-		if ( !ci.hasAttribute('pform') ) { ci.setAttribute('pform', ci.innerHTML) }; // explicitly store
-		var thisform = forminherit(ci,type); 
-		if ( type == "pform" ) thisform = ci.getAttribute('pform');
-		ci.innerHTML = thisform; console.log(type + ' = [' + thisform + ']'); console.log(ci);
+	var its = document.getElementsByTagName("c");
+	for ( var a = 0; a<its.length; a++ ) {
+		var it = its[a];	
+		if ( !it.hasAttribute('pform') ) { it.setAttribute('pform', it.innerHTML) }; // explicitly store
+		var thisform = forminherit(it,type); 
+		if ( type == "pform" ) thisform = it.getAttribute('pform');
+		it.innerHTML = thisform; 
 	};
 		
+	// Do the <mtok> when so asked to allow for normalizing MWE
+	var its = document.getElementsByTagName("mtok");
+	if ( typeof(mtokform) != 'undefined' ) {
+		for ( var a = 0; a<its.length; a++ ) {
+			var it = its[a];	
+			if ( !it.hasAttribute('pform') ) { it.setAttribute('pform', it.innerText) }; // explicitly store
+			var tokid = it.getAttribute('id');
+			var tokxml = orgtoks[tokid];
+			it.innerHTML = tokxml; 
+			var thisform = forminherit(it,type); 
+			it.innerHTML = thisform; 
+		};
+	};
+			
 	var toks = document.getElementsByTagName("tok");
 	for ( var a = 0; a<toks.length; a++ ) {
 		var tok = toks[a];		

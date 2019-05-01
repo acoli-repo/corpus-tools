@@ -19,7 +19,7 @@
 
 	<defaults>
 	    <title display="Historic Corpus">Historic Corpus</title>
-	    <base javascript="/teitok/Scripts/" foldername="default-hist"/>
+	    <base foldername="default-hist"/>
 	</defaults>
 		
 	<!-- Definition of the CQP corpus created from the XML files -->

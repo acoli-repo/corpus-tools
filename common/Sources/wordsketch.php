@@ -46,7 +46,7 @@
 			$deprelname = $edgelabels[$deprel.""]['display'] or $deprelname = $deprel;
 			$maintext .= "<table style='float: left;'>
 				<tr><th colspan=6><b onClick=\"visualize('$deprel', '$deprelname');\">$deprelname</b></tr>
-				<tr><th>{%$fldname}<th>{%Observed}<th>{%Total}<th>{%Expected}<th title='{%Chi Square}'>{%Chi Square}<th title='{%Mutual Information}'>{%MI}";
+				<tr><th>{%$fldname}<th>{%Observed}<th>{%Total}<th>{%Expected}<th title='{%Chi Square}'>{%Chi Square}<th title='{%Mutual Information}'>{%Mutual Information}";
 
 			$sort_col = array();
 			$sortidx = $_GET['sort'] or $sortidx = 3;

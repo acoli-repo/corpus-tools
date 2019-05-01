@@ -218,9 +218,9 @@
 		foreach ( $matches[0] as $key => $match ) {
 			$txtel = $matches[1][$key];
 			$from = preg_quote($match, '/'); 
-			$caps = 0; if ( substr($from,0,1) == "!" ) {
+			$caps = 0; if ( substr($txtel,0,1) == "!" ) {
 				$caps = 1;
-				$from = substr($from,1);
+				$txtel = substr($txtel,1);
 			};
 			if ( $i18n[$txtel] != "" ) {
 				$to = $i18n[$txtel];

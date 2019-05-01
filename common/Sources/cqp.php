@@ -16,7 +16,7 @@
 
 	include ("$ttroot/common/Sources/cwcqp.php");
 
-	$outfolder = $settings['cqp']['folder'] or $outfolder = "cqp";
+	$outfolder = $settings['cqp']['cqpfolder'] or $outfolder = "cqp";
 
 	// This version of CQP relies on XIDX - check whether program and file exist
 	$xidxcmd = findapp('tt-cwb-xidx');

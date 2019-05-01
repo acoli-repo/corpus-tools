@@ -171,7 +171,7 @@
 		$maintext .= "
 			<tr><td><input name=\"newfrom\" value=\"\"><td><input name=\"newto\" value=\"\"><td><i>Add line for a default localization you want to override locally</i>
 			</table>
-			<p><input type=submit value=Save>
+			<p><input type=submit value=Save> <a href='index.php?action=$action'>cancel</a>
 			</form>
 		
 		<hr><p><a href='index.php?action=$action&act=view'>other languages</a>

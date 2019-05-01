@@ -90,7 +90,7 @@ class TTXML
 		};		
 		
 		// If we have pseudonimization rules, pseudonimize the text
-		if ( $settings['anonimization'] && !$settings['anonimization']['manual'] ) {
+		if ( $settings['anonymization'] && !$settings['anonymization']['manual'] ) {
 			$this->pseudo();
 		};		
 	}
@@ -132,6 +132,7 @@ class TTXML
 				$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 			};
 		};
+		if ( $settings['xmlfile']['mtokform'] ) $attnamelist .= "\nvar mtokform = true;";
 		$allatts = array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']);
 		$jsonforms = array2json($allatts);
 		$jsontrans = array2json($settings['transliteration']);
@@ -187,7 +188,9 @@ class TTXML
 				$xval = current($this->xml->xpath($val['xpath']));
 				if ( $xval && ( !$val['admin'] || $username ) ) {
 					if ( in_array($tpl, explode(",", $val['show'])) || ( !$val['show'] && $tpl == "long" ) ) {
-						$tableheader .= "<tr><th>{%$disp}<td>".preg_replace( "/^<[^>]+>|<[^>]+>$/", "", $xval->asXML());
+						if ( preg_match("/@[^\/]+$/", $val['xpath']) ) $hval = "".$xval;
+						else $hval = preg_replace( "/^<[^>]+>|<[^>]+>$/", "", $xval->asXML());
+						$tableheader .= "<tr><th>{%$disp}<td>$hval";
 					} else {
 						$moretoshow = 1;
 					};
@@ -593,9 +596,9 @@ class TTXML
 	var $pseudo = array ( ); var $pseudodone = array(); var $caserules = array ();
 	function pseudo() {
 		global $settings;
-		if ( $settings['anonimization'] ) {
-			foreach ( $settings['anonimization']['values'] as $key => $val ) $this->pseudo[$key] = explode(",", $val['vals']); 
-			foreach ( $settings['anonimization']['caserules'] as $key => $val ) $this->caserules[$key] = $val; 
+		if ( $settings['anonymization'] ) {
+			foreach ( $settings['anonymization']['values'] as $key => $val ) $this->pseudo[$key] = explode(",", $val['vals']); 
+			foreach ( $settings['anonymization']['caserules'] as $key => $val ) $this->caserules[$key] = $val; 
 		};
 		foreach ( $this->xml->xpath("//anon") as $anon ) {
 			$deanon = $this->deanon($anon);
@@ -616,7 +619,7 @@ class TTXML
 					$option = array_pop($options)."";
 					if ( is_array($this->pseudo[$option]) ) {
 						$deanon = array_pop($this->pseudo[$option]);
-						$name = $settings['anonimization']['values']["$option"]['display'];
+						$name = $settings['anonymization']['values']["$option"]['display'];
 					};
 				};
 			};
@@ -635,7 +638,7 @@ class TTXML
 		};
 		if ( !$deanon ) $deanon = "Anon";
 		$anon[0] = $deanon;
-		$anon['title'] = "{%Anonimized} {%$name}";
+		$anon['title'] = "{%anonymized} {%$name}";
 		
 		return $deanon;
 	}	

@@ -133,7 +133,7 @@
 
 				$headrow = "false";
 
-				$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi Square}'>{%Chi Square}</option><option value=5 title='{%Mutual Information}'>{%MI}</option></select>";
+				$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi Square}'>{%Chi Square}</option><option value=5 title='{%Mutual Information}'>{%Mutual Information}</option></select>";
 				$cntcols = 5;
 
 			} else {

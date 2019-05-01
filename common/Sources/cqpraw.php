@@ -20,37 +20,25 @@
 		if ( $username || !$item['admin'] ) array_push($cqpcols, $key); 
 	}; 
 	
-	
 	# Check whether the registry file exists
-	if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
+	if ( !file_exists($registryfolder.'/'.strtolower($cqpcorpus)) ) {
 		# For backward compatibility, always check the central registry
-		$registryfolder = "/usr/local/share/cwb/registry/";
+		if ( file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) $registryfolder = "/usr/local/share/cwb/registry/";
+		else {
+			$tmp = str_replace("CQP-", "", $cqpcorpus);
+			if ( file_exists("/usr/local/share/cwb/registry/".strtolower($tmp)) ) {
+				$registryfolder = "/usr/local/share/cwb/registry/";
+				$cqpcorpus = $tmp;
+			};
+		};
 	};
-	if ( !file_exists($registryfolder.strtolower($cqpcorpus)) ) {
+	if ( !file_exists($registryfolder.'/'.strtolower($cqpcorpus)) ) {
 		fatal ( "Corpus $cqpcorpus has no registry file" );
 	};
 	
-	# Old sattributes did not have <text> inside
-	if ( !is_array($settings['cqp']['sattributes']['text']) ) { 
-		$settings['cqp']['sattributes']['text'] = $settings['cqp']['sattributes'];
-		$settings['cqp']['sattributes']['text']['display'] = "Document search";
-		$settings['cqp']['sattributes']['text']['key'] = "text";
-		$settings['cqp']['sattributes']['text']['level'] = "text";
-	};	
-
-// 	if ( is_array($cqpatts) && in_array("project", array_keys($cqpatts)) ) {
-// 		$withproject = 1;
-// 	};
-	if ( is_array($settings['cqp']['sattributes']['sent']) && in_array("audio", array_keys($settings['cqp']['sattributes']['sent'])) ) {
-		$audioelm = "sent";
-	} else if ( is_array($settings['cqp']['sattributes']['text']) && in_array("audio", array_keys($settings['cqp']['sattributes']['text'])) ) {
-		$audioelm = "text";
-	};
-	
+		
 	$cql = stripslashes($_POST['cql']);
 	if ( !$cql ) $cql = stripslashes($_GET['cql']);
-	
-	# print_r($_POST); exit;
 
 	if (  $settings['input']['replace'] ) {
 		$chareqjs .= "<p>{%Special characters}: "; $sep = "";
@@ -84,7 +72,7 @@
 		
 		$maintext .= "<h2>Frequency Information</h2>";
 
-		$cqp = new CQP();
+		$cqp = new CQP($registryfolder);
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
 		$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "[]";
@@ -161,7 +149,7 @@
 		header("content-type: text/txt; charset=utf-8");
 		header('Content-Disposition: attachment; filename="CQPQuery.txt"');
 		
-		$cqp = new CQP();
+		$cqp = new CQP($registryfolder);
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "[]";
 
@@ -184,7 +172,7 @@
 		
 		$maintext .= "<h1>{%Word Distribution}</h1>";
 
-		$cqp = new CQP();
+		$cqp = new CQP($registryfolder);
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
 		$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "[]";
@@ -210,102 +198,23 @@
 			$maintext .= "</table>";
 		};		
 
-	} else if ( $cql || $_POST['atts'] || $_POST['vals'] ) {
+	} else if ( $cql ) {
+	
 		# Display the results for a given CQP search
 		# Can have a pre-query (to search within a selection)
 		# Consists either of a direct CQL query or of attribute-value pairs that have to be turned into one
 		# Text-level restrictions (or other XML-levels) are provided separately (by default)
 
-		$showform = $_POST['showform'] or $showform = $_GET['showform'] or $showform = 'word';
-		$sort = $_POST['sort'] or $sort = $_GET['sort'] or $sort = '';
-		$context = $_POST['context'] or $context = $_GET['context'] or $context = '5';
-
 		# This is a simple search - turn it into a CQP search
-		if ( $cql && !preg_match("/[\"\[\]]/", $cql) ) {
+		if ( !preg_match("/[\"\[\]]/", $cql) ) {
 			$simple = $cql; $cql = "";
 			foreach ( explode ( " ", $simple ) as $swrd ) {
 				$swrd = preg_replace("/(?!\.\])\*/", ".*", $swrd);
 				$cql .= "[word=\"$swrd\"] ";
 			};
 		};
-		
-		# This is a word search - turn it into a CQP search
-		if ( !$cql && $_POST['vals'] ) {	
-			$cql = "["; $sep = "";
-			foreach ( $_POST['vals'] as $key => $val ) {
-				$type = $_POST['matches'][$key];
-				$attname = pattname($key) or $attname =  pattname('form');
-				if ( $val ) {
-					if ( $type == "startswith" ) {
-						$cql .= " $sep $key = \"$val.*\""; $sep = "&";
-						$subtit .= "<p>$attname = $val-";
-					} else if ( $type == "contains" ) {
-						$cql .= "$sep$key=\".*$val.*\""; $sep = " & ";
-						$subtit .= "<p>$attname <i>{%contains}</i> $val";
-					} else if ( $atttype == "endsin" ) {
-						$cql .= "$sep$key=\".*$val\""; $sep = " & ";
-						$subtit .= "<p>$attname -$val";
-					} else {
-						$cql .= "$sep$key=\"$val\""; $sep = " & ";
-						$subtit .= "<p>$attname = $val";
-					};
-				};
-			};
-			$cql .= "]";
-		};
 
-		# This is a document search - turn it into CCQP
-		if ( !$cql || $cql == "[]" ) {	
-			$cql = "<text> []";  $sep = "::"; $fileonly = true;
-		} else if ( strstr($cql, '::') ) { 
-			$sep = "&"; 
-		} else if ( $_POST['atts'] ) { 
-			 $sep = "::"; 
-		};
-		if ( is_array($_POST['atts']) )
-		foreach ( $_POST['atts'] as $tmp => $val ) {
-			if ( !$val ) continue;
-			list ( $key, $type ) = explode ( ":", $tmp );
-			if ( strstr($key, '_' ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
-			list ( $keytype, $keyname ) = explode ( "_", $xkey );
-			$attitem = $settings['cqp']['sattributes'][$keytype][$keyname]; 
-				$attname = $attitem['display']; $atttype = $attitem['type'];
-
-			# Account for multiple select
-			if ( is_array($val) ) {
-				$val = "#(".join("|", $val)."#)";
-			};
-
-			if ( $type == "start" ) {
-				$cql .= " $sep int(match.$xkey) >= $val"; $sep = "&";
-				if (!$_POST['atts']["$key:end"]) $subtit .= "<p>$attname > $val";
-			} else if ( $type == "end" ) {
-				$cql .= " $sep int(match.$xkey) <= $val"; $sep = "&";
-				if ( $start = $_POST['atts']["$key:start"] ) 
-					$subtit .= "<p>$attname: $start - $val";
-				else 
-					$subtit .= "<p>$attname < $val";
-			} else if ( $atttype == "long" ) {
-				$cql .= " $sep match.$xkey = \".*$val.*\" %cd"; $sep = "&";
-				$subtit .= "<p>$attname {%contains} <i>$val</i>";
-			} else {
-				$val = quotemeta($val);
-				$val = str_replace("#\\", "", $val);
-				if ( $attitem['values'] == "multi" ) {
-					$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
-					$subtit .= "<p>$attname: <i>$val</i>";
-					$val = "(.*$mvsep)?$val($mvsep.*)?"; # Brackets not supported in CQP
-				} else {
-					$subtit .= "<p>$attname = <i>$val</i>";
-				};
-				$cql .= " $sep match.$xkey = \"$val\""; $sep = "&";
-				if ( $attitem['type'] == "kselect" || $attitem['translate'] ) $val = "{%$key-$val}";
-				$val = stripslashes($val);
-			};
-			
-		}; # if ( strstr($cql, "a.text") && !strstr($cql, "a:") ) { $cql = "a:$cql"; }
-
-		$cqp = new CQP();
+		$cqp = new CQP($registryfolder);
 		$cqp->exec($cqpcorpus); // Select the corpus
 
 		if ( !$fileonly || $user['permissions'] == "admin" ) $cqltxt = $cql; # Best not show the query for doc-only searches...
@@ -318,11 +227,6 @@
 			function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
 			</script>
 			";
-
-		if ( $audioelm ) {
-			$maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>";
-			$maintext .= "<div style='display: none;'><audio id=\"track\" src=\"http://alfclul.clul.ul.pt/teitok/site/Audio/mini.wav\" controls ontimeupdate=\"checkstop();\"></audio></div>";
-		};
 		
 		if ( $_POST['strategy'] && !$fileonly ) {
 			$cmd = "set MatchingStrategy {$_POST['strategy']}";
@@ -362,17 +266,21 @@
 			$targetmatch = 1;
 		};
 			
-		
+		$showform = "word"; $context = 7; # This used to be definable
+		if ( file_exists("cqp/text_id.avs") ) $idfld = "text_id"; else $idfld = "word";
+
 		if ( $showform != "word" && !$fileonly ) { $subtit .= "<p>{%Showing form}: <i>".pattname($showform)."</i>"; };
 		$maintext .= $subtit;
 		$cqp->exec("Matches = ".$cql);
 		$cnt = $cqp->exec("size Matches");
-			if ( $debug ) $maintext .= "<p>Matches = $cql";
+		if ( $debug ) $maintext .= "<p>Matches = $cql";
 		if ( $cnt == 0 ) { 
+		
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
 				<p><i>No matches</i> for $cql
 				"; 
 			$nomatch = 1;
+			
 		} else if ( $fileonly )  { 
 			
 			# Document searches	
@@ -394,11 +302,10 @@
 				$acnt++;
 				$atttit[$acnt] = $val;
 			};
-			$cqp->exec("sort Matches by match on text_year");
 
 			if ( $debug ) $maintext .= "<p>$cqpquery<PRE>$results</PRE>";
 			
-			$cqpquery = "tabulate Matches $start $end match text_id$moreatts";
+			$cqpquery = "tabulate Matches $start $end match $idfld$moreatts";
 			$results = $cqp->exec($cqpquery);
 
 			if ( $debug ) $maintext .= "<p>TABULATE COMMAND:<br>$cqpquery";
@@ -416,6 +323,8 @@
 				$fatts = explode ( "\t", $line ); $fid = array_shift($fatts);
 				if ( $admin ) {
 					$fidtxt = preg_replace("/^\//", "", $fid ); 
+				} else if ( $idfld == "word" ) {
+					$fidtxt = ""; # No text_id available
 				} else {
 					$fidtxt = preg_replace("/.*\//", "", $fid ); 
 				};
@@ -432,42 +341,27 @@
 				$cqp->exec("sort Matches by $sort");
 			};
 
-			if ( $_POST['style'] == "sent" || $audioelm ) {
-				# Extend to sent
-				$cqp->exec("set Matches target match");
-				$cqp->exec("set Matches keyword matchend");
-				$cqp->exec("Sent = Matches expand to sent");
-				
-				$matchwords = "target .. keyword";
-				$leftc = "match .. target[-1]";
-				$rightc = "keyword[1] .. matchend";
-				$matches = "Sent";
-			} else {
-				$matchwords = "match .. matchend";
-				$leftc = "match[-$context]..match[-1]";
-				$rightc = "matchend[1]..matchend[$context]";
-				$matches = "Matches";
-			};
-			
+			$matchwords = "match .. matchend";
+			$leftc = "match[-$context]..match[-1]";
+			$rightc = "matchend[1]..matchend[$context]";
+			$matches = "Matches";
 
 			if ( $_POST['style'] == "attlist" ) {
 				$sfn = pattname($pform); 
 				$matchh = "<tr><td><th>$sfn";
 				$morematch = ", $matchwords word";
 				if ( $withproject ) $morematch .= ", $matchwords text_project";
-				else $morematch .= ", $matchwords text_id";
+				else $morematch .= ", $matchwords $idfld";
 				foreach ( $cqpcols as $i => $key ) {	
 					$morematch .= ", $matchwords $key";
 					$matchh .= "<th>". pattname($key);
 				};
-			} else if ( $audioelm ) {
-				$morematch = ", $matchwords $showform, $matchwords {$audioelm}_audio, $matchwords sent_start, $matchwords sent_end";
 			} else {
 				$morematch = ", $matchwords $showform";
 				if ( $withproject ) $morematch .= ", $matchwords text_project";
 			};
 			
-			$cqpquery = "tabulate $matches $start $end match text_id, $leftc $showform, $rightc $showform, $matchwords id $morematch";
+			$cqpquery = "tabulate $matches $start $end match $idfld, $leftc $showform, $rightc $showform, $matchwords id $morematch";
 			$results = $cqp->exec($cqpquery);
 
 			if ( $debug ) $maintext .= "<p>From inital $cnt results: $cqpquery<PRE>$results</PRE>";
@@ -502,6 +396,8 @@
 					$refname = $settings['projects'][$projectid]['name']; # or $refname = $projectid;
 					$purl = $settings['projects'][$projectid]['baseurl'];
 					$target = " target=external";
+				} else if ( $idfld == "word" ) {
+					$refname = "";
 				} else {
 					$fileid = preg_replace("/xmlfiles\//", "", $fileid );
 					if ( $setting['cqp']['resatts'] ) {
@@ -528,17 +424,6 @@
 				} else if ( $_POST['style'] == "sent" ) {
 					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=file&cid=$fileid&jmp=$tid'$target>$refname</a>
 						<td>$lcontext <span class=match>$match</span> $rcontext";
-				} else if ( $audioelm ) {
-					$src = $featres[1][0];
-					$audiobut = ""; 
-					if ( $src ) {
-						$strt = $featres[2][0]; $stp = $featres[3][0];
-						$audiobut = "<img src=\"http://alfclul.clul.ul.pt/teitok/common/Images/playbutton.gif\" width=\"14\" height=\"14\" style=\"margin-right: 5px; display: inline-block;\" onClick=\"playpart('$src', $strt, $stp, this );\">"; 
-					};
-					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=file&cid=$fileid&jmp=$tid'$target>$refname</a>
-						<td>$audiobut
-						<td>$lcontext <span class=match>$match</span> $rcontext";
-					else $maintext .= "<p>?? $match, $line";
 				} else {
 					if ( $match != "" && substr($line,0,1) != "#" ) $maintext .= "<tr><td><a style='font-size: small; margin-right: 10px;' href='{$purl}index.php?action=file&cid=$fileid&jmp=$tid'$target>$refname</a>
 						<td align=right>$lcontext<td align=center><b>$match</b><td>$rcontext";
@@ -590,11 +475,7 @@
 				
 				foreach ( $freqopts as $key => $val ) {
 					if ( !$fileonly || preg_match("/text_/", $val['key']) ) $maintext .= "<p><a onclick=\"document.freqform.query.value = '{$val['key']}'; document.freqform.submit();\">{%{$val['display']}}</a>";
-				};
-					#<p><a onclick=\"document.freqform.query.value = 'group Matches match pos'; document.freqform.submit();\">Frequency by POS</a>
-					#<p><a onclick=\"document.freqform.query.value = 'group Matches match lemma'; document.freqform.submit();\">Frequency by lemma</a>
-					#<p><a onclick=\"document.freqform.query.value = 'group Matches match pos by match lemma'; document.freqform.submit();\">Frequency by POS+lemma</a>
-			
+				};			
 			
 				$maintext .= "<p>Or run an additional custom CQP command on the results above (Matches):
 			
@@ -619,217 +500,7 @@
 					";
 			};
 		};		
-		
-
-	} else if ( $act == "advanced" ) {
-		
-		# Display the search screen (advanced search)
-	
-		if ( file_exists("Pages/searchhelp.html") ) {
-			$maintext .= "<div style='position: absolute; top: 70px; right: 20px'><a href='index.php?action=searchhelp'>{%help}</a></div>";
-		};
-
-		# $tokatts['word'] = $tokatts['form'] or $tokatts['word'] = "Written form"; --> how to do this?
-		array_unshift($cqpcols, 'word' ); // Add word as a search option
 				
-		foreach ( $cqpcols as $col ) {
-			if ( strstr($col, "form") ) $formlist .= "<option value=$col>{%".pattname($col)."}</option>"; $flc++;
-		};
-		if ( $flc > 1 ) $formsel = "<p>{%Form to show}: <select name=showform><option value='word'>{%Written form}</option>$formlist</select> ";
-		
-		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
-
-			<!-- <h2>{%Advanced Search}</h2> -->
-			<form action='' method=post id=cqp name=cqp>";
-			
-		if ( $settings['cqp']['sattributes'] && $settings['cqp']['pattributes'] ) { 
-			$maintext .= "<table cellpadding=5><tr><td valign=top style='border-right: 1px solid #cccccc;'>
-			<h3>{%Text Search}</h3>"; 
-		};	
-
-		if ( $settings['cqp']['pattributes'] ){
-			if ( $settings['cqp']['searchmethod'] == "word" ) {
-				$wdef = "checked";
-				$stmp = "<script language=Javascript>switchtype('st', 'word');</script>";
-			} else { $cdef = "checked"; };
-		
-			$maintext .= "
-					<p>{%Search method}:  &nbsp;
-						<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'cqp');\" $cdef> CQP &nbsp; &nbsp;
-						<input type=radio name=st value='cqp' onClick=\"switchtype('st', 'word');\" $wdef> {%Word Search}
-					<script language=Javascript>
-					function switchtype ( tg, type ) { 
-						console.log(tg + ' , ' + type);
-						var types = [];
-						types['st'] = ['cqp', 'word'];
-						types['style'] = ['kwic', 'attlist'];
-						for ( var i in types[tg] ) {
-							stype = types[tg][i]; 
-							console.log (stype + 'search');
-							document.getElementById(stype+'search').style.display = 'none';
-						};
-						document.getElementById(type+'search').style.display = 'block';
-					};
-					</script>
-					<div name='wordsearch' id='wordsearch' style='display: none;'><table>";
-				
-			foreach ( $cqpcols as $col ) {
-				$colname = pattname($col);
-				if ( !$colname ) $colname = "[$col]";
-				$tstyle = ""; 
-				$coldef = $settings['cqp']['pattributes'][$col];
-				if ( $coldef['admin'] == "1" ) {
-					$tstyle = " class=adminpart";
-				};
-				if ( substr($coldef['type'], -6) == "select" ) {
-					$tmp = file_get_contents("cqp/$col.lexicon"); unset($optarr); $optarr = array();
-					foreach ( explode ( "\0", $tmp ) as $kval ) { 
-						if ( $kval ) {
-							if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
-							if ( $coldef['type'] == "kselect" ) $kvaltxt = "{%$col-$kval}"; else $kvaltxt = $kval;
-							if ( ( $coldef['type'] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) 
-								$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
-						};
-					};
-					
-					sort( $optarr, SORT_STRING | SORT_NATURAL | SORT_FLAG_CASE ); # Used to be SORT_LOCALE_STRING
-					$optlist = join ( "", $optarr );
-
-					$maintext .= "<tr><td$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>[{%select}]</option>$optlist</select>";
-
-				} else 
-					$maintext .= "<tr><td$tstyle>{%$colname}
-								  <td><select name=\"matches[$col]\"><option value='matches'>{%matches}</option><option value='startswith'>{%starts with}</option><option value='endsin'>{%ends in}</option><option value='contains'>{%contains}</option></select>
-								  <td><input name=vals[$col] size=50 $chareqfn>";
-			};
-		
-			$maintext .= "</table>$chareqtxt</div>
-					<div name='cqpsearch' id='cqpsearch'>
-					<p>{%CQL Query}: &nbsp; <input name=cql size=70 value='{$cql}' $chareqfn>
-					$chareqjs 
-					$subheader
-					";
-
-			
-
-				
-			$maintext .= "
-								$stmp
-
-				<p><b>{%Searchable fields}</b>
-			
-				<table>
-				";
-			
-			foreach ( $cqpcols as $col ) {
-				$colname = pattname($col);
-				if ( $settings['cqp']['pattributes'][$col]['admin'] == "1" ) {
-					$maintext .= "<tr><th>$col<td class=adminpart>{%$colname}</tr>";				
-				} else {
-					$maintext .= "<tr><th>$col<td>{%$colname}</tr>";
-				};
-			};
-			$maintext .= "</table></div>
-				<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>";
-		
-		
-			if ( !$audioelm ) {
-				$maintext .= "
-						<p>{%Display method}: 
-						<input type=radio name=style value='kwic' onClick=\"switchtype('style', 'kwic');\" checked> KWIC
-						<input type=radio name=style value='attlist' onClick=\"switchtype('style', 'attlist');\"> {%Attribute list}";
-		
-				if ( $settings['cqp']['sattributes']['s'] ) {
-					$maintext .= "<input type=radio name=style value='sent' onClick=\"switchtype('style', 'sent');\"> {%Sentence}";
-				};
-			
-			} else { $nokwic = "style='display: none;'"; };
-				
-			$maintext .= "
-					<div name='attlistsearch' id='attlistsearch' style='display: none;'>
-						<p>{%Context size}: <select name=context>
-							<option value='3'>3</option><option value='4'>4</option><option value='5' selected>5</option><option value='6'>6</option><option value='7'>7</option>
-						</select>  {%words}
-					</div>
-					<div name='kwicsearch' id='kwicsearch' $nokwic>
-						$formsel
-						<p>{%Context size}: <select name=context>
-							<option value='3'>3</option><option value='4'>4</option><option value='5' selected>5</option><option value='6'>6</option><option value='7'>7</option>
-						</select>  {%words}
-					</div>
-					<div name='sentsearch' id='sentsearch' style='display: none;'>
-					</div>
-					<p>{%Sort on}: <select name=sort>
-						<option value='word'>{%Word}</option>
-						<option value='word on matchend[1]..matchend[5]'>{%Right context}</option>
-						<option value='word on match[-1]..match[-5]'>{%Left context}</option>
-						<option value=''>{%Corpus order}</option>
-					</select> 
-					<p>{%Matching strategy}: <select name=strategy>
-						<option value='longest' selected>{%Longest match}</option>
-						<option value='shortest'>{%Shortest match}</option>
-					</select> 
-				
-				
-				
-				<script language=Javascript>
-				function cqpdo(elm) { document.cqp.cql.value = elm.innerHTML; };
-				</script>";
-			
-			$maintext .= "\n\t<td valign=top>";  $hr = "";
-		};
-		
-		# Deal with any additional level attributes (sentence, utterance)
-		if ( is_array ( $settings['cqp']['sattributes']))
-		foreach ( $settings['cqp']['sattributes'] as $xatts ) {
-			if ( !$xatts['display'] ) continue;
-			$maintext .= "$hr<h3>{%{$xatts['display']}}</h3><table>"; $hr = "<hr>";
-			foreach ( $xatts as $key => $item ) {
-				$xkey = "{$xatts['key']}_$key";
-				$val = $item['long']."" or $val = $item['display']."";
-				if ( $item['type'] == "group" ) { 
-					$maintext .= "<tr><td>&nbsp;<tr><td colspan=2 style='text-align: center; color: #992000; font-size: 10pt; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa;'>{%$val}";
-				} else {
-					if ( $item['nosearch'] ) $a = 1; # Ignore this in search 
-					else if ( $item['type'] == "range" ) 
-						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
-					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
-						# Read this index file
-						$tmp = file_get_contents("cqp/$xkey.avs"); unset($optarr); $optarr = array();
-						
-						foreach ( explode ( "\0", $tmp ) as $kva ) { 
-							if ( $kva ) {
-								if ( $item['values'] == "multi" ) {
-									$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
-									$kvl = explode ( $mvsep, $kva );
-								} else {
-									$kvl = array ( $kva );
-								}
-								
-								foreach ( $kvl as $kval ) {
-									if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
-									$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
-								};
-							};
-						};
-						
-						if ( $item['sort'] == "numeric" ) sort( $optarr, SORT_NUMERIC ); 
-						else sort( $optarr, SORT_STRING | SORT_NATURAL | SORT_FLAG_CASE ); # Used to be SORT_LOCALE_STRING
-						
-						$optlist = join ( "", $optarr );
-						
-						$maintext .= "<tr><th>{%$val}<td><select name=atts[$xkey]><option value=''>[{%select}]</option>$optlist</select>";
-					} else 
-						$maintext .= "<tr><th>{%$val}<td><input name=atts[$xkey] value='' size=40>";
-				};
-			};
-			$maintext .= "</table>"; 
-		};	
-		$maintext .= "</table>"; 
-		$maintext .= "<p><input type=submit value=\"{%Search}\"></form>";
-	
-			
-		
 	} else {
 		# Display the search screen with a CQP box only and a search-help
 
@@ -846,6 +517,7 @@
 		
 		$maintext .= $explanation;
 	
-	}; $maintext .= "<style>.adminpart { background-color: #eeeedd; padding: 5px; }</style>";
+	}; 
+	$maintext .= "<style>.adminpart { background-color: #eeeedd; padding: 5px; }</style>";
 
 ?>

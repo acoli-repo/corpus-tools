@@ -50,9 +50,9 @@ use XML::LibXML;
 	};
 	if ( $debug ) { print "Finding toks : //tok\n"; };
 	foreach $ttnode ($tmpdoc->findnodes("//tok")) {
-		print "\nID: ".$ttnode->getAttribute('id'); 
+		# print "\nID: ".$ttnode->getAttribute('id'); 
 		if ( $ttnode->getAttribute('id') eq '' || $override ) {	
-			print "Renumbering to w-$cnt";
+			# print "Renumbering to w-$cnt";
 			$ttnode->setAttribute('id', "w-$cnt");
 			$cnt++;
 		};

@@ -19,7 +19,7 @@
 
 	<defaults>
 	    <title display="Learner Corpus">Oral Corpus</title>
-	    <base javascript="/teitok/Scripts/" foldername="default-lc"/>
+	    <base foldername="default-lc"/>
 	</defaults>
 		
 	<!-- Definition of the CQP corpus created from the XML files -->
