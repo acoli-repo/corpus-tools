@@ -601,12 +601,19 @@ function setForm ( type ) {
 	if ( typeof(mtokform) != 'undefined' ) {
 		for ( var a = 0; a<its.length; a++ ) {
 			var it = its[a];	
-			if ( !it.hasAttribute('pform') ) { it.setAttribute('pform', it.innerText) }; // explicitly store
+			if ( !it.hasAttribute('pform') ) { it.setAttribute('pform', it.innerText) }; // explicitly store form
 			var tokid = it.getAttribute('id');
 			var tokxml = orgtoks[tokid];
 			it.innerHTML = tokxml; 
-			var thisform = forminherit(it,type); 
-			it.innerHTML = thisform; 
+			if ( type != "pform" ) {
+				var thisform = forminherit(it,type); 
+				it.innerHTML = "";
+				var org = document.createElement("span");
+				org.innerHTML = tokxml; 
+				it.appendChild(org);
+				org.style.display = 'none';
+				it.innerHTML += thisform; 
+			};
 		};
 	};
 			

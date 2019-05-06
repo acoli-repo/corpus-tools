@@ -506,6 +506,17 @@
 
 				if ( $tagstxt ) $showoptions .= "<p>{%Tags}: $tagstxt ";
 
+	// Load the tagset 
+	$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
+	$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
+	require_once ( "$ttroot/common/Sources/tttags.php" );
+	$tttags = new TTTAGS($tagsetfile, false);
+	if ( $tttags->tagset['positions'] ) {
+		$tmp = $tttags->xml->asXML();
+		$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);
+		$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
+	};
+
 			$maintext .= "
 					$viewoptions $showoptions
 					<hr>
@@ -544,6 +555,8 @@
 						var formdef = $jsonforms;
 						var orgtoks = new Object();
 						var attributelist = Array($attlisttxt);
+						$settingsdefs;
+						var lang = '$lang';
 						$attnamelist
 						formify();
 						var orgXML = document.getElementById('mtxt').innerHTML;

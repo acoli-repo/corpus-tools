@@ -14,6 +14,7 @@ function downloadData ( dltype='tsv' ) {
 	} else if ( dltype == 'svg' ) {
 		var tmp = document.getElementsByTagName('svg');
 		var svg = tmp[0];
+		console.log(svg);
 		if ( svg != null ) {
 			var serializer = new XMLSerializer();
 			var source = serializer.serializeToString(svg);
@@ -25,11 +26,11 @@ function downloadData ( dltype='tsv' ) {
 				source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
 			}
 
-			//add xml declaration
-			source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+			//add xml declaration (no longer seems to work, nor does the CHARSET)
+			// source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
 
 			//convert svg source to URI data scheme.
-			var url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);		
+			var url = "data:image/svg+xml,"+encodeURIComponent(source);	
 			window.open(url, '_new');
 		} else {
 			console.log('No SVG found, table?');
