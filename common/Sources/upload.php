@@ -173,10 +173,14 @@
 				Dropzone.options.uploadZone = {
   				  paramName: \"upfile\", // The name that will be used to transfer the file
   				  acceptedFiles: \"$accept\",
-  				  maxsize: $maxsize,
+  				  maxFilesize: $maxsize,
   				  $capture
   				  init: function() {
 				  	// Maybe reload the list of uploaded files?
+					this.on(\"error\", function(file, message) { 
+								alert(message);
+								this.removeFile(file); 
+					});
 				  }
 				};
 				</script>
