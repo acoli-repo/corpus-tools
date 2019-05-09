@@ -65,7 +65,7 @@
 					$cqp = new CQP();
 					$cqp->exec($cqpcorpus); // Select the corpus
 					$cqp->exec("set PrettyPrint off");
-					$cqpquery = "Matches = $cql";
+					$cqpquery = "Matches = {$sq['cql']}";
 					$cqp->exec($cqpquery);
 					$num = $cqp->exec("size Matches"); $num = $num + 0;
 				};
