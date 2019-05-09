@@ -5,7 +5,6 @@
 
 	$cntcols = 1; $headrow = 'false';
 	$ttcqp = findapp("tt-cqp");
-	if ( !$ttcqp ) $ttcqp = findapp("cqp"); 
 	
 	if ( $_GET['cwb'] || $settings['cqp']['ttcqp'] == "0" ) $usecwb = 1;
 
@@ -44,9 +43,32 @@
 				$sq = $_SESSION['myqueries'][$cql] or $sq = $val;
 				if ( $sq['cql'] == "" ) continue;
 				$display = $sq['name'] or $display = $sq['display'] or $display = $cql;
-				$cmd = "echo 'Matches = {$sq['cql']}; size Matches $fld;'| $ttcqp";
-				$maintext .= "<span style='display: none'>".$i++.": $cmd</span>";
-				$num = shell_exec($cmd); $num = chop($num) + 0;
+				if ( $ttcqp ) 
+					$cmd = "echo 'Matches = {$sq['cql']}; size Matches $fld;'| $ttcqp";
+					$num = shell_exec($cmd); $num = chop($num) + 0;
+				else {
+					# Fallback without tt-cqp
+					include ("$ttroot/common/Sources/cwcqp.php");
+					$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+					$cqpfolder = $settings['cqp']['searchfolder'];
+					if  ( !$corpusfolder ) $corpusfolder = "cqp";
+					# Check whether the registry file exists
+					if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
+						# For backward compatibility, always check the central registry
+						$registryfolder = "/usr/local/share/cwb/registry/";
+					};
+					if ( !file_exists($registryfolder.'/'.strtolower($cqpcorpus)) ) {
+						fatal ( "Corpus $cqpcorpus has no registry file" );
+					};
+
+					$cqp = new CQP();
+					$cqp->exec($cqpcorpus); // Select the corpus
+					$cqp->exec("set PrettyPrint off");
+					$cqpquery = "Matches = $cql";
+					$cqp->exec($cqpquery);
+					$num = $cqp->exec("size Matches") + 0;
+				};
 				$data .= "\n\t['$display', $num], ";
 			};
 			$json = "[[{'id':'form', 'label':'Query name'},  {'id':'count', 'label':'Count', 'type':'number'} ], $data]";
