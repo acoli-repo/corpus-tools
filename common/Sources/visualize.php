@@ -44,7 +44,7 @@
 				if ( $sq['cql'] == "" ) continue;
 				$display = $sq['name'] or $display = $sq['display'] or $display = $cql;
 				$cmd = "echo 'Matches = {$sq['cql']}; size Matches $fld;'| $ttcqp";
-				$maintext .= "<span style='display: none'>".$i++.": {$sq['cql']}</span>";
+				$maintext .= "<span style='display: none'>".$i++.": $cmd</span>";
 				$num = shell_exec($cmd); $num = chop($num) + 0;
 				$data .= "\n\t['$display', $num], ";
 			};
