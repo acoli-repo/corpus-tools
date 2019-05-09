@@ -43,10 +43,10 @@
 				$sq = $_SESSION['myqueries'][$cql] or $sq = $val;
 				if ( $sq['cql'] == "" ) continue;
 				$display = $sq['name'] or $display = $sq['display'] or $display = $cql;
-				if ( $ttcqp ) 
+				if ( $ttcqp ) {
 					$cmd = "echo 'Matches = {$sq['cql']}; size Matches $fld;'| $ttcqp";
 					$num = shell_exec($cmd); $num = chop($num) + 0;
-				else {
+				} else {
 					# Fallback without tt-cqp
 					include ("$ttroot/common/Sources/cwcqp.php");
 					$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
@@ -67,7 +67,7 @@
 					$cqp->exec("set PrettyPrint off");
 					$cqpquery = "Matches = $cql";
 					$cqp->exec($cqpquery);
-					$num = $cqp->exec("size Matches") + 0;
+					$num = $cqp->exec("size Matches"); $num = $num + 0;
 				};
 				$data .= "\n\t['$display', $num], ";
 			};
