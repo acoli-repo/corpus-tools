@@ -5,6 +5,7 @@
 
 	$cntcols = 1; $headrow = 'false';
 	$ttcqp = findapp("tt-cqp");
+	if ( !$ttcqp ) $ttcqp = findapp("cqp"); 
 	
 	if ( $_GET['cwb'] || $settings['cqp']['ttcqp'] == "0" ) $usecwb = 1;
 
