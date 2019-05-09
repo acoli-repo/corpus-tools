@@ -4,7 +4,7 @@
 	if ( !$_POST ) $_POST = $_GET;
 
 	$cntcols = 1; $headrow = 'false';
-	$ttcqp = findapp("tt-cqp");
+	$ttcqp = findapp("tt-cqp2");
 	
 	if ( $_GET['cwb'] || $settings['cqp']['ttcqp'] == "0" ) $usecwb = 1;
 
@@ -48,7 +48,7 @@
 					$num = shell_exec($cmd); $num = chop($num) + 0;
 				} else {
 					# Fallback without tt-cqp
-					include ("$ttroot/common/Sources/cwcqp.php");
+					require_once ("$ttroot/common/Sources/cwcqp.php");
 					$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
 					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 					$cqpfolder = $settings['cqp']['searchfolder'];
@@ -61,7 +61,7 @@
 					if ( !file_exists($registryfolder.'/'.strtolower($cqpcorpus)) ) {
 						fatal ( "Corpus $cqpcorpus has no registry file" );
 					};
-
+				
 					$cqp = new CQP();
 					$cqp->exec($cqpcorpus); // Select the corpus
 					$cqp->exec("set PrettyPrint off");
