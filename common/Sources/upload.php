@@ -176,7 +176,7 @@
   				  maxFilesize: $maxsize,
   				  $capture
   				  init: function() {
-				  	// Maybe reload the list of uploaded files?
+				  	// Throw an error - TODO: Reload file list?
 					this.on(\"error\", function(file, message) { 
 								alert(message);
 								this.removeFile(file); 
