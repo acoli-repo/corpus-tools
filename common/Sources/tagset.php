@@ -52,7 +52,7 @@
 		foreach ( $tags as $main => $val ) {
 			$maintxt = $tagset[$main]['display'];
 			foreach ( $val as $posi => $val2 ) {
-				$postxt = $tagset[$main][$posi]['display'];
+				$postxt = $tagset[$main][$posi]['display'] or $postxt = "<span style='color: #ff9999;'>undefined</span>";
 				foreach ( $val2 as $value => $tags ) {
 					if ( $posi > 0 && !$tagset[$main][$posi][$value] && $tagset['noval'] != $value ) {
 						$maintext .= "<p>Undefined value <b>$value</b> for position $posi ($postxt) of $main ($maintxt)<br> - used in: ";
