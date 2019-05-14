@@ -637,9 +637,9 @@
 			$maintext .= "<hr>";
 
 			$maintext .= "<div style='display: block;' id='freqopts' name='freqopts'>
-				<h2>Frequency Options</h2>
+				<h2>{%Frequency Options}</h2>
 				<form action='index.php?action=visualize' id=freqform name=freqform method=post>
-				<p>Use the query above to calculate:";
+				";
 
 
 			# Frequency distribution

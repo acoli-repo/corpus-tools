@@ -77,7 +77,7 @@ foreach $ttnode ($xml->findnodes("//tok[contains(\@$pos,'+')]")) {
 		
 		# Set the form to the tokform when there is no dtok form
 		if ( !$newchild->getAttribute("form") && $forceform ) {
-			$newchild->setAttribute("form", "#".$tokform );
+			$newchild->setAttribute("form", "#".$i.":".$tokform );
 		};
 		
 		( $newid = $id."-".($i+1) ) =~ s/w-/d-/;

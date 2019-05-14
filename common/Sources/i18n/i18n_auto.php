@@ -58,6 +58,7 @@
 		"Download results" => "Download results",
 		"Remember query" => "Remember query",
 		"Stored CQL queries" => "Stored CQL queries",
+		"Frequency Options" => "Frequency Options",
 		"Collocation by" => "Collocation by",
 		"Frequency by" => "Frequency by",
 		"Apply" => "Apply",
