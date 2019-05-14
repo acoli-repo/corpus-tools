@@ -73,7 +73,7 @@
 		"advanced" => "avançada",
 		"Matching strategy" => "Estratégia de combinação",
 		"Showing form" => "Forma visível",
-		"help" => "AJUDA",
+		"help" => "ajuda",
 		"Form to show" => "Forma a mostrar",
 		"Written form" => "Ortografia original",
 		"Advanced Search" => "Pesquisa avançada",
