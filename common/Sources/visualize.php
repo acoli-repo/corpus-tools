@@ -4,21 +4,19 @@
 	if ( !$_POST ) $_POST = $_GET;
 
 	$cntcols = 1; $headrow = 'false';
-	$ttcqp = findapp("tt-cqp2");
+	$ttcqp = findapp("tt-cqp");
 	
 	if ( $_GET['cwb'] || $settings['cqp']['ttcqp'] == "0" ) $usecwb = 1;
 
 	if ( $act == "cql" ) {
 
-			$maintext .= "<h1>CQP Statistics</h1>
-
-				<p>Below you can define a base query, and a grouping query
+			$maintext .= "<h1>{%Statistics}</h1>
 
 				<form action='index.php?action=$action' method=post>
-					<p>Base query: <input size=70 name=cql value=\"{$_GET['cql']}\">
-					<p>Grouping query: <input size=70 name=query value=\"{$_GET['query']}\">
+					<p>{%Search Query}: <input size=70 name=cql value=\"{$_GET['cql']}\">
+					<p>{%Grouping Query}: <input size=70 name=query value=\"{$_GET['query']}\">
 					<hr>
-					<input type=submit value=Show>
+					<input type=submit value=\"{%Show}\">
 				</form>";
 
 
@@ -71,7 +69,7 @@
 				};
 				$data .= "\n\t['$display', $num], ";
 			};
-			$json = "[[{'id':'form', 'label':'Query name'},  {'id':'count', 'label':'Count', 'type':'number'} ], $data]";
+			$json = "[[{'id':'form', 'label':'{%Query name}'},  {'id':'count', 'label':'{%Count}', 'type':'number'} ], $data]";
 			$nodirect = 1; // This relies on POST
 
 		} else if ( $_GET['cql'] or $_POST['cql'] ) {
