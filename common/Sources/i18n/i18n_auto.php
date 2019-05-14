@@ -227,6 +227,7 @@
 		"Chi Square" => "Chi Square",
 		"Mutual Information" => "Mutual Information",
 		"Corpus Distribution" => "Corpus Distribution",
+		"Group" => "Group",
 		"Group query" => "Group query",
 		"Words per million" => "Words per million",
 		"Corpus occurrences" => "Corpus occurrences",

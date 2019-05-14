@@ -204,7 +204,7 @@
 					$cqp->exec($cqpquery);
 					$results = $cqp->exec($grquery);
 
-					$label = "Group";
+					$label = "Group"; # {%Group}
 					$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}], ";
 					foreach ( explode("\n", $results) as $line ) {
 						list ( $grp, $cnt ) = explode ( "\t", $line );
