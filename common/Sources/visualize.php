@@ -159,7 +159,7 @@
 				$cntcols = 5;
 
 			} else {
-				$maintext .= "<h1>Corpus Distribution</h1>";
+				$maintext .= "<h1>{%Corpus Distribution}</h1>";
 
 				$moredirect = "&query=".urlencode($_POST['query']);
 
@@ -213,7 +213,7 @@
 					$json .= "]";
 
 					if ( preg_match("/group Matches match (.*)/", $grquery, $matches ) ) {
-					$grtxt = pattname($matches[1]);
+					$grtxt = "{%".pattname($matches[1])."}";
 				} else $grtxt = $grquery;
 
 				};
@@ -236,7 +236,7 @@
 						if ( !$mainfld ) $mainfld = $grfld;
 						$grnames .= $sep."<b>{%".pattname($grfld)."}</b>"; $sep = " + ";
 					};
-					$grtxt = "{%Group by}:  $grnames";
+					$grtxt = $grnames;
 				} else if ( !$grtxt ) $grtxt = $grquery;
 
 				$maintext .= "<table>

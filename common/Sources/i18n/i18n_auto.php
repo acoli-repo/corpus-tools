@@ -226,7 +226,7 @@
 		"Observed frequency" => "Observed frequency",
 		"Chi Square" => "Chi Square",
 		"Mutual Information" => "Mutual Information",
-		"Group by" => "Group by",
+		"Corpus Distribution" => "Corpus Distribution",
 		"Group query" => "Group query",
 		"Words per million" => "Words per million",
 		"Corpus occurrences" => "Corpus occurrences",
