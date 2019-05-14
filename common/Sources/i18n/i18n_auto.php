@@ -216,7 +216,6 @@
 		"Statistics" => "Statistics",
 		"Grouping Query" => "Grouping Query",
 		"Query Comparison" => "Query Comparison",
-		"Query name" => "Query name",
 		"Keywords" => "Keywords",
 		"Keyness" => "Keyness",
 		"Field" => "Field",

@@ -69,7 +69,7 @@
 				};
 				$data .= "\n\t['$display', $num], ";
 			};
-			$json = "[[{'id':'form', 'label':'{%Query name}'},  {'id':'count', 'label':'{%Count}', 'type':'number'} ], $data]";
+			$json = "[[{'id':'form', 'label':'{%Search Query}'},  {'id':'count', 'label':'{%Count}', 'type':'number'} ], $data]";
 			$nodirect = 1; // This relies on POST
 
 		} else if ( $_GET['cql'] or $_POST['cql'] ) {
