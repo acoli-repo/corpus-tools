@@ -100,7 +100,7 @@ class TTXML
 		if (!$this->xml) return "";
 		if ( !$this->title ) {
 			if ( $settings['xmlfile']['title'] == "[id]" ) {
-				$this->title = $fileid;
+				$this->title = $this->fileid;
 			} else {
 				$titlexp = $settings['xmlfile']['title']."" or $titlexp = "//title";
 				$result = $this->xml->xpath($titlexp); 

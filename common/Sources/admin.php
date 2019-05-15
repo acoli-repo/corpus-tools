@@ -106,6 +106,11 @@
 				};
 			}; 
 		};
+		
+		# Check that the new teiHeader settings are used
+		if ( !$settings['teiHeader'] ) {
+			$maintext .= "<p class=warn>Since version 2.5 TEITOK keeps the metadata in the settings file instead of a metadata template. You should go to the <a href='index.php?action=metadata'>settings</a> section to convert to the new format";
+		};
 			
 	} else if ( $act == "checksettings" ) {
 	
