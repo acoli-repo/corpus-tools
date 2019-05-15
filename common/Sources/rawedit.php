@@ -39,10 +39,13 @@
 	$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
 
-			
-	$result = $xml->xpath("//title"); 
-	$title = $result[0];
-
+	if ( $settings['xmlfile']['title'] == "[id]" ) {
+		$title = $fileid;
+	} else {			
+		$result = $xml->xpath("//title"); 
+		$title = $result[0];
+	};
+	
 	$maintext .= "<h2>$fileid</h2><h1>$title </h1>";
 
 	# Show optional additional headers

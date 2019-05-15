@@ -111,6 +111,13 @@
 		if ( !$settings['teiHeader'] ) {
 			$maintext .= "<p class=warn>Since version 2.5 TEITOK keeps the metadata in the settings file instead of a metadata template. You should go to the <a href='index.php?action=metadata'>settings</a> section to convert to the new format";
 		};
+		
+		# Check that there are no duplicate filenames
+		$results = shell_exec("find xmlfiles/ -name *.xml -print | perl -pe 's/.*\///' | sort | uniq -cd");
+		if ( $results ) {
+			$maintext .= "<p class=error>There are files with the same name in the xmlfiles folder, which is not allowed in TEITOK - each XML files needs a unique filename. Below is the list of conflicting files
+				<pre>$results</pre>";
+		};
 			
 	} else if ( $act == "checksettings" ) {
 	
