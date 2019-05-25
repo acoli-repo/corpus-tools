@@ -682,8 +682,8 @@
 				<option value=''>[{%select}]</option>
 				$collopts
 			</select>
-				| Context size: <select name='context'><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option></select>
-				| direction: <select name='dir'><option value='-'>Left</option><option value='+'>Right</option><option value='' selected>Left and Right</option></select>
+				| {%Context size}: <select name='context'><option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option></select>
+				| {%Direction}: <select name='dir'><option value='-'>{%Left}</option><option value='+'>{%Right}</option><option value='' selected>{%Left and Right}</option></select>
 				<input type=submit onClick=\"return collchoose();\"/>
 				";
 

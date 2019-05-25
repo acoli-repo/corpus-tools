@@ -43,7 +43,7 @@ sudo g++ -o /usr/local/bin/neotagxml neotagxml.cpp pugixml.cpp functions-boost.c
 
 sudo g++ -o /usr/local/bin/neotagtrain neotagtrain.cpp pugixml.cpp functions-boost.cpp -lboost_system
 
-sudo g++ -o /usr/local/bin/tt-cwb-encode tt-cwb-encode.cpp pugixml.cpp functions-boost.cpp -lboost_system
+sudo g++ -o /usr/local/bin/tt-cwb-encode tt-cwb-encode.cpp pugixml.cpp functions-boost.cpp -lboost_system -lboost_regex
 
 sudo g++ -o /usr/local/bin/tt-cwb-xidx tt-cwb-xidx.cpp pugixml.cpp functions-boost.cpp -lboost_system
 

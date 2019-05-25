@@ -205,8 +205,8 @@ class TTXML
 			if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$this->fileid";
 			$headeroptions = $settings['xmlfile']['teiHeader'] or $headeroptions = array (
 				'' => array ( "display" => "less header data" ),
-				'long' => array ( "display" => "more header data" ),
-				'edit' => array ( "display" => "edit header data", "edit" => 1 ),
+				'long' => array ( "display" => "more header data" ), # {%more header data}
+				'edit' => array ( "display" => "edit header data", "edit" => 1 ), # {%edit header data}
 				);
 			$sep = "";
 			if ( $username && $settings['teiheader'] ) {
