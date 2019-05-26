@@ -27,7 +27,6 @@ function clickEvent(evt) {
 	if ( element.parentNode && element.parentNode.parentNode && element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; };
 
     if (element.tagName == "TOK" ) {
-    	console.log(tid);
     	if ( username ) {
     		if ( typeof(tid) == "undefined" ) { // For KWIC rows
 				var mtch = document.evaluate("ancestor::tr[@tid]", element, null, XPathResult.ANY_TYPE, null); 

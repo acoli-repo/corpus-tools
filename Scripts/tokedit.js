@@ -754,7 +754,8 @@ function treatpos ( tok, label, type ) {
 							var valdef = tmp.iterateNext();
 							if ( valdef ) {
 								var postxt;
-								postxt = valdef.getAttribute('display');
+								postxt = valdef.getAttribute('display-'+lang);
+								if ( postxt == "" ) postxt = valdef.getAttribute('display');
 								if ( postxt != "" ) {
 									mfs += sep + postxt; 
 									sep = '; ';

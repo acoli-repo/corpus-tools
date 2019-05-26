@@ -453,6 +453,7 @@
 	} else if ( $act == "search" ) {
 
 		foreach ( $entryxml->children() as $fldrec ) {
+			if ( $fldrec['type'] == "separator" ) continue;
 			if ( $fldrec['xpath'] ) {
 				$key = $fldrec['xpath']."";
 				$key = str_replace("'", "&#039;", $key);
