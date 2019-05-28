@@ -35,8 +35,9 @@
 	
     $menu .= "<ul style='text-align: left'>";
         	
-    foreach ( $settings['menu']['itemlist'] as $key => $item ) { 	
-    	$link = "{$tlpr}index.php?action=$key";
+    foreach ( $settings['menu']['itemlist'] as $key => $item ) { 
+    	if ( substr($key,0,4) == "http" ) $link = $key;
+    	else $link = "{$tlpr}index.php?action=$key";
     	if ( $key == $action ) {
     		$scl = " class='selected'"; 
     		$scli = " class='active'"; 
