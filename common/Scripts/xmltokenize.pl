@@ -106,12 +106,14 @@ $tagtxt =~ s/\s*\|~\s*((<[pl]b[^>]*>\s*?)*)\s*/\1/gsmi;
 
 # Do some preprocessing
 # decode will mess up encoded <> so htmlencode them
+$tagtxt =~ s/&amp;/xxAMPxx/g;
 $tagtxt =~ s/&lt;/&amp;lt;/g;
 $tagtxt =~ s/&gt;/&amp;gt;/g;
 $tagtxt = decode_entities($tagtxt);
 # Protect HTML Entities so that they do not get split
-$tagtxt =~ s/(&[^ \n\r&]+;)/xx\1xx/g;
-$tagtxt =~ s/&(?![^ \n\r&]+;)/xx&amp;xx/g;
+# TODO: This should not exist anymore, right?
+#$tagtxt =~ s/(&[^ \n\r&]+;)/xx\1xx/g;
+#$tagtxt =~ s/&(?![^ \n\r&;]+;)/xx&amp;xx/g;
 
 # <note> elements should not get tokenized
 # And neither should <desc> or <gap>
@@ -427,7 +429,8 @@ if ( $sentsplit != 2 ) {
 	$teitext =~ s/<tok>\(<\/tok><tok>\.<\/tok><tok>\.<\/tok><tok>\.<\/tok><tok>\)<\/tok>/<tok>(...)<\/tok>/g; # They can also be inside a tok
 	$teitext =~ s/<tok>\.<\/tok><tok>\.<\/tok><tok>\.<\/tok>/<tok>...<\/tok>/g; # They can also be inside a tok
 
-	$teitext =~ s/xx(&[^ \n\r&]+;)xx/\1/g; # Unprotect HTML Characters
+	$teitext =~ s/xx(&(?!xx)[^ \n\r&]+;)xx/\1/g; # Unprotect HTML Characters
+	$teitext =~ s/xxAMPxx/&amp;/g; # Undo xxAMPxx
 
 	# A single capital with a dot is likely a name
 	$teitext =~ s/<tok>([A-Z])<\/tok><tok>\.<\/tok>/<tok>\1.<\/tok>/g; # They can also be inside a tok

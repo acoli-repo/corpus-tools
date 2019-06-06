@@ -489,6 +489,8 @@ void treatfile ( string filename ) {
 						pugi::xpath_node xres;
 						string external = formfld.attribute("external").value();
 						if ( external != "" ) {
+							// TODO: this is only external to the NODE, not a lookup from an external XML file
+							// so with an "external", we should split xpath on tmp = # an lookup tmp[1] potentially in Resources/tmp[0]
 							pugi::xpath_node tmp = it->node().select_node(external.c_str());
 							string tmp2 = tmp.attribute().value();
 							string extxpath = "//*[@id='"+tmp2+"']";

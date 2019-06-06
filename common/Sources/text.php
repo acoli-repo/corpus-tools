@@ -293,7 +293,9 @@
 			if ( $mtype == "audio" ) {
 				# Determine the URL of the audio fragment
 				$audiourl = $medianode['url'];
-				if ( !strstr($audiourl, 'http') ) {
+				if ( $settings['defaults']['base']['media'] ) {
+					$audiourl = $settings['defaults']['base']['media'].$audiourl;
+				} else if ( !strstr($audiourl, 'http') ) {
 					if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
 					else $audiourl = $baseurl."Audio/$audiourl"; 
 				}
