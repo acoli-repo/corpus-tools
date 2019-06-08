@@ -174,7 +174,8 @@
   				  paramName: \"upfile\", // The name that will be used to transfer the file
   				  acceptedFiles: \"$accept\",
   				  maxFilesize: $maxsize,
-  				  $capture
+ 				  timeout: 0,
+   				  $capture
   				  init: function() {
 				  	// Throw an error - TODO: Reload file list?
 					this.on(\"error\", function(file, message) { 
