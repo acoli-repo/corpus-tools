@@ -1,6 +1,8 @@
 ## Installation
 
-TEITOK can be installed in a number of different ways, but below is the most recommendable installation flow.
+TEITOK can be installed in a number of different ways, but below is our own installation flow. Given that there is a number of steps that require manual intervention, there is no install script that takes care of this, but the number of steps is relatively limited.
+
+For people that prefer a Docker installation, there is a docker project by Luigi Talamo [here](https://github.com/rahonalab/TEITOK-docker)
 
 * Register as a user at [GitLab](https://gitlab.com/users/sign_in)
 * Ask to be added to the TEITOK project, message your GitLab username on the [Facebook page](https://www.facebook.com/maartenes) 
