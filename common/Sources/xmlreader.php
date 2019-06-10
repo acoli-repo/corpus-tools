@@ -38,6 +38,7 @@
 	};
 	
 	if ( $entry == "" && $username ) {
+	
 		# Not defined yet
 		if ( $xmlfile && file_exists("Resources/$xmlfile.xml") ) {
 			# Read XML file only when defined
@@ -425,18 +426,12 @@
 		$result = $xml->xpath("//$recname"); 
 		foreach ( $result as $record ) { 
 
-			$status = current($record->xpath("status"));
+			$name = current($record->xpath("name"))."";
+			$cns = current($record->xpath($f))."";
 			
-			if ( $status == "public" || $username ) {
-
-				$name = current($record->xpath("name"))."";
-				$cns = current($record->xpath($f))."";
-				
-				foreach (  explode(", ", $cns ) as $cn ) {
-					$cnt[$cn]++;
-					$ps[$cn] .= "<a>$name</a> ";
-				};
-
+			foreach (  explode(", ", $cns ) as $cn ) {
+				$cnt[$cn]++;
+				$ps[$cn] .= "<a>$name</a> ";
 			};
 			
 		};
