@@ -545,6 +545,7 @@
 				} else {
 					$key = $fldrec->getName();
 				};
+				$keyt = urlencode($key);
 				$val = current($record->xpath($key));
 				if ( $fldrec["link"] ) {
 					if ( substr($fldrec["link"],0,1) == "%" ) {
@@ -562,7 +563,7 @@
 					$vals = $sep = "";
 					$prevq = $_GET['q']; 
 					foreach ( explode ( ", ", $val ) as $tmp ) { 
-						$vals .= $sep."<a class='black' href='index.php?action=$action&q=$key:$tmp;$prevq'>$tmp</a>"; $sep = ", ";
+						$vals .= $sep."<a class='black' href='index.php?action=$action&q=$keyt:$tmp;$prevq'>$tmp</a>"; $sep = ", ";
 					};
 					$val = $vals;
 				};
