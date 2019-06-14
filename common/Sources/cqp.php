@@ -121,7 +121,7 @@
 				$tmp = $val1['header'][$lang] or $tmp = $val1['header']["en"];
 				$maintext .= "<p>{$tmp}</p>";
 			};
-			$maintext .= "<table>";
+			$maintext .= "<table class=restable>";
 			foreach ( explode("\n", $results) as $line ) {
 				list ( $cvl, $cnt ) = explode ( "\t", $line );
 
