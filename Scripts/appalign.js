@@ -50,14 +50,14 @@ function mouseEvent(evt) {
 	var qs = '*[appid=\''+appid+'\']';
 	hls = document.querySelectorAll(qs);
 	var color = '#ffffaa';
+	var newtop = element.scrollTop;
 	for (i = 0; i < hls.length; ++i) {
 		hls[i].style['background-color'] = color;
 		hls[i].style.backgroundColor= color; 
 		
 		if ( hls[i] != element ) { 
 			// Scroll aligned elements into view
-			hls[i].scrollIntoView(); 
-			// hls[i].top = element.top; // We should align the top inside the scroll to really align nicely
+			hls[i].scrollIntoView({behavior: "smooth", block: "center"}); 
 		};
 	};
 	

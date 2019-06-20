@@ -342,7 +342,9 @@ class TTXML
 		// Determine what element to use
 		# if ( $settings['xmlfile']['paged'] == 2) $me = "you";
 		
-		$pbtmp = $_GET['pbtype'] or $pbtmp = $settings['xmlfile']['paged']['element'] or $pbtmp = "pb";
+		if ( is_array($settings['xmlfile']['paged']) ) $pbtmp = $settings['xmlfile']['paged']['element'];
+		else $pbtmp = $_GET['pbtype'] or $pbtmp = "pb";
+		
 		if ( $action == "pagetrans" ) { // Page
 			$pbelm = "page";
 			$titelm = "Page";
