@@ -1,6 +1,6 @@
 <?php
 
-	// Use tt-cqp to calculate a word-sketch for corpora with dependency relations (head, deprel)
+	// Use tt-cqp to calculate a dependency-concordancer for corpora with dependency relations (head, deprel)
 	// (c) Maarten Janssen, 2018
 	
 	if ( !$_POST ) $_POST = $_GET;
@@ -17,7 +17,7 @@
 		};
 		// print_r($edgelabels); exit;
 	
-		$maintext .= "<h1>Word Sketch</h1>";
+		$maintext .= "<h1>Dependency Sketch</h1>";
 
 		$fld = $_POST['fld'] or $fld = "word";
 		$fldname = pattname($fld);
@@ -33,7 +33,7 @@
 		$cmd = "echo '$cqp' | /usr/local/bin/tt-cqp";
 		$results = shell_exec($cmd);
 
-		// if ( $debug ) { $maintext .= "<pre>$cmd</pre>"; };
+		if ( $debug ) { $maintext .= "<pre>$cmd</pre>"; };
 		
 		foreach ( explode("\n", $results ) as $res ) {
 			list ( $word, $deprel, $cnt, $tot, $exp, $chi2, $mutinf ) = explode("\t", $res );
@@ -72,7 +72,7 @@
 			function visualize(fld, tit) {
 				console.log(tit);
 				document.postform.json.value = JSON.stringify(json[fld]);
-				document.postform.title.value = 'Word Sketch: ' + tit;
+				document.postform.title.value = 'Dependency Sketch: ' + tit;
 				document.postform.submit();
 			}
 			</script>
@@ -91,7 +91,7 @@
 		$qbnosearch = true;	
 		require_once ("$ttroot/common/Sources/querybuilder.php");
 				
-		$maintext .= "<h1>{%Word Sketches}</h1>
+		$maintext .= "<h1>{%Dependency Sketches}</h1>
 				<script language=Javascript>
 					$prescript
 					function checksearch (frm) {

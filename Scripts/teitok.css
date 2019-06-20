@@ -81,3 +81,5 @@ anon::after { content: ']'; }
 #mtxt mtok:hover { text-shadow: 1pt 1pt #99dd99;}
 
 #rollovertable 
+
+.header { font-weight: bold; }

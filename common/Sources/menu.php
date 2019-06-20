@@ -24,12 +24,12 @@
 		} else $menu .= "<div stle='margin-top: 0px; margin-bottom: 20px;'>$langstxt</div>";	
 	};
 
-	if ( $settings['menu']['name'] ) $menu .= "<p style='title'>{%{$settings['menu']['name']}}</p>";
+	if ( $settings['menu']['name'] ) $menu .= "<p class='title'>{%{$settings['menu']['name']}}</p>";
 
 	if ( $settings['menu']['title'] ) {
 		$menutitle = $settings['menu']['title'];
 		if ( $menutitle == "[title]" ) $menutitle = $settings['defaults']['title']['display']; 
-		$menu .= "<p style='header'>{%$menutitle}</p>";
+		$menu .= "<p class='header'>{%$menutitle}</p>";
 	}
 	else $menu .= "<p>{%Main Menu}</p>";
 	

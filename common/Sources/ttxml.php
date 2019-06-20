@@ -333,7 +333,7 @@ class TTXML
 	}
 	
 	function page ( $pagid = "" ) {
-		global $action; # global $settings;
+		global $action; global $settings;
 		
 		$editxml = $this->rawtext;
 	
@@ -375,15 +375,18 @@ class TTXML
 			$pbsel = "&pbtype={$pbtmp}";
 		};
 
-
 		if ( !$pagid ) $pagid = $_GET['pageid'];
 		if ( !$tid ) $tid = $_GET['tid'] or $tid = $_GET['jmp'];
 
 		if ( $pagid ) {
 			$pb = "<$pbelm id=\"$pagid\"";
 			$pidx = strpos($editxml, $pb);
+		} else if ( $_GET['appid'] ) {
+			$tokidx = strpos($editxml, " appid=\"{$_GET['appid']}\"");
+			$pb = "<$pbelm";
+			$pidx = rstrpos($editxml, $pb, $tokidx);
 		} else if ( $tid ) {
-			$tokidx = strpos($editxml, "id=\"$tid\"");
+			$tokidx = strpos($editxml, " id=\"$tid\"");
 			$pb = "<$pbelm";
 			$pidx = rstrpos($editxml, $pb, $tokidx);
 		} else {

@@ -253,7 +253,7 @@
 		"Zoom" => "Zoom",
 		"Observed" => "Observed",
 		"Expected" => "Expected",
-		"Word Sketches" => "Word Sketches",
+		"Dependency Sketches" => "Dependency Sketches",
 		"Sketch field" => "Sketch field",
 		"Dictionary Reader" => "Dictionary Reader",
 		"patterns" => "patterns",
