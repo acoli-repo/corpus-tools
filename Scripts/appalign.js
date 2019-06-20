@@ -56,8 +56,8 @@ function mouseEvent(evt) {
 		
 		if ( hls[i] != element ) { 
 			// Scroll aligned elements into view
-			// hls[i].scrollIntoView(); 
-			hls[i].top = element.top;
+			hls[i].scrollIntoView(); 
+			// hls[i].top = element.top; // We should align the top inside the scroll to really align nicely
 		};
 	};
 	
