@@ -86,6 +86,7 @@
 				$appid = $row['appid']."";
 				array_push($appidlist[$cid], $appid);
 				$rowlist[$cid][$appid] .= $row->asXML();
+				$numlist[$cid][$appid] .= "<br>".$row['n'];
 			}; 
 		};
 		
@@ -107,7 +108,8 @@
 					$maintext .= "<td valign=top>".$rowlist[$cid][$inserted];
 				};
 			};
-			$maintext .= "<tr><td valign=top><a href='index.php?action=$action&appid=$appid&pbtype=$ctype&id=$ids'>$appid</a></td>";
+			$appnum = $numlist[$cid][$appid];
+			$maintext .= "<tr><td valign=top><a href='index.php?action=$action&appid=$appid&pbtype=$ctype&id=$ids'>$appid</a>$appnum</td>";
 			foreach ( $idlist as $cid ) {
 				$maintext .= "<td valign=top>".$rowlist[$cid][$appid];
 				if ( $appid == $appidlist[$cid][0] ) array_shift($appidlist[$cid]);
