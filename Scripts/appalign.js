@@ -29,8 +29,7 @@ function clickEvent(evt) {
 function mouseOut(evt) {
 	if ( typeof(hls) == null ) { return -1; };
 	for (i = 0; i < hls.length; ++i) {
-		hls[i].style['background-color'] = "";
-		hls[i].style.backgroundColor= ""; 
+		hls[i].removeAttribute('hl');
 	};
 };
 
@@ -52,8 +51,7 @@ function mouseEvent(evt) {
 	var color = '#ffffaa';
 	var newtop = element.scrollTop;
 	for (i = 0; i < hls.length; ++i) {
-		hls[i].style['background-color'] = color;
-		hls[i].style.backgroundColor= color; 
+		hls[i].setAttribute('hl', 1);
 		
 		if ( hls[i] != element ) { 
 			// Scroll aligned elements into view

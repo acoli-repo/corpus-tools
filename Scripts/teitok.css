@@ -83,3 +83,5 @@ anon::after { content: ']'; }
 #rollovertable 
 
 .header { font-weight: bold; }
+
+*[hl] { font-weight: bold; background-color: #ffee66;  }
