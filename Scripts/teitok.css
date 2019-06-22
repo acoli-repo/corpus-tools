@@ -84,4 +84,4 @@ anon::after { content: ']'; }
 
 .header { font-weight: bold; }
 
-*[hl] { font-weight: bold; background-color: #ffee66;  }
+*[hl] { background-color: #ffee66;  }
