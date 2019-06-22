@@ -333,7 +333,7 @@ class TTXML
 	}
 	
 	function page ( $pagid = "" ) {
-		global $action; global $settings;
+		global $action; global $settings; global $pbtype;
 		
 		$editxml = $this->rawtext;
 	
