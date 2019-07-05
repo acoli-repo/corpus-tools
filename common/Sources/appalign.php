@@ -7,6 +7,7 @@
 	
 	foreach ( $idlist as $cid ) {
 		$versions[$cid] = new TTXML($cid); 
+		$tmp = $versions[$cid]->restrict();
 	};
 
 	$maintext .= "<h1>Aligned Texts</h1>";
@@ -76,7 +77,7 @@
 		$ptype = $_GET['pbtype'] or $ptype = $settings['appid']['baseview'] or $ptype = "pb";
 		# Display the parts aligned by row
 		$nums = array_keys($settings['appid']['numbering']);
- 		$i=0; while ( $i < count($nums) && $nums[$i] != $ptype ) { print "$i: {$nums[$i]}"; $i++; }; 
+ 		$i=0; while ( $i < count($nums) && $nums[$i] != $ptype ) { $i++; }; 
  		$i++; $ctype = $nums[$i]; 
  
  		# Build the list of rows
@@ -84,6 +85,8 @@
  			$appidlist[$cid] = array();			
 			foreach ( $versions[$cid]->xml->xpath(".//$ctype") as $row ) {
 				$appid = $row['appid']."";
+				# Check whether this appid is part of our selection # TODO: Why do we get this anyway?
+				if ( !preg_match("/^{$_GET['appid']}/", $appid) ) continue; 
 				array_push($appidlist[$cid], $appid);
 				$rowlist[$cid][$appid] .= $row->asXML();
 				$numlist[$cid][$appid] .= "<br>".$row['n'];
@@ -99,7 +102,7 @@
 		$donerows = 0;
 		while ( !$donerows ) {
 			$appid = array_shift($appidlist[$mcid]);
-			while ( $appid == $appidlist[$idlist[1]][1] ) { # TODO: This should become more general
+			while ( $appid == $appidlist[$idlist[1]][1] && !$rowlist[$mcid][$idlist[1][0]] ) { # TODO: This should become more general
 				# We have an inserted element in the 1st column - show that one
 				$inserted = array_shift($appidlist[$idlist[1]]); 
 				$maintext .= "<tr><td valign=top><a href='index.php?action=$action&appid=$inserted&pbtype=$ctype&id=$ids'>$inserted</a></td><td>";
@@ -114,9 +117,21 @@
 				$maintext .= "<td valign=top>".$rowlist[$cid][$appid];
 				if ( $appid == $appidlist[$cid][0] ) array_shift($appidlist[$cid]);
 			};
-			if ( count($appidlist[$mcid]) == 0 ) $donerows = 1;
+			if ( count($appidlist[$mcid]) == 0 ) {
+				# Flush the other columns when they are not empty yet
+				foreach ( $appidlist[$idlist[1]] as $inserted ) {
+					$maintext .= "<tr><td valign=top><a href='index.php?action=$action&appid=$inserted&pbtype=$ctype&id=$ids'>$inserted</a></td><td>";
+					foreach ( $idlist as $cid ) {
+						if ( $cid == $mcid ) continue;
+						$maintext .= "<td valign=top>".$rowlist[$cid][$inserted];
+					};
+				};
+				$donerows = 1;
+			};
 		};
-		$maintext .= "<table>";
+		$maintext .= "</table>";
+		
+		if ( $ptype != $settings['appid']['baseview'] ) $maintext .= "<hr><p><a href='index.php?action=$action&appid={$_GET['appid']}&id=$ids'>back</a>";
 		
 	} else {
 	

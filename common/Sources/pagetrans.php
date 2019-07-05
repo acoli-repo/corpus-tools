@@ -602,18 +602,28 @@
 			
 			if ( !strstr("http", $pagexml['facs']) && !file_exists("Facsimile/{$pagexml['facs']}") ) {
 				# TODO: create an upload button to upload the facs
-				$imgfld = "<h2>Facsimile Image missing</h2>
-					<p>Please upload a facsimile image ({$pagexml['facs']})</p>
-					</form>
-					<p><form action='index.php?action=upload&act=save' method=post enctype=\"multipart/form-data\">
-					<input type=hidden name=type value='$type'>
-					<p>Add new file:
-						<input type=file name=upfile accept=\"$accept\">
-						<input name=filename type=hidden value=\"{$pagexml['facs']}\">
-						<input name=type type=hidden value=\"facs\">
-						<input name=goon type=hidden value=\"index.php?action=$action&cid={$_GET['cid']}&pageid={$pagexml['id']}\">
-						<input type=submit value=Save name=submit>
-					</form> ";				
+				
+				if ( $settings['files']['facs']['folder'] == "Facsimile" ) {
+					$imgfld = "<h2>Facsimile Image missing</h2>
+						<p>Please upload a facsimile image ({$pagexml['facs']})</p>
+						</form>
+						<p><form action='index.php?action=upload&act=save' method=post enctype=\"multipart/form-data\">
+						<input type=hidden name=type value='$type'>
+						<p>Add new file:
+							<input type=file name=upfile accept=\"$accept\">
+							<input name=filename type=hidden value=\"{$pagexml['facs']}\">
+							<input name=type type=hidden value=\"facs\">
+							<input name=goon type=hidden value=\"index.php?action=$action&cid={$_GET['cid']}&pageid={$pagexml['id']}\">
+							<input type=submit value=Save name=submit>
+						</form> ";				
+				} else {
+					$imgfld = "<h2>Facsimile Image missing</h2>
+						<p class=wrong>You should upload an image called {$pagexml['facs']} (or change the filename in the XML),
+						but your settings do not allow Facsimile image uploads. ";
+					if ( $user['permissions'] == "admin" ) $imgfld .= "Please add the option to upload facsimile images in the settings, by adding the following to the files section of the settings:
+							    <br><br>&lt;item key=\"facs\" display=\"Facsimile images\" folder=\"Facsimile\" extension=\"*.jpg\" description=\"Facsimile images corresponding to pages in the corpus\"/&gt;";
+					else $imgfld .= "Please ask the administrator of the corpus to modify the settings.";
+				};
 			} else {
 				$imgfld = "<img id=facs src=\"$imgsrc\" style=\"$crop\" onmousemove='zoomIn(event)' onmouseout='zoomOut();'/>";
 			};

@@ -25,6 +25,7 @@ use XML::LibXML;
 	};
 	$tmpdoc->setEncoding('UTF-8');
 
+
 	# Define default namespace as "tei" - does still not parse
 	#my $context = XML::LibXML::XPathContext->new( $tmpdoc->documentElement() );
 	#my $ns = ( $tmpdoc->documentElement()->getNamespaces() )[0]->getValue();
@@ -34,20 +35,35 @@ use XML::LibXML;
 	if ( $mtxtelem ne '' && $mtxtelem !~ /\// ) { $mtxtelem = "//$mtxtelem"; };
 
 	# Find the last token number
-	$max = 0;
+	$max = 0; 
 	foreach $ttnode ($tmpdoc->findnodes("//tok")) {
-		$tid = 	$ttnode->getAttribute('id');
+		$tid = 	$ttnode->getAttribute('id')."";
+		if ( $idlist{$tid} ) {
+			$ttnode->setAttribute('torenum', '1');
+		};
+		$idlist{$tid} = $ttnode;
 		if ( $tid =~ /^w-(\d+)$/ ) {
 			if ( $1 > $max ) { $max = $1;};
 		};
 	};
-	
+		
 	# Number the tokens
 	if ( !$override ) {
 		$cnt = $max + 1;
 	} else {
 		$cnt = 1;
 	};
+	
+	if ( !$override ) {
+		foreach $ttnode ($tmpdoc->findnodes("//tok[\@torenum]")) {
+			$tid = 	$ttnode->getAttribute('id')."";
+			$newtid = "w-".$cnt++;
+			$ttnode->setAttribute('id', $newtid);
+			$ttnode->removeAttribute('torenum');
+			print "Renumbering duplicate node $tid to $newtid";
+		};
+	};
+	
 	if ( $debug ) { print "Finding toks : //tok\n"; };
 	foreach $ttnode ($tmpdoc->findnodes("//tok")) {
 		# print "\nID: ".$ttnode->getAttribute('id'); 

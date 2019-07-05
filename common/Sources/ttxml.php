@@ -255,7 +255,7 @@ class TTXML
 			$this->pagenav = "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
 		} else if ( $settings['xmlfile']['paged'] != 2 && $_GET['div'] && 1==2 ) {
 			# Show a whole DIV
-		} else if ( !$whole && $settings['xmlfile']['paged'] ) {
+		} else if ( !$whole && ( $settings['xmlfile']['paged'] || $_GET['pbtype'] ) ) {
 			$xmltxt = $this->page();
 		} else {
 			$result = $this->xml->xpath($mtxtelement);
@@ -359,6 +359,9 @@ class TTXML
 			$foliotxt = $titelm;
 			$pbelm = "milestone";
 			$pbsel = "&pbtype={$pbtmp}";
+		} else if ( $this->is_closed($pbtmp) ) {  // Generic closed element
+			$pbtype = $pbtmp;
+			$pbelm = $pbtmp;
 		} else if ( $settings['xmlfile']['milestones'][$pbtmp] ) {  // Custom-defined milestone
 			$elm = $pbtmp;
 			$pbtype = "milestone[@type=\"$elm\"]";
@@ -493,6 +496,15 @@ class TTXML
 						";
 		
 		return $editxml;
+	}
+
+	function restrict() {
+		# Restrict the XML to only the page
+		$this->xml = simplexml_load_string($this->page());
+	}
+
+	function is_closed($elm) {
+		if ( $_GET['action'] == "appalign" ) return true;
 	}
 
 	function viewswitch($initial = true, $withself = false ) {
