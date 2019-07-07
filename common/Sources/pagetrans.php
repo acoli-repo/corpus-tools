@@ -519,6 +519,7 @@
 				
 				facsimg.onload = function () {
 					// Wait until image is loaded before resizing the background
+					redraw();
 				   showlines();
 				};
 				
@@ -666,8 +667,7 @@
 				var ces = {};
 				$charlist
 				</script>";
-			$maintext .= "<script language=Javascript src='$jsurl/pagetrans.js'></script>
-				<script language=Javascript>redraw();</script>";
+			$maintext .= "<script language=Javascript src='$jsurl/pagetrans.js'></script>";
 		
 			$maintext .="
 				<hr>
