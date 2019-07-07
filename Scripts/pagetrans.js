@@ -219,7 +219,7 @@ function redraw() {
 	facsimg.width = ( transtab.style['width'] * 0.5 ) + 'px';
 	facsimg.height = facsimg.width*(facsimg.naturalHeight/facsimg.naturalWidth);
 	document.getElementById('textfld').height = document.getElementById('facs').height + 'px';
-	console.log('redrawn'); console.log(document.getElementById('textfld'));
+	console.log('redrawn'); console.log(facsimg);
 };
 
 function unfullscreen() {
