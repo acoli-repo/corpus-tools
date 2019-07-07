@@ -667,7 +667,7 @@
 				$charlist
 				</script>";
 			$maintext .= "<script language=Javascript src='$jsurl/pagetrans.js'></script>
-				<script language=Javascript>redraw(); console.log('redrawn');</script>";
+				<script language=Javascript>redraw();</script>";
 		
 			$maintext .="
 				<hr>
