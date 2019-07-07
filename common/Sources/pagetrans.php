@@ -646,9 +646,9 @@
 				<span onClick='toggleconv();' id='conv' style='cursor: pointer; background-color: #f2f2f2; border: 1px solid #777777; border-radius: 5px; padding: 3px;' title='convert symbols as you type'>$ → ¶</span>
 				$converttxt
 				</div>
-				<div id=transtab style='background-color: white;'>
+				<div id=transtab style='background-color: white; width: 100%;'>
 				<div style='position: fixed; right: 5px; top: 5px; width: 300px; height: 300px; display: none; background-image: url(Facsimile/{$pagexml['facs']});' id='overlay'></div>
-				<table style='width: 100%;'><tr>
+				<table style='width: 100%; table-layout: fixed;'><tr>
 				<td style='width: 50%;  vertical-align: top;'><div style='overflow: hidden;'>$imgfld</div>
 				<td style='width: 50%; vertical-align: top;'><textarea id='textfld' name=newcontent onkeyup='chareq(this);' style='padding: 5px; width: 100%; height: {$imgheight}px; border: none; font-size: 16px;' >$oldcontent</textarea></table>
 				</div>";
