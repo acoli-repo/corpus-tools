@@ -666,7 +666,8 @@
 				var ces = {};
 				$charlist
 				</script>";
-			$maintext .= "<script language=Javascript src='$jsurl/pagetrans.js'></script>";
+			$maintext .= "<script language=Javascript src='$jsurl/pagetrans.js'></script>
+				<script language=Javascript>redraw();</script>";
 		
 			$maintext .="
 				<hr>

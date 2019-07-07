@@ -228,11 +228,15 @@ function unfullscreen() {
 	transtab.style['top'] = '';
 	transtab.style['width'] = transtab.parentNode.width;
 	transtab.style['height'] = '100%';
+	redraw();
+}
+
+function redraw() {
 	var facsimg = document.getElementById('facs');
 	facsimg.width = ( transtab.style['width'] * 0.5 ) + 'px';
 	facsimg.height = facsimg.width*(facsimg.naturalHeight/facsimg.naturalWidth);
 	document.getElementById('textfld').height = document.getElementById('facs').height + 'px';
-}
+};
 
 function zoomIn(event) {
 	if ( !zoomset ) return -1;
