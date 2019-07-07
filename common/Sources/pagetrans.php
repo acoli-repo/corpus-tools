@@ -520,7 +520,7 @@
 				facsimg.onload = function () {
 					// Wait until image is loaded before resizing the background
 					redraw();
-				   showlines();
+					showlines();
 				};
 				
 			</script>
