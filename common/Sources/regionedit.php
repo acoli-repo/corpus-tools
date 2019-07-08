@@ -20,7 +20,7 @@
 	
 		$cid = $_GET['cid'];
 		if ( !file_exists("xmlfiles/$cid") && file_exists("pagetrans/$cid") ) { $pagetrans = "pagetrans"; };
-		$ttxml = new TTXML($cid, 0, "keepns$pagetrans");
+		$ttxml = new TTXML($cid, 0, "$pagetrans"); # keepns?
 	
 		$maintext .= "
 			<h1>Region Editor</h1>
@@ -43,7 +43,7 @@
 		if ( !$xml ) fatal ("Unable to load XML file");
 
 		# Find the page in the XML
-		if ( $xml->xpath(".//page") ) {
+		if ( $xml->xpath(".//page") ) { # This is a pagetrans document
 			$pageid = $_GET['pageid'] or $pageid = $_GET['page'] or $pageid = $_GET['pid'];
 			if ( $pageid ) $pagexp = "//text/page[@id='$pageid']";
 			else $pagexp = "//text/page[not(@empty) and not(@done)]";
@@ -88,7 +88,7 @@
 							<hr>";
 		
 		} else {
-			# B
+			# Normal XML document
 			$pbelm = "pb";
 			$titelm = "Page";
 			$pbtype = "pb";

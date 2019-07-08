@@ -444,7 +444,7 @@
 			$imgsrc = preg_replace("/^Facsimile\//", "" , $imgsrc );
 			if ( !strstr($imgsrc, "http") ) $imgsrc = "Facsimile/$imgsrc";
 			
-			$maintext .= "<img src='$imgsrc' style='display: none;' id='facsimg'/>";
+			$maintext .= "<img src='$imgsrc' style='display: none;' id='facs'/>";
 			$maintext .= "<table style='width: 100%;' id='lines'>";
 			foreach ( $pagexml->xpath(".//line") as $line ) {
 				$nr++;
@@ -514,7 +514,7 @@
 					};			
 				};
 
-				var facsimg = document.getElementById('facsimg');
+				var facsimg = document.getElementById('facs');
 				var linedivs = document.getElementById('lines').getElementsByTagName('div');
 				
 				facsimg.onload = function () {
@@ -552,7 +552,7 @@
 					'translate(' + x + 'px,' + y + 'px)';
 	
 				var bsize = target.style['background-size'].replace(/px/g,'').split(' ');
-				var imgscale = bsize[0]/document.getElementById('facsimg').naturalWidth;
+				var imgscale = bsize[0]/document.getElementById('facs').naturalWidth;
 
 				bpos = target.getAttribute('orgbpos').replace(/px/g,'').split(' ');
 				bpos[0] = bpos[0]*1 - x*1;
@@ -681,7 +681,14 @@
 				- <a href='index.php?action=$action&act=insert&cid=$ttxml->filename&pageid={$pagexml['id']}'>Add page</a>
 				</form>
 				";
-			
+			$maintext .= "<script language=Javascript>
+				var facsimg = document.getElementById('facs');
+				
+				facsimg.onload = function () {
+					redraw();
+					showlines();
+				};
+			</script>";
 	
 	} else {
 		# List the files in the pagetrans folder

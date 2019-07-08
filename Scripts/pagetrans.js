@@ -214,15 +214,6 @@ function fullscreen() {
 	document.getElementById('textfld').height = facsimg.height + 'px';
 }
 
-function redraw() {
-	var facsimg = document.getElementById('facs');
-	facsimg.width = ( transtab.offsetwidth * 0.5 ) + 'px';
-	facsimg.height = facsimg.width*(facsimg.naturalHeight/facsimg.naturalWidth);
-	document.getElementById('textfld').height = document.getElementById('facs').height + 'px';
-	console.log(transtab);
-	console.log(facsimg);
-};
-
 function unfullscreen() {
 	document.getElementById('buttons').style['position'] = 'relative';
 	if (document.cancelFullScreen) {  
@@ -237,7 +228,13 @@ function unfullscreen() {
 	transtab.style['top'] = '';
 	transtab.style['width'] = transtab.parentNode.width;
 	transtab.style['height'] = '100%';
-	redraw();
+	var facsimg = document.getElementById('facs');
+	facsimg.width = ( transtab.style['width'] * 0.5 ) + 'px';
+	facsimg.height = facsimg.width*(facsimg.naturalHeight/facsimg.naturalWidth);
+	document.getElementById('textfld').height = document.getElementById('facs').height + 'px';
+}
+
+function redraw() {
 }
 
 function zoomIn(event) {
