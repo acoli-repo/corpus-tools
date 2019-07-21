@@ -95,7 +95,18 @@
 
 	// Deal with GET variables	
 	$action = $_GET['action'] or $action = $_GET['page'];
-	if ( $action == "" && preg_match("/([^\/]+)\.(html|php)/", $_SERVER['REQUEST_URI'], $matches ) ) $action = $matches[1];
+	if ( $action == "" ) {
+		$miniuri = preg_replace("/^.*?{$settings['defaults']['base']['foldername']}\//", "", $_SERVER['REQUEST_URI']);
+		if ( preg_match("/^([^\/]+)\.(html|php)/", $miniuri, $matches ) ) $action = $matches[1];
+		else if ( preg_match("/\//", $miniuri, $matches ) ) {
+			$parts = explode("/", $miniuri );
+			$action = array_shift($parts);
+			$partdesc = explode(",", $settings['shorturl'][$action.'']['parts'] ); 
+			for ( $i=0; $i<count($partdesc); $i++ ) {
+				$_GET[$partdesc[$i]] = $parts[$i];
+			};
+		};
+	};
 	if ( $action == "index" || $action == "" || $action == "main" ) $action = "home";
 	$act = $_GET['act'];
 	if ( $_GET['debug'] ) $debug = 1;

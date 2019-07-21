@@ -33,13 +33,14 @@
 		
 		# Check if dom exists
 		
-		print "\n<p>Saving TEIHEADER<hr>";
-		foreach ( $_POST['values'] as $key => $value ) {
-			$xquery = $_POST['queries'][$key];
-			print "\n<p>$xquery => $value ";
+		foreach ( $_POST['qvals'] as $qnum => $value ) {
+			$xquery = $_POST['qkeys'][$qnum];
 			$verbose = 1;
 			# If there is a new value to save, make sure the node exists (or create it)
-			if ( $value ) { $dom = createnode($dom, $xquery); };
+			if ( $value ) { 
+				if ( $debug ) print "<p><b>Creating/finding a none $xquery to place $value in</b>";
+				$dom = createnode($dom, $xquery); 
+			};
 			
 			$xpath = new DOMXpath($dom);
 			$result = $xpath->query($xquery); 
@@ -74,7 +75,7 @@
 		
 		# print htmlentities($dom->saveXML()); exit;
 		saveMyXML($dom->saveXML(), $fileid);
-
+	
 		print "\n<hr><p>The header has been modified - reloading";
 		header("location:index.php?action=file&id=$fileid");
 		print "<script language=Javascript>top.location='index.php?action=file&id=$fileid';</script>";
@@ -234,6 +235,7 @@
 		
 		$text = "<table>";
 			
+		$qnum = 0;
 		foreach ( $settings['teiheader'] as $headerfield ) {
 			$xquery = $headerfield['xpath'] or $xquery = $headerfield['key'];
 			
@@ -259,6 +261,7 @@
 			$xval = str_replace('"', '&quot;', $to.""); # $to->asXML()
 			$xval = str_replace("'", '&#039;', $xval);
 
+			$qnum++;
 			if ( $headerfield['type'] == "select" && $headerfield['cqp'] ) {
 				$optionlist = ""; $xkey = $headerfield['cqp'];
 				if ( !$xval ) $optionlist = "<option value=''>[{%select}]</option>"; 
@@ -267,13 +270,13 @@
 					if ( $xval == $kva ) $sel = "selected"; else $sel = ""; 
 					$optionlist .= "<option value='{$kva}' $sel>{$kva}</option>"; 
 				};
-				$editfld = "<select name=\"values[$xquery]\">$optionlist</select>";				
+				$editfld = "<select name=\"qvals[$qnum]\">$optionlist</select>";				
 			} else {
 				$rowcnt = min(8,ceil(strlen($xval)/80));
-				$editfld = "<textarea name=\"values[$xquery]\" cols='80' rows='$rowcnt'>$xval</textarea>";
+				$editfld = "<textarea name=\"qvals[$qnum]\" cols='80' rows='$rowcnt'>$xval</textarea>";
 			};
 						
-			$existing = "<input type=hidden name='queries[$xquery]' value='$xquery'>";
+			$existing = "<input type=hidden name='qkeys[$qnum]' value='$xquery'>";
 
 			$text .= "<tr><td title='$desc'>{%{$headerfield['display']}}<td>$editfld $existing";
 
@@ -289,12 +292,15 @@
 			
 	} else if ( $act == "edit" ) {
 	
+		# Old method using tpl files
 		check_login();
 		
 		preg_match_all ( "/\{#([^\}]+)\}/", $text, $matches );		
 
+		$qnum = 0;
 		foreach ( $matches[0] as $key => $match ) {
 
+			$qnum++;
 			$from = preg_quote($match, '/'); 
 
 			$xquery = $matches[1][$key];
@@ -314,8 +320,8 @@
 			$xval = str_replace("'", '&#039;', $xval);
 
 			$rowcnt = min(8,ceil(strlen($xval)/80));
-			$to = "<textarea name=\"values[$key]\" cols='80' rows='$rowcnt'>$xval</textarea>";
-			$to .= "<input type=hidden name='queries[$key]' value='$xquery'>";
+			$to = "<textarea name=\"qvals[$qnum]\" cols='80' rows='$rowcnt'>$xval</textarea>";
+			$to .= "<input type=hidden name='qkeys[$qnum]' value='$xquery'>";
 			$text = preg_replace("/$from/", "$to", $text);
 		};
 		
