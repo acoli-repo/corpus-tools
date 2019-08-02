@@ -355,9 +355,10 @@ function updatequery(nodirect = false) {
     }	
     newcql = document.getElementById('toklist').value;
     
+    var wif = document.getElementById('within');
     
     // Make it a text-based search if there are only token restrictions
-    if ( newcql == '' && tokq == '' ) {
+    if ( newcql == '' && tokq == '' && typeof(wif) == null ) {
 		if ( globaltype == 'text' || globaltype == '' ) {
 			newcql = '<text> []';
 			docquery = true;
@@ -374,7 +375,6 @@ function updatequery(nodirect = false) {
     // Add the global query
     if ( glq != '' ) newcql += ' :: ' + glq;
     
-    var wif = document.getElementById('within');
     if ( typeof(wif) != null ) {
     	if ( newcql == '' && tokq == '' ) { newcql = '[]'; };
     	newcql += ' within ' + wif.value;
