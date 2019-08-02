@@ -355,6 +355,7 @@ function updatequery(nodirect = false) {
     }	
     newcql = document.getElementById('toklist').value;
     
+    
     // Make it a text-based search if there are only token restrictions
     if ( newcql == '' && tokq == '' ) {
 		if ( globaltype == 'text' || globaltype == '' ) {
@@ -363,7 +364,7 @@ function updatequery(nodirect = false) {
 		} else {
 			if ( globaltype != '---' ) {
 				newcql = '<'+globaltype+'> []+'; // TODO: We should do something with region-based searches
-				glq += ' within '+globaltype;
+				glq += ' within ' + globaltype;
 			};
 		};
     };
@@ -372,6 +373,12 @@ function updatequery(nodirect = false) {
     
     // Add the global query
     if ( glq != '' ) newcql += ' :: ' + glq;
+    
+    var wif = document.getElementById('within');
+    if ( typeof(wif) != null ) {
+    	if ( newcql == '' && tokq == '' ) { newcql = '[]'; };
+    	newcql += ' within ' + wif.value;
+    };
     
     // Unless there is a within, add within text
 	if ( !newcql.match(/ within /) && !docquery ) newcql += ' within text';

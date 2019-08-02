@@ -297,6 +297,11 @@
 		# Deal with any additional level attributes (sentence, utterance)
 		if ( is_array ( $settings['cqp']['sattributes']))
 		foreach ( $settings['cqp']['sattributes'] as $xatts ) {
+			if ( $xatts['partial'] ) {
+				# A "partial" region we want to offer as within option
+				$rname = $xatts['regionname'] or $rname = $xatts['level'];
+				$regwith[$xatts['level']] = $rname;
+			};
 			if ( !$xatts['display'] ) continue;
 			$querytext .= "$hr<h3>{%{$xatts['display']}}</h3><table  class=qbt >"; $hr = "<hr>";
 			foreach ( $xatts as $key => $item ) {
@@ -351,6 +356,12 @@
 			};
 			$querytext .= "</table>"; 
 		};	
+		
+		# Now do "within" regions
+		foreach ( $regwith as $key => $val ) {
+			$regwithtext .= "<option value='$key'>$val</option>";
+		};
+		if ( $regwithtext ) $querytext .= "<hr><p>Search within: <select name='within' id='within'><option value='text'>Text</option>$regwithtext</select>";
 
 		# Deal with any stand-off annotation attributes (errors, etc.)
 		if ( is_array ( $settings['cqp']['annotations']))
