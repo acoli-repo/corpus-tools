@@ -375,7 +375,7 @@ function updatequery(nodirect = false) {
     // Add the global query
     if ( glq != '' ) newcql += ' :: ' + glq;
     
-    if ( typeof(wif) != null && typeof(wif) != 'undefined' ) {
+    if ( wif != null ) {
     	if ( newcql == '' && tokq == '' ) { newcql = '[]'; };
     	newcql += ' within ' + wif.value;
     };
