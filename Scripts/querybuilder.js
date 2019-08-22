@@ -358,7 +358,7 @@ function updatequery(nodirect = false) {
     var wif = document.getElementById('within');
     
     // Make it a text-based search if there are only token restrictions
-    if ( newcql == '' && tokq == '' && typeof(wif) == null ) {
+    if ( newcql == '' && tokq == '' && ( typeof(wif) == null || typeof(wif) == 'undefined' ) ) {
 		if ( globaltype == 'text' || globaltype == '' ) {
 			newcql = '<text> []';
 			docquery = true;
@@ -375,7 +375,7 @@ function updatequery(nodirect = false) {
     // Add the global query
     if ( glq != '' ) newcql += ' :: ' + glq;
     
-    if ( typeof(wif) != null ) {
+    if ( typeof(wif) != null && typeof(wif) != 'undefined' ) {
     	if ( newcql == '' && tokq == '' ) { newcql = '[]'; };
     	newcql += ' within ' + wif.value;
     };
