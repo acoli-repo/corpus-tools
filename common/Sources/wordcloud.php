@@ -10,6 +10,9 @@
 	$title = $ttxml->title();
 	
 	$showform = $_GET['show'] or $showform = 'word';
+	$rest = $_GET['rest'];
+	$max = $_GET['max'] or $max = 250;
+	
 	# Calculate the word counts
 	if ( 1==2 ) {
 	} else if ( file_exists("cqp/text_id.idx") ) {
@@ -22,14 +25,16 @@
 		$cqp->exec("set PrettyPrint off");
 
 		$textid = $ttxml->fileid;
-		$cql = "Matches = [] :: match.text_id=\"xmlfiles/$textid\"";
+		$cql = "Matches = [$rest] :: match.text_id=\"xmlfiles/$textid\"";
 		$cqp->exec($cql); // Select the corpus
 		$cql = "group Matches match $showform";
 		$result = $cqp->exec($cql); // Select the corpus
+		$cnt = 0;
 		foreach ( explode("\n", $result) as $line ) {
 			list ( $word, $size ) = explode ( "\t", $line);
 			$word = str_replace("'", "\'", $word);
 			if ( $size) $wordlist .= " { text:'$word', size: $size},\n";
+			if ( $cnt++ > $max ) break;
 		};
 	};	
 		
