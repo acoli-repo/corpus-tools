@@ -895,10 +895,13 @@ else // code for IE
 };
 
 function forminherit ( tok, fld ) {
-	tok.style['opacity'] = 1; 
 	if ( typeof(tok) != 'object' ) { console.log('no token'); return ''; };
 	if ( typeof(fld) != 'string' ) { console.log('no form'); return ''; };
 	if ( typeof(formdef[fld]) != 'object' ) { console.log('no settings for ' + fld); return ''; };
+
+	if ( typeof(tok.style) == 'undefined' ) { tok.style = [] };
+	tok.style['opacity'] = 1;
+
 	if ( tok.getAttribute(fld) ) { 
 		// this value is defined for this token
 		if ( showcol && !tok.style['color'] ) { 

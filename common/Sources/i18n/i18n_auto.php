@@ -251,6 +251,7 @@
 		"Trendline" => "Trendline",
 		"Speed" => "Speed",
 		"Zoom" => "Zoom",
+		"Word Cloud" => "Word Cloud",
 		"Observed" => "Observed",
 		"Expected" => "Expected",
 		"Dependency Sketches" => "Dependency Sketches",

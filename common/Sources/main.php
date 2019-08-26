@@ -25,7 +25,7 @@
 	};
 	if ( !file_exists(SMARTY_DIR . 'Smarty.class.php') ) {
 		// $smartypath = str_replace("Smarty.class.php", "", file_locate('Smarty.class.php')); //too slow so throw an error anyway
-		fatal("Smarty engine not installed or not found. Please install Smarty or indicate where it can be found.");
+		print "Smarty engine not installed or not found. Please install Smarty or indicate where it can be found."; exit; // fatal() puts this into a loop
 	};
 	include(SMARTY_DIR . 'Smarty.class.php');
 	
@@ -143,7 +143,9 @@
 	if ( $username ) {
 		$edithtml = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id={$action}-$lang'>edit page</a></div>";
 	};
-			
+	
+	$sharedfolder = $settings['defaults']['shared']['folder'];
+	
 	## Determine which action to perform
 	if ( file_exists( "Pages/$action-$lang.html" ) ) {
 		# Local page - language depedent
@@ -154,6 +156,15 @@
 	} else if ( file_exists( "Pages/$action-$deflang.html" ) ) {
 		# Local page - default language
 		$maintext = $edithtml.file_get_contents ( "Pages/$action-$deflang.html" );
+	} else if ( $sharedfolder && file_exists( "$sharedfolder/Sources/$action.php" ) ) {
+		# Locally shared script
+		include ( "$sharedfolder/Sources/$action.php" );
+	} else if ( $sharedfolder && file_exists( "$sharedfolder/Pages/$action-$lang.html" ) ) {
+		# Locally shared page
+		$maintext = $edithtml.file_get_contents (  "$sharedfolder/Pages/$action-$lang.html" );
+	} else if ( $sharedfolder && file_exists( "$sharedfolder/Pages/$action.html" ) ) {
+		# Locally shared page
+		$maintext = $edithtml.file_get_contents (  "$sharedfolder/Pages/$action.html" );
 	} else if ( file_exists( "Sources/$action.php" ) ) {
 		# Local script
 		include ( "Sources/$action.php" );

@@ -191,7 +191,7 @@
 	};
 
 	function i18n ( $text, $tolang = "" ) {
-		global $lang; global $i18n; global $langprefix; global $deflang; global $debug; global $ttroot; global $i18nlang;
+		global $lang; global $i18n; global $langprefix; global $deflang; global $debug; global $ttroot; global $i18nlang; global $sharedfolder;
 		if ( !$tolang ) $tolang = $lang;
 		
 		if ( strpos("{%", $text) == -1 ) return $text; # If there is nothing to translate - return to save time
@@ -203,6 +203,14 @@
 				include("$ttroot/common/Sources/i18n/i18n_$tolang.php");
 			}
 
+			# Now read the local shared defs - which can override all global settings
+			if ( $sharedfolder && file_exists("$sharedfolder/Resources/i18n_$tolang.txt") ) {
+				foreach ( explode ( "\n", file_get_contents("$sharedfolder/Resources/i18n_$tolang.txt") ) as $line ) {
+					list ( $org, $trans ) = explode ( "\t", $line );
+					$i18n[$org] = $trans;
+				};
+			};
+
 			# Now read the local defs - which can override all global settings
 			if ( file_exists("Resources/i18n_$tolang.txt") ) {
 				foreach ( explode ( "\n", file_get_contents("Resources/i18n_$tolang.txt") ) as $line ) {
@@ -210,7 +218,9 @@
 					$i18n[$org] = $trans;
 				};
 			};
+			
 			$i18nlang = $tolang;
+			
 		};
 				
 		preg_match_all ( "/\{%([^\}]+)\}/", $text, $matches );		
@@ -244,10 +254,9 @@
 	};
 	
 	function getlangfile ( $ffid, $common = false, $flang = null, $options = null ) {
-		global $lang; global $settings; global $getlangfile_lastfile;  global $ttroot; global $username, $action;
+		global $lang; global $settings; global $getlangfile_lastfile;  global $ttroot; global $username, $action, $sharedfolder;
 		if ( $flang === null ) $flang = $lang; $html = "";
 		$deflang = $settings['languages']['default'] or $deflang = "en";
-
 		
 		if ( file_exists("Pages/{$ffid}-$flang.html") ) {
 			$getlangfile_lastfile = "Pages/{$ffid}-$flang.html";
@@ -255,6 +264,12 @@
 			$getlangfile_lastfile = "Pages/{$ffid}.html";
 		} else if ( file_exists("Pages/{$ffid}-$deflang.html") ) {
 			$getlangfile_lastfile = "Pages/{$ffid}-$deflang.html";
+		} else if ( $sharedfolder && file_exists("$sharedfolder/Pages/{$ffid}-$flang.html") ) {
+			$getlangfile_lastfile = "$sharedfolder/Pages/{$ffid}-$flang.html";
+		} else if ( $sharedfolder && file_exists("$sharedfolder/Pages/{$ffid}.html") ) {
+			$getlangfile_lastfile = "$sharedfolder/Pages/{$ffid}.html";
+		} else if ( $sharedfolder && file_exists("$sharedfolder/Pages/{$ffid}-$deflang.html") ) {
+			$getlangfile_lastfile = "$sharedfolder/PPages/{$ffid}-$deflang.html";
 		} else if ( $common && file_exists("$ttroot/common/Pages/{$ffid}-$flang.html") ) {
 			$getlangfile_lastfile = "$ttroot/common/Pages/{$ffid}-$flang.html";
 		} else if ( $common && file_exists("$ttroot/common/Pages/{$ffid}.html") ) {
