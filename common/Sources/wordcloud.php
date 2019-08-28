@@ -8,6 +8,7 @@
 
 	$showform = $_POST['show'] or $showform = $_POST['defaults']['wordcloud']['show'] or $showform = 'word';
 	$rest = $_POST['rest'] or $rest = $settings['defaults']['wordcloud']['rest'];
+	$font = $_POST['font'] or $font = $settings['defaults']['wordcloud']['font'] or $font = "Impact";
 	$max = $_POST['max'] or $max = 250;
 	$titfld = $settings['defaults']['wordcloud']['title'] or $titfld = $settings['cqp']['title'] or $titfld = "text_id";
 
@@ -54,6 +55,10 @@
 		if ( $pattname && ( !$pat['admin'] || $username ) ) $textoptions .= "<option value='$key' $sel>{%$pattname}</option>";
 	};
 	
+	if ( $username ) $rawcql = "<tr><th>{%CQL Query}:<td>$cql<tr><th>{%Grouping Query}:<td>$cql2";
+	
+	$fwquery = "&rest={$_GET['rest']}";
+	
 	$maintext .= "
 	<h2>$title</h2>
 	<h1>{%Word Cloud}</h1>
@@ -62,7 +67,7 @@
 	<span id='settingsbut' onClick=\"this.style.display='none'; document.getElementById('settings').style.display='block'\"><i class=\"material-icons md-48\">menu</i></span>
 		<div id='settings' style='display: none;'>
 		<span onClick=\" document.getElementById('settingsbut').style.display='block'; document.getElementById('settings').style.display='none'\"><i class=\"material-icons md-48\">menu</i></span> <b style='font-size: larger; padding-bottom: 15px; margin-bottom: 15px; vertical-align: top;'>{%Settings}</b>
-		<form action='index.php?action=$action'>
+		<form action='index.php?action=$action$fwquery'>
 		<input type=hidden name=id value=\"$textid\">
 		<input type=hidden name=action value=\"$action\">
 		<table>
@@ -71,15 +76,14 @@
 		<tr><td>{%Text}:<td><select name='show'>$textoptions</select>
 		<tr><td>{%Count}:<td><select name='max'><option value=50>50</option><option value=100>100</option><option value=250 selected>250</option><option value=500>500</option></select>
 		</table>
-		<p><input type=submit value=\"{%Redraw}\">
+		<p><input type=submit value=\"{%Redraw}\"> <a href='https://github.com/wvengen/d3-wordcloud' target='_new' style='color: #aaaaaa;'>https://github.com/wvengen/d3-wordcloud</a>
 		<td valign=top>
 		<table>
-		<tr><th>{%CQL Query}:<td>$cql
-		<tr><th>{%Grouping Query}:<td>$cql2
+		$rawcql
 		<tr><th>{%Document(s)}:<td>$doclist
 		</table>
 		</table>
-		
+				
 		</form>
 		</div>
 	
@@ -102,7 +106,7 @@
 	  d3.wordcloud()
 		.size([document.getElementById('wordcloud').clientWidth, document.getElementById('wordcloud').clientHeight])
 		.selector('#wordcloud')
-		.font('Impact')
+		.font('$font')
 		.words(list)
 		.onwordclick(function(d, i) {
 		  window.location = 'index.php?action=cqp&cql=[$showform=\"' + d.text+ '\"] $textrest\"';
