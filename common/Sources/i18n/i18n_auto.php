@@ -252,6 +252,7 @@
 		"Speed" => "Speed",
 		"Zoom" => "Zoom",
 		"Word Cloud" => "Word Cloud",
+		"Redraw" => "Redraw",
 		"Observed" => "Observed",
 		"Expected" => "Expected",
 		"Dependency Sketches" => "Dependency Sketches",
