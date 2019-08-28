@@ -41,7 +41,7 @@
 				$sq = $_SESSION['myqueries'][$cql] or $sq = $val;
 				if ( $sq['cql'] == "" ) continue;
 				$display = $sq['name'] or $display = $sq['display'] or $display = $cql;
-				if ( $ttcqp ) {
+				if ( $ttcqp && !$usecwb ) {
 					$cmd = "echo 'Matches = {$sq['cql']}; size Matches $fld;'| $ttcqp";
 					$num = shell_exec($cmd); $num = chop($num) + 0;
 				} else {
