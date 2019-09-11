@@ -701,7 +701,7 @@ function setForm ( type ) {
 	};
 	for ( var a = 0; a<its.length; a++ ) {
 		var elm = its[a];
-		if ( elm.innerText == '' ) {
+		if ( elm.innerText.trim() == '' ) {
 			elm.setAttribute('empty', '1');
 		} else {
 			elm.setAttribute('empty', '0');
