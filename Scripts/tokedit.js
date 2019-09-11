@@ -689,6 +689,25 @@ function setForm ( type ) {
 			tok.className = '';
 		};
 	};
+	
+	// This is a little hack to allow for :before and :after on <del> elements that can disappear when they get empty
+	// TODO: is there a better way? is this only needed for <del>?
+	var mtch = document.evaluate("//del", document, null, XPathResult.ANY_TYPE, null); 
+	var mitm = mtch.iterateNext(); var its = []	;
+	while ( mitm ) {
+	  if ( typeof(mitm) != 'object' ) { continue; };
+	  its.push(mitm);
+	  mitm = mtch.iterateNext();
+	};
+	for ( var a = 0; a<its.length; a++ ) {
+		var elm = its[a];
+		if ( elm.innerText == '' ) {
+			elm.setAttribute('empty', '1');
+		} else {
+			elm.setAttribute('empty', '0');
+		};
+	};	
+	
 	// The inserted breaks do not have visuals - so rerun 
 	if ( interpret || showee ) {
 		setview();
