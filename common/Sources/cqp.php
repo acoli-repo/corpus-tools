@@ -463,7 +463,7 @@
 			$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
 
 			#Build the view options
-			$attnamelist = "var attributenames;";
+			$attnamelist = "var attributenames = [];";
 			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
 				$formcol = $item['color'];
 				# Only show forms that are not admin-only

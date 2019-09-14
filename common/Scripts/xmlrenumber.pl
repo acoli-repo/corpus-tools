@@ -38,7 +38,8 @@ use XML::LibXML;
 	$max = 0; 
 	foreach $ttnode ($tmpdoc->findnodes("//tok")) {
 		$tid = 	$ttnode->getAttribute('id')."";
-		if ( $idlist{$tid} ) {
+		if ( $idlist{$tid} && $tid ) {
+			print "Found duplicate node: $tid\n";
 			$ttnode->setAttribute('torenum', '1');
 		};
 		$idlist{$tid} = $ttnode;
@@ -60,7 +61,7 @@ use XML::LibXML;
 			$newtid = "w-".$cnt++;
 			$ttnode->setAttribute('id', $newtid);
 			$ttnode->removeAttribute('torenum');
-			print "Renumbering duplicate node $tid to $newtid";
+			print "Renumbering duplicate node $tid to $newtid\n";
 		};
 	};
 	
