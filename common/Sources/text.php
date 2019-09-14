@@ -383,6 +383,14 @@
 		# TODO: Check why this fails in the new version
 		if ( preg_match("/<text[^>]*>\s*<\/text>/", $editxml) ) $emptyxml = 1;
 		
+		# Check whether there are no unnumbered tokens
+		if ( $ttxml->xml->xpath("//tok[not(@id)]") )
+			$maintext .= "<p class=warn>			
+				This text has not been (fully) numbered, please click
+				<a href='index.php?action=renumber&id=$fileid'>here</a> to renumber the XML
+				</p><hr>
+				";
+		
 		if ( $tokcheck ) { 
 			$maintext .= "<p class=adminpart>			
 				Edit the information about each word of this file by clicking on the word in the text below, or click
