@@ -173,7 +173,10 @@
 	if ( $settings['xmlfile']['adminfacs'] == "1" && !$username ) {
 		$prejsactions .= "\n				var nofacs = 1;";
 	};
-	
+
+	if ( $settings['xmlfile']['nogaps'] == "1" ) {
+		$postjsactions .= "\n				var nogaps = 1;";
+	};	
 
 	# empty tags are working horribly in browsers - change
 	$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
