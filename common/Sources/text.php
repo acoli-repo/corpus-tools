@@ -385,7 +385,7 @@
 		
 		# Check whether there are no unnumbered tokens
 		if ( $ttxml->xml->xpath("//tok[not(@id)]") )
-			$maintext .= "<p class=warn>			
+			$maintext .= "<p class=warning>			
 				This text has not been (fully) numbered, please click
 				<a href='index.php?action=renumber&id=$fileid'>here</a> to renumber the XML
 				</p><hr>

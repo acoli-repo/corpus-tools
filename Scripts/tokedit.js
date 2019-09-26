@@ -166,7 +166,8 @@ function formify () {
 	for ( var a = 0; a<its.length; a++ ) {
 		var it = its[a];
 		if ( typeof(it) != 'object' ) { continue; };
-		if ( it.innerHTML == '' ) { it.innerHTML = '[...]'; }; // unless there is text inside the gap, make it [...]
+		console.log();
+		if ( it.innerHTML == '' && typeof(nogaps) == null ) { it.innerHTML = '[...]'; }; // unless there is text inside the gap, make it [...]
 		// Make this node clickable
 		if ( it.getAttribute('id') && username != '' )
 			it.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
@@ -701,7 +702,8 @@ function setForm ( type ) {
 	};
 	for ( var a = 0; a<its.length; a++ ) {
 		var elm = its[a];
-		if ( elm.innerText.trim() == '' ) {
+		if ( elm.innerText.trim()
+		 == '' ) {
 			elm.setAttribute('empty', '1');
 		} else {
 			elm.setAttribute('empty', '0');

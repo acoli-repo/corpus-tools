@@ -50,7 +50,8 @@ function markout ( seg, withinfo ) {
 	newrow = '<table width=100%><tr><th colspan=2><b>' + seg.getElementsByTagName("ann").item(0).innerHTML + '</b></th></tr>';
 	for ( var ak in interp ) {
 		if ( ak == "idx" ) continue;
-		var an = interp[ak]; var av = seg.getAttribute(ak);
+		var an = interp[ak]; 
+		var av = makeval(seg, ak);
 		if ( av != "" ) { newrow += '<tr><th>'+an+'</th><td>'+av+'</td></tr>'; };				
 	};
 	newrow += '</table>';
@@ -141,7 +142,8 @@ function markback ( tokid ) {
 			newrow = '<table width=100%><tr><th colspan=2><b>' + seg.getElementsByTagName("ann").item(0).innerHTML + '</b></th></tr>';
 			for ( var ak in interp ) {
 				if ( ak == "idx" ) continue;
-				var an = interp[ak]; var av = seg.getAttribute(ak);
+				var an = interp[ak]; 
+				var av = makeval(seg, ak);
 				if ( av != "" ) { newrow += '<tr><th>'+an+'</th><td>'+av+'</td></tr>';	};			
 			};
 			newrow += '</table>';
@@ -151,6 +153,12 @@ function markback ( tokid ) {
 
 	showinfo ( tokid, txt );
 	
+}
+
+function makeval ( seg, ak ) {
+	var av = seg.getAttribute(ak);
+	if ( codetrans[av] ) av = codetrans[av] + ' (' + av + ')';
+	return av;
 }
 
 function showinfo ( tokid, txt ) {
@@ -268,14 +276,60 @@ function makespan( event ) {
 	};
 	window.getSelection().removeAllRanges();
 
+
+	var tokdata = '';
+	
 	color = '#ffff88';  selstring = '';  idlist = ''; 
+	tokdata += '<hr><h3>Token data</h3><table><tr>';
+	if ( typeof(formdef) != "undefined" ) {
+		for ( fld in formdef ) {
+			tokdata += '<th>' + formdef[fld]['display'];
+		};
+	};
 	for ( var a = 0; a<seq.length; a++ ) {
 		var tok = seq[a];
+		if ( tok == null ) continue;
 		tok.style['background-color'] = color;
 		tok.style.backgroundColor= color; 
 		selstring += tok.innerText + ' ';
 		idlist += '#' + tok.getAttribute('id') + ' ';
-	}; 
+		tokdata += '<tr>'; 
+		var thisform;
+		if ( typeof(formdef) != "undefined" ) {
+			for ( fld in formdef ) {
+				if ( fld == 'pform' ) thisform = tok.innerHTML;
+				else if ( tok.getAttribute(fld) != null ) thisform = tok.getAttribute(fld);
+				else thisform = '<span style="color: #cccccc; font-style: italic;">' + forminherit(tok, fld); + '</span>'; 
+				tokdata += '<td>' + thisform;
+			};
+		};
+	}; 	
+	tokdata += '</table>';
+
+	var mtch = document.evaluate("//tr[@toklist = '"+idlist.trim().replace(/#/g, '')+"']", document, null, XPathResult.ANY_TYPE, null); 
+	var mitm = mtch.iterateNext(); console.log(mitm);
+	if ( mitm ) { 
+		tokdata += '<h3>Existing annotations</h3><table><tr>';
+			for ( var ak in interp ) {
+				if ( ak == "idx" ) continue;
+				var an = interp[ak]; 
+				var av = makeval(seg, ak);
+				tokdata += '<th>'+ an;		
+			};
+		while ( mitm ) {
+		  if ( typeof(mitm) != 'object' ) { continue; };
+		  tokdata += '<tr>';
+			for ( var ak in interp ) {
+				if ( ak == "idx" ) continue;
+				var an = interp[ak]; 
+				var av = mitm.getAttribute(ak);
+				tokdata += '<td>'+ av;		
+			};
+		  mitm = mtch.iterateNext();
+		};
+		tokdata += '</table>';
+	};
+
 	
 	var selnode = document.getElementById('selection');
 	selnode.innerHTML = selstring;
@@ -283,6 +337,8 @@ function makespan( event ) {
 	selnode.value = selstring;
 	var selnode = document.getElementById('idlist');
 	selnode.value = idlist;
+	var tokinfos = document.getElementById('tokinfos');
+	tokinfos.innerHTML = tokdata;
 	show('editform');
 
 };

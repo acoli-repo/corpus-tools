@@ -44,7 +44,7 @@
 		
 	$result = $andef->xpath("//interp"); 
 	if ( $andef['keepxml'] ) { $keepxml = 1; } else { $keepxml = 0; };
-	$moreactions .= "var keepxml = $keepxml; var interp = [];\n"; 
+	$moreactions .= "var keepxml = $keepxml; var interp = []; var codetrans = [];\n"; 
 	foreach ( $result as $tmp ) { 
 		$tagset[$tmp['key'].''] = $tmp;
 		if ( $tmp['type'] != "long" ) {
@@ -56,6 +56,7 @@
 			$optionlist = "";
 			foreach ( $tmp->xpath("option") as $child ) {
 				$optionlist .= "<option value=\"{$child['value']}\">{$child}</option>";
+				if ( $child['display'] ) $tagnames[$tmp['key'].'-'.$child['value']] = $child['display']."";
 			};
 			$pulldowns[$tmp['key'].''] = $optionlist; 
 			$annotationrows .= "<tr><th>{$tmp['display']}<td><select name=news[$i][{$tmp['key']}]><option value=''>[{%select}]</option>$optionlist</select>";
@@ -63,7 +64,10 @@
 			$annotationrows .= "<tr><th>{$tmp['display']}<td><input name=news[$i][{$tmp['key']}] style='width: 100%'/>";
 		};
 		if ( $tmp['colored'] ) {
-			if ( $tmp['title'] ) $markbuttons = "<h3>{$tmp['display']}</h3>";
+			if ( $tmp['display'] ) {
+				$marktit = $tmp['long'] or $marktit = $tmp['display'];
+				$marktit = "<h3>$marktit</h3>";
+			};
 			foreach ( $tmp->children() as $tmp2 ) {
 				$color = $tmp2['color']."";
 				# Check if this one exists
@@ -71,12 +75,16 @@
 				if ( $color == "" ) $color = array_shift($colorlist);
 				$markfeat = $tmp['key'].""; 
 				$markcolor[$tmp2["value"].""] = $color; 
-				$spantit = ""; if ( $tmp2['display'] ) $spantit = "title=\"{%{$tmp2['display']}}\"";
+				$spantit = ""; 
+				if ( $tmp2['display'] ) {
+					$spantit = "title=\"{%{$tmp2['display']}}\"";
+					$moreactions .= "codetrans['{$tmp2['value']}'] = '{%{$tmp2['display']}}'; ";
+				};
 				$markbuttons .= "<span $spantit style=\"border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '{$tmp2['value']}');\">{$tmp2['value']}</span> ";
 			};
-			if ( $markbuttons ) $annotations = "$markbuttons<hr>";
+			if ( $markbuttons ) $annotations = "$marktit$markbuttons<hr>";
 		};
-		$moreactions .= "interp['{$tmp['key']}'] = '{$tmp['long']}'; ";
+		$moreactions .= "interp['{$tmp['key']}'] = '{%{$tmp['long']}}'; ";
 	};
 	$moreactions .= "var markfeat = '$markfeat'; ";
 
@@ -308,11 +316,14 @@
 			else 
 				$newrow .= "<td>".$segment;
 			foreach ( $tagset as $key => $val ) {
+				$named = $tagnames[$key.'-'.$segment[$key]];
 				if ( $act == "edit" ) {
 					if ( $pulldowns[$key] ) 
 						$newrow .= "<td><select name='sval[$sid][$key]'>{$pulldowns[$key]}</select></td>";
 					else
 						$newrow .= "<td><input name='sval[$sid][$key]' value='{$segment[$key]}'></td>";
+				} else if ( $named ) {
+					$newrow .= "<td>{%$named} ({$segment[$key]})</td>";
 				} else {
 					$newrow .= "<td>{$segment[$key]}</td>";
 				};
@@ -334,6 +345,10 @@
 				&bull;
 				<a href='index.php?action=$action&annotation=$annotation&act=&&cid=$fileid'>{%text view}</a>
 				";
+			if ( $user['permissions'] == "admin" ) $maintext .= "				&bull;
+				<a href='index.php?action=adminedit&folder=Annotations&id={$annotation}_def.xml' class=adminpart>{%edit definitions}</a>
+				";
+
 		};
 		
 	} else {
@@ -366,7 +381,12 @@
 			};
 			natsort($sortrows); $annotations .= "<table >".join("\n", $sortrows)."</table>";
 		};
-		if ( $username ) $annotations .= "<hr><p><a href='index.php?action=$action&annotation=$annotation&cid={$_GET['cid']}&act=list'>{%show as list}</a>";
+		if ( $username ) {
+			$annotations .= "<hr><p><a href='index.php?action=$action&annotation=$annotation&cid={$_GET['cid']}&act=list'>{%show as list}</a>
+			&bull; 
+			<a href='index.php?action=adminedit&folder=Annotations&id={$annotation}_$fileid' target=edit>{%edit raw XML file}</a>
+			";
+		};
 
 
 		if ( $username ) {
@@ -375,12 +395,67 @@
 					snap to tokens.</p>";
 		};
 
+			# TODO: there should be a GUI for making the definitions...
+			if ( $user['permissions'] == "admin" ) $rawedit = "				&bull;
+				<a href='index.php?action=adminedit&folder=Annotations&id={$annotation}_def.xml' class=adminpart target=edit>{%edit definitions}</a>
+				";
+	
+		# Allow for form switch buttons when so desired
+		if ( $settings['annotations'][$annotation]['formswitch'] ) {	
+			$editxml = $cleaned;
+			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+				$formcol = $item['color'];
+				# Only show forms that are not admin-only
+				if ( $username || !$item['admin'] ) {	
+					if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+					$ikey = $item['inherit'];
+					if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract'] 
+						$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+						$fbc++;
+					};
+					if ( $key != "pform" ) { 
+						if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+						$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+					};
+				};
+			};
+			if ( $fbc > 1 ) $formbutsdiv = "<div>{%Text}: $formbuts</div><hr>
+				<script language=Javascript src='$jsurl/tokedit.js'></script>";
+				$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
+				foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+					$formcol = $item['color'];
+					# Only show forms that are not admin-only
+					if ( $username || !$item['admin'] ) {	
+						if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+						$ikey = $item['inherit'];
+						if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract'] 
+							$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+							$fbc++;
+						};
+						if ( $key != "pform" ) { 
+							if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+							$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+						};
+					};
+				};
+				$moreactions .= "
+					var attributenames = [];
+					$attnamelist
+					var formdef = $jsonforms;
+					var orgtoks = new Object();
+					formify(); 
+					var orgXML = document.getElementById('mtxt').innerHTML;
+					setForm('pform');
+				";
+		};
+
 		$maintext .= "
 		
 			<div style=\"z-index: 200; text-align: right; position: fixed; top: 10px; right: 30px;\">
 				<span style='cursor: help;' onmouseover=\"show('help');\" onmouseout=\"hide('help');\">?</span>
 				<div id=help name=help style='width: 400px; display: none; text-align: left; border: 1px solid #992000; background-color: #ffffaa; margin-top: 30px; padding: 15px; padding-bottom: 5px;'>$helptext</div>
 			</div>
+			
 
 			<div id=editform name=editform style=\"z-index: 100; display: none; width: 22%; position: fixed; top: 80px; right: 20px; border: 1px solid #992000; background-color: white; padding: 15px; \">
 				<h2 style='margin-top: 0px;'>Edit Annotation</h2>
@@ -393,14 +468,21 @@
 				$annotationrows
 				</table>
 				<p><input type=submit value='Save'> <input type=button value='Cancel' onClick='killselection();'>
+				<div id='tokinfos' style='display: block;'></div>
 				</form>
 			</div>
 					
 			<div id='tokinfo' style='z-index: 300; display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 			<div style='vertical-align: top; width: 22%; float: right; overflow: scroll; position: fixed; top: 0px; right: 30px; height: 100%; ' id=annotations><h2 style='margin-top: 75px'>{%Annotations}</h2>$annotations</div>
-			<div style='vertical-align: top; width: 70%; height: 80%; overflow: scroll;' onmouseup='makespan(event);'>$headertxt<div id=mtxt>$cleaned</div><hr><p><a href='index.php?action=file&cid=$fileid'>{%text view}</a></div>
+			<div style='vertical-align: top; width: 70%; height: 80%; overflow: scroll;' onmouseup='makespan(event);'>$headertxt
+			$formbutsdiv
+			<div id=mtxt>$cleaned</div>
+				<hr><p><a href='index.php?action=file&cid=$fileid'>{%text view}</a>
+				$rawedit
+				</div>
 
 			<script language=Javascript>$moreactions</script>
+					<script language=Javascript src=\"$jsurl/tokedit.js\"></script>
 			<script src=\"$jsurl/annotation.js\"></script>
 			";
 	};
