@@ -356,7 +356,7 @@ function fullscreen() {
 	fullscreenmode = true;
 	document.getElementById('fullscreen').innerHTML = '<i class=\"material-icons\">fullscreen_exit</i>';
 
-	document.getElementById('fullscreen').style.position = 'absolute';
+	document.getElementById('pageflow').style['position'] = 'absolute';
 	
 	// Make the viewport use the entire screen
 	viewport.style.height = screen.height + 'px';
@@ -444,7 +444,7 @@ function unfullscreen() {
 	fullscreenmode = false;
 	document.getElementById('fullscreen').innerHTML = '<i class=\"material-icons\">fullscreen</i>';
 
-	document.getElementById('fullscreen').style.position = 'inline';
+	document.getElementById('pageflow').style['position'] = 'inline';
 
 	// Put the viewport where it used to be
 	viewport.style.height = window.innerHeight + 'px';
