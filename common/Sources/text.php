@@ -491,6 +491,7 @@
 
 	$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
 	$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
+	if ( $settings['defaults']['wordinfo'] ) $settingsdefs .= "\n\t\tvar wordinfo = true;";
 	$jsontrans = array2json($settings['transliteration']);
 				
 	$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'];	
