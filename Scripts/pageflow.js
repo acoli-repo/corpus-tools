@@ -488,7 +488,7 @@ function textscroll(e) {
 	var lbs = mtxt.getElementsByTagName("lb"); var i=0; var seltok;
 	var facsheight = facswidth*(facs.naturalHeight/facs.naturalWidth);
 	
-	if ( progfacs ) {
+	if ( typeof(progfacs) != null ) {
 		progfacs = false;
 		return;
 	}; progfacs = false;
