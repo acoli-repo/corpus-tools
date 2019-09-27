@@ -100,7 +100,9 @@ facsview.style.height = (viewport.offsetHeight-40) + 'px';
 textview.style.height = (viewport.offsetHeight-40) + 'px';
 
 var curpage = 1; 
-var tid = getQueryVariable('tid');
+if ( typeof(tid) == null ) {
+	var tid = getQueryVariable('tid');
+};
 if ( tid ) {
 	var tmp = doc.indexOf(tid);
 	if ( tmp != -1 ) showpage(1000000, tmp);
@@ -355,8 +357,6 @@ function fullscreen() {
 	
 	fullscreenmode = true;
 	document.getElementById('fullscreen').innerHTML = '<i class=\"material-icons\">fullscreen_exit</i>';
-
-	document.getElementById('pageflow').style['position'] = 'absolute';
 	
 	// Make the viewport use the entire screen
 	viewport.style.height = screen.height + 'px';
@@ -443,8 +443,6 @@ function unfullscreen() {
 
 	fullscreenmode = false;
 	document.getElementById('fullscreen').innerHTML = '<i class=\"material-icons\">fullscreen</i>';
-
-	document.getElementById('pageflow').style['position'] = 'inline';
 
 	// Put the viewport where it used to be
 	viewport.style.height = window.innerHeight + 'px';

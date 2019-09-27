@@ -166,7 +166,6 @@ function formify () {
 	for ( var a = 0; a<its.length; a++ ) {
 		var it = its[a];
 		if ( typeof(it) != 'object' ) { continue; };
-		console.log();
 		if ( it.innerHTML == '' && typeof(nogaps) == null ) { it.innerHTML = '[...]'; }; // unless there is text inside the gap, make it [...]
 		// Make this node clickable
 		if ( it.getAttribute('id') && username != '' )

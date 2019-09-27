@@ -66,6 +66,7 @@
 			var username = '$username';
 			$settingsdefs
 			var nofacs = true;
+			var noimg = true;
 			var tid = '$ttxml->fileid'; 
 		</script>
 		<div id='pageflow' style='z-index: 150;'>
