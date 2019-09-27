@@ -69,7 +69,7 @@
 			var noimg = true;
 			var tid = '$ttxml->fileid'; 
 		</script>
-		<div id='pageflow'>
+		<div id='pageflow' style='z-index: 150;'>
 		<div id='info' style='display: none; position: fixed; z-index: 200; opacity: 0.9; overflow: scroll;'>
 			<span title='{%close}' style='float: right;' onClick='toc.style.display=\"none\";'><i class=\"material-icons\">close</i></span>
 			<div style='padding: 20px;'>
@@ -118,9 +118,9 @@
 			<td><div id='mtxt' style='background-color: white; height: 470px; overflow: scroll; padding: 20px;'></div>
 			</tr>
 			</table>
+			<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 		</div>
 		</div>
-		<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 		<div id='fulltext' style='display: none;'>".$ttxml->asXML(true)."</div>
 		<script>
 			var orgXML = document.getElementById('fulltext').innerHTML;
