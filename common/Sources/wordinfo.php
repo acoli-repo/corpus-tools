@@ -22,7 +22,7 @@
 	
 	$cntx = $ttxml->context($tid);
 
-	if ( $cntx ) $maintext .= "<tr><th>{%Context}<td id=mtxt>".$cntx->asXML();
+	if ( $cntx ) $maintext .= "<tr><th>{%Context}<td id=mtxt>".$cntx;
 
 	$maintext .= "</table>";
 

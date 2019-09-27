@@ -327,7 +327,8 @@ class TTXML
 		} else {
 			# TODO: Show a reasonably sized context
 			# Until defined, just show the first parent node
-			$context = current($token->xpath(".."));
+			$tmp = current($token->xpath(".."));
+			if ( $tmp ) $context = $tmp->asXML();
 		};
 		
 		return $context;
