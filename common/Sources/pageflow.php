@@ -69,7 +69,7 @@
 			var noimg = true;
 			var tid = '$ttxml->fileid'; 
 		</script>
-		<div id='pageflow' style='z-index: 150;'>
+		<div id='pageflow'>
 		<div id='info' style='display: none; position: fixed; z-index: 200; opacity: 0.9; overflow: scroll;'>
 			<span title='{%close}' style='float: right;' onClick='toc.style.display=\"none\";'><i class=\"material-icons\">close</i></span>
 			<div style='padding: 20px;'>
