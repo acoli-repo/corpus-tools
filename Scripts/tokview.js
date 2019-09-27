@@ -27,7 +27,6 @@ function clickEvent(evt) {
 	if ( element.parentNode && element.parentNode.parentNode && element.parentNode.parentNode.tagName == "TOK" ) { element = element.parentNode.parentNode; };
 
     if (element.tagName == "TOK" ) {
-    		console.log('word click!');
 		if ( typeof(tid) == "undefined" ) { // For KWIC rows
 			var mtch = document.evaluate("ancestor::tr[@tid]", element, null, XPathResult.ANY_TYPE, null); 
 			var mitm = mtch.iterateNext();
@@ -37,7 +36,7 @@ function clickEvent(evt) {
 		};
     	if ( username ) {
     		window.open('index.php?action=tokedit&cid='+jumpid+'&tid='+element.getAttribute('id'), 'edit');
-    	} else if ( typeof(wordinfo) != null ) {
+    	} else if ( typeof(wordinfo) != null && typeof(wordinfo) != 'undefined' ) {
     		window.open('index.php?action=wordinfo&cid='+jumpid+'&tid='+element.getAttribute('id'), '_self');
     	};
     };
