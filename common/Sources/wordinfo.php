@@ -12,18 +12,29 @@
 	$maintext .= "<h1>{%Word Info}</h1><table>";
 	
 	$node = current($ttxml->xml->xpath("//*[@id=\"$tid\"]"));
+
+	$cqlbase = $settings['cqp']['cqlbase'] or $cqlbase = "index.php?action=cqp&cql=";
 	
 	$maintext .= "<tr><th>{%Attributes}<td><table>";
 	foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
+		if ( $item['nosearch'] ) continue;
 		$form = forminherit($node, $key);
-		if ( $node[$key.''] || $key == "form" ) $maintext .= "<tr><th>".pattname($key)."<td>$form<td style='padding-left: 20px;'><a href='index.php?action=cqp&cql=[$key=\"$form\"]'>{%search similar}</i></a>";
+		if ( $node[$key.''] || $key == "form" ) $maintext .= "<tr><th>".pattname($key)."<td>$form<td style='padding-left: 20px;'><a href='{$cqlbase}[$key=\"$form\"]'>{%search similar}</i></a>";
 	};
 	$maintext .= "</table>";
 	
 	$cntx = $ttxml->context($tid);
+	$cntx = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $cntx );
 
 	if ( $cntx ) $maintext .= "<tr><th>{%Context}<td id=mtxt>".$cntx;
 
-	$maintext .= "</table>";
+	$maintext .= "
+		</td></tr></table>
+		<script  type=\"text/javascript\" src=\"$jsurl/tokedit.js\"></script>
+		<script  type=\"text/javascript\">
+			console.log('ieps');
+			highlight('{$node['id']}');
+		</script>
+		";
 
 ?>
