@@ -287,6 +287,7 @@ function formify () {
 			rlimg.src = imgsrc;
 
 			var pbrend = pb.getAttribute('rend'); 
+			if ( pbrend == null ) { pbrend = ""; };
 			var cropside = pb.getAttribute('crop'); // Deprecated
 			if ( cropside == "left" && pbrend == "" ) { pbrend = "0,0,50,100" };
 			if ( cropside == "right" && pbrend == "" ) { pbrend = "50,0,100,100" };
