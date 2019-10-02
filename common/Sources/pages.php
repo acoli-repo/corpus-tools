@@ -35,7 +35,16 @@
 		foreach ($result as $cnt => $node) {
 			$pid = $node['id'] or $pid = "cnt[$cnt]";
 			$pnr = $node['n'] or $pnr = "cnt[$cnt]";
-			$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
+			if ( $settings['defaults']['thumbnails'] ) {
+				$tni = $node['facs']; 
+				if ( !preg_match("/http/", $tni) ) {
+				if ( file_exists("Thumbnails/$tni") ) $tni = "Thumbnails/$tni";
+					else $tni = "Facsimile/$tni";
+				};
+				$maintext .= "<div class=thumbnail><img src='$tni'/><br><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a></div>";
+			} else {
+				$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
+			};
 		};
 		$maintext .= "</td>";
 	};
