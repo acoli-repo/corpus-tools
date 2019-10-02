@@ -41,7 +41,7 @@
 				if ( file_exists("Thumbnails/$tni") ) $tni = "Thumbnails/$tni";
 					else $tni = "Facsimile/$tni";
 				};
-				$maintext .= "<div class=thumbnail><img src='$tni'/><br><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a></div>";
+				$maintext .= "<a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\"><div class=thumbnail><img src='$tni'/><br>$pnr</a></div>";
 			} else {
 				$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
 			};
