@@ -347,14 +347,17 @@ function togglefull () {
 function fullscreen() {
 
 	// Set DIV to full browser screen
-	if (document.documentElement.requestFullScreen) {  
-	  document.documentElement.requestFullScreen();  
-	} else if (document.documentElement.mozRequestFullScreen) {  
-	  document.documentElement.mozRequestFullScreen();  
-	} else if (document.documentElement.webkitRequestFullScreen) {  
-	  document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);  
-	};  
-	
+	var docElm = document.documentElement;
+    if (docElm.requestFullscreen) {
+      docElm.requestFullscreen();
+    } else if (docElm.msRequestFullscreen) {
+      docElm.msRequestFullscreen();
+    } else if (docElm.mozRequestFullScreen) {
+      docElm.mozRequestFullScreen();
+    } else if (docElm.webkitRequestFullScreen) {
+      docElm.webkitRequestFullScreen();
+    };
+    	
 	fullscreenmode = true;
 	document.getElementById('fullscreen').innerHTML = '<i class=\"material-icons\">fullscreen_exit</i>';
 	
@@ -419,7 +422,6 @@ function redraw() {
 		facsview.style.backgroundPositionX = bpx + "px"; 
 		bpy = 0 - (bbrend[1]/100)*facsheight;
 		facsview.style.backgroundPositionY = bpy + "px"; 
-		console.log('Show: ' + bbrend + ' > ' + pbzoom + ' - ' + bpx + ' x ' + bpy);
 	};
 	
 	var rect = facsview.getClientRects();

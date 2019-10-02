@@ -57,8 +57,9 @@
 		$cqp->exec("set PrettyPrint off");
 
 		# $val = htmlentities($val);
-		if ( $item['values'] == "multi" ) $cqpquery = "Matches = <text> [] :: match.text_$class = '.*$val.*'";
-		else $cqpquery = "Matches = <text> [] :: match.text_$class = '$val'";
+		$qval = preg_quote($val);
+		if ( $item['values'] == "multi" ) $cqpquery = "Matches = <text> [] :: match.text_$class = '.*$qval.*'";
+		else $cqpquery = "Matches = <text> [] :: match.text_$class = '$qval'";
 		$cqp->exec($cqpquery);
 
 		$oval = urlencode($val);
