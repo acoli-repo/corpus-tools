@@ -90,7 +90,7 @@ anon::after { content: ']'; }
 .thumbnail {
 	display: inline-block;
 	float: left;
-	width: 80px; height: 125px;
+	width: 80px; height: 135px;
 	text-align: center;
 	margin: 5px;
 }
