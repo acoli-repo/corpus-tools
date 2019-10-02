@@ -297,7 +297,7 @@ function formify () {
 			} else if ( pbrend == "50,0,100,100"  ) {
 				rlimg.style['cssFloat'] = 'right';
 				rlimg.style.width = '200%';
-			} else if ( pbrend ) {
+			} else if ( pbrend.includes(",") ) {
 				var tmp = pbrend.split(",");
 				var cutout = tmp[2]-tmp[0];
 				var pbzoom = 10000/cutout;
