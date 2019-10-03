@@ -190,6 +190,11 @@ class TTXML
 					if ( in_array($tpl, explode(",", $val['show'])) || ( !$val['show'] && $tpl == "long" ) ) {
 						if ( preg_match("/@[^\/]+$/", $val['xpath']) ) $hval = "".$xval;
 						else $hval = preg_replace( "/^<[^>]+>|<[^>]+>$/", "", $xval->asXML());
+						// Link when so asked
+						if ( $val['link'] ) {
+							$tmp = current($this->xml->xpath($val['link']));
+							if ( $tmp ) $hval = "<a href='$tmp'>$hval</a>";
+						};
 						$tableheader .= "<tr><th>{%$disp}<td>$hval";
 					} else {
 						$moretoshow = 1;
