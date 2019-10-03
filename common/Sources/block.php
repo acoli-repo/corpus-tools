@@ -100,6 +100,7 @@
 			<div style='$dircss'>$stxt</div>";
 		foreach ( $settings['xmlfile']['sattributes'][$stype] as $item ) {
 			$key = $item['key'];
+			if ( $item['noshow'] ) continue;
 			$atv = preg_replace("/\/\//", "<lb/>", $sent[$key]);	
 			if ( $item && $item['color']) { $scol = "style='color: {$item['color']}'"; } else { $scol = "class='s-$key'"; };
 			if ( $atv && ( !$item['admin'] || $username ) ) {
