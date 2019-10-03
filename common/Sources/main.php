@@ -147,6 +147,7 @@
 	$sharedfolder = $settings['defaults']['shared']['folder'];
 	
 	# Use the shared template if no local one exists
+	# TODO: should more be shared?
 	if (  !file_exists("templates/main.tpl") && file_exists ("$sharedfolder/templates/main.tpl") ) {
 		$smarty->setTemplateDir("$sharedfolder/templates");
 	};
