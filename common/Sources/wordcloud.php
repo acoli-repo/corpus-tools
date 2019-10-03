@@ -64,8 +64,8 @@
 	<h1>{%Word Cloud}</h1>
 	<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">
 	
-	<span id='settingsbut' onClick=\"this.style.display='none'; document.getElementById('settings').style.display='block'\"><i class=\"material-icons md-48\">menu</i></span>
-		<div id='settings' style='display: none;'>
+	<div id='settingsbut' onClick=\"this.style.display='none'; document.getElementById('settings').style.display='block'\"><i class=\"material-icons md-48\" style='float: right;'>menu</i></div>
+	<div id='settings' style='display: none; float: right;'>
 		<span onClick=\" document.getElementById('settingsbut').style.display='block'; document.getElementById('settings').style.display='none'\"><i class=\"material-icons md-48\">menu</i></span> <b style='font-size: larger; padding-bottom: 15px; margin-bottom: 15px; vertical-align: top;'>{%Settings}</b>
 		<form action='index.php?action=$action$fwquery'>
 		<input type=hidden name=id value=\"$textid\">
@@ -75,6 +75,7 @@
 		<table>
 		<tr><td>{%Text}:<td><select name='show'>$textoptions</select>
 		<tr><td>{%Count}:<td><select name='max'><option value=50>50</option><option value=100>100</option><option value=250 selected>250</option><option value=500>500</option></select>
+		<tr><td>{%Restriction}:<td><input size=40 value=\"{$_GET['rest']}\"></select>		
 		</table>
 		<p><input type=submit value=\"{%Redraw}\"> <a href='https://github.com/wvengen/d3-wordcloud' target='_new' style='color: #aaaaaa;'>https://github.com/wvengen/d3-wordcloud</a>
 		<td valign=top>

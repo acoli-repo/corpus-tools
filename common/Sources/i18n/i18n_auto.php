@@ -252,6 +252,7 @@
 		"Speed" => "Speed",
 		"Zoom" => "Zoom",
 		"Word Cloud" => "Word Cloud",
+		"Restriction" => "Restriction",
 		"Redraw" => "Redraw",
 		"Word Info" => "Word Info",
 		"Attributes" => "Attributes",
