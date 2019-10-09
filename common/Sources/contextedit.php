@@ -88,6 +88,9 @@
 			$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 		};
 
+	# Protect XML from &
+	$fullxml = preg_replace("/&(?![a-z]+;)/", "&amp;", $fullxml);
+
 			$maintext .= "<h1>Context Edit</h1>
 			
 				<table>
