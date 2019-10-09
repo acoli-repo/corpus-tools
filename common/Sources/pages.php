@@ -37,8 +37,10 @@
 			$pnr = $node['n'] or $pnr = "cnt[$cnt]";
 			if ( $settings['defaults']['thumbnails'] ) {
 				$tni = $node['facs']; 
+				$tnn = "$xmlid/$xmlid"."_$pnr.jpg";
 				if ( !preg_match("/http/", $tni) ) {
-				if ( file_exists("Thumbnails/$tni") ) $tni = "Thumbnails/$tni";
+					if ( file_exists("Thumbnails/$tni") ) $tni = "Thumbnails/$tni";
+					else if ( file_exists("Thumbnails/$tnn") ) $tni = "Thumbnails/$tnn";
 					else $tni = "Facsimile/$tni";
 				};
 				$maintext .= "<a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\"><div class=thumbnail><img src='$tni'/><br>$pnr</a></div>";
