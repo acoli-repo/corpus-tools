@@ -6,6 +6,7 @@ GetOptions ( ## Command line options
 		'debug' => \$debug, # debugging mode
 		'nosub' => \$nosub, # do not create subfolders for images
 		'rename' => \$rename, # rename //pb/@facs to local files
+		'thumbnails' => \$thumbnails, # also create thumbnails
 		'filename=s' => \$filename, # language of input
 		);
 
@@ -30,6 +31,7 @@ binmode(STDOUT,":utf8");
 
 if ( !-d "Facsimile" ) { mkdir("Facsimile"); };
 if ( !$nosub && !-d "Facsimile/$xmlid" ) { mkdir("Facsimile/$xmlid"); };
+if ( !$nosub && $thumbnails && !-d "Thumbnails/$xmlid" ) { mkdir("Thumbnails/$xmlid"); };
 
 $pn = 0;
 foreach $mt ($tmpdoc->findnodes("//pb[\@facs]")) {
@@ -55,6 +57,12 @@ foreach $mt ($tmpdoc->findnodes("//pb[\@facs]")) {
 
 	if ( !-e "Facsimile/$localimg" ) {
 		$cmd = "curl -o Facsimile/$localimg '$facsurl'";
+		print $cmd;
+		`$cmd`;
+	};
+
+	if ( $thumbnails && !-e "Thumbnails/$localimg" ) {
+		$cmd = "convert -resize 80x Facsimile/$localimg Thumbnails/$localimg";
 		print $cmd;
 		`$cmd`;
 	};

@@ -52,6 +52,7 @@
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
 
+		if ( $debug ) $maintext .= "<!-- CQL: $cql -->";
 		$cqpquery = "Matches = $cql";
 		$cqp->exec($cqpquery);
 
@@ -61,7 +62,7 @@
 		
 		if ( file_exists("cqp/{$baselevel}_facs.avs") && file_exists("cqp/{$baselevel}_bbox.avs") ) { 
 			$bbs = ", $mtch {$baselevel}_bbox, $mtch {$baselevel}_facs"; 
-		} else print "cqp/{$baselevel}_facs.avs";
+		}; # else print "cqp/{$baselevel}_facs.avs";
 			
 		$perpage = $_GET['perpage'] or $perpage = 50;
 		$start = $_GET['start'] or $start = 0;
@@ -150,6 +151,8 @@
 			</script>";
 
 	} else {
+	
+		if ( !$settings['collation'] ) fatal("No definitions for collation");
 	
 		$maintext .= "
 			<form action='index.php?action=$action&act=cqp' method=post>
