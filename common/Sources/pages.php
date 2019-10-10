@@ -40,7 +40,7 @@
 				$tnn = "$ttxml->xmlid/$ttxml->xmlid"."_$pnr.jpg";
 				if ( $tni && file_exists("Thumbnails/$tni") ) $tni = "Thumbnails/$tni";
 				else if ( file_exists("Thumbnails/$tnn") ) $tni = "Thumbnails/$tnn";
-				else $tni = "Facsimile/$tni";
+				else if ( !preg_match("/http/", $tni) ) $tni = "Facsimile/$tni";
 				$maintext .= "<a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\"><div class=thumbnail><img src='$tni' title=\"$ttxml->xmlid:$pnr\"/><br>$pnr</a></div>";
 			} else {
 				$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
