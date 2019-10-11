@@ -40,8 +40,11 @@
 			};
 		</script>
 		";
+		
+	if ( $_GET['show'] == "all" ) $all = 1;
+	
 
-	if ( $class && $val ) {
+	if ( ( $class && $val ) || $all ) {
 
 		// Do not allow searches while the corpus is being rebuilt...
 		if ( file_exists("tmp/recqp.pid") ) {
@@ -58,7 +61,8 @@
 
 		# $val = htmlentities($val);
 		$qval = preg_quote($val);
-		if ( $item['values'] == "multi" ) $cqpquery = "Matches = <text> [] :: match.text_$class = '.*$qval.*'";
+		if ( $all ) $cqpquery = "Matches = <text> []";
+		else if ( $item['values'] == "multi" ) $cqpquery = "Matches = <text> [] :: match.text_$class = '.*$qval.*'";
 		else $cqpquery = "Matches = <text> [] :: match.text_$class = '$qval'";
 		$cqp->exec($cqpquery);
 
@@ -77,8 +81,11 @@
 			if ( $size > $max ) $bnav .= " <a href='index.php?action=$action&class=$class&val=$oval&start=$next'>{%next}</a> ";
 			$nav = " - {%showing} $beg - $stop - $bnav";
 		};
+		
+		if ( $all ) $path = "<a href='index.php?action=$action'>{%!documents}</a> > all";
+		else $path = "<a href='index.php?action=$action'>{%!documents}</a> > <a href='index.php?action=$action&class=$class'>{%$cat}</a> > $val";
 
-		$maintext .= "<p><a href='index.php?action=$action'>{%!documents}</a> > <a href='index.php?action=$action&class=$class'>{%$cat}</a> > $val
+		$maintext .= "<p>$path
 			<p>$size {%documents} $nav
 			<hr><ul id=sortlist>";
 
@@ -135,10 +142,12 @@
 
 			if ( ( $item['type'] == "select" || $item['type'] == "kselect" )
 					&& ( ( !$item['noshow'] && !$item['admin']  ) || $username ) ) {
+				$foundsome = 1;
 				$maintext .= "<li key='$cat'><a href='index.php?action=$action&class=$key'>{%$cat}</a></li>";
 			};
 		};
 		$maintext .= "</ul>"; //<script language=Javascript>sortlist(document.getElementById('sortlist'));</script>";
+		if ( !$foundsome ) $maintext .= "<script language=Javascript>top.location='index.php?action=$action&show=all'</script>";
 	};
 
 	if ( $username ) {
