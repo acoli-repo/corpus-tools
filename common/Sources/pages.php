@@ -127,7 +127,7 @@
 			else 
 				$tree .= "<li $show stat='leaf'>";
 			
-			$nodet = level[$levdef['att']];
+			$nodet = $level[$levdef['att']];
 			if ( $levdef['prefix'] ) $nodet = "{%{$levdef['display']}}: $nodet";
 			if ( $levdef['link'] )
 				$tree .= "<a href='index.php?action=file&cid=$ttxml->filename&jmp={$level['id']}'>$nodet</a>";
