@@ -8,6 +8,7 @@ use XML::LibXML;
             'test' => \$test, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
             'mtxtelem=s' => \$mtxtelem, # language of input
+            'xx=s' => \$xx, # custom items to number
             'thisdir=s' => \$thisdir, # determine where we are running from
             );
 
@@ -153,6 +154,18 @@ use XML::LibXML;
 		$cnt++;
 		$ttnode->setAttribute('id', "app-$cnt");
 	}; 
+	
+	# Number any custom defined items
+	if ( $xx ne '' ) {
+		$cnt = 0;
+		foreach $tmp ( split(",", $xx) ) {
+			if ( $debug ) { print "Finding custom element : $mtxtelem//$tmp\n"; };
+			foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//$tmp")) {
+				$cnt++;
+				$ttnode->setAttribute('id', "xx-$cnt");
+			}; 
+		};
+	};
 	
 	$teitext = $tmpdoc->toString;
 		
