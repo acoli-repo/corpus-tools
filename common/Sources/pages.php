@@ -26,8 +26,8 @@
 	};
 	
 	if ( $settings['xmlfile']['toc'] ) {
-		$maintext .= "<h2>{%Table of Contents}</h2><ul>";
-		$maintext .= "<div id='toc'>".makesub($ttxml->xml, 0)."</div>";
+		$maintext .= "<h2>{%Table of Contents}</h2>";
+		$maintext .= "<div id='toc'>".makesub($ttxml->xml, 0)."</div>\n";
 		$maintext .= "<script language=Javascript>
 					function toggle (elm) {
 						if ( elm.getAttribute('stat') == 'collapsed' ) {
