@@ -52,9 +52,9 @@
 					});
 				</script>
 				<style>
-					li[stat=leaf]::before { content:'&#8226; '; }
-					li[stat=collapsed]::before { content:'&#8862; '; }
-					li[stat=expanded]::before { content:'&#8863; '; }
+					li[stat=leaf]::before { content:'• '; }
+					li[stat=collapsed]::before { content:'⊞ '; }
+					li[stat=expanded]::before { content:'• '; }
 				</style>
 				";	
 	};
