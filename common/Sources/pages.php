@@ -25,6 +25,38 @@
 		$pbtype = "milestone";
 	};
 	
+	if ( $settings['xmlfile']['toc'] ) {
+		$maintext .= "<h2>{%Table of Contents}</h2><ul>";
+		$maintext .= "<div id='toc'>".makesub($ttxml->xml, 0)."</div>";
+		$maintext .= "<script language=Javascript>
+					function toggle (elm) {
+						if ( elm.getAttribute('stat') == 'collapsed' ) {
+							elm.setAttribute('stat', 'expanded');
+						} else {
+							elm.setAttribute('stat', 'collapsed');
+						}
+						var ul = elm.childNodes[1];
+						for ( var i=0; i<ul.childNodes.length; i++ ) {
+							var li = ul.childNodes[i];
+							if ( li.style.display == 'block' ) {
+								li.style.display = 'none';
+							} else {
+								li.style.display = 'block';
+							};
+						};
+					};
+					document.getElementById('toc').addEventListener('click',function(e) {
+					  toggle(e.target);
+					});
+				</script>
+				<style>
+					li[stat=leaf]::before { content:'• '; }
+					li[stat=collapsed]::before { content:'+ '; }
+					li[stat=expanded]::before { content:'- '; }
+				</style>
+				";	
+	};
+	
 	$maintext .= "<table style='width: 100%'><tr>";
 	if ( count($ttxml->xml->xpath("//pb")) > 1 ) {
 		$lpnr = "";
@@ -80,5 +112,27 @@
 		};
 	};
 	$maintext .= "</tr></table>";
+
+	function makesub ( $node, $n ) {
+		$tree = "";  global $settings; global $ttxml;
+		$tocidx = array_keys($settings['xmlfile']['toc']);
+		$levdef = $settings['xmlfile']['toc'][$tocidx[$n]];
+		$tree .= "<ul style='list-style-type: none;'>";
+		foreach ( $node->xpath(".//{$levdef['xp']}") as $level ) {
+			if ( $n == 0 ) $show = ""; else $show = "style='display: none;'";
+			if ( $n < count($tocidx)-1 ) 
+				$tree .= "<li $show stat='collapsed'>"; #  onClick='toggle(e, this);' 
+			else 
+				$tree .= "<li $show stat='leaf'>";
+			if ( $levdef['link'] )
+				$tree .= "<a href='index.php?action=file&cid=$ttxml->filename&jmp={$level['id']}'>".$level[$levdef['att']]."</a>";
+			else 
+				$tree .= $level[$levdef['att']];
+			if ( $n < count($tocidx) ) { $tree .= makesub($level, $n+1); };
+		};
+		$tree .= "</ul>";
+		
+		return $tree;
+	};
 	
 ?>

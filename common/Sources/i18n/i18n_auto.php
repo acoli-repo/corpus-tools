@@ -153,6 +153,7 @@
 		"Switch to view" => "Switch to view",
 		"smaller font" => "smaller font",
 		"larger font" => "larger font",
+		"Table of Contents" => "Table of Contents",
 		"Page List" => "Page List",
 		"Page" => "Page",
 		"Folio" => "Folio",
