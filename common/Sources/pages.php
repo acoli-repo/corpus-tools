@@ -26,7 +26,9 @@
 	};
 	
 	if ( $settings['xmlfile']['toc'] ) {
-		$maintext .= "<h2>{%Table of Contents}</h2>";
+		$tocname = $settings['xmlfile']['toc']['display'] or $tocname = "Table of Contents"; # {%Table of Contents}
+		$tocname = "{%$tocname}";
+		$maintext .= "<h2>$tocname</h2>";
 		$maintext .= "<div id='toc'>".makesub($ttxml->xml, 0)."</div>\n";
 		$maintext .= "<script language=Javascript>
 					function toggle (elm) {
@@ -50,9 +52,9 @@
 					});
 				</script>
 				<style>
-					li[stat=leaf]::before { content:'• '; }
-					li[stat=collapsed]::before { content:'+ '; }
-					li[stat=expanded]::before { content:'- '; }
+					li[stat=leaf]::before { content:'&#8226; '; }
+					li[stat=collapsed]::before { content:'&#8862; '; }
+					li[stat=expanded]::before { content:'&#8863; '; }
 				</style>
 				";	
 	};
