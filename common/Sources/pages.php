@@ -126,10 +126,13 @@
 				$tree .= "<li $show stat='collapsed'>"; #  onClick='toggle(e, this);' 
 			else 
 				$tree .= "<li $show stat='leaf'>";
+			
+			$nodet = level[$levdef['att']];
+			if ( $levdef['prefix'] ) $nodet = "{%{$levdef['display']}}: $nodet";
 			if ( $levdef['link'] )
-				$tree .= "<a href='index.php?action=file&cid=$ttxml->filename&jmp={$level['id']}'>".$level[$levdef['att']]."</a>";
+				$tree .= "<a href='index.php?action=file&cid=$ttxml->filename&jmp={$level['id']}'>$nodet</a>";
 			else 
-				$tree .= $level[$levdef['att']];
+				$tree .= $nodet;
 			if ( $n < count($tocidx) ) { $tree .= makesub($level, $n+1); };
 		};
 		$tree .= "</ul>";
