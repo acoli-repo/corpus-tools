@@ -143,7 +143,7 @@
 			$jmpname = $parentname.$nodet;
 			
 			if ( $levdef['link'] )
-				$tree .= "<a href='index.php?action=file&cid=$ttxml->filename&jmp={$level['id']}'>$nodet</a>";
+				$tree .= "<a href='index.php?action=file&cid=$ttxml->filename&jmp={$level['id']}&jmpname=$jmpname'>$nodet</a>";
 			else 
 				$tree .= $nodet;
 			if ( $n < count($tocidx) ) { $tree .= makesub($level, $n+1, $jmpname); };
