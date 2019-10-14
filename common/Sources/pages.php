@@ -26,6 +26,13 @@
 	};
 	
 	if ( $settings['xmlfile']['toc'] ) {
+
+		$tocdef = $settings['xmlfile']['toc'];
+		if ( $tocdef['xp'] ) $tocxp = $tocdef['xp']; else $tocxp = "//teiHeader/toc";
+		if ( $ttxml->xml->xpath($tocxp) ) {
+			$tocdef = xmlflatten(current($ttxml->xml->xpath($tocxp)));
+		};
+
 		$tocname = $settings['xmlfile']['toc']['display'] or $tocname = "Table of Contents"; # {%Table of Contents}
 		$tocname = "{%$tocname}";
 		$maintext .= "<h2>$tocname</h2>";
@@ -116,9 +123,9 @@
 	$maintext .= "</tr></table>";
 
 	function makesub ( $node, $n ) {
-		$tree = "";  global $settings; global $ttxml;
-		$tocidx = array_keys($settings['xmlfile']['toc']);
-		$levdef = $settings['xmlfile']['toc'][$tocidx[$n]];
+		$tree = "";  global $tocdef; global $ttxml;
+		$tocidx = array_keys($tocdef);
+		$levdef = $tocdef[$tocidx[$n]];
 		$tree .= "<ul style='list-style-type: none;'>";
 		foreach ( $node->xpath(".//{$levdef['xp']}") as $level ) {
 			if ( $n == 0 ) $show = ""; else $show = "style='display: none;'";
