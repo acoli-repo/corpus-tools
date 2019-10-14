@@ -489,6 +489,8 @@
 	$hltit = $_POST['hltit'] or $hltit = $_GET['hltit'];
 	if ( $hltit ) $pagenav .= "<p>{$hltit}<hr>";
 
+	if ( $_GET['jmpname'] ) $pagenav .= "<p style='text-align: center;'>{$_GET['jmpname']}<hr>";
+
 	$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
 	$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
 	if ( $settings['defaults']['wordinfo'] ) $settingsdefs .= "\n\t\tvar wordinfo = true;";
