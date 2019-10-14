@@ -124,7 +124,7 @@
 	};
 	$maintext .= "</tr></table>";
 
-	function makesub ( $node, $n ) {
+	function makesub ( $node, $n, $parentname = "" ) {
 		$tree = "";  global $tocdef; global $ttxml;
 		$tocidx = array_keys($tocdef);
 		$levdef = $tocdef[$tocidx[$n]];
@@ -138,7 +138,9 @@
 				$tree .= "<li $show stat='leaf'>";
 			
 			$nodet = $level[$levatt];
+			if ( $parentname && substr($parentname, -2) != "::" ) $parentname = "$parentname::";
 			if ( $levdef['prefix'] ) $nodet = "{%{$levdef['display']}}: $nodet";
+			$jmpname = $parentname.$nodet;
 			
 			if ( $levdef['link'] )
 				$tree .= "<a href='index.php?action=file&cid=$ttxml->filename&jmp={$level['id']}'>$nodet</a>";
