@@ -39,7 +39,9 @@
 		$maintext .= "<div id='toc'>".makesub($ttxml->xml, 0)."</div>\n";
 		$maintext .= "<script language=Javascript>
 					function toggle (elm) {
-						if ( elm.getAttribute('stat') == 'collapsed' ) {
+						if ( elm.getAttribute('stat') == 'leaf' ) {
+							return -1;
+						} else if ( elm.getAttribute('stat') == 'collapsed' ) {
 							elm.setAttribute('stat', 'expanded');
 						} else {
 							elm.setAttribute('stat', 'collapsed');
@@ -126,6 +128,7 @@
 		$tree = "";  global $tocdef; global $ttxml;
 		$tocidx = array_keys($tocdef);
 		$levdef = $tocdef[$tocidx[$n]];
+		$levatt = $levdef['att'] or $levatt = "n";
 		$tree .= "<ul style='list-style-type: none;'>";
 		foreach ( $node->xpath(".//{$levdef['xp']}") as $level ) {
 			if ( $n == 0 ) $show = ""; else $show = "style='display: none;'";
@@ -134,8 +137,9 @@
 			else 
 				$tree .= "<li $show stat='leaf'>";
 			
-			$nodet = $level[$levdef['att']];
+			$nodet = $level[$levatt];
 			if ( $levdef['prefix'] ) $nodet = "{%{$levdef['display']}}: $nodet";
+			
 			if ( $levdef['link'] )
 				$tree .= "<a href='index.php?action=file&cid=$ttxml->filename&jmp={$level['id']}'>$nodet</a>";
 			else 
