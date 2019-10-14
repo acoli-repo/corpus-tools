@@ -491,7 +491,7 @@
 
 	if ( $_GET['jmpname'] ) {
 		$jmpname = str_replace("::", " &gt; ", $_GET['jmpname']);
-		$pagenav .= "<p style='text-align: center;'>$jmpname<hr>";
+		$pagenav .= "<p style='text-align: center; font-weight: bold;'>$jmpname";
 	};
 
 	$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
