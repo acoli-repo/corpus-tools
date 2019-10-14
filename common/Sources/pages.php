@@ -146,7 +146,7 @@
 				$tree .= "<a href='index.php?action=file&cid=$ttxml->filename&jmp={$level['id']}'>$nodet</a>";
 			else 
 				$tree .= $nodet;
-			if ( $n < count($tocidx) ) { $tree .= makesub($level, $n+1); };
+			if ( $n < count($tocidx) ) { $tree .= makesub($level, $n+1, $jmpname); };
 		};
 		$tree .= "</ul>";
 		
