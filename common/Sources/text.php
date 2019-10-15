@@ -492,7 +492,7 @@
 	if ( $_GET['jmpname'] ) {
 		$jmpname = str_replace("::", " &gt; ", $_GET['jmpname']);
 		$jmpnode = current($ttxml->xml->xpath("//*[@id='{$_GET['jmp']}']"));
-		if ( $jmpnode['appid'] ) $applink = "(<a href='index.php?action=collate&act=cqp&appid={$jmpnode['appid']}'>{%collation}</a>)";
+		if ( $jmpnode['appid'] ) $applink = "(<a href='index.php?action=collate&act=cqp&from=$ttxml->xmlid&appid={$jmpnode['appid']}'>{%collation}</a>)";
 		$pagenav .= "<p style='text-align: center;'><span style=' font-weight: bold;'>$jmpname</span> $applink</p>";
 	};
 

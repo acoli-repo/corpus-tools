@@ -24,9 +24,60 @@
 		$baselevel = $_POST['level'] or $baselevel = $settings['collation']['baselevel'] or $baselevel = "l";
 		
 		$appid = $_POST['appid'];
+		
+		# See if we can find a TOC index for this collation
+		if ( $_GET['from'] && $settings['xmlfile']['toc'] ) {
+			
+			# Read the XML of the from file
+			require ("$ttroot/common/Sources/ttxml.php");
+			$ttxml = new TTXML($_GET['from']);
+			if ( $ttxml->xml ) {
+		
+				# Get the name of the item from the TOC
+				$tocdef = $settings['xmlfile']['toc'];
+				if ( $tocdef['xp'] ) $tocxp = $tocdef['xp']; else $tocxp = "//teiHeader/toc";
+				if ( $ttxml->xml->xpath($tocxp) ) {
+					$tocdef = xmlflatten(current($ttxml->xml->xpath($tocxp)));
+				}; $tocidx = array_keys($tocdef);
+				
+				$levxp = "//*[@appid='$appid']";
+				$appnode = current($ttxml->xml->xpath($levxp));
+				# Overrule the base level if we know what the node is (and we have that level in CQP)		
+				$tmp = $appnode->getName();
+				if ( $settings['cqp']['sattributes'][$tmp] ) $baselevel = $tmp;
+
+				# Check if the appid is in the TOC itself
+				$leaf = array_values(array_slice($tocdef, -1))[0];
+				if ( preg_match("/\]$/", $leaf['xp']) ) $leaftest = preg_replace("/\]/", " and @appid='$appid']", $leaf['xp']);
+				else $leaftest = "//".$leaf['xp']."[@appid='$appid']";
+				$leafnode = current($ttxml->xml->xpath($leaftest));
+				if ( !$leafnode['appid'] ) {
+					$appidtxt = " > $appid";
+					$chnode = "[.//*[@appid='$appid']]";
+				} else {
+					$chnode = "[@appid='$appid']";
+					$appidtxt = " ($appid)";
+				};
+				
+				for ( $i = count($tocidx); $i>0; $i-- ) {
+					$levdef = $tocdef[$tocidx[$i-1]];
+					$levxp = "//".$levdef['xp'].$chnode;
+					$chnode = "[.//*[@appid='$appid']]";
+					$level = current($ttxml->xml->xpath($levxp));
+					$levatt = $levdef['att']."" or $levatt = "n";
+					$levtxt = $level[$levatt];
+					if ( $levdef['prefix'] ) $levtxt = "{%{$levdef['display']}}: $levtxt";
+					$appidtxt = " > $levtxt $appidtxt";
+				}; $appidtxt = preg_replace("/^ > /", "", $appidtxt );
+				
+			};
+						
+		};
+		if ( !$appidtxt ) $appidtxt = $appid;
+
 		$cql = "<".$baselevel."_appid=\"$appid\"> [];";
 		
-		$maintext .= "<h2>{%Collation on}: $appid</h2>$subtit<hr>";
+		$maintext .= "<h2>{%Collation on}: $appidtxt</h2>$subtit<hr>";
 		$outfolder = $settings['cqp']['cqpfolder'] or $outfolder = "cqp";
 
 		// This version of CQP relies on XIDX - check whether program and file exist
@@ -67,7 +118,7 @@
 		$perpage = $_GET['perpage'] or $perpage = 50;
 		$start = $_GET['start'] or $start = 0;
 		$end = $start+$perpage;
-		$cqpquery = "tabulate Matches $start $end $mtch id, $mtch text_id, $mtch word, $mtch$bbs;";	# match page_facs
+		$cqpquery = "tabulate Matches $start $end $mtch id, $mtch text_id, $mtch word, $mtch, $mtch {$baselevel}_id $bbs;";	# match page_facs
 		$results = $cqp->exec($cqpquery);
 		$results = $cqp->exec($cqpquery); // TODO: Why do we need this a second time?
 		if ( $size > $perpage ) {
@@ -81,7 +132,7 @@
 		if ( $debug ) $maintext .= "<p>$cqpquery";
 		$xidxcmd = findapp('tt-cwb-xidx');
 		foreach ( explode("\n", $results ) as $res ) {
-			list ( $id, $cid, $word, $ids, $bbox, $facs ) = explode("\t", $res );
+			list ( $id, $cid, $word, $ids, $blid, $bbox, $facs ) = explode("\t", $res );
 			$tmp = explode(" ", $ids); $leftpos = array_shift($tmp); $rightpos = array_pop($tmp);
 			if ( !$leftpos ) continue;
 
@@ -100,11 +151,12 @@
 				$divheight = 40; if ( $facs ) $glfacs = $facs;
 				$facsdiv = "<div bbox='$bbox' class='linediv' id='$cid:$id' tid='$id' style='display: inline-block; width: 300px; height: {$divheight}px; background-image: url(\"Facsimile/$facs\"); background-size: cover;' facs='Facsimile/$facs'></div><br>";
 			} else $facsdiv = "";
+			$jmpid = $id; if ( $jmpid ) { $jmpid = $blid."&jmpname=$appidtxt"; }; 
 			if ( $cid2 != "" && $cid2 == $_GET['from'] ) {
-				$baserow = "<tr><td><a href='index.php?action=file&cid=$cid&jmp=$id'><b>$cid2</b></a></td><td class=wits wit=$cid2 id=bf>$facsdiv$resxml</td></tr>
+				$baserow = "<tr><td><a href='index.php?action=file&cid=$cid&jmp=$jmpid'><b>$cid2</b></a></td><td class=wits wit=$cid2 id=bf>$facsdiv$resxml</td></tr>
 					<tr><td colspan=2><hr>";
 			} else 
-				$witrows .= "<tr><td><a href='index.php?action=file&cid=$cid&jmp=$id'>$cid2</a></td><td wit=$cid2 class=wits style='border-bottom: 1px solid #ffddaa;'>$facsdiv$resxml</td></tr>";
+				$witrows .= "<tr><td><a href='index.php?action=file&cid=$cid&jmp=$jmpid'>$cid2</a></td><td wit=$cid2 class=wits style='border-bottom: 1px solid #ffddaa;'>$facsdiv$resxml</td></tr>";
 		};
 		$maintext .= "<table id=mtxt>$baserow$witrows</table><hr><p>$cnt witnesses &bull; <a href='' id='dltei' download='app.xml' taget='_blank'>download TEI app</a>";
 		$maintext .= "
