@@ -14,8 +14,6 @@
 	$stype = $_GET['elm'] or $stype = "s";
 	if ( $stype == "1" ) $stype = "s";
 
-	// TODO: should this use textedit.js?
-
 	// When so indicated, load the external PSDX file so we can link to existing trees
 	if ( $settings['psdx'] && file_exists( "Annotations/$xmlid.psdx") ) {
 		$psdx = simplexml_load_file("Annotations/$xmlid.psdx", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
@@ -39,15 +37,17 @@
 	
 	$stype = str_replace("|", "| //", $stype);
 	$result = $xml->xpath("//$stype$sel"); 
-	if ( $result > 100 ) { 
-		$result = array_slice($result, 0, 100);
-	};
-	$sentnr = 1; $ewd = 25;
+
+
+	$sentnr = 1; $ewd = 25; $strt = 0; $perpage = $_GET['perpage'] or $perpage = 100;
+	$rescnt = count($result);
 	foreach ( $result as $sent ) {
 		$stxt = $sent->asXML(); 
 		
-		if ( $_GET['jmp'] && !$jumped && $sent['id'] != $_GET['jmp'] ) continue;
-		$jumped = 1;
+		if ( $_GET['jmp'] && !$jumped && $sent['id'] != $_GET['jmp'] ) { $strt++; continue; };
+		if ( $strt < $_GET['start'] && !$jumped  ) { $strt++; continue; };
+		if ( $cnt >= $perpage ) break;
+		$jumped = 1; $cnt++;
 		
 		if ( $stype == "lb" ) {
 			$linepos = strpos($ttxml->rawtext, $stxt);
@@ -165,6 +165,13 @@
 				$jsontrans = array2json($settings['transliteration']);
 
 				if ( $tagstxt ) $showoptions .= "<p>{%Tags}: $tagstxt ";
+
+			$miniurl = preg_replace("/(&start=\d+|&jmp=[^&]+)/", "", "index.php?".$_SERVER['QUERY_STRING']);
+
+			if ( $perpage < $rescnt ) $countrow = "{%showing} $strt - ".($strt+$perpage);
+			if ( $strt ) { $countrow .= " &bull; <a href='$miniurl&start=".max(0,$strt-$perpage)."'>{%previous}</a>"; };
+			if ( $strt + $perpage < $rescnt ) { $countrow .= " &bull; <a href='$miniurl&start=".min(count($results),$strt+$perpage)."'>{%next}</a>"; $sep = " &bull; "; };
+			if ( $countrow ) $countrow = "<p>$countrow</p><hr>";
 
 			$maintext .= "
 					$viewoptions $showoptions						<hr>
