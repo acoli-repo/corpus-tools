@@ -35,7 +35,7 @@
 		$dircss = "direction: {$settings['xmlfile']['basedirection']}";
 	};
 		
-	if ( $_GET['jmp'] ) $sel = "[.//tok[@id='{$_GET['jmp']}']]";
+	if ( $_GET['sel'] ) $sel = "[.//tok[@id='{$_GET['jmp']}']]";
 	
 	$stype = str_replace("|", "| //", $stype);
 	$result = $xml->xpath("//$stype$sel"); 
@@ -45,6 +45,9 @@
 	$sentnr = 1; $ewd = 25;
 	foreach ( $result as $sent ) {
 		$stxt = $sent->asXML(); 
+		
+		if ( $_GET['jmp'] && !$jumped && $sent['id'] != $_GET['jmp'] ) continue;
+		$jumped = 1;
 		
 		if ( $stype == "lb" ) {
 			$linepos = strpos($ttxml->rawtext, $stxt);
