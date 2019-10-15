@@ -24,6 +24,7 @@
 		"Consider using Chrome or Firefox for better audio support" => "Consider using Chrome or Firefox for better audio support",
 		"Without Title" => "Without Title",
 		"showing" => "showing",
+		"of" => "of",
 		"previous" => "previous",
 		"next" => "next",
 		"Document Browser" => "Document Browser",

@@ -168,9 +168,9 @@
 
 			$miniurl = preg_replace("/(&start=\d+|&jmp=[^&]+)/", "", "index.php?".$_SERVER['QUERY_STRING']);
 
-			if ( $perpage < $rescnt ) $countrow = "{%showing} $strt - ".($strt+$perpage);
+			if ( $perpage < $rescnt ) $countrow = "{%showing} $strt - ".($strt+$perpage)." {%of} $rescnt";
 			if ( $strt ) { $countrow .= " &bull; <a href='$miniurl&start=".max(0,$strt-$perpage)."'>{%previous}</a>"; };
-			if ( $strt + $perpage < $rescnt ) { $countrow .= " &bull; <a href='$miniurl&start=".min($rescnt,$strt+$perpage)."'>{%next}</a>"; $sep = " &bull; "; };
+			if ( $strt + $perpage < $rescnt ) { $countrow .= " &bull; <a href='$miniurl&start=".min($rescnt,$strt+$perpage+1)."'>{%next}</a>"; $sep = " &bull; "; };
 			if ( $countrow ) $countrow = "<p>$countrow</p><hr>";
 
 			$maintext .= "
