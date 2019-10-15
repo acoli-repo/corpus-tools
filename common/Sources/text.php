@@ -491,7 +491,9 @@
 
 	if ( $_GET['jmpname'] ) {
 		$jmpname = str_replace("::", " &gt; ", $_GET['jmpname']);
-		$pagenav .= "<p style='text-align: center; font-weight: bold;'>$jmpname";
+		$jmpnode = current($ttxml->xml->xpath("//*[@id='{$_GET['jmp']}']"));
+		if ( $jmpnode['appid'] ) $applink = "(<a href='index.php?action=collate&act=cqp&appid={$jmpnode['appid']}'>{%collation}</a>)";
+		$pagenav .= "<p style='text-align: center;'><span style=' font-weight: bold;'>$jmpname</span> $applink</p>";
 	};
 
 	$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";

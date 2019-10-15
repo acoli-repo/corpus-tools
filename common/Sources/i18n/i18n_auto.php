@@ -212,6 +212,7 @@
 		"Show" => "Show",
 		"Javascript seems to be turned off, or there was a communication error. Turn on Javascript for more display options." => "Javascript seems to be turned off, or there was a communication error. Turn on Javascript for more display options.",
 		"View options" => "View options",
+		"collation" => "collation",
 		"Legenda" => "Legenda",
 		"Download text" => "Download text",
 		"Search inside" => "Search inside",
