@@ -425,7 +425,8 @@
 		if ( $tokpar ) {
 			$tmp = $tokpar->asXML(); 
 			$tokpos = strpos($tmp, "id=\"$tokid\"");
-			$pbef = rstrpos($tmp, "<tok ", $tokpos-10);
+			$tmp2 = rstrpos($tmp, "<tok ", $tokpos);
+			$pbef = rstrpos($tmp, "<tok ", $tmp2-1);
 			$tmp2 = substr($tmp, $pbef, 30);
 			if ( preg_match("/id=\"([^\"]+)\"/", $tmp2, $matches ) ) $previd = $matches[1];
 		};
