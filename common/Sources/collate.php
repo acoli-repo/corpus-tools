@@ -1,6 +1,6 @@
 <?php
 
-	// Apparatus machine for collations between witnesses
+	// Apparatus machine for collations between documents/witnesses
 	// (c) Maarten Janssen, 2018
 		
 	if ( !$_POST ) $_POST = $_GET;

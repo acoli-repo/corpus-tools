@@ -419,17 +419,18 @@
 
 		$maintext .= "<br><a href='index.php?action=contextedit&cid=$fileid&tid=$tokid'>edit</a> context XML";
 
-		# Do not lookup word to the left in large files, since that is very slow
-		if ( substr($token['id'],2) < 2000 ) { 		
-			$tmp = $token->xpath('preceding-sibling::tok');
-			if ( $tmp ) {
-				$prevtok = array_pop($tmp);
-				$previd = $prevtok['id'];
-				$maintext .= "&bull; <a href='index.php?action=mergetoks&cid=$fileid&tid1=$previd&tid2=$tokid'>merge</a> left to $previd";
-			};
-		} else {
-			# TODO: make merge lookup the left word by itself when needed
-			# $maintext .= "&bull; <a href='index.php?action=mergetoks&cid=$fileid&tid1=-1&tid2=$tokid'>merge</a> left";
+		# Lookup word to the left (adepted to large files)
+		#	$tmp = $token->xpath('preceding-sibling::tok');
+		$tokpar = current($token->xpath(".."));
+		if ( $tokpar ) {
+			$tmp = $tokpar->asXML(); 
+			$tokpos = strpos($tmp, "id=\"$tokid\"");
+			$pbef = rstrpos($tmp, "<tok ", $tokpos-10);
+			$tmp2 = substr($tmp, $pbef, 30);
+			if ( preg_match("/id=\"([^\"]+)\"/", $tmp2, $matches ) ) $previd = $matches[1];
+		};
+		if ( $previd ) { 		
+			$maintext .= "&bull; <a href='index.php?action=mergetoks&cid=$fileid&tid1=$previd&tid2=$tokid'>merge</a> left to $previd";
 		};
 
 		
