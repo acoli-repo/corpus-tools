@@ -61,7 +61,7 @@
 			
 			if ( !$toks ) continue;
 			print "# sent_id = $ccid:{$sent['id']}\n";
-			$rawtext = trim(preg_replace("/[\n\r]/", " ", strip_tags($sent->asXML())));
+			$rawtext = trim(preg_replace("/[\n\r\s \t]+/", " ", strip_tags($sent->asXML())));
 			print "# text = $rawtext\n";
 			$tnr = 0; $toklist = array ();
 			foreach ( $toks as $tok ) {
