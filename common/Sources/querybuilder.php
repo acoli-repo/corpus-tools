@@ -72,6 +72,7 @@
 				$tstyle = " class=adminpart";
 				if ( !$username ) { continue; };
 			};
+			if ( $coldef['nosearch'] == "1" ) continue;
 			if ( $coldef['type'] == "mainpos" ) {
 				if ( !$tagset ) {
 					require ( "$ttroot/common/Sources/tttags.php" );
