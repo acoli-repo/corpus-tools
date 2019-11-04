@@ -43,7 +43,7 @@
 	$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		
 	$result = $andef->xpath("//interp"); 
-	if ( $andef['keepxml'] ) { $keepxml = 1; } else { $keepxml = 0; };
+	if ( $andef['keepxml'] || $settings['annotation']['keepxml'] ) { $keepxml = 1; } else { $keepxml = 0; };
 	$moreactions .= "var keepxml = $keepxml; var interp = []; var codetrans = [];\n"; 
 	foreach ( $result as $tmp ) { 
 		$tagset[$tmp['key'].''] = $tmp;

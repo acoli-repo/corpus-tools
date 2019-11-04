@@ -571,6 +571,9 @@ function setForm ( type ) {
 	document.cookie = 'showform='+type;
 	showform = type;
 	
+	// set the attribute on the #mtxt
+	document.getElementById('mtxt').setAttribute('show', type);
+	
 	// determine the writing direction
 	// if ( typeof(formdir) != 'undefined' ) {
 

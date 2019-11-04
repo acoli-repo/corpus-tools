@@ -436,7 +436,7 @@
 
 		
 		$mtok = current($token->xpath('ancestor::mtok'));
-		if ( !$mtok && $prevtok ) {
+		if ( !$mtok && $previd ) {
 			$maintext .= " &bull; create mtok left: <a href='index.php?action=makemtok&cid=$fileid&tid=$tokid&num=1'>1</a> ; <a href='index.php?action=makemtok&cid=$fileid&tid=$tokid&num=2'>2</a>";
 		};
 
@@ -516,14 +516,14 @@
 		# empty tags are working horribly in browsers - change
 		$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
 		
-		
+		$focusform = $settings['xmlfile']['focusform'] or $focusform = "nform";
 		# Show the context
 		$maintext .= "<hr><div id=mtxt>".$editxml."</div>
 		<hr><input type=submit value=\"Save\">
 		<!-- <button onClick=\"window.open('index.php?action=file&cid=$fileid', '_self');\">Cancel</button> -->
 		<a href='index.php?action=file&cid=$fileid'>Cancel</a>
 		<script language=Javascript>
-			document.getElementById('fnform').focus();
+			document.getElementById('f$focusform').focus();
 			highlight('$tokid',  '#ffee88');
 		</script>
 		&bull; <a href='index.php?action=wordinfo&cid=$fileid&tid=$tokid'>Token Details</a>

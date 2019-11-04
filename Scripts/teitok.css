@@ -59,6 +59,9 @@ anon { color: #9999bb; }
 anon::before { content: '['; }
 anon::after { content: ']'; }
 
+/* New style for gaps - instead of JS treatment */
+#mtxt gap::before { content: '[...]'; }
+
 /* Style for the token boxes when showing tags */
 .floatblock {
 	display: inline-block;
