@@ -66,7 +66,7 @@
 				exit();
 				
 			} else {
-				$maintext .= "You do not have permission to edit this corpus."; exit();
+				fatal("Your login to this corpus has been deactivated. If you need to work on this corpus, please contact the corpus administrator to reactivate your account.");
 				actionlog ( "permissions error: {$_POST['login']}" );
 			};
 		} else {
@@ -86,7 +86,7 @@
 				<a href='$newurl'>here</a>.";
 			exit();
 	};
-		
+
 	## When we are not logged in at this point, show the login
 	if ( $user['email'] == "" ) { // && $action != "login" 
 		$action = "login";

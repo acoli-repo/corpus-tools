@@ -9,6 +9,7 @@
 		if ( $settings['permissions']['groups'] ) $grouprec = $settings['permissions']['groups'][$user['group'].""];
 				
 		if ( $user['permissions'] == "admin" ) return; # Always allow admin
+		if ( $action == "user" && $username ) return; # Always allow people to see their user profile (and logout)
 		
 		if ( $checktype != "" && in_array($user['permissions'], explode(",", $checktype)) ) return; // explicitly allowed for this type
 		
