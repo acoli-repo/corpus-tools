@@ -4,7 +4,8 @@
 	# (c) Maarten Janssen, 2016
 	
 	$deplabels = $settings['deptree'];
-	if ( !$deplabels ) {
+	if ( $deplabels['rooted'] ) $rooted = 1; 
+	if ( !$deplabels['labels'] ) {
 		$deptreexml = simplexml_load_file("$ttroot/common/Resources/deptree.xml");
 		$deplabels = xmlflatten($deptreexml);
 	}; 
@@ -486,7 +487,7 @@ $maintext .= "
 	};	
 
 	function drawtree ( $node, $tokform = "form" ) {
-		global $showpunct;
+		global $showpunct, $rooted;
 		$jump = $_GET['jmp'];
 		$treetxt = ""; if ( $_GET['form'] ) $tokform = $_GET['form'];
 		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight; global $maxwidth;
@@ -512,16 +513,17 @@ $maintext .= "
 		$svgxml = simplexml_load_string($svgtxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING); // Put the leaves and lines on the canvas
 		if ( !$svgxml ) print "ERROR!"; #return "<p><i>Error while drawing tree</i>";
 
+		if ( $rooted ) $rootrow = 1; else $rootrow = 0;
 		while (	$result = $svgxml->xpath('//text[not(@row)]') ) {
 			foreach ( $result as $textnode ) { 
 				
 				unset($row);
 				if ( !$textnode['head'] ) {
-					$row = 0;
+					$row = $rootrow ;
 				} else {
 					$headnode = current($svgxml->xpath("//text[@tokid=\"{$textnode['head']}\"]"));
 					if ( !$headnode ) {
-						$row = 0;
+						$row = $rootrow;
 					} else if ( isset($headnode['row']) ) {
 						$row = $headnode['row'] + 1;
 					};
@@ -592,8 +594,13 @@ $maintext .= "
 
 		# Draw the lines
 		foreach ( $svgxml->xpath("//text") as $textnode ) {
-
+			
+			$strokecolor = '#992000';
 			$headnode = current($svgxml->xpath("//text[@tokid=\"{$textnode['head']}\"]"));
+			if ( !$headnode && $rooted ) { 
+				$headnode['x'] = $maxwidth*100/2; 
+				$strokecolor = '#cccccc';
+			};
 			$deplabel = $textnode['deprel']."";
 			if ( $username && $act == "edit" ) {
 				if ( $deplabel == "" ) $deplabel = "(norel)";
@@ -615,7 +622,7 @@ $maintext .= "
 			
 			$newline = $svgxml->addChild('line');				
 			$newline['stroke-width'] ='0.5';
-			$newline['stroke'] ='#992000';
+			$newline['stroke'] = $strokecolor;
 
 			$newline['x1'] = $textnode['x'] + 0;
 			$newline['y1'] = $textnode['y'] - 18;

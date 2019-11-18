@@ -99,7 +99,8 @@
 
 		$maintext .= "<h1>Metadata fields defined in this corpus</h1>
 			<table>
-			<tr><th>Field Name<th>Description (<i>Default</i>)<th>CQP field<th>XPath query";
+			<tr><td><th>Field Name<th>Description (<i>Default</i>)<th>CQP field<th>XPath query";
+			
 		foreach ( $settings['teiheader'] as $headerfield ) {
 
 			if ( $headerfield['type'] == "sep" ) {
@@ -133,16 +134,25 @@
 				$cqpwarn .= "<p>$cqp: Not defined in CQP section (<a href='index.php?action=$action&act=recqp&set=add&fld=$cqp&name={$headerfield['display']}&xpath=".urlencode($xquery)."'>add</a>)";
 			};
 			
-			$maintext .= "<tr><th>{$headerfield['display']}<td>$desc<td>$cqp<td>$xquery";
+			$fields[$i++] = $headerfield['display'];
+			if ($headerfield['view']) foreach ( explode(",", $headerfield['view']) as $viewf ) $views[$viewf] .= "$i,";
+			$maintext .= "\n\t<tr><td>$i<th view=\"{$headerfield['view']}\">{$headerfield['display']}<td>$desc<td>$cqp<td>$xquery";
 		};
 		$maintext .= "</table>";
 		
+		# Show the missing CQP fields
 		foreach ( $cqpdefs as $rest ) {
 			if ( !is_array($rest) ) continue;
 			$resttxt .= "<p>{$rest['key']}: {$rest['display']} = {$rest['xpath']} (<a href='index.php?action=$action&act=recqp&set=del&fld={$rest['key']}'>remove</a>)";
 		};
 		
 		if ( $username ) {
+			# Show the views
+			$maintext .= "<h2>Views</h2>";
+			foreach ( $views as $key => $val ) {
+				$maintext .= "<p>$key: $val";
+			};
+			if ( !$views['short'] ) $maintext .= "<p class=warning>Nothing defined for short view - nothing will be shown above the text";
 			if ( $resttxt ) $maintext .= "<h2>Non-used CQP fields</h2>$resttxt";
 			if ( $cqpwarn ) $maintext .= "<h2>CQP field mismatches</h2>$cqpwarn";
 		};

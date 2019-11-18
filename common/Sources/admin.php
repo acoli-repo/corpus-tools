@@ -216,7 +216,11 @@
 			$maintext .= "<li><a href='index.php?action=admin&act=configcheck'>check configuration settings</a>";
 			$maintext .= "<li><a href='index.php?action=adminedit'>edit resource files</a>";
 		};
-				
+		
+		if ( $settings['teiheader'] ) {
+						$maintext .= "<li><a href='index.php?action=header&act=details'>teiHeader handling</a>";
+		};		
+		
 		if ( ( $filelist || file_exists("Resources/filelist.xml" ) ) && allowedforme("filelist") )
 			$maintext .= "<li><a href='index.php?action=filelist'>view file repository</a>";
 				
