@@ -25,6 +25,54 @@ if ( typeof(labelstxt) != "undefined" ) {
 	};
 };
 
+function highlightlocal(elm, hln) {
+	if ( elm.tagName != "TOK" ) return -1;
+	var tokid = elm.getAttribute('id');
+	var svgdiv = document.querySelector('svg').parentNode;
+	
+	placehlbar(tokid, hln);
+	var its = elm.getElementsByTagName("dtok");
+	for ( var a = 0; a<its.length; a++ ) {
+		var it = its[a];	
+		placehlbar(it.getAttribute('id'), a+hln);
+	}
+
+}
+
+function placehlbar (tokid, hln) {
+	var svgdiv = document.querySelector('svg').parentNode;
+
+	// Go through all the <text> elements with this tokid
+	var its = svgdiv.getElementsByTagName("text");
+	for ( var a = 0; a<its.length; a++ ) {
+		var it = its[a];	
+		if ( it.getAttribute('tokid') == tokid ) { 
+			var domRect = it.getBoundingClientRect();
+
+			// Determine the hlbar and scale of the image div
+			hlbar = svgdiv.getElementsByClassName('hlbar').item(hln);
+			if ( !hlbar ) {
+				hlbar = document.createElement("div");
+				hlbar.setAttribute('class', 'hlbar'); // The highlight bar
+				svgdiv.appendChild(hlbar);
+			}; 
+
+			hlbar.style.display = 'block';
+			hlbar.style['background-color'] = '#ffff00';
+			hlbar.style['z-index'] = '0';
+			hlbar.style['position'] = 'absolute';
+			hlbar.style['opacity'] = '0.5';
+		
+			hlbar.style.left = domRect.x + window.scrollX + 'px';
+			hlbar.style.top = domRect.y + window.scrollY + 'px';
+			hlbar.style.width = domRect.width + 'px';
+			hlbar.style.height = domRect.height + 'px';
+			hlbar.style.display = 'block';
+
+		};
+	};
+};
+
 function relabel ( clicked ) {
 
 		if ( selected != null ) {

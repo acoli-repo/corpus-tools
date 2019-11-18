@@ -281,6 +281,7 @@ $maintext .= "
 	 	</select>
 	<canvas style='display: none;' id='myCanvas' width='800' height='400' ></canvas>
 	<script language=Javascript>
+		var localhl = 1; // use a local highlight function
 		var orgtoks = new Object();
 		formify(); setForm('$formfld');
 		var canvas=document.getElementById('myCanvas');

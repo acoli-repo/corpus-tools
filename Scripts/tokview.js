@@ -191,9 +191,14 @@ function showtokinfo(evt, element, poselm) {
 function highlightbb (elm, hln=0) {
 
 	// Unhighlight if we still have a hlbar 
-	if ( typeof(hlbar) != "undefined" && hlbar.tagName == "DIV" ) {
-		hlbar.style.display = 'none';
+	var its = document.getElementsByClassName('hlbar');
+	for ( var a = 0; a<its.length; a++ ) {
+		var it = its[a];	
+		it.style.display = 'none';
 	};
+
+	// Goto the local module
+	if ( typeof(localhl) != "undefined" ) { highlightlocal(elm, hln); return -1; };
 
 	// Find the bbox we need
 	if ( elm.getAttribute('bbox') == null ) {
