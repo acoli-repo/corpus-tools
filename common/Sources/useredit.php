@@ -38,11 +38,11 @@
 		$usr["permissions"] = $_POST['permissions'];
 		$usr["email"] = $_POST['email'];
 		$usr["group"] = $_POST['group'];
-		if ( !$_POST['keep'] ) $usr['tochange'] = "1";
-		else $usr['enc'] = "1";
 		if ($_POST['password']) { 
 			$pwd = password_hash($_POST['password'], PASSWORD_DEFAULT);
 			$usr["password"] = $pwd;
+			if ( !$_POST['keep'] ) $usr['tochange'] = "1";
+			else $usr['enc'] = "1";
 		};
 	
 		# Save the modified XML file

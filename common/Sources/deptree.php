@@ -220,7 +220,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 		};
 	
 		$maintext .= "\n
-<div>
+<div id=svgdiv>
 $graph
 </div>
 <style>
@@ -281,6 +281,7 @@ $maintext .= "
 	 	</select>
 	<canvas style='display: none;' id='myCanvas' width='800' height='400' ></canvas>
 	<script language=Javascript>
+		document.getElementById('svgdiv').style.height = document.querySelector('svg').getAttribute('height') + 'px';
 		var localhl = 1; // use a local highlight function
 		var orgtoks = new Object();
 		formify(); setForm('$formfld');
@@ -499,7 +500,7 @@ $maintext .= "
 
 		# Read the tokens
 		$i = 0;
-		$svgtxt .= "<svg version=\"1.1\" width=\"100%\" height=\"500\">"; # xmlns=\"http://www.w3.org/2000/svg\" 
+		$svgtxt .= "<svg version=\"1.1\" style='z-index: 2; position: absolute;' width=\"100%\" height=\"500\">"; # xmlns=\"http://www.w3.org/2000/svg\" 
 		foreach ( $node->xpath($toksel) as $tok ) {
 			$text = forminherit($tok, $tokform, false);
 			if ( $text == "--" ) continue;

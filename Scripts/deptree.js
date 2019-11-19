@@ -1,6 +1,8 @@
 var toks = document.getElementsByTagName("text");
 var selected = null;
 var sentxml;
+var svgdiv = document.querySelector('svg').parentNode;
+
 for ( var a = 0; a<toks.length; a++ ) {
 	var it = toks[a];
 	it.onmouseover = function () {
@@ -28,7 +30,6 @@ if ( typeof(labelstxt) != "undefined" ) {
 function highlightlocal(elm, hln) {
 	if ( elm.tagName != "TOK" ) return -1;
 	var tokid = elm.getAttribute('id');
-	var svgdiv = document.querySelector('svg').parentNode;
 	
 	placehlbar(tokid, hln);
 	var its = elm.getElementsByTagName("dtok");
@@ -40,7 +41,6 @@ function highlightlocal(elm, hln) {
 }
 
 function placehlbar (tokid, hln) {
-	var svgdiv = document.querySelector('svg').parentNode;
 
 	// Go through all the <text> elements with this tokid
 	var its = svgdiv.getElementsByTagName("text");
@@ -54,12 +54,12 @@ function placehlbar (tokid, hln) {
 			if ( !hlbar ) {
 				hlbar = document.createElement("div");
 				hlbar.setAttribute('class', 'hlbar'); // The highlight bar
-				svgdiv.appendChild(hlbar);
+				svgdiv.insertBefore(hlbar, svgdiv.firstChild);
 			}; 
 
 			hlbar.style.display = 'block';
 			hlbar.style['background-color'] = '#ffff00';
-			hlbar.style['z-index'] = '0';
+			hlbar.style['z-index'] = '1';
 			hlbar.style['position'] = 'absolute';
 			hlbar.style['opacity'] = '0.5';
 		
