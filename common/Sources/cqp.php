@@ -163,9 +163,9 @@
 				if ( $contrs[$swrd] ) {
 					$sep = ""; $sparts = "";
 					foreach ( $contrs[$swrd] as $spart ) {
-						$spps = "";
-						foreach ( explode(",", $spart) as $i => $spp ) {
-							if ( $settings['cqp']['strictdtok'] ) $drest = " & id=\"d-.*-".($i+1)."\" ";
+						$spps = ""; $plst = explode(",", $spart);
+						foreach ( $plst as $i => $spp ) {
+							if ( $settings['cqp']['strictdtok'] && count($plst) > 1 ) $drest = " & id=\"d-.*-".($i+1)."\" "; else $drest = "";
 							$spps .= "[$wordfld=\"$spp\" $drest ] ";
 						};					
 						$sparts .= $sep." $spps ";
