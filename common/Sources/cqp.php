@@ -144,10 +144,37 @@
 
 		# If this is a simple search - turn it into a CQP search
 		if ( $cql && !preg_match("/[\"\[\]]/", $cql) ) {
+		
+			# Read the contraction list if it exists
+			if ( file_exists("Resources/contractions.txt") ) {
+				$contrs = array ( );
+				$tmp = file_get_contents("Resources/contractions.txt");
+				foreach ( explode("\n", $tmp) as $tmp1 ) {
+					$tmp2 = explode("\t", $tmp1);
+					$tmp3 = array_shift($tmp2);
+					$contrs[$tmp3] = $tmp2;
+				};
+				
+			};
+					
 			$simple = $cql; $cql = "";
 			foreach ( explode ( " ", $simple ) as $swrd ) {
 				$swrd = preg_replace("/(?!\.\])\*/", ".*", $swrd);
-				$cql .= "[$wordfld=\"$swrd\"] ";
+				if ( $contrs[$swrd] ) {
+					$sep = ""; $sparts = "";
+					foreach ( $contrs[$swrd] as $spart ) {
+						$spps = "";
+						foreach ( explode(",", $spart) as $i => $spp ) {
+							if ( $settings['cqp']['strictdtok'] ) $drest = " & id=\"d-.*-".($i+1)."\" ";
+							$spps .= "[$wordfld=\"$spp\" $drest ] ";
+						};					
+						$sparts .= $sep." $spps ";
+						$sep = " | ";
+					};
+					$cql .= "( $sparts ) ";
+				} else {
+					$cql .= "[$wordfld=\"$swrd\"] ";
+				};
 			};
 		};
 
