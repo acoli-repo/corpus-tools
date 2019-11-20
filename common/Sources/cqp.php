@@ -145,10 +145,13 @@
 		# If this is a simple search - turn it into a CQP search
 		if ( $cql && !preg_match("/[\"\[\]]/", $cql) ) {
 		
-			# Read the contraction list if it exists
-			if ( file_exists("Resources/contractions.txt") ) {
+			# Read the contraction list if it exists (either local or in sharedfolder)
+			if ( file_exists("Resources/contractions.txt") ) $contrfile = "Resources/contractions.txt";
+			else if ( $sharedfolder && file_exists("$sharedfolder/Resources/contractions.txt") ) $contrfile = "$sharedfolder/Resources/contractions.txt";
+
+			if ( $contrfile ) {
 				$contrs = array ( );
-				$tmp = file_get_contents("Resources/contractions.txt");
+				$tmp = file_get_contents($contrfile);
 				foreach ( explode("\n", $tmp) as $tmp1 ) {
 					$tmp2 = explode("\t", $tmp1);
 					$tmp3 = array_shift($tmp2);
