@@ -61,7 +61,7 @@ function placehlbar (tokid, hln) {
 			hlbar.style['background-color'] = '#ffff00';
 			hlbar.style['z-index'] = '1';
 			hlbar.style['position'] = 'absolute';
-			// hlbar.style['opacity'] = '0.5';
+			hlbar.style['opacity'] = '0';
 		
 			hlbar.style.left = domRect.x + window.scrollX + 'px';
 			hlbar.style.top = domRect.y + window.scrollY + 'px';
