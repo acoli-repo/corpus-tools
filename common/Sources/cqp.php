@@ -161,17 +161,23 @@
 			foreach ( explode ( " ", $simple ) as $swrd ) {
 				$swrd = preg_replace("/(?!\.\])\*/", ".*", $swrd);
 				if ( $contrs[$swrd] ) {
-					$sep = ""; $sparts = "";
-					foreach ( $contrs[$swrd] as $spart ) {
-						$spps = ""; $plst = explode(",", $spart);
-						foreach ( $plst as $i => $spp ) {
-							if ( $settings['cqp']['strictdtok'] && count($plst) > 1 ) $drest = " & id=\"d-.*-".($i+1)."\" "; else $drest = "";
-							$spps .= "[$wordfld=\"$spp\" $drest ] ";
-						};					
-						$sparts .= $sep." $spps ";
-						$sep = " | ";
+					if ( $settings['cqp']['dtoks'] == "contr" ) {
+						# Use the dtok region, which can be extended to more options easily
+						$cql .= "( [$wordfld=\"$swrd\"] | <contr_$wordfld=\"$swrd\"> []+ </contr_$wordfld> ) ";
+					} else {
+						# Make an option list explicitly
+						$sep = ""; $sparts = "";
+						foreach ( $contrs[$swrd] as $spart ) {
+							$spps = ""; $plst = explode(",", $spart);
+							foreach ( $plst as $i => $spp ) {
+								if ( $settings['cqp']['dtoks'] == "strict" && count($plst) > 1 ) $drest = " & id=\"d-.*-".($i+1)."\" "; else $drest = "";
+								$spps .= "[$wordfld=\"$spp\" $drest ] ";
+							};					
+							$sparts .= $sep." $spps ";
+							$sep = " | ";
+						};
+						$cql .= "( $sparts ) ";
 					};
-					$cql .= "( $sparts ) ";
 				} else {
 					$cql .= "[$wordfld=\"$swrd\"] ";
 				};
