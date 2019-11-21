@@ -260,7 +260,7 @@
 			$totform .= $dpart;
 			$rawdxml = $dtoken->asXML();
 			$rawdxml = preg_replace("/'/", "&#039;", $rawdxml ); # We need to protect apostrophs in the HTML form
-			$maintext .= "<hr style='background-color: #aaaaaa;'><h2>D-Token</h2> 
+			$maintext .= "<hr style='background-color: #aaaaaa;'><h2>D-Token ({$did})</h2> 
 				<input type=hidden name='dtok[$did]' size=70 value='$rawdxml'>
 				<table>
 				";
