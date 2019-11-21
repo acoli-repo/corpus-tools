@@ -18,6 +18,7 @@
 
 		// This is for a smooth transition to a more secure encryption method
 		if ( !$xrec['enc'] && !$xrec['tochange'] ) {
+			# Check for non-encrypted passwords
 			if ( $_POST['password'] == $xrec['password']  || $xrec['password'] == crypt("teiteitokencryptor", $_POST['password'] ) ) {
 				# Password correct, but now save it as a more secure password
 				 $pwd = password_hash($_POST['password'], PASSWORD_DEFAULT);
@@ -64,11 +65,18 @@
 				print "<script language=javascript>$newurl</script>You have been logged in. This page will now reload. If it does not, please click 
 					<a href='$newurl'>here</a>.";
 				exit();
-				
 			} else {
 				fatal("Your login to this corpus has been deactivated. If you need to work on this corpus, please contact the corpus administrator to reactivate your account.");
 				actionlog ( "permissions error: {$_POST['login']}" );
 			};
+		} else if ( $settings['defaults']['passwords']['retry'] && crypt($pwd, "teitokdefaultsalt") == $xrec['password'] ) {
+			# Check against older passwords in case of a system move
+			 $pwd = password_hash($_POST['password'], PASSWORD_DEFAULT);
+			 $xrec['password'] = $pwd;
+			 $xrec['enc'] = "1";
+			file_put_contents("Resources/userlist.xml", $uxml->asXML());
+			$maintext .= "<h1>Login Changed</h1><p>Login system has change - updating your data accordingly. Please reload. <script language=Javascript>location.reload(); </script>"; 
+			
 		} else {
 			$maintext .= "<h1>Login Failed</h1><p>The username and password you provided do not match."; 
 			messagelog ( "password error: {$_POST['login']} /  {$_POST['password']}" );
