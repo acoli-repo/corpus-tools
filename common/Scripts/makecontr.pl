@@ -4,6 +4,11 @@ $\ = "\n"; $, = "\t";
 &dofolder("xmlfiles");
 $parser = XML::LibXML->new();
 
+$settings = $parser->load_xml(location => "Resources/settings.xml");
+if ( $settings ) {
+	if ( $settings->findnodes('//cqp/@wordfld') ) { $wordfld = $settings->findnodes('//cqp/@wordfld')->item(0)->value; } else { $wordfld = "word"; };
+};
+
 foreach $file ( @files ) {
 	print $file;
 	eval {
@@ -16,7 +21,7 @@ foreach $file ( @files ) {
 			$sep = ""; $pps = ""; $wrong = 0;
 			foreach $prt ($contr->findnodes("dtok")) {
 				$pf = $prt->getAttribute("form");
-				if ( $pf eq "" ) {
+				if ( $pf eq "" || $pf eq "--" ) {
 					print "No form: ".$prt->toString;
 					$wrong = 1;
 				};
