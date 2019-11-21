@@ -7,6 +7,8 @@ $parser = XML::LibXML->new();
 $settings = $parser->load_xml(location => "Resources/settings.xml");
 if ( $settings ) {
 	if ( $settings->findnodes('//cqp/@wordfld') ) { $wordfld = $settings->findnodes('//cqp/@wordfld')->item(0)->value; } else { $wordfld = "word"; };
+} else {
+	$wordfld = "word";
 };
 
 foreach $file ( @files ) {
