@@ -35,20 +35,33 @@
 	$resxml = shell_exec($cmd);
 
 	$cssfile = file_get_contents("Resources/xmlstyles.css");
+	$more = file_get_contents("Resources/context.css");
+	if ( $more ) {
+		$cssfile .= "\n$more";
+	} else {
+		$cssfile .= "\n#tokinfo th { border: 1px solid #cccccc; background-color: #f2f2f2; }";
+	};
 
 	if ( $debug ) $cmdt = $cmd;
 
 	$resxml = preg_replace("/ (id=\"$tid\")/", " \\1 highlight=\"1\"", $resxml );
 
-	if ( $withheader ) $header = "<p><a href='{$baseurl}index.php?action=file&cid=$cid&tid=$tid'>TEITOK Context</a></p>";
+	if ( $withheader ) $header = "<p style='margin-top: 30px;'><a href='{$baseurl}index.php?action=file&cid=$cid&tid=$tid'>View full context</a></p>";
+
 
 	if ( $format == "json" ) {
 		print "{'results': '$resxml'}";
 	} else {
+		$resxml = preg_replace("/<tok /", "<tok onmouseover=\"window.showtokinfo(this)\" onmouseout=\"document.getElementById('tokinfo').style.display='none';\"", $resxml );
+
+		$tagdef = array2json($settings['xmlfile']['pattributes']['tags']); 
+
 		print "<style>$cssfile</style>
 			$hlstyle
-			$header
+			<div id='tokinfo' style='display: none; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 300;'></div>
+			<img src='http://www.teitok.org/Images/ex-multiedit.png' style='display: none;' onload=\"window.showtokinfo = function(elm) { var tokinfo = document.getElementById('tokinfo'); console.log(elm); tokinfo.style.display='block';tokinfo.style.top= (elm.offsetTop + elm.offsetHeight + 3) + 'px';  tokinfo.style.left=elm.offsetLeft + 'px';   var innery = '<table style=\'width: 100%;\'><tr><th colspan=2>'+elm.innerHTML; var tagdef = $tagdef; for (var key in tagdef) { innery += '<tr><th>' + tagdef[key].display + '<td>' + elm.getAttribute(key);  }; innery += '</table>'; tokinfo.innerHTML = innery; };\"/>
 			<div id='mtxt'>$resxml</div>
+			$header
 			";
 	};
 	

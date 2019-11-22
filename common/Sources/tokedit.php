@@ -248,7 +248,7 @@
 		// Show all the DTOKS
 		$result2 = $token->xpath("dtok"); $dtk = 0;
 		foreach ( $result2 as $dtoken ) {
-			$did = $dtoken['id']; $dtk++; 
+			$did = $dtoken['id'] or $did = "<span class=warn>No ID!</span>"; $dtk++; 
 			if ( !$did ) { 
 				$warning = "<div class=warning>TOK or DTOK without @id, which will not allow TEITOK 
 					tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$fileid\">here</a> to renumber the XML file
