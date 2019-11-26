@@ -796,7 +796,7 @@
 	if (!function_exists('mb_strlen')) {
 		# When not defined (why??) make a similar function
 		function mb_strlen ( $string ) {
-			returnstrlen( utf8_decode( $string ) );
+			return strlen( utf8_decode( $string ) );
 		};
 	};
 		
