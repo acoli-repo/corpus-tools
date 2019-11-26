@@ -39,7 +39,7 @@
 	if ( $more ) {
 		$cssfile .= "\n$more";
 	} else {
-		$cssfile .= "\n#tokinfo th { border: 1px solid #cccccc; background-color: #f2f2f2; }\n#tokinfo { display: block; visibility: hidden; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 300; }";
+		$cssfile .= "\n#tokinfo th { border: 1px solid #cccccc; background-color: #f2f2f2; }\n#tokinfo { display: none; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 300; }";
 	};
 
 	if ( $debug ) $cmdt = $cmd;
@@ -62,7 +62,7 @@
 		print "<style>$cssfile</style>
 			$hlstyle
 			<div id='tokinfo'></div>
-			<img src='http://www.teitok.org/Images/ex-multiedit.png' style='display: none;' onload=\"window.showtokinfo = function(elm) { var tokinfo = document.getElementById('tokinfo'); console.log(elm); tokinfo.style.top= (elm.offsetTop + elm.offsetHeight + 3) + 'px';  tokinfo.style.left=elm.offsetLeft + 'px';   var innery = '<table style=\'width: 100%;\'><tr><th colspan=2>'+elm.innerHTML; var tagdef = $tagdef; for (var key in tagdef) { var tagval = elm.getAttribute(key); if ( tagval ) { innery += '<tr><th>' + tagdef[key].display + '<td>' + tagval;  }; }; innery += '</table>'; tokinfo.innerHTML = innery; tokinfo.style.visibility = '' }; window.hidetokinfo = function() { var tokinfo = document.getElementById('tokinfo'); tokinfo.style.visibility='hidden'; };\"/>
+			<img src='http://www.teitok.org/Images/ex-multiedit.png' style='display: none;' onload=\"window.showtokinfo = function(elm) { var tokinfo = document.getElementById('tokinfo'); console.log(elm); tokinfo.style.display='block';tokinfo.style.top= (elm.offsetTop + elm.offsetHeight + 3) + 'px';  tokinfo.style.left=elm.offsetLeft + 'px';   var innery = '<table style=\'width: 100%;\'><tr><th colspan=2>'+elm.innerHTML; var tagdef = $tagdef; for (var key in tagdef) { var tagval = elm.getAttribute(key); if ( tagval ) { innery += '<tr><th>' + tagdef[key].display + '<td>' + tagval;  }; }; innery += '</table>'; tokinfo.innerHTML = innery; tokinfo.style.visibility = '' }; window.hidetokinfo = function() { var tokinfo = document.getElementById('tokinfo'); tokinfo.style.visibility='hidden'; };\"/>
 			<div id='mtxt'>$resxml</div>
 			$header
 			";
