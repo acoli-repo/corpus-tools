@@ -10,6 +10,7 @@
 	$format = $_GET['format'] or $format = $settings['context']['format'] or $format = "html";
 	if ( isset($_GET['hls']) ) $hls = $_GET['hls']; else if ( isset($settings['context']['hls']) ) $hls = $settings['context']['hls']; else $hls = "1";
 	if ( isset($_GET['header']) ) $withheader = $_GET['header']; else if ( isset($settings['context']['header']) ) $withheader = $settings['context']['header']; else $withheader = "1";
+	if ( isset($_GET['wordh']) ) $wordheader = $_GET['wordh']; else if ( isset($settings['context']['wordheader']) ) $wordheader = $settings['context']['wordheader']; else $wordheader = "0"; # Whether to display the word itself
 	$context = $_GET['context'] or $context = $settings['context']['context'] or $context = "s";
 
 	$leftpos = $_GET['leftpos'];
@@ -61,12 +62,14 @@
 
 		$tagdef = array2json($settings['xmlfile']['pattributes']['tags']); 
 
+		if ( $withword ) $wordheader = "var innery += '<tr><th colspan=2>'+elm.innerHTML;";
+
 		print "
 			<div id='teitokbox' style='width: 100%;'>
 			<style>$cssfile</style>
 			$hlstyle
 			<div id='tokinfo'></div>
-			<img src='http://www.teitok.org/Images/ex-multiedit.png' style='display: none;' onload=\"window.showtokinfo = function(elm) { var tokinfo = document.getElementById('tokinfo'); tokinfo.style.display='block';  var innery = '<table style=\'width: 100%;\'><tr><th colspan=2>'+elm.innerHTML; var tagdef = $tagdef; for (var key in tagdef) { var tagval = elm.getAttribute(key); if ( tagval ) { innery += '<tr><th>' + tagdef[key].display + '<td>' + tagval; tokinfo.style.top= (elm.offsetTop + elm.offsetHeight + 3) + 'px'; var ttw = document.getElementById('teitokbox').clientWidth;  var leftpos = Math.min(elm.offsetLeft, ttw - tokinfo.offsetWidth); tokinfo.style.left = leftpos + 'px'; }; }; innery += '</table>'; tokinfo.innerHTML = innery; tokinfo.style.visibility = '' }; window.hidetokinfo = function() { var tokinfo = document.getElementById('tokinfo'); tokinfo.style.visibility='hidden'; };\"/>
+			<img src='http://www.teitok.org/Images/ex-multiedit.png' style='display: none;' onload=\"window.showtokinfo = function(elm) { var tokinfo = document.getElementById('tokinfo'); tokinfo.style.display='block';  var innery = '<table style=\'width: 100%;\'>'; $wordheader var tagdef = $tagdef; for (var key in tagdef) { var tagval = elm.getAttribute(key); if ( tagval ) { innery += '<tr><th>' + tagdef[key].display + '<td>' + tagval; tokinfo.style.top= (elm.offsetTop + elm.offsetHeight + 3) + 'px'; var ttw = document.getElementById('teitokbox').clientWidth;  var leftpos = Math.min(elm.offsetLeft, ttw - tokinfo.offsetWidth); tokinfo.style.left = leftpos + 'px'; }; }; innery += '</table>'; tokinfo.innerHTML = innery; tokinfo.style.visibility = '' }; window.hidetokinfo = function() { var tokinfo = document.getElementById('tokinfo'); tokinfo.style.visibility='hidden'; };\"/>
 			<div id='mtxt'>$resxml</div>
 			$header
 			</div>
