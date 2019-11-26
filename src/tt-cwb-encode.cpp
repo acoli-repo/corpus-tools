@@ -453,7 +453,7 @@ void treatfile ( string filename ) {
 
 				};
 
-				// Skip this is we do not have any tokens inside the range
+				// Skip this is we do not have any tokens inside the range (or one of them does not have an ID?)
 				if ( id_pos.find(toka) == id_pos.end() || id_pos.find(tokb) == id_pos.end() ) {
 					if ( debug > 2 ) { cout << " Empty range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " to " << tokb << endl; };
 					continue;

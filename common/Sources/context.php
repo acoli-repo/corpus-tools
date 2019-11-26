@@ -46,7 +46,8 @@
 
 	$resxml = preg_replace("/ (id=\"$tid\")/", " \\1 highlight=\"1\"", $resxml );
 
-	if ( $withheader ) $header = "<p style='margin-top: 30px;'><a href='{$baseurl}index.php?action=file&cid=$cid&tid=$tid'>View full context</a></p>";
+	$headtext = $settings['context']['link'] or $headtext = "View TEITOK document";
+	if ( $withheader ) $header = "<p style='margin-top: 30px;'><a href='{$baseurl}index.php?action=file&cid=$cid&tid=$tid'>{%$headtext}</a></p>";
 
 
 	if ( $format == "json" ) {
