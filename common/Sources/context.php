@@ -35,7 +35,9 @@
 	$resxml = shell_exec($cmd);
 
 	$cssfile = file_get_contents("Resources/xmlstyles.css");
+	if ( !$cssfile && $sharedfolder ) $cssfile = file_get_contents("$sharedfolder/Resources/xmlstyles.css");
 	$more = file_get_contents("Resources/context.css");
+	if ( !$more && $sharedfolder ) $more = file_get_contents("$sharedfolder/Resources/context.css");
 	if ( $more ) {
 		$cssfile .= "\n$more";
 	} else {
