@@ -9,8 +9,8 @@
 	$color = $_GET['color'] or $color = $settings['context']['color'] or $color = "#ffffaa";
 	$format = $_GET['format'] or $format = $settings['context']['format'] or $format = "html";
 	if ( isset($_GET['hls']) ) $hls = $_GET['hls']; else if ( isset($settings['context']['hls']) ) $hls = $settings['context']['hls']; else $hls = "1";
-	if ( isset($_GET['header']) ) $withheader = $_GET['header']; else if ( isset($settings['context']['header']) ) $withheader = $settings['context']['header']; else $withheader = "1";
-	if ( isset($_GET['wordh']) ) $wordheader = $_GET['wordh']; else if ( isset($settings['context']['wordheader']) ) $wordheader = $settings['context']['wordheader']; else $wordheader = "0"; # Whether to display the word itself
+	if ( isset($_GET['header']) ) $withheader = $_GET['header']; else if ( isset($settings['context']['header']) ) $withheader = $settings['context']['header']; else $withheader = 1;
+	if ( isset($_GET['wordh']) ) $withword = $_GET['wordh']; else if ( isset($settings['context']['wordheader']) ) $withword = $settings['context']['wordheader']; else $withword = 0; # Whether to display the word itself
 	$context = $_GET['context'] or $context = $settings['context']['context'] or $context = "s";
 
 	$leftpos = $_GET['leftpos'];
