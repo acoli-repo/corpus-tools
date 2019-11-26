@@ -59,12 +59,15 @@
 
 		$tagdef = array2json($settings['xmlfile']['pattributes']['tags']); 
 
-		print "<style>$cssfile</style>
+		print "
+			<div id='teitokbox' style='width: 100%;'>
+			<style>$cssfile</style>
 			$hlstyle
 			<div id='tokinfo'></div>
-			<img src='http://www.teitok.org/Images/ex-multiedit.png' style='display: none;' onload=\"window.showtokinfo = function(elm) { var tokinfo = document.getElementById('tokinfo'); console.log(elm); tokinfo.style.display='block';tokinfo.style.top= (elm.offsetTop + elm.offsetHeight + 3) + 'px';  tokinfo.style.left=elm.offsetLeft + 'px';   var innery = '<table style=\'width: 100%;\'><tr><th colspan=2>'+elm.innerHTML; var tagdef = $tagdef; for (var key in tagdef) { var tagval = elm.getAttribute(key); if ( tagval ) { innery += '<tr><th>' + tagdef[key].display + '<td>' + tagval;  }; }; innery += '</table>'; tokinfo.innerHTML = innery; tokinfo.style.visibility = '' }; window.hidetokinfo = function() { var tokinfo = document.getElementById('tokinfo'); tokinfo.style.visibility='hidden'; };\"/>
+			<img src='http://www.teitok.org/Images/ex-multiedit.png' style='display: none;' onload=\"window.showtokinfo = function(elm) { var tokinfo = document.getElementById('tokinfo'); tokinfo.style.display='block';  var innery = '<table style=\'width: 100%;\'><tr><th colspan=2>'+elm.innerHTML; var tagdef = $tagdef; for (var key in tagdef) { var tagval = elm.getAttribute(key); if ( tagval ) { innery += '<tr><th>' + tagdef[key].display + '<td>' + tagval; tokinfo.style.top= (elm.offsetTop + elm.offsetHeight + 3) + 'px'; var ttw = document.getElementById('teitokbox').clientWidth;  var leftpos = Math.min(elm.offsetLeft, ttw - tokinfo.offsetWidth); tokinfo.style.left = leftpos + 'px'; }; }; innery += '</table>'; tokinfo.innerHTML = innery; tokinfo.style.visibility = '' }; window.hidetokinfo = function() { var tokinfo = document.getElementById('tokinfo'); tokinfo.style.visibility='hidden'; };\"/>
 			<div id='mtxt'>$resxml</div>
 			$header
+			</div>
 			";
 			
 	};
