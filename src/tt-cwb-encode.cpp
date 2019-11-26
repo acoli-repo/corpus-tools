@@ -378,6 +378,7 @@ void treatfile ( string filename ) {
 				if ( xpath != "" ) {
 					pugi::xpath_node xres;
 					if ( external != "" ) {
+						if ( external.find("#") == string::npos ) { external = "#" + external; }; // For "incorrect" IDs
 						if ( debug > 2 ) { cout << "External XML lookup: " << external << endl; };
 						string tmp = doc.select_node(external.c_str()).attribute().value();
 						if ( debug > 3 ) { cout << " -- lookup value: " << tmp << endl; };
@@ -410,6 +411,18 @@ void treatfile ( string filename ) {
 								try {
 									xres = externals[exval[0]]->first_child().select_node(xpath.c_str());
 								} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
+							};
+						} else if ( exfile == "" ) {
+							// this is a local "external" reference
+							string idlookup = "//*[@id=\""+exval[1]+"\"]";
+							if ( debug > 1 ) { cout << "ID lookup: " << idlookup << endl; };
+							pugi::xml_node exnode;
+							try {
+								exnode = doc.select_node(idlookup.c_str()).node();
+							} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
+							if ( debug > 2 ) { exnode.print(cout); };
+							if ( exnode ) {
+								xres = exnode.select_node(xpath.c_str());
 							};
 						};
 					} else {

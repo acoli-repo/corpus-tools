@@ -33,7 +33,7 @@
 		};
 	};
 
-	$lastupdate = "<i>Never generated before</i>";
+	$lastupdate = "<i>No information</i>";
 	$tmp = file_get_contents("tmp/lastupdate.log");
 	if ( $tmp ) {
 		list ( $start, $lapse, $size ) = explode("\t", $tmp);
@@ -52,11 +52,11 @@
 		
 		$maintext .= "<p>The current status of the process can be read below. The steps that have to be finished for the
 			corpus to complete are: 
-				<ol>
+				<ol type='1'>
 					<li> Encode : encode all the tokens in all the texts in the search folder in CWB format
 					<li> Make : create all the necessary files for the CQP corpus
 				</ol>
-			<p>Step 2 tends to be fast, while steps 1 can take several minutes. 
+			<p>Step 2 tends to be fast, while steps 1 can take several minutes (or even hours depending on the size of the corpus). 
 			
 			<p> - Last regeneration: $lastupdate
 		
