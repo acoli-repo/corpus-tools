@@ -56,6 +56,7 @@
 		"Witness Collation" => "Witness Collation",
 		"Collation on" => "Collation on",
 		"results" => "results",
+		"headtext" => "headtext",
 		"Word Distribution" => "Word Distribution",
 		"Words by" => "Words by",
 		"Corpus Search" => "Corpus Search",
