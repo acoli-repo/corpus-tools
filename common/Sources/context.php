@@ -39,7 +39,7 @@
 	if ( $more ) {
 		$cssfile .= "\n$more";
 	} else {
-		$cssfile .= "\n#tokinfo th { border: 1px solid #cccccc; background-color: #f2f2f2; }\n#tokinfo { display: none; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 300; }";
+		$cssfile .= "\n#tokinfo th { border: 1px solid #cccccc; background-color: #f2f2f2; }\n#tokinfo { display: block; visibility: hidden; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 300; }";
 	};
 
 	if ( $debug ) $cmdt = $cmd;
