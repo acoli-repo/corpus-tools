@@ -48,7 +48,7 @@
 
 	$headtext = $settings['context']['link'] or $headtext = "View TEITOK document";
 	if ( $withheader ) {
-		if ( $withlang ) $headtext = lgMsg("{%headtext}"; ); 
+		if ( $withlang ) $headtext = lgMsg("{%headtext}"); 
 		$header = "<p style='margin-top: 30px;'><a href='{$baseurl}index.php?action=file&cid=$cid&tid=$tid'>$headtext</a></p>";
 	};
 
