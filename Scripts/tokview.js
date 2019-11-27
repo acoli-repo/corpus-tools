@@ -78,7 +78,9 @@ function showtokinfo(evt, element, poselm) {
     if ( element.tagName == "TOK" || element.tagName == "DTOK" || element.tagName == "MTOK" ) {
     	var atts = element.attributes;
     	var tokid = element.getAttribute('id');
-    	if ( typeof(orgtoks) != "undefined" ) { 
+    	if ( element.tagName == "DTOK" ) { 
+    		textvalue = element.getAttribute('form');
+    	} else if ( typeof(orgtoks) != "undefined" ) { 
     		textvalue = orgtoks[tokid];
     		if ( textvalue == "" ) { 
     			textvalue = orgtoks[tokid].getAttribute('form'); 
