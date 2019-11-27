@@ -204,8 +204,11 @@ window.addEventListener(\"beforeunload\", function (e) {
 			};
 		};
 		
+		$xmltxt = $sent->asXML();
+		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
+
 		$maintext .= "			
-			<div id=mtxt $textdir>".$sent->asXML()."</div><hr>";
+			<div id=mtxt $textdir>$xmltxt</div><hr>";
 
 		if ( $_GET['view'] == "graph" ) {
 			$graph = drawgraph($sent);
@@ -504,7 +507,7 @@ $maintext .= "
 		foreach ( $node->xpath($toksel) as $tok ) {
 			$text = forminherit($tok, $tokform, false);
 			if ( $text == "--" ) continue;
-			if ( $text == "" ) $text = "∅";
+			if ( $text == "" ) $text = "`";
 			if ( strtoupper($tok['deprel']) != "PUNCT" || $showpunct ) {
 				if ( $jump != '' && $jump == $tok['id'] ) { $highl = " font-weight='bold' fill='#aa2200' "; } else { $highl = ""; };
 				$svgtxt .= "\n\t<text text-anchor='middle' tokid=\"{$tok['id']}\" font-size=\"12pt\" type=\"tok\" head=\"{$tok['head']}\" deprel=\"{$tok['deprel']}\" $onclick $highl>$text</text> ";
@@ -654,7 +657,7 @@ $maintext .= "
 			
 			if ( $text != "" || $tok['head'] ) { 		
 				
-				if ( $text == "" ) $text = "∅";				
+				if ( $text == "" ) $text = "`";				
 
 				if ( $username && $act == "edit" ) {
 					$onclick = " onClick=\"relink(this);\"";
