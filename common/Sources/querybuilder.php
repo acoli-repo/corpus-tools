@@ -449,7 +449,7 @@
 					};
 				}; 
 			</script>
-			<form action='$postaction' onsubmit=\"return checksearch(this);\" method=post id=cqp name=cqp><p>CQP Query: &nbsp; 
+			<form action='$postaction' onsubmit=\"return checksearch(this);\" method=post id=cqp name=cqp><p>{%CQP Query}: &nbsp; 
 				$cqlbox
 				<input type=submit value=\"{%Search}\"> 
 					<a onClick=\"showqb('cqlfld');\" title=\"{%define a CQL query}\">{%query builder}</a>

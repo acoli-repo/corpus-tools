@@ -273,13 +273,16 @@
 			$maintext .= "<p class=adminpart>Parsing the PDF into images is done using <tt>pdfimages</tt> which is not installed on the server.";
 		};
 		
+		if ( $tesseractworking ) { # TODO: Make tesseract work
+			$tessopt = "<p><input type=radio name=postprocess value=ocr> Process with Tesseract OCR tool";
+		};
 			
 		$maintext .= "<hr>
 		<h3>Post-processing</h3>
 
 		<p><input type=radio name=postprocess value=none> Create an empty TEI/XML files with page breaks
 		<p><input type=radio name=postprocess value=page checked> Create a file for page-by-page transcription
-		<p><input type=radio name=postprocess value=ocr> Process with Tesseract OCR tool
+		$tessopt
 		
 		<hr>
 		<p><input type=submit value='Start processing'>
