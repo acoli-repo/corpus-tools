@@ -435,6 +435,9 @@ void treatfile ( string filename ) {
 					};
 				};
 
+				// Make sure to remove all linebreaks from the value to avoid problems later, say in the cwb-decode VRT output
+				formval = trim(replace_all(formval, "\n", " ")); // Trim white spaces
+
 				write_range_value (pos1, pos2, "text", formkey, formval);
 			}; 
 		} else if ( taglvl != "" ) {

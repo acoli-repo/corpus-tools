@@ -753,7 +753,7 @@
 			$maintext .= "<div id='customfreq' style='display: none;'><p>Specifiy additional custom CQP command on the results above (Matches):
 
 
-					CQP Query:
+					{%CQP Query}:
 					<input type=hidden name=cql value='$cqlu' $chareqfn>
 					<input name='query' value='group Matches match lemma' size=70>
 					<input type=submit value='{%Apply}'>

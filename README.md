@@ -11,13 +11,13 @@ For support and recent developments, there is also a [Google group mailing list]
 This package is maintained at
 [GitLab](https://gitlab.com/maartenes/TEITOK). Issues 
 should be submitted there. There is also a fork of the repository on [GitHub](https://github.com/ufal/teitok), which 
-is kept synchronised on a daily basis, so the repository can be cloned from there.
+is kept synchronised on a daily basis, so the repository can be cloned from there as well.
 
 ## License
 
-(c) 2015 Maarten Janssen
+(c) 2015- Maarten Janssen
 
-This package is free to use for non-commercial purposes.
+This package is [licenced](LICENCE) under the GNU General Public License v3.0.
 
 At this moment, the repository is private to protect users, until security issues have been sufficiently addressed.
 
