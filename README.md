@@ -9,8 +9,9 @@ For support and recent developments, there is also a [Google group mailing list]
 ## Download
 
 This package is maintained at
-[GitLab](https://gitlab.com/maartenes/TEITOK). Issues and pull requests
-should be submitted there.
+[GitLab](https://gitlab.com/maartenes/TEITOK). Issues 
+should be submitted there. There is also a fork of the repository on [GitHub](https://github.com/ufal/teitok), which 
+is kept synchronised on a daily basis, so the repository can be cloned from there.
 
 ## License
 
