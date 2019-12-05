@@ -143,9 +143,7 @@
 	if ( $username ) {
 		$edithtml = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id={$action}-$lang'>edit page</a></div>";
 	};
-	
-	$sharedfolder = $settings['defaults']['shared']['folder'];
-	
+		
 	# Use the shared template if no local one exists
 	# TODO: should more be shared?
 	if (  !file_exists("templates/main.tpl") && file_exists ("$sharedfolder/templates/main.tpl") ) {

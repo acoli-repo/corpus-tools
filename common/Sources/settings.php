@@ -16,7 +16,12 @@
 		$settings = xmlflatten($settingsxml);
 
 	};	
+
+	$sharedfolder = $settings['defaults']['shared']['folder'];
 	
+	# See if there are any local or shared startup scripts
+	if ( file_exists("Sources/startup.php") ) require("Sources/startup.php");
+	if ( file_exists("$sharedfolder/Sources/startup.php") ) require("$sharedfolder/Sources/startup.php");
 	
 	# Define where to get the JS libraries from - and in which version (if not defined in the settings)
 

@@ -527,6 +527,9 @@ void treatfile ( string filename ) {
 					};
 
 
+					// Make sure to remove all linebreaks from the value to avoid problems later, say in the cwb-decode VRT output
+					formval = trim(replace_all(formval, "\n", " ")); // Trim white spaces
+
 					// write the actual data
 					write_range_value (posa, posb, tagname, formkey, formval);
 
