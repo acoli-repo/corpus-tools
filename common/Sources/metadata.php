@@ -16,20 +16,20 @@
 	$maintext .= "<div style='display: none;' id='metadata'>".$defaults->asXML()."</div>";
 
 
-	$maintext .= "<script src='http://code.iamkate.com/javascript/collapsible-lists/CollapsibleLists.js'></script>
+	$maintext .= "<script src='https://code.iamkate.com/javascript/collapsible-lists/CollapsibleLists.js'></script>
 		<style>
 		.collapsibleList li{
-  list-style-image : url('http://code.iamkate.com/javascript/collapsible-lists/button.png');
+  list-style-image : url('https://code.iamkate.com/javascript/collapsible-lists/button.png');
   cursor           : auto;
 }
 
 li.collapsibleListOpen{
-  list-style-image : url('http://code.iamkate.com/javascript/collapsible-lists/button-open.png');
+  list-style-image : url('https://code.iamkate.com/javascript/collapsible-lists/button-open.png');
   cursor           : pointer;
 }
 
 li.collapsibleListClosed{
-  list-style-image : url('http://code.iamkate.com/javascript/collapsible-lists/button-closed.png');
+  list-style-image : url('https://code.iamkate.com/javascript/collapsible-lists/button-closed.png');
   cursor           : pointer;
 }
 		</style>";
@@ -40,16 +40,16 @@ li.collapsibleListClosed{
     ".ulmake(current($defaults->xpath("//teiHeader")), "/TEI/teiHeader")."</li>
    </ul>
    
-   <p onClick=\"togglextab()\" ><img id=ximg style='margin-right: 5px; margin-left: 12px' src='http://code.iamkate.com/javascript/collapsible-lists/button-closed.png'> List of recommendable fields</p> <table id=xtab style='display: none;'><tr><th>XPath<th>Description$valuelist</table>
+   <p onClick=\"togglextab()\" ><img id=ximg style='margin-right: 5px; margin-left: 12px' src='https://code.iamkate.com/javascript/collapsible-lists/button-closed.png'> List of recommendable fields</p> <table id=xtab style='display: none;'><tr><th>XPath<th>Description$valuelist</table>
    <script language=Javascript>
    		var xto = 0;
 		function togglextab() {
 			if ( xto ) {
-				document.getElementById('ximg').src = 'http://code.iamkate.com/javascript/collapsible-lists/button-closed.png';
+				document.getElementById('ximg').src = 'https://code.iamkate.com/javascript/collapsible-lists/button-closed.png';
 				document.getElementById('xtab').style.display='none';
 				xto = 0;
 			} else {
-				document.getElementById('ximg').src = 'http://code.iamkate.com/javascript/collapsible-lists/button-open.png';
+				document.getElementById('ximg').src = 'https://code.iamkate.com/javascript/collapsible-lists/button-open.png';
 				document.getElementById('xtab').style.display='block';
 				xto = 1;
 			};

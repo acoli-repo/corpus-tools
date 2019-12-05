@@ -21,7 +21,7 @@
 	};
 
 	$redirecturl = $settings['permissions']['orcid']['redirect'] 
-		or $redirecturl = "http://{$_SERVER['SERVER_NAME']}{$baseurl}index.php?action=orcid";
+		or $redirecturl = "https://{$_SERVER['SERVER_NAME']}{$baseurl}index.php?action=orcid";
 	
 	if ( $_SESSION['extid']['orcid'] ) {
 
@@ -39,7 +39,7 @@
 			<table><th>Name<th>ORCID<th>Last login";
 		foreach ( $orcidlist->xpath("//user") as $tmp ) {
 			$maintext.= "<tr><td>{$tmp['realname']}
-				<td><a href='http://orcid.org/{$tmp['id']}'>{$tmp['id']}</a>
+				<td><a href='https://orcid.org/{$tmp['id']}'>{$tmp['id']}</a>
 				<td>".date("d M Y", $tmp['lastlogin']."");
 		};
 

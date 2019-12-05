@@ -114,7 +114,7 @@
 
 			<p><input type=checkbox name=convert value='1' checked> Convert <a href='index.php?action=$action&act=conversions' target=help>hard to type characters</a>
 			<br/>
-			<!-- <p><input type=radio name=codes value='md' > Convert from <a href='http://teitok.corpuswiki.org/site/index.php?action=help&id=pagetrans' target=help>markdown-style codes</a> [del:this] -->
+			<!-- <p><input type=radio name=codes value='md' > Convert from <a href='http://www.teitok.org/site/index.php?action=help&id=pagetrans' target=help>markdown-style codes</a> [del:this] -->
 			<p><input type=radio name=codes value='xml' checked> Treat as XML (this may make your conversion fail if the resulting XML is invalid)
 			<p><input type=radio name=codes value='none'> Keep as-is
 			
@@ -524,7 +524,7 @@
 				};
 				
 			</script>
-			<script language=Javascript src='http://code.interactjs.io/v1.3.0/interact.min.js'></script>
+			<script language=Javascript src='https://code.interactjs.io/v1.3.0/interact.min.js'></script>
 			<script language=Javascript>
 
 

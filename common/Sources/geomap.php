@@ -30,7 +30,7 @@ if ( $settings['geomap']['cluster'] ) {
 		<script src=\"https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.0.6/src/assets/js/leaflet.extra-markers.min.js\"></script>
 		<script src=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster-src.js\"></script>
 		<script language=Javascript>var cluster = {$settings['geomap']['cluster']}; var markertype = '{$markertype}';</script>
-		<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
+		<script src=\"https://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
 	";
 } else if ( $markertype ) {
 	$cluster = "
