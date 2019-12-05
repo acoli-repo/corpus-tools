@@ -8,8 +8,16 @@
 
 	if ( $ttroot == "" ) $ttroot = "..";
 
-	header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page!
 	include ( "$ttroot/common/Sources/functions.php" ); # Global functions
+	
+	if ( isSecure() ) {
+		header('HTTPS/1.0 200 OK'); ## Hard code this as NOT an error page!
+		$hprot = "https";
+	} else {
+		header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page!
+		$hprot = "http";
+		ini_set("session.cookie_secure", 0); // TEITOK typically does not work on HTTPS, so SESSION vars have to be allow on HTTP
+	};
 
 	// Determine the location of the Smarty scripts
 	if ( !defined(SMARTY_DIR) ) {
@@ -30,7 +38,6 @@
 	include(SMARTY_DIR . 'Smarty.class.php');
 	
 	// Deal with sessions and cookies
-	ini_set("session.cookie_secure", 0); // TEITOK typically does not work on HTTPS, so SESSION vars have to be allow on HTTP
 	session_start();
 
 	// Have a uniform treatment of magic quotes
@@ -83,7 +90,7 @@
 	if ( $settings['defaults']['base']['javascript'] ) {
 		$jsurl = $settings['defaults']['base']['javascript'];
 	} else {
-		$jsurl = "http://www.teitok.org/Scripts";
+		$jsurl = "$hprot://www.teitok.org/Scripts";
 	};
 	
 	// Determine the main XML content 
@@ -188,7 +195,7 @@
 	} else {
 		# Nothing appropriate
 		$maintext = getlangfile ( "notfound", true );
-		header('HTTP/1.0 404 Not Found'); ## Hard code this as NOT an error page!
+		header('HTTP/1.0 404 Not Found'); ## Hard code this as not found
 		if ( $username ) {
 			$maintext .= "<hr><span class=adminpart><a href='index.php?action=pageedit&id=new&name=$action-$lang.html'>create</a> this as an HTML page</span>";
 		};		

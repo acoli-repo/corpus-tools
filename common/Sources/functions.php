@@ -799,5 +799,10 @@
 			return strlen( utf8_decode( $string ) );
 		};
 	};
-		
+
+	function isSecure() {
+	  return
+		(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+		|| $_SERVER['SERVER_PORT'] == 443;
+	}		
 ?>
