@@ -29,13 +29,13 @@
 		$smarty = '/usr/local/lib/smarty/libs/';
 	if ( !$smarty ) {
 		$smartypath = str_replace("Smarty.class.php", "", file_locate('Smarty.class.php'));
-		if ( $smartypath ) {
+		if ( $smartypath && $smartypath != "." ) {
 			# TODO: Write this to index-off.php
 			print "<p class=warn>Smarty seems to be installed, but not in a location where TEITOK expects it.
 			Please change the SMARTY_DIR definition in index.php to <b>$smartypath</b> and remove the slashes in front of the line.";
 		} else {
 			print "<p class=wrong> Smarty engine not installed or not found, which is required by TEITOK.
-				Please install <a href='http://www.smarty.net/'>Smarty</a>.
+				Please install <a href='http://www.smarty.net/'>Smarty</a>, which can also be done using <a href='https://github.com/smarty-php/smarty'>GitHub</a>.
 				 ";
 			$critical = 1;
 		};

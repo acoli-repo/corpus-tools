@@ -105,7 +105,7 @@
 	if ( $action == "" ) {
 		$miniuri = preg_replace("/^.*?{$settings['defaults']['base']['foldername']}\//", "", $_SERVER['REQUEST_URI']);
 		if ( preg_match("/^([^\/]+)\.(html|php)/", $miniuri, $matches ) ) $action = $matches[1];
-		else if ( preg_match("/\//", $miniuri, $matches ) ) {
+		else if ( preg_match("/\//", $miniuri, $matches ) && !preg_match("/index\.php/", $miniuri)) {
 			$parts = explode("/", $miniuri );
 			$action = array_shift($parts);
 			$partdesc = explode(",", $settings['shorturl'][$action.'']['parts'] ); 
