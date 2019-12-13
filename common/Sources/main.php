@@ -80,7 +80,7 @@
 	# Determine the base URL and the root folder
 	if ( $settings['defaults']['base']['url'] ) $baseurl = $settings['defaults']['base']['url'];
 	else {
-		$baseurl = str_replace('index.php', '', $_SERVER['SCRIPT_NAME'] );
+		$baseurl = preg_replace('/index.php.*/', '', $_SERVER['SCRIPT_NAME'] );
 		$baseurl = str_replace("/$lang/", '/', $baseurl );
 	};
 	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
@@ -103,9 +103,10 @@
 	// Deal with GET variables	
 	$action = $_GET['action'] or $action = $_GET['page'];
 	if ( $action == "" ) {
-		$miniuri = preg_replace("/^.*?{$settings['defaults']['base']['foldername']}\//", "", $_SERVER['REQUEST_URI']);
+		$tmp = str_replace("/", "\\/", preg_quote($baseurl));
+		$miniuri = preg_replace("/^.*$tmp/", "", $_SERVER['REQUEST_URI']);
 		if ( preg_match("/^([^\/]+)\.(html|php)/", $miniuri, $matches ) ) $action = $matches[1];
-		else if ( preg_match("/\//", $miniuri, $matches ) && !preg_match("/index\.php/", $miniuri)) {
+		else if ( preg_match("/\//", $miniuri, $matches ) && !preg_match("/index\.php/", $miniuri) ) {
 			$parts = explode("/", $miniuri );
 			$action = array_shift($parts);
 			$partdesc = explode(",", $settings['shorturl'][$action.'']['parts'] ); 
