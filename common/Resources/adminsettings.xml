@@ -337,6 +337,22 @@
 				<att key="display" display="Name of the query"/>
 			</list>
 		</item>
+		<item key="stats" display="Statistics">
+			<desc>
+				Here you can define file-based statistical measure, such as TTR or avg. sentence length.
+			</desc>	
+			<list>
+				<att key="var" display="Name of the variable to store this value in"/>
+				<att key="type" display="Name of the query">
+					<val key="size" display="This is search - count the number of results"/>
+					<val key="count" display="This is CQL count - grab the result"/>
+					<val key="calc" display="This is a calculation using previous variables"/>
+				</att>
+				<att key="cql" display="CQL query (for count and size variables)"/>
+				<att key="calc" display="Calculation"/>
+				<att key="display" display="Display name of the variable"/>
+			</list>
+		</item>
 	</item>
 
 
