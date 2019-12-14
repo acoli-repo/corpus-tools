@@ -200,6 +200,7 @@
 		"Raw corpus search" => "Raw corpus search",
 		"index" => "index",
 		"Statistics" => "Statistics",
+		"Document" => "Document",
 		"Tagset" => "Tagset",
 		"Tag" => "Tag",
 		"Analyse" => "Analyse",

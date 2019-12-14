@@ -13,7 +13,7 @@
 	$maintext .= "<h1>{%Statistics}</h1>";
 	
 	if ( !$settings['cqp']['stats'] ) {
-		$settings['cqp']['stats'] = array ( 
+		$settings['cqp']['stats'] = array ( 	
 					array ( "var" => "tokcnt",  "cql" => "[]", "type" => "size", "display" => "Token count" ),
 					array ( "var" => "formtypes",  "cql" => "group Tokcnt match form", "type" => "count", "display" => "Token types" ),
 					array ( "var" => "ttrform",  "calc" => "formtypes/tokcnt", "type" => "calc", "display" => "TTR on forms" ),
@@ -21,27 +21,49 @@
 	};
 	
 	if ( $cid ) {
-
 		include ("$ttroot/common/Sources/ttxml.php");
 
 		$ttxml = new TTXML($cid);
 		$maintext .= "<h2>".$ttxml->title()."</h2>"; 
 		$maintext .= $ttxml->tableheader(); 
+	};
+	
+	$maintext .= getlangfile("statstext");
 
-		# Get the token count 
-		$cqp->exec("Matches = [] :: match.text_id='xmlfiles/$cid'");
-		$tokcnt = $cqp->exec("size Matches");
+	if ( $cid ) {
+		$tids = array ("xmlfiles/$cid");
+	} else {
+		$cql = "Matches = <text> []";
+		$cqp->exec($cql);
+		$start = 0; $stop = 100;
+		if ( $settings['cqp']['titlefld'] ) $txtcql = ", match {$settings['cqp']['titlefld']}";
+		$tids = explode("\n", $cqp->exec("tabulate Matches $start $stop match text_id $txtcql"));
+	};
 
-		$maintext .= getlangfile("statstext");
+	$maintext .= "<table>";
 
-		$maintext .= "<table>";
+	if ( !$cid ) {
+		$maintext .= "<tr><th>{%Document}";
 		foreach ( $settings['cqp']['stats'] as $key => $val ) {
+			if ( !$val['display'] ) continue;		
+			$maintext .= "<th title='$tit'>{%{$val['display']}}";
+		};
+	};
+	
+	foreach ( $tids as $txtid ) {
+		if ( !$txtid ) continue;		
+		list ( $txtid, $txttit ) = explode("\t", $txtid );
+		if ( !$txttit ) $txttit = $txtid;
+		if ( !$cid ) $maintext .= "<tr><th>$txttit";
+
+		foreach ( $settings['cqp']['stats'] as $key => $val ) {
+			if ( !$val['display'] ) continue;		
 			$varname = $val['var'];
 			$cql = $val['cql'];
 			$vartype = $val['type'];
 			$tit = $val['cql'];
 			if ( $vartype == "size" ) {
-				$cql = ucfirst($varname)." = $cql :: match.text_id='xmlfiles/$cid'";
+				$cql = ucfirst($varname)." = $cql :: match.text_id='$txtid'";
 				$tmp = $cqp->exec($cql);
 				$varval = $cqp->exec("size ".ucfirst($varname));
 			} else if ( $vartype == "calc" ) {
@@ -54,18 +76,13 @@
 			 
 			$vars{$val['var']} = $varval;
 			$tit = str_replace("'", "&quot;", "$varname: $tit");
-			$maintext .= "<tr><th title='$tit'>{%{$val['display']}}<td>$varval";
+			if ( $cid ) $maintext .= "<tr><th title='$tit'>{%{$val['display']}}";
+			$maintext .= "<td>$varval";
 		};
-		$maintext .= "</table>";
-
-	
-		$maintext .= "<hr><p><a href='index.php?action=text&cid=$cid'>{%Text view}</a>";
-	
-	} else {
-
-		
-
 	}
+	
+	$maintext .= "</table>";
+	$maintext .= "<hr><p><a href='index.php?action=text&cid=$cid'>{%Text view}</a>";
 
 function evalmath($equation) {
 	global $vars; 
