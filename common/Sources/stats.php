@@ -97,7 +97,7 @@ function evalmath($equation) {
         $result = @eval("return " . $equation . ";" );
     }
     if ($result == null) {
-        throw new Exception("Unable to calculate equation");
+        $result = "NaN";
     }
     return $result;
 }
