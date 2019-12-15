@@ -35,9 +35,27 @@
 	} else {
 		$cql = "Matches = <text> []";
 		$cqp->exec($cql);
-		$start = 0; $stop = 100;
+		$doccnt = $cqp->exec("size Matches");
+		$start = $_GET['start'] or $start = 0; 
+		$perpage = $_GET['pergpage'] or $perpage = 30;
+		$stop = $start+$perpage;
+
 		if ( $settings['cqp']['titlefld'] ) $txtcql = ", match {$settings['cqp']['titlefld']}";
 		$tids = explode("\n", $cqp->exec("tabulate Matches $start $stop match text_id $txtcql"));
+
+		$sep = "";
+		if ( $start > 0 ) {
+			$tmp = max(0, $start-$perpage);
+			$nav .= " <a href='index.php?action=$action&start=$tmp'>{%previous}</a> ";
+			$sep = "&bull;";
+		};
+		if ( $stop+$perpage < $doccnt ) {
+			$tmp = min($doccnt-1, $stop+$perpage);
+			$nav .= "$sep <a href='index.php?action=$action&start=$tmp'>{%next}</a> ";
+		};
+		if ( $nav ) {
+			$maintext .= "<p>$doccnt {%documents} &bull; {%showing} ".($start+1)." - $stop &bull; $nav";
+		};
 	};
 
 	$maintext .= "<table>";
@@ -73,6 +91,9 @@
 				$tmp = $cqp->exec($cql);
 				$varval = count(explode("\n", $tmp));
 			};
+			
+			$vardec = $val['dec'] or $vardec = 3;
+			if ( floor($varval) != $varval ) $varval = number_format($varval, $vardec);
 			 
 			$vars{$val['var']} = $varval;
 			$tit = str_replace("'", "&quot;", "$varname: $tit");

@@ -351,6 +351,7 @@
 				<att key="cql" display="CQL query (for count and size variables)"/>
 				<att key="calc" display="Calculation"/>
 				<att key="display" display="Display name of the variable"/>
+				<att key="dec" display="Number of decimals to show for fractions" default="3"/>
 			</list>
 		</item>
 	</item>
