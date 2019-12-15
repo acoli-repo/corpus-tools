@@ -344,8 +344,8 @@
 			<list>
 				<att key="var" display="Name of the variable to store this value in"/>
 				<att key="type" display="Name of the query">
-					<val key="size" display="This is search - count the number of results"/>
-					<val key="count" display="This is CQL count - grab the result"/>
+					<val key="size" display="A CQL search - count the number of results"/>
+					<val key="count" display="A CQL count - grab the result"/>
 					<val key="calc" display="This is a calculation using previous variables"/>
 				</att>
 				<att key="cql" display="CQL query (for count and size variables)"/>
@@ -438,6 +438,7 @@
 				<att key="key" display="ID for this level"/>
 				<att key="level" display="Name of the sattribute"/>
 				<att key="display" display="Display name for the level"/>
+				<att key="inherit" display="Field to inherit from when empty"/>
 				<list display="List of sattributes for the level">
 					<att key="color" display="Colour for the tag value"/>
 					<att key="key" display="Attribute name of the tag"/>
