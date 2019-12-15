@@ -98,7 +98,7 @@
 			$vars{$val['var']} = $varval;
 			$tit = str_replace("'", "&quot;", "$varname: $tit");
 			if ( $cid ) $maintext .= "<tr><th title='$tit'>{%{$val['display']}}";
-			$maintext .= "<td>$varval";
+			$maintext .= "<td align=right>$varval";
 		};
 	}
 	

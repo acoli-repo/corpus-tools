@@ -580,15 +580,16 @@ class TTXML
 				$views = "<option value='' disabled selected>[{%select}]</option>";
 		};
 			
+		$jmp = $_GET['jmp'] or $jmp = $_GET['tid'];
 		$sep = ""; if ( !$initial ) $sep = " &bull; ";
 		foreach ( $viewopts as $key => $val ) {
 			list ( $doaction, $dolvl ) = explode ( ":", $key );
 			if ( $action != $doaction || ($dolvl && $dolvl != $_GET['elm']) ) {
 				if ( $initial."" == "select" ) {
-					$views .= $sep."<option value='index.php?action=$doaction&cid=$this->fileid&pageid={$_GET['pageid']}&jmp={$_GET['jmp']}&elm=$dolvl'>{%$val}</option>";
+					$views .= $sep."<option value='index.php?action=$doaction&cid=$this->fileid&pageid={$_GET['pageid']}&jmp=$jmp&elm=$dolvl'>{%$val}</option>";
 					$sep = "\n";
 				} else {
-					$views .= $sep."<a href='index.php?action=$doaction&cid=$this->fileid&pageid={$_GET['pageid']}&jmp={$_GET['jmp']}&elm=$dolvl'>{%$val}</a>";
+					$views .= $sep."<a href='index.php?action=$doaction&cid=$this->fileid&pageid={$_GET['pageid']}&jmp=$jmp&elm=$dolvl'>{%$val}</a>";
 					$sep = " &bull; ";
 				};
 			};
