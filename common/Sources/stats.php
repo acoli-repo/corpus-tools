@@ -71,7 +71,7 @@
 	foreach ( $tids as $txtid ) {
 		if ( !$txtid ) continue;		
 		list ( $txtid, $txttit ) = explode("\t", $txtid );
-		if ( !$txttit ) $txttit = $txtid;
+		if ( !$txttit || $settings['cqp']['titlefld'] == "text_id" ) $txttit = preg_replace("/^.*\//", "", $txtid);
 		if ( !$cid ) $maintext .= "<tr><th>$txttit";
 
 		foreach ( $settings['cqp']['stats'] as $key => $val ) {
