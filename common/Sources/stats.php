@@ -93,12 +93,13 @@
 			};
 			
 			$vardec = $val['dec'] or $vardec = 3;
-			if ( floor($varval) != $varval ) $varval = number_format($varval, $vardec);
+			if ( floor($varval) != $varval || $val['dec'] ) $varval = number_format($varval, $vardec);
 			 
 			$vars{$val['var']} = $varval;
 			$tit = str_replace("'", "&quot;", "$varname: $tit");
-			if ( $cid ) $maintext .= "<tr><th title='$tit'>{%{$val['display']}}";
-			$maintext .= "<td align=right>$varval";
+			$txtid = preg_replace("/^xmlfiles\//", "", $txtid);
+			if ( $cid ) $maintext .= "<tr><th title='$tit'><a href='index.php?action=file&cid=$txtid'>{%{$val['display']}}</a>";
+			if ( $val['display'] ) $maintext .= "<td align=right>$varval";
 		};
 	}
 	
