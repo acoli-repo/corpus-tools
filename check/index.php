@@ -22,10 +22,8 @@ this folder is not set to execute PHP files.
 <div style='color: white;'>
 <?php
 	// Check the configuration of the server, the project, and TEITOK
-	// This file, as well as checklist.php, should be deleted when finished
-	
-	session_start();
-			
+	// This folder should be deleted when finished
+				
 	include("checklist.php");
 
 ?>

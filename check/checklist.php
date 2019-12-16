@@ -15,6 +15,9 @@
 		return false;
 	};
 
+	// Set session var before printing anything
+	$_SESSION['check']['two'] = "also";
+
 	print "<div style='color: black;'>";
 	// Check whether Smarty exist
 
@@ -144,7 +147,7 @@
 	};
 
 	// Check whether SESSION variables work
-	if ( $_SESSION['check']["2"] != "also" ) {
+	if ( $_SESSION['check']['two'] != "also" ) {
 		print "<p class=wrong> If this message remains after reload, SESSION variables are not stored, and you will not be able to log in.";
 		$critical = 1; 
 	} else {
