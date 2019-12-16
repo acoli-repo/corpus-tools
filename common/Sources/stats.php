@@ -73,7 +73,7 @@
 		list ( $txtid, $txttit ) = explode("\t", $txtid );
 		if ( !$txttit || $settings['cqp']['titlefld'] == "text_id" ) $txttit = preg_replace("/^.*\//", "", $txtid);
 		$tmp = preg_replace("/^xmlfiles\//", "", $txtid);
-		if ( !$cid ) $maintext .= "<tr><th><a href='index.php&action=file&cid=$tmp'>$txttit</a>";
+		if ( !$cid ) $maintext .= "<tr><th><a href='index.php?action=file&cid=$tmp'>$txttit</a>";
 
 		foreach ( $settings['cqp']['stats'] as $key => $val ) {
 			if ( !$val['display'] ) continue;		
