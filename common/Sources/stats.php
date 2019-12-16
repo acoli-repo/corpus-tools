@@ -109,7 +109,7 @@
 		$maintext .= "<td><td colspan=20></td></tr><tr><th>{%TOTAL}";
 		foreach ( $settings['cqp']['stats'] as $key => $val ) {
 			if ( !$val['display'] || !is_array($val) ) continue;		
-			$varname = 'TOTAL';
+			$varname = $val['var'];
 			$cql = $val['cql'];
 			$vartype = $val['type'];
 			$tit = $val['cql'];
