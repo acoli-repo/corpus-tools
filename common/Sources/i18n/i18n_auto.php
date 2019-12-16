@@ -201,6 +201,7 @@
 		"index" => "index",
 		"Statistics" => "Statistics",
 		"Document" => "Document",
+		"TOTAL" => "TOTAL",
 		"Tagset" => "Tagset",
 		"Tag" => "Tag",
 		"Analyse" => "Analyse",

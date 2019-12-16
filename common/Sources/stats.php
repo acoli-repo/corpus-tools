@@ -103,6 +103,36 @@
 		};
 	}
 	
+	if ( !$cid && $settings['cqp']['stats']['total'] || $_GET['total'] ) {
+		$maintext .= "<td><td colspan=20></td></tr><tr><th>{%TOTAL}";
+		foreach ( $settings['cqp']['stats'] as $key => $val ) {
+			if ( !$val['display'] ) continue;		
+			$varname = 'TOTAL';
+			$cql = $val['cql'];
+			$vartype = $val['type'];
+			$tit = $val['cql'];
+			if ( $vartype == "size" ) {
+				$cql = ucfirst($varname)." = $cql";
+				$tmp = $cqp->exec($cql);
+				$varval = $cqp->exec("size ".ucfirst($varname));
+			} else if ( $vartype == "calc" ) {
+				$tit = $val['calc'];
+				$varval = evalmath($tit);
+			} else if ( $vartype == "count" ) {
+				$tmp = $cqp->exec($cql);
+				$varval = count(explode("\n", $tmp));
+			};
+			
+			$vardec = $val['dec'] or $vardec = 3;
+			if ( floor($varval) != $varval || $val['dec'] ) $varval = number_format($varval, $vardec);
+			 
+			$vars{$val['var']} = $varval;
+			$tit = str_replace("'", "&quot;", "$varname: $tit");
+			if ( $cid ) $maintext .= "<tr><th title='$tit'>{%{$val['display']}}";
+			if ( $val['display'] ) $maintext .= "<td align=right>$varval";
+		};
+	};
+	
 	$maintext .= "</table>";
 	$maintext .= "<hr><p><a href='index.php?action=text&cid=$cid'>{%Text view}</a>";
 
