@@ -106,7 +106,7 @@
 	if ( !$cid && $settings['cqp']['stats']['total'] || $_GET['total'] ) {
 		$maintext .= "<td><td colspan=20></td></tr><tr><th>{%TOTAL}";
 		foreach ( $settings['cqp']['stats'] as $key => $val ) {
-			if ( !$val['display'] ) continue;		
+			if ( !$val['display'] || !is_array($val) ) continue;		
 			$varname = 'TOTAL';
 			$cql = $val['cql'];
 			$vartype = $val['type'];
