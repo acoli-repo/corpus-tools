@@ -63,10 +63,12 @@
 	if ( !$cid ) {
 		$maintext .= "<tr><th>{%Document}";
 		foreach ( $settings['cqp']['stats'] as $key => $val ) {
-			if ( !$val['display'] ) continue;		
+			if ( !$val['display'] || !is_array($val) ) continue;		
 			$maintext .= "<th title='$tit'>{%{$val['display']}}";
 		};
 	};
+	
+
 	
 	foreach ( $tids as $txtid ) {
 		if ( !$txtid ) continue;		
@@ -76,7 +78,7 @@
 		if ( !$cid ) $maintext .= "<tr><th><a href='index.php?action=file&cid=$tmp'>$txttit</a>";
 
 		foreach ( $settings['cqp']['stats'] as $key => $val ) {
-			if ( !$val['display'] ) continue;		
+			if ( !$val['display'] || !is_array($val) ) continue;		
 			$varname = $val['var'];
 			$cql = $val['cql'];
 			$vartype = $val['type'];
@@ -102,7 +104,7 @@
 			if ( $val['display'] ) $maintext .= "<td align=right>$varval";
 		};
 	}
-	
+		
 	if ( !$cid && $settings['cqp']['stats']['total'] || $_GET['total'] ) {
 		$maintext .= "<td><td colspan=20></td></tr><tr><th>{%TOTAL}";
 		foreach ( $settings['cqp']['stats'] as $key => $val ) {
