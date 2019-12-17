@@ -57,6 +57,7 @@
 		"Collation on" => "Collation on",
 		"results" => "results",
 		"headtext" => "headtext",
+		"Corpora" => "Corpora",
 		"Word Distribution" => "Word Distribution",
 		"Words by" => "Words by",
 		"Corpus Search" => "Corpus Search",
