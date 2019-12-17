@@ -1,11 +1,9 @@
 <?php
 
 	# Centralized corpus list
-	
-	if ( file_exists("Resources/corplist.xml") ) $corplist = simplexml_load_file("Resources/corplist.xml");
-	else if ( file_exists("$sharedfolder/Resources/corplist.xml") ) $corplist = simplexml_load_file("$sharedfolder/Resources/corplist.xml");
-	
-	if ( !$corplist ) fatal("No corplist");
+	$xmlfile = $settings['corplist']['xml'] or $xmlfile = "Resources/corplist.xml";
+	$corplist = simplexml_load_file($xmlfile);	
+	if ( !$corplist ) fatal("Failed to load the corpus list");
 
 	$maintext .= "<h1>{%Corpora}</h1>";
 	
