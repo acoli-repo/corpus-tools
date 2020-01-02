@@ -218,7 +218,7 @@
 		};
 		
 		if ( $settings['teiheader'] ) {
-						$maintext .= "<li><a href='index.php?action=header&act=details'>teiHeader handling</a>";
+						$maintext .= "<li><a href='index.php?action=headersettings'>teiHeader (metadata) definitions</a>";
 		};		
 		
 		if ( ( $filelist || file_exists("Resources/filelist.xml" ) ) && allowedforme("filelist") )

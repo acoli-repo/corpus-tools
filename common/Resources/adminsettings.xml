@@ -759,20 +759,37 @@
 		<desc>
 			<p>The metadata per XML file are defined in the teiHeader. Here you can define which data in that header
 			are searchable, editable, and displayed; fixed, non-editable fields had best be defined in a template, 
-			and it is always possible to add metadata in the XML editor.</p>
+			and it is always possible to add metadata in the XML editor. Given the amount of options, it is easier
+			to define the metadata in <a href='index.php?action=headersettings'>this dedicated module</a></p>
 		</desc>
         <list display="Metadata field">
-			<att key="key" display="Identifier"/>
+			<att key="key" display="Unique identifier"/>
 			<att key="type" display="Type of field">
 				<val key="sep" display="Separator" default="fld"/>
 				<val key="fld" display="Metadata field"/>
 			</att>
 			<att key="xpath" display="XPath to this metadata field"/>
 			<att key="display" display="Display name"/>
-			<att key="cqp" display="Corresponding CQP sattribute"/>
+			<att key="cqp" display="Searchable CQP settings" default="0">
+				<val key="0" display="Do not include in searchable CQP corpus"/>
+				<val key="1" display="Do include in searchable CQP corpus"/>
+			</att>
 			<att key="description" display="Textual description of this metadata field"/>
-			<att key="noedit" display="Do not include in header edit"/>
-			<att key="noshow" display="Do not include in long header display"/>
+			<att key="noedit" display="Do not include in header edit" default="0"/>
+			<att key="noshow" display="Do not include in lists or long header" default="0"/>
+			<att key="nosearch" display="Do not include in query builder" default="0"/>
+			<att key="input" display="How values are added" default="text">
+				<val key="text" display="Free text field"/>
+				<val key="select" display="Values are selected from a list"/>
+			</att>
+			<att key="add" display="New values (not) allowed" default="0">
+				<val key="0" display="Only selectable values allowed"/>
+				<val key="1" display="New values can be added"/>
+			</att>
+			<att key="i18n" display="Internationalization" default="0">
+				<val key="0" display="Show literal text"/>
+				<val key="1" display="Internationalize this value"/>
+			</att>
         </list>
 	</item>
 

@@ -196,6 +196,10 @@ class TTXML
 							else $tmp = current($this->xml->xpath($val['link']));
 							if ( $tmp ) $hval = "<a href='$tmp'>$hval</a>";
 						};
+						if ( $settings['teiheader'][$key]['options'][$hval]['display'] ) 
+							$hval = $settings['teiheader'][$key]['options'][$hval]['display'];
+						if ( $settings['teiheader'][$key]['i18n'] ) 
+							$hval = "{%$hval}";
 						$tableheader .= "<tr><th>{%$disp}<td>$hval";
 					} else {
 						$moretoshow = 1;

@@ -2,17 +2,15 @@
 	// Script to allow viewing and editing teiHeader data
 	// (c) Maarten Janssen, 2015
 
-	if ( $act != "details" && $act != "makesettings" && $act != "recqp" ) {
-		require("$ttroot/common/Sources/ttxml.php");
-		$ttxml = new TTXML();	
-		$xml = $ttxml->xml;
-		$fileid = $ttxml->fileid;
+	require("$ttroot/common/Sources/ttxml.php");
+	$ttxml = new TTXML();	
+	$xml = $ttxml->xml;
+	$fileid = $ttxml->fileid;
 
-		$result = $xml->xpath("//title"); 
-		$title = $result[0];
+	$result = $xml->xpath("//title"); 
+	$title = $result[0];
 
-		$maintext .= "<h2>$fileid</h2><h1>$title </h1>";
-	};
+	$maintext .= "<h2>$fileid</h2><h1>$title </h1>";
 	
 	$tplfile = $_POST['tpl'] or $tplfile = $_GET['tpl'];
 	
@@ -41,6 +39,7 @@
 				if ( $debug ) print "<p><b>Creating/finding a none $xquery to place $value in</b>";
 				$dom = createnode($dom, $xquery); 
 			};
+			
 			
 			$xpath = new DOMXpath($dom);
 			$result = $xpath->query($xquery); 
@@ -89,148 +88,6 @@
 		$maintext .= showxml($teiheader);
 		$maintext .= "<hr><p>".$ttxml->viewswitch();
 	
-	} else if ( $settings['teiheader'] && $act == "details" ) {
-
-		$defaults = simplexml_load_file("$ttroot/common/Resources/teiHeader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		if ( !$defaults ) fatal("Unable to load default teiheader");
-
-		# Read CQP data
-		$cqpdefs = $settings['cqp']['sattributes']['text']; 
-
-		$maintext .= "<h1>Metadata fields defined in this corpus</h1>
-			<table>
-			<tr><td><th>Field Name<th>Description (<i>Default</i>)<th>CQP field<th>XPath query";
-			
-		foreach ( $settings['teiheader'] as $headerfield ) {
-
-			if ( $headerfield['type'] == "sep" ) {
-				$maintext .= "<tr><th colspan=8>{$headerfield['display']}";
-				continue;
-			};
-			
-			$xquery = $headerfield['xpath'] or $xquery = $headerfield['key'];
-			
-			$desc = $headerfield['description'];
-			$defdesc = current($defaults->xpath($xquery)); 
-			if ( !$defdesc ) {
-				$defdesc = "<span style='color: #ff9999'>Non-standard field</span>";
-			};
-	
-			if ( $desc ) {
-				$desc .= "<br><i>$defdesc</i>";
-			} else $desc = "<i>$defdesc</i>";	
-
-			$cqp = $headerfield['cqp'];
-			$cqpdef = $cqpdefs[$cqp.''];
-			$cqpfld = str_replace("text_", "", $cqpdef['key']);
-			unset($cqpdefs[$cqp.""]); 
-			
-			if ( $cqpdef['display'] ) {
-				$cqp .= "<br><i>{$cqpdef['display']}</i>";
-				if ( $cqpdef['xpath'] != $xquery ) {
-					$cqpwarn .= "<p>$cqpfld: {$cqpdef['display']} = {$cqpdef['xpath']} != {$xquery} (<a href='index.php?action=$action&act=recqp&set=change&fld={$headerfield['cqp']}&xpath=".urlencode($xquery)."'>change</a>)";
-				};
-			} else if ( $cqp ) {
-				$cqpwarn .= "<p>$cqp: Not defined in CQP section (<a href='index.php?action=$action&act=recqp&set=add&fld=$cqp&name={$headerfield['display']}&xpath=".urlencode($xquery)."'>add</a>)";
-			};
-			
-			$fields[$i++] = $headerfield['display'];
-			if ($headerfield['view']) foreach ( explode(",", $headerfield['view']) as $viewf ) $views[$viewf] .= "$i,";
-			$maintext .= "\n\t<tr><td>$i<th view=\"{$headerfield['view']}\">{$headerfield['display']}<td>$desc<td>$cqp<td>$xquery";
-		};
-		$maintext .= "</table>";
-		
-		# Show the missing CQP fields
-		foreach ( $cqpdefs as $rest ) {
-			if ( !is_array($rest) ) continue;
-			$resttxt .= "<p>{$rest['key']}: {$rest['display']} = {$rest['xpath']} (<a href='index.php?action=$action&act=recqp&set=del&fld={$rest['key']}'>remove</a>)";
-		};
-		
-		if ( $username ) {
-			# Show the views
-			$maintext .= "<h2>Views</h2>";
-			foreach ( $views as $key => $val ) {
-				$maintext .= "<p>$key: $val";
-			};
-			if ( !$views['short'] ) $maintext .= "<p class=warning>Nothing defined for short view - nothing will be shown above the text";
-			if ( $resttxt ) $maintext .= "<h2>Non-used CQP fields</h2>$resttxt";
-			if ( $cqpwarn ) $maintext .= "<h2>CQP field mismatches</h2>$cqpwarn";
-		};
-
-	} else if ($act == "makesettings" ) {
-	
-		check_login();
-		# Temporary function to create settings definitions from teiHeader-edit.tpl
-
-		$headerfile = file_get_contents("Resources/teiHeader-edit.tpl");
-		$maintext .= "<h1>Building Settings</h1>";
-
-		$defaults = simplexml_load_file("$ttroot/common/Resources/teiHeader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-
-		$rows = "	<teiheader>\n";
-		if ( $headerfile ) {
-			preg_match_all ( "/<tr><th>(.*?)<\/th><td>(.*?)<\/td>/", $headerfile, $matches );
-			for ( $i = 0; $i<count($matches[0]); $i++ ) {
-				$name = preg_replace("/{%(.*?)}/", "\\1", $matches[1][$i]); 
-				$xpath = preg_replace("/{#(.*?)}/", "\\1", $matches[2][$i]);
-				
-				# Correct the XPath
-				if ( substr($xpath, 0, 11) == "//teiHeader" ) $xpath = str_replace("//teiHeader", "/TEI/teiHeader", $xpath);
-				$xpath = str_replace('"', "'", $xpath);				
-				$node = $defaults->xpath($xpath); # Check whether it exists
-							
-				$rows .= "		<item xpath=\"$xpath\" display=\"$name\"/>\n";
-			};
-		};
-		$rows .= "	</teiheader>\n";
-		
-
-		if ( !$settings['teiheader'] ) {
-			$tmp = file_get_contents("Resources/settings.xml");
-			$tmp = str_replace("\n</ttsettings>", "$rows\n</ttsettings>", $tmp);
-
-			$newxml = simplexml_load_string($tmp, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-			file_put_contents("Resources/settings.xml", $newxml->asXML()); 
-
-			$maintext .= "<p>New section saved</p><pre>".htmlentities($rows)."</pre>";
-		} else 		$maintext .= "<p>Section exists, but content would be as follows</p><pre>".htmlentities($rows)."</pre>";
-		
-
-		
-	} else if ( $settings['teiheader'] && $act == "recqp" ) {
-
-		check_login();
-		if ( !$settingsxml ) { fatal("Failed to load settings.xml");};
-
-		if ( $_GET['fld'] && $_GET['set'] != "add" ) {
-			$fld = current($settingsxml->xpath("//cqp/sattributes/item[@key=\"text\"]/item[@key=\"{$_GET['fld']}\"]"));
-		};
-
-		if ( $_GET['set'] == "del" && $fld ) {
-			unset($fld[0][0]);
-		} else if ( $_GET['set'] == "change" && $fld ) {
-			$fld['xpath'] = $_GET['xpath'];
-		} else if ( $_GET['set'] == "add" ) {
-			$prnt = current($settingsxml->xpath("//cqp/sattributes/item[@key=\"text\"]"));
-			$fld = $prnt->addChild('item');
-			$fld['key'] = $_GET['fld'];
-			$fld['xpath'] = $_GET['xpath'];			
-			$fld['display'] = $_GET['name'];			
-			print htmlentities($prnt->asXML()); 
-		};
-
-		# Save a backup copy
-		$date = date("Ymd"); 
-		$buname = "settings-$date.xml";
-		if ( !file_exists("backups/$buname") ) {
-			copy ( "Resources/settings.xml", "backups/$buname");
-		};
-	
-		# Now save the actual file
-		file_put_contents("Resources/settings.xml", $settingsxml->asXML());
-		print "<p>File saved. Reloading.
-			<script language=Javascript>top.location='index.php?action=$action&act=details';</script>
-			"; exit;
 	
 	} else if ( $settings['teiheader'] && !$tplfile ) {
 	
@@ -271,16 +128,36 @@
 			$xval = str_replace('"', '&quot;', $to.""); # $to->asXML()
 			$xval = str_replace("'", '&#039;', $xval);
 
-			$qnum++;
-			if ( $headerfield['type'] == "select" && $headerfield['cqp'] ) {
-				$optionlist = ""; $xkey = $headerfield['cqp'];
-				if ( !$xval ) $optionlist = "<option value=''>[{%select}]</option>"; 
+			$qnum++; $additem = "";
+			if ( $headerfield['type'] == "select" && $headerfield['options'] ) {
+				$optionlist = ""; $somesel = 0;
+				if ( !$xval ) $optionlist = "<option value='' selected>[{%select}]</option>"; 
+				foreach ( $headerfield['options'] as $kva ) { 
+					$kvatxt = $kva['display'] or $kvatxt = $kva['key'];
+					if ( $xval == $kva ) { $sel = "selected"; $somesel = 1; } else $sel = ""; 
+					$optionlist .= "<option value='{$kva['key']}' $sel>{$kvatxt}</option>"; 
+				};
+				if ( $xval && !$somesel ) $optionlist .= "<option value='$xval' selected>$xval</option>"; 
+				$editfld = "<select name=\"qvals[$qnum]\">$optionlist</select>";				
+				if ( $headerfield['add'] ) {
+					if ( $xval ) { $nxval = $xval.""; $seln = " checked";  } else { $nxval = ""; };
+					$editfld .= " <input type=checkbox name='addval[$qnum]' value='1'> new value: <input size=30 name='newval[$qnum]' value=''>";
+				};
+			} else if ( $headerfield['type'] == "select" && $headerfield['cqp'] ) {
+				$optionlist = ""; $xkey = $headerfield['cqp']; $somesel = 0;
+				if ( !$xval ) $optionlist = "<option value='' selected>[{%select}]</option>"; 
 				foreach ( explode ( "\0", file_get_contents("$corpusfolder/$xkey.avs") ) as $kva ) { 
 					if ( $kva == "" || $kva == "_" ) continue; // Do not add rows without values 
-					if ( $xval == $kva ) $sel = "selected"; else $sel = ""; 
+					if ( $xval == $kva ) { $sel = "selected"; $somesel = 1; } else $sel = ""; 
 					$optionlist .= "<option value='{$kva}' $sel>{$kva}</option>"; 
 				};
-				$editfld = "<select name=\"qvals[$qnum]\">$optionlist</select>";				
+				if ( $xval && !$somesel ) $optionlist .= "<option value='$xval' selected>$xval</option>"; 
+				$editfld = "<select name=\"qvals[$qnum]\">$optionlist</select>$additem";				
+				if ( $headerfield['add'] ) {
+					$seln = "";
+					if ( $xval ) { $nxval = $xval.""; $seln = " checked";  } else { $nxval = ""; };
+					$editfld .= " <input type=checkbox name='addval[$qnum]' value='1' $seln> new value: <input size=30 name='newval[$qnum]' value=''>";
+				};
 			} else {
 				$rowcnt = min(8,ceil(strlen($xval)/80));
 				$editfld = "<textarea name=\"qvals[$qnum]\" cols='80' rows='$rowcnt'>$xval</textarea>";
@@ -294,11 +171,40 @@
 		$text .= "</table>";
 
 		$maintext .= "
-			<form action='index.php?action=$action&act=save&cid=$ttxml->fileid' method=post>
+			<script language=Javascript>
+				function checkvals() {
+					// Add the new values into the select array
+					var elements = document.getElementById('postform').elements;
+
+					for (var i = 0, element; element = elements[i++];) {
+						if ( addchk = element.name.match(/addval\[(.*)\]/) ) {
+							if ( element.checked ) {
+								tmp = 'newval['+addchk[1]+']';
+								newval = document.getElementById('postform')[tmp].value;
+								tmp = 'qvals['+addchk[1]+']';
+								selfld = document.getElementById('postform')[tmp]; 
+								var option = document.createElement('option');
+								option.text = newval;
+								selfld.add(option);		
+								selfld.selectedIndex = selfld.options.length-1;
+							};
+						};
+					}
+					return true;
+				};
+			</script>
+			<form action='index.php?action=$action&act=save&cid=$ttxml->fileid' method=post id='postform' onsubmit='return checkvals()'>
 			<input type=hidden name=tpl value='$tplfile'>
 			$text
 			<p><input type=submit value=Save>
-			</form>";
+			</form>
+			<hr>
+			<p><a href='index.php?action=file&cid=$ttxml->fileid'>cancel</a>
+			";
+			
+			if ( $user['permissions'] == "admin" ) {
+				$maintext .= " &bull; <a href='index.php?action=headersettings&act=details'>define metadata</a>";
+			};
 			
 	} else if ( $act == "edit" ) {
 	
@@ -342,7 +248,7 @@
 			<p><input type=submit value=Save>
 			</form>";
 
-	} else {
+	} else if ( $text ) {
 				
 		preg_match_all ( "/\{#([^\}]+)\}/", $text, $matches );		
 

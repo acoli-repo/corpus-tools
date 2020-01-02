@@ -3,57 +3,57 @@
 	<teiHeader>
 		<fileDesc display="Description of the digital file">
 			<titleStmt display="Information about the title of this work and those responsible for its content">
-				<title>Title of the (digital) text</title>
-				<author>Author of the original text</author>
+				<title fldid="title">Title of the (digital) text</title>
+				<author fldid="author">Author of the original text</author>
 				<respStmt>
-					<resp n="transcription" ida="n" nontei="2">Person responsible for the transcription of this text</resp>
-					<resp n="revision" ida="n" nontei="2">Person responsible for the revision of this text</resp>
-					<resp n="normalization" ida="n" nontei="2">Person responsible for the normalization of this text</resp>
-					<resp n="tagging" ida="n" nontei="2">Person responsible for the POS tagging of this text</resp>
+					<resp fldid="transcription" n="transcription" ida="n" nontei="2">Person responsible for the transcription of this text</resp>
+					<resp fldid="revision" n="revision" ida="n" nontei="2">Person responsible for the revision of this text</resp>
+					<resp  fldid="normalization" n="normalization" ida="n" nontei="2">Person responsible for the normalization of this text</resp>
+					<resp fldid="tagging" n="tagging" ida="n" nontei="2">Person responsible for the POS tagging of this text</resp>
 				</respStmt>
-				<funder>Funding body for the text or project</funder>
+				<funder fldid="funder">Funding body for the text or project</funder>
 			</titleStmt>
 			<sourceDesc display="Description of the source from which this digital text was derived">
 				<msDesc display='Description of a manuscript this text is transcribed from' group="hist">
 					<msIdentifier>
-						<idno>Unique ID for this manuscript</idno>
-						<institution>Institution where the manuscript is held</institution>
-						<repository>Repository the manuscript belongs to</repository>
-						<collection>Collection the manuscript belongs to</collection>
-						<settlement>Place/Settlement where the manuscript is held</settlement>
+						<idno fldid="msid">Unique ID for this manuscript</idno>
+						<institution fldid="msinstitution">Institution where the manuscript is held</institution>
+						<repository fldid="msrepository">Repository the manuscript belongs to</repository>
+						<collection fldid="mscollection">Collection the manuscript belongs to</collection>
+						<settlement fldid="mssettlement">Place/Settlement where the manuscript is held</settlement>
 					</msIdentifier>
 					<msContents>
-						<summary>Summary of the content of a manuscript</summary>
+						<summary fldid="mssummary">Summary of the content of a manuscript</summary>
 					</msContents>
 					<physDesc>
 						<objectDesc form="Physical form of a manuscript">
 							<supportDesc>
-								<support>Description of the support of a manuscript</support>
-								<foliation>Numbering system of the manuscript pages</foliation>
+								<support fldid="mssupport">Description of the support of a manuscript</support>
+								<foliation fldid="msfoliation">Numbering system of the manuscript pages</foliation>
 							</supportDesc>
 						</objectDesc>
-						<handDesc>Description of the hands in a manuscript</handDesc>
+						<handDesc fldid="mshands">Description of the hands in a manuscript</handDesc>
 					</physDesc>
 					<history>
-						<origin>Description of the history of a manuscript</origin>
+						<origin fldid="msorigin">Description of the history of a manuscript</origin>
 					</history>
 				</msDesc>
 				<recordingStmt display='The description of an audio/video recording for this file'>
 					<recording>
 						<media url="Filename of the audio file (url or local file)"/>
-						<desc>Description of the recording</desc>
-						<date>Date the recording was made</date>
+						<desc fldid="recdesc">Description of the recording</desc>
+						<date fldid="recdate">Date the recording was made</date>
 					</recording>
 				</recordingStmt>
 				<biblStruct>
 					<monogr display='Information about a monograph this text was transcribed from'>
-						<author>Monograph author</author>
-						<title>Monograph title</title>
-						<edition>Monograph edition</edition>
+						<author fldid="monauthor">Monograph author</author>
+						<title fldid="montitle">Monograph title</title>
+						<edition fldid="monedition">Monograph edition</edition>
 						<imprint>
-							<publisher>Monograph publisher</publisher>
-							<pubPlace>Monograph publication place</pubPlace>
-							<date>Monograph publication date</date>
+							<publisher fldid="monpublisher">Monograph publisher</publisher>
+							<pubPlace fldid="monplace">Monograph publication place</pubPlace>
+							<date fldid="mondate">Monograph publication date</date>
 						</imprint>
 					</monogr>
 				</biblStruct>
@@ -63,10 +63,10 @@
 			<particDesc display="Description of the participants in this text">
 				<listPerson>
 					<person id="Unique ID for the student/speaker/author of this text">
-						<name>Name of the student/speaker/author</name>
-						<birth when="Year of birth of the student/speaker/author">
-							<placeName geo="Geolocation coordinates (lat lng) of the birth place of the student/speaker/author">Birth place of the student/speaker/author</placeName>
-							<date>Date of birth of the student/speaker/author</date>
+						<name fldid="personname">Name of the student/speaker/author</name>
+						<birth fldid="birth" when="Year of birth of the student/speaker/author">
+							<placeName fldid="birthplace" geo="Geolocation coordinates (lat lng) of the birth place of the student/speaker/author">Birth place of the student/speaker/author</placeName>
+							<date fldid="birthdate">Date of birth of the student/speaker/author</date>
 						</birth>
 						<death when="Year of death of the student/speaker/author">
 							<placeName geo="Geolocation coordinates (lat lng) of the death place of the student/speaker/author">Death place of the student/speaker/author</placeName>
@@ -83,48 +83,48 @@
 							<stay duration="Duration (in months) the student spent in a country the this L2 is spoken">Country where student spent in a country the this L2 is spoken</stay>
 							<proficiency>Proficiency level the student is training for</proficiency>
 						</langLearning>
-						<sex type="gender of the student/speaker/author (m/f)"/>
-						<age>Age (in years) of the student/speaker/author</age>
-						<occupation>Occupation of the student/speaker/author</occupation>
-						<residence>Place of residence of the student/speaker/author</residence>
-						<nationality key="ISO 3166 code for the nationality of the student/speaker/author">Nationality of the student/speaker/author</nationality>
+						<sex fldid="sex" type="gender of the student/speaker/author (m/f)"/>
+						<age fldid="age">Age (in years) of the student/speaker/author</age>
+						<occupation fldid="personoccupation">Occupation of the student/speaker/author</occupation>
+						<residence fldid="personresidence">Place of residence of the student/speaker/author</residence>
+						<nationality fldid="nationality" key="ISO 3166 code for the nationality of the student/speaker/author">Nationality of the student/speaker/author</nationality>
 					</person>
 				</listPerson>
 			</particDesc>
 			<langUsage display="Language(s) used in this text">
-				<language ident="ISO 639-2 code for the language in which this text is written" dir="Writing direction of the text">Language in which this text is written</language>
+				<language fldid="textlang" ident="ISO 639-2 code for the language in which this text is written" dir="Writing direction of the text">Language in which this text is written</language>
 			</langUsage>
 			<textDesc display="Situational parameters for this text">
-				<channel mode="Written or Spoken"/>
-				<domain>Domain of the text</domain>
+				<channel fldid="textchannel" mode="Written or Spoken"/>
+				<domain fldid="textdomain">Domain of the text</domain>
 			</textDesc>
 			<taskDesc display="Description of the task this text was created for" nontei="1">
 				<task id="Unique ID for the task of this text">
-					<title>Description of the task (as given to the student)</title>
-					<affiliation>Institution where the current L2 course is given</affiliation>
-					<genre>Genre of the task</genre>
-					<extent>Extent of the task (typically in words)</extent>
-					<taskSetting>Settings of the task (time-limited, with reference material, etc.)</taskSetting>
-					<type>Type of task</type>
-					<desc>Relevant background details about the task</desc>
-					<date when="Year the task was handed in">Date the task was handed in</date>
+					<title fldid="tasktitle">Description of the task (as given to the student)</title>
+					<affiliation fldid="taskaffiliation">Institution where the current L2 course is given</affiliation>
+					<genre fldid="taskgenre">Genre of the task</genre>
+					<extent fldid="taskextent">Extent of the task (typically in words)</extent>
+					<taskSetting fldid="tasksetting">Settings of the task (time-limited, with reference material, etc.)</taskSetting>
+					<type fldid="tasktype">Type of task</type>
+					<desc fldid="taskdesc">Relevant background details about the task</desc>
+					<date fldid="taskdate" when="Year the task was handed in">Date the task was handed in</date>
 				</task>
 			</taskDesc>
 			<settingDesc display="Description of the context of the text">
 				<setting>
-					<date when="Best guess year for this text">Date this text was written (when there are multiple )</date>
-					<name type="place" ida="type" geo="Geolocation (lat lng) for the place where this manuscript was written">Place this text was written</name>
+					<date fldid="textdate" when="Best guess year for this text">Date this text was written (when there are multiple )</date>
+					<name fldid="textplace" type="place" ida="type" geo="Geolocation (lat lng) for the place where this manuscript was written">Place this text was written</name>
 				</setting>
 			</settingDesc>
-			<textClass>Type of text</textClass>
+			<textClass fldid="textclass">Type of text</textClass>
 		</profileDesc>
 		<encodingDesc display="Relationship between the electronic text and the source">
 			<projectDesc id="Unique ID for the project (to link to external descriptions)">
-				<title nontei="2">Title of the project</title>
-				<leader>Leader/coordinator of the project</leader>
-				<desc nontei="2">Description of the project</desc>
+				<title nontei="2" fldid="projecttitle">Title of the project</title>
+				<leader fldid="projectleader">Leader/coordinator of the project</leader>
+				<desc nontei="2" fldid="projectdesc">Description of the project</desc>
 			</projectDesc>
-			<editorialDecl>Editorial principles used in the transcription</editorialDecl>
+			<editorialDecl fldid="editorialdecl">Editorial principles used in the transcription</editorialDecl>
 		</encodingDesc>
 	</teiHeader>
 </TEI>
