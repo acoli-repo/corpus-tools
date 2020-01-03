@@ -392,9 +392,9 @@
 				$results = $cqp->exec($cqpquery);
 				$results = $cqp->exec($cqpquery); // TODO: Why do we need this a second time?
 		
-				$maintext .= "<h2>{%$cqptitle}</h2>"; unset($sortarray);
+				$maintext .= "<h2>{%$cqptitle}</h2>"; unset($sortarray); $lcnt = 0;
 				foreach ( explode("\n", $results ) as $line ) {
-					$lcnt++;
+					
 					list ( $cid, $texttit ) = explode ( "\t", $line );
 					
 					if ( !$texttit ) {
@@ -405,6 +405,7 @@
 				};	
 				natsort($sortarray);
 				foreach ( $sortarray as $cid => $texttit ) { 
+					$lcnt++;
 					$maintext .= "<p>$lcnt. <a href='index.php?action=file&cid=$cid'>$texttit</a>";
 				};
 			
