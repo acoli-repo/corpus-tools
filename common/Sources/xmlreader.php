@@ -392,7 +392,7 @@
 				$results = $cqp->exec($cqpquery);
 				$results = $cqp->exec($cqpquery); // TODO: Why do we need this a second time?
 		
-				$maintext .= "<h2>{%$cqptitle}</h2>"; $sortarray = array();
+				$maintext .= "<h2>{%$cqptitle}</h2>"; unset($sortarray);
 				foreach ( explode("\n", $results ) as $line ) {
 					$lcnt++;
 					list ( $cid, $texttit ) = explode ( "\t", $line );
@@ -401,10 +401,12 @@
 						if ( preg_match("/([^\/.]+)\.xml/", $cid, $matches) ) { $xmlid = $matches[1]; };
 						$texttit = $xmlid;			
 					};
-					if ( $cid ) array_push($sortarray, "<p key='$texttit'>$lcnt. <a href='index.php?action=file&cid=$cid'>$texttit</a>");
+					if ( $cid ) $sortarray[$cid] = $texttit;
 				};	
 				natsort($sortarray);
-				$maintext .= join("\n", $sortarray);
+				foreach ( $sortarray as $cid => $texttit ) { 
+					$maintext .= "<p>$lcnt. <a href='index.php?action=file&cid=$cid'>$texttit</a>";
+				};
 			
 			};
 			
