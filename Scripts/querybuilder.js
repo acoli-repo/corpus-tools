@@ -404,17 +404,16 @@ function updatequery(nodirect = false) {
 function tagbuilder (fld) {
 	tagfld = fld;
 	document.getElementById('tbframe').style.display = 'block';
-	// filltag();
 };
-function filltag (add=0) {
+function filltag ( add=0, full=0 ) {
 	var fulltag = document.getElementById('mainpos').value;
 	var maintag = fulltag; 
-	console.log(maintag + ' > ' + taglen[maintag.substr(0,1)]);
 	for ( var i=maintag.length-1; i<taglen[maintag.substr(0,1)]; i++ ) {
 		var valfld = 'posopt-' + maintag + '-' + (i+1);
 		fulltag += document.getElementById(valfld).value;
 	}; 
-	var newtag = fulltag.replace(/\.+$/, '') + '.*';
+	var newtag = fulltag;
+	if ( !full ) newtag = newtag.replace(/\.+$/, '') + '.*'
 	if ( add ) document.getElementById(tagfld).value += '|' + newtag;
 	else document.getElementById(tagfld).value = newtag;
 	document.getElementById('tbframe').style.display = 'none';

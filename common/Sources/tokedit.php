@@ -267,6 +267,52 @@
 				} else if ( $inputtype == "lselect" ) {
 					$fromform = $item['form'] or $fromform = "form";
 					$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'> Alternatives: <select name='' onchange=\"document.tagform['atts[{$key}]'].value = this.value;\" onfocus=\"fillfrom(this, '$fromform', '$key');\" onload=\"fillfrom(this, '$fromform', '$key');\"><option value=''>[choose]</option></select>";					
+				} else if ( $item['type'] == "pos" ) {
+					if( !$tagbuilder && file_exists("Resources/tagset.xml") ) {
+						$tagbuilder = "
+						<script language=Javascript src='$jsurl/querybuilder.js'></script>
+						<div id='tbframe' class='helpbox' style='display: none; width: 50%;'>
+						<span style='margin-right: -5px; float: right; cursor: pointer;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>
+						<h3>{%Tag Builder}: <span id='tbtit'>{%$val}</span></h3>
+						<form>
+						";
+						if ( !$tagset ) {
+							require ( "$ttroot/common/Sources/tttags.php" );
+							$tagset = new TTTAGS("", false);
+						}; $optlist = "";
+						$noneval = $tagset->tagset['noneval'] or $noneval = "0";
+						foreach ( $tagset->taglist() as $letters => $name ) {
+							$mainlist .= "<option value=\"$letters\">$name</option>";
+							$letter = substr($letters,0,1);
+							$inneropts = "<table>"; $taglen = 0;
+							foreach ( $tagset->tagset['positions'][$letter] as $pos => $opt ) {
+								if ( !is_array($opt) || $pos == "multi" ) continue;
+								$innerlist = ""; $taglen++;
+								foreach ( $opt as $key2 => $val2 ) {
+									if ( !is_array($val2) ) continue;
+									$display = $val2['display-'.$lang] or $display = $val2['display'] or $display = $key2;
+									$innerlist .= "<option value='{$val2['key']}'>$display</option>";
+								};
+								$display = $opt['display-'.$lang] or $display = $opt['display'] or $display = $pos;
+								if ( $pos > $tagset->tagset['positions'][$letter]['maintag']) $inneropts .= "\n<tr><th>$display<td><select id='posopt-$letters-$pos'><option value='$noneval' selected>[{%any}]</option>$innerlist</select>";
+							};
+							$taglens .= " taglen['$letter'] = $taglen;";
+							$inneropts .= "</table>";
+						
+							$posopts .= "<div id='posopt-$letters' style='display: none;'>$inneropts</div>";
+						};
+						$tagbuilder .= "
+							<p>{%Main POS}: <select id='mainpos' onChange='changepos(this);'><option disabled selected>[{%select}]</option>$mainlist</select>
+							$posopts
+							<p><input type='button' value=\"{%Insert}\" onClick=\"filltag(0,1);\"> 
+							<input type='button' value=\"{%Append}\" onClick=\"filltag(1,1);\">
+							</form></div>
+							<script language='Javascript'>
+								var tagfld; var tagprev;
+								var taglen = []; $taglens
+							</script>";
+					};
+					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name='atts[$key]' id='f$key' value='$atv'> <a onClick=\"tagbuilder('f$key');\">{%tag builder}</a>";
 				} else {
 					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
 				};
@@ -426,6 +472,7 @@
 		# Allow adding/deleting tokens 
 		$maintext .= "
 		<hr>
+			TB: $tagbuilder BEEP
 			$warning
 		<!-- <a href=''>join to previous token</a> &bull;  -->
 			insert tok after:
