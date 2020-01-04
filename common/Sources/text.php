@@ -497,6 +497,13 @@
 	};
 
 	$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
+	foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $val ) {
+		if ( $val['i18n'] && is_array($val['options']) ) {
+			foreach ( $val['options'] as $key2 => $val2 ) {
+				$settings['xmlfile']['pattributes']['tags'][$key]['options'][$key2]['display'] = "{%{$val2['display']}}";
+			};
+		}
+	};
 	$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
 	if ( $settings['defaults']['wordinfo'] ) $settingsdefs .= "\n\t\tvar wordinfo = true;";
 	$jsontrans = array2json($settings['transliteration']);
