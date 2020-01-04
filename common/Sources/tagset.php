@@ -9,6 +9,7 @@
 	$ttfile = $_GET['tagset'] or $ttfile = $tagsetfile;
 	$tttags = new TTTAGS($ttfile, false);
 	$tagset = $tttags->tagset['positions'];
+	$noneval = $tttags->tagset['noval'];
 	if ( !$tagset ) { fatal("Tagset $ttfile not position-based or positions not defined"); };
 		
 	if ( $act == "analyze" ) {
@@ -54,7 +55,7 @@
 			foreach ( $val as $posi => $val2 ) {
 				$postxt = $tagset[$main][$posi]['display'] or $postxt = "<span style='color: #ff9999;'>undefined</span>";
 				foreach ( $val2 as $value => $tags ) {
-					if ( $posi > 0 && !$tagset[$main][$posi][$value] && $tagset['noval'] != $value ) {
+					if ( $posi > 0 && !$tagset[$main][$posi][$value] && !($noneval != "" && $noneval == $value) ) {
 						$maintext .= "<p>Undefined value <b>$value</b> for position $posi ($postxt) of $main ($maintxt)<br> - used in: ";
 						foreach ( explode(",", $tags ) as $tag ) {
 							if ( $tag ) { $maintext .= "<a target=edit href='index.php?action=cqp&cql=[pos=\"$tag\"]'>$tag</a> "; };

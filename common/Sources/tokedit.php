@@ -280,7 +280,7 @@
 							require ( "$ttroot/common/Sources/tttags.php" );
 							$tagset = new TTTAGS("", false);
 						}; $optlist = "";
-						$noneval = $tagset->tagset['noneval'] or $noneval = "0";
+						$noneval = $tagset->tagset['noval'] or $noneval = "0";
 						foreach ( $tagset->taglist() as $letters => $name ) {
 							$mainlist .= "<option value=\"$letters\">$name</option>";
 							$letter = substr($letters,0,1);
