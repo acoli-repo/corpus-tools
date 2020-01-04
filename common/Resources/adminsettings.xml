@@ -364,6 +364,7 @@
 		</desc>
 		<att key="defaultform" display="Default word form"/> 
 		<att key="defaultview" display="Default view options"/>  
+		<att key="focusform" display="Form that will be in focus in tokedit" default="nform"/> 
 		<att key="title" display="What to use for the document title (XPath)"/>  
 		<att key="xpath" display="XPath to the text body" default="//text"/> 
 		<att key="linebreaks" display="Interpret linebreaks as lb before tokenization (1/0)" default="0"/> 
@@ -427,6 +428,20 @@
 					<att key="noshow" display="Do not show this attribute"/>
 					<att key="noedit" display="Do not present in tokedit"/>
 					<att key="form" display="Form that the tag is associated with"/>
+					<att key="input" display="Input form for this tag" default="text">
+						<val key="text" display="Free text field"/>
+						<val key="select" display="Drop-down selection list"/>
+					</att>
+					<att key="add" display="Whether new values can be added (in select fields)" default="0"/>
+					<att key="values" display="Type of values for this tag" default="single">
+						<val key="single" display="A single value"/>
+						<val key="multi" display="A list of values"/>
+					</att>
+					<att key="i18n" display="Internationalization" default="0">
+						<val key="0" display="Show literal text"/>
+						<val key="1" display="Internationalize this value"/>
+					</att>
+					<att key="multisep" display="Seperator for multivalue-fields (default in cqp/multiseperator)" default=","/>
 					<att key="admin" display="Admin" default="0">
 						<val key="1" display="Visible only for admin users"/>
 						<val key="0" display="Visible for everyone"/>

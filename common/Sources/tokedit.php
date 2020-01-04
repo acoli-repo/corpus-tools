@@ -110,6 +110,7 @@
 				</div>";
  		};
 
+		$multisep = $settings['cqp']['multiseperator'] or $multisep = ",";
 		$maintext .= "<h1>Edit Token</h1>
 		
 				<table>
@@ -122,8 +123,9 @@
 			$bboxpart
 			$chareqjs
 			<script language=Javascript>
-				function addvalue ( ak, sel ) {	
-					document.getElementById('f'+ak).value += '+'+ sel.value;
+				var defmultisep = '$multisep';
+				function addvalue ( ak, sel, multisep=defmultisep ) {	
+					document.getElementById('f'+ak).value += multisep + sel.value;
 					sel.selectedIndex = 0;
 				};
 				var inherit = []; 
@@ -197,6 +199,18 @@
 		$maintext .= "<tr><td colspan=10><hr>";
 		// Show all the defined tags
 		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+		
+			// Reinterpret some depricated settings values
+			if ( $item['item'] == "eselect" ) { $item['input'] = "select"; $item['add'] = 1; }; 
+			if ( $item['item'] == "mselect" ) { $item['input'] = "select"; $item['values'] = "multi"; }; 
+		
+			# Check whether this is a multi-value field
+			$multival = 0; 
+			if ( $item['values'] == "multi" || $settings['cqp']['pattributes'][$key]['values'] == "multi" ) {
+				$multival = 1;
+				if (!$item['multisep']) $item['multisep'] = $settings['cqp']['pattributes'][$key]['multisep'] or $item['multisep'] = $multisep;
+			};
+		
 			$atv = $token[$key]; 
 			$val = $item['display'];
 			if ( $item['noedit'] ) {
@@ -204,36 +218,52 @@
 				continue;
 			};
 			if ( $key != "pform" ) {
-				if ( $item['type'] == "Select" || $item['type'] == "ESelect" || $item['type'] == "MSelect" ) {
-					if (file_exists("cqp/$key.lexicon")) {
+				$inputtype = $item['input'] or $inputtype = strtolower($item['type']);
+				if ( strpos($inputtype, 'select') !== false ) {
+					$maxsize = 5; $optlist = ""; unset($optarr);
+					if ( is_array($item['options']) ) {
+						// Build the options from the settings
+						foreach ( $item['options'] as $key2 => $val2 ) {
+							$kval = $val2['value'] or $kval = $key2;
+							$kvaltxt = $val2['display'] or $kvaltxt = $kva;
+							$maxsize = max($maxsize, strlen($kval));
+							if ($item['i18n']) $kvaltxt = "{%$kvaltxt}"; 
+ 							$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
+ 						}; 
+						sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+					} else if ( file_exists("cqp/$key.lexicon") ) {
 						$tmp = file_get_contents("cqp/$key.lexicon"); 
 						$optarr = array();
-						foreach ( explode ( "\0", $tmp ) as $kval ) { 
-							if ( $kval ) {
+						foreach ( explode ( "\0", $tmp ) as $tmp ) { 
+							if ( $multival ) $vallist = explode($item['multisep'], $tmp); else $vallist = array($tmp);
+							foreach ( $vallist as $kval ) {
+								$kval = trim($kval); # Trim to avoid problems with spaces around commas
+								$maxsize = max($maxsize, strlen($kval));
 								if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
-								if ( ( $attype[$key] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) $optarr[$kval] = "<option value='$kval' $seltxt>$kval</option>"; 
+								if ( $kval != "__UNDEF__" && $kval != "" ) $optarr[$kval] = "<option value='$kval' $seltxt>$kval</option>"; 
 							};
 						};
 						sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
 					} else { $optlist = ""; };
 					
-					if ( $item['type'] == "ESelect" ) {
-						$maintext .= "<tr><td>$key<td>$val
-									<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
-						$maintext .= "<input type=checkbox>new value: <span id='newat'><input size=30 name=newatt[$key] id='f$key' value=''></span>";
-					} else if ( $item['type'] == "Select" ) {
-						$maintext .= "<tr><td>$key<td>$val
-									<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
-					} else if ( $item['type'] == "MSelect" ) {
-						$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
-						$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>
-							add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
+					if ( $optlist ) {
+						if ( $inputtype == "mselect" || $item['values'] == "multi" ) {
+							$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
+							$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>
+								add: <select name=null[$key] onChange=\"addvalue('$key', this, '{$item['multisep']}');\"><option value=''>[select]</option>$optlist</select>";
+						} else {
+							$maintext .= "<tr><td>$key<td>$val
+										<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
+						};
+						
+						if ( $item['add'] )	$maintext .= " - new value: <input size=$maxsize name=newatt[$key] id='fn$key' value=''\"> <input type=button value='add'  onClick=\"addvalue('$key', document.getElementById('fn$key'), , '{$item['multisep']}); document.getElementById('fn$key').value='';\");>";
+
 					} else {
-						$maintext .= "<tr><td>$key<td>$val
-									<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
+						# Fallback to input if select list fails
+						$maintext .= "<tr><td>$key<td>$val<td><input type=text size=60 name=atts[$key] id='f$key' value='$atv'>  <i>No selectable options available for '$key'</i>";
 					};
-					 
-				} else if ( $item['type'] == "LSelect" ) {
+										 
+				} else if ( $inputtype == "lselect" ) {
 					$fromform = $item['form'] or $fromform = "form";
 					$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'> Alternatives: <select name='' onchange=\"document.tagform['atts[{$key}]'].value = this.value;\" onfocus=\"fillfrom(this, '$fromform', '$key');\" onload=\"fillfrom(this, '$fromform', '$key');\"><option value=''>[choose]</option></select>";					
 				} else {
