@@ -125,7 +125,8 @@
 			<script language=Javascript>
 				var defmultisep = '$multisep';
 				function addvalue ( ak, sel, multisep=defmultisep ) {	
-					document.getElementById('f'+ak).value += multisep + sel.value;
+					if ( document.getElementById('f'+ak).value != '' ) { document.getElementById('f'+ak).value += multisep; };
+					document.getElementById('f'+ak).value += sel.value;
 					sel.selectedIndex = 0;
 				};
 				var inherit = []; 
@@ -256,7 +257,7 @@
 										<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
 						};
 						
-						if ( $item['add'] )	$maintext .= " - new value: <input size=$maxsize name=newatt[$key] id='fn$key' value=''\"> <input type=button value='add'  onClick=\"addvalue('$key', document.getElementById('fn$key'), , '{$item['multisep']}); document.getElementById('fn$key').value='';\");>";
+						if ( $item['add'] )	$maintext .= " - new value: <input size=$maxsize name=newatt[$key] id='fn$key' value=''> <input type=button value='add'  onClick=\"addvalue('$key', document.getElementById('fn$key'), '{$item['multisep']}'); document.getElementById('fn$key').value='';\">";
 
 					} else {
 						# Fallback to input if select list fails
