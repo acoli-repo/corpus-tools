@@ -472,7 +472,7 @@
 		# Allow adding/deleting tokens 
 		$maintext .= "
 		<hr>
-			TB: $tagbuilder BEEP
+			$tagbuilder 
 			$warning
 		<!-- <a href=''>join to previous token</a> &bull;  -->
 			insert tok after:
