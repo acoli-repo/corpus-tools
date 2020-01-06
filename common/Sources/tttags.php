@@ -33,10 +33,10 @@ class TTTAGS
 		$pos1 = substr($tag,0,1);
 		$tagoptions = $this->tagset['positions'][$pos1];
 		$array = array();
-		$array[0] = array ("name" => "Main type", "value" => $pos1, "text" => $tagoptions['display'] );
+		$array[0] = array ("name" => "Main type", "value" => $pos1, "text" => $tagoptions['display'], "display" => $tagoptions['display'] );
 		for ( $i=1; $i<strlen($tag); $i++ ) {
 			$posx = substr($tag,$i,1);
-			$array[$i] = array ( "name" => $tagoptions[$i]['display'], "value" => $posx, "text" => $key2val );
+			$array[$i] = array ( "name" => $tagoptions[$i]['display'], "value" => $posx, "text" => $key2val, "display" => $tagoptions[$i][$posx]['display'] );
 		};
 		return $array;
 	}

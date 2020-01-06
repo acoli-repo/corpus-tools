@@ -111,6 +111,9 @@
  		};
 
 		$multisep = $settings['cqp']['multiseperator'] or $multisep = ",";
+		foreach ( $settings['xmlfile']['pattributes']['forms'] as $item ) {
+			if ( $item['inherit'] ) $inherits .= "\n				inherit['{$item['key']}'] = '{$item['inherit']}';";
+		};
 		$maintext .= "<h1>Edit Token</h1>
 		
 				<table>
@@ -129,9 +132,7 @@
 					document.getElementById('f'+ak).value += sel.value;
 					sel.selectedIndex = 0;
 				};
-				var inherit = []; 
-				inherit['nform'] = 'fform';
-				inherit['fform'] = 'form';
+				var inherit = []; $inherits;
 				function fillfrom ( selobj, frm, att ) {
 					var i;
 					for(i=selobj.options.length-1;i>=0;i--)
@@ -218,6 +219,70 @@
 				if ( $val && $atv ) $maintext .= "<tr><td>$key<td>$val<td>$atv";
 				continue;
 			};
+			
+			$lookuplink = "";
+			if ( $item['lookup'] ) {
+				if ( $lookupform == "" ) {
+					$lookupform = "<div id='lookupform' class='helpbox' style='display: none;'>
+							<span style='margin-right: -5px; float: right; cursor: pointer;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>
+							<h3>Value Lookup</h3>
+							<p>Click to select <span style='font-weight: bold;' id='lffld'></span> for <span id='lffrom'></span> = <span style='font-weight: bold;' id='lfval'></span>
+							<table id='lftable' style='background-color: white;'>
+							</table>
+							<br>
+						</div>
+						<script language=Javascript>
+							function insertval (fld, val) {
+								var selfld = document.getElementById('f'+fld);
+								selfld.value = val;
+							};
+							function lookup( fkey, fld ) {
+								var ftry = fkey;
+								var fform = document.getElementById('f'+fkey).value;
+								while ( fform == '' && ftry != 'form' && inherit[ftry] ) { 
+									ftry =  inherit[ftry];  
+									fform = document.getElementById('f'+ftry).value;
+								};
+								if ( fform == '' && ftry == 'form' ) { fform = document.getElementById('word').value; };
+								var xmlhttp;
+								if (window.XMLHttpRequest) {
+								  xmlhttp=new XMLHttpRequest();
+								} else {
+								  xmlhttp=new ActiveXObject(\"Microsoft.XMLHTTP\");
+								};
+								var geturl = 'index.php?action=getvals&format=json&att='+fld+'&key='+fkey+'&val='+fform;
+								xmlhttp.onreadystatechange = function() {
+								  if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+										var json = JSON.parse(xmlhttp.responseText);
+										if ( !json ) { 
+											return -1;
+										};
+										document.getElementById('lookupform').style.display = 'block';
+										document.getElementById('lffld').innerHTML = fld;
+										document.getElementById('lffrom').innerHTML = fkey;
+										document.getElementById('lfval').innerHTML = fform;
+										var x=json.options;
+										var lftable = document.getElementById('lftable');
+										lftable.innerHTML = '<tr><th>Value</th><th>Display</th><th>Corpus count</th></tr>';
+										if (x.length==1) lftable.innerHTML += '<tr><td colspan=3><i>No values found</i></td></tr>';
+										for (i=0;i<x.length;i++) {
+											var opt = x[i];
+											if ( !opt.val ) continue;
+											if ( !opt.display ) opt.display = opt.val;
+											
+											lftable.innerHTML += '<tr><td><a onclick=\"insertval(\''+fld+'\', \''+opt.val+'\');\">'+opt.val+'</a></td><td>'+opt.display+'</td><td>'+opt.cnt+'</td></tr>';
+										}
+									}
+								  }
+								xmlhttp.open('GET',geturl,true);
+								xmlhttp.send();
+							};
+						</script>";
+				};
+				$lookuplink = "<a onclick=\"lookup('{$item['lookup']}', '$key');\">lookup</a>";
+			};
+			if ( $lookuplink ) $sep = " &bull; "; else $sep = "";					
+			
 			if ( $key != "pform" ) {
 				$inputtype = $item['input'] or $inputtype = strtolower($item['type']);
 				if ( strpos($inputtype, 'select') !== false ) {
@@ -250,23 +315,23 @@
 					if ( $optlist ) {
 						if ( $inputtype == "mselect" || $item['values'] == "multi" ) {
 							$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
-							$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>
-								add: <select name=null[$key] onChange=\"addvalue('$key', this, '{$item['multisep']}');\"><option value=''>[select]</option>$optlist</select>";
+							$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>    $lookuplink
+								$sep select: <select name=null[$key] onChange=\"addvalue('$key', this, '{$item['multisep']}');\"><option value=''>[select]</option>$optlist</select>";
 						} else {
-							$maintext .= "<tr><td>$key<td>$val
-										<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>";
+							$maintext .= "<tr><td>$key<td>$val 
+										<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>  $lookuplink";
 						};
 						
 						if ( $item['add'] )	$maintext .= " - new value: <input size=$maxsize name=newatt[$key] id='fn$key' value=''> <input type=button value='add'  onClick=\"addvalue('$key', document.getElementById('fn$key'), '{$item['multisep']}'); document.getElementById('fn$key').value='';\">";
 
 					} else {
 						# Fallback to input if select list fails
-						$maintext .= "<tr><td>$key<td>$val<td><input type=text size=60 name=atts[$key] id='f$key' value='$atv'>  <i>No selectable options available for '$key'</i>";
+						$maintext .= "<tr><td>$key<td>$val<td><input type=text size=60 name=atts[$key] id='f$key' value='$atv'>  $lookuplink <i>No selectable options available for '$key'</i>";
 					};
 										 
 				} else if ( $inputtype == "lselect" ) {
 					$fromform = $item['form'] or $fromform = "form";
-					$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'> Alternatives: <select name='' onchange=\"document.tagform['atts[{$key}]'].value = this.value;\" onfocus=\"fillfrom(this, '$fromform', '$key');\" onload=\"fillfrom(this, '$fromform', '$key');\"><option value=''>[choose]</option></select>";					
+					$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'> Alternatives: <select name='' onchange=\"document.tagform['atts[{$key}]'].value = this.value;\" onfocus=\"fillfrom(this, '$fromform', '$key');\" onload=\"fillfrom(this, '$fromform', '$key');\"><option value=''>[choose]</option></select>  $lookuplink";					
 				} else if ( $item['type'] == "pos" ) {
 					if( !$tagbuilder && file_exists("Resources/tagset.xml") ) {
 						$tagbuilder = "
@@ -312,9 +377,10 @@
 								var taglen = []; $taglens
 							</script>";
 					};
-					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name='atts[$key]' id='f$key' value='$atv'> <a onClick=\"tagbuilder('f$key');\">{%tag builder}</a>";
+					if ( $lookuplink ) $sep = " &bull; "; else $sep = "";
+					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name='atts[$key]' id='f$key' value='$atv'> <a onClick=\"tagbuilder('f$key');\">{%tag builder}</a> $sep $lookuplink";
 				} else {
-					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
+					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'> $lookuplink";
 				};
 			};
 		};
@@ -377,7 +443,7 @@
 						} else if ( $item['type'] == "MSelect" ) {
 							$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
 							$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=datts[$did:$key] id='f$key' value='$atv'>
-								add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
+								$sep add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
 						} else {
 							$maintext .= "<tr><td>$key<td>$val
 										<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
@@ -473,6 +539,7 @@
 		$maintext .= "
 		<hr>
 			$tagbuilder 
+			$lookupform
 			$warning
 		<!-- <a href=''>join to previous token</a> &bull;  -->
 			insert tok after:

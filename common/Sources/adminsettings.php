@@ -215,14 +215,26 @@
 
 	} else if ( $section ) {
 		
-		$tmp = $setdef->xpath("/ttsettings/item[@key=\"$section\"]"); 
-		$secdef = $tmp[0]; 
-		if ( !$secdef ) { fatal ("No such section: $section"); };
+		if ( $_GET['subsection'] ) {
+			$tmp = $setdef->xpath("/ttsettings/item[@key=\"$section\"]/item[@key=\"{$_GET['subsection']}\"]"); 
+			$secdef = $tmp[0]; 
+			if ( !$secdef ) { fatal ("No such subsection: $section/{$_GET['subsection']}"); };
+			$sectiontxt = "$section/{$_GET['subsection']}";
 
-		$tmp = $settingsxml->xpath("/ttsettings/$section"); 
-		$valdef = $tmp[0]; 
+			$tmp = $settingsxml->xpath("/ttsettings/$section/{$_GET['subsection']}"); 
+			$valdef = $tmp[0]; 
+		} else {
+			$tmp = $setdef->xpath("/ttsettings/item[@key=\"$section\"]"); 
+			$secdef = $tmp[0]; 
+			if ( !$secdef ) { fatal ("No such section: $section"); };
+			$sectiontxt = $section;
+
+			$tmp = $settingsxml->xpath("/ttsettings/$section"); 
+			$valdef = $tmp[0]; 
+		};
 		
-		$maintext .= "<h1>Settings: $section</h1>
+		
+		$maintext .= "<h1>Settings: $sectiontxt</h1>
 			<p><b>{$secdef['display']}</b></p>";
 		
 		if ( $secdef->desc ) {
@@ -232,7 +244,7 @@
 		$maintext .= settingstable($valdef, $secdef, $_GET['showunused'] );		
 	
 		$maintext .= "<hr><p><a href='index.php?action=$action'>back to sections</a>";
-		if ( !$_GET['showunused'] ) $maintext .= " &bull; <a href='index.php?action=$action&section=$section&showunused=1'>show/edit unused items and attributes</a>";
+		if ( !$_GET['showunused'] ) $maintext .= " &bull; <a href='index.php?action=$action&section=$section&subsection={$_GET['subsection']}&showunused=1'>show/edit unused items and attributes</a>";
 	
 	} else {
 	
@@ -280,12 +292,11 @@
 	}; 
 	
 	function settingstable ( $valnode, $defnode, $showunused = false ) {
-		global $user;
+		global $user; global $action; global $section;
 
 		if ( $valnode == null ) return "";
 		if ( $valnode->asXML() == "" ) return "";
 		if ( !$defnode ) return "<i style='color: #992000'>Unknown field</i>";
-		
 		
 		$tabletext .= "<table>"; unset($done);
 		foreach ( $valnode->attributes() as $key => $item ) {
@@ -295,6 +306,7 @@
 				$tmp = $itdef->xpath("val[@key=\"$item\"]"); $value = $tmp[0]['display'];
 			};
 			$deftxt = $itdef['display'] or $deftxt = "<i style='color: #992000'>Unknown attribute</i>";
+			if ( $itdef['desc'] ) $deftxt .= "<p>".$itdef['desc']."</p>";
 			if ( $user['permissions'] == "admin" ) {
 				$xpath = makexpath($item);
 				$item = "<a href='index.php?action=adminsettings&act=edit&node=$xpath'>$item</a>";
@@ -340,8 +352,9 @@
 				$tmp = $defnode->xpath("list"); $itdef = $tmp[0];
 				$tabletext .= "<tr><td><td colspan=3>".settingstable($item, $itdef, $showunused);
 			} else {
-				$tmp = $defnode->xpath("item[@key=\"$key\"]"); $itdef = $tmp[0];
-				$tabletext .= "<tr><th>$key<td colspan=3><i style='color: #888888;'>{$itdef['display']}</i>
+				$tmp = $defnode->xpath("item[@key=\"$key\"]"); $itdef = $tmp[0]; 
+				if ( $itdef['subsection'] ) $keytxt = "$key<br><a href='index.php?action=$action&section=$section&subsection=$key'>select</a>"; else $keytxt = $key;
+				$tabletext .= "<tr><th>$keytxt<td colspan=3><i style='color: #888888;'>{$itdef['display']}</i>
 					<br>".settingstable($item, $itdef, $showunused);
 			};
 		};
@@ -355,7 +368,8 @@
 					$add = "<br><a href='index.php?action=adminsettings&act=addelm&node=$xpath'>create item</a>";
 				};
 				if ( !$done[$key] ) {
-					$tabletext .= "<tr><th style='background-color: #d2d2ff'>$key
+					if ( $item['subsection'] ) $keytxt = "$key<br><a href='index.php?action=$action&section=$section&subsection=$key'>select</a>"; else $keytxt = $key;
+					$tabletext .= "<tr><th style='background-color: #d2d2ff'>$keytxt
 						<td style='color: #888888;'>(unused)$add
 						<td style='color: #888888; padding-left: 20px;'>$deftxt
 						<td>$value

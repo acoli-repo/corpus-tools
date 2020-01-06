@@ -188,6 +188,7 @@
 		<att key="withemptytext" display="Whether to include texts with no tokens (0/1)" default="0"/>	
 		<att key="longbox" display="Whether to use a textarea instead of an input for the CQP query (0/1)" default="0"/>	
 		<att key="titlefld" display="Which CQP sattribute to use as title (XPath)"/>	
+		<att key="listnone" display="List items with no value (0/1)"/>	
 		<att key="toktype" display="How to export mtok and dtok" default="td" >	
 			<desc>
 				TEITOK can contain not only tokens, but also grammatical words (dtok) and multi-word expressions (mtok). Here
@@ -391,7 +392,7 @@
 			<val key="1" display="Only show one page at a time (unless specified differently)"/>
 			<val key="2" display="Always only show one page at a time"/>
 		</att>
-		<item key="teiHeader" display="Define custom teiHeader template list">
+		<item key="teiHeader" display="Define custom teiHeader template list" deprecated="1">
 			<list>
 				<att key="key" display="Name of the template file (teiheader-XXX.tpl)"/>
 				<att key="display" display="Display name for the template"/>
@@ -442,6 +443,7 @@
 						<val key="1" display="Internationalize this value"/>
 					</att>
 					<att key="multisep" display="Seperator for multivalue-fields (default in cqp/multiseperator)" default=","/>
+					<att key="lookup" display="Lookup existing values in this form field" default=""/>
 					<att key="admin" display="Admin" default="0">
 						<val key="1" display="Visible only for admin users"/>
 						<val key="0" display="Visible for everyone"/>
@@ -467,6 +469,19 @@
 						<val key="0" display="Visible for everyone"/>
 					</att>
 				</list>
+			</list>
+		</item>
+		<item key="toc" display="Table of Contents" subsection="1">
+			<desc>
+				For readable works, TEITOK can create a Table of Contents to easily navigate the content. 
+				You do this by indicating which levels should be included in the TOC, and the system will
+				generated a nested table of content, for instance &lt;chapter&gt;,  &lt;section&gt;,  &lt;subsection&gt;
+			</desc>
+			<list display="TOC levels">
+				<att key="key" display="ID for this level"/>
+				<att key="display" display="Display name for the TOC"/>
+				<att key="xp" display="Node name for this level"/>
+				<att key="att" display="Attribute for the level name"/>
 			</list>
 		</item>
 	</item>
