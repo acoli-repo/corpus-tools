@@ -247,12 +247,17 @@
 			$version = $tmp[0];
 			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
 
-			$tmp = file_get_contents("http://www.teitok.org/latest.php?url={$_SERVER['HTTP_HOST']}".preg_replace("/\/index\.php.*/", "", $_SERVER['REQUEST_URI'])."&version={$version['version']}");
-			$tmp = simplexml_load_string($tmp, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
+			$scopts['http']['timeout'] = 5; // Set 5s timeout here to avoid haning
+			if ( $settings['defaults']['base']['proxy'] ) $scopts['http']['proxy'] = $settings['defaults']['base']['proxy'];
+			$ctx = stream_context_create($scopts);	
+			$latesturl = "http://www.teitok.org/latest.php?url={$_SERVER['HTTP_HOST']}".preg_replace("/\/index\.php.*/", "", $_SERVER['REQUEST_URI'])."&version={$version['version']}";
+			$tmpf = file_get_contents($latesturl, false, $ctx);
+			$tmp = simplexml_load_string($tmpf, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
 			if ( $tmp ) {
 				$tmp2 = $tmp->xpath("//info");
 				$latest = $tmp2[0];
 				if ( $latest['version']."" != $version['version']."" ) $maintext .= " - Latest version: {$latest['version']}, {$latest['date']}" ;
+				else  $maintext .= " (up-to-date)";
 			};
 			
 			// TODO: Can we update via the GUI?
