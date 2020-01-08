@@ -5,6 +5,7 @@
 	check_login();
 	
 	if ( $act == "changepwd" ) {
+		if ( $user['shared']) fatal("Shared record");
 	
 		$newpwd = password_hash($_POST['newpwd'], PASSWORD_DEFAULT);
 		
@@ -73,6 +74,9 @@
 		if ( $_SESSION['myqueries'] || file_exists("Users/cql_$useridtxt.xml") ) $more .= "<p><a href='index.php?action=multisearch&act=stored'>{%Stored CQL queries}</a>";
 		if ( file_exists("Users/ann_$useridtxt.xml") ) $more .= "<p><a href='index.php?action=classify'>{%Custom annotation}</a>";
 		
+		if ( $user['shared'] ) $more .= "<p><i>Shared user - changes should be made in the shared folder</i>"; 
+		else $more .= "<p><a href='index.php?action=$action&act=pwdchange'>Change password</a>";
+
 		$maintext .= "
 		
 			<h1>User Profile</h1>
@@ -89,7 +93,6 @@
 			
 			$more
 			
-			<p><a href='index.php?action=$action&act=pwdchange'>Change password</a>
 			<p><a href='index.php?action=login&act=exit'>Logout</a>
 			";
 		

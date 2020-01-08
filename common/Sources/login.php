@@ -5,19 +5,46 @@
 	# Read the userlist 
 	$ufile = file_get_contents ("Resources/userlist.xml");
 	$uxml = simplexml_load_string($ufile);
+	
+	if ( $sharedfolder && file_exists("$sharedfolder/Resources/userlist.xml") ) {
+		$sufile = file_get_contents ("$sharedfolder/Resources/userlist.xml");
+		$suxml = simplexml_load_string($sufile);
+	};
 
 	if ( $_POST["login"] ) {
-		# Lookup the data for this user in the STAFF database
+	
+		# Lookup the data for this user in the STAFF database - local or shared when defined
 		$result = $uxml->xpath("//user[@email='{$_POST['login']}']"); 
-		$xrec = $result[0]; 
-		$record['email'] = $xrec['email'].''; 
-		$record['short'] = $xrec['short'].''; 
-		$record['permissions'] = $xrec['permissions'].''; 
-		$record['group'] = $xrec['group'].''; 
-		$record['fullname'] = $xrec.''; 
-
+		if ( $result ) {
+			$xrec = $result[0]; 
+			$record['email'] = $xrec['email'].''; 
+			$record['short'] = $xrec['short'].''; 
+			$record['permissions'] = $xrec['permissions'].''; 
+			$record['group'] = $xrec['group'].''; 
+			$record['fullname'] = $xrec.''; 
+		} else if ( $suxml ) {
+			$result = $suxml->xpath("//user[@email='{$_POST['login']}']"); 
+			$xrec = $result[0];
+			$record['shared'] = 1;
+			$record['email'] = $xrec['email'].''; 
+			$record['short'] = $xrec['short'].''; 
+			$record['fullname'] = $xrec.''; 
+			if ( $xrec['projects'] == "all" ) {
+				$record['permissions'] = $xrec['permissions'].''; 
+				$record['group'] = $xrec['group'].''; 
+			} else if ( $xrec ) { 
+				$pxrec = current($xrec->xpath("./project[@key='$foldername']"));
+				if ( $pxrec ) {
+					$record['permissions'] = $pxrec['permissions'].''; 
+					$record['group'] = $pxrec['group'].''; 
+				} else {
+					$record['permissions'] = "none";
+				};
+			};
+		};
+		
 		// This is for a smooth transition to a more secure encryption method
-		if ( !$xrec['enc'] && !$xrec['tochange'] ) {
+		if ( !$xrec['enc'] && !$xrec['tochange'] && $xrec ) {
 			# Check for non-encrypted passwords
 			if ( $_POST['password'] == $xrec['password']  || $xrec['password'] == crypt("teiteitokencryptor", $_POST['password'] ) ) {
 				# Password correct, but now save it as a more secure password
@@ -26,7 +53,7 @@
 				 $xrec['enc'] = "1";
 				file_put_contents("Resources/userlist.xml", $uxml->asXML());
 			} else {
-				fatal ("wrong password");
+				fatal ("Wrong (old) password");
 			};
 		};
 	

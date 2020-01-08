@@ -145,6 +145,37 @@
 		print "<p class=wrong>XML is not installed in PHP, please install php-xml";
 		$critical = 1; $phperror = 1;
 	};
+	
+	if ( getenv("TT_SHARED") ) {
+		$sharedfolder = getenv("TT_SHARED");
+		if ( !is_dir($sharedfolder) ) {
+			print "<p class=wrong>The shared folder you have defined ($sharedfolder) does not exist</p>";
+			$phperror = 1;
+		} else {
+			print "<p class=right>Your shared folder: $sharedfolder</p>";
+			$sharedsettings = xmlflatten(simplexml_load_string(file_get_contents("$sharedfolder/Resources/settings.xml")));
+			$jsurl = $sharedsettings['defaults']['base']['javascript'];
+			if ( $jsurl )  {
+				print "
+					<script language=Javascript src='$jsurl/simtoks.js'></script>
+					<p class=wrong id=nojs>This warning should disappear - if it does not your, your shared Javascript folder ($jsurl) does not exist, or is not accessible</div>
+					<script language=Javascript>
+						console.log('If JS is not loaded, highlight will not exist, and the following JS call will throw an error');
+						highlight('nojs', '#ffffee');
+						document.getElementById('nojs').style.display = 'none';
+					</script>
+					";
+			};
+		};
+	} else if ( is_dir("../shared") ) {
+		print "<p>You have a shared folder (../shared), but have not defined this system-wide as your folder for shared settings. You can opt
+			to define it folder-based, or you can add an environment variable TT_SHARED pointing to your shared folder. The easiest way to
+			do that is to add this to the .htaccess file in enclosing Apache folder: <code>SetEnv TT_SHARED ../shared</code>";
+	} else {
+		print "<p>You have not defined a folder for shared settings; if you wish to define some server-wide settings for TEITOK, for instance
+			to indicate the location of the Javascript files, you can for instance do that by creating a folder <i>shared</i> to the
+			enclosing folder, and point to it in the .htaccess file in enclosing Apache folder: <code>SetEnv TT_SHARED ../shared</code>";
+	}
 
 	// Check whether SESSION variables work
 	if ( $_SESSION['check']['two'] != "also" ) {
@@ -161,5 +192,30 @@
 			After that, delete this folder, and login to your new project asap to change the default password.";
 	};
 	print "</div>";
+
+	function xmlflatten ( $xml, $int = 0 ) {
+		global $maintext; 
+		if ( !$xml ) return "";
+	
+		if ( $xml->attributes() ) 
+		foreach ( $xml->attributes() as $atn => $atv ) {
+			$flatxml[$atn] = $atv."";
+		};
+
+		if ( $int && $xml.""  != "" ) { $flatxml['(text)'] = $xml.""; };
+
+		foreach ( $xml->children() as $node ) {
+			$chn = "".$node->getName();
+			if ( $node['id'] ) $key = $node['id']."";
+			else if ( $chn == "item" ) {
+				if ( $node['key'] ) $key = $node['key']."";
+				else { $icnt++; $key = $icnt; };
+			} else $key = $chn;
+			
+			$flatxml[$key] = xmlflatten($node);
+		};
+	
+		return $flatxml;
+	};
 
 ?>

@@ -247,7 +247,7 @@
 			$version = $tmp[0];
 			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
 
-			$scopts['http']['timeout'] = 5; // Set 5s timeout here to avoid haning
+			$scopts['http']['timeout'] = 3; // Set short timeout here to avoid hanging
 			if ( $settings['defaults']['base']['proxy'] ) $scopts['http']['proxy'] = $settings['defaults']['base']['proxy'];
 			$ctx = stream_context_create($scopts);	
 			$latesturl = "http://www.teitok.org/latest.php?url={$_SERVER['HTTP_HOST']}".preg_replace("/\/index\.php.*/", "", $_SERVER['REQUEST_URI'])."&version={$version['version']}";

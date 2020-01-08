@@ -168,6 +168,9 @@
 	} else if ( file_exists( "Pages/$action-$deflang.html" ) ) {
 		# Local page - default language
 		$maintext = $edithtml.file_get_contents ( "Pages/$action-$deflang.html" );
+	} else if ( file_exists( "Sources/$action.php" ) ) {
+		# Local script
+		include ( "Sources/$action.php" );
 	} else if ( $sharedfolder && file_exists( "$sharedfolder/Sources/$action.php" ) ) {
 		# Locally shared script
 		include ( "$sharedfolder/Sources/$action.php" );
@@ -177,9 +180,6 @@
 	} else if ( $sharedfolder && file_exists( "$sharedfolder/Pages/$action.html" ) ) {
 		# Locally shared page
 		$maintext = $edithtml.file_get_contents (  "$sharedfolder/Pages/$action.html" );
-	} else if ( file_exists( "Sources/$action.php" ) ) {
-		# Local script
-		include ( "Sources/$action.php" );
 	} else if ( file_exists( "$ttroot/common/Pages/$action-$lang.html" ) ) {
 		# Common page
 		$maintext = $edithtml.file_get_contents ( "$ttroot/common/Pages/$action-$lang.html" );
