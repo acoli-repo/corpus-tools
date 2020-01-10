@@ -194,7 +194,7 @@
 			$val = $item['display'];
 			if ( $key != "pform" && !$item['noedit'] ) { // the raw XML is not an attribute, and some attribute are set to be non-editable
 				$atv = str_replace("'", "&#039;", $atv); // protect the HTML field
-				$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv' $chareqfn>";
+				$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv' $chareqfn>";
 			};
 		};
 		
@@ -216,7 +216,7 @@
 			$atv = $token[$key]; 
 			$val = $item['display'];
 			if ( $item['noedit'] ) {
-				if ( $val && $atv ) $maintext .= "<tr><td>$key<td>$val<td>$atv";
+				if ( $val && $atv ) $maintext .= "<tr><td>$key<td id='name-$key'>$val<td>$atv";
 				continue;
 			};
 			
@@ -315,10 +315,10 @@
 					if ( $optlist ) {
 						if ( $inputtype == "mselect" || $item['values'] == "multi" ) {
 							$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
-							$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>    $lookuplink
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>    $lookuplink
 								$sep select: <select name=null[$key] onChange=\"addvalue('$key', this, '{$item['multisep']}');\"><option value=''>[select]</option>$optlist</select>";
 						} else {
-							$maintext .= "<tr><td>$key<td>$val 
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val 
 										<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>  $lookuplink";
 						};
 						
@@ -326,12 +326,12 @@
 
 					} else {
 						# Fallback to input if select list fails
-						$maintext .= "<tr><td>$key<td>$val<td><input type=text size=60 name=atts[$key] id='f$key' value='$atv'>  $lookuplink <i>No selectable options available for '$key'</i>";
+						$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input type=text size=60 name=atts[$key] id='f$key' value='$atv'>  $lookuplink <i>No selectable options available for '$key'</i>";
 					};
 										 
 				} else if ( $inputtype == "lselect" ) {
 					$fromform = $item['form'] or $fromform = "form";
-					$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'> Alternatives: <select name='' onchange=\"document.tagform['atts[{$key}]'].value = this.value;\" onfocus=\"fillfrom(this, '$fromform', '$key');\" onload=\"fillfrom(this, '$fromform', '$key');\"><option value=''>[choose]</option></select>  $lookuplink";					
+					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'> Alternatives: <select name='' onchange=\"document.tagform['atts[{$key}]'].value = this.value;\" onfocus=\"fillfrom(this, '$fromform', '$key');\" onload=\"fillfrom(this, '$fromform', '$key');\"><option value=''>[choose]</option></select>  $lookuplink";					
 				} else if ( $item['type'] == "pos" ) {
 					if( !$tagbuilder && file_exists("Resources/tagset.xml") ) {
 						$tagbuilder = "
@@ -375,12 +375,40 @@
 							<script language='Javascript'>
 								var tagfld; var tagprev;
 								var taglen = []; $taglens
+								function settb(fldid) {
+									var fld = document.getElementById('f'+fldid);
+									var tit = document.getElementById('name-'+fldid).innerText;
+									var curpos = fld.value;									
+									var mainpos = curpos.substr(0,1);
+									
+									document.getElementById('tbtit').innerHTML = tit;
+									setbyval('mainpos', mainpos);
+									var taglist = document.getElementById('mainpos').options;
+									for ( var i=1; i<taglist.length; i++ ) {
+										var mp = taglist[i].value;
+										if ( mp ) document.getElementById('posopt-'+mp).style.display = 'none';
+									};
+									if ( mainpos ) {
+										document.getElementById('posopt-'+mainpos).style.display = 'block';
+										for ( var i=1; i<curpos.length; i++) {
+											setbyval('posopt-'+mainpos+'-'+i, curpos.substr(i,1));
+										};
+									} else {
+										document.getElementById('mainpos').selectedIndex = 0;
+									};
+									
+									tagbuilder('f'+fldid);									
+								};
+								function setbyval(selid, selval) {
+									var selfld = document.getElementById(selid);
+									selfld.value = selval;
+								};
 							</script>";
 					};
 					if ( $lookuplink ) $sep = " &bull; "; else $sep = "";
-					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name='atts[$key]' id='f$key' value='$atv'> <a onClick=\"tagbuilder('f$key');\">{%tag builder}</a> $sep $lookuplink";
+					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name='atts[$key]' id='f$key' value='$atv'> <a onClick=\"settb('$key');\">{%tag builder}</a> $sep $lookuplink";
 				} else {
-					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'> $lookuplink";
+					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'> $lookuplink";
 				};
 			};
 		};
@@ -415,7 +443,7 @@
 				$val = $item['display'];
 				if ( $key != "pform" ) {
 					$atv = str_replace("'", "&#039;", $atv);
-					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=datts[$did:$key] id='f$key' value='$atv'>";
+					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=datts[$did:$key] id='f$key' value='$atv'>";
 				};
 			};
 			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
@@ -434,23 +462,23 @@
 						sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
 				
 						if ( $item['type'] == "ESelect" ) {
-							$maintext .= "<tr><td>$key<td>$val
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
 										<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
 							$maintext .= "<input type=checkbox>new value: <span id='newat'><input size=30 name=newatt[$key] id='f$key' value=''></span>";
 						} else if ( $item['type'] == "Select" ) {
-							$maintext .= "<tr><td>$key<td>$val
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
 										<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
 						} else if ( $item['type'] == "MSelect" ) {
 							$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
-							$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=datts[$did:$key] id='f$key' value='$atv'>
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=40 name=datts[$did:$key] id='f$key' value='$atv'>
 								$sep add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
 						} else {
-							$maintext .= "<tr><td>$key<td>$val
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
 										<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
 						};
 					 
 					} else {
-						$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=datts[$did:$key] id='f$key' value='$atv'>";
+						$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=datts[$did:$key] id='f$key' value='$atv'>";
 					};
 				};
 			};
@@ -494,23 +522,23 @@
 							sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
 				
 							if ( $item['type'] == "ESelect" ) {
-								$maintext .= "<tr><td>$key<td>$val
+								$maintext .= "<tr><td>$key<td id='name-$key'>$val
 											<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
 								$maintext .= "<input type=checkbox>new value: <span id='newat'><input size=30 name=newatt[$key] id='f$key' value=''></span>";
 							} else if ( $item['type'] == "Select" ) {
-								$maintext .= "<tr><td>$key<td>$val
+								$maintext .= "<tr><td>$key<td id='name-$key'>$val
 											<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
 							} else if ( $item['type'] == "MSelect" ) {
 								$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
-								$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=datts[$did:$key] id='f$key' value='$atv'>
+								$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=40 name=datts[$did:$key] id='f$key' value='$atv'>
 									add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
 							} else {
-								$maintext .= "<tr><td>$key<td>$val
+								$maintext .= "<tr><td>$key<td id='name-$key'>$val
 											<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
 							};
 					 
 						} else {
-							$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=datts[$did:$key] id='f$key' value='$atv'>";
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=datts[$did:$key] id='f$key' value='$atv'>";
 						};
 					};
 				};
@@ -608,7 +636,7 @@
 				$val = $item['display'];
 				if ( $key != "pform" && !$item['noedit'] ) { // the raw XML is not an attribute, and some attribute are set to be non-editable
 					$atv = str_replace("'", "&#039;", $atv); // protect the HTML field
-					$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=matts[$mtokid:$key] id='f$key' value='$atv' $chareqfn>";
+					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=matts[$mtokid:$key] id='f$key' value='$atv' $chareqfn>";
 				};
 			};
 			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
@@ -627,23 +655,23 @@
 						sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
 				
 						if ( $item['type'] == "ESelect" ) {
-							$maintext .= "<tr><td>$key<td>$val
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
 										<td><select name=matts[$mtokid:$key]><option value=''>[select]</option>$optlist</select>";
 							$maintext .= "<input type=checkbox>new value: <span id='newat'><input size=30 name=newatt[$key] id='f$key' value=''></span>";
 						} else if ( $item['type'] == "Select" ) {
-							$maintext .= "<tr><td>$key<td>$val
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
 										<td><select name=matts[$mtokid:$key]><option value=''>[select]</option>$optlist</select>";
 						} else if ( $item['type'] == "MSelect" ) {
 							$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
-							$maintext .= "<tr><td>$key<td>$val<td><input size=40 name=matts[$mtokid:$key] id='f$key' value='$atv'>
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=40 name=matts[$mtokid:$key] id='f$key' value='$atv'>
 								add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
 						} else {
-							$maintext .= "<tr><td>$key<td>$val
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
 										<td><select name=matts[$mtokid:$key]><option value=''>[select]</option>$optlist</select>";
 						};
 					 
 					} else {
-						$maintext .= "<tr><td>$key<td>$val<td><input size=60 name=matts[$mtokid:$key] id='f$key' value='$atv'>";
+						$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=matts[$mtokid:$key] id='f$key' value='$atv'>";
 					};
 				};
 			};

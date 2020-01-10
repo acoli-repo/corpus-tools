@@ -67,6 +67,7 @@
 	    <item key="base" display="HTML base setting for the site">
 		    <att key="foldername" display="Foldername of the project - used for session and to check these settings belong to this project"/> 
 		    <att key="url" display="Base URL for the site"/> 
+		    <att key="proxy" display="An outgoing Proxy server when loading external resources"/> 
 		    <att key="javascript" display="URL to the Javascript folder" default="http://www.teitok.org/Scripts"/>
 		</item>
 	</item>
