@@ -410,7 +410,10 @@ function filltag ( add=0, full=0 ) {
 	var maintag = fulltag; 
 	for ( var i=maintag.length-1; i<taglen[maintag.substr(0,1)]; i++ ) {
 		var valfld = 'posopt-' + maintag + '-' + (i+1);
-		fulltag += document.getElementById(valfld).value;
+		if ( typeof(noval) == 'undefined' ) noval = '.';
+		posval = noval;
+		if ( document.getElementById(valfld) ) posval  = document.getElementById(valfld).value;
+		fulltag += posval;
 	}; 
 	var newtag = fulltag;
 	if ( !full ) newtag = newtag.replace(/\.+$/, '') + '.*'

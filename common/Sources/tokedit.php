@@ -234,7 +234,8 @@
 						<script language=Javascript>
 							function insertval (fld, val) {
 								var selfld = document.getElementById('f'+fld);
-								selfld.value = val;
+								if (selfld) { selfld.value = val; }
+								else { console.log('No HTML element for: '+fld); };
 							};
 							function lookup( fkey, fld ) {
 								var ftry = fkey;
@@ -346,6 +347,7 @@
 							$tagset = new TTTAGS("", false);
 						}; $optlist = "";
 						$noneval = $tagset->tagset['noval'] or $noneval = "0";
+						$taglens .= " var noval = '$noneval';";
 						foreach ( $tagset->taglist() as $letters => $name ) {
 							$mainlist .= "<option value=\"$letters\">$name</option>";
 							$letter = substr($letters,0,1);
@@ -359,7 +361,11 @@
 									$innerlist .= "<option value='{$val2['key']}'>$display</option>";
 								};
 								$display = $opt['display-'.$lang] or $display = $opt['display'] or $display = $pos;
-								if ( $pos > $tagset->tagset['positions'][$letter]['maintag']) $inneropts .= "\n<tr><th>$display<td><select id='posopt-$letters-$pos'><option value='$noneval' selected>[{%any}]</option>$innerlist</select>";
+								if ( $pos > $tagset->tagset['positions'][$letter]['maintag']) {
+									$posnr = $opt['pos'] or $posnr = $pos;
+									$taglen = max($taglen, $posnr);
+									$inneropts .= "\n<tr><th>$display<td><select id='posopt-$letters-$posnr'><option value='$noneval' selected>[{%any}]</option>$innerlist</select>";
+								};
 							};
 							$taglens .= " taglen['$letter'] = $taglen;";
 							$inneropts .= "</table>";
@@ -401,7 +407,8 @@
 								};
 								function setbyval(selid, selval) {
 									var selfld = document.getElementById(selid);
-									selfld.value = selval;
+									if (selfld) selfld.value = selval;
+									else console.log('No field for: '+selid);
 								};
 							</script>";
 					};

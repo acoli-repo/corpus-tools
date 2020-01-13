@@ -580,6 +580,7 @@
 	function fatal ($txt) {
 		global $username;
 		$time = time();
+		if (!is_dir("tmp")) mkdir("tmp"); 
 		file_put_contents("tmp/error_$time.txt", $txt);
 		print "<h1>Fatal Error</h1><p>A fatal error has occurred
 			<script language=Javascript>top.location='index.php?action=error&msg=$time';</script>";
