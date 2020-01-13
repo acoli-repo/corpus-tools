@@ -1,11 +1,32 @@
 <?php
 	# Module to conveniently edit the settings.xml file
-	if ( !$settingsxml ) { fatal("Failed to load settings.xml");};
 
-	check_login();
+	# In case no settings file has been loaded, recuperate
+	if ( !$settingsxml ) { 
+		if ( !is_dir("Resources") ) mkdir("Resources");
+
+		if ( file_exists("$sharedfolder/Resources/settings.xml") ) {
+			$sharedloaded = 1;
+			$settingsxml =  simplexml_load_file("$sharedfolder/Resources/settings.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING); 			
+			if ( !file_exists("Resources/settings.xml") ) copy("$sharedfolder/Resources/settings.xml", "Resources/settings.xml");
+		} else 
+			$settingsxml =  simplexml_load_file("$ttroot/common/Resources/settings.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING); 
+
+		if ( $sharedloaded ) {
+			$warning = "<p class=wrong>No settings file has been defined yet, below are the settings from the shared folder</p>";
+		} else if ( file_exists("Resources/settings.xml") ) 
+			$warning = "<p class=wrong>Your settings.xml file has been corrupted and is not currently loadable, below are the skeleton default settings</p>";
+		else if ( is_writable("Resources") )
+			$warning = "<p class=wrong>No settings file has been defined yet, below are the skeleton default settings</p>";
+		else 
+			fatal("No settings.xml file has been defined, and the Resources folder is not writable - please fix before continuing");
+	};
+
+	check_login(); 
 
 	$setdef = simplexml_load_file("$ttroot/common/Resources/adminsettings.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$setdef ) { fatal("Failed to load adminsettings.xml");};
+
 
 	$section = $_GET['section'];
 
@@ -254,7 +275,7 @@
 				The customization is mostly done in the settings file, which can be edited here.
 				The settings file is divided into several sections, each addressing a different
 				aspect of the system.
-			<hr>
+			<hr> $warning
 		
 			<table>";
 		

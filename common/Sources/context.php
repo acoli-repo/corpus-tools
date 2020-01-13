@@ -6,7 +6,6 @@
 	$cid = $_GET['cid']; $tid = $_GET['tid']; $pos = $_GET['pos'];
 
 	# Deal with settings
-	$color = $_GET['color'] or $color = $settings['context']['color'] or $color = "#ffffaa";
 	$format = $_GET['format'] or $format = $settings['context']['format'] or $format = "html";
 	if ( isset($_GET['hls']) ) $hls = $_GET['hls']; else if ( isset($settings['context']['hls']) ) $hls = $settings['context']['hls']; else $hls = "1";
 	if ( isset($_GET['header']) ) $withheader = $_GET['header']; else if ( isset($settings['context']['header']) ) $withheader = $settings['context']['header']; else $withheader = 1;

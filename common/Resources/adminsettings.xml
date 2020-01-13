@@ -28,7 +28,9 @@
 	</item>
 	
 	<item key="defaults" display="Some global settings">
+	    <att key="locale" display="Optional definition of the locale settings (not used extensively atm)"/>
 	    <att key="nofiles" display="Do not allow visitors to see the XML file listing" default="0"/>
+	    <att key="wordinfo" display="Clicking on tokens gives wordinfo for visitors (0/1)" default="0"/>
 	    <att key="playbutton" display="Image to use for the playbutton"/>
 	    <att key="fileview" display="Default fileview" default="text">
 			<desc>
@@ -69,6 +71,9 @@
 		    <att key="url" display="Base URL for the site"/> 
 		    <att key="proxy" display="An outgoing Proxy server when loading external resources"/> 
 		    <att key="javascript" display="URL to the Javascript folder" default="http://www.teitok.org/Scripts"/>
+		</item>
+	    <item key="cwblog" display="Keep CQP queries in a log file">
+	    	<att key="file" display="Filename for the log file"/>
 		</item>
 	</item>
 	
@@ -371,6 +376,7 @@
 		<att key="xpath" display="XPath to the text body" default="//text"/> 
 		<att key="linebreaks" display="Interpret linebreaks as lb before tokenization (1/0)" default="0"/> 
 		<att key="mtokform" display="Allow mtoks to have alternative orthographies" default="0"/> 
+		<att key="nogaps" display="Do not convert gaps into [...] but let CSS take care of that (0/1)"/> 
 		<att key="l" display="How to interpret linebreaks">
 			<val key="nolb" display="Only interpret lb as a manuscript line"/>
 			<val key="lbl" display="Interpret both lb and l as manuscript lines"/>
@@ -838,6 +844,20 @@
         </list>
 	</item>
 
+    <item key="context" display="Context REST">
+		<desc>
+			<p>For integration with external tools (such as Kontext), TEITOK allows grabbing XML context 
+				as JSON or HTML data. In this section you can customize some aspects of the output.
+			</p>
+		</desc>
+		<att key="format" display="Output format (JSON/HTML)" default="html"/>
+		<att key="hls" display="Highlight style"/>
+		<att key="header" display="Show header above the context (0/1)" default="1"/>
+		<att key="wordheader" display="Whether to display the word itself (0/1)" default="0"/>
+		<att key="context" display="Size of the context to the displayed (number of tokens or node name)" default="s"/>
+		<att key="link" display="Text for the link to TEITOK" default="View TEITOK document"/>
+	</item>
+	
     <item key="anonymization" display="Automatic anonymization">
 		<desc>
 			<p>For corpora with privacy sensitive data, TEITOK can do rule-based anonymization.</p>

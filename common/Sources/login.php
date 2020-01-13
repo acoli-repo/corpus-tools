@@ -14,7 +14,7 @@
 	if ( $_POST["login"] ) {
 	
 		# Lookup the data for this user in the STAFF database - local or shared when defined
-		$result = $uxml->xpath("//user[@email='{$_POST['login']}']"); 
+		if ( $uxml ) $result = $uxml->xpath("//user[@email='{$_POST['login']}']"); 
 		if ( $result ) {
 			$xrec = $result[0]; 
 			$record['email'] = $xrec['email'].''; 
