@@ -303,7 +303,7 @@
 		libxml_use_internal_errors(true);
 
 		if ( $noempties ) {
-			$xmltxt = preg_replace( "/[a-z]+=\"\"/", "", $xmltxt );
+			$xmltxt = preg_replace( "/ [a-zA-Z0-9]+=\"\"/", "", $xmltxt );
 		};
 
 		$xml = simplexml_load_string($xmltxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);

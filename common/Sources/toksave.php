@@ -107,7 +107,7 @@
 			$dtoktxt = str_replace('<?xml version="1.0"?>', "", $dtoken->asXML());
 			$dtoktxt = preg_replace("/^\s+/", "", $dtoktxt);
 			$dtoktxt = preg_replace("/\s+$/", "", $dtoktxt);
-			$dtoktxt = preg_replace("/ [a-z0-9]+=\"\"/", "", $dtoktxt);
+			$dtoktxt = preg_replace("/ [a-zA-Z0-9]+=\"\"/", "", $dtoktxt);
 			$_POST['word'] .= $dtoktxt;
 		}; # print htmlentities($_POST['word']); exit;
 
