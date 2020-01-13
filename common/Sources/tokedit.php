@@ -297,7 +297,8 @@
 							if ($item['i18n']) $kvaltxt = "{%$kvaltxt}"; 
  							$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
  						}; 
-						sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+						if ( !$item['nosort'] ) sort( $optarr, SORT_LOCALE_STRING ); 
+						$optlist = join ( "", $optarr );
 					} else if ( file_exists("cqp/$key.lexicon") ) {
 						$tmp = file_get_contents("cqp/$key.lexicon"); 
 						$optarr = array();
