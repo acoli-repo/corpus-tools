@@ -102,7 +102,7 @@
 		if ( $_GET['confirm'] ) {
 			# Now really remove the file
 			$basename = preg_replace("/.*\//", "", $filename);
-			if ( !file_exists("Trash") ) mkdir ("Trash");
+			check_folder("Trash");
 			if ( is_writable("Trash") ) {
 				rename($filename, "Trash/$basename");
 				echo "<p>The file $filename has been deleted (moved to the Trash folder).";

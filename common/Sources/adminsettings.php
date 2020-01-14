@@ -5,7 +5,12 @@
 	if ( !$settingsxml ) { 
 		check_folder("Resources", "settings.xml");
 
-		if ( file_exists("$sharedfolder/Resources/settings.xml") ) {
+		if ( file_exists("$sharedfolder/Resources/defaultsettings.xml") ) {
+			$sharedloaded = 1;
+			$settingsxml =  simplexml_load_file("$sharedfolder/Resources/defaultsettings.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING); 			
+			if ( !file_exists("Resources/settings.xml") ) copy("$sharedfolder/Resources/defaultsettings.xml", "Resources/settings.xml");
+			if ( !file_exists("Resources/settings.xml") ) copy("$ttroot/common/Resources/settings.xml", "Resources/settings.xml");
+		} else if ( file_exists("$sharedfolder/Resources/settings.xml") ) {
 			$sharedloaded = 1;
 			$settingsxml =  simplexml_load_file("$sharedfolder/Resources/settings.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING); 			
 			if ( !file_exists("Resources/settings.xml") ) copy("$sharedfolder/Resources/settings.xml", "Resources/settings.xml");

@@ -1,0 +1,38 @@
+/* Paleographic styles */
+#mtxt, #mtxt p { font-size: 14pt; line-height: 20pt; }
+#mtxt s { text-decoration: none; }
+#mtxt note { color: #0000aa; display: none; font-size: 10pt; vertical-align: super; }
+ex { color: #aaaaaa; }
+add { color: #0000ff; }
+del { text-decoration: line-through; color: #aaaaaa;  }
+hi[rend=underlined] { text-decoration: underline;  }
+hi[rend=red] { color: #C00000;  }
+*[rend=center] { text-align: center; display: block; }
+hi[rend=italic] { font-style: italic;  }
+supplied { color: #200099;  }
+#mtxt tok { font-size: 14pt; }
+#mtxt tok:hover { text-shadow: 1pt 1pt #994444;}
+#mtxt hr { background-color: #aaaaaa; }
+unclear { background-color: #cceecc; }
+
+#mtxt tei_div { display: block; }
+#mtxt tei_div::before { content: attr(t); color: #eeeeff }
+
+#mtxt p[speaker=SPK0] { background-color: #ddffdd; }
+#mtxt p[speaker=SPK1] { background-color: #ffeeee; }
+#mtxt tb::before { content: "//"; }
+#mtxt fb::before { content: "/"; }
+
+#mtxt l { display: block; }
+
+#mtxt[show=pform] gap::before { content: '[...]'; color: #bbbbbb; }
+
+#footnotediv {
+    z-index: 50;
+    width: 400px;
+    position: fixed; 
+    top: 10px; right: 10px; 
+    border: 1px solid #cccccc;
+    padding: 20px;
+    background-color: #eeffee;
+}
