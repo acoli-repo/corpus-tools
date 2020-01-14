@@ -139,21 +139,21 @@
 							$kvl = array ( $kva );
 						}
 						
+						$colopts = $settings['xmlfile']['pattributes']['tags'][$col];
 						foreach ( $kvl as $kval ) {
-							if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
-							$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
-						};
-					};
-					foreach ( $kvl as $kval ) {
-						if ( $kval ) {
-							if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
-							if ( $coldef['type'] == "kselect" || $coldef['translate'] ) $kvaltxt = "{%$col-$kval}"; else $kvaltxt = $kval;
-							if ( ( $coldef['type'] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) 
-								$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
+							$kval = trim($kval);
+							if ( $colopts['options'][$kval] ) {
+								$ktxt = $colopts['options'][$kval]['display'];
+								if ( $colopts['i18n'] ) $ktxt = "{%$ktxt}";
+							} else if ( $item['type'] == "kselect" ||  $coldef['translate'] ) $ktxt = "{%$key-$kval}"; 
+							else $ktxt = $kval;
+							
+							if ( $kval && $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
+							$optarr[$kval] = "<option value='$kval' $seltxt>$ktxt</option>"; 
 						};
 					};
 				};
-				sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+				natcasesort( $optarr ); $optlist = join ( "", $optarr );
 				if ( $coldef['select'] == "multi" ) $multiselect = "multiple";
 				
 				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name=vals[$col] $multiselect><option value=''>[{%select}]</option>$optlist</select>";

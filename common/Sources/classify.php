@@ -66,7 +66,7 @@
 
 	if ( $act == "create" ) {
 		
-		if ( !file_exists("Users") ) mkdir ("Users");
+		check_folder ("Users");
 		
 		$file = "Users/ann_$useridtxt.xml"; // TODO: allow superusers to create other files as well?
 		file_put_contents($file, "<annotation author=\"$realname\" id=\"$useridtxt\"></annotation>");

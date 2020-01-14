@@ -75,6 +75,10 @@
 	    <item key="cwblog" display="Keep CQP queries in a log file">
 	    	<att key="file" display="Filename for the log file"/>
 		</item>
+	    <item key="shared" display="Settings for system-wide shared data">
+	    	<att key="url" display="URL for the shared resources"/>
+	    	<att key="folder" display="Path to the shared resources"/>
+		</item>
 	</item>
 	
 	<item key="views" display="Settings for the fileviews">

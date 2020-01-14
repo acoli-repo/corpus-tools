@@ -20,7 +20,7 @@
 		# Handle the PDF document
 		$target_file = "pdf/$fileid.pdf";
 		if (  $_POST['source'] == "file" ) {
-			if ( !file_exists("pdf") ) mkdir ("pdf");
+			check_folder("pdf");
 			if ( !move_uploaded_file($_FILES["pdffile"]["tmp_name"], $target_file) ) {
 				fatal ("File upload failed");
 			}
@@ -39,7 +39,7 @@
 		if ( $_POST['postprocess'] == "page" ) {
 			$editaction = "pagetrans";
 			$savefolder = "pagetrans";
-			if ( !is_dir("pagetrans") ) mkdir("pagetrans");
+			check_folder("pagetrans");
 			fwrite($logfile, "Creating a page-by-page file in pagetrans\n");
 		} else {
 			$editaction = "file";

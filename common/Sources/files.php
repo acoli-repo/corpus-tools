@@ -4,7 +4,8 @@
 	// (c) Maarten Janssen, 2015
 
 	if ( $settings['defaults']['nofiles'] ) check_login();
-	
+
+	check_folder("xmlfiles");	
 	
 	if ( $act == "mkdir" && ( $_POST['name'] )  && $username ) {
 		
@@ -121,7 +122,7 @@
 			
 	} else {
 		// If nothing else, just list the XML files (in a given subfolder)
-		$maintext .= "<h1>{%List of XML files}</h1>";
+		$maintext .= "<h1>{%List of XML files}</h1>"; $cnt = 0;
 	
 		if ( $username ) 
 		$maintext .= "

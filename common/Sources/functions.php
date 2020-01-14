@@ -297,6 +297,19 @@
 		return false;
 	};
 
+	function check_folder($foldername, $filename = "") {
+		// Try to create a folder we need
+		if ( !is_dir($foldername) ) mkdir($foldername); 
+		if ( !is_dir($foldername) ) {
+			if ( $filename != "" ) $withfile = " (with a file <b>$filename</b> inside)";
+			fatal("Cannot create the folder <b>$foldername</b> - please check permissions or create it by hand$withfile"); 		
+		} else {
+			if ( !file_exists("$foldername/$filename") ) touch("$foldername/$filename");
+			if ( !file_exists("$foldername/$filename") ) 
+				fatal("Cannot create the file <b>$filename</b> inside the folder <b>$foldername</b> - please check permissions or create it by hand"); 		
+		};
+	};
+	
 	function saveMyXML ( $xmltxt, $filename, $noempties = true ) {
 		// Safe store XML to file, and keep a backup
 		global $xmlfolder;

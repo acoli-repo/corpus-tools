@@ -3,7 +3,7 @@
 
 	# In case no settings file has been loaded, recuperate
 	if ( !$settingsxml ) { 
-		if ( !is_dir("Resources") ) mkdir("Resources");
+		check_folder("Resources", "settings.xml");
 
 		if ( file_exists("$sharedfolder/Resources/settings.xml") ) {
 			$sharedloaded = 1;
@@ -26,7 +26,6 @@
 
 	$setdef = simplexml_load_file("$ttroot/common/Resources/adminsettings.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	if ( !$setdef ) { fatal("Failed to load adminsettings.xml");};
-
 
 	$section = $_GET['section'];
 

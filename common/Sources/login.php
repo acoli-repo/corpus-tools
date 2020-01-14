@@ -85,6 +85,12 @@
 					};
 				};
 						
+				// If we login as admin and have not done set-up properly, go to checksettings		
+				if ( $user['permissions'] == "admin" && $foldername != $settings['defaults']['base']['foldername'] && $action != "admin" && $action != "adminsettings" && $action != "error"  && !$debug ) {
+					print "<script langauge=Javasript>top.location='index.php?action=admin&act=checksettings';</script>";
+					exit;
+				};
+						
 				// Now - reload 
 				if ( $_GET['goon'] ) $newurl = "top.location='{$_GET['goon']}';";
 				else if ( $_GET['action'] == "login" ) $newurl = "top.location='?action=admin';";
@@ -106,6 +112,7 @@
 			
 		} else {
 			$maintext .= "<h1>Login Failed</h1><p>The username and password you provided do not match."; 
+			$maintext .= "This: ($shared) ".print_r($xrec, 1);
 			messagelog ( "password error: {$_POST['login']} /  {$_POST['password']}" );
 
 		};

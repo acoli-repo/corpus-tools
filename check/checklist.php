@@ -57,13 +57,16 @@
 		print "<p class=right> CQP found, version: {$matches[1]}";
 	};
 
+
 	// Check whether TEITOK (main.php) in common exists in the expected location
-	if ( !file_exists("../common/Sources/tttags.php") ) {
+	$ttroot = getenv("TT_ROOT") or $ttroot = "..";
+	if ( !file_exists("$ttroot/common/Sources/tttags.php") ) {
 		$teitokpath = str_replace("/common/Sources/tttags.php", "", file_locate("common/Sources/tttags.php"));
 		if ( $teitokpath ) {
 			# TODO: Write this to index-off.php
 			print "<p class=warn>TEITOK seems to be installed, but not in a location where it can be found by default.
-				Please change the \$ttroot definition in index-off.php to <b>$teitokpath</b>";
+				Please change the \$ttroot definition in index-off.php to <b>$teitokpath</b>, or set the environment
+				variable TT_ROOT to that value, for instance in the .htaccess file in the root of the TEITOK project(s)";
 		} else {
 			print "<p class=wrong> The common TEITOK files seem not to be installed or are not readable for Apache.
 				Please make the TEITOK common files available.";

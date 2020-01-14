@@ -24,7 +24,7 @@
 		$type = $_POST['type']; if ( !$type ) fatal ("POST data incorrectly set");
 
 		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed for upload");
-		if ( !is_dir($target_folder) ) mkdir($target_folder); # Create the folder if needed
+		check_folder($target_folder); # Create the folder if needed
 
 		if ( $_POST["filename"] ) {
 			$target_file = $target_folder."/".$_POST["filename"];
