@@ -15,19 +15,48 @@
 	$leftpos = $_GET['leftpos'];
 	$rightpos = $_GET['rightpos'];
 	
-	if ( !$leftpos ) $leftpos = $pos;
-	if ( !$rightpos ) $rightpos = $pos;
+	if ( $leftpos == "" ) $leftpos = $pos;
+	if ( $rightpos == "" ) $rightpos = $pos;
 
-	$fileid = "xmlfiles/$cid.xml"; $outfolder = "cqp"; $leftpos = $pos; $expand = "--expand=$context";
+	$fileid = "xmlfiles/$cid.xml"; 
+	$outfolder = "cqp"; 
 	$xidxcmd = findapp("tt-cwb-xidx");
+	
+	# If we do not have a left/right position 
+	if ( $leftpos == "" ) {
+		if ( $tid ) {
+			# lookup the position in CQP
+			include ("$ttroot/common/Sources/cwcqp.php");
+			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+			$cqp = new CQP();
+			$cqp->exec($cqpcorpus); // Select the corpus
+			$cqp->exec("set PrettyPrint off");
+			$cqp->exec("Matches = [id=\"$tid\"] :: match.text_id=\"$fileid\"");
+			$pos = $cqp->exec("tabulate Matches match");
+			$leftpos = $pos; $rightpos = $pos;
+		} else {
+			print "No position or token ID indicated"; exit;
+		};
+	};
+	
+	if ( preg_match("/^\d+$/", $context) ) {
+		$leftpos -= $context;
+		$rightpos += $context;
+	} else {
+		$expand = "--expand=$context";
+	};
 
-	$leftpost = $pos;
-	
-	# If we do not have a tid, look it up
+	# If we do not have a tid, look it up (so that we can highlight the word)
 	if ( !$tid ) {
-		
+		include ("$ttroot/common/Sources/cwcqp.php");
+		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		$cqp = new CQP();
+		$cqp->exec($cqpcorpus); // Select the corpus
+		$cqp->exec("set PrettyPrint off");
+		$lupos = $pos or $lupos = $leftpos;
+		$cqp->exec("Matches = [] :: match=$lupos");
+		$tid = chop($cqp->exec("tabulate Matches match id"));
 	};	
-	
 	
 	if ( $hls ) $hlstyle = "<style>tok[highlight] { background-color: #ffee77; }</style>";
 
@@ -57,7 +86,7 @@
 	if ( $format == "json" ) {
 		print "{'results': '$resxml'}";
 	} else {
-		$resxml = preg_replace("/<tok /", "<tok onmouseover=\"window.showtokinfo(this)\" onmouseout=\"window.hidetokinfo();\"", $resxml );
+		$resxml = preg_replace("/<tok /", "<tok onmouseover=\"window.showtokinfo(this)\" onmouseout=\"window.hidetokinfo();\" ", $resxml );
 
 		$tagdef = array2json($settings['xmlfile']['pattributes']['tags']); 
 
