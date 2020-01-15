@@ -3,6 +3,7 @@
 	// (c) Maarten Janssen, 2015
 
 	check_login();
+	check_folder("Pages");
 	$id = $_GET['id'];
 	$deflang = $settings['languages']['default'] or $deflang = "en";
 
