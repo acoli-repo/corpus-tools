@@ -1,5 +1,6 @@
 <?php	
 	check_login();
+	check_folder("cqp");
 			
 	$maintext .= "<h1>Regenerating the CQP Corpus</h1>";
 	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
