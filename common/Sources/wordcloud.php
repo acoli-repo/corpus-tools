@@ -44,6 +44,7 @@
 		foreach ( explode("\n", $result) as $line ) {
 			list ( $word, $size ) = explode ( "\t", $line);
 			$word = str_replace("'", "\'", $word);
+			$word = str_replace("\\", "\\\\", $word);
 			if ( $size) $wordlist .= " { text:'$word', size: $size},\n";
 			if ( $cnt++ > $max ) break;
 		};
