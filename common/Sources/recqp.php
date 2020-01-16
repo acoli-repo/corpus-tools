@@ -70,13 +70,15 @@
 					}, 10 * 1000);
 				</script>";
 			
-	} else if ( ( file_exists("Scripts/recqp.pl") || file_exists("../common/Scripts/recqp.pl") ) && !$_GET['check'] && !$_GET['force'] ) {
+	} else if ( ( file_exists("Scripts/recqp.pl") || file_exists("$sharedfolder/Scripts/recqp.pl") || file_exists("$ttroot/common/Scripts/recqp.pl") ) && !$_GET['check'] && !$_GET['force'] ) {
 
 
 		if ( ( file_exists("cqp/word.corpus")	&& !is_writable("cqp/word.corpus") ) || !is_writable("cqp") ) 
 			fatal("The permissions on the CQP files prevent the system from writing them");		
 
-		if ( file_exists("Scripts/recqp.pl") ) $scriptname = "Scripts/recqp.pl"; else $scriptname = "../common/Scripts/recqp.pl";	
+		if ( file_exists("Scripts/recqp.pl") ) $scriptname = "Scripts/recqp.pl"; 
+		else if ( file_exists("$sharedfolder/Scripts/recqp.pl") ) $scriptname = "$sharedfolder/Scripts/recqp.pl"; 
+		else $scriptname = "../common/Scripts/recqp.pl";	
 		$maintext .= "
 			<p>Currently, the CQP Corpus called {$settings['cqp']['corpus']} is regenerated based on the current
 				content of the XML files in ({$settings['cqp']['searchfolder']}).
@@ -116,7 +118,8 @@
 		if ( 
 			( !file_exists("Scripts/recqp.pl") && !is_writable("Scripts/") )
 			||
-			( file_exists("Scripts/recqp.pl") && !is_writable("Scripts/recqp.pl") )
+			( file_exists("Scripts/recqp.pl") && !is_writable("Scripts/recqp.pl") 
+			)
 		) { fatal("Permission denied while trying to (re)generate recqp.pl - please contact admin"); };
 	
 		$maintext .= "<p>The generation script is currently being created (again).";
