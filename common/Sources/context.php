@@ -60,7 +60,7 @@
 	
 	if ( $hls ) $hlstyle = "<style>tok[highlight] { background-color: #ffee77; }</style>";
 
-	$cmd = "$xidxcmd --filename=$fileid --cqp='$outfolder' $expand $leftpos $rightpos";
+	$cmd = "$xidxcmd --filename='$fileid' --cqp='$outfolder' $expand $leftpos $rightpos";
 	$resxml = shell_exec($cmd);
 
 	$cssfile = file_get_contents("Resources/xmlstyles.css");

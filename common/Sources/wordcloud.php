@@ -25,13 +25,17 @@
 
 		$textid = $_POST['id'] or $textid = $_POST['cid'];
 		$cql = $_GET['cql'];
-		if ( !$cql ) {
+		if ( !$cql && $textid ) {
 			$cql = "[$rest] :: match.text_id=\"xmlfiles/$textid\"";
 			$textrest = " :: match.text_id=\"xmlfiles/$textid\"";
 		};
 		$cql = "Matches = $cql";
 		$cqp->exec($cql); // Select the corpus
-		$cql3 = "group Matches match $titfld";
+		
+		if ( strstr($pos, "@") !== false ) $match = "target";
+		else $match = "match";
+		
+		$cql3 = "group Matches $match $titfld";
 		$result = $cqp->exec($cql3); $sep = ""; // Select the corpus
 		foreach ( explode("\n", $result) as $line ) {
 			list ( $doc, $size ) = explode ( "\t", $line);
