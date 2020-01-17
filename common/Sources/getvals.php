@@ -52,7 +52,7 @@
 						if ( $val2['value'] == $tttags->tagset['noval'] ) $fval =  "<i style='color: #aaaaaa;'>none</i>";
 						else $fval = "<i class=wrong>".$val2['value']."</i>";
 					};
-					$display .= "$fval; ";
+					$display .= "<span title='$key2'>$fval</span>; ";
 				};
 				$display = preg_replace("/; *$/", "", $display);
 			} else $display = $val;
