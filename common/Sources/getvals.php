@@ -49,7 +49,7 @@
 				foreach ( $tmp as $key2 => $val2 ) {
 					$fval = $val2['display'];
 					if ( !$fval ) {
-						if ( $val2['value'] == $tttags->tagset['noval'] ) $fval =  "<i style='color: #aaaaaa;'>".$val2['value']."</i>";
+						if ( $val2['value'] == $tttags->tagset['noval'] ) $fval =  "<i style='color: #aaaaaa;'>none</i>";
 						else $fval = "<i class=wrong>".$val2['value']."</i>";
 					};
 					$display .= "$fval; ";
