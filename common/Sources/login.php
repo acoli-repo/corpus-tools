@@ -112,7 +112,6 @@
 			
 		} else {
 			$maintext .= "<h1>Login Failed</h1><p>The username and password you provided do not match."; 
-			$maintext .= "This: ($shared) ".print_r($xrec, 1);
 			messagelog ( "password error: {$_POST['login']} /  {$_POST['password']}" );
 
 		};
