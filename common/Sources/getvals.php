@@ -47,7 +47,11 @@
 			else if ( $tagfld ) {
 				$tmp = $tttags->analyse($val); $display = "";
 				foreach ( $tmp as $key2 => $val2 ) {
-					$fval = $val2['display'] or $fval = "<i class=wrong>".$val2['value']."</i>";
+					$fval = $val2['display'];
+					if ( !$fval ) {
+						if ( $val2['value'] == $tttags->tagset['noval'] ) $fval =  "<i style='color: #aaaaaa;'>".$val2['value']."</i>";
+						else $fval = "<i class=wrong>".$val2['value']."</i>";
+					};
 					$display .= "$fval; ";
 				};
 				$display = preg_replace("/; *$/", "", $display);
