@@ -354,8 +354,8 @@
 				$key = $fldrec->getName();
 			};
 			$val = $fldrec."";
-			$fldval = current($record->xpath($key));
-			if ( !$fldval ) continue;
+			$fldval = current($record->xpath($key))."";
+			if ( $fldval == "" ) continue;
 			if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
 			if ( $fldrec['type'] == "xml" || $fldrec['type'] == "rte" ) {
 				if ( !$fldrec['notitle'] ) $maintext .= "<tr><th span='row'>{%$val}</th><td colspan=2>".$fldval->asXML();
