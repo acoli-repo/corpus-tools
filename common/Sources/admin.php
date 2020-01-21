@@ -118,6 +118,18 @@
 			$maintext .= "<p class=wrong>There are files with the same name in the xmlfiles folder, which is not allowed in TEITOK - each XML files needs a unique filename. Below is the list of conflicting files
 				<pre>$results</pre>";
 		};
+		
+		# Check some inconsistent setings files
+		$tmp = $settings['cqp']['defaults']['subtype'];
+		if ( $tmp && !$settings['cqp']['sattributes'][$tmp] ) {
+			# Default Context view needs to exist
+			$maintext .= "<p class=wrong>Your default CQP context is set to $tmp, but there is no such level defined in the CQP settings</p>";
+		};
+		$tmp = $settings['cqp']['defaults']['context'];
+		if ( $tmp && !$settings['cqp']['sattributes'][$tmp] ) {
+			# Default Context view needs to exist
+			if ( !preg_match("/^\d+$/", $tmp) ) $maintext .= "<p class=wrong>Your default CQP context is set to $tmp, but there is no such level defined in the CQP settings</p>";
+		};
 			
 	} else if ( $act == "checksettings" ) {
 	

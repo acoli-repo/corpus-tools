@@ -45,7 +45,6 @@
 	    		<item key="end" display="End" nosearch="1" xpath="@end"/>
 		    </item>
 		</sattributes>
-	    <defaults searchtype="context" subtype="u"/>
 	</cqp>
 
 	<!-- Definition of the items to be used in the XML files -->	

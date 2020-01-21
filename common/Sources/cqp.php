@@ -488,6 +488,7 @@
 					if ( preg_match("/d-.*-1/", $m2t ) ) $moreactions .= "\nhllist('$m2t', 'r-$i', '#ffffff'); ";
 				};
 
+				
 				if ( !$noprint ) $editxml .= "\n<tr id=\"r-$i\" tid=\"$fileid\"><td><a href='index.php?action=$fileview&amp;cid=$fileid&amp;jmp=$match' style='font-size: 10pt; padding-right: 5px;' title='$fileid' target=view>{%context}</a></td>
 					$audiobut
 					<td $resstyle>$resxml</td></tr>";
