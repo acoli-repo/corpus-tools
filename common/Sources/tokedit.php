@@ -574,8 +574,6 @@
 		# Allow adding/deleting tokens 
 		$maintext .= "
 		<hr>
-			$tagbuilder 
-			$lookupform
 			$warning
 		<!-- <a href=''>join to previous token</a> &bull;  -->
 			insert tok after:
@@ -710,6 +708,8 @@
 		&bull; <a href='index.php?action=wordinfo&cid=$fileid&tid=$tokid'>Token Details</a>
 		
 		</form>
+		$tagbuilder
+		$lookupform
 		";
 
 		// Add a session logout tester
