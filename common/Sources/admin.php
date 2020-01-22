@@ -57,7 +57,7 @@
 			"Resources" => array ( "w", "contains all the settings", "TEITOK will not be able to save changes to the settings" ), 
 			"xmlfiles" => array ( "w", "contains all the XML files", "TEITOK will not be able to save or modify corpus documents" ), 
 			"Trash" => array ( "w", "contains deleted files", "TEITOK will not be able to store deleted file, which will hence disappear" ), 
-			"tmp" => array ( "w", "contains temporary files", "TEITOK will not be to store temporary files used in various computational processes" ), 
+			"tmp" => array ( "w", "contains temporary files", "TEITOK will not be to store temporary files used in various computational processes and things like error messages" ), 
 			"Pages" => array ( "w", "contains HTML files", "TEITOK will not be to save or modify static HTML pages for the project" ), 
 		);
 		
@@ -65,7 +65,7 @@
 			list ( $rw, $explanation, $failure ) = $value;
 			
 			if ( $rw == "w" && !is_writable($key) ) {
-				$maintext .= "<p class=wrong> The folder $key (which $explanation) should be writable for Apache or $failure";
+				$maintext .= "<p class=wrong> The folder $key (which $explanation) should be writable for PHP or $failure";
 				$foldererrors = 1;
 			};
 		};

@@ -21,6 +21,7 @@
 		
 		$cmd = preg_replace ( "/\[fn\]/", "$xmlfolder/{$_GET['file']}", $cmd );
 		$cmd = preg_replace ( "/\[id\]/", "$id", $cmd );
+		$cmd = preg_replace ( "/\[dir\]/", "$thisdir", $cmd );
 		
 		# print $cmd; exit;
 		$res = htmlentities(shell_exec($cmd));
