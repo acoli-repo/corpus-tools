@@ -115,7 +115,7 @@
 			};
 		};
 	};
-	if ( $action == "index" || $action == "" || $action == "main" ) $action = "home";
+	if ( $action == "index" || $action == "" || $action == "main" ) $action = $settings['defaults']['home'] or $action = "home";
 	$act = $_GET['act'];
 	if ( $_GET['debug'] ) $debug = 1;
 
