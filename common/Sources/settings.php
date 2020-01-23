@@ -30,7 +30,6 @@
 		if ( !is_array($sharr) ) return;
 		if ( $sharr['noshare'] || $starr['noshare'] ) return; # Shared settings can be marked as not-to-read
 		foreach ( $sharr as $key => $val ) {
-			if ( !$starr[$key] ) continue;
 			if ( is_array($val) ) {
 				readinshared($val, $starr[$key]);
 			} else if ( !array_key_exists($key, $starr) ) {
