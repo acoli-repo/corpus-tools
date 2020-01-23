@@ -84,7 +84,12 @@
 		$baseurl = str_replace("/$lang/", '/', $baseurl );
 	};
 	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
-
+	
+	# Set the base META tag when asked
+	$baseurl = str_replace("{project}", $foldername, $baseurl);
+	if ( $settings['defaults']['base']['meta'] ) {
+		$moresmarty{'baseurl'} = $baseurl;
+	}; 
 
 	// Determine where to get the Javascript files from
 	if ( $settings['defaults']['base']['javascript'] ) {
