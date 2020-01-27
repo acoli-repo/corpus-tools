@@ -186,6 +186,12 @@
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";
 			};
 		};
+		foreach ( $settings['cqp']['annotations'] as $lvl ) {
+			foreach ( $lvl as $xatt ) {
+				if ( !$xatt['display'] || !$xatt['key'] || !is_array($xatt) ) continue;
+				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";
+			};
+		};
 		
 		// Pass i18n to Javascript
 		$prescript .= "var pattname = [];\n var jstrans = []; \n$jsnames";
