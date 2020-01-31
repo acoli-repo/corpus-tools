@@ -319,12 +319,16 @@ class TTXML
 		return $mtxt;
 	}
 	
-	function context( $tokid ) {
+	function context( $tokid, $size="", $highlight = false ) {
 		# Return a restricted part of the text
 		global $settings;
 		$tmp = $this->xml->xpath("//*[@id='$tokid']"); $token = $tmp[0];
 		if ( !$token ) return "";
-		$tmp = $token->xpath("ancestor::s | ancestor::l | ancestor::p");
+		
+		if ( !$size ) {
+			$tmp = $token->xpath("ancestor::s | ancestor::l | ancestor::p");
+		} else $tmp = "";
+			
 		if ( $tmp ) {	
 			$sent = $tmp[0];
 			$editxml = $sent->asXML();
@@ -337,10 +341,24 @@ class TTXML
 		} else {
 			# TODO: Show a reasonably sized context
 			# Until defined, just show the first parent node
-			$tmp = current($token->xpath(".."));
-			if ( $tmp ) $context = $tmp->asXML();
+
+			if ( !$size ) $size = 7; # Default to 7 token window (left/right)
+			$tmp = $this->rawtext;
+			$tokpos = strpos($tmp, "id=\"$tokid\""); 
+			$tokbef = $tokpos;
+			for ( $i=0; $i<$size; $i++ ) $tokbef = rstrpos($tmp, "<tok ", $tokbef-1);
+			if ( !$tokbef ) $tokbef = strpos($tmp, "<tok ");
+			$tokaft = $tokpos+1;
+			for ( $i=0; $i<$size+1; $i++ ) $tokaft = strpos($tmp, "<tok ", $tokaft+1); 
+			if ( !$tokaft ) $tokaft = rstrpos($tmp, "<tok ");
+
+			
+			$context = substr($tmp, $tokbef, $tokaft-$tokbef);
+			
 		};
 		
+		if ( $highlight ) $context = preg_replace("/ (id=\"$tokid\")/", " \\1 hl=\"1\"", $context);
+
 		return $context;
 	}
 	
