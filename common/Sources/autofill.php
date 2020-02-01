@@ -64,6 +64,9 @@
 			$froms[$from]++;
 		};
 			
+		# See if we need to restrict the query
+		if ( $_POST['frest'] ) { $frest = " :: {$_POST['frest']}"; };	
+			
 		# Build the query
 		$sep = ""; $sep2 = "";
 		foreach ( array_keys($_POST['from']) as $fkey ) { 
@@ -81,7 +84,7 @@
 			<table id=toktable>
 			<tr><th>TOKID<th>Context<th>Current<th>Autofill options";
 		foreach ( $froms as $key => $val ) {
-			$cmd = "/bin/echo 'Matches = [$key]; group Matches $mq;' | $ttcqp";
+			$cmd = "/bin/echo 'Matches = [$key] $fr; group Matches $mq;' | $ttcqp";
 			$result = shell_exec($cmd); $resarr = array(); $mainres = ""; $max = 0;
 			foreach( explode("\n", $result) as $resline ) {
 				if ( preg_match("/^(.*)\s+(\d+)$/", $resline, $matches) ) { 
@@ -167,6 +170,8 @@
 			<tr><th>Conditions<th>Fill-in
 			<tr><td>$condlist<td>$filllist
 			</table>
+			<p>Lookup conditions: <input name=frest size=40> p.e.: <i style='color: #bbbbbb'>match.text_normalized=\"1\"</i>
+			<p><input name=force type=checkbox value=\"1\"> Also auto-fill words that already have a filled value
 			<p><input type=submit value='Start'>
 			</form>
 			";

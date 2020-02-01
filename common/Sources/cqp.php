@@ -270,7 +270,6 @@
 
 		$max = $_POST['max'] or $max = $_GET['max'] or $max = $cqpmax or $max = 100; $_POST['max'] = $max;
 		$start = $_POST['start'] or $start = $_GET['start'] or $start = 0; $_POST['start'] = $start;
-		$end = $start + $max;
 
 		# To make sure that we can modify our query, create a hidden post
 		$maintext .= "\n<form action='' method=post id=resubmit name=resubmit>";
@@ -293,6 +292,9 @@
 		$maintext .= $subtit;
 		$cqp->exec("Matches = ".$cql);
 		$cnt = $cqp->exec("size Matches");
+		
+		$end = min($cnt, $start + $max); $before = max(0, $start - $max);
+
 			if ( $debug ) $maintext .= "<p>Matches = $cql";
 		if ( $cnt == 0 ) {
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
@@ -340,9 +342,10 @@
 			$resarr = explode ( "\n", $results ); $scnt = count($resarr);
 			$maintext .= "<p>$cnt {%results}";
 			if ( $scnt < $cnt ) {
-				$maintext .= " &bull; {%!showing} $start - $end *
-				(<a onclick=\"document.getElementById('rsstart').value ='$end'; document.resubmit.submit();\">{%next}</a>)";
+				$maintext .= " &bull; {%!showing} $start - $end";
 			};
+			if ( $start > 0 ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$before'; document.resubmit.submit();\">{%previous}</a>";
+			if ( $end < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$end'; document.resubmit.submit();\">{%next}</a>";
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
 				<table><tr><th>ID$moreth";
 			foreach ( $resarr as $line ) {
@@ -385,10 +388,10 @@
 			$resarr = explode ( "\n", $results ); $scnt = count($resarr);
 			$maintext .= "<p>$cnt {%results}";
 			if ( $scnt < $cnt ) {
-				$last = min($end,$cnt);
-				$maintext .= " &bull; {%!showing} $start - $last";
-				if ($end<$cnt) $maintext .= " (<a onclick=\"document.getElementById('rsstart').value ='$end';  document.resubmit.submit();\">{%next}</a>)";
+				$maintext .= " &bull; {%!showing} $start - $end";
 			};
+			if ( $start > 0 ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$before'; document.resubmit.submit();\">{%previous}</a>";
+			if ( $end < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$end'; document.resubmit.submit();\">{%next}</a>";
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>";
 
 			$maxmatchlength = 0;
