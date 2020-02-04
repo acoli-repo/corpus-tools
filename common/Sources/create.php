@@ -283,7 +283,7 @@
 		$maintext .= "<p><input checked type=radio name=body value='nobody' onChange='bodychoose(this);'> Leave empty";
 
 		# Paste as HTML
-		$maintext .= "<p><input type=radio name=body value='html' onChange='bodychoose(this);'> Create from HTML
+		$maintext .= "<p><input type=radio name=body value='html' onChange='bodychoose(this);'> Create as WYSIWYG (or paste from Word, etc.)
 			<div id='html' style='display: none; padding-left: 40px;'>
 				<p><i>Here you can write or paste rich text, which will then be converted to TEI/XML. This conversion keeps only limited typesetting information, and can only be used for the initial creation of the XML file; after the file is in TEI/XML this editor will no longer work.</i></p>";
 		$maintext .= "<script type=\"text/javascript\" src=\"$tinymceurl\"></script>";
@@ -331,7 +331,7 @@
 		$maintext .= "</div>";
 
 		# Post as shorthand
-		$maintext .= "<p><input type=radio name=body value='shorthand' onChange='bodychoose(this);'> Create from plain text (with shorthand)
+		$maintext .= "<p><input type=radio name=body value='shorthand' onChange='bodychoose(this);'> Create from plain text
 			<div id='shorthand' style='display: none; padding-left: 40px;'>
 				<p>Paste text - double lines breaks will convert to paragraphs
 				<textarea name=shorthand style='height: 300px; width: 100%'></textarea>"; # , and code can be used for (delete) and &lt;expand&gt;: 

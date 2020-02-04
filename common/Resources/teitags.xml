@@ -1,0 +1,117 @@
+<tags>
+<item key="ab" display="anonymous block">
+</item>
+<item key="add" display="added later">
+	<atts>
+		<item key="place" display="where the text was added"/>
+		<item key="hand" display="who added the text"/>
+	</atts>
+</item> 
+<item key="cb" display="column beginning">
+	<atts>
+		<item key="n" display="column number"/>
+	</atts>
+</item>
+<item key="del" display="deleted by author">
+	<atts>
+		<item key="rend" display="way of deleting"/>
+	</atts>
+</item>
+<item key="div" display="text division">
+</item>
+<item key="foreign" display="in another language">
+	<atts>
+		<item key="lang" display="language"/>
+	</atts>
+</item>
+<item key="gap" display="untranscribed text">
+	<atts>
+		<item key="reason" display="reason why text not transcribed"/>
+		<item key="agent" display="cause of damage"/>
+		<item key="quantity" display="size of gap"/>
+	</atts>
+</item>
+<item key="hi" display="highlighted text">
+	<atts>
+		<item key="rend" display="rendering"/>
+	</atts>
+</item>
+<item key="kinesic" display="non-vocalic (spoken)">
+</item>
+<item key="l" display="line (in a verse)">
+	<atts>
+		<item key="met" display="metrical structure (conventional)"/>
+		<item key="real" display="metrical structure (real)"/>
+		<item key="rhyme" display="rhyme scheme"/>
+	</atts>
+</item>
+<item key="lb" display="line beginning">
+	<atts>
+		<item key="n" display="line number"/>
+	</atts>
+</item>
+<item key="lg" display="line group (in a verse)">
+	<atts>
+		<item key="type" display="type of group"/>
+	</atts>
+</item>
+<item key="m" display="morpheme">
+</item>
+<item key="milestone" display="marker in text">
+	<atts>
+		<item key="type" display="type of marker"/>
+	</atts>
+</item>
+<item key="note" display="explanatory note">
+</item>
+<item key="p" display="paragraph">
+</item>
+<item key="pause" display="pause (spoken)">
+	<atts>
+		<item key="dur" display="duration"/>
+		<item key="type" display="type of pause"/>
+	</atts>
+</item>
+<item key="pb" display="page beginning">
+	<atts>
+		<item key="n" display="page number"/>
+		<item key="facs" display="facsimile image"/>
+		<item key="rend" display="image cut-out"/>
+	</atts>
+</item>
+<item key="q" display="quotation">
+</item>
+<item key="s" display="sentence">
+	<atts>
+		<item key="type" display="type of sentence"/>
+	</atts>
+</item>
+<item key="seg" display="arbitrary segment">
+</item>
+<item key="supplied" display="estimated content">
+	<atts>
+		<item key="confidence" display="confidence in the transcription"/>
+		<item key="reason" display="reason why text had to be supplied"/>
+	</atts>
+</item>
+<item key="tok" display="token">
+	<atts>
+		<item key="form" display="written form"/>
+	</atts>
+</item>
+<item key="u" display="utterance (spoken)">
+	<atts>
+		<item key="who" display="speaker ID"/>
+		<item key="start" display="start time"/>
+		<item key="end" display="end time"/>
+	</atts>
+</item>
+<item key="unclear" display="seemingly readable text">
+	<atts>
+		<item key="agent" display="type of damage"/>
+		<item key="reason" display="reason why difficult"/>
+	</atts>
+</item>
+<item key="vocal" display="non-word (spoken)">
+</item>
+</tags>

@@ -83,6 +83,12 @@
 
 	if ( $_GET['view'] != "wysiwyg" ) $editxml = htmlentities($editxml, ENT_COMPAT, 'UTF-8');
 	
+	if ( file_exists("Resources/teitags.xml") )  $tmp = "Resources/teitags.xml";
+	else if ( file_exists("$sharedfolder/Resources/teitags.xml") )  $tmp = "$sharedfolder/Resources/teitags.xml";
+	else $tmp = "$ttroot/common/Resources/teitags.xml";
+	$teilist = array2json(xmlflatten(simplexml_load_string(file_get_contents($tmp))));
+	
+	$acelturl = str_replace("ace.js", "ext-language_tools.js", $aceurl);
 	$maintext .= "
 		<div id=\"editor\" style='width: 100%; height: 400px;'>".$editxml."</div>
 	
@@ -92,10 +98,52 @@
 		</form>
 		
 		<script src=\"$aceurl\" type=\"text/javascript\" charset=\"utf-8\"></script>
+		<script src=\"$acelturl\" type=\"text/javascript\" charset=\"utf-8\"></script>
 		<script>
 			var editor = ace.edit(\"editor\");
 			editor.setTheme(\"ace/theme/chrome\");
 			editor.getSession().setMode(\"ace/mode/xml\");
+
+			var teiList = $teilist;
+			var langTools = ace.require(\"ace/ext/language_tools\");
+
+			var myCompleter = {
+				getCompletions: function(editor, session, pos, prefix, callback) {
+					var optList = {};
+					if ( session.getTokenAt(pos.row,pos.column).type == 'meta.tag.tag-name.xml' || session.getTokenAt(pos.row,pos.column).type == 'text.tag-open.xml' ) {
+						optList = teiList;
+					} else if ( session.getTokenAt(pos.row,pos.column).type == 'entity.other.attribute-name.xml' || session.getTokenAt(pos.row,pos.column).type == 'text.tag-whitespace.xml' ) {
+						// Get the node this attribute belongs to
+						var prnt;
+						for ( var i=pos.column; i>-1; i--  ) {
+							if ( session.getTokenAt(pos.row,i).type == 'meta.tag.tag-name.xml' ) {
+								prnt = session.getTokenAt(pos.row,i).value;
+								break;
+							};
+						};
+						if ( teiList[prnt] )  optList  = teiList[prnt]['atts'];
+					};
+					console.log(prnt); console.log(optList);
+					if ( optList !== undefined && Object.keys(optList).length > 0 ) {
+						callback(
+							null,
+							Object.keys(optList).filter(entry=>{
+								return entry[0].startsWith(prefix);
+							}).map(entry=>{
+								return {
+									value: entry, meta: optList[entry]['display']
+								};
+							})
+						);
+					}; // else { console.log(session.getTokenAt(pos.row,pos.column)); };
+				}
+			}
+			langTools.setCompleters([myCompleter]);
+			editor.setOptions({
+				enableBasicAutocompletion: true,
+				enableLiveAutocompletion: true,
+				enableSnippets: false
+			});
 			
 			function runsubmit ( ) {
 				var rawxml = editor.getSession().getValue();
