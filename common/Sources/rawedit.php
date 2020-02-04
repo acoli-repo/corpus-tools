@@ -122,8 +122,8 @@
 							};
 						};
 						if ( teiList[prnt] )  optList  = teiList[prnt]['atts'];
+					} else if ( session.getTokenAt(pos.row,pos.column).type == 'string.attribute-value.xml' ) {
 					};
-					console.log(prnt); console.log(optList);
 					if ( optList !== undefined && Object.keys(optList).length > 0 ) {
 						callback(
 							null,
