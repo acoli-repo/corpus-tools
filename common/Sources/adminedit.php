@@ -12,12 +12,11 @@
 		"htmlstyles.css" => "CSS definitions for the overall site layout",
 		"xmlstyles.css" => "CSS definitions for the actual text in the XML files",
 		"teiHeader.tpl" => "Header info - short style",
-		"teiHeader-long.tpl" => "Header info - long style",
 		"teiHeader-edit.tpl" => "Header info - edit version",
 		"settings.xml" => "Overall TEITOK settings",
 		"userlist.xml" => "File with user permissions",
 		"tagset.xml" => "Definition of the tagset",
-		"filelist.xml" => "Metadata file (can be too large to edit)",
+		"teitags.xml" => "TEI autocompletion definitions",
 		// deprecated
 		// "verticalize.xslt" => "XSLT for creating the CQP corpus",
 		// "neotag.xslt" => "XSLT for creating verticalized input for the NeoTag POS tagger",
