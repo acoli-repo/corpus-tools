@@ -17,12 +17,16 @@
 		<item key="rend" display="way of deleting"/>
 	</atts>
 </item>
+<item key="desc" display="desciption of parent elm">
+</item>
 <item key="div" display="text division">
 </item>
 <item key="foreign" display="in another language">
 	<atts>
 		<item key="lang" display="language"/>
 	</atts>
+</item>
+<item key="fw" display="running head">
 </item>
 <item key="gap" display="untranscribed text">
 	<atts>
@@ -62,6 +66,8 @@
 		<item key="type" display="type of marker"/>
 	</atts>
 </item>
+<item key="name" display="proper name">
+</item>
 <item key="note" display="explanatory note">
 </item>
 <item key="p" display="paragraph">
@@ -86,13 +92,27 @@
 		<item key="type" display="type of sentence"/>
 	</atts>
 </item>
+<item key="sic" display="apparently incorrect">
+</item>
 <item key="seg" display="arbitrary segment">
+</item>
+<item key="space" display="significant space">
+	<atts>
+		<item key="dim" display="horizontal/vertical"/>
+		<item key="quantity" display="amount of space"/>
+	</atts>
+</item>
+<item key="span" display="annotation span">
 </item>
 <item key="supplied" display="estimated content">
 	<atts>
 		<item key="confidence" display="confidence in the transcription"/>
 		<item key="reason" display="reason why text had to be supplied"/>
 	</atts>
+</item>
+<item key="surplus" display="redundant text">
+</item>
+<item key="term" display="technical term">
 </item>
 <item key="tok" display="token">
 	<atts>

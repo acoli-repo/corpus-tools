@@ -1,5 +1,122 @@
 # Change Log
 
+
+## [Version 2.8](https://gitlab.com/maartenes/TEITOK/tags/v2.8) (Jan 13, 2020)
+
+### Improvements 
+
+* Server-wide things can now be defined in system variables (SMARTY\_DIR, TT\_ROOT, and TT\_SHARED)
+* Added a GUI to metadata settings
+* Added a stats module providing statistical calculations
+* Added fixed list value field in tokedit to select from CQP or predefined values; also can be used in tokinfo rollover
+* Added tag builder to tokedit
+* Added lookup to tokedit, which checks possible values for a field (say all known @pos for a @form)
+
+### Bug fixes
+
+* Improved licence claim
+* Solved a bug in QB tag builder
+* Corrected the SESSION check in check folder
+* Fixed a bug when determining the folder name of the project
+* Fixed a bug in the noval for the tagset
+* Solved some bugs in tt-cwb-encode (requires recompilation)
+
+## [Version 2.7](https://gitlab.com/maartenes/TEITOK/tags/v2.7) (Nov 20, 2019)
+
+* Added more options to adminsettings
+* TEITOK now creates folders when needed (and possible)
+* Added sharedfolder checks where still missing
+* Added tokinfo rollover to context module
+* Improved contraction searches in QB
+* Solved from bugs when using TEITOK under https
+
+### Improvements 
+
+* Added appalign to align two versions of a text on their @appid
+* The tokens in the tree view in deptree now highlight upon mouseover in the sentence view
+* &lt;gap/&gt; can now be handled in CSS instead of JS
+* Added a tokinfo window that shows when visitors click on tokens
+* Added a script to download external facsimile images locally to prevent broken links
+* The Query Builder can now handle known contractions in simple query 
+* Added the option to have a TOC for documents
+* Added a context module, which can provide a TEITOK context as REST (used for Kontext integration)
+* The dependency tree can now add a root node
+* Added the option to store files in a sharedfolder to apply to all projects on a server
+* Added a matchlist module that can create a table with info on matches for a simple query
+* The query builder can now have "within" selections
+* Added a wordcloud module
+
+### Bug fixes
+
+* Brought INSTALL.md up-to-date
+* Solved some bugs in stand-off annotation
+* Solved some bugs in the CQL parser
+* Solved some bugs in pageflow
+* Improved handling of mtoks in tokedit
+* Solved some bugs preventing normalized spaces from getting hidden
+* Added a @empty on tokens to be able to hide empty elements completly, and not leave their :before and :after as ghosts
+* Made downloading SVG images work again
+* Added more options to adminsettings
+* tokinfo now shows the form of the tok when a dtok has no form
+* Solved an issue with &amp; getting mangled in tokenization
+* Improved text view switching in stand-off
+* Simplified the largely redundant rawcqp module
+* Login now correctly reports users with nologin
+* Solved some bugs in shorturl
+* The menu can now contain links to external URL
+* Solved some bugs in pagetrans
+* Removed redundant i18n calls
+* tagset verification can now be told about a noval
+* Text options now hidden when Javascript fails to load
+* Made merge left in tokedit work better with large XML files
+* focusform can now be customized (form that gets focus in tokedit)
+* Removed redundant tokview module
+* Upload can now control maxfilesize
+* Added a fallback to visualize when tt-cqp is not installed or not working properly
+* Solved some issues in the xmlreader
+* Improved install instruction for src folder
+
+## [Version 2.6](https://gitlab.com/maartenes/TEITOK/tags/v2.6) (Apr 19, 2019)
+
+### Improvements 
+
+* Facsimile images can now be hidden for visitors globally
+* You can now use IIIF style crops from facsimile images
+* Spaces can now be put inside &lt;c&gt; allowing them to be normalised away
+* mtoks are now shown in the tokinfo rollover window
+* Added a check folder to help with installing TEITOK
+* xmlrenumber can now renumber only new tokens - keeping old IDs in place
+* Stand-off annotation can now indicate where in a word the annotation applies
+* Sentence (block) view can now switch between text views
+* Create new XML now adds a revisionStmt
+* Improved the password encryption 
+* Internationalization PHP scripts can now be created or updated within the system
+* Added a tag builder to the query builder
+
+### Bug fixes
+
+* Solved some display issues in the stand-off annotation view
+* Solved some errors in the Query Builder making Javascript crash on empty fields
+* Made download of CSV work again with Excell
+* Added more options to adminsettings
+* Made the time display of the previous recqp session work better
+* Improved xmltokenize to avoid tokenization errors in some circumstances 
+* Added a configcheck to check whether there are problems with the settings
+* Added more colours to stand-off annotation to avoid the module running out of colours
+* Added a first draft of a module for bibliographic references
+* The block module can now handle non-closing lb
+* Removed the discontinued frequency display from the cqp module
+* Removed the discontinued headermake module
+* Updated some i18n files
+* Made IGT use &lt;m&gt; rather than &lt;morph&gt; to follow TEI
+* Improved viewing in metadata module
+* Solved some bugs in the renumbering module
+* tokedit now also checks whether all dtok have an @id
+* Removed the discontinued tokenization option in PHP
+* ttxml now always uses the teiheader settings when there is no teiHeader.tpl
+* visualize now checks whether Google visualization has been loaded correctly
+* Updated the default projects 
+
 ## [Version 2.5](https://gitlab.com/maartenes/TEITOK/tags/v2.5) (Mar 3, 2019)
 
 ### Improvements 
