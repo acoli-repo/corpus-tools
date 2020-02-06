@@ -290,15 +290,17 @@
 		$maintext .= '<script type="text/javascript">
 			tinymce.init({
 				selector: "textarea.wysiwyg",
+
   menu: {
     edit: {title: "Edit", items: "undo redo | cut copy paste pastetext | searchreplace | selectall"},
     insert: {title: "Insert", items: "charmap pagebreak"},
     format: {title: "Format", items: "bold italic | formats | removeformat | code"},
+    view: {title: "View", items: "fullscreen restoredraft"},
   },
   				convert_urls: false,
 				plugins: [
 					 "lists charmap searchreplace",
-					 "paste pagebreak code"
+					 "paste pagebreak code fullscreen autosave"
 			   ],
 			    extended_valid_elements: "supplied,add,unclear,ex,hi[rend],s,b,i,b/strong,i/em",
 			    custom_elements: "~supplied,~add,~unclear,~ex,~hi[rend]",
