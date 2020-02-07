@@ -283,9 +283,10 @@
 		$maintext .= "<p><input checked type=radio name=body value='nobody' onChange='bodychoose(this);'> Leave empty";
 
 		# Paste as HTML
-		$maintext .= "<p><input type=radio name=body value='html' onChange='bodychoose(this);'> Create as WYSIWYG (or paste from Word, etc.)
+		$maintext .= "<p><input type=radio name=body value='html' onChange='bodychoose(this);'> Create as WYSIWYG (or paste from Word, HTML, etc.)
 			<div id='html' style='display: none; padding-left: 40px;'>
-				<p><i>Here you can write or paste rich text, which will then be converted to TEI/XML. This conversion keeps only limited typesetting information, and can only be used for the initial creation of the XML file; after the file is in TEI/XML this editor will no longer work.</i></p>";
+				<p><i>Here you can write or paste rich text, which will then be converted to TEI/XML. This conversion keeps only limited typesetting information, and can only be used for the initial creation of the XML file; after the file is in TEI/XML this editor will no longer work. You can
+				switch to fullscreen, and drafts will be stored automatically every 20 seconds.</i></p>";
 		$maintext .= "<script type=\"text/javascript\" src=\"$tinymceurl\"></script>";
 		$maintext .= '<script type="text/javascript">
 			tinymce.init({
