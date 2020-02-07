@@ -147,7 +147,7 @@
 					make sure they are accurate, and click 'confirm settings' when all necessary changes have
 					been made. If these settings do not belong to the current 
 					project, make sure to carefully revise the <a href='index.php?action=adminsettings'>settings</a>. Click a 
-					value to change it. ";
+					value to change it. Current action: $action";
 			$confirm = "<input type=submit value='Confirm settings'>";
 		} else {
 			$maintext .= "<h1>Check Settings</h1>
