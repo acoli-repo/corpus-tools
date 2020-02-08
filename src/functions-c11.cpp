@@ -30,7 +30,7 @@ bool preg_match ( std::string str, std::string pat, std::vector<std::string> *re
 	bool res = false;
 	regmatch->clear();
 	
-	std::regex e (pat);   // matches words beginning by "sub"
+	std::regex e (pat, std::regex_constants::extended);   // make sure to use extended for the REGEX
 
 	std::cmatch m;
 	try {
