@@ -34,10 +34,10 @@ bool preg_match ( std::string str, std::string pat, std::vector<std::string> *re
 	try {
 		res = std::regex_match (str.c_str(), m, std::regex(pat, std::regex_constants::extended) );
     } catch (const std::regex_error& e) {
-		std::cout << "Error in the pattern: " << pat << std::endl;
+		if ( debug ) { std::cout << "Error in the pattern: " << pat << std::endl; };
 		return false;
     } catch (...) {
-		std::cout << "Error in the pattern: " << pat << std::endl;
+		if ( debug ) { std::cout << "Error in the pattern: " << pat << std::endl; };
 		return false;
 	};
 
