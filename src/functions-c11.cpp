@@ -9,6 +9,8 @@
 #include <sstream>
 #include <iterator>
 
+bool debug = false;
+
 // Local version of stoi - relies currently on C++ 11
 int intval(std::string str) {
 	int i;
