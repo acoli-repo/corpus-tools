@@ -79,7 +79,7 @@ std::vector<std::vector<std::string> > preg_match_all ( std::string str, std::st
 
 	std::match_results<std::string::const_iterator> iter;
 	std::string::const_iterator start = str.begin() ; int i=0;
-	while ( regex_search(start, str.cend(), iter, std::regex(pat)) ) {
+	while ( regex_search(start, str.cend(), iter, std::regex(pat, std::regex_constants::extended)) ) {
 		std::vector<std::string> match;
 		for (int i=0; i<iter.size(); i++ ) {
 			match.push_back(iter[i]);
