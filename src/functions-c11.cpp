@@ -30,11 +30,9 @@ bool preg_match ( std::string str, std::string pat, std::vector<std::string> *re
 	bool res = false;
 	regmatch->clear();
 	
-	std::regex e (pat, std::regex_constants::extended);   // make sure to use extended for the REGEX
-
 	std::cmatch m;
 	try {
-		res = std::regex_match (str.c_str(), m, e );
+		res = std::regex_match (str.c_str(), m, std::regex(pat, std::regex_constants::extended) );
     } catch (const std::regex_error& e) {
 		std::cout << "Error in the pattern: " << pat << std::endl;
 		return false;
