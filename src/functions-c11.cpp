@@ -9,8 +9,6 @@
 #include <sstream>
 #include <iterator>
 
-bool debug = false;
-
 // Local version of stoi - relies currently on C++ 11
 int intval(std::string str) {
 	int i;
@@ -36,10 +34,10 @@ bool preg_match ( std::string str, std::string pat, std::vector<std::string> *re
 	try {
 		res = std::regex_match (str.c_str(), m, std::regex(pat, std::regex_constants::extended) );
     } catch (const std::regex_error& e) {
-		if ( debug ) { std::cout << "Error in the pattern: " << pat << std::endl; };
+		// std::cout << "Error in the pattern: " << pat << std::endl; 
 		return false;
     } catch (...) {
-		if ( debug ) { std::cout << "Error in the pattern: " << pat << std::endl; };
+		// std::cout << "Error in the pattern: " << pat << std::endl; 
 		return false;
 	};
 
