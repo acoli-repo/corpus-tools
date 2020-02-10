@@ -28,6 +28,7 @@ pugi::xml_node transitions;
 string tagfld; // The field to use for tagging
 string tagpos; // 
 string lemmafld;
+string tagattlist;
 vector<string> formTags;
 vector<string> lemTags;
 int contextlength = 1;
@@ -166,6 +167,7 @@ void treatnode ( pugi::xpath_node node ) {
 	if ( lexitems[tagform][tagtag] ) {
 		// We should check if this is the same word
 		tok = lexitems[tagform][tagtag];
+		if ( debug > 6 ) { cout << "Existing word: "; tok.print(std::cout); };
 		tok.attribute("cnt") = atoi(tok.attribute("cnt").value()) + 1;
 	} else {
 		// new word		
@@ -179,10 +181,13 @@ void treatnode ( pugi::xpath_node node ) {
 		tok.append_attribute("key") = tagtag.c_str(); 
 		tok.append_attribute("cnt") = 1; 
 		// add all items that are relevant here
+		if ( debug > 6 ) { cout << "New word: " << tagform << endl;  };
 		for (vector<string>::iterator it2 = formTags.begin(); it2 != formTags.end(); it2++) {
 			string t = *it2;
+			if ( debug > 8 ) { cout << "Adding feature: " << t << endl;  };
 			if ( node.node().attribute(t.c_str()) != NULL ) tok.append_attribute(t.c_str()) = node.node().attribute(t.c_str()).value();
 		}
+
 	   
 	    // Add lemma-level attributes
 	    // TODO: implement
@@ -380,7 +385,7 @@ void treatfile ( string filename ) {
 
 	pugi::xpath_node resnode;
 
-	if ( debug ) { cout << "Restriction: " << tagsettings.attribute("restriction").value() << endl; };
+	if ( debug > 5 ) { cout << "Checking file restriction: " << tagsettings.attribute("restriction").value() << endl; };
 
 	if ( tagsettings.attribute("restriction") != NULL 
 			&& doc.select_node(tagsettings.attribute("restriction").value()) == NULL ) {
@@ -414,6 +419,8 @@ int treatdir (string dirname) {
     struct dirent *entry;
     DIR *dp;
  
+ 	if ( debug > 5 ) { cout << "Treating dir: " << dirname << endl; };
+
  	// We need kill any *.xml at the end, since we are treating folders, not a glob
 	string patt = "*";
 	if ( dirname.find(patt) !=std::string::npos ) {
@@ -574,11 +581,16 @@ int main(int argc, char *argv[])
 	if ( tagsettings.attribute("lemmatize") != NULL ) { lemmafld = tagsettings.attribute("lemmatize").value(); } 
 		else { lemmafld = "form"; };
 	if ( tagsettings.attribute("formtags") != NULL ) { 
-		tmp= tagsettings.attribute("formtags").value(); 
+		tagattlist= tagsettings.attribute("formtags").value(); 
 	} else { 
-		tmp = "lemma,"+tagpos; // By default, tag for lemma and pos
+		tagattlist = "lemma,"+tagpos; // By default, tag for lemma and pos
 	};
-	vector<string> formTags = split(tmp, ","); 
+	if ( debug ) { cout << "Tagging forms: " << tagattlist << endl; };
+	formTags = split(tagattlist, ","); 
+		for (vector<string>::iterator it2 = formTags.begin(); it2 != formTags.end(); it2++) {
+			string t = *it2;
+			if ( debug > 8 ) { cout << "Feature to tag: " << t << endl;  };
+		};
 
 	if ( tagsettings.attribute("dtokform") != NULL ) { 
 		dtokform = tagsettings.attribute("wordfld").value();
@@ -599,7 +611,7 @@ int main(int argc, char *argv[])
 			inherit[patt] = xmlfnode.node().attribute("inherit").value();
 		};
 	};
-	
+		
 	string dofolders = tagsettings.attribute("training").value();
 	if ( dofolders != "" ) {
 		if ( verbose ) cout << "- Training folder(s): " << dofolders << endl;
