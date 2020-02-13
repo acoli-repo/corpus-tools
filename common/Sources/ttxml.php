@@ -265,6 +265,8 @@ class TTXML
 			$this->pagenav = "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
 		} else if ( $settings['xmlfile']['paged'] != 2 && $_GET['div'] && 1==2 ) {
 			# Show a whole DIV
+		} else if ( !$whole && ( $settings['xmlfile']['paged']['type'] == "xp" ) ) {
+			$xmltxt = $this->xppage();
 		} else if ( !$whole && ( $settings['xmlfile']['paged'] || $_GET['pbtype'] ) ) {
 			$xmltxt = $this->page();
 		} else {
@@ -280,6 +282,55 @@ class TTXML
 		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
 		
 		return $xmltxt;
+	}
+	
+	function xppage($pageid = "") {
+		global $settings; global $action;
+		
+		if ( !$pagid ) $pagid = $_GET['pageid'];
+		$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
+		$pbelm = $_GET['pbelm'] or $pbelm = $settings['xmlfile']['paged']['element'];
+		
+		if ( $pagid ) { 
+			$xp = "//*[@id='$pagid']";
+		} else if ( $jmp ) {
+			$xp = "//*[@id='$jmp']/ancestor-or-self::$pbelm";
+		} else {
+			$xp = "//text//$pbelm";
+		};
+
+	
+		$page = current($this->xml->xpath($xp)); 
+		if ( !$page ) fatal("No such page: $xp");
+		
+		$num = $page['n'] or $num = $page['id'];
+		$folioname = $settings['xmlfile']['paged']['display'] or $folioname = "page";
+
+		$npag = current($page->xpath("./preceding-sibling::{$pbelm}[1]"));
+		if ( $npag ) {
+			$bnum = $npag['n'] or $bnum = $npag['id'];
+			$bid = $npag['id'];
+			$bnav = "<a href='index.php?action=$action&pageid=$bid'>$folioname $bnum</a> <";
+		};
+		$npag = current($page->xpath("./following-sibling::$pbelm"));
+		if ( $npag ) {
+			$bnum = $npag['n'] or $bnum = $npag['id'];
+			$bid = $npag['id'];
+			$nnav = "> <a href='index.php?action=$action&pageid=$bid'>$folioname $bnum</a>";
+		};
+
+		$foliotxt = "$folioname $num";
+
+		# Build the page navigation
+		$this->pagenav = "<table style='width: 100%'><tr> 
+						<td style='width: 33%' align=left>$bnav
+						<td style='width: 33%' align=center>$foliotxt $folionr
+						<td style='width: 33%' align=right>$nnav
+						</table>
+						<hr> 
+						";
+	
+		return $page->asXML();
 	}
 	
 	function mtxt($editable=1) {
@@ -376,6 +427,7 @@ class TTXML
 		else if ( is_array($settings['xmlfile']['paged']) ) $pbtmp = $settings['xmlfile']['paged']['element'];
 		else $pbtmp = $_GET['pbtype'] or $pbtmp = "pb";
 		
+		// Determine kind of page to cut out
 		if ( $action == "pagetrans" ) { // Page
 			$pbelm = "page";
 			$titelm = "Page";

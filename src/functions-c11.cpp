@@ -34,10 +34,10 @@ bool preg_match ( std::string str, std::string pat, std::vector<std::string> *re
 	try {
 		res = std::regex_match (str.c_str(), m, std::regex(pat, std::regex_constants::extended) );
     } catch (const std::regex_error& e) {
-		// std::cout << "Error in the pattern: " << pat << std::endl; 
+		std::cout << "Error in the pattern: " << pat << std::endl; 
 		return false;
     } catch (...) {
-		// std::cout << "Error in the pattern: " << pat << std::endl; 
+		std::cout << "Error in the pattern: " << pat << std::endl; 
 		return false;
 	};
 
@@ -77,7 +77,7 @@ std::vector<std::vector<std::string> > preg_match_all ( std::string str, std::st
 
 	std::match_results<std::string::const_iterator> iter;
 	std::string::const_iterator start = str.begin() ; int i=0;
-	while ( regex_search(start, str.cend(), iter, std::regex(pat, std::regex_constants::extended)) ) {
+	while ( regex_search(start, str.cend(), iter, std::regex(pat, std::regex_constants::icase)) ) {
 		std::vector<std::string> match;
 		for (int i=0; i<iter.size(); i++ ) {
 			match.push_back(iter[i]);
