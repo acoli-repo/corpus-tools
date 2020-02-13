@@ -323,8 +323,25 @@ class TTXML
 
 		$foliotxt = "$folioname $num";
 
+		if ( $page['appid'] && file_exists("Resources/toc.xml") ) {
+			$tocxml = simplexml_load_file("Resources/toc.xml");
+			$tocnode = current($tocxml->xpath("//*[@appid='{$page['appid']}']"));
+			if ( $tocnode ) {
+				$tmp = $tocnode; $sep = "";
+				while ( $tmp && $tmp->getName() != "toc") {
+					$levelname = $tmp['display'];
+					if ( $settings['xmlfile']['toc']['i18n'] ) $levelname = "{%$levelname}";
+					$tocnav = "<a href='index.php?action=toc&cid=$this->xmlid&appid={$tmp['appid']}'>$levelname</a> $sep $tocnav";
+					$tmp = current($tmp->xpath("..")); $sep = ">";
+				};		
+				$tocnav = "<div class=tocnav>{$page['appid']}: $tocnav</div>";
+			};
+		};
+
 		# Build the page navigation
-		$this->pagenav = "<table style='width: 100%'><tr> 
+		$this->pagenav = "
+						$tocnav
+						<table style='width: 100%'><tr> 
 						<td style='width: 33%' align=left>$bnav
 						<td style='width: 33%' align=center>$foliotxt $folionr
 						<td style='width: 33%' align=right>$nnav

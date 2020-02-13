@@ -100,3 +100,7 @@ anon::after { content: ']'; }
 .thumbnail img { 
 	width: 100%;
 }
+
+.tocnav { 
+	margin-bottom: 10px;
+}
