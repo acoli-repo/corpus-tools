@@ -307,6 +307,7 @@ class TTXML
 		
 		$num = $page['n'] or $num = $page['id'];
 		$folioname = $settings['xmlfile']['paged']['display'] or $folioname = "page";
+		if ( $settings['xmlfile']['paged']['i18n'] ) $folioname = "{%$folioname}";
 
 		$npag = current($page->xpath("./preceding-sibling::{$pbelm}[1]"));
 		if ( $npag ) {
