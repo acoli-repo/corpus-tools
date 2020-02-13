@@ -293,12 +293,14 @@ class TTXML
 		
 		if ( $pagid ) { 
 			$xp = "//*[@id='$pagid']";
+		} else if ( $_GET['appid'] ) {
+			$appid = $_GET['appid'];
+			$xp = "//*[@appid='$appid']/ancestor-or-self::$pbelm";
 		} else if ( $jmp ) {
 			$xp = "//*[@id='$jmp']/ancestor-or-self::$pbelm";
 		} else {
 			$xp = "//text//$pbelm";
 		};
-
 	
 		$page = current($this->xml->xpath($xp)); 
 		if ( !$page ) fatal("No such page: $xp");
@@ -310,13 +312,13 @@ class TTXML
 		if ( $npag ) {
 			$bnum = $npag['n'] or $bnum = $npag['id'];
 			$bid = $npag['id'];
-			$bnav = "<a href='index.php?action=$action&pageid=$bid'>$folioname $bnum</a> <";
+			$bnav = "<a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a> <";
 		};
 		$npag = current($page->xpath("./following-sibling::$pbelm"));
 		if ( $npag ) {
 			$bnum = $npag['n'] or $bnum = $npag['id'];
 			$bid = $npag['id'];
-			$nnav = "> <a href='index.php?action=$action&pageid=$bid'>$folioname $bnum</a>";
+			$nnav = "> <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a>";
 		};
 
 		$foliotxt = "$folioname $num";
