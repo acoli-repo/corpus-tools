@@ -315,7 +315,7 @@ class TTXML
 			$bid = $npag['id'];
 			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a> &bull; <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a> <";
 		} else {
-			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
+			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";"
 		};
 		$npag = current($page->xpath("./following-sibling::$pbelm"));
 		if ( $npag ) {
@@ -334,7 +334,7 @@ class TTXML
 				while ( $tmp && $tmp->getName() != "toc") {
 					$levelname = $tmp['display-'.$lang] or $levelname = $tmp['display'] or $levelname = $tmp['n'] ;
 					if ( $settings['xmlfile']['toc']['i18n'] ) $levelname = "{%$levelname}";
-					$tocnav = "<a href='index.php?action=toc&cid=$this->xmlid&appid={$tmp['appid']}'>$levelname</a> $sep $tocnav";
+					$tocnav = "<a href='index.php?action=pages&cid=$this->xmlid&appid={$tmp['appid']}'>$levelname</a> $sep $tocnav";
 					$tmp = current($tmp->xpath("..")); $sep = ">";
 				};		
 				$tocnav = "<div class=tocnav>{$page['appid']}: $tocnav</div>";
