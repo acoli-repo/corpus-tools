@@ -30,7 +30,7 @@
 		$tocfile = $settings['xmlfile']['toc']['file'] or $tocfile = "Resources/toc.xml";
 		$tocxml = simplexml_load_file($tocfile);
 		// Read the appids in the XML
-		foreach ( $ttxml->xml->xpath("//*[@appid]") as $appnode ) $appidlist[$appnode['appid'].""] = $appnode->getName();
+		foreach ( $ttxml->xml->xpath("//*[@appid]") as $appnode ) $appidlist[$appnode['appid'].""] = $appnode['id']."";
 		
 		$tocbaseurl = "index.php?action=file&cid=$ttxml->xmlid";
 
@@ -214,10 +214,11 @@
 			$appid = $chld['appid'].""; 
 			
 			if ( count($chld->children()) ) {
+				if ( $appidlist[$appid] ) $nodename = "<a href='$tocbaseurl&appid={$chld['appid']}&jmp={$appidlist[$appid]}'>$nodename</a>";
 				$tree .= "<li stat=$stat $nolink>$nodename".maketoctree($chld)."</li>";
 			} else {
 				if ( $appidlist[$appid] ) {
-					$tree .= "<li stat=$leaf style='display: none;'><a href='$tocbaseurl&appid={$chld['appid']}'>$nodename</a></li>";
+					$tree .= "<li stat=$leaf style='display: none;'><a href='$tocbaseurl&appid={$chld['appid']}&jmp={$appidlist[$appid]}'>$nodename</a></li>";
 				} else {
 					$tree .= "<li stat=$leaf nolink=\"1\" title='No appid $appid' style='display: none;'><span style='color: #bbbbbb;'>$nodename</span></li>";
 				};
