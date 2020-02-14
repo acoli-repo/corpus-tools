@@ -25,7 +25,45 @@
 		$pbtype = "milestone";
 	};
 	
-	if ( $settings['xmlfile']['toc'] ) {
+	if ( $settings['xmlfile']['toc']['file'] || file_exists("Resources/toc.xml") ) {
+		
+		$tocfile = $settings['xmlfile']['toc']['file'] or $tocfile = "Resources/toc.xml";
+		$tocxml = simplexml_load_file($tocfile);
+		
+		$tocbaseurl = "index.php?action=file&cid=$ttxml->xmlid";
+
+		$maintext .= "<h2>{%Table of Contents}</h2><div id='toc'>".maketoctree($tocxml)."</div>\n";
+		$maintext .= "<script language=Javascript>
+					function toggle (elm) {
+						if ( elm.getAttribute('stat') == 'leaf' ) {
+							return -1;
+						} else if ( elm.getAttribute('stat') == 'collapsed' ) {
+							elm.setAttribute('stat', 'expanded');
+						} else {
+							elm.setAttribute('stat', 'collapsed');
+						}
+						var ul = elm.childNodes[1];
+						for ( var i=0; i<ul.childNodes.length; i++ ) {
+							var li = ul.childNodes[i];
+							if ( li.style.display == 'block' ) {
+								li.style.display = 'none';
+							} else {
+								li.style.display = 'block';
+							};
+						};
+					};
+					document.getElementById('toc').addEventListener('click',function(e) {
+					  toggle(e.target);
+					});
+				</script>
+				<style>
+					li[stat=leaf]::before { content:'• '; }
+					li[stat=collapsed]::before { content:'⊞ '; }
+					li[stat=expanded]::before { content:'⊟ '; }
+				</style>
+				";	
+
+	} else if ( $settings['xmlfile']['toc'] ) {
 
 		$tocdef = $settings['xmlfile']['toc'];
 		if ( $tocdef['xp'] ) $tocxp = $tocdef['xp']; else $tocxp = "//teiHeader/toc";
@@ -147,6 +185,39 @@
 			else 
 				$tree .= $nodet;
 			if ( $n < count($tocidx) ) { $tree .= makesub($level, $n+1, $jmpname); };
+		};
+		$tree .= "</ul>";
+		
+		return $tree;
+	};
+
+	function maketoctree ( $node ) {
+		global $tocbaseurl; global $ttxml;
+		
+		$appid = $node['appid'];
+		if ( !$appid && count($node->children()) ) $noappid = true; // Show nodes without appid as existing 
+		else {
+			$tmp = $ttxml->xml->xpath("//*[@appid='$appid']");
+			if ( $tmp ) $hasappid = true; 
+		};
+		if ( !$hasappid ) $noapp = " color: #bbbbbb;";
+
+		$tree .= "<ul style='list-style-type: none; $noapp'>";
+		if ( $node->getName() != "toc" ) {
+			$stat = "collapsed style='display: none; $noapp'"; 
+		} else {
+			$stat = "collapsed style='display: block; $noapp'"; 
+		}
+		foreach ( $node->children() as $chld ) {
+			if ( count($chld->children()) ) {
+				$tree .= "<li stat=$stat>{$chld['display']}".maketoctree($chld)."</li>";
+			} else {
+				if ( $hasappid ) {
+					$tree .= "<li stat=leaf style='display: none;'><a href='$tocbaseurl&appid={$chld['appid']}'>{$chld['display']}</a></li>";
+				} else {
+					$tree .= "<li stat=leaf style='display: none;'><span style='color: #bbbbbb;'>{$chld['display']}</span></li>";
+				};
+			};
 		};
 		$tree .= "</ul>";
 		
