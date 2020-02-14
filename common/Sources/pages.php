@@ -206,17 +206,20 @@
 			$nodename = $chld['display'];
 			$nodenum = $chld['n'];
 			if ( $settings['xmlfile']['toc']['id18n'] ) $nodename = "{%$nodename}";
-			if ( $nodenum ) $nodename = "$nodenum. $nodename";
-
+			if ( $nodenum ) {
+				$leaf = "nolist";
+				$nodename = "$nodenum. $nodename";
+			} else $leaf = "leaf";
+			
 			$appid = $chld['appid'].""; 
 			
 			if ( count($chld->children()) ) {
 				$tree .= "<li stat=$stat $nolink>$nodename".maketoctree($chld)."</li>";
 			} else {
 				if ( $appidlist[$appid] ) {
-					$tree .= "<li stat=leaf style='display: none;'><a href='$tocbaseurl&appid={$chld['appid']}'>$nodename</a></li>";
+					$tree .= "<li stat=$leaf style='display: none;'><a href='$tocbaseurl&appid={$chld['appid']}'>$nodename</a></li>";
 				} else {
-					$tree .= "<li stat=leaf nolink=\"1\" title='No appid $appid' style='display: none;'><span style='color: #bbbbbb;'>$nodename</span></li>";
+					$tree .= "<li stat=$leaf nolink=\"1\" title='No appid $appid' style='display: none;'><span style='color: #bbbbbb;'>$nodename</span></li>";
 				};
 			};
 		};
