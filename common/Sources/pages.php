@@ -29,6 +29,8 @@
 		
 		$tocfile = $settings['xmlfile']['toc']['file'] or $tocfile = "Resources/toc.xml";
 		$tocxml = simplexml_load_file($tocfile);
+		// Read the appids in the XML
+		foreach ( $ttxml->xml->xpath("//*[@appid]") as $appnode ) $appidlist[$appnode['appid'].""] = $appnode->getName();
 		
 		$tocbaseurl = "index.php?action=file&cid=$ttxml->xmlid";
 
@@ -192,30 +194,29 @@
 	};
 
 	function maketoctree ( $node ) {
-		global $tocbaseurl; global $ttxml;
+		global $tocbaseurl; global $ttxml; global $settings; global $appidlist;
 		
-		$appid = $node['appid'];
-		if ( !$appid && count($node->children()) ) $noappid = true; // Show nodes without appid as existing 
-		else {
-			$tmp = $ttxml->xml->xpath("//*[@appid='$appid']");
-			if ( $tmp ) $hasappid = true; 
-		};
-		if ( !$hasappid ) $noapp = " color: #bbbbbb;";
-
-		$tree .= "<ul style='list-style-type: none; $noapp'>";
+		$tree .= "<ul style='list-style-type: none;'>";
 		if ( $node->getName() != "toc" ) {
-			$stat = "collapsed style='display: none; $noapp'"; 
+			$stat = "collapsed style='display: none;'"; 
 		} else {
-			$stat = "collapsed style='display: block; $noapp'"; 
+			$stat = "collapsed style='display: block;'"; 
 		}
 		foreach ( $node->children() as $chld ) {
+			$nodename = $chld['display'];
+			$nodenum = $chld['n'];
+			if ( $settings['xmlfile']['toc']['id18n'] ) $nodename = "{%$nodename}";
+			if ( $nodenum ) $nodename = "$nodenum. $nodename";
+
+			$appid = $chld['appid'].""; 
+			
 			if ( count($chld->children()) ) {
-				$tree .= "<li stat=$stat>{$chld['display']}".maketoctree($chld)."</li>";
+				$tree .= "<li stat=$stat $nolink>$nodename".maketoctree($chld)."</li>";
 			} else {
-				if ( $hasappid ) {
-					$tree .= "<li stat=leaf style='display: none;'><a href='$tocbaseurl&appid={$chld['appid']}'>{$chld['display']}</a></li>";
+				if ( $appidlist[$appid] ) {
+					$tree .= "<li stat=leaf style='display: none;'><a href='$tocbaseurl&appid={$chld['appid']}'>$nodename</a></li>";
 				} else {
-					$tree .= "<li stat=leaf style='display: none;'><span style='color: #bbbbbb;'>{$chld['display']}</span></li>";
+					$tree .= "<li stat=leaf nolink=\"1\" title='No appid $appid' style='display: none;'><span style='color: #bbbbbb;'>$nodename</span></li>";
 				};
 			};
 		};
