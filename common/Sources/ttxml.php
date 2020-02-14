@@ -315,7 +315,7 @@ class TTXML
 			$bid = $npag['id'];
 			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a> &bull; <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a> <";
 		} else {
-			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";"
+			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
 		};
 		$npag = current($page->xpath("./following-sibling::$pbelm"));
 		if ( $npag ) {
