@@ -49,7 +49,7 @@
 							var li = ul.childNodes[i];
 							if ( li.style.display == 'block' ) {
 								li.style.display = 'none';
-							} else {
+							} else if ( !li.getAttribute('empty') || li.getAttribute('type') == 'leaf' ) {
 								li.style.display = 'block';
 							};
 						};
@@ -57,11 +57,22 @@
 					document.getElementById('toc').addEventListener('click',function(e) {
 					  toggle(e.target);
 					});
+					console.log('checking');
+					var lis = document.getElementById('toc').getElementsByTagName('li');
+					for ( var i=0; i<lis.length; i++ ) {
+						var li = lis[i];
+						var links = document.evaluate(\".//a\", li, null, XPathResult.ANY_TYPE, null);
+						if ( !links.iterateNext() ) {
+							li.setAttribute('empty', '1');
+							li.style.display = 'none';
+						};
+					};
 				</script>
 				<style>
 					li[stat=leaf]::before { content:'• '; }
 					li[stat=collapsed]::before { content:'⊞ '; }
 					li[stat=expanded]::before { content:'⊟ '; }
+					li[empty] { display: none; }
 				</style>
 				";	
 
@@ -220,7 +231,8 @@
 				if ( $appidlist[$appid] ) {
 					$tree .= "<li stat=$leaf style='display: none;'><a href='$tocbaseurl&appid={$chld['appid']}&jmp={$appidlist[$appid]}'>$nodename</a></li>";
 				} else {
-					$tree .= "<li stat=$leaf nolink=\"1\" title='No appid $appid' style='display: none;'><span style='color: #bbbbbb;'>$nodename</span></li>";
+					$litit = ""; if ( $appid ) $litit = "No appid $appid";
+					$tree .= "<li stat=$leaf nolink=\"1\" title=\"$litit\" style='display: none;'><span style='color: #bbbbbb;'>$nodename</span></li>";
 				};
 			};
 		};
