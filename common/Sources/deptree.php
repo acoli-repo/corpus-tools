@@ -352,14 +352,14 @@ $maintext .= "
 			unset($heads); unset($tid);
 			// TODO: do DTOK!!!
 			foreach ( $sent->xpath(".//tok[not(dtok)] | //dtok") as $tok ) {		
-				$form = forminherit($tok, $formfld);
-				if ( $form != "--" ) {
+				$tagform = forminherit($tok, $formfld);
+				if ( $tagform != "--" ) {
 					$tnr++;	
 					$lemma = $tok['lemma'] or $lemma = "_";
 					$tokid = $tok['id']."";
 					$toks[$tokid] = $tok;
 				
-					$verticalized .= $sep."$tnr\t$form\t$lemma\t_\t_\t_\t_\t_\t_\t$tokid";
+					$verticalized .= $sep."$tnr\t$tagform\t$lemma\t_\t_\t_\t_\t_\t_\t$tokid";
 					$sep = "\n";
 				};
 			};	
@@ -378,7 +378,7 @@ $maintext .= "
 			if ($result === FALSE) { 
 				print "Failed to get data from the server<hr>"; 
 				print_r($result); 
-				print "<hr><pre>";
+				print "<hr>(form field: $formfld)<pre>";
 				print_r($data);
 				print "</pre>";
 				exit;
