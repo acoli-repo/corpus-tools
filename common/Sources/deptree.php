@@ -376,7 +376,10 @@ $maintext .= "
 			$context  = stream_context_create($options);
 			$result = file_get_contents($url, false, $context);
 			if ($result === FALSE) { 
-				print "Failed to get data from the server<hr>"; print_r($result); 
+				print "Failed to get data from the server<hr>"; 
+				print_r($result); 
+				print "<hr>";
+				print $context;
 				exit;
 			}
 
