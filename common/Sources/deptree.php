@@ -56,7 +56,7 @@
 		print "# newdoc id = $ccid\n\n";
 		if ( $_GET['sid'] ) $sid = "[@id=\"{$_GET['sid']}\"]";
 
-		$formfld = $settings['xmlfile']['wordfld'] or $formfld = "form";
+		$formfld = $settings['xmlfile']['udpipe']['tagform'] or $settings['xmlfile']['wordfld'] or $formfld = "form";
 		foreach ( $ttxml->xml->xpath("//s$sid") as $sent ) {
 			$toks = $sent->xpath($toksel);
 			
@@ -350,10 +350,9 @@ $maintext .= "
 		foreach ( $ttxml->xml->xpath("//s") as $sent ) {
 			$tnr = 0; $verticalized = "";	
 			unset($heads); unset($tid);
-			// TODO: do DTOK!!!
 			foreach ( $sent->xpath(".//tok[not(dtok)] | //dtok") as $tok ) {		
 				$tagform = forminherit($tok, $formfld);
-				if ( $tagform != "--" ) {
+				if ( $tagform != "--" && $tagform != "" ) {
 					$tnr++;	
 					$lemma = $tok['lemma'] or $lemma = "_";
 					$tokid = $tok['id']."";
