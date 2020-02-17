@@ -319,7 +319,8 @@ $maintext .= "
 		$filename = $xmlfolder."/".$ttxml->fileid;
 		if ( !file_exists($filename) ) { fatal ( "File does not exist: $filename" ); };
 		
-		$formfld = "nform"; $sep ="";
+		$formfld = $settings['udpipe']['tagform'] or $settings['xmlfile']['wordfld'] or $formfld = "form";
+		$sep ="";
 		$exec = findapp("udpipe");
 		
 		// TODO: Check this only if we run locally
