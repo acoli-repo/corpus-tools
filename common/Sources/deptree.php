@@ -56,7 +56,7 @@
 		print "# newdoc id = $ccid\n\n";
 		if ( $_GET['sid'] ) $sid = "[@id=\"{$_GET['sid']}\"]";
 
-		$formfld = $settings['xmlfile']['udpipe']['tagform'] or $settings['xmlfile']['wordfld'] or $formfld = "form";
+		$formfld = $settings['udpipe']['tagform'] or $settings['xmlfile']['wordfld'] or $formfld = "form";
 		foreach ( $ttxml->xml->xpath("//s$sid") as $sent ) {
 			$toks = $sent->xpath($toksel);
 			
