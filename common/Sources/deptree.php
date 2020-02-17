@@ -379,7 +379,7 @@ $maintext .= "
 				print "Failed to get data from the server<hr>"; 
 				print_r($result); 
 				print "<hr>";
-				print $context;
+				print $data;
 				exit;
 			}
 
