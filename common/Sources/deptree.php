@@ -378,8 +378,9 @@ $maintext .= "
 			if ($result === FALSE) { 
 				print "Failed to get data from the server<hr>"; 
 				print_r($result); 
-				print "<hr>";
+				print "<hr><pre>";
 				print_r($data);
+				print "</pre>";
 				exit;
 			}
 
