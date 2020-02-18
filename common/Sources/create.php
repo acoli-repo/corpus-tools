@@ -3,7 +3,7 @@
 	// (c) Maarten Janssen, 2015
 
 	check_login();
-	check_dir("xmlfiles");
+	check_folder("xmlfiles");
 		
 	if ( $_POST['fname'] ) {
 
