@@ -3,11 +3,7 @@
 	// (c) Maarten Janssen, 2015
 
 	check_login();
-	
-	# Check whether we are allowed to write to xmlfiles
-	if ( !is_writable("xmlfiles") ) {
-		fatal ("The folder xmlfiles cannot be written by the system. Please contact the server administrator.");
-	};
+	check_dir("xmlfiles");
 		
 	if ( $_POST['fname'] ) {
 
