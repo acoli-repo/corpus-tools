@@ -303,7 +303,10 @@ class TTXML
 		};
 	
 		$page = current($this->xml->xpath($xp)); 
-		if ( !$page ) fatal("No such page: $xp");
+		if ( !$page ) {
+			if ( $settings['xmlfile']['paged']['hard'] ) fatal("No such page: $xp");
+			else $page = $this->xml;
+		};
 		
 		$num = $page['n'] or $num = $page['id'];
 		$folioname = $settings['xmlfile']['paged']['display'] or $folioname = "page";
