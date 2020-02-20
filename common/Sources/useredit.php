@@ -2,10 +2,16 @@
 	# Script to edit users
 	# (c) Maarten Janssen 2015
 	
+	if ( !$user['permissions'] == "admin" ) { fatal ("Function for admin users only"); };
+
 	$userfile = file_get_contents("Resources/userlist.xml");
 	$userlist = simplexml_load_string($userfile);
 
-	if ( !$user['permissions'] == "admin" ) { fatal ("Function for admin users only"); };
+		if ( !file_exists("Resources/userlist.xml") ) {	
+			check_folder("Resources");
+			file_put_contents("Resources/userlist.xml", "<userlist></userlist>");
+		};
+
 	$id = $_GET['id'];
 
 		if ( !is_writable("Resources/userlist.xml") ) {
