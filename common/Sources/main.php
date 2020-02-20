@@ -80,7 +80,7 @@
 	# Determine the base URL and the root folder
 	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
 	if ( $settings['defaults']['base']['url'] ) {
-		$baseurl = str_replace('{$corpusfolder}', $thisdir, $settings['defaults']['base']['url'];
+		$baseurl = str_replace('{$corpusfolder}', $thisdir, $settings['defaults']['base']['url']);
 	} else {
 		$baseurl = preg_replace('/index.php.*/', '', $_SERVER['SCRIPT_NAME'] );
 		$baseurl = str_replace("/$lang/", '/', $baseurl );
