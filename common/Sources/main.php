@@ -78,12 +78,13 @@
 	else  setcookie("lang", "");
 	
 	# Determine the base URL and the root folder
-	if ( $settings['defaults']['base']['url'] ) $baseurl = $settings['defaults']['base']['url'];
-	else {
+	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
+	if ( $settings['defaults']['base']['url'] ) {
+		$baseurl = str_replace('{$corpusfolder}', $thisdir, $settings['defaults']['base']['url'];
+	} else {
 		$baseurl = preg_replace('/index.php.*/', '', $_SERVER['SCRIPT_NAME'] );
 		$baseurl = str_replace("/$lang/", '/', $baseurl );
 	};
-	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
 	
 	# Set the base META tag when asked
 	$baseurl = str_replace("{project}", $foldername, $baseurl);
