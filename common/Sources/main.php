@@ -154,7 +154,9 @@
 
 	# Create an edit HTML button	
 	if ( $username ) {
-		$edithtml = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id={$action}-$lang'>edit page</a></div>";
+		$baseaction = $_GET['action'] or $baseaction = "home";
+		$editaction = preg_replace("/-[a-z]{2,3}$/", "", $baseaction);
+		$edithtml = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id={$editaction}-$lang'>edit page</a></div>";
 	};
 			
 	# Use the shared template if no local one exists

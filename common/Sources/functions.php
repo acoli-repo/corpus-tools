@@ -279,7 +279,9 @@
 		$html = file_get_contents($getlangfile_lastfile);
 
 		if ( $username && $action != "pageedit") {
-			$editname = "{$ffid}-$flang";
+			if ( $ffid == "notfound" ) $ffid = $_GET['action'] or $ffid = "home";
+			$editaction = preg_replace("/-[a-z]{2,3}$/", "", $ffid);
+			$editname = "{$editaction}-$flang";
 			$html = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id=$editname'>edit text</a></div>".$html;
 		};
 		
