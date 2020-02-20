@@ -4,13 +4,14 @@
 	
 	if ( !$user['permissions'] == "admin" ) { fatal ("Function for admin users only"); };
 
-	$userfile = file_get_contents("Resources/userlist.xml");
-	$userlist = simplexml_load_string($userfile);
-
 		if ( !file_exists("Resources/userlist.xml") ) {	
 			check_folder("Resources");
 			file_put_contents("Resources/userlist.xml", "<userlist></userlist>");
 		};
+
+	$userfile = file_get_contents("Resources/userlist.xml");
+	$userlist = simplexml_load_string($userfile);
+
 
 	$id = $_GET['id'];
 
