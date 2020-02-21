@@ -416,7 +416,7 @@ $maintext .= "
 				exit;
 			};
 			
-			if ( $settings['udpipe']['batch'] && $scnt++ > $settings['udpipe']['batch'] ) last;
+			if ( $settings['udpipe']['batch'] && $scnt++ > $settings['udpipe']['batch'] ) break;
 			
 			// Wait for a second to make sure we do not crash the connection
 			sleep(0.5);
