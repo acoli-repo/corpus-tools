@@ -88,7 +88,8 @@
 	} else {
 		$resxml = preg_replace("/<tok /", "<tok onmouseover=\"window.showtokinfo(this)\" onmouseout=\"window.hidetokinfo();\" ", $resxml );
 
-		$tagdef = array2json($settings['xmlfile']['pattributes']['tags']); 
+		$alltags = array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']);
+		$tagdef = array2json($alltags); 
 
 		if ( $withword ) $wordheader = "var innery += '<tr><th colspan=2>'+elm.innerHTML;";
 
