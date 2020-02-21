@@ -348,7 +348,7 @@ $maintext .= "
 		$tagfields = explode(",", $param['formtags']);
 		
 		## Verticalize the text in CoNLL-U format
-		foreach ( $ttxml->xml->xpath("//s") as $sent ) {
+		foreach ( $ttxml->xml->xpath("//s[not(.//tok[@deprel])]") as $sent ) {
 			$tnr = 0; $verticalized = "";	
 			unset($heads); unset($tid);
 			foreach ( $sent->xpath(".//tok[not(dtok)] | //dtok") as $tok ) {		
@@ -415,6 +415,11 @@ $maintext .= "
 				print "Unexpected result from the server<hr>"; print_r($result); 
 				exit;
 			};
+			
+			if ( $settings['udpipe']['batch'] && $scnt++ > $settings['udpipe']['batch'] ) last;
+			
+			// Wait for a second to make sure we do not crash the connection
+			sleep(0.5);
 			
 		}; 
 						
