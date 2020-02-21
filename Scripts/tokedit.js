@@ -597,6 +597,7 @@ function setForm ( type ) {
 		if ( !it.hasAttribute('pform') ) { it.setAttribute('pform', it.innerHTML) }; // explicitly store
 		var thisform = forminherit(it,type); 
 		if ( type == "pform" ) thisform = it.getAttribute('pform');
+		if ( thisform == "--") thisform = "";
 		it.innerHTML = thisform; 
 	};
 		
