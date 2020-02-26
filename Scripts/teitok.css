@@ -23,10 +23,10 @@
 #rollovertable tr:hover {
 	background-color:#FFF3B8;
 }
-#rollovertable tr.even:hover {
+#rollovertable tr:nth-child(even):hover {
 	background-color:#FFF3B8;
 }
-#rollovertable tr.even  {
+#rollovertable tr:nth-child(even)  {
 	background-color: #eaeaee;
 }
 
