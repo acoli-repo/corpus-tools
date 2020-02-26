@@ -376,6 +376,11 @@ if ( $sentsplit != 2 ) {
 				$frm =~ s/"/&quot;/g;
 				$ffrm =~ s/<[^>]+>//g;
 				$ffrm =~ s/"/&quot;/g;
+				# These appear if there are &gt; in the original
+				$frm =~ s/>/&gt;/g;
+				$frm =~ s/</&lt;/g;
+				$ffrm =~ s/>/&gt;/g;
+				$ffrm =~ s/</&lt;/g;
 
 				if ( $m ne $frm ) { $fts .= " form=\"$frm\""; };
 				if ( $ffrm ne '' && $frm ne $ffrm ) { $fts .= " fform=\"$ffrm\""; };
