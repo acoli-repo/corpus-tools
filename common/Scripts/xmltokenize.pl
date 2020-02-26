@@ -107,8 +107,8 @@ $tagtxt =~ s/\s*\|~\s*((<[pl]b[^>]*>\s*?)*)\s*/\1/gsmi;
 # Do some preprocessing
 # decode will mess up encoded <> so htmlencode them
 $tagtxt =~ s/&amp;/xxAMPxx/g;
-$tagtxt =~ s/&lt;/&amp;lt;/g;
-$tagtxt =~ s/&gt;/&amp;gt;/g;
+$tagtxt =~ s/&lt;/xxLTxx/g;
+$tagtxt =~ s/&gt;/xxGTxx/g;
 $tagtxt = decode_entities($tagtxt);
 # Protect HTML Entities so that they do not get split
 # TODO: This should not exist anymore, right?
@@ -436,6 +436,8 @@ if ( $sentsplit != 2 ) {
 
 	$teitext =~ s/xx(&(?!xx)[^ \n\r&]+;)xx/\1/g; # Unprotect HTML Characters
 	$teitext =~ s/xxAMPxx/&amp;/g; # Undo xxAMPxx
+	$teitext =~ s/xxLTxx/&lt;/g; # Undo xxAMPxx
+	$teitext =~ s/xxGTxx/&gt;/g; # Undo xxAMPxx
 
 	# A single capital with a dot is likely a name
 	$teitext =~ s/<tok>([A-Z])<\/tok><tok>\.<\/tok>/<tok>\1.<\/tok>/g; # They can also be inside a tok
