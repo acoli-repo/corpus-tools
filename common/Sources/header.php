@@ -129,7 +129,8 @@
 			$xval = str_replace("'", '&#039;', $xval);
 
 			$qnum++; $additem = "";
-			if ( $headerfield['type'] == "select" && $headerfield['options'] ) {
+			# TODO : the "type" is wrong I think
+			if ( ( $headerfield['type'] == "select" || $headerfield['input'] == "select"  ) && $headerfield['options'] ) {
 				$optionlist = ""; $somesel = 0;
 				if ( !$xval ) $optionlist = "<option value='' selected>[{%select}]</option>"; 
 				foreach ( $headerfield['options'] as $kva ) { 
