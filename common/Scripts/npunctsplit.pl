@@ -46,6 +46,7 @@ foreach $tok ( $xml->findnodes("//tok") ) {
 		$newee = $xml->createElement( "ee" );
 		$newtok->addChild($newee);
 		$newtok->setAttribute($splitform, $punct);
+		$newtok->setAttribute('form', '--');
 		$tok->parentNode->insertAfter($newtok, $tok);
 		print "- Inserted new token for $punct";
 	};
