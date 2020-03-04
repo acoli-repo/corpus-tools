@@ -5,6 +5,11 @@ use XML::LibXML;
 use Getopt::Long;
 use POSIX qw(strftime);
 
+# Script to tokenize XML files inline; splits on spaces, and splits off UTF punctuation chars at the beginning and end of a token
+# Splits existing XML tags if they get broken by the tokens
+# Can split sentences as well, where a sentence boundary is a sentence-final character as its own token
+# (c) Maarten Janssen, 2014
+
 $scriptname = $0;
 
  GetOptions ( ## Command line options
