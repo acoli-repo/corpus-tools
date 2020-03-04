@@ -48,7 +48,7 @@ foreach $tok ( $xml->findnodes("//tok") ) {
 		$newtok->setAttribute($splitform, $punct);
 		$newtok->setAttribute('form', '--');
 		$tok->parentNode->insertAfter($newtok, $tok);
-		print "- Inserted new token for $punct";
+		print "- Inserted new token for $punct after $newform";
 	};
 };
 
@@ -73,7 +73,7 @@ if ( $test ) {
 
 	print "$filename has been treated on $splitform - renumbering tokens now";
 
-	( $renum = $scriptname ) =~ s/xmltokenize/xmlrenumber/;
+	( $renum = $scriptname ) =~ s/npunctsplit/xmlrenumber/;
 	# Finally, run the renumber command over the same file
 	$cmd = "/usr/bin/perl $renum --filename=$filename";
 	# print $cmd;
