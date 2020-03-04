@@ -35,7 +35,7 @@ my $xml = XML::LibXML->load_xml(
 foreach $tok ( $xml->findnodes("//tok") ) {
 	$oldform = $tok->getAttribute($splitform);
 	$form = $tok->getAttribute('form') or $form = $tok->textContent;
-	if ( $tosplit =~ /(.+)([.,!?])$/ ) {
+	if ( $oldform =~ /(.+)([.,!?])$/ ) {
 		$newform = $1; $punct = $2;
 		if ( $newform eq $form ) { 
 			$tok->removeAttribute($splitform);			
@@ -70,7 +70,7 @@ if ( $test ) {
 	print FILE $xmlfile;
 	close FILE;
 
-	print "$filename has been treated - renumbering tokens now";
+	print "$filename has been treated on $splitform - renumbering tokens now";
 
 	( $renum = $scriptname ) =~ s/xmltokenize/xmlrenumber/;
 	# Finally, run the renumber command over the same file
