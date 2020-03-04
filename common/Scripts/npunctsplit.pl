@@ -4,8 +4,11 @@ use utf8;
 use POSIX qw(strftime);
 use Getopt::Long;
 
-# Splits off normalized punctuation into its own token
+# Splits off normalized punctuation into its own token (by default on @nform)
 # So turns <tok nform="word,">word</tok> into <tok>word</tok><tok nform=","><ee/></tok>
+# You can use a # to not care about the spelling - so <tok nform="#,">incorrectability</tok>
+# With --dtok it will also add dtoks for same level (with the split forms as @form)
+# So turn <tok nform="de él">dél</tok> into <tok nform="de él">dél<dtok form="de"/><dtok form="él"/></tok>
 # (c) Maarten Janssen, 2020
 
 $\ = "\n"; $, = "\t";
@@ -14,6 +17,7 @@ $scriptname = $0;
 GetOptions ( ## Command line options
             'debug' => \$debug, # debugging mode
             'test' => \$test, # test mode
+            'dtok' => \$dtok, # flag whether to also split tokens into dtoks if there is a space in the splitform
             'form=s' => \$splitform, # which form to tag (default: nform)
             'force' => \$force, # force retreating
             );
@@ -37,7 +41,7 @@ foreach $tok ( $xml->findnodes("//tok") ) {
 	$form = $tok->getAttribute('form') or $form = $tok->textContent;
 	if ( $oldform =~ /(.+)([.,!?])$/ ) {
 		$newform = $1; $punct = $2;
-		if ( $newform eq $form ) { 
+		if ( $newform eq $form && $newform eq '#' ) { 
 			$tok->removeAttribute($splitform);			
 		} else {
 			$tok->setAttribute($splitform, $newform);			
@@ -49,6 +53,14 @@ foreach $tok ( $xml->findnodes("//tok") ) {
 		$newtok->setAttribute('form', '--');
 		$tok->parentNode->insertAfter($newtok, $tok);
 		print "- Inserted new token for $punct after $newform";
+	};
+	if ( $dtok && $ort =~ / / ) {
+		foreach $dform ( split ( / /, $ort ) ) {
+			$dtok = $xml->createElement( "dtok" );
+			$tok->addChild($dtok);
+			$dtok->setAttribute("form", $dform);
+			print "- Added dtok $dform";
+		};
 	};
 };
 
