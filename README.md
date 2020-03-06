@@ -19,7 +19,7 @@ is kept synchronised on a daily basis, so the repository can be cloned from ther
 
 This package is [licenced](LICENCE) under the GNU General Public License v3.0.
 
-At this moment, the repository is private to protect users, until security issues have been sufficiently addressed.
+At this moment, the repository source code is private to protect users, until security issues have been sufficiently addressed.
 
 ## Installation
 
