@@ -178,6 +178,8 @@
 			$schecked = "checked"; $none = "block";
 		};
 
+		if ( preg_match('/\/\//', $fielddefs['xpath'] ) ) $nonstandard .= "<p class=wrong>Your XPath {$fielddefs['xpath']} definition are relative, which can lead to problems; it is best to no use // in your XPath, and start with /TEI/teiHeader";
+
 		$maintext .= "<h1>Metadata field: $fid</h1>
 			<form action='index.php?action=$action&act=save' method='post'>
 			<input type=hidden name=fid value='$fid'>
