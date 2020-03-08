@@ -158,7 +158,8 @@
 
 		$defdesc = current($defaults->xpath($fielddefs['xpath'])); 
 		if ( !$defdesc ) {
-			$defdesc = "<span style='color: #ff9999'>Non-standard field</span>";
+			$defdesc = "<span style='color: #ff9999'>Non-standard field</span>"; 
+				$nonstandard = "<p><i>\"Non-standard field\" in the table above does not mean the field does not follow the TEI standard, it merely means it does no appear on the <a href='index.php?action=metadata'>list of recommended fields</a> kept in TEITOK to improve compatibility between projects</p>";	
 		};
 		
 		$i = 0; $none = "none"; foreach ( $fielddefs['options'] as $key => $val ) {
@@ -234,6 +235,7 @@
 			
 			<input type=submit value='Save'> <a href='index.php?action=$action&act=details'>cancel</a>
 			</form>
+			$nonstandard
 			";
 		
 		
@@ -322,7 +324,8 @@
 			$defdesc = current($defaults->xpath($xquery)); 
 			if ( !$defdesc ) {
 				$defdesc = "<span style='color: #ff9999'>Non-standard field</span>";
-			};
+				$nonstandard = "<p><i>\"Non-standard field\" in the table above does not mean the field does not follow the TEI standard, it merely means it does no appear on the <a href='index.php?action=metadata'>list of recommended fields</a> kept in TEITOK to improve compatibility between projects</p>";	
+		};
 	
 			if ( $desc ) {
 				$desc .= "<br><i>$defdesc</i>";
@@ -370,7 +373,9 @@
 		};
 		
 		
-		$maintext .= "<hr><p><a href='index.php?action=$action&id=_new'>add new metadata field</a>";
+		$maintext .= "<hr><p><a href='index.php?action=$action&id=_new'>add new metadata field</a> &bull; <a href='index.php?action=metadata'>view recommended metadata fields</a>
+						$nonstandard 
+			";
 		if ( !$settings['teiheader']['recqp'] ) $maintext .= "&bull; <a href='index.php?action=$action&act=recqp&force=1'>overwrite text-level settings in CQP</a>";			
 		
 		# Show the views
