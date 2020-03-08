@@ -173,9 +173,10 @@
 				$tmp = "//$tmp";
 				$tmp2 = $defaults->xpath($tmp);
 				if ( $tmp2 ) {
-					$nonstandard .= "<p>Did you mean: <ul>";
+					$nonstandard .= "<p>Did you mean: (click to auto fill) <ul>";
 					foreach ( $tmp2 as $key => $val ) {
 						$nxp = makexpath($val);
+						if ( $val['ida'] ) $nxp .= "[@{$val['ida']}='".$val[$val['ida']]."']";
 						$nonstandard .= "<li> <a onClick='valfill(this);'>$nxp</a>: ".$val->asXML();
 					};
 					$nonstandard .= "</ul>";
