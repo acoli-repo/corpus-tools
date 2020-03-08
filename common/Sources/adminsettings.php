@@ -430,48 +430,5 @@
 		return $tabletext;
 	};
 
-	function is_attribute($node) {
-		$tmp = $node->asXML();
-		return !( $tmp[0] == "<");
-	};
-
-	function findnode ( $xpath ) {
-		global $setdef;
-		$defx = "/ttsettings"; $xpath = str_replace("/ttsettings/", "", $xpath);
-		foreach ( explode ( "/", $xpath ) as $xpp ) {
-			if ( preg_match("/item\[@key=\"(.*?)\"\]/", $xpp, $matches ) ) {
-				$xppt = "list";
-			} else if ( preg_match("/@(.*)/", $xpp, $matches ) ) {
-				$xppt = "att[@key=\"{$matches[1]}\"]";
-			} else {
-				$xppt = "item[@key=\"$xpp\"]";
-			};
-			
-			$defx .= "/".$xppt;
-		};
-		
-		$tmp = $setdef->xpath($defx); $defnode = $tmp[0];
-		
-		return $defnode;
-	};
-		
-	function makexpath ( $node ) {
-		$tn = $node;
-		if ( is_attribute($node) ) {
-			$xpath = "/@".$node->getName();
-			$tmp = $node->xpath(".."); $tn = $tmp[0];
-		}; $c=0;
-		while ( $tn->getName() != "ttsettings" && $c < 10 ) {
-			$c++;
-			$nn = $tn->getName();
-			if ( $nn == "item" ) { 
-				if ( $tn['key'] == "" ) $nn = "{$nn}[not(@key) or @key=\"\"]"; 
-				else $nn = "{$nn}[@key=\"".$tn['key']."\"]"; 
-			};
-			$xpath = "/$nn".$xpath;
-			$tmp = $tn->xpath(".."); $tn = $tmp[0];
-		};
-		return "/ttsettings$xpath";
-	};
 	
 ?>

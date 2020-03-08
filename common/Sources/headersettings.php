@@ -159,7 +159,30 @@
 		$defdesc = current($defaults->xpath($fielddefs['xpath'])); 
 		if ( !$defdesc ) {
 			$defdesc = "<span style='color: #ff9999'>Non-standard field</span>"; 
-				$nonstandard = "<p><i>\"Non-standard field\" in the table above does not mean the field does not follow the TEI standard, it merely means it does no appear on the <a href='index.php?action=metadata'>list of recommended fields</a> kept in TEITOK to improve compatibility between projects</p>";	
+				$nonstandard = "<p><i>\"Non-standard field\" in the table above does not mean the field does not follow the TEI standard, it merely means it does no appear on the <a href='index.php?action=metadata'>list of recommended fields</a> kept in TEITOK to improve compatibility between projects</i></p>
+				<script language=Javascript>
+					function valfill(elm) {
+						var newval = elm.textContent;
+						document.getElementById('xpfld').value = newval;
+					};
+				</script>";	
+			
+			# Try to find the corresponding field
+			$tmp = preg_replace("/.*\//", "", $fielddefs['xpath']);
+			if ( $tmp && substr($tmp,0,1) != "@" ) {
+				$tmp = "//$tmp";
+				$tmp2 = $defaults->xpath($tmp);
+				if ( $tmp2 ) {
+					$nonstandard .= "<p>Did you mean: <ul>";
+					foreach ( $tmp2 as $key => $val ) {
+						$nxp = makexpath($val);
+						$nonstandard .= "<li> <a onClick='valfill(this);'>$nxp</a>: ".$val->asXML();
+					};
+					$nonstandard .= "</ul>";
+				} else {
+					$nonstandard .= "<p>TRYING: $tmp";
+				};
+			};	
 		};
 		
 		$i = 0; $none = "none"; foreach ( $fielddefs['options'] as $key => $val ) {
@@ -188,7 +211,7 @@
 				<td style='font-style: italic; color: #bbbbbb; padding-left: 10px;'>Unique identifier for this field (also used for CQP corpus)
 			<tr><th>Display name<td><input style='width: 100%' name='display' value='{$fielddefs['display']}'>
 				<td style='font-style: italic; color: #bbbbbb; padding-left: 10px;'>Text used to display this value
-			<tr><th>XPath location<td><input size=80 style='width: 100%' name='xpath' value='{$fielddefs['xpath']}'>
+			<tr><th>XPath location<td><input size=80 style='width: 100%' name='xpath' id='xpfld' value='{$fielddefs['xpath']}'>
 				<td style='font-style: italic; color: #bbbbbb; padding-left: 10px;'>Indication of where in the XML this value is placed
 			<tr><th>Description<td><input size=80 style='width: 100%' name='description' value='{$fielddefs['description']}'>
 				<br><i style='color: #999999'>$defdesc</i>
