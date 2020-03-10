@@ -112,7 +112,7 @@
 			</taskDesc>
 			<settingDesc display="Description of the context of the text">
 				<setting>
-					<date fldid="textdate" when="Best guess year for this text">Date this text was written (when there are multiple )</date>
+					<date fldid="textdate" when="Best guess year for this text">Date (year) this text was written (when there are multiple relevant dates)</date>
 					<name fldid="textplace" type="place" ida="type" geo="Geolocation (lat lng) for the place where this manuscript was written">Place this text was written</name>
 				</setting>
 			</settingDesc>

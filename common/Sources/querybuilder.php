@@ -241,9 +241,8 @@
 				
 		
 		// Preselect styles
-		if ( $settings['cqp']['defaults']['searchtype'] ) { 
-			$moreactions .= "switchtype('style', '{$settings['cqp']['defaults']['searchtype']}');"; 
-		};
+		$searchtype = $settings['cqp']['defaults']['searchtype'] or $searchtype = "kwic";
+		$moreactions .= "switchtype('style', '$searchtype');";  
 		$optiontext .= "
 				<p>{%Display method}: 
 				<input type=radio name=style value='kwic' onClick=\"switchtype('style', 'kwic');\"> KWIC

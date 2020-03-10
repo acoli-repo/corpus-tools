@@ -397,7 +397,7 @@
 			$maxmatchlength = 0;
 			$minmatchlength = 1000;
 
-			$showstyle = $_POST['style'] or $showstyle = $settings['cqp']['defaults']['searchtype'];
+			$showstyle = $_POST['style'] or $showstyle = $settings['cqp']['defaults']['searchtype'] or $showstyle = "kwic";
 			$showsubstyle = $_POST['substyle'] or $showsubstyle = $settings['cqp']['defaults']['subtype'];
 
 				if ( $showstyle == "context" && $showsubstyle != "tok"  ) {
