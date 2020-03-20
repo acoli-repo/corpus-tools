@@ -120,6 +120,10 @@
 		};
 		
 		# Check some inconsistent setings files
+		if ( $tmp && !$settings['cqp']['sattributes']['text'] ) {
+			# <text> needs to exist
+			$maintext .= "<p class=wrong>Your CQP settings does not contain a section for the text; almost all metadata are text-level so you should add a text level</p>";
+		};
 		$tmp = $settings['cqp']['defaults']['subtype'];
 		if ( $tmp && !$settings['cqp']['sattributes'][$tmp] ) {
 			# Default Context view needs to exist
