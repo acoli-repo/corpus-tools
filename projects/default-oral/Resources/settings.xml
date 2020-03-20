@@ -31,6 +31,8 @@
 			<item key="ipa" display="IPA"/>
 		</pattributes>
 		<sattributes>
+			<item level="text" key="text" display="Document Search">
+			</item>
 	    	<item level="u" key="u" display="Utterance">
 		    	<item key="who" display="Speaker ID" type="" xpath="@who"/>
     			<item key="start" display="Start" nosearch="1" xpath="@start"/>
