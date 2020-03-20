@@ -6,6 +6,8 @@
 	header('Content-type: text/html; charset=utf-8');
 	// mb_internal_encoding("UTF-8");
 
+	$perlapp = findapp("perl");
+
 	// Character-level tags can be defined within each project, but this is the default list
 	if ( !$settings['defaults']['chartags'] ) $chartags = Array ( "add", "del", "supplied", "expan", "abbr", "hi", "lb", "pb", "cb", "ex" ); 
 	
@@ -26,7 +28,7 @@
 
 		# Build the UNIX command
 		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot"; };
-		$cmd = "/usr/bin/perl $scrt/common/Scripts/xmltokenize.pl --mtxtelm=$mtxtelm --filename='xmlfiles/$fileid' $lbcmd ";
+		$cmd = "$perlapp $scrt/common/Scripts/xmltokenize.pl --mtxtelm=$mtxtelm --filename='xmlfiles/$fileid' $lbcmd ";
 		# print $cmd; exit;
 		$res = shell_exec($cmd);
 		for ( $i=0; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...

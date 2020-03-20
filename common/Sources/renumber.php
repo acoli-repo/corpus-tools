@@ -11,11 +11,13 @@
 	$cardid = $_POST['id'] or $cardid = $_GET['id'] or $cardid = $_GET['cid'];
 	$fileid = $cardid;
 	
+	$perlapp = findapp("perl");
+	
 	if ( $cardid )  {
 
 		# Build the UNIX command that does the actual renumbering
 		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot"; };
-		$cmd = "/usr/bin/perl $scrt/common/Scripts/xmlrenumber.pl --filename='xmlfiles/$fileid' ";
+		$cmd = "$perlapp $scrt/common/Scripts/xmlrenumber.pl --filename='xmlfiles/$fileid' ";
 		# print $cmd; exit;
 		$res = shell_exec($cmd);
 		for ( $i=0; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...
