@@ -575,20 +575,17 @@ function setForm ( type ) {
 	document.getElementById('mtxt').setAttribute('show', type);
 	
 	// determine the writing direction
-	// if ( typeof(formdir) != 'undefined' ) {
-
-		if ( typeof(formdir) != 'undefined' && formdir[type] ) {
-			document.getElementById('mtxt').style['direction'] = formdir[type];
-			document.getElementById('mtxt').direction = formdir[type];
-		} else if ( basedirection != '' ) {
-			document.getElementById('mtxt').style['direction'] = basedirection;
-		} else if ( typeof(formdir) != 'undefined' && formdir['pform'] ) {
-			document.getElementById('mtxt').style['direction'] = formdir['pform'];
-		} else {
-			document.getElementById('mtxt').style['direction'] = 'ltr';
-		};
+	setdirc = 'ltr';
+	if ( typeof(formdir) != 'undefined' && formdir[type] ) {
+		setdirc = formdir[type];
+	} else if ( basedirection != '' ) {
+		setdirc = basedirection;
+	} else if ( typeof(formdir) != 'undefined' && formdir['pform'] ) {
+		setdirc = formdir['pform'];
+	};
+	document.getElementById('mtxt').style['direction'] = setdirc;
+	document.getElementById('mtxt').direction = setdirc;
 		
-	// };
 
 	// Do the <c> to allow for normalizing spaces
 	var its = document.getElementsByTagName("c");
