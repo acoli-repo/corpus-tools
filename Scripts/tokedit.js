@@ -580,7 +580,7 @@ function setForm ( type ) {
 		if ( typeof(formdir) != 'undefined' && formdir[type] ) {
 			document.getElementById('mtxt').style['direction'] = formdir[type];
 			document.getElementById('mtxt').direction = formdir[type];
-		} else if ( basedirection ) {
+		} else if ( basedirection != '' ) {
 			document.getElementById('mtxt').style['direction'] = basedirection;
 		} else if ( typeof(formdir) != 'undefined' && formdir['pform'] ) {
 			document.getElementById('mtxt').style['direction'] = formdir['pform'];
