@@ -42,21 +42,7 @@
 				};
 			};
 		};
-		
-		// This is for a smooth transition to a more secure encryption method
-		if ( !$xrec['enc'] && !$xrec['tochange'] && $xrec ) {
-			# Check for non-encrypted passwords
-			if ( $_POST['password'] == $xrec['password']  || $xrec['password'] == crypt("teiteitokencryptor", $_POST['password'] ) ) {
-				# Password correct, but now save it as a more secure password
-				 $pwd = password_hash($_POST['password'], PASSWORD_DEFAULT);
-				 $xrec['password'] = $pwd;
-				 $xrec['enc'] = "1";
-				file_put_contents("Resources/userlist.xml", $uxml->asXML());
-			} else {
-				fatal ("Wrong (old) password");
-			};
-		};
-	
+			
 		## Check whether the password is correct
 		if ( password_verify($_POST['password'], $xrec['password']) )  { 
 			if ( $record['permissions'] != "none"  ){
@@ -102,15 +88,13 @@
 				fatal("Your login to this corpus has been deactivated. If you need to work on this corpus, please contact the corpus administrator to reactivate your account.");
 				actionlog ( "permissions error: {$_POST['login']}" );
 			};
-		} else if ( $settings['defaults']['passwords']['retry'] && crypt($pwd, "teitokdefaultsalt") == $xrec['password'] ) {
-			# Check against older passwords in case of a system move
-			 $pwd = password_hash($_POST['password'], PASSWORD_DEFAULT);
-			 $xrec['password'] = $pwd;
-			 $xrec['enc'] = "1";
-			file_put_contents("Resources/userlist.xml", $uxml->asXML());
-			$maintext .= "<h1>Login Changed</h1><p>Login system has change - updating your data accordingly. Please reload. <script language=Javascript>location.reload(); </script>"; 
-			
+		} else if ( !$xrec['enc'] ) {
+
+			fatal("This is an old style, insecure password; for security, this type of login has been disabled");
+			messagelog ( "non-encoded password: {$_POST['login']} /  {$_POST['password']}" );
+
 		} else {
+		
 			$maintext .= "<h1>Login Failed</h1><p>The username and password you provided do not match."; 
 			messagelog ( "password error: {$_POST['login']} /  {$_POST['password']}" );
 
