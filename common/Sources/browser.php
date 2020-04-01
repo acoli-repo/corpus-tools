@@ -150,7 +150,6 @@
 							} else if ( checkval > tocheck ) { 
 								aft = true; 
 							} else if ( checkval == tocheck ) {
-								console.log('found!');
 								found = true; break;
 							};
 						};
@@ -180,6 +179,9 @@
 						},
 						onMonthChange: function(selectedDates, dateStr, instance) {
 							checkmonth();
+						},
+						onChange: function(selectedDates, dateStr, instance) {
+							window.open('index.php?action=$action&class=$class&val='+dateStr, '_self');
 						},
 					});
 				</script>";
