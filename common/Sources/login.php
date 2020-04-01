@@ -22,6 +22,9 @@
 			$record['permissions'] = $xrec['permissions'].''; 
 			$record['group'] = $xrec['group'].''; 
 			$record['fullname'] = $xrec.''; 
+			if ( $sufile == $ufile ) {
+				$record['projects'] = $xrec['projects'].''; 
+			};
 		} else if ( $suxml ) {
 			$result = $suxml->xpath("//user[@email='{$_POST['login']}']"); 
 			$xrec = $result[0];
@@ -32,6 +35,7 @@
 			if ( $xrec['projects'] == "all" ) {
 				$record['permissions'] = $xrec['permissions'].''; 
 				$record['group'] = $xrec['group'].''; 
+				$record['projects'] = $xrec['projects'].''; 
 			} else if ( $xrec ) { 
 				$pxrec = current($xrec->xpath("./project[@key='$foldername']"));
 				if ( $pxrec ) {
@@ -73,7 +77,7 @@
 						
 				// If we login as admin and have not done set-up properly, go to checksettings		
 				if ( $user['permissions'] == "admin" && $foldername != $settings['defaults']['base']['foldername'] && $action != "admin" && $action != "adminsettings" && $action != "error"  && !$debug ) {
-					print "<script langauge=Javasript>top.location='index.php?action=admin&act=checksettings';</script>";
+					print "<script language=Javasript>top.location='index.php?action=admin&act=checksettings';</script>";
 					exit;
 				};
 						
@@ -88,8 +92,8 @@
 				fatal("Your login to this corpus has been deactivated. If you need to work on this corpus, please contact the corpus administrator to reactivate your account.");
 				actionlog ( "permissions error: {$_POST['login']}" );
 			};
-		} else if ( !$xrec['enc'] ) {
-
+		} else if ( $xrec && !$xrec['enc'] ) {
+			
 			fatal("This is an old style, insecure password; for security, this type of login has been disabled");
 			messagelog ( "non-encoded password: {$_POST['login']} /  {$_POST['password']}" );
 

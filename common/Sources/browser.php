@@ -109,7 +109,7 @@
 		$cat = $item['display'];
 
 		$maintext .= "<p><a href='index.php?action=$action'>{%!documents}</a> > {%$cat}
-			<hr><ul id=sortlist>";
+			<hr>";
 
 		$list = file_get_contents("$cqpfolder/text_$class.avs");
 
@@ -118,16 +118,83 @@
 				foreach ( explode(",", $val) as $pval ) $vals[trim($pval)]++;
 			} else $vals[$val]++;
 		};
+		
+		if ( $item['type'] == "date") {
+			$datelist = "\"".join("\",\"", array_keys($vals))."\"";
+			$maintext .= "
+				<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css\">
+				<form name=\"datep\" id=\"datep\">
+				<input type=\"text\" class=\"datepicker\" id=\"datef\">
+				</form>
+				<script src=\"https://cdn.jsdelivr.net/npm/flatpickr\"></script>
+				<script>
+					var datelist = [$datelist];
+					var lastat;
+					function checkmonth() {
+						var tocheck = flatp.currentMonth + 12*flatp.currentYear;
+						var found = false; var bef = false; var aft = false;
+						console.log('looking for: ' + flatp.currentYear + '.' + flatp.currentMonth); 
 
-		foreach ( $vals as $val => $cnt ) {
-			$oval = urlencode($val);
-			if ( $val == "" || $val == "_" ) {
-				if ( !$settings['cqp']['listnone'] ) continue;
-				$val = "({%none})";
-			} else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
-			$maintext .= "<li key='$val'><a href='index.php?action=$action&class=$class&val=$oval'>$val</a></li>";
+						var dir = 1;
+						if ( lastat < tocheck ) { 
+							dir = 0;
+						};
+						lastat = tocheck;
+						
+						for ( var i=0; i<datelist.length; i++ ) {
+							var tmp = datelist[i].split('-');
+							var checkval = parseInt(tmp[1])-1 + 12*(parseInt(tmp[0]));
+
+							if ( checkval < tocheck ) { 
+								bef = true; 
+							} else if ( checkval > tocheck ) { 
+								aft = true; 
+							} else if ( checkval == tocheck ) {
+								console.log('found!');
+								found = true; break;
+							};
+						};
+						
+						if ( dir ) {
+							if ( !found && bef ) { 
+								flatp.changeMonth(-1);
+							} else if ( !found && !bef ) {
+								flatp.changeMonth(1);
+							};
+						} else {
+							if ( !found && aft ) { 
+								flatp.changeMonth(1);
+							} else if ( !found && !aft ) {
+								flatp.changeMonth(-1);
+							};
+						};
+						
+					};
+					var flatp;
+					flatpickr(\"#datef\", {
+						enable: datelist,
+						inline: true,
+						onReady: function(selectedDates, dateStr, instance) {
+							flatp = instance;
+							checkmonth();
+						},
+						onMonthChange: function(selectedDates, dateStr, instance) {
+							checkmonth();
+						},
+					});
+				</script>";
+		} else {
+			$maintext .= "<ul id=sortlist>";
+			foreach ( $vals as $val => $cnt ) {
+				$oval = urlencode($val);
+				if ( $val == "" || $val == "_" ) {
+					if ( !$settings['cqp']['listnone'] ) continue;
+					$val = "({%none})";
+				} else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
+				$maintext .= "<li key='$val'><a href='index.php?action=$action&class=$class&val=$oval'>$val</a></li>";
+			};
+			$maintext .= "</ul><script language=Javascript>sortList(document.getElementById('sortlist'));</script>";
 		};
-		$maintext .= "</ul><script language=Javascript>sortList(document.getElementById('sortlist'));</script>";
 
 	} else {
 
@@ -140,7 +207,7 @@
 			if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
 			$cat = $item['display']; # $val = $item['long'] or
 
-			if ( ( $item['type'] == "select" || $item['type'] == "kselect" )
+			if ( ( $item['type'] == "select" || $item['type'] == "kselect"  || $item['type'] == "date" )
 					&& ( ( !$item['noshow'] && !$item['admin']  ) || $username ) ) {
 				$foundsome = 1;
 				$maintext .= "<li key='$cat'><a href='index.php?action=$action&class=$key'>{%$cat}</a></li>";
