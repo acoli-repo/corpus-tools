@@ -153,10 +153,10 @@
 						};
 					};
 				};
-				natcasesort( $optarr ); $optlist = join ( "", $optarr );
-				if ( $coldef['select'] == "multi" ) $multiselect = "multiple";
+				natcasesort( $optarr ); $optlist = join ( "", $optarr ); $colm = '';
+				if ( $coldef['select'] == "multi" ) { $multiselect = "multiple"; $colm = '[]'; };
 				
-				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name=vals[$col] $multiselect><option value=''>[{%select}]</option>$optlist</select>";
+				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name='vals[$col]$colm' $multiselect><option value=''>[{%select}]</option>$optlist</select>";
 
 			} else 
 				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}
@@ -181,7 +181,7 @@
 
 		// name the sattributes
 		foreach ( $settings['cqp']['sattributes'] as $lvl ) {
-			foreach ( $lvl as $xatt ) {
+			foreach ( $lvl as $xid => $xatt ) {
 				if ( !$xatt['display'] || !$xatt['key'] || !is_array($xatt) ) continue;
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";
 			};
@@ -192,9 +192,9 @@
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";
 			};
 		};
-		
+
 		// Pass i18n to Javascript
-		$prescript .= "var pattname = [];\n var jstrans = []; \n$jsnames";
+		$prescript .= "var pattname = [];\n var jstrans = []; var fldtypes= []; fldtypes['multi'] = [];\n$jsnames";
 		$tojstrans = array ("CQL Query Visualization", "Document Search", "any token", "and", "or", "globals", "group", "name", "or more", "optional" );
 		foreach ( $tojstrans as $tmp ) $prescript .= " jstrans['$tmp'] = '{%$tmp}';";
 
@@ -350,6 +350,7 @@
 						if ( $item['select'] == "multi" ) {
 							$multiselect = "multiple";  $msarr = "[]";
 							$mstext = "select choices";
+							$prescript .= "fldtypes['multi']['$key'] = true;";
 						} else {
 							$multiselect = ""; $msarr = "";
 							$mstext = "select";

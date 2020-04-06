@@ -399,6 +399,17 @@
 
 			$showstyle = $_POST['style'] or $showstyle = $settings['cqp']['defaults']['searchtype'] or $showstyle = "kwic";
 			$showsubstyle = $_POST['substyle'] or $showsubstyle = $settings['cqp']['defaults']['subtype'];
+			if ( $showsubstyle && !$settings['cqp']['sattributes'][$showsubstyle] ) {
+				if ( $user['permissions'] == "admin" ) {
+					print "Incoherent settings - asked to display context on non-existing &lt;$showsubstyle&gt; - please go to admin > check configuration settings
+						<script language=Javascript>top.location='index.php?action=admin&act=configcheck';</script>";
+					exit;					
+				} else {
+					if ( $settings['cqp']['sattributes']['s'] ) $showsubstyle = "s";
+					else if ( $settings['cqp']['sattributes']['p'] ) $showsubstyle = "p";
+					else $showstyle = "kwic";
+				};
+			};
 
 				if ( $showstyle == "context" && $showsubstyle != "tok"  ) {
 					$expand = "--expand=$showsubstyle";

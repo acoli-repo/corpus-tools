@@ -305,6 +305,7 @@ function updatequery(nodirect = false) {
         var name = flds[i].getAttribute('name');  
         var val = flds[i].value; 
         if ( val == '' ) continue;
+			console.log(name); console.log(val);
         var parse = /(.*)\[(.*)\]/g.exec(name);                     
         if ( parse == null ) continue;
         if ( parse[1] == 'vals' ) {
