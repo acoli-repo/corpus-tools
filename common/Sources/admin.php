@@ -30,12 +30,11 @@
 		
 	} else if ( $act == "update" ) {
 		
-		// TODO: Could this work? It depends on Apache having all the right permissions
-		
+		// Self-update
 		if ( $user['permissions'] != "admin" ) { fatal("Not allowed"); };
-		if ( !is_writable($gitfldr) ) { fatal("TEITOK cannot be updated from within the browser $gitfldr"); };
+		if ( !is_writable($ttroot) ) { fatal("TEITOK cannot be updated from within the browser $gitfldr"); };
 		
-		$cmd = "cd $gitfldr; /usr/bin/git pull 2>&1";
+		$cmd = "cd $ttroot; /usr/bin/git pull 2>&1";
 		$output = shell_exec($cmd);
 		
 		$maintext .= "<h1>Updating the TEITOK system</h1>
