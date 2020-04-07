@@ -19,8 +19,6 @@ is kept synchronised on a daily basis, so the repository can be cloned from ther
 
 This package is [licenced](LICENCE) under the GNU General Public License v3.0.
 
-At this moment, the repository source code is private to protect users, until security issues have been sufficiently addressed.
-
 ## Installation
 
 For the largest part, TEITOK is a PHP/Javascript which only requires a **teitok** folder under the WWW root, with both the **common** folder and one or more project folders inside. The best way to set this up is to clone this Git project to your computer, create the folder teitok and copy the folder **check** to there. On top of that, create a symbolic link called *common* inside the teitok folder that points to the *common* folder in the Git project. That way, TEITOK will always used the latest updates after you update your Git files.
