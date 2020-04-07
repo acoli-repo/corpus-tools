@@ -1,7 +1,7 @@
 <?php 
 
 	if ( $user['permissions'] != "admin" ) { fatal("Only for superusers"); };
-	if ( $user['projects'] != "all" ) { print_r($user); exit; fatal("Only for global admin users"); };
+	if ( $user['projects'] != "all" ) { fatal("Only for global admin users"); };
 
 	$checkshared = preg_replace("/.*\/([^\/]+)\/?/", "\\1", getenv('TT_SHARED'));
 	if ( $checkshared != $foldername ) { 
@@ -19,7 +19,7 @@
 		
 		# Create the folder
 		if ( is_dir($projectfolder) ) {
-			# fatal("Folder $rootfolder exists - refusing to advance");
+			fatal("Folder $rootfolder exists - refusing to advance");
 		};
 		if ( !is_writable($rootfolder) ) {
 			fatal("Apache cannot write to $rootfolder - cannot create from within here");
