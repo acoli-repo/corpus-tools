@@ -249,6 +249,13 @@
 			if ( allowedforme($key) && $item['display'] )
 				$maintext .= "<li><a href='$link'>".$item['display']."</a>";
 		};
+
+
+		$checkshared = preg_replace("/.*\/([^\/]+)\/?/", "\\1", getenv('TT_SHARED'));
+		if ( $checkshared == $foldername && $user['projects'] == "all" ) {
+				$maintext .= "<li><a href='index.php?action=sharedadmin'>Server-side settings</a>";
+		};
+
 		
 		$maintext .= "</ul>
 		
