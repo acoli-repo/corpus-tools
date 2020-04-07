@@ -1,11 +1,7 @@
 <?php
 
-
-	// define where the Smarty.class can be found
-	// define('SMARTY_DIR', '/usr/local/share/smarty/');
-
 	// define where the TEITOK common files can be found
-	$ttroot = "..";
+	$ttroot = getenv('TT_ROOT') or "..";
 
 	// define which time-zone to use (obligatory for date in PHP)
 	date_default_timezone_set('UTC');
