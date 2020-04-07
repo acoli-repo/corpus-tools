@@ -284,9 +284,9 @@
 			};
 			
 			// TODO: Can we update via the GUI?
-// 			if ( $user['permissions'] == "admin" && is_writable($gitfldr) ) {
-// 				$maintext .= " (<a href='index.php?action=admin&act=update'>update</a>)";
-// 			};
+			if ( $user['permissions'] == "admin" && is_writable($gitfldr) ) {
+				$maintext .= " (<a href='index.php?action=admin&act=update'>update</a>)";
+			};
 		};
 
 	};
