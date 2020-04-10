@@ -36,6 +36,8 @@
 		$query = str_replace('[', '\[', $query);
 		$query = str_replace(']', '\]', $query);
 
+		$query = execsafe($query);
+
 		if ( $settings['bin']['grep'] ) $grepcmd = $settings['bin']['grep'];
 		else {
 			$cmd = "/usr/bin/which grep"; $grepcmd = chop(shell_exec($cmd));
@@ -57,7 +59,7 @@
 			if ( !$xmlid ) continue;
 			
 			if ( $username ) $foldertxt = "<td><i class=adminpart>$folder</i>";
-			$tmp = ""; if ( !$folders[$folder] ) $tmp = "class=adminpart";
+			$tmp = ""; #if ( !$folders[$folder] ) $tmp = "class=adminpart"; # TODO: why?
 			$maintext .= "<tr>$foldertxt<td><a href='index.php?action=file&id=$xmlid' $tmp>$xmlid</a>";
 		};
 		$maintext .= "</table>";

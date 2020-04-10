@@ -868,4 +868,14 @@
 		return "/$xmroot$xpath";
 	};
 
+
+	function execsafe( $cmd ) {
+		# Make sure commands passed to shell_exec in brackets are safe
+		
+		# Remove all brackets 
+		$cmd = str_replace("'", '&#039;', $cmd);
+		
+		return $cmd;
+	};
+
 ?>

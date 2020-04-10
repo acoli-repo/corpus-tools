@@ -170,7 +170,7 @@
 	
 	} else if ( $act == "convert" )  {
 		
-		$soundfile = $_GET['file'];	
+		$soundfile = execsafe($_GET['file']);	
 		if ( preg_match("/(.*?)([^\/]+)\.([^.]+)$/", $soundfile, $matches ) ) {
 			$ext = $matches[3];	
 			$basename = $matches[2];
@@ -182,13 +182,16 @@
 			$outfile = $folder.$basename.".".$_POST['format'];	
 			
 			if ( $outfile == $soundfile ) {
-				$cmd = "/bin/cp $soundfile tmp/$basename.$ext";
+				$cmd = "/bin/cp '$soundfile' 'tmp/$basename.$ext'";
 				print "<p>$cmd";
 				shell_exec($cmd);
 			};
 			
+			
 			// TODO: replace aligned <anon> elements with beep sounds	
-			$cmd = "$sox $soundfile -r {$_POST['rate']} -t {$_POST['format']} $outfile";
+			$rate = execsafe($_POST['rate']);
+			$format = execsafe($_POST['format']);
+			$cmd = "$sox '$soundfile' -r '$rate' -t '$format' $outfile";
 			print "<p>$cmd";
 			shell_exec($cmd);
 			//print "<p>File converted. Reloading.
@@ -198,7 +201,7 @@
 		} else {	
 
 			// sound info	
-			$soxinfo = shell_exec("$sox --i $soundfile");
+			$soxinfo = shell_exec("$sox --i '$soundfile'");
 			foreach ( explode("\n", $soxinfo) as $line ) {
 				if ( preg_match ( "/^\s*(.*?)\s*:\s*(.*)$/", $line, $matches ) )
 					$soundinfo[trim($matches[1])] = trim($matches[2]);
@@ -370,7 +373,7 @@
 			<h2>$fileid</h2>
 			<h1>Audio management</h1>";
 			
-		$soundfile = current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url"));
+		$soundfile = execsafe(current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url")));
 		if ( !$soundfile ) $soundfile = current($ttxml->xml->xpath("//media/@url")); // maybe there is no mimeType
 		if ( !$soundfile ) fatal ("XML file has no media element providing a URL to the sound file");
 

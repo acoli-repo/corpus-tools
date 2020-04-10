@@ -319,6 +319,9 @@
 					if ( $item['nosearch'] || $val == "" ) $a = 1; # Ignore this in search 
 					else if ( $item['type'] == "range" ) 
 						$querytext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
+					else if ( $item['type'] == "date" ) 
+						## TODO: this is not really a nice solution
+						$querytext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' placeholder='YYYY-MM-DD' size=40>";
 					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
 						# Read this index file
 						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();

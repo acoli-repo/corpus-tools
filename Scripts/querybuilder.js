@@ -305,8 +305,7 @@ function updatequery(nodirect = false) {
         var name = flds[i].getAttribute('name');  
         var val = flds[i].value; 
         if ( val == '' ) continue;
-			console.log(name); console.log(val);
-        var parse = /(.*)\[(.*)\]/g.exec(name);                     
+        var parse = /(.*?)\[(.*)\]/g.exec(name);                     
         if ( parse == null ) continue;
         if ( parse[1] == 'vals' ) {
 	        if ( flds[i].nodeName == "INPUT" ) {
@@ -326,7 +325,11 @@ function updatequery(nodirect = false) {
         } else if ( parse[1] == 'atts' ) {
 			var matchtype = '';
 			if ( document.querySelector('[name="matches['+parse[2]+']"]') ) { matchtype = document.querySelector('[name="matches['+parse[2]+']"]').value; };
-			if ( matchtype == 'contains' ) {
+			var tmp = /(.*)\]\[/g.exec(parse[2]);  
+			if ( tmp[1] ) {
+ 				parse[2] = tmp[1];
+ 				val = getSelectValues(flds[i]).join('|');
+			} else if ( matchtype == 'contains' ) {
 				val = '.*' + val + '.*';
 			} else if ( matchtype == 'startswith' ) {
 				val = val + '.*';
@@ -427,3 +430,18 @@ function changepos (elm) {
 	tagprev = elm.value;
 	document.getElementById('posopt-' + tagprev).style.display = 'block';
 };
+
+function getSelectValues(select) {
+  var result = [];
+  var options = select && select.options;
+  var opt;
+
+  for (var i=0, iLen=options.length; i<iLen; i++) {
+    opt = options[i];
+
+    if (opt.selected) {
+      result.push(opt.value || opt.text);
+    }
+  }
+  return result;
+}
