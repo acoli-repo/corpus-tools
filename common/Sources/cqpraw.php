@@ -11,7 +11,17 @@
 
 	include ("$ttroot/common/Sources/cwcqp.php");
 
+
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+
+		if ( $_GET['version'] ) {
+			$versionxml = simplexml_load_file("Resources/static.xml");
+			$version = current($versionxml->xpath("//version[@id='{$_GET['version']}']"));
+			if ( $version ) {
+				$registryfolder = "static/{$version['folder']}";
+				$versionheader = "<h2>Static version {$version['display']}</h2>";
+			};
+		};
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$cqpfolder = $settings['cqp']['searchfolder'];
@@ -213,6 +223,7 @@
 				$cql .= "[word=\"$swrd\"] ";
 			};
 		};
+		
 
 		$cqp = new CQP($registryfolder);
 		$cqp->exec($cqpcorpus); // Select the corpus
@@ -220,6 +231,8 @@
 		if ( !$fileonly || $user['permissions'] == "admin" ) $cqltxt = $cql; # Best not show the query for doc-only searches...
 
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
+		
+			$versionheader
 
 			<form action='' method=post id=cqp name=cqp><p>{%CQL Query}: &nbsp; <input name=cql size=80 value='{$cqltxt}'  $chareqfn> <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
 			$chareqjs
@@ -505,6 +518,8 @@
 		# Display the search screen with a CQP box only and a search-help
 
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
+
+			$versionheader
 
 			<form action='' method=post id=cqp name=cqp><p>CQP Query: &nbsp; <input name=cql size=80 value='{$cql}' $chareqfn> <input type=submit value=\"Search\"> <a href='index.php?action=$action&act=advanced'>{%advanced}</a></form>
 			$chareqjs
