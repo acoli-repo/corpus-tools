@@ -20,6 +20,7 @@
 	};
 
 	// Determine the location of the Smarty scripts
+	if ( getenv('SMARTY_DIR') ) define('SMARTY_DIR', getenv('SMARTY_DIR'));
 	if ( !defined(SMARTY_DIR) ) {
 		# Look for Smarty in some standard locations if not defined in a non-standard location
 		if ( file_exists('/usr/local/share/smarty/Smarty.class.php') ) 

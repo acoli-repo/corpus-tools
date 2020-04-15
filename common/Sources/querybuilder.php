@@ -351,7 +351,7 @@
 						else sort( $optarr, SORT_LOCALE_STRING ); 
 						$optlist = join ( "", $optarr );
 						if ( $item['select'] == "multi" ) {
-							$multiselect = "multiple";  $msarr = "[]";
+							$multiselect = "multiple style='max-height: 50px; overflow:auto;'";  $msarr = "[]";
 							$mstext = "select choices";
 							$prescript .= "fldtypes['multi']['$key'] = true;";
 						} else {
