@@ -309,7 +309,7 @@
 						"; 
 				} else {
 					$audiobit .= "<audio id=\"track\" src=\"$audiourl\" controls ontimeupdate=\"checkstop();\">
-							<p><i><a href='{$medianode['url']}'>{%Audio}</a></i></p>
+							<p><i><a href='$audiourl'>{%Audio}</a></i></p>
 						</audio>
 						"; 
 					$result = $medianode ->xpath("desc"); 
