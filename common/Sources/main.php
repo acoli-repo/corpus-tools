@@ -20,7 +20,7 @@
 	};
 
 	// Determine the location of the Smarty scripts
-	if ( getenv('SMARTY_DIR') != "" ) define('SMARTY_DIR', getenv('SMARTY_DIR'));
+	if ( getenv('SMARTY_DIR') != "" && !defined('SMARTY_DIR') ) define('SMARTY_DIR', getenv('SMARTY_DIR'));
 	if ( !defined(SMARTY_DIR) ) {
 		# Look for Smarty in some standard locations if not defined in a non-standard location
 		if ( file_exists('/usr/local/share/smarty/Smarty.class.php') ) 
@@ -34,7 +34,8 @@
 	};
 	if ( !file_exists(SMARTY_DIR . 'Smarty.class.php') ) {
 		// $smartypath = str_replace("Smarty.class.php", "", file_locate('Smarty.class.php')); //too slow so throw an error anyway
-		print "Smarty engine not installed or not found. Please install Smarty or indicate where it can be found - assuming ".SMARTY_DIR; exit; // fatal() puts this into a loop
+		if ( $username ) print "Smarty engine not installed or not found. Please install Smarty or indicate where it can be found - assuming ".SMARTY_DIR; exit; // fatal() puts this into a loop
+		else print "This site is currently down due to technical problems";
 	};
 	include(SMARTY_DIR . 'Smarty.class.php');
 	
