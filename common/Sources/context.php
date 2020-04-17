@@ -11,12 +11,18 @@
 	if ( isset($_GET['header']) ) $withheader = $_GET['header']; else if ( isset($settings['context']['header']) ) $withheader = $settings['context']['header']; else $withheader = 1;
 	if ( isset($_GET['wordh']) ) $withword = $_GET['wordh']; else if ( isset($settings['context']['wordheader']) ) $withword = $settings['context']['wordheader']; else $withword = 0; # Whether to display the word itself
 	$context = $_GET['context'] or $context = $settings['context']['context'] or $context = "s";
+	if ( $context + 0 == 0 ) {
+		if ( $username ) fatal("Context set to $context, which is not a CQP level in this corpus. Please correct in settings.xml//context");
+		$context = 5;
+	};      
 
 	$leftpos = $_GET['leftpos'];
 	$rightpos = $_GET['rightpos'];
 	
 	if ( $leftpos == "" ) $leftpos = $pos;
 	if ( $rightpos == "" ) $rightpos = $pos;
+
+	if ( $settings['context']['nopos'] ) $leftpos = ""; $rightpos = ""; # Ignore POS if indexes might differ
 
 	$fileid = "xmlfiles/$cid.xml"; 
 	$outfolder = "cqp"; 
