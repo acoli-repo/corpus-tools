@@ -239,7 +239,7 @@
 
 		$checkshared = preg_replace("/.*\/([^\/]+)\/?/", "\\1", getenv('TT_SHARED'));
 		if ( $checkshared == $foldername && $user['projects'] == "all" ) {
-				$maintext .= "<li><a href='index.php?action=sharedadmin'>Server-wide settings</a>";
+				$maintext .= "<li><a href='index.php?action=sharedadmin'>server-wide settings</a>";
 				$issharedproject = 1;
 		};
 

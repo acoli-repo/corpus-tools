@@ -83,7 +83,7 @@
 
 		if ( file_exists("Scripts/recqp.pl") ) $scriptname = "Scripts/recqp.pl"; 
 		else if ( file_exists("$sharedfolder/Scripts/recqp.pl") ) $scriptname = "$sharedfolder/Scripts/recqp.pl"; 
-		else $scriptname = "../common/Scripts/recqp.pl";	
+		else $scriptname = "$ttroot/common/Scripts/recqp.pl";	
 		$maintext .= "
 			<p>Currently, the CQP Corpus called {$settings['cqp']['corpus']} is regenerated based on the current
 				content of the XML files in ({$settings['cqp']['searchfolder']}).
@@ -115,7 +115,7 @@
 	} else if ( $_GET['check'] ) {
 		
 		$maintext .= "<p>The regeneration process does not seem to be running. This can be due to the fact that it has
-			never been used, or that TEITOK is not allowed to write to the tmp or Scripts folder";
+			never been used, or that TEITOK is not allowed to write to the tmp folder, or cannot read the common Perl scripts";
 	
 	} else {
 	
