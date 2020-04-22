@@ -253,6 +253,7 @@
 		$checkshared = preg_replace("/.*\/([^\/]+)\/?/", "\\1", getenv('TT_SHARED'));
 		if ( $checkshared == $foldername && $user['projects'] == "all" ) {
 				$maintext .= "<li><a href='index.php?action=sharedadmin'>Server-wide settings</a>";
+				$issharedproject = 1;
 		};
 
 		
@@ -279,11 +280,14 @@
 				$tmp2 = $tmp->xpath("//info");
 				$latest = $tmp2[0];
 				if ( $latest['version']."" != $version['version']."" ) $maintext .= " - Latest version: {$latest['version']}, {$latest['date']}" ;
-				else  $maintext .= " (up-to-date)";
+				else  {
+					$maintext .= " (up-to-date)";
+					$uptodate = 1;
+				};
 			};
 			
 			// TODO: Can we update via the GUI?
-			if ( $user['permissions'] == "admin" && is_writable($ttroot) ) {
+			if ( $user['permissions'] == "admin" && is_writable($ttroot) && !$uptodate && $issharedproject ) {
 				$maintext .= " (<a href='index.php?action=admin&act=update'>update</a>)";
 			};
 		};
