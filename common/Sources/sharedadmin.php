@@ -91,8 +91,36 @@
 			<ul>";
 			
 		$maintext .= "<li><a href='index.php?action=$action&act=newproject'>Create new project</a>";
+
+		# Display the TEITOK version
+		if ( file_exists("$ttroot/common/Resources/version.xml") ) {
+			$tmp = simplexml_load_file("$ttroot/common/Resources/version.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
+			$version = $tmp[0];
+			$footer .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
+
+			$scopts['http']['timeout'] = 3; // Set short timeout here to avoid hanging
+			if ( $settings['defaults']['base']['proxy'] ) $scopts['http']['proxy'] = $settings['defaults']['base']['proxy'];
+			$ctx = stream_context_create($scopts);	
+			$latesturl = "http://www.teitok.org/latest.php?url={$_SERVER['HTTP_HOST']}".preg_replace("/\/index\.php.*/", "", $_SERVER['REQUEST_URI'])."&version={$version['version']}";
+			$tmpf = file_get_contents($latesturl, false, $ctx);
+			$tmp = simplexml_load_string($tmpf, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);	
+			if ( $tmp ) {
+				$tmp2 = $tmp->xpath("//info");
+				$latest = $tmp2[0];
+				if ( $latest['version']."" != $version['version']."" ) $footer .= " - Latest version: {$latest['version']}, {$latest['date']}" ;
+				else  {
+					$footer .= " (up-to-date)";
+					$uptodate = 1;
+				};
+			};
+			
+			// TODO: Can we update via the GUI?
+			if ( $user['permissions'] == "admin" && is_writable($ttroot) && !$uptodate && $issharedproject ) {
+				$maintext .= "<li> <a href='index.php?action=admin&act=update'>update TEITOK version to {$latest['version']}</a>";
+			};
+		};
 				
-		$maintext .= "</ul>";
+		$maintext .= "</ul>$footer";
 	};
 	
 ?>
