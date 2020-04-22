@@ -84,6 +84,20 @@
 			</table>
 			<p><input type=submit value='Create Project'>
 			</form>";
+
+	} else if ( $act == "update" ) {
+		
+		// Self-update
+		if ( $user['permissions'] != "admin" ) { fatal("Not allowed"); };
+		if ( !is_writable($ttroot) ) { fatal("TEITOK cannot be updated from within the browser $gitfldr"); };
+		
+		$cmd = "cd $ttroot; /usr/bin/git pull 2>&1";
+		$output = shell_exec($cmd);
+		
+		$maintext .= "<h1>Updating the TEITOK system</h1>
+			<p>TEITOK Git folder: $gitfldr</p>
+			<pre>$output</pre>";
+		
 	
 	} else {
 		$maintext .= "<h1>Server-Wide Administration</h1>
