@@ -19,7 +19,7 @@
 		
 		# Create the folder
 		if ( is_dir($projectfolder) ) {
-			fatal("Folder $rootfolder exists - refusing to advance");
+			fatal("Folder $projectfolder exists - refusing to advance");
 		};
 		if ( !is_writable($rootfolder) ) {
 			fatal("Apache cannot write to $rootfolder - cannot create from within here");
@@ -34,6 +34,21 @@
 		if ( !file_exists("$projectfolder/index.php") ) {
 			fatal("Failed to copy index from $ttroot/projects/default-min/ to $projectfolder");
 		};
+
+		if ( $settings['xmlreader']['corplist'] && $_POST['corplist'] ) {
+			$tmp = file_get_contents("Resources/corplist.xml");
+			if ( !$tmp ) $tmp = "<corplist></corplist>";
+			$corpxml = simplexml_load_string($tmp);
+
+			$new = $corpxml->addChild("corpus");
+			foreach ( $_POST['corplist'] as $key => $val ) {
+				print "<p>$key: $val";
+				$new->addChild($key."", $val."");
+			};
+			$corpxml->addChild($new);
+			# Write back
+			file_put_contents("Resources/corplist.xml", $corpxml->asXML());
+		}; 
 		
 		# Create the settings.xml
 		shell_exec("mkdir $projectfolder/Resources"); 
@@ -74,6 +89,19 @@
 		};
 		$guessroot = $settings['defaults']['apacheroot'] or $guessroot = preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']);
 
+		if ( $settings['xmlreader']['corplist'] && file_exists("Resources/corplist-entry.xml")) {
+			$tmp = file_get_contents("Resources/corplist-entry.xml");
+			$corpexml = simplexml_load_string($tmp);
+			$corpusentry = "<p><table><tr><th colspan=2>Corpus List Entry";
+			foreach ( $corpexml->children() as $child ) {
+				$tn = $child->getName();
+				$td = $child["display"] or $td = $child."";
+				$corpusentry .= "<tr><th>$td<td><input name='corplist[$tn]' value='' size=70>";
+			};
+			$corpusentry .= "</table>";
+		};
+
+
 		$maintext .= "<h1>Create new project</h1>
 			<form action='index.php?action=$action&act=createnew' method=post>
 			<table>
@@ -82,6 +110,9 @@
 			<tr><th>Project title<td><input size=60 name='title'>
 			<tr><th>Copy settings from<td><select name='settings'><option value='.'>Shared project</option><option value='$ttroot/projects/default-min/'>Minimal project</option>$optlist</select>
 			</table>
+			
+			$corpusentry
+			
 			<p><input type=submit value='Create Project'>
 			</form>";
 
