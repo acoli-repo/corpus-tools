@@ -9,6 +9,8 @@
   <link href='https://fonts.googleapis.com/css?family=Open Sans' rel='stylesheet'>
   <link rel="stylesheet" type="text/css" href="http://www.teitok.org/Scripts/teitok.css" media="screen">
   <link rel="stylesheet" type="text/css" href="Resources/xmlstyles.css" media="screen">
+  <link rel="stylesheet" type="text/css" href="/teitok/shared/Resources/htmlstyles.css" media="screen">
+  <link rel="stylesheet" type="text/css" href="/teitok/shared/Resources/xmlstyles.css" media="screen">
   <link rel="stylesheet" type="text/css" href="Resources/htmlstyles.css" media="screen">
   <link rel="shortcut icon" href="favicon.ico">
   <title>{$title}</title>
