@@ -86,7 +86,8 @@
 	$headtext = $settings['context']['link'] or $headtext = "View TEITOK document";
 	if ( $withheader ) {
 		if ( $withlang ) $headtext = lgMsg("{%headtext}"); 
-		$header = "<p class='linktxt'><a href='{$baseurl}index.php?action=file&cid=$cid&tid=$tid'>$headtext</a></p>";
+		$cidx = $cid; if ( substr($cidx, -4) != ".xml" ) $cidx .= ".xml";
+		$header = "<p class='linktxt'><a href='{$baseurl}index.php?action=file&cid=$cidx&tid=$tid'>$headtext</a></p>";
 	};
 
 	if ( $format == "json" ) {
