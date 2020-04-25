@@ -261,6 +261,8 @@ class TTXML
 		
 		if ( $settings['xmlfile']['restriction'] && !$this->xml->xpath($settings['xmlfile']['restriction']) && !$username ) { 
 			$tokid = $_GET['jmp'] or $tokid = $_GET['tid'] or $tokid = 'w-1';
+			# Take only the first one
+			$tokid = preg_replace("/ .*/", "", $tokid);
 			$xmltxt = $this->context($tokid);
 			$this->pagenav = "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
 		} else if ( $settings['xmlfile']['paged'] != 2 && $_GET['div'] && 1==2 ) {
@@ -289,6 +291,7 @@ class TTXML
 		
 		if ( !$pagid ) $pagid = $_GET['pageid'];
 		$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
+		$jmp = preg_replace("/ .*/", "", $jmp);
 		$pbelm = $_GET['pbelm'] or $pbelm = $settings['xmlfile']['paged']['element'];
 		
 		if ( $pagid ) { 
@@ -490,6 +493,7 @@ class TTXML
 
 		if ( !$pagid ) $pagid = $_GET['pageid'];
 		if ( !$tid ) $tid = $_GET['tid'] or $tid = $_GET['jmp'];
+		$tid = preg_replace("/ .*/", "", $tid);
 
 		if ( $pagid ) {
 			$pb = "<$pbelm id=\"$pagid\"";
