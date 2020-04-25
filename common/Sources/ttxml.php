@@ -320,6 +320,7 @@ class TTXML
 			$bnum = $npag['n'] or $bnum = $npag['id'];
 			$bid = $npag['id'];
 			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a> &bull; <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a> <";
+			$hasnav = 1;
 		} else {
 			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
 		};
@@ -328,6 +329,7 @@ class TTXML
 			$bnum = $npag['n'] or $bnum = $npag['id'];
 			$bid = $npag['id'];
 			$nnav = "> <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a>";
+			$hasnav = 1;
 		};
 
 		$foliotxt = "$folioname $num";
@@ -348,7 +350,7 @@ class TTXML
 		};
 
 		# Build the page navigation
-		$this->pagenav = "
+		if ( $hasnav ) $this->pagenav = "
 						$tocnav
 						<table style='width: 100%'><tr> 
 						<td style='width: 33%' align=left>$bnav
