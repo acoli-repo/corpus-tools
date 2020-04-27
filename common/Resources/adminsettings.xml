@@ -228,6 +228,7 @@
 				<val key="context" display="Context search"/>
 				<val key="kwic" display="KWIC search"/>
 			</att>
+			<att key="context" display="Default size of the KWIC context" default="30"/>
 			<att key="subtype" display="Default context type">
 				<val key="text" display="Text (Document)"/>
 				<val key="s" display="Sentence"/>
@@ -409,6 +410,12 @@
 			<val key="1" display="Only show one page at a time (unless specified differently)"/>
 			<val key="2" display="Always only show one page at a time"/>
 		</att>
+		<item key="paged" display="Detailed settings for pagination (alternative to @paged)">
+			<att key="display" display="Name for the page" default="page"/>
+			<att key="i18n" display="Whether to i18n the page name" default="0"/>
+			<att key="element" display="XML element to use for pagination" default="pb"/>
+			<att key="closed" display="Whether the element node is a closed node or not" default="0"/>
+		</item>
 		<item key="teiHeader" display="Define custom teiHeader template list" deprecated="1">
 			<list>
 				<att key="key" display="Name of the template file (teiheader-XXX.tpl)"/>
@@ -862,6 +869,7 @@
 		</desc>
 		<att key="format" display="Output format (JSON/HTML)" default="html"/>
 		<att key="hls" display="Highlight style"/>
+		<att key="nopos" display="Ignore corpus position - to be used when indexes might be wrong"/>
 		<att key="header" display="Show header above the context (0/1)" default="1"/>
 		<att key="wordheader" display="Whether to display the word itself (0/1)" default="0"/>
 		<att key="context" display="Size of the context to the displayed (number of tokens or node name)" default="s"/>
