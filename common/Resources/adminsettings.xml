@@ -169,6 +169,11 @@
 			<list>
 				<att key="key" display="link action (index.php?action=XX)"/>
 				<att key="display" req="1" display="link name"/>
+				<att key="type" display="item type" default="item">
+					<val key="item" display="Menu item"/>
+					<val key="separator" display="Separator"/>
+					<val key="header" display="Subheader"/>
+				</att>
 			</list>
 		</item>
 		<item key="admin" display="List of admin items (shown on the Admin page)">

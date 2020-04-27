@@ -46,7 +46,11 @@
     		$scli = "";
     	};
 		$itemtxt = $item['display'] or $itemtxt = $key;
-    	if ( $item['admin'] ) {
+    	if ( $item['type'] == "separator" ) {
+    		$menu .= "</ul><hr><ul style='text-align: left'>";
+    	} else if ( $item['type'] == "header" ) {
+    		$menu .= "</ul><h3>{%$itemtxt}</h3><ul style='text-align: left'>";
+		} else if ( $item['admin'] ) {
     		if ( $item['admin'] == 1 || $user['permissions'] == "admin" ) {
 	    		$adminitems .= "<ul style='text-align: left'><li $scli><a href='$link'>{%$itemtxt}</a></ul>";
 	    	};

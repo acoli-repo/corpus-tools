@@ -269,7 +269,7 @@ class TTXML
 			# Show a whole DIV
 		} else if ( !$whole && ( $settings['xmlfile']['paged']['type'] == "xp" ) ) {
 			$xmltxt = $this->xppage();
-		} else if ( !$whole && ( $settings['xmlfile']['paged'] || $_GET['pbtype'] ) ) {
+		} else if ( !$whole && ( $settings['xmlfile']['paged'] || is_array($settings['xmlfile']['paged']) || ( $_GET['pbtype'] || $settings['xmlfile']['paged']['element'] ) ) ) {
 			$xmltxt = $this->page();
 		} else {
 			$result = $this->xml->xpath($mtxtelement);
@@ -483,9 +483,9 @@ class TTXML
 			$pbelm = "milestone";
 			$pbsel = "&pbtype={$pbtmp}";
 		} else if ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['closed'] ) {  // Custom-defined XML node
-			$pbtype = $pbtmp;
+			$pbtype = $settings['xmlfile']['paged']['element'] or $pbtype = $pbtmp;
 			$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($pbtmp);
-			$pbelm = $pbtmp;
+			$pbelm = $pbtype;
 		} else {  // Generic milestone
 			$pbtype = "milestone[@type=\"{$pbtmp}\"]";
 			$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($pbtmp);
@@ -509,7 +509,7 @@ class TTXML
 			$pb = "<$pbelm";
 			$pidx = rstrpos($editxml, $pb, $tokidx);
 		} else {
-			$pb = "<$pbelm";
+			$pb = "<$pbelm ";
 			$pidx = strpos($editxml, $pb);
 		};
 		
