@@ -5,6 +5,7 @@
 	<languages prefixed="1" default="en">
 		<options>
 		<item key="en" locale="en_UK.UTF-8" menu="EN" name="English"/>	
+		<item key="es" locale="es_ES.UTF-8" menu="ES" name="Spanish"/>
 		</options>
 	</languages>
 	
@@ -17,12 +18,12 @@
 	</menu>
 
 	<defaults>
-	    <title display="Default Corpus"/>
-	    <base foldername="TOCHANGE"/>
+	    <title display="Minimal Corpus">Minimal Corpus</title>
+	    <base foldername="default-min"/>
 	</defaults>
 		
 	<!-- Definition of the CQP corpus created from the XML files -->
-	<cqp corpus="TT-DEFAULT" searchfolder="xmlfiles">	
+	<cqp corpus="TT-DEFMIN" searchfolder="xmlfiles">	
 		<pattributes>
 			<item key="nform" display="Normalized form"/>
 			<item key="pos" display="POS Tag"/>

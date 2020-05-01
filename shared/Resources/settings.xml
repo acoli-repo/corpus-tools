@@ -1,7 +1,0 @@
-<ttsettings>
-	<defaults>
-		<title display="New Project"/>
-	    <base javascript="/teitok/Scripts/"/>
-	    <shared url="/teitok/shared"></shared>
-	</defaults>
-</ttsettings>
