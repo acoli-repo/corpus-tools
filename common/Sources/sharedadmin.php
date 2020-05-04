@@ -133,12 +133,90 @@
 			<p>TEITOK Git folder: $gitfldr</p>
 			<pre>$output</pre>";
 		
+	} else if ( $act == "configcheck" ) {
 	
+		$maintext .= "<h1>Server Configuration Check</h1>
+			<p>Below are some additional checks to see whether your server is set-up properly</p>
+			<style>
+	.wrong { color: #aa2000; } .wrong::before { content:'✘ ' }
+	.warn { color: #aa8800; } .warn::before { content:'✣ ' }
+	.right { color: #209900; } .right::before { content:'✔ ' }
+	</style>
+	";
+
+		// Check for CQP
+		$cqpcheck = shell_exec("/usr/local/bin/cqp -v");
+		if ( !$cqpcheck ) $cqpcheck = shell_exec("cqp -v"); // if not in /usr/local/bin - try just running it if server allows
+		if ( !$cqpcheck ) {
+			$maintext .= "<p class=warn> CQP not installed or not found. Please install <a href='http://cwb.sourceforge.net/'>CQP</a>,
+					unless you do not require any search functions on your corpus.";
+		} else {
+			preg_match ("/version:\s*(.*)/i", $cqpcheck, $matches);
+			$maintext .= "<p class=right> CQP found, version: {$matches[1]}";
+		};
+
+		// Check whether C++ modules are installed
+		$sep = "";
+		$cpps = array ('tt-cwb-encode', 'tt-cwb-xidx');
+		foreach ( $cpps as $cpp ) {
+			$cmd = "which $cpp";
+			if ( file_exists("/usr/local/bin/$cpp") ) {
+			} else {
+				$cpperrors .= $sep."$cpp.cpp"; $sep = ", ";
+			};
+		};
+		if ( !$cpperrors ) {
+			$maintext .= "<p class=right> C++ modules compiled.";
+		} else {
+			$maintext .= "<p class=warn> The following c++ programs were not found, they are recommended for use with CQP : $cpperrors .";
+			$newc = 1; # This should check whether the c++ version is new enough... which voids the need for boost
+			if ( $newc || file_exists('/usr/local/include/boost/version.hpp')  ) {
+				# Proper installation
+			} else {
+				# Check whether boost is (properly) installed
+				$boostpath = str_replace("Smarty.class.php", "", file_locate('boost/version.hpp'));
+				if ( $boostpath ) {
+					$maintext .= "<p class=warn> These C++ programs rely on boost, which seems not to be linked properly, but installed under $boostpath";
+				} else {
+					$maintext .= "<p class=warn> These C++ programs rely on boost, which does not seem to be installed";
+				};
+			};
+		};
+
+		// Check whether XML::LibXML is installed
+		$cmd = "perl -e 'use XML::LibXML; use HTML::Entities; print \"works\";'";
+		$test = shell_exec($cmd);
+		if ( $test != "works" ) {
+			$maintext .= "<p class=warn> For most external scripts, TEITOK requires the Perl modules XML::LibXML and HTML::Entities to be installed, which it is not.";
+			$perlerror = 1;
+		};
+		if ( !$perlerror ) {
+			$maintext .= "<p class=right> Required Perl modules working.";
+		};
+
+		if ( !function_exists('simplexml_load_string') ) {
+			$maintext .= "<p class=wrong>XML is not installed in PHP, please install php-xml";
+			$critical = 1; $phperror = 1;
+		};
+		
+		
+		# Check if the Javascript files are accessible
+		$maintext .= "<p id=js class=wrong> Javascript files are not accessible from $jsurl - please change
+			<script language=Javascript>
+				var img = new Image();
+				img.onload = function () {
+				   document.getElementById('js').style.display = 'none';
+				}
+				img.src = '$jsurl/load_img.gif';
+			</script>";
+
+				
 	} else {
 		$maintext .= "<h1>Server-Wide Administration</h1>
 		
 			<ul>";
 			
+		$maintext .= "<li><a href='index.php?action=$action&act=configcheck'>Check server configuration</a>";
 		$maintext .= "<li><a href='index.php?action=$action&act=newproject'>Create new project</a>";
 
 		# Display the TEITOK version
