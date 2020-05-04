@@ -18,13 +18,14 @@
 	</menu>
 
 	<defaults>
-	    <title display="Minimal Corpus">Minimal Corpus</title>
+	    <title display="Minimal Corpus"/>
 	    <base foldername="default-min"/>
 	</defaults>
 		
 	<!-- Definition of the CQP corpus created from the XML files -->
 	<cqp corpus="TT-DEFMIN" searchfolder="xmlfiles">	
 		<pattributes>
+			<item key="form" display="Form"/>
 			<item key="nform" display="Normalized form"/>
 			<item key="pos" display="POS Tag"/>
 			<item key="lemma" display="Lemma"/>

@@ -64,6 +64,10 @@
 		$node = xpathnode($setxml, "/ttsettings/defaults/title");
 		$node['display'] = $projecttitle;
 		
+		$node = xpathnode($setxml, "/ttsettings/cqp");
+		$corpname = strtoupper($projectname); $corpname =~ s/[^A-Z0-9_]//g;
+		$node['corpus'] = "TT-$corpname";
+		
 		file_put_contents("$projectfolder/Resources/settings.xml", $setxml->asXML());
 
 		# Create a home page

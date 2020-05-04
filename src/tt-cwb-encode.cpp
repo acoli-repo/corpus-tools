@@ -155,7 +155,7 @@ void treatnode ( pugi::xpath_node node ) {
 	pugi::xml_node lexitem;
 	pugi::xml_node tok;
 
-	if ( debug > 3	 ) node.node().print(std::cout);
+	if ( debug > 3	) node.node().print(std::cout);
 
 	if ( node.node().attribute("id") == NULL ) {
 		if ( debug > 1 ) { cout << "Skipping - node without an ID: " << node.node().attribute("id").value() << endl; };
@@ -172,13 +172,15 @@ void treatnode ( pugi::xpath_node node ) {
 	if ( debug > 1 ) { cout << "Token " << tokcnt << " : " << node.node().attribute("id").value()  << " = " << calcform(node.node(), wordfld) << endl; };
 
 	// Write the .lexicon, .lexicon.idx and .corpus files
-	string formkey; string formval; pugi::xpath_node xres;
+	string formkey; // The key (name) for the pattribute 
+	pugi::xpath_node xres; // The object corresponding to the pattribute
+	string formval; // The (calculated/inherited) string for the pattribute
     for ( pugi::xml_node formfld = xmlsettings.first_child().child("cqp").child("pattributes").child("item"); formfld != NULL; formfld = formfld.next_sibling("item") ) {
 		string xpath = formfld.attribute("xpath").value();
 		formkey = formfld.attribute("key").value();
 		if ( xpath != "" ) {
 			if ( debug > 4 ) { cout << "Calculating XPath value for node: " << xpath << endl; };
-			 xres = node.node().select_node(xpath.c_str());
+			xres = node.node().select_node(xpath.c_str());
 			if ( debug > 4 ) { xres.node().print(cout); };
 			if ( xres.attribute() ) {
 				formval = xres.attribute().value();
@@ -246,6 +248,7 @@ void treatfile ( string filename ) {
 
 	pugi::xpath_node resnode;
 
+	// See if we are asked to skip this type of file
 	if ( cqpsettings.attribute("restriction") != NULL
 			&& doc.select_node(cqpsettings.attribute("restriction").value()) == NULL ) {
 		if ( debug ) cout << "- XML " << filename << " not matching " << cqpsettings.attribute("restriction") .value() << endl;
@@ -268,8 +271,8 @@ void treatfile ( string filename ) {
 
     // Go through the toks
 	pugi::xpath_node_set toks = doc.select_nodes(tokxpath);
-	map<string, int> id_pos;
-	vector<pugi::xml_node> nodelist;
+	map<string, int> id_pos; // Keep the corpus position for each @pos since we need those for sattributes later
+	vector<pugi::xml_node> nodelist; 
 
 	if ( cqpsettings.attribute("withemptytext") != NULL && toks.size() == 0 ) {
 		// If we have no tokens in this file, but need to keep empty texts, create a single empty token inside this text
@@ -575,6 +578,11 @@ void treatfile ( string filename ) {
 			};
 		};
 	};
+	};
+
+	// For debugging, write out variable sizes
+	if ( debug > 1 ) {
+		cout << "Memory used in lexitems: " << sizeof(lexitems) + lexitems.size() * (sizeof(decltype(lexitems)::key_type) + sizeof(decltype(lexitems)::mapped_type)) << endl;
 	};
 
 };
