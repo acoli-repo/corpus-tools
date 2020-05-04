@@ -38,7 +38,7 @@ vector<string> tagHist;
 
 map<string, map<string, int> > lexitems; // .lexicon ids
 map<string, map<int, int> > lexcnt; // .lexicon counts (on ids)
-map<string, map<int, int> > pos2lex; // .lexicon positions (on ids)
+// map<string, map<int, int> > pos2lex; // .lexicon positions (on ids)
 map<string, map<string, ofstream*> > streams; // ascii output files
 map<string, map<string, FILE*> > files; // real output files
 map<string,int > lexidx; // max lexitems id
@@ -209,7 +209,7 @@ void treatnode ( pugi::xpath_node node ) {
 		};
 		write_network_number(lexitems[formkey][formval], files[formkey]["corpus"]);
 		lexcnt[formkey][lexitems[formkey][formval]]++;
-		pos2lex[formkey][tokcnt-1] = tokcnt-1;
+		// pos2lex[formkey][tokcnt-1] = tokcnt-1;
 
 	};
 
