@@ -98,6 +98,7 @@ string calcform ( pugi::xml_node node, string fld ) {
 void write_network_number ( int towrite, FILE *stream ) {
 	int i = htonl(towrite);
 	fwrite(&i, 4, 1, stream);
+	fflush(stream);
 };
 
 // Write a range to .rng
@@ -200,11 +201,11 @@ void treatnode ( pugi::xpath_node node ) {
 		if ( debug > 4 ) { cout << "Value: " << formkey << " = " << formval << endl; };
 		if ( !lexitems[formkey][formval] ) {
 			// new word
-			if ( debug > 4 ) { cout << formval << ":" << formkey << " - new value" << endl; };
 			lexitems[formkey][formval] = lexidx[formkey];
 			*streams[formkey]["lexicon"] << formval << '\0'; streams[formkey]["lexicon"]->flush();
 			write_network_number(lexpos[formkey], files[formkey]["idx"]);
 			lexidx[formkey]++; lexpos[formkey] += formval.length() + 1;
+			if ( debug > 4 ) { cout << formval << ":" << formkey << " - new value  - id " << lexidx[formkey] << " - pos " << lexpos[formkey] << endl; };
 		};
 		write_network_number(lexitems[formkey][formval], files[formkey]["corpus"]);
 		lexcnt[formkey][lexitems[formkey][formval]]++;
