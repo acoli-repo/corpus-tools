@@ -38,7 +38,6 @@ vector<string> tagHist;
 
 map<string, map<string, int> > lexitems; // .lexicon ids
 map<string, map<int, int> > lexcnt; // .lexicon counts (on ids)
-// map<string, map<int, int> > pos2lex; // .lexicon positions (on ids)
 map<string, map<string, ofstream*> > streams; // ascii output files
 map<string, map<string, FILE*> > files; // real output files
 map<string,int > lexidx; // max lexitems id
@@ -98,7 +97,7 @@ string calcform ( pugi::xml_node node, string fld ) {
 void write_network_number ( int towrite, FILE *stream ) {
 	int i = htonl(towrite);
 	fwrite(&i, 4, 1, stream);
-	fflush(stream);
+	// fflush(stream); // This does not seem to be needed, and slows down the process
 };
 
 // Write a range to .rng
@@ -209,7 +208,6 @@ void treatnode ( pugi::xpath_node node ) {
 		};
 		write_network_number(lexitems[formkey][formval], files[formkey]["corpus"]);
 		lexcnt[formkey][lexitems[formkey][formval]]++;
-		// pos2lex[formkey][tokcnt-1] = tokcnt-1;
 
 	};
 
@@ -583,7 +581,8 @@ void treatfile ( string filename ) {
 
 	// For debugging, write out variable sizes
 	if ( debug > 1 ) {
-		cout << "Memory used in lexitems: " << sizeof(lexitems) + lexitems.size() * (sizeof(decltype(lexitems)::key_type) + sizeof(decltype(lexitems)::mapped_type)) << endl;
+		// TODO: This does not work
+		// cout << "Memory used in lexitems: " << sizeof(lexitems) + lexitems.size() * (sizeof(decltype(lexitems)::key_type) + sizeof(decltype(lexitems)::mapped_type)) << endl;
 	};
 
 };
