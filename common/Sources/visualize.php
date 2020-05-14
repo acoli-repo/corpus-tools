@@ -213,7 +213,7 @@
 					$json .= "]";
 
 					if ( preg_match("/group Matches match (.*)/", $grquery, $matches ) ) {
-					$grtxt = "{%".pattname($matches[1])."}";
+					$grtxt = "<span title='".htmlentities($grquery)."'>{%".pattname($matches[1])."}</span>";
 				} else $grtxt = $grquery;
 
 				};

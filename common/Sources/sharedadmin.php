@@ -65,7 +65,7 @@
 		$node['display'] = $projecttitle;
 		
 		$node = xpathnode($setxml, "/ttsettings/cqp");
-		$corpname = strtoupper($projectname); $corpname = preg_replace("/[^A-Z0-9_]/g", "", $corpname);
+		$corpname = strtoupper($projectname); $corpname = preg_replace("/[^A-Za-z0-9_]/g", "", $corpname);
 		$node['corpus'] = "TT-$corpname";
 		
 		file_put_contents("$projectfolder/Resources/settings.xml", $setxml->asXML());
