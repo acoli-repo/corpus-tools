@@ -157,7 +157,7 @@
 	else include("$ttroot/common/Sources/menu.php");
 
 	# Check whether the settings actually belong to this project
-	if ( $user['permissions'] == "admin" && $foldername != $settings['defaults']['base']['foldername'] && $action != "admin" && $action != "adminsettings" && $action != "error"  && !$debug ) {
+	if ( $user['permissions'] == "admin" && $settings['defaults']['checkfolder']  && $foldername != $settings['defaults']['base']['foldername'] && $action != "admin" && $action != "adminsettings" && $action != "error"  && !$debug ) {
 		print "<script langauge=Javasript>top.location='index.php?action=admin&act=checksettings';</script>";
 		exit;
 	};
