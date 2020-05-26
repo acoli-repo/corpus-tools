@@ -158,7 +158,7 @@
 
 	# Check whether the settings actually belong to this project
 	if ( $user['permissions'] == "admin" && $settings['defaults']['checkfolder']  && $foldername != $settings['defaults']['base']['foldername'] && $action != "admin" && $action != "adminsettings" && $action != "error"  && !$debug ) {
-		print "<script langauge=Javasript>top.location='index.php?action=admin&act=checksettings';</script>";
+		print "<script language=Javasript>top.location='index.php?action=admin&act=checksettings';</script>";
 		exit;
 	};
 

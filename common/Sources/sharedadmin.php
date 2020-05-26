@@ -30,9 +30,9 @@
 		};
 		
 		# Copy the index.php into the folder
-		shell_exec("cp $ttroot/projects/default-min/index.php $projectfolder");
+		shell_exec("cp $ttroot/projects/default-shared/index.php $projectfolder");
 		if ( !file_exists("$projectfolder/index.php") ) {
-			fatal("Failed to copy index from $ttroot/projects/default-min/ to $projectfolder");
+			fatal("Failed to copy index from $ttroot/projects/default-shared/ to $projectfolder");
 		};
 
 		if ( $settings['xmlreader']['corplist'] && $_POST['corplist'] ) {
