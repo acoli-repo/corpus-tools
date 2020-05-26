@@ -156,12 +156,6 @@
 	if ( file_exists("Sources/menu.php") ) include("Sources/menu.php");
 	else include("$ttroot/common/Sources/menu.php");
 
-	# Check whether the settings actually belong to this project
-	if ( $user['permissions'] == "admin" && $settings['defaults']['checkfolder']  && $foldername != $settings['defaults']['base']['foldername'] && $action != "admin" && $action != "adminsettings" && $action != "error"  && !$debug ) {
-		print "<script language=Javasript>top.location='index.php?action=admin&act=checksettings';</script>";
-		exit;
-	};
-
 	# Create an edit HTML button	
 	if ( $username ) {
 		$baseaction = $_GET['action'] or $baseaction = "home";

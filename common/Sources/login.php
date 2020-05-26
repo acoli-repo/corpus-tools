@@ -76,7 +76,7 @@
 				};
 						
 				// If we login as admin and have not done set-up properly, go to checksettings		
-				if ( $user['permissions'] == "admin" && $foldername != $settings['defaults']['base']['foldername'] && $action != "admin" && $action != "adminsettings" && $action != "error"  && !$debug ) {
+				if ( $user['permissions'] == "admin" && $settings['defaults']['checkfolder'] && $foldername != $settings['defaults']['base']['foldername'] && $action != "admin" && $action != "adminsettings" && $action != "error"  && !$debug ) {
 					print "<script language=Javasript>top.location='index.php?action=admin&act=checksettings';</script>";
 					exit;
 				};
