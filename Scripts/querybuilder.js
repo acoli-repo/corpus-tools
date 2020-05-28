@@ -326,7 +326,7 @@ function updatequery(nodirect = false) {
 			var matchtype = '';
 			if ( document.querySelector('[name="matches['+parse[2]+']"]') ) { matchtype = document.querySelector('[name="matches['+parse[2]+']"]').value; };
 			var tmp = /(.*)\]\[/g.exec(parse[2]);  
-			if ( tmp[1] ) {
+			if ( tmp && tmp[1] ) {
  				parse[2] = tmp[1];
  				val = getSelectValues(flds[i]).join('|');
 			} else if ( matchtype == 'contains' ) {
