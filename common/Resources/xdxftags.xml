@@ -6,6 +6,9 @@
 <item key="categ" display="category of the defintion">
 </item>
 <item key="tr" display="phonological transcription">
+	<atts>
+		<item key="format" display="format used (IPA, SAMPA, ...)"/>
+	</atts>
 </item> 
 <item key="ar" display="article / dictionary entry">
 	<atts>
@@ -23,8 +26,25 @@
 <item key="etm" display="ethymology">
 </item> 
 <item key="kref" display="reference to another headword">
+	<atts>
+		<item key="type" display="type of relation (syn, rel, ant, ...)">
+			<val key="syn" display="synonym"/>
+			<val key="ant" display="antonym"/>
+			<val key="hpr" display="hyperonym"/>
+			<val key="hpn" display="hyponym"/>
+			<val key="par" display="paronym"/>
+			<val key="spv" display="spelling variant"/>
+			<val key="mer" display="meronym"/>
+			<val key="hol" display="holonym"/>
+			<val key="ent" display="entailment"/>
+			<val key="rel" display="relevance"/>
+		</item>
+		<item key="idref" display="ID of the referred def"/>
+	</atts>
 </item> 
 <item key="mrkd" display="marked - the occurrence of the headword in an example">
+</item> 
+<item key="sr" display="(semantically) related word">
 </item> 
 <item key="su" display="subarticle (ie a nested version of ar)">
 </item>

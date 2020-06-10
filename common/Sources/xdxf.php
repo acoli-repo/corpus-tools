@@ -19,6 +19,7 @@
 	foreach ( $settings['xdxf'] as $key => $val ) {
 		if ( !$dict[$key] ) $dict[$key] = $val;
 	};
+	if ( !$username && $dict['admin'] ) fatal("No access to this dictionary");
 	$_SESSION['did'] = $did; // Store the selected dictionary in a session variable
 	$filename = "Resources/$dictfile";
 	$id = $_GET['id'];
@@ -60,7 +61,7 @@
 			$maintext .= "<h1>{%Dictionary Reader}</h1>
 				<p>{%Select a dictionary}";
 			foreach ( $settings['xdxf'] as $key => $dict ) {
-				if (is_array($dict)) $maintext .= "<p><a href='index.php?action=$action&did=$key'>{$dict['title']}</a>";
+				if ( is_array($dict) && ($username || !$dict['admin']) ) $maintext .= "<p><a href='index.php?action=$action&did=$key'>{$dict['title']}</a>";
 			};
 		} else {
 			fatal("no dictionary selected");
@@ -337,6 +338,8 @@
 
 			if ( file_exists("Resources/dictInfo-$did.tpl") ) { 
 				$header = file_get_contents("Resources/dictInfo-$did.tpl");
+			} else if ( file_exists("Resources/xdxf.tpl") ) { 
+				$header = file_get_contents("Resources/dictInfo-$did.tpl");
 			} else {
 				$header = "<table>
 					<tr><th>{%Full Title}</th><td>{#//meta_info/full_title}</td>
@@ -518,7 +521,7 @@
 		};
 		
 		if ( $username  ) {
-			$maintext .= "<hr><p><span title='{$dict['filename']}'>$did</span> 
+			$maintext .= "<hr><div class='adminpart'><span title='{$dict['filename']}'>$did</span> 
 					&bull; 
 				<a href='index.php?action=$action&did=exit'>switch dictionary</a>
 					&bull;
@@ -527,6 +530,14 @@
 				<a href='index.php?action=$action&did=$did&act=edit&id=meta_info'>edit metadata</a>
 					&bull; 
 				<a href='index.php?action=adminedit&id={$dict['filename']}'>edit raw XML</a>
+					&bull; 
+				<a href='index.php?action=$action&act=list'>list entries</a>
+				</div>
+				";
+		} else if ( count($settings['xdxf']) > 1 ) {
+			$maintext .= "<hr>
+				<p>
+				<a href='index.php?action=$action&did=exit'>switch dictionary</a>
 				";
 		};
 			
