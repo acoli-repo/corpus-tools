@@ -714,8 +714,8 @@
     	</desc>
         <list display="List of dictionaries">
         	<att key="key" display="ID of the dictionary"/>
-        	<att key="filename" display="Filename of the dictionary XML file"/>
-        	<att key="title" display="Name of the dictionary"/>
+        	<att key="filename" obl="1" display="Filename of the dictionary XML file"/>
+        	<att key="title" obl="1" display="Name of the dictionary"/>
         	<att key="css" display="CSS file to use in this XDXF"/>
         	<item key="search" display="Search options">
         		<list>

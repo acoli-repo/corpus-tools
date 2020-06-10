@@ -219,12 +219,46 @@
 		$tmp = $settingsxml->xpath($xpath); $valnode = $tmp[0];
 		if ( !$tmp ) { fatal ("No such node: $xpath"); };
 
+
+		$tmp = explode('/', $xpath); $dxp = "/ttsettings";
+		foreach ( $tmp as $prt ) {
+			if ( $prt != "" && $prt != "ttsettings" ) $dxp .= "/item[@key=\"$prt\"]";
+		};
+		$opts = current($setdef->xpath($dxp));
+
+		$maintext .= "<h1>Create new item</h1><p>Locatiom: $xpath == $dxp/list</p>	
+			<style>.obl { color: #992200; }</style>	
+			<div>".current($opts->xpath("./desc"))."</div>
+			<p><form method=post action='index.php?action=$action&act=makeitem'>
+			<input name=xpath value='$xpath' type=hidden>
+			<table>
+			";
+		$optlist = current($opts->xpath("./list"));
+		if ( !$optlist ) fatal("Not a list section: $xpath");
+		foreach ( $optlist->children() as $opt ) {
+			$obl = "";
+			if ( $opt['obl'] || $opt['key'] == "key" ) $obl = "obl"; 
+			$maintext .= "<tr><th class='$obl'>{$opt['display']}<td><input name='flds[{$opt['key']}]' size=40>";
+		}; 
+		$maintext .= "</table>
+		<p><input type=submit value='Create item'>
+		</form>
+		<p class='obl'>Items in red are obligatory
+		";
+
+	} else if ( $act == "makeitem" ) {
+
+		$tmp = $settingsxml->xpath($_POST['xpath']); $valnode = $tmp[0];
+		if ( !$tmp ) fatal("No such section: {$_POST['xpath']}");
+
 		# Create the section
-		$ni = 1;
-		while ( $valnode->xpath("./item[@key=\"new$ni\"]") ) { $ni++; };
+		if ( !$_POST['flds']['key'] ) fatal("No ID given"); 
+		foreach ( $valnode->xpath("./item") as $tmp ) { if ( $tmp['key'] == $_POST['flds']['key'] ) fatal("ID {$_POST['flds']['key']} already exists");  };
 		$new = $valnode->addChild("item");
-		$new["key"] = "new$ni";
-		
+		foreach ( $_POST['flds'] as $key => $val ) {
+			if ( $val ) $new[$key] = $val;
+		};
+			
 		# Save a backup copy
 		$date = date("Ymd"); 
 		$buname = "settings-$date.xml";
@@ -233,9 +267,18 @@
 		};
 	
 		# Now save the actual file
+		if ( $_POST['goto'] ) {
+			$goto = $_POST['goto'];
+			preg_match_all("/{#([^\}]+)}/", $goto, $tmp); print_r($tmp);
+			foreach ( $tmp[1] as $key => $val ) {
+				$goto = preg_replace( "/\{#$val\}/", $_POST['flds'][$val], $goto );
+			};
+		} else {
+			$goto = "index.php?action=adminsettings&act=edit&node={$_POST['xpath']}/item[@key=\"{$_POST['flds']['key']}\"]/@key";
+		};
 		file_put_contents("Resources/settings.xml", $settingsxml->asXML());
 		print "<p>File saved. Reloading.
-			<script language=Javascript>top.location='index.php?action=adminsettings&act=edit&node={$xpath}/item[@key=\"new$ni\"]/@key';</script>
+			<script language=Javascript>top.location='$goto';</script>
 			"; exit;
 
 	} else if ( $section ) {

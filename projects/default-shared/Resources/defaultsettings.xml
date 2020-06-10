@@ -18,12 +18,12 @@
 	</menu>
 
 	<defaults>
-	    <title display="Minimal Corpus"/>
-	    <base foldername="default-min"/>
+	    <title display="Default Corpus"/>
+	    <base foldername="tochange"/>
 	</defaults>
 		
 	<!-- Definition of the CQP corpus created from the XML files -->
-	<cqp corpus="TT-DEFMIN" searchfolder="xmlfiles">	
+	<cqp corpus="TT-TOCHANGE" searchfolder="xmlfiles">	
 		<pattributes>
 			<item key="form" display="Form"/>
 			<item key="nform" display="Normalized form"/>

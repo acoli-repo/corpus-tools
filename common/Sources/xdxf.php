@@ -4,6 +4,7 @@
 	// (c) Maarten Janssen, 2015
 		
 	$did = $_GET['did'] OR $did = $_SESSION['did'];
+	if ( $did == "exit" ) { unset($_SESSION['did']); $did = ""; };
 	if ( $settings['xdxf'] ) {
 		if ( $did ) { 
 			$dict = $settings['xdxf'][$did];
@@ -15,6 +16,9 @@
 	} else {
 		 $dictfile = "dict.xml";
 	};
+	foreach ( $settings['xdxf'] as $key => $val ) {
+		if ( !$dict[$key] ) $dict[$key] = $val;
+	};
 	$_SESSION['did'] = $did; // Store the selected dictionary in a session variable
 	$filename = "Resources/$dictfile";
 	$id = $_GET['id'];
@@ -23,22 +27,53 @@
 	$hwxpath = $dict['headword'] or $hwxpath = "k";
 	$posxpath = $dict['pos'] or $posxpath = "gr";
 
-	if ( $filename && !file_exists($filename) ) { fatal("Dictionary file not found: $filename"); }; 
+	if ( $filename && !file_exists($filename) ) { 
+		if ($username) {
+			if ( !is_writable("Resources") ) fatal("Cannot write to Resources");
+			$xdxftmp = "<xdxf>\n<meta_info>\n\t<title>{$dict['title']}</title>\n</meta_info>\n<lexicon>\n</lexicon>\n</xdxf>";
+			file_put_contents($filename, $xdxftmp); 
+		} else {
+			fatal("Dictionary file not found: $filename"); 
+		};
+	}; 
 
-	if ( !$dictfile ) {
+	if ( $act == "newdict" ) {
+		
+		$maintext .= "<h1>Create new dictionary</h1>
+			
+			<style>.obl { color: #992200; }</style>	
+			<p>Here you can provide the data for the new dictionary, where <span class='obl'>items in red are obligatory</span>.
+				There data for the dictionary are stored in the settings - more data about the dictionary can later be added in the meta_info section.</p>
+
+			<p><form method=post action='index.php?action=adminsettings&act=makeitem'>
+			<input name=xpath value='/ttsettings/xdxf' type=hidden>
+			<input name=goto value='index.php?action=$action&did={#key}' type=hidden>
+			<table>
+			<tr><th class='obl'>ID of the dictionary<td><input name='flds[key]' size=40><tr><th class='obl'>Filename of the dictionary XML file<td><input name='flds[filename]' size=40><tr><th class='obl'>Name of the dictionary<td><input name='flds[title]' size=40><tr><th class=''>CSS file to use in this XDXF<td><input name='flds[css]' size=40><tr><th class=''>Search options<td><input name='flds[search]' size=40><tr><th class=''>CQP options<td><input name='flds[cqp]' size=40></table>
+		<p><input type=submit value='Create item'>
+		</form>
+		";
+	} else if ( !$dictfile ) {
 		// Ask to choose a dictionary if there is more than one in the settings
 		
 		if ( $settings['xdxf'] ) {
 			$maintext .= "<h1>{%Dictionary Reader}</h1>
-				<p>{%Select a document}";
+				<p>{%Select a dictionary}";
 			foreach ( $settings['xdxf'] as $key => $dict ) {
-				$maintext .= "<p><a href='index.php?action=$action&did=$key'>{$dict['title']}</a>";
+				if (is_array($dict)) $maintext .= "<p><a href='index.php?action=$action&did=$key'>{$dict['title']}</a>";
 			};
 		} else {
 			fatal("no dictionary selected");
 		};	
+
+		if ( $username  ) {
+			$maintext .= "<hr><p>
+				<a href='index.php?action=$action&act=newdict'>add new dictionary</a>
+				";
+		};
 		
-	} else if ( $username && $act == "save" && $id ) {
+	} else if ( $act == "save" && $id ) {
+		check_login();
 
 		$newrec = $_POST['rawxml']; 
 		$file = file_get_contents($filename); 
@@ -48,11 +83,18 @@
 		if ( !$test ) fatal ( "XML Error in AR record. Please go back and make sure to input valid XML" );
 		
 		if ( $id == "new" ) {
-			# Add the new record after the first entry
+			# Add the new record after the last entry
 			$newrec = preg_replace ( "/<!--.*?-->/", "", $newrec );
-			$newxml = preg_replace ( "/<\/lexicon>/smi", $newrec."\n\n</lexicon>", $file, 1 );
+			$newxml = preg_replace ( "/<\/lexicon>/smi", "\n".$newrec."\n</lexicon>", $file, 1 );
 			$newk = $test->k[0]."";
 			if ( !$newk ) { fatal ("No headword given"); };
+		} else if ( $id == "meta_info" ) {
+			# Add the new record after the last entry
+			$newxml = $file;
+			if ( !preg_match("/<meta_info/", $newxml) ) {
+				$newxml = preg_replace ( "/(<xdxf[^>]*>/smi", "\1\n<meta_info></meta_info>", $newxml, 1 );
+			};
+			$newxml = preg_replace ( "/<meta_info.*?<\/meta_info>/smi", $newrec, $newxml );
 		} else {
 			# Overwrite the existing record
 			$newxml = preg_replace ( "/<ar id=\"$id\".*?<\/ar>/smi", $newrec, $file );
@@ -65,34 +107,72 @@
 		# Save new XML to file
 		file_put_contents($filename, $newxml);
 		
+		print "Changes save. Reloading.";
 		if ( $id == "new" ) {
-			print "Changes save. Reloading. 
-				<script language=Javascript>top.location='index.php?action=$action&act=renumber&toword=$newk'</script>"; 
+			print "<script language=Javascript>top.location='index.php?action=$action&act=renumber&toword=new'</script>"; 
+		} else if ( $id == "meta_info" ) {
+			print "<script language=Javascript>top.location='index.php?action=$action'</script>"; 
 		} else {
-			print "Changes save. Reloading. 
-				<script language=Javascript>top.location='index.php?action=$action&id=$id'</script>"; 
+			print "<script language=Javascript>top.location='index.php?action=$action&id=$id'</script>"; 
 		};
 		exit;
 		
 	} else if ( $act == "edit" ) {
+		check_login();
 	
 		$xml = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		if ( $id && $id != "new" ) {
-			$result = $xml->xpath($arxpath."[@id=\"$id\"]"); 
-			$maintext .= "<h1>Edit dictionary item $id</h1>";
-		} else {
+		if ( !$xml ) fatal("Error reading dictionary");
+		$maintext .= "\n<h1>{$dict['title']}</h1>";
+		if ( $id == "new" ) {
 			$result = $xml->xpath("//ar[@id=\"new\"]"); 
-			$maintext .= "<h1>New dictionary item</h1>";
+			if ( !$result ) {
+				if ( $dict['defentry'] ) {
+					$editxml =  $dict['defentry'];
+				} else if ( $settings['xdxf']['defentry'] ) {
+					$editxml = $settings['xdxf']['defentry'];
+				} else {
+					$editxml = "<ar id=\"new\">\n\t<k></k>\n\t<def n=\"1\"><deftext></deftext></def>\n</ar>";
+				};
+			} else { 
+				$entry = current($result);
+				$editxml = $entry->asXML();
+			};
+			$maintext .= "<h2>New dictionary item</h2>";
+		} else if ( $id == "meta_info" ) {
+			$result = $xml->xpath("//meta_info"); 
+			if ( !$result ) {
+				$editxml = "<meta_info>\n\t<title></title>\n\t<full_title></full_title>\n\t<authors>\n\t\t<author></author>\n\t</authors>\n\t<publisher></publisher>\n\t<publishing_date></publishing_date>\n</meta_info>";
+			} else { 
+				$entry = current($result);
+				$editxml = $entry->asXML();
+			};
+			$maintext .= "<h2>Edit Dictionary metadata</h2>";
+		} else if ( $id ) {
+			$result = $xml->xpath($arxpath."[@id=\"$id\"]"); 
+			if ( !$result ) fatal("No such dictionary entry: $id");
+			$entry = current($result);
+			$editxml = $entry->asXML();
+			$id = $entry['id'];
+			$maintext .= "<h2>Edit dictionary item $id</h2>";
 		};
 		
-		foreach ( $result as $entry ) {
-			$editxml = $entry->asXML();
-			$editxml = htmlentities($editxml, ENT_QUOTES, "UTF-8");
-			$id = $entry['id'];
+		# Close empty tags
+		$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
+
+		if ( $id == "meta_info") {
+			if ( file_exists("Resources/xdxfmetatags.xml") )  $tmp = "Resources/xdxfmetatags.xml";
+			else if ( file_exists("$sharedfolder/Resources/xdxfmetatags.xml") )  $tmp = "$sharedfolder/Resources/xdxfmetatags.xml";
+			else $tmp = "$ttroot/common/Resources/xdxfmetatags.xml";
+		} else {
+			if ( file_exists("Resources/xdxftags.xml") )  $tmp = "Resources/xdxftags.xml";
+			else if ( file_exists("$sharedfolder/Resources/xdxftags.xml") )  $tmp = "$sharedfolder/Resources/xdxftags.xml";
+			else $tmp = "$ttroot/common/Resources/xdxftags.xml";
 		};
+		$teilist = array2json(xmlflatten(simplexml_load_string(file_get_contents($tmp))));
+		$acelturl = str_replace("ace.js", "ext-language_tools.js", $aceurl);
 										
 		$maintext .= "
-			<div id=\"editor\" style='width: 100%; height: 300px;'>".$editxml."</div>
+			<div id=\"editor\" style='width: 100%; height: 300px;'>".htmlentities($editxml, ENT_QUOTES, "UTF-8")."</div>
 
 			<form action=\"index.php?action=$action&act=save&id=$id\" id=frm name=frm method=post>
 			<textarea style='display:none' name=rawxml></textarea>
@@ -101,15 +181,65 @@
 			</form>
 	
 			<script src=\"$aceurl\" type=\"text/javascript\" charset=\"utf-8\"></script>
+			<script src=\"$acelturl\" type=\"text/javascript\" charset=\"utf-8\"></script>
 			<script>
-				var editor = ace.edit(\"editor\");
-				editor.setTheme(\"ace/theme/chrome\");
-				editor.getSession().setMode(\"ace/mode/xml\");
-		
-				function runsubmit ( ) {
-					document.frm.rawxml.value = editor.getSession().getValue();
+			var editor = ace.edit(\"editor\");
+			editor.setTheme(\"ace/theme/chrome\");
+			editor.getSession().setMode(\"ace/mode/xml\");
+
+			var teiList = $teilist;
+			var langTools = ace.require(\"ace/ext/language_tools\");
+
+			var myCompleter = {
+				getCompletions: function(editor, session, pos, prefix, callback) {
+					var optList = {};
+					if ( session.getTokenAt(pos.row,pos.column).type == 'meta.tag.tag-name.xml' || session.getTokenAt(pos.row,pos.column).type == 'text.tag-open.xml' ) {
+						optList = teiList;
+					} else if ( session.getTokenAt(pos.row,pos.column).type == 'entity.other.attribute-name.xml' || session.getTokenAt(pos.row,pos.column).type == 'text.tag-whitespace.xml' ) {
+						// Get the node this attribute belongs to
+						var prnt;
+						for ( var i=pos.column; i>-1; i--  ) {
+							if ( session.getTokenAt(pos.row,i).type == 'meta.tag.tag-name.xml' ) {
+								prnt = session.getTokenAt(pos.row,i).value;
+								break;
+							};
+						};
+						if ( teiList[prnt] )  optList  = teiList[prnt]['atts'];
+					} else if ( session.getTokenAt(pos.row,pos.column).type == 'string.attribute-value.xml' ) {
+					};
+					if ( optList !== undefined && Object.keys(optList).length > 0 ) {
+						callback(
+							null,
+							Object.keys(optList).filter(entry=>{
+								return entry[0].startsWith(prefix);
+							}).map(entry=>{
+								return {
+									value: entry, meta: optList[entry]['display']
+								};
+							})
+						);
+					}; // else { console.log(session.getTokenAt(pos.row,pos.column)); };
+				}
+			}
+			langTools.setCompleters([myCompleter]);
+			editor.setOptions({
+				enableBasicAutocompletion: true,
+				enableLiveAutocompletion: true,
+				enableSnippets: false
+			});
+			
+			function runsubmit ( ) {
+				var rawxml = editor.getSession().getValue();
+				var oParser = new DOMParser();
+				var oDOM = oParser.parseFromString(rawxml, 'text/xml');
+				if ( oDOM.documentElement.nodeName == 'parsererror' ) {
+					alert('Invalid XML - please revise before saving.'); 
+					return -1; 							
+				} else {
+					document.frm.rawxml.value = rawxml;
 					document.frm.submit();
-				};
+				};						
+			};	
 			</script>
 		";
 		
@@ -141,15 +271,16 @@
 	
 		# Each <ar> needs a unique ID
 		check_login();
-		$id = 1;
+		$id = 1; $toword = $_GET['toword'] or $toword = "xxxx";
 		$xml = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		$result = $xml->xpath($arxpath); 
 		foreach ( $result as $entry ) {
-			$entry['id'] = $id;
+			if ( $entry['id'] == $toword ) $toid = "&id=ar-".$id;
+			$entry['id'] = "ar-".$id;
 			$id++;
 		};
 		file_put_contents($filename, $xml->asXML()); 
-		header("location:index.php?action=$action");
+		header("location:index.php?action=$action$toid");
 		exit;
 		
 	} else {
@@ -202,13 +333,18 @@
 
 			$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			if ( !$xml ) { print "Dict XML Error - unable to read $filename"; exit; };
+			$metas = current($xml->xpath("//meta_info"));
 
 			if ( file_exists("Resources/dictInfo-$did.tpl") ) { 
 				$header = file_get_contents("Resources/dictInfo-$did.tpl");
 			} else {
 				$header = "<table>
-					<tr><th>{%Author}</th><td>{#//author}</td>
-					<tr><th>{%Description}</th><td>{#//description}</td>	</tr>
+					<tr><th>{%Full Title}</th><td>{#//meta_info/full_title}</td>
+					<tr><th>{%Edition}</th><td>{#//meta_info/dict_edition}</td>
+					<tr><th>{%Author}</th><td>{#//meta_info/authors}</td>
+					<tr><th>{%Publication date}</th><td>{#//meta_info/publishing_date}</td>
+					<tr><th>{%Original}</th><td>{#//meta_info/dict_src_url}</td>
+					<tr><th>{%Description}</th><td>{#//meta_info/description}</td>	</tr>
 					</table>
 					";
 			};
@@ -252,7 +388,7 @@
 				};
 			}; 
 						
-			$xquery = $arxpath;			
+			$xquery = $arxpath;
 			if ( $restr ) $xquery .= "[$restr]";
 		
 			if ( $debug ) $maintext .= "<p>XPath query: $xquery";
@@ -277,7 +413,7 @@
 						};
 					};
 				};
-				if ( !$id ) $maintext .= "<p><i>$count {%results}</i> $showing</p>\n";
+				if ( !$id ) $maintext .= "<p><i>$count {%results}</i> $showing</p><hr>\n";
 				if ( $dict['cqp'] && $count > 1 && $linkdict ) $maintext .= "<p>{%Click on an entry to see corpus examples}</p><hr>"; 
 				$sortarray = array();
 				for ( $i=$start; $i<$end; $i++ ) {
@@ -379,6 +515,19 @@
 				};
 			};
 		
+		};
+		
+		if ( $username  ) {
+			$maintext .= "<hr><p><span title='{$dict['filename']}'>$did</span> 
+					&bull; 
+				<a href='index.php?action=$action&did=exit'>switch dictionary</a>
+					&bull;
+				<a href='index.php?action=$action&did=$did&act=edit&id=new'>add new entry</a>
+					&bull; 
+				<a href='index.php?action=$action&did=$did&act=edit&id=meta_info'>edit metadata</a>
+					&bull; 
+				<a href='index.php?action=adminedit&id={$dict['filename']}'>edit raw XML</a>
+				";
 		};
 			
 	};

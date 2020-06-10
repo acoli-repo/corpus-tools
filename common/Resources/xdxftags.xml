@@ -1,0 +1,44 @@
+<tags>
+<item key="k" display="headword">
+</item> 
+<item key="abr" display="abbreviation">
+</item> 
+<item key="categ" display="category of the defintion">
+</item>
+<item key="tr" display="phonological transcription">
+</item> 
+<item key="ar" display="article / dictionary entry">
+	<atts>
+		<item key="reg" display="regularized form of the entry"/>
+	</atts>
+</item> 
+<item key="gr" display="grammatical information">
+</item> 
+<item key="def" display="definition / sense">
+</item> 
+<item key="deftext" display="text of the definition">
+</item> 
+<item key="ex" display="example phrase">
+</item> 
+<item key="etm" display="ethymology">
+</item> 
+<item key="kref" display="reference to another headword">
+</item> 
+<item key="mrkd" display="marked - the occurrence of the headword in an example">
+</item> 
+<item key="su" display="subarticle (ie a nested version of ar)">
+</item>
+<item key="i" display="italics">
+</item> 
+<item key="b" display="bold">
+</item> 
+<item key="sup" display="superscript">
+</item> 
+<item key="sub" display="subscript">
+</item> 
+<item key="big" display="large text">
+</item> 
+<item key="small" display="small text">
+</item> 
+</tags>
+
