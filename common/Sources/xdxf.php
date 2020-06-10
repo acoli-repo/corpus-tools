@@ -339,7 +339,7 @@
 			if ( file_exists("Resources/dictInfo-$did.tpl") ) { 
 				$header = file_get_contents("Resources/dictInfo-$did.tpl");
 			} else if ( file_exists("Resources/xdxf.tpl") ) { 
-				$header = file_get_contents("Resources/dictInfo-$did.tpl");
+				$header = file_get_contents("Resources/xdxf.tpl");
 			} else {
 				$header = "<table>
 					<tr><th>{%Full Title}</th><td>{#//meta_info/full_title}</td>
@@ -538,6 +538,8 @@
 			$maintext .= "<hr>
 				<p>
 				<a href='index.php?action=$action&did=exit'>switch dictionary</a>
+					&bull; 
+				<a href='index.php?action=$action&act=list'>list entries</a>
 				";
 		};
 			
