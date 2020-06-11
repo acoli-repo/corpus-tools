@@ -50,9 +50,13 @@
 			<input name=xpath value='/ttsettings/xdxf' type=hidden>
 			<input name=goto value='index.php?action=$action&did={#key}' type=hidden>
 			<table>
-			<tr><th class='obl'>ID of the dictionary<td><input name='flds[key]' size=40><tr><th class='obl'>Filename of the dictionary XML file<td><input name='flds[filename]' size=40><tr><th class='obl'>Name of the dictionary<td><input name='flds[title]' size=40><tr><th class=''>CSS file to use in this XDXF<td><input name='flds[css]' size=40><tr><th class=''>Search options<td><input name='flds[search]' size=40><tr><th class=''>CQP options<td><input name='flds[cqp]' size=40></table>
+			<tr><th class='obl'>ID of the dictionary<td><input name='flds[key]' size=40 required><tr>
+			<th class='obl'>Filename of the dictionary XML file<td><input name='flds[filename]' size=40 required>
+			<tr><th class='obl'>Name of the dictionary<td><input name='flds[title]' size=40 required>
+			<tr><th class=''>CSS file to use in this XDXF<td><input name='flds[css]' size=40><tr><th class=''>Search options<td><input name='flds[search]' size=40><tr><th class=''>CQP options<td><input name='flds[cqp]' size=40></table>
 		<p><input type=submit value='Create item'>
 		</form>
+		
 		";
 	} else if ( !$dictfile ) {
 		// Ask to choose a dictionary if there is more than one in the settings

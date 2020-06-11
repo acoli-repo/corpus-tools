@@ -236,9 +236,11 @@
 		$optlist = current($opts->xpath("./list"));
 		if ( !$optlist ) fatal("Not a list section: $xpath");
 		foreach ( $optlist->children() as $opt ) {
-			$obl = "";
-			if ( $opt['obl'] || $opt['key'] == "key" ) $obl = "obl"; 
-			$maintext .= "<tr><th class='$obl'>{$opt['display']}<td><input name='flds[{$opt['key']}]' size=40>";
+			if ( $opt['obl'] || $opt['key'] == "key" ) {
+				$maintext .= "<tr><th class='obl'>{$opt['display']}<td><input name='flds[{$opt['key']}]' size=40 required>";
+			} else {
+				$maintext .= "<tr><th>{$opt['display']}<td><input name='flds[{$opt['key']}]' size=40>";
+			};
 		}; 
 		$maintext .= "</table>
 		<p><input type=submit value='Create item'>
