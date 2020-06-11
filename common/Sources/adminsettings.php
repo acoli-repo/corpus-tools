@@ -238,17 +238,23 @@
 		foreach ( $optlist->children() as $opt ) {
 			$mores = "";
 			if ( $opt['placeholder'] ) $mores = " placeholder='{$opt['placeholder']}'";
-			if ( $vallist = $opt->xpath("./val") ) {
+			if ( strtolower($opt->getName()) == "list" ) {
+				$maintext .= "<tr><th>{$opt['display']}<td><i>Option list - create afterward</i>";
+			} else if ( !$opt['open'] && $vallist = $opt->xpath("./val") ) {
 				$options = ""; $deftxt = "";
-				if ( $opt['default'] ) {
+				if ( !$opt['obl'] ) {
 					$options = "<option value=''>[select]</option>";
 				};
 				foreach ( $vallist as $val ) {
-					if ( $opt['default'] && $opt['default'] == $val['key']."" ) $deftxt = "<span style='color: grey'>default: {$val['display']}</span>";
-					$options .= "<option value='{$val['key']}'>{$val['display']}</option>";
+					if ( $opt['default'] == $val['key']."" ) {
+						$deftxt = "<span style='color: grey'>default: {$val['display']}</span>";
+						$options .= "<option value='{$val['key']}' selected>{$val['display']}</option>";
+					} else {
+						$options .= "<option value='{$val['key']}'>{$val['display']}</option>";
+					};
 				};
 				$maintext .= "<tr><th>{$opt['display']}<td><select name='flds[{$opt['key']}]'>$options</select> $deftxt";
-			} else if ( $opt['obl'] || $opt['key'] == "key" ) {
+			} else if ( $opt['obl'] || $opt['key'] == "key"  || $opt['key'] == "display" ) {
 				$maintext .= "<tr><th class='obl'>{$opt['display']}<td><input name='flds[{$opt['key']}]' size=40 required $mores>";
 			} else {
 				$maintext .= "<tr><th>{$opt['display']}<td><input name='flds[{$opt['key']}]' size=40 $mores>";

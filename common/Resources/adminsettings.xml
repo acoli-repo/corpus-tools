@@ -19,9 +19,9 @@
 	    <item key="options" display="List of languages">
 			<list display="Language settings">
 				<att key="key" display="ID for the language"/>
-				<att key="code" display="ISO code of the language"/>
+				<att key="code" display="ISO code of the language" obl="1"/>
+				<att key="menu" display="Name of the language as it appear in the menu bar" obl="1"/> 
 				<att key="locale" display="Locale settings for the language (UTF8)"/>
-				<att key="menu" display="Name of the language as it appear in the menu bar"/> 
 				<att key="name" display="Full name of the language (in English)"/>	
 			</list>
 		</item>
@@ -150,8 +150,8 @@
 			<list>
 				<att key="key" display="ID of the area"/>
 				<att key="display" display="The name of the area"/>
-				<att key="startpos" display="Coordinates on the map to jump to"/>
-				<att key="zoom" display="Zoom factor of the map"/> 
+				<att key="startpos" display="Coordinates on the map to jump to" obl="1" placeholder="40.43 -3.70"/>
+				<att key="zoom" display="Zoom factor of the map" obl="1" placeholder="7"/> 
 			</list>	
 		</item>
 	</item>
@@ -257,7 +257,7 @@
 		<item key="sattributes" display="Structural attributes (above token-level)">
 			<list display="Level of the attributes">
 				<att key="key" display="ID for this level"/>
-				<att key="level" display="XML tag of the level">
+				<att key="level" display="XML tag of the level" open="1" placeholder="text">
 					<val key="text" display="Text (Document)"/>
 					<val key="s" display="Sentence"/>
 					<val key="u" display="Utterance"/>
@@ -308,7 +308,8 @@
 		<item key="annotations" display="External annotations to be incorporated into CQP">
 			<list display="List of annotations">
 				<att key="key" display="ID for the annotation"/>
-				<att key="tag" display="XML tag to be used in CQP (if not @key)"/>
+				<att key="diplay" display="Name for the annotation"/>
+x				<att key="tag" display="XML tag to be used in CQP (if not @key)"/>
 				<att key="admin" display="Administrator-only annotation"/>
 				<att key="filename" display="File prefix for the annotation files" deprecated="1"/>
 				<att key="type" display="Type of CQP attribute" default="match">
@@ -322,7 +323,6 @@
 					<val key="1" display="translate pull-down items"/>
 					<val key="0" display="do not translate"/>
 				</att>
-				<att key="diplay" display="Name for the annotation"/>
 				<list display="List of attribues to be incorporated">
 					<att key="key" display="Attribute ID"/>
 					<att key="display" display="Title of the attibute"/>
@@ -361,7 +361,7 @@
 			</desc>	
 			<list>
 				<att key="var" display="Name of the variable to store this value in"/>
-				<att key="type" display="Name of the query">
+				<att key="type" display="Name of the query" obl="1">
 					<val key="size" display="A CQL search - count the number of results"/>
 					<val key="count" display="A CQL count - grab the result"/>
 					<val key="calc" display="This is a calculation using previous variables"/>
@@ -428,7 +428,7 @@
 				<list>
 					<att key="key" display="Attribute name of the form"/>
 					<att key="display" display="Name of the form"/>
-					<att key="inherit" display="Form to inherit from when empty"/>
+					<att key="inherit" display="Form to inherit from when empty" obl="1"/>
 					<att key="subtract" display="Form to subtract from when inheriting"/>
 					<att key="color" display="Colour to be used for the form"/>
 					<att key="noshow" display="Do not show this attribute"/>
@@ -478,7 +478,7 @@
 		<item key="sattributes" display="Structural attributes (above token-level)">
 			<list display="Sattribute level">
 				<att key="key" display="ID for this level"/>
-				<att key="level" display="Name of the sattribute"/>
+				<att key="level" display="Name of the sattribute" obl="1" placeholder="text"/>
 				<att key="display" display="Display name for the level"/>
 				<att key="inherit" display="Field to inherit from when empty"/>
 				<list display="List of sattributes for the level">
@@ -504,7 +504,7 @@
 			<list display="TOC levels">
 				<att key="key" display="ID for this level"/>
 				<att key="display" display="Display name for the TOC"/>
-				<att key="xp" display="Node name for this level"/>
+				<att key="xp" display="Node name for this level" obl="1" placeholder="//text//milestone[@type='chapter']"/>
 				<att key="att" display="Attribute for the level name"/>
 			</list>
 		</item>
@@ -545,13 +545,13 @@
         <item key="replace" display="List of hard-to-type string representations">
         	<list>
 				<att key="key" display="Shorthand string"/>
-				<att key="value" display="Translated string"/>
+				<att key="value" display="Translated string" obl="1"/>
         	</list>
         </item>
         <item key="simplify" display="List of characters to simplify in textual representation">
         	<list>
 				<att key="key" display="Original string"/>
-				<att key="value" display="Simplified string"/>
+				<att key="value" display="Simplified string" obl="1"/>
         	</list>
         </item>
     </item>
@@ -580,12 +580,12 @@
     	</desc>
     	<list>
     		<att key="key" display="ID for the script"/> 
-    		<att key="action" display="Script command"/>
+    		<att key="display" display="Display title for the script"/>
+    		<att key="action" display="Script command" obl="1"/>
     		<att key="recond" display="Regular expression condition on the XML for this script to show"/>
     		<att key="rerest" display="Regular expression restriction on the XML for this script to show"/>
     		<att key="xpcond" display="XPath condition on the XML for this script to show"/>
     		<att key="xprest" display="XPath restriction on the XML for this script to show"/>
-    		<att key="display" display="Display title for the script"/>
     		<att key="type" display="Type of script (perl/php)"/>
 		</list>
     </item>
@@ -603,10 +603,10 @@
 		<att key="normalize" display="Attributes that should be normalize (not yet implemented)"/> 
 		<item key="parameters" display="List of NeoTag parameter definitions">
 			<list>
-	    		<att key="pid" display="ID for the settings"/> 
+	    		<att key="pid" display="ID for the settings" obl="1"/> 
+	    		<att key="params" display="Filename of the parameter file" obl="1"/> 
 	    		<att key="restriction" display="XPath restriction for using this parameter set"/> 
 	    		<att key="condition" display="XPath condition for using this parameter set"/> 
-	    		<att key="params" display="Filename of the parameter file"/> 
 	    		<att key="training" display="Folders used for (re)training the parameter file"/> 
 	    		<att key="tagform" display="Word form to tag from"/> 
 	    		<att key="tagpos" display="Attribute name for the POS tag"/> 
@@ -627,7 +627,7 @@
 		<att key="tagform" display="Word form to tag from"/> 
 		<item key="parameters" display="List of udpipe parameter definitions">
 			<list>
-	    		<att key="pid" display="ID for the settings"/> 
+	    		<att key="pid" display="ID for the settings" obl="1"/> 
 	    		<att key="restriction" display="XPath restriction for using this parameter set"/> 
 	    		<att key="condition" display="XPath condition for using this parameter set"/> 
 	    		<att key="params" display="Filename of the parameter file"/> 
@@ -663,7 +663,7 @@
     	</desc>
     	<list>
     		<att key="key" display="ID for the annotation"/> 
-    		<att key="type" display="Type of annotation">
+    		<att key="type" display="Type of annotation" default="standoff">
     			<val key="psdx" display="PSDX Syntactic annotation"/>
     			<val key="standoff" display="TEITOK style stand-off annotation"/>
     		</att>
@@ -696,8 +696,8 @@
 				<val key="su" display="Only admin users"/>
 				<val key="none" display="Nobody"/>
 	    	</att>
-	    	<att key="folder" display="Folder where uploaded files are stored"/>
-	    	<att key="extension" display="Acceptable file extension (*.xxx,*.yyy)"/>
+	    	<att key="folder" display="Folder where uploaded files are stored" obl="1"/>
+	    	<att key="extension" display="Acceptable file extension (*.xxx,*.yyy)" obl="1"/>
 	    	<att key="description" display="Description of the file type"/>
     	</list>
 	</item>
@@ -742,7 +742,7 @@
         	<att key="key" display="name of the executable">
         		<val key="xsltproc" display="XSLT executing command, mostly deprecated"/>
         	</att>
-        	<att key="path" display="full path of the executable"/>
+        	<att key="path" display="full path of the executable" obl="1"/>
         </list>
     </item>
 
@@ -758,7 +758,7 @@
     	</desc>
         <list display="List of databases">
         	<att key="key" display="name of the database file"/>
-        	<att key="title" display="Title to be displayed above the table."/>
+        	<att key="title" display="Title to be displayed above the table." obl="1"/>
         	<att key="max" display="Number of records to show per page."/>
         	<att key="noview" display="Title to be displayed above the table.">
 				<val key="1" display="Do not show a view link"/>
@@ -818,7 +818,7 @@
 		</desc>
         <list display="Metadata field">
 			<att key="key" display="Unique identifier"/>
-			<att key="type" display="Type of field">
+			<att key="type" display="Type of field" default="fld">
 				<val key="sep" display="Separator" default="fld"/>
 				<val key="fld" display="Metadata field"/>
 			</att>
@@ -856,8 +856,8 @@
 		<att key="to" display="Transliterated alphabet"/>
         <list display="Character list">
 			<att key="key" display="Identifier"/>
-			<att key="from" display="Original character"/>
-			<att key="to" display="Transliterated character"/>
+			<att key="from" display="Original character" obl="1"/>
+			<att key="to" display="Transliterated character" obl="1"/>
         </list>
 	</item>
 
