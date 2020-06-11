@@ -226,7 +226,7 @@
 		};
 		$opts = current($setdef->xpath($dxp));
 
-		$maintext .= "<h1>Create new item</h1><p>Locatiom: $xpath == $dxp/list</p>	
+		$maintext .= "<h1>Create new item</h1><p>Location: $xpath == $dxp/list</p>	
 			<style>.obl { color: #992200; }</style>	
 			<div>".current($opts->xpath("./desc"))."</div>
 			<p><form method=post action='index.php?action=$action&act=makeitem'>
@@ -236,10 +236,22 @@
 		$optlist = current($opts->xpath("./list"));
 		if ( !$optlist ) fatal("Not a list section: $xpath");
 		foreach ( $optlist->children() as $opt ) {
-			if ( $opt['obl'] || $opt['key'] == "key" ) {
-				$maintext .= "<tr><th class='obl'>{$opt['display']}<td><input name='flds[{$opt['key']}]' size=40 required>";
+			$mores = "";
+			if ( $opt['placeholder'] ) $mores = " placeholder='{$opt['placeholder']}'";
+			if ( $vallist = $opt->xpath("./val") ) {
+				$options = ""; $deftxt = "";
+				if ( $opt['default'] ) {
+					$options = "<option value=''>[select]</option>";
+				};
+				foreach ( $vallist as $val ) {
+					if ( $opt['default'] && $opt['default'] == $val['key']."" ) $deftxt = "<span style='color: grey'>default: {$val['display']}</span>";
+					$options .= "<option value='{$val['key']}'>{$val['display']}</option>";
+				};
+				$maintext .= "<tr><th>{$opt['display']}<td><select name='flds[{$opt['key']}]'>$options</select> $deftxt";
+			} else if ( $opt['obl'] || $opt['key'] == "key" ) {
+				$maintext .= "<tr><th class='obl'>{$opt['display']}<td><input name='flds[{$opt['key']}]' size=40 required $mores>";
 			} else {
-				$maintext .= "<tr><th>{$opt['display']}<td><input name='flds[{$opt['key']}]' size=40>";
+				$maintext .= "<tr><th>{$opt['display']}<td><input name='flds[{$opt['key']}]' size=40 $mores>";
 			};
 		}; 
 		$maintext .= "</table>
