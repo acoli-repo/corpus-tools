@@ -81,6 +81,12 @@
 		check_login();
 
 		$newrec = $_POST['rawxml']; 
+		
+		# Reload the filename
+		$did = $_POST['did'];
+		$filename = $settings['xdxf'][$did]['filename'];
+		if ( !$filename ) fatal("something went wrong - unable to load data for $did");
+		
 		$file = file_get_contents($filename); 
 		
 		# Check if this new person is valid XML
@@ -179,7 +185,8 @@
 		$maintext .= "
 			<div id=\"editor\" style='width: 100%; height: 300px;'>".htmlentities($editxml, ENT_QUOTES, "UTF-8")."</div>
 
-			<form action=\"index.php?action=$action&act=save&id=$id\" id=frm name=frm method=post>
+			<form action=\"index.php?action=$action&act=save&id=$id&did=$did\" id=frm name=frm method=post>
+			<input type=hidden name=did value='$did'>
 			<textarea style='display:none' name=rawxml></textarea>
 			<p><input type=button value=Save onClick=\"runsubmit();\"> 
 			<input type=button value=Cancel onClick=\"window.open('index.php?action=$action', '_self');\"> 
