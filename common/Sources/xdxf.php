@@ -87,7 +87,7 @@
 		$filename = $settings['xdxf'][$did]['filename'];
 		if ( !$filename ) fatal("something went wrong - unable to load data for $did");
 		
-		$file = file_get_contents($filename); 
+		$file = file_get_contents("Resources/$filename"); 
 		
 		# Check if this new person is valid XML
 		$test = simplexml_load_string($newrec, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
