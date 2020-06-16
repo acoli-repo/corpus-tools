@@ -439,6 +439,7 @@
 					else if ( $username && $arid ) $entryxml = " <a onClick=\"window.open('index.php?action=$action&act=edit&id=$arid', '_self')\">edit</a> ".$entryxml;
 					if ( $ixp && $entryxml && !$id && $count > 1 ) {
 						$entrytext = xpathrun($ixp, simplexml_import_dom($entry));
+						$entrytext = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $entrytext );
 						$entryxml = "<a href='index.php?action=$action&id=$arid'>$entrytext</a>";
 					};
 					array_push ( $sortarray, "<div k=\"$ark\">".$entryxml."</div>" );
