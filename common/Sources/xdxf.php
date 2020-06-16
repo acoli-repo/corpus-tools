@@ -433,6 +433,7 @@
 				for ( $i=$start; $i<$end; $i++ ) {
 					$entry = $result->item($i);
 					$entryxml = $entry->ownerDocument->saveXML($entry);
+					$entryxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $entryxml );
 					$arid = $entry->getAttribute("id");
 					$tmp = $xpath->query($hwxpath, $entry); $ark = $tmp->item(0)->textContent;
 					if ( $dict['cqp'] && $arid && $linkdict ) $entryxml = "<div onClick=\"window.open('index.php?action=$action&act=view&id=$arid', '_self')\">".$entryxml."</div>";
