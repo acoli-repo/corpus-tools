@@ -392,8 +392,8 @@
 		
 		# prefix HTML element in XML with xml namespace
 		foreach ( array ( "head", "opener", "address", "div", "option", "image" ) as $tagname ) {
-			$text = preg_replace( "/<$tagname([ >])/", "<tei_$tagname$1", $text );
-			$text = preg_replace( "/<\/$tagname>/", "</tei_$tagname>", $text );
+			$text = preg_replace( "/<$tagname([ >])/i", "<tei_$tagname$1", $text );
+			$text = preg_replace( "/<\/$tagname>/i", "</tei_$tagname>", $text );
 		};
 		# Kill the namespace in the XML since SimpleXML does not like it
 		$text = preg_replace("/ xmlns=\"[^\"]+\"/", "", $text);
