@@ -142,6 +142,8 @@
 					$editxml =  $dict['defentry'];
 				} else if ( $settings['xdxf']['defentry'] ) {
 					$editxml = $settings['xdxf']['defentry'];
+				} else if ( file_exists("Resources/xdxf-entry.xml") ) {
+					$editxml = file_get_contents("Resources/xdxf-entry.xml");
 				} else {
 					$editxml = "<ar id=\"new\">\n\t<k></k>\n\t<def n=\"1\"><deftext></deftext></def>\n</ar>";
 				};
