@@ -150,6 +150,7 @@
 			$from = preg_quote($match, '/'); 
 
 			$xquery = $matches[1][$key];
+			$lnk = 0; if ( substr($xquery, 0,1) == "=" ) { $lnk = 1; $xquery =  substr($xquery, 1); }
 			# We need to emulate SUBSTR here since PHP does not support it....
 			if ( preg_match ( "/substring\((.*?), (\d+)\)/", $xquery, $subms ) ) { 
 				$xquery = $subms[1]; $tmp  = $subms[2]-1;
@@ -165,6 +166,7 @@
 				else $to = $tmp."";
 			};
 			$to = str_replace('"', '&quot;', $to);
+			if ( $lnk ) { $to = "<a href='$to'>$to</a>"; };
 			if ( $to == "" && !$showempties ) { 
 				$text = preg_replace("/<tr><t[dh][^>]*>[^>]+(<[^>]+>)+$from(<[^>]+>)+/", "$to", $text); # For rows
 			};
