@@ -65,7 +65,8 @@
 			$maintext .= "<h1>{%Dictionary Reader}</h1>
 				<p>{%Select a dictionary}";
 			foreach ( $settings['xdxf'] as $key => $dict ) {
-				if ( is_array($dict) && ($username || !$dict['admin']) ) $maintext .= "<p><a href='index.php?action=$action&did=$key'>{$dict['title']}</a>";
+				$amp = ""; if ( $dict['admin'] ) $amp = "class='adminpart'"; 
+				if ( is_array($dict) && ($username || !$dict['admin']) ) $maintext .= "<p><a href='index.php?action=$action&did=$key' $amp>{$dict['title']}</a>";
 			};
 		} else {
 			fatal("no dictionary selected");
