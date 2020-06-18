@@ -77,7 +77,7 @@
 	$deflang = $settings['languages']['default'] or $deflang = "en";
 	if ( $_GET['lang'] ) $lang = $_GET['lang'];
 	else if ( preg_match ( "/\/(...?)\/index\.php/", $_SERVER['REQUEST_URI'], $matches ) ) {
-		if ( $matches[1] != $foldername && $matches[1] != $settings['defaults'['base']['foldername'] ) $lang = $matches[1];
+		if ( $matches[1] != $foldername || $matches[1] != $settings['defaults'['base']['foldername'] ) $lang = $matches[1];
 		else $lang = $deflang;	
 	} else if ( $_COOKIE['lang'] ) $lang = $_COOKIE['lang'];
 	else $lang = $deflang;
