@@ -89,6 +89,13 @@ std::vector<std::vector<std::string> > preg_match_all ( std::string str, std::st
 	return results;
 };
 
+std::string preg_replace ( std::string str, std::string pat, std::string to, std::string flags = "" ) {
+	std::string result;
+	std::regex e ( pat ); 
+	std::regex_replace (std::back_inserter(result), str.begin(), str.end(), e, to);
+	return result;
+};
+
 std::string str2lower(std::string str) {
     std::transform(str.begin(), str.end(), str.begin(), 
                    [](unsigned char c){ return std::tolower(c); } // correct

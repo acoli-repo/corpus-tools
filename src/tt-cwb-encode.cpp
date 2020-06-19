@@ -450,7 +450,8 @@ void treatfile ( string filename ) {
 							formval = oss.str();
 						} else {	
 							// Flatten the content
-							formval = replace_all(formval, "<[^>]+>", "");
+							formval = oss.str();
+							formval = preg_replace(formval, "<[^>]+>", "");
 						};
 					} else {
 						formval = xres.node().child_value();

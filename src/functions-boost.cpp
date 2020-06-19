@@ -104,6 +104,15 @@ std::vector<std::vector<std::string> > preg_match_all ( std::string str, std::st
 	return results;
 };
 
+std::string preg_replace ( std::string str, std::string pat, std::string to, std::string flags = "" ) {
+	std::string result;
+
+	boost::regex re(pat);
+	result = boost::regex_replace(str, re, to);
+
+	return result;
+};
+
 std::string str2lower(std::string str) {
 	boost::to_lower(str);
 	return str;
