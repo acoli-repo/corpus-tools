@@ -118,6 +118,7 @@
 		$inds = str_repeat("&nbsp;", $ident*5);
 		$atts = ""; $unit = "em";
 		
+		if ( !$xml ) return "";
 		if ( !$xml->children() && count($xml->attributes()) < 2 && strlen($xml."") < 50 ) {
 			$showxml .= "\n<div style='margin-left: {$ident}$unit;'><span style='color: #0000dd;'>&lt;".$xml->getName()."&gt;</span><span style='color: black;'>$xml</span><span style='color: #0000dd;'>&lt;/".$xml->getName()."&gt;</span></div>";					
 		} else {

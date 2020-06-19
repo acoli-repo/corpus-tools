@@ -442,6 +442,16 @@ void treatfile ( string filename ) {
 					};
 					if ( xres.attribute() ) {
 						formval = xres.attribute().value();
+					} else if ( formfld.attribute("xml") ) {
+						string xmltype = formfld.attribute("xml").value();
+						std::ostringstream oss;
+						xres.node().print(oss);
+						if ( xmltype == "raw" ) {
+							formval = oss.str();
+						} else {	
+							// Flatten the content
+							formval = replace_all(formval, "<[^>]+>", "");
+						};
 					} else {
 						formval = xres.node().child_value();
 					};
