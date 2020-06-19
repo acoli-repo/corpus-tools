@@ -311,13 +311,16 @@ class TTXML
 			else $page = $this->xml;
 		};
 		
-		$num = $page['n'] or $num = $page['id'];
+		$pbatt = $settings['xmlfile']['paged']['att'] or $pbatt = "n";
+
+		
+		$num = $page[$pbatt] or $num = $page['id'];
 		$folioname = $settings['xmlfile']['paged']['display'] or $folioname = "page";
 		if ( $settings['xmlfile']['paged']['i18n'] ) $folioname = "{%$folioname}";
 
 		$npag = current($page->xpath("./preceding-sibling::{$pbelm}[1]"));
 		if ( $npag ) {
-			$bnum = $npag['n'] or $bnum = $npag['id'];
+			$bnum = $npag[$pbatt] or $bnum = $npag['id'];
 			$bid = $npag['id'];
 			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a> &bull; <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a> <";
 			$hasnav = 1;
@@ -326,7 +329,7 @@ class TTXML
 		};
 		$npag = current($page->xpath("./following-sibling::$pbelm"));
 		if ( $npag ) {
-			$bnum = $npag['n'] or $bnum = $npag['id'];
+			$bnum = $npag[$pbatt] or $bnum = $npag['id'];
 			$bid = $npag['id'];
 			$nnav = "> <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a>";
 			$hasnav = 1;
@@ -509,8 +512,15 @@ class TTXML
 			$pb = "<$pbelm";
 			$pidx = rstrpos($editxml, $pb, $tokidx);
 		} else {
+			// get the first page
 			$pb = "<$pbelm ";
 			$pidx = strpos($editxml, $pb);
+			$tmp = substr($editxml, $pidx, strpos($editxml, ">", $pidx)-$pidx+1);
+			# If the first page is empty, jump over it
+			while ( $pidx  && strpos($tmp, "empty") && $cnt++ < 10 ) {
+				$pidx = strpos($editxml, $pb, $pidx+1);
+				$tmp = substr($editxml, $pidx, strpos($editxml, ">", $pidx)-$pidx+1);
+			};
 		};
 		
 		if ( !$pidx || $pidx == -1 ) { 
@@ -537,6 +547,7 @@ class TTXML
 			};
 		};
 
+		$pbatt = $settings['xmlfile']['paged']['att'] or $pbatt = "n";
 		
 		# Find the next page/chapter (for navigation, and to cut off editXML)
 		$nidx = strpos($editxml, "<$pbelm", $pidx+1); 
@@ -544,10 +555,10 @@ class TTXML
 			$nidx = strpos($editxml, "</text", $pidx+1); $nnav = "";
 		} else {
 			$nidy = strpos($editxml, ">", $nidx); 
-			$tmp = substr($editxml, $nidx, $nidy-$nidx ); 
+			$tmp = substr($editxml, $nidx, $nidy-$nidx+1 ); 
 			 
 			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $npid = $matches[1]; };
-			if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) { $npag = $matches[1]; };
+			if ( preg_match("/$pbatt=\"(.*?)\"/", $tmp, $matches ) ) { $npag = $matches[1]; };
 			
 			if ( $npid ) $nnav = "<a id=nextpag href='index.php?action=$action&cid=$this->fileid&pageid=$npid&pbtype=$pbtype'>> $npag</a>";
 			else $nnav = "<a id=nextpag href='index.php?action=$action&cid=$this->fileid&pageid=$npag'>> $npag</a>";
@@ -560,7 +571,7 @@ class TTXML
 		} else {
 			$tmp = substr($editxml, $bidx, 150 ); 
 			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $bpid = $matches[1]; };
-			if ( preg_match("/n=\"(.*?)\"/", $tmp, $matches ) ) { $bpag = $matches[1]; } else { $bpag = ""; };
+			if ( preg_match("/$pbatt=\"(.*?)\"/", $tmp, $matches ) ) { $bpag = $matches[1]; } else { $bpag = ""; };
 			if ( $bpid  )  $bnav = "<a href='index.php?action=$action&cid=$this->fileid&pageid=$bpid$pbsel'>$bpag <</a> ";
 			else $bnav = "<a id=prevpag href='index.php?action=$action&cid=$this->fileid&page=$bpag'>$bpag <</a>";
 			if ( !$firstpage ) { $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a> &nbsp; $bnav"; };
@@ -575,29 +586,27 @@ class TTXML
 				$facspb = substr($editxml, $bpb1, $len); 
  			};
 		};		
+
+		$pidy = strpos($editxml, ">", $pidx); 
+		$tmp = substr($editxml, $pidx, $pidy-$pidx+1 ); 
+		 
+		if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $pageid = $matches[1]; };
+		if ( preg_match("/$pbatt=\"(.*?)\"/", $tmp, $matches ) ) { $folionr = $matches[1]; };
+		if ( preg_match("/facs=\"(.*?)\"/", $tmp, $matches ) ) {
+			$img = $matches[1];
+			if ( !preg_match("/^(http|\/)/", $img) ) $img = "Facsimile/$img";
+		};
 		
 		$span = $nidx-$pidx;
 		$editxml = $facspb.substr($editxml, $pidx, $span); 
 
 		$editxml = preg_replace("/<lb([^>]+)\/>/", "<lb\\1></lb>", $editxml);
 		
-		if ( $_GET['page'] ) $folionr = $_GET['page']; // deal with pageid
-		else if ( $pagid ) {
-			if ( preg_match("/<$pbelm [^>]*n=\"(.*?)\"[^>]*id=\"$pagid\"/", $editxml, $matches ) 
-				|| preg_match("/<$pbelm [^>]*id=\"$pagid\"[^>]*n=\"([^\"]+)\"/", $editxml, $matches ) ) 
-					$folionr = $matches[1];
-		} else if ( preg_match("/<$pbelm [^>]*n=\"(.*?)\"/", $tmp, $matches ) ) {
-			$folionr = $matches[1]; 
-		};
-
-		if ( preg_match("/<$pbelm [^>]*facs=\"(.*?)\"/", $editxml, $matches ) ) {
-			$img = $matches[1];
-			if ( !preg_match("/^(http|\/)/", $img) ) $img = "Facsimile/$img";
-		};
-		
 		$this->facsimg = $img;
 		
-		if ( $pbelm == "pb" ) $foliotxt = "{%Folio}";
+		if ( $settings['xmlfile']['paged']['display'] ) $foliotxt = $settings['xmlfile']['paged']['display'];
+		else if ( $pbelm == "pb" ) $foliotxt = "Folio";
+		if ( $settings['xmlfile']['paged']['i18n'] ) $foliotxt = "{%$foliotxt}";
 		
 		# Build the page navigation
 		$this->pagenav = "<table style='width: 100%'><tr> <!-- /<$pbelm [^>]*id=\"$pagid\"[^>]*n=\"(.*?)\"/ -->
