@@ -145,6 +145,7 @@
 	if ( !$settings['xmlfile']['index'] ) $settings['xmlfile']['index'] = array ( "chapter" => array ( "display" => "Chapter List" ));
 	foreach ( $settings['xmlfile']['index'] as $key => $val ) {
 		if ( $val['div'] || $val['xpath'] ) {
+			$pbatt = $val['att'] or $pbatt = "n";
 			if ( $val['xpath'] ) $divxp = $val['xpath'];
 			else $divxp = "//{$val['div']}[@type=\"$key\"]";
 			if ( count($ttxml->xml->xpath($divxp)) > 0 ) {
@@ -154,7 +155,7 @@
 				$result = $ttxml->xml->xpath($divxp); $tmp = 0;
 				foreach ( $result as $cnt => $node ) {
 					$pid = $node['id'] or $pid = "cnt[$cnt]";
-					$pnr = $node['n'] or $pnr = "cnt[$cnt]";
+					$pnr = $node[$pbatt] or $pnr = "cnt[$cnt]";
 					$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&div=$pid&divtype={$key}\">$pnr</a>";
 				};
 				$maintext .= "</td>";
@@ -166,7 +167,7 @@
 				$result = $ttxml->xml->xpath("//milestone[@type=\"$key\"]"); $tmp = 0;
 				foreach ($result as $cnt => $node) {
 					$pid = $node['id'] or $pid = "cnt[$cnt]";
-					$pnr = $node['n'] or $pnr = "cnt[$cnt]";
+					$pnr = $node[$pbatt] or $pnr = "cnt[$cnt]";
 					$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=$key\">$pnr</a>";
 				};
 				$maintext .= "</td>";
