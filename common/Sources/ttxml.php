@@ -457,10 +457,12 @@ class TTXML
 		# if ( $settings['xmlfile']['paged'] == 2) $me = "you";
 		
 		if ( $_GET['action'] == "appalign" ) $pbtmp = $_GET['pbtype'] or $pbtmp = $settings['appid']['baseview'];
+		else if ( $_GET['pbtype'] ) $pbtmp = $_GET['pbtype'];
 		else if ( is_array($settings['xmlfile']['paged']) ) $pbtmp = $settings['xmlfile']['paged']['element'];
-		else $pbtmp = $_GET['pbtype'] or $pbtmp = "pb";
+		else $pbtmp = "pb";
 		
 		// Determine kind of page to cut out
+		$pbatt = "n";
 		if ( $action == "pagetrans" ) { // Page
 			$pbelm = "page";
 			$titelm = "Page";
@@ -489,6 +491,7 @@ class TTXML
 			$pbtype = $settings['xmlfile']['paged']['element'] or $pbtype = $pbtmp;
 			$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($pbtmp);
 			$pbelm = $pbtype;
+			$pbatt = $settings['xmlfile']['paged']['att'] or $pbatt = "n";
 		} else {  // Generic milestone
 			$pbtype = "milestone[@type=\"{$pbtmp}\"]";
 			$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($pbtmp);
@@ -546,8 +549,6 @@ class TTXML
 				return $xmltxt;
 			};
 		};
-
-		$pbatt = $settings['xmlfile']['paged']['att'] or $pbatt = "n";
 		
 		# Find the next page/chapter (for navigation, and to cut off editXML)
 		$nidx = strpos($editxml, "<$pbelm", $pidx+1); 
@@ -604,7 +605,8 @@ class TTXML
 		
 		$this->facsimg = $img;
 		
-		if ( $settings['xmlfile']['paged']['display'] ) $foliotxt = $settings['xmlfile']['paged']['display'];
+		if ( $titelm ) $foliotxt = $titelm;
+		else if ( $settings['xmlfile']['paged']['display'] ) $foliotxt = $settings['xmlfile']['paged']['display'];
 		else if ( $pbelm == "pb" ) $foliotxt = "Folio";
 		if ( $settings['xmlfile']['paged']['i18n'] ) $foliotxt = "{%$foliotxt}";
 		
