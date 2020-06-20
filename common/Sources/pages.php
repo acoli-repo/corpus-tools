@@ -127,8 +127,8 @@
 		# Build the list of pages
 		$result = $ttxml->xml->xpath("//pb"); $tmp = 0;
 		foreach ($result as $cnt => $node) {
-			$pid = $node['id'] or $pid = "cnt[$cnt]";
-			$pnr = $node['n'] or $pnr = "cnt[$cnt]";
+			$pid = $node['id'] or $pid = "[$cnt]";
+			$pnr = $node['n'] or $pnr = "[$cnt]";
 			if ( $settings['defaults']['thumbnails'] ) {
 				$tni = $node['facs']; 
 				$tnn = "$ttxml->xmlid/$ttxml->xmlid"."_$pnr.jpg";
@@ -154,8 +154,8 @@
 				# Build the list of pages
 				$result = $ttxml->xml->xpath($divxp); $tmp = 0;
 				foreach ( $result as $cnt => $node ) {
-					$pid = $node['id'] or $pid = "cnt[$cnt]";
-					$pnr = $node[$pbatt] or $pnr = "cnt[$cnt]";
+					$pid = $node['id'] or $pid = "[$cnt]";
+					$pnr = $node[$pbatt] or $pnr = "[$cnt]";
 					$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&div=$pid&divtype={$key}\">$pnr</a>";
 				};
 				$maintext .= "</td>";
@@ -166,8 +166,8 @@
 				# Build the list of pages
 				$result = $ttxml->xml->xpath("//milestone[@type=\"$key\"]"); $tmp = 0;
 				foreach ($result as $cnt => $node) {
-					$pid = $node['id'] or $pid = "cnt[$cnt]";
-					$pnr = $node[$pbatt] or $pnr = "cnt[$cnt]";
+					$pid = $node['id'] or $pid = "[$cnt]";
+					$pnr = $node[$pbatt] or $pnr = "[$cnt]";
 					$maintext .= "<p><a href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=$key\">$pnr</a>";
 				};
 				$maintext .= "</td>";
