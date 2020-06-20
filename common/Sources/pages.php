@@ -144,8 +144,8 @@
 	};
 	if ( !$settings['xmlfile']['index'] ) $settings['xmlfile']['index'] = array ( "chapter" => array ( "display" => "Chapter List" ));
 	foreach ( $settings['xmlfile']['index'] as $key => $val ) {
+		$pbatt = $val['att'] or $pbatt = "n";
 		if ( $val['div'] || $val['xpath'] ) {
-			$pbatt = $val['att'] or $pbatt = "n";
 			if ( $val['xpath'] ) $divxp = $val['xpath'];
 			else $divxp = "//{$val['div']}[@type=\"$key\"]";
 			if ( count($ttxml->xml->xpath($divxp)) > 0 ) {
