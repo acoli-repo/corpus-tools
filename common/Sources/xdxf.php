@@ -545,6 +545,8 @@
 					&bull; 
 				<a href='index.php?action=$action&did=$did&act=edit&id=meta_info'>edit metadata</a>
 					&bull; 
+				<a href='index.php?action=$action&did=$did&act=renumber'>renumber articles</a>
+					&bull; 
 				<a href='index.php?action=adminedit&id={$dict['filename']}'>edit raw XML</a>
 					&bull; 
 				<a href='index.php?action=$action&act=list'>list entries</a>
