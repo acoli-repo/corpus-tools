@@ -6,7 +6,10 @@
 
 	check_login("admin");
 	$id = $_GET['id'];
-	$blessed = array("Annotations", "Resources");
+	$blessed = array("Annotations", "Resources", "xdxf");
+	if ( $settings['files']['blessed'] ) {
+		foreach ( explode(",", $settings['files']['blessed']) as $tmp ) array_push($blessed, $tmp);
+	};
 
 	$filedescs = array (
 		"htmlstyles.css" => "CSS definitions for the overall site layout",

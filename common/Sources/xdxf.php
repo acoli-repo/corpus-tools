@@ -5,6 +5,9 @@
 		
 	$did = $_GET['did'] OR $did = $_SESSION['did'];
 	if ( $did == "exit" ) { unset($_SESSION['did']); $did = ""; };
+	$xdxfdir = $settings['xdxf']['folder'] or $xdxfdir = "Resources";	
+	check_folder($xdxfdir);
+	
 	if ( $settings['xdxf'] ) {
 		if ( $did ) { 
 			$dict = $settings['xdxf'][$did];
@@ -21,8 +24,8 @@
 	};
 	if ( !$username && $dict['admin'] ) fatal("No access to this dictionary");
 	$_SESSION['did'] = $did; // Store the selected dictionary in a session variable
-	$filename = "Resources/$dictfile";
-	$id = $_GET['id'];
+	$filename = "$xdxfdir/$dictfile";
+	$id = $_POST['id']; $id = $_GET['id'];
 
 	$arxpath = $dict['entry'] or $arxpath = "//lexicon/ar";
 	$hwxpath = $dict['headword'] or $hwxpath = "k";
@@ -30,7 +33,7 @@
 
 	if ( $filename && !file_exists($filename) ) { 
 		if ($username) {
-			if ( !is_writable("Resources") ) fatal("Cannot write to Resources");
+			if ( !is_writable($xdxfdir) ) fatal("Cannot write to $xdxfdir");
 			$xdxftmp = "<xdxf>\n<meta_info>\n\t<title>{$dict['title']}</title>\n</meta_info>\n<lexicon>\n</lexicon>\n</xdxf>";
 			file_put_contents($filename, $xdxftmp); 
 		} else {
@@ -82,17 +85,18 @@
 		check_login();
 
 		$newrec = $_POST['rawxml']; 
-		
+
 		# Reload the filename
 		$did = $_POST['did'];
 		$filename = $settings['xdxf'][$did]['filename'];
 		if ( !$filename ) fatal("something went wrong - unable to load data for $did");
 		
-		$file = file_get_contents("Resources/$filename"); 
+		$file = file_get_contents("$xdxfdir/$filename"); 
 		
 		# Check if this new person is valid XML
 		$test = simplexml_load_string($newrec, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$test ) fatal ( "XML Error in AR record. Please go back and make sure to input valid XML" );
+		print $test->asXML();
 		
 		if ( $id == "new" ) {
 			# Add the new record after the last entry
@@ -115,9 +119,8 @@
 		$test = simplexml_load_string($newxml, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$test ) fatal ( "XML Error in XDXF - something went wrong here (record XML was valid though)" );
 		
-		# print $newxml; exit;
 		# Save new XML to file
-		file_put_contents($filename, $newxml);
+		file_put_contents("$xdxfdir/$filename", $newxml);
 		
 		print "Changes save. Reloading.";
 		if ( $id == "new" ) {
@@ -131,6 +134,7 @@
 		
 	} else if ( $act == "edit" ) {
 		check_login();
+		check_folder($xdxfdir, $dictfile);
 	
 		$xml = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$xml ) fatal("Error reading dictionary");
@@ -142,8 +146,8 @@
 					$editxml =  $dict['defentry'];
 				} else if ( $settings['xdxf']['defentry'] ) {
 					$editxml = $settings['xdxf']['defentry'];
-				} else if ( file_exists("Resources/xdxf-entry.xml") ) {
-					$editxml = file_get_contents("Resources/xdxf-entry.xml");
+				} else if ( file_exists("$xdxfdir/xdxf-entry.xml") ) {
+					$editxml = file_get_contents("$xdxfdir/xdxf-entry.xml");
 				} else {
 					$editxml = "<ar id=\"new\">\n\t<k></k>\n\t<def n=\"1\"><deftext></deftext></def>\n</ar>";
 				};
@@ -174,13 +178,13 @@
 		$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
 
 		if ( $id == "meta_info") {
-			if ( file_exists("Resources/xdxfmetatags.xml") )  $tmp = "Resources/xdxfmetatags.xml";
-			else if ( file_exists("$sharedfolder/Resources/xdxfmetatags.xml") )  $tmp = "$sharedfolder/Resources/xdxfmetatags.xml";
-			else $tmp = "$ttroot/common/Resources/xdxfmetatags.xml";
+			if ( file_exists("$xdxfdir/xdxfmetatags.xml") )  $tmp = "$xdxfdir/xdxfmetatags.xml";
+			else if ( file_exists("$sharedfolder/$xdxfdir/xdxfmetatags.xml") )  $tmp = "$sharedfolder/$xdxfdir/xdxfmetatags.xml";
+			else $tmp = "$ttroot/common/$xdxfdir/xdxfmetatags.xml";
 		} else {
-			if ( file_exists("Resources/xdxftags.xml") )  $tmp = "Resources/xdxftags.xml";
-			else if ( file_exists("$sharedfolder/Resources/xdxftags.xml") )  $tmp = "$sharedfolder/Resources/xdxftags.xml";
-			else $tmp = "$ttroot/common/Resources/xdxftags.xml";
+			if ( file_exists("$xdxfdir/xdxftags.xml") )  $tmp = "$xdxfdir/xdxftags.xml";
+			else if ( file_exists("$sharedfolder/$xdxfdir/xdxftags.xml") )  $tmp = "$sharedfolder/$xdxfdir/xdxftags.xml";
+			else $tmp = "$ttroot/common/$xdxfdir/xdxftags.xml";
 		};
 		$teilist = array2json(xmlflatten(simplexml_load_string(file_get_contents($tmp))));
 		$acelturl = str_replace("ace.js", "ext-language_tools.js", $aceurl);
@@ -301,10 +305,10 @@
 	} else {
 		
 		$cssfile = $dict['css'] or $cssfile = "dict.css";
-		if ( file_exists("Resources/$cssfile") ) {
-			$maintext .= "\n<style type=\"text/css\"> @import url(\"Resources/$cssfile\"); </style>\n";
+		if ( file_exists("$xdxfdir/$cssfile") ) {
+			$maintext .= "\n<style type=\"text/css\"> @import url(\"$xdxfdir/$cssfile\"); </style>\n";
 		} else {
-			$css = file_get_contents("$ttroot/common/Resources/dict.css");
+			$css = file_get_contents("$ttroot/common/$xdxfdir/dict.css");
 			$maintext .= "\n<style>\n$css\n</style>\n";
 		};
 		
@@ -350,10 +354,10 @@
 			if ( !$xml ) { print "Dict XML Error - unable to read $filename"; exit; };
 			$metas = current($xml->xpath("//meta_info"));
 
-			if ( file_exists("Resources/dictInfo-$did.tpl") ) { 
-				$header = file_get_contents("Resources/dictInfo-$did.tpl");
-			} else if ( file_exists("Resources/xdxf.tpl") ) { 
-				$header = file_get_contents("Resources/xdxf.tpl");
+			if ( file_exists("$xdxfdir/dictInfo-$did.tpl") ) { 
+				$header = file_get_contents("$xdxfdir/dictInfo-$did.tpl");
+			} else if ( file_exists("$xdxfdir/xdxf.tpl") ) { 
+				$header = file_get_contents("$xdxfdir/xdxf.tpl");
 			} else {
 				$header = "<table>
 					<tr><th>{%Full Title}</th><td>{#//meta_info/full_title}</td>
@@ -537,6 +541,7 @@
 		};
 		
 		if ( $username  ) {
+			if ( $xdxfdir != "Resources" ) $fldr = "&folder=$xdxfdir";
 			$maintext .= "<hr><div class='adminpart'><span title='{$dict['filename']}'>$did</span> 
 					&bull; 
 				<a href='index.php?action=$action&did=exit'>switch dictionary</a>
@@ -547,7 +552,7 @@
 					&bull; 
 				<a href='index.php?action=$action&did=$did&act=renumber'>renumber articles</a>
 					&bull; 
-				<a href='index.php?action=adminedit&id={$dict['filename']}'>edit raw XML</a>
+				<a href='index.php?action=adminedit&id={$dict['filename']}$fldr'>edit raw XML</a>
 					&bull; 
 				<a href='index.php?action=$action&act=list'>list entries</a>
 				</div>
