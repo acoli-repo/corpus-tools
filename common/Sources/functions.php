@@ -881,4 +881,29 @@
 		return $cmd;
 	};
 
+	function xmlflatten ( $xml, $int = 0 ) {
+		global $maintext; 
+		if ( !$xml ) return "";
+	
+		if ( $xml->attributes() ) 
+		foreach ( $xml->attributes() as $atn => $atv ) {
+			$flatxml[$atn] = $atv."";
+		};
+
+		if ( $int && $xml.""  != "" ) { $flatxml['(text)'] = $xml.""; };
+
+		foreach ( $xml->children() as $node ) {
+			$chn = "".$node->getName();
+			if ( $node['id'] ) $key = $node['id']."";
+			else if ( $chn == "item" ) {
+				if ( $node['key'] ) $key = $node['key']."";
+				else { $icnt++; $key = $icnt; };
+			} else $key = $chn;
+			
+			$flatxml[$key] = xmlflatten($node);
+		};
+	
+		return $flatxml;
+	};
+
 ?>
