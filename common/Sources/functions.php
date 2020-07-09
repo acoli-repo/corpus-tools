@@ -257,35 +257,52 @@
 		return $text;
 	};
 	
+	function md2html ( $html ) {
+		return "<textarea id='mdtext' style='display: none;'>$html</textarea>
+			<div id='tohtml'></div>
+			<script language=Javascript src='https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js'></script>
+			<script language=Javascript>
+				converter = new showdown.Converter(),
+				text      = document.getElementById('mdtext').value,
+				html      = converter.makeHtml(text);
+				document.getElementById('tohtml').innerHTML = html;
+			</script>
+			";
+	};
+	
 	function getlangfile ( $ffid, $common = false, $flang = null, $options = null ) {
-		global $lang; global $settings; global $getlangfile_lastfile;  global $ttroot; global $username, $action, $sharedfolder;
+		global $lang; global $settings; global $getlangfile_lastfile;  global $getlangfile_lastfolder;  global $ttroot; global $username, $action, $sharedfolder;
 		if ( $flang === null ) $flang = $lang; $html = "";
 		$deflang = $settings['languages']['default'] or $deflang = "en";
 		
-		if ( file_exists("Pages/{$ffid}-$flang.html") ) {
-			$getlangfile_lastfile = "Pages/{$ffid}-$flang.html";
-		} else if ( file_exists("Pages/{$ffid}.html") ) {
-			$getlangfile_lastfile = "Pages/{$ffid}.html";
-		} else if ( file_exists("Pages/{$ffid}-$deflang.html") ) {
-			$getlangfile_lastfile = "Pages/{$ffid}-$deflang.html";
-		} else if ( $sharedfolder && file_exists("$sharedfolder/Pages/{$ffid}-$flang.html") ) {
-			$getlangfile_lastfile = "$sharedfolder/Pages/{$ffid}-$flang.html";
-		} else if ( $sharedfolder && file_exists("$sharedfolder/Pages/{$ffid}.html") ) {
-			$getlangfile_lastfile = "$sharedfolder/Pages/{$ffid}.html";
-		} else if ( $sharedfolder && file_exists("$sharedfolder/Pages/{$ffid}-$deflang.html") ) {
-			$getlangfile_lastfile = "$sharedfolder/PPages/{$ffid}-$deflang.html";
-		} else if ( $common && file_exists("$ttroot/common/Pages/{$ffid}-$flang.html") ) {
-			$getlangfile_lastfile = "$ttroot/common/Pages/{$ffid}-$flang.html";
-		} else if ( $common && file_exists("$ttroot/common/Pages/{$ffid}.html") ) {
-			$getlangfile_lastfile = "$ttroot/common/Pages/{$ffid}.html";
-		};
-		$html = file_get_contents($getlangfile_lastfile);
+		$tryfolders = array ( "Pages", "$sharedfolder/Pages", "$ttroot/common/Pages");
+		$trypages = array ( "{$ffid}-$flang", "{$ffid}", "{$ffid}-$deflang" );
+		
+		foreach ( $tryfolders as $tryfolder ) {
+			$getlangfile_lastfolder = $tryfolder;
+			foreach ( $trypages as $trypage ) {
+				if ( substr($trypage,0,1) == "/" ) continue; # Skip shared if not defined
+				if ( file_exists("$tryfolder/$trypage.html") ) {
+					$getlangfile_lastfile = "$tryfolder/$trypage.html";
+					$html = file_get_contents($getlangfile_lastfile);
+					break 2;
+				} else if ( file_exists("$tryfolder/$trypage.md") ) {
+					$getlangfile_lastfile = "$tryfolder/$trypage.md";
+					$md = file_get_contents($getlangfile_lastfile);
+					if ( $options == 'nomd' ) {
+						$html = $md;
+					} else {
+						$html = md2html($md);
+					};
+					break 2;
+				};
+			};
+		}; if ( !$html ) $getlangfile_lastfolder = "";
 
 		if ( $username && $action != "pageedit") {
 			if ( $ffid == "notfound" ) $ffid = $_GET['action'] or $ffid = "home";
 			$editaction = preg_replace("/-[a-z]{2,3}$/", "", $ffid);
-			$editname = "{$editaction}-$flang";
-			$html = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id=$editname'>edit text</a></div>".$html;
+			$html = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id=$editaction&pagelang=$flang'>edit text</a></div>".$html;
 		};
 		
 		return $html;

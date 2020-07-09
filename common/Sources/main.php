@@ -160,7 +160,7 @@
 	if ( $username ) {
 		$baseaction = $_GET['action'] or $baseaction = "home";
 		$editaction = preg_replace("/-[a-z]{2,3}$/", "", $baseaction);
-		$edithtml = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id={$editaction}-$lang'>edit page</a></div>";
+		$edithtml = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id={$editaction}&pagelang=$lang'>edit page</a></div>";
 	};
 			
 	# Use the shared template if no local one exists
@@ -174,9 +174,15 @@
 	if ( file_exists( "Pages/$action-$lang.html" ) ) {
 		# Local page - language depedent
 		$maintext = $edithtml.file_get_contents ( "Pages/$action-$lang.html" );
+	} else if ( file_exists( "Pages/$action-$lang.md" ) ) {
+		# Local page - no language
+		$maintext = $edithtml.md2html(file_get_contents ( "Pages/$action-$lang.md" ));
 	} else if ( file_exists( "Pages/$action.html" ) ) {
 		# Local page - no language
 		$maintext = $edithtml.file_get_contents ( "Pages/$action.html" );
+	} else if ( file_exists( "Pages/$action.md" ) ) {
+		# Local page - no language
+		$maintext = $edithtml.md2html(file_get_contents ( "Pages/$action.md" ));
 	} else if ( file_exists( "Pages/$action-$deflang.html" ) ) {
 		# Local page - default language
 		$maintext = $edithtml.file_get_contents ( "Pages/$action-$deflang.html" );

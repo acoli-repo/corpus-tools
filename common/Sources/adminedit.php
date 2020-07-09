@@ -109,8 +109,10 @@
 		}; 
 		# XSLT is a type of XML
 		if ( $filetype == "xslt" ) $filetype = "xml";
-		# TPL (here) is a type of XML
+		# TPL (here) is a type of HTML
 		if ( $filetype == "tpl" ) $filetype = "html";
+		
+		if ( $filetype == "md" ) $filetype = "markdown";
 		
 		if ( $filetype == "txt" ) $filetype = "plain_text";
 		if ( $filetype == "tab" ) { $filetype = "plain_text"; $settabs = "editor.getSession().setTabSize(25); editor.getSession().setUseSoftTabs(false); ";  };
