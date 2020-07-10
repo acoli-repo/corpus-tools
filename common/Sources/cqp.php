@@ -514,7 +514,7 @@
 						$attit = pattname($key); 
 						$attval = $resultarray[$idx]; $idx++;
 						if ( $attval == "_" ) $attval = "";
-						$metainfo .= "<td title='{%$attit}'>$attval</a>";
+						$metainfo .= "<td title='{%$attit}' class='kwic_$key'>$attval</a>";
 					};
 				};
 				
