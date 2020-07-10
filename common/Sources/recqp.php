@@ -62,7 +62,7 @@
 			<p>Step 2 tends to be fast, while steps 1 can take several minutes (or even hours depending on the size of the corpus). ";
 		};
 		
-		$cursize = filesize("cqp/word.corpus")/4;
+		$cursize = hrnum(filesize("cqp/word.corpus")/4);
 		$maintext .= "<p>The current status of the process can be read below. 
 			$proctxt			
 			<p> - Last regeneration: $lastupdate
