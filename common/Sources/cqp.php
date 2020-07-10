@@ -57,9 +57,15 @@
 		foreach ( $settings['cqp']['sattributes'] as $key => $satt ) {
 			if ( $satt['audio'] ) {
 				$audioelm = $key;
-				$audiosel = ", match {$key}_audio";
+				$moresel = ", match {$key}_audio";
+				$offset = 1;
 			};
 		};
+	};
+	
+	if ( is_array($settings['cqp']['kwicdata']))
+	 foreach ( $settings['cqp']['kwicdata'] as $key => $val ) {
+		$moresel .= ", match $key";
 	};
 
 	$cql = stripslashes($_POST['cql']);
@@ -380,7 +386,7 @@
 			};
 
 			// $cqpquery = "tabulate Matches $start $end match text_id, match id, matchend id, match[-$context], matchend[$context]";
-			$cqpquery = "tabulate Matches $start $end match text_id, match ... matchend id, match, matchend $audiosel";
+			$cqpquery = "tabulate Matches $start $end match text_id, match ... matchend id, match, matchend $moresel";
 			$results = $cqp->exec($cqpquery);
 
 			if ( $debug ) $maintext .= "<p>From inital $cnt results: $cqpquery<PRE>$results</PRE>";
@@ -424,8 +430,8 @@
 			foreach ( $resarr as $line ) {
 				$i++;
 				if ( $line == "" ) continue;
-				$tmp = explode ( "\t", $line );
-				list ( $fileid, $match, $leftpos, $rightpos, $audiofile ) = $tmp;
+				$resultarray = explode ( "\t", $line );
+				list ( $fileid, $match, $leftpos, $rightpos, $audiofile ) = $resultarray;
 				$idlist = explode ( " ", $match );
 				if ( count($idlist) > $maxmatchlength )  $maxmatchlength = count($idlist);
 				if ( count($idlist) < $minmatchlength )  $minmatchlength = count($idlist);
@@ -441,7 +447,7 @@
 				$m1 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m1 );
 				$m2 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m2 );
 
-				if ( $audiofile ) {
+				if ( $audioelm && $audiofile ) {
 					if ( preg_match("/start=\"([^\"]*)\"/", $resxml, $matches ) ) $strt = $matches[1]; else $strt = 0;
 					if ( preg_match("/end=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1]; else $stp = 0;
 					if ( $settings['defaults']['playbutton'] ) $playimg = $settings['defaults']['playbutton'];
@@ -502,10 +508,19 @@
 					if ( preg_match("/d-.*-1/", $m2t ) ) $moreactions .= "\nhllist('$m2t', 'r-$i', '#ffffff'); ";
 				};
 
+				if ( $settings['cqp']['kwicdata'] ) {
+					$metainfo = ""; $idx = $offset+4;
+					foreach ( $settings['cqp']['kwicdata'] as $key => $val ) {
+						$attit = pattname($key); 
+						$attval = $resultarray[$idx]; $idx++;
+						if ( $attval == "_" ) $attval = "";
+						$metainfo .= "<td title='{%$attit}'>$attval</a>";
+					};
+				};
 				
 				if ( !$noprint ) $editxml .= "\n<tr id=\"r-$i\" tid=\"$fileid\"><td><a href='index.php?action=$fileview&amp;cid=$fileid&amp;jmp=$match' style='font-size: 10pt; padding-right: 5px;' title='$fileid' target=view>{%context}</a></td>
 					$audiobut
-					<td $resstyle>$resxml</td></tr>";
+					<td $resstyle>$resxml</td>$metainfo</tr>";
 
 
 			};
