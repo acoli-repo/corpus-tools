@@ -130,7 +130,7 @@
 	};
 	if ( $action == "index" || $action == "" || $action == "main" ) $action = $settings['defaults']['home'] or $action = "home";
 	$act = $_GET['act'];
-	if ( $_GET['debug'] ) $debug = 1;
+	if ( $_GET['debug'] && $user['permissions'] == "admin" ) $debug = 1;
 	
 	if ( preg_match("\.\.\/", $action) ) $action = "notfound"; # Prevent people from going below the ttroot
 
