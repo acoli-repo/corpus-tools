@@ -528,7 +528,9 @@ $maintext .= "
 		if ( !$svgxml ) print "ERROR!"; #return "<p><i>Error while drawing tree</i>";
 
 		if ( $rooted ) $rootrow = 1; else $rootrow = 0;
-		while (	$result = $svgxml->xpath('//text[not(@row)]') ) {
+		$result = $svgxml->xpath('//text[not(@row)]'); $somedone = 1;
+		while (	count($result) > 0 && $somedone ) {
+			$somedone = 0;
 			foreach ( $result as $textnode ) { 
 				
 				unset($row);
@@ -551,8 +553,10 @@ $maintext .= "
 					$maxheight = max($row, $maxheight);
 					$elms[$row]++;
 					$maxwidth = max($elms[$row], $maxwidth);
+					$somedone = 1;
 				};
 			};
+			$result = $svgxml->xpath('//text[not(@row)]');
 		};
 
 		$mainnode = current($svgxml->xpath("//svg"));
