@@ -809,8 +809,9 @@
 
 		require_once ("$ttroot/common/Sources/querybuilder.php");
 
-		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>$pagetit</h1>$subcorpustext
+		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>$pagetit</h1>
 
+			$subcorpustit
 			$subtit
 			$cqlfld
 

@@ -9,7 +9,7 @@
 	foreach ( explode(",", $_GET['preset']) as $tmp ) {
 		if ( preg_match("/(.*?):(.*)/", $tmp, $matches )) { 
 			$presets[$matches[1]] = $matches[2]; 
-			$subtit .= "<h2>".pattname($matches[1]).": ".$matches[2]."</h2>";
+			$subcorpustit .= "<h2>".pattname($matches[1]).": ".$matches[2]."</h2>";
 		};
 	};
 
