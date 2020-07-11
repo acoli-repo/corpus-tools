@@ -520,7 +520,7 @@
 	};
 
 	$maintext .= "
-		<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
+		<div id='tokinfo'></div>
 		$pagenav
 		<div id=mtxt>".$editxml."</div>
 		<script language=Javascript>$prejsactions</script>

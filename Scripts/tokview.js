@@ -11,10 +11,10 @@ if ( !attributelist ) {
 if ( !document.getElementById('tokinfo') ) {
 	var tokinfo = document.createElement("div"); 
 	tokinfo.setAttribute('id', 'tokinfo');
-	tokinfo.style.display = 'block';
-	tokinfo.style.position = 'absolute';
-	tokinfo.style.backgroundColor = '#ffffee';
-	tokinfo.style['border'] = '1px solid #ffddaa';
+// 	tokinfo.style.display = 'block';
+// 	tokinfo.style.position = 'absolute';
+// 	tokinfo.style.backgroundColor = '#ffffee';
+// 	tokinfo.style['border'] = '1px solid #ffddaa';
 	document.body.appendChild(tokinfo);
 };
 

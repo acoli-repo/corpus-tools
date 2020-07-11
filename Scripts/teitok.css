@@ -104,3 +104,13 @@ anon::after { content: ']'; }
 .tocnav { 
 	margin-bottom: 10px;
 }
+
+#tokinfo {
+	display: block; 
+	position: absolute; 
+	right: 5px; 
+	top: 5px; 
+	width: 300px; 
+	background-color: #ffffee; 
+	border: 1px solid #ffddaa;
+}
