@@ -5,6 +5,14 @@
 		if ( $username || !$item['admin'] ) array_push($cqpcols, $key); 
 	}; 
 
+	# See if we have any subcorpus (pre-set values)
+	foreach ( explode(",", $_GET['preset']) as $tmp ) {
+		if ( preg_match("/(.*?):(.*)/", $tmp, $matches )) { 
+			$presets[$matches[1]] = $matches[2]; 
+			$subtit .= "<h2>".pattname($matches[1]).": ".$matches[2]."</h2>";
+		};
+	};
+
 	# Determine which form to search on by default 
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 	if ( !in_array($wordfld, $cqpcols) )  array_unshift($cqpcols, $wordfld ); # We need the wordfld as a search option
@@ -336,14 +344,16 @@
 								
 								foreach ( $kvl as $kval ) {
 									if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
-									$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+									if ( $presets[$xkey] == $kval ) $sld = "selected"; else $sld = "";
+									$optarr[$kval] = "<option value='$kval' $sld>$ktxt</option>"; 
 								};
 							};
 							foreach ( $kvl as $kval ) {
 								if ( $kval && $kval != "_" ) {
 									if ( $item['type'] == "kselect" || $item['translate'] ) $ktxt = "{%$key-$kval}"; 
 										else $ktxt = $kval;
-									$optarr[$kval] = "<option value='$kval'>$ktxt</option>"; 
+									if ( $presets[$xkey] == $kval ) $sld = "selected"; else $sld = "";
+									$optarr[$kval] = "<option value='$kval' $sld>$ktxt</option>"; 
 								};
 							};
 						};
@@ -360,7 +370,7 @@
 						};
 						$querytext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>[{%$mstext}]</option>$optlist</select>";
 					} else 
-						$querytext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' size=40>";
+						$querytext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='{$presets[$xkey]}' size=40>";
 						if ( $item['type'] == "long" ) $querytext .= "<input type='hidden' name=matches[$xkey] value='contains'>";
 				};
 			};
