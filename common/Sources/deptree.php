@@ -534,6 +534,8 @@ $maintext .= "
 				unset($row);
 				if ( !$textnode['head'] ) {
 					$row = $rootrow ;
+				} else if ( $textnode['head'] == $textnode['tokid'] || $textnode['deprel'] == "root" ) {
+					$row = $rootrow ;
 				} else {
 					$headnode = current($svgxml->xpath("//text[@tokid=\"{$textnode['head']}\"]"));
 					if ( !$headnode ) {
