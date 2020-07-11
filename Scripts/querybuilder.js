@@ -391,6 +391,9 @@ function updatequery(nodirect = false) {
 	if ( !newcql.match(/ within /) && !docquery ) newcql += ' within text';
     
 	cqpfld.value = newcql;
+	if ( document.getElementById('fromqb') != null ) {
+		document.getElementById('fromqb').value = '1';
+	}
 	
 	// If the CQL field is hidden, auto submit
 	if ( typeof(direct) != "undefined"  ) {
@@ -398,6 +401,7 @@ function updatequery(nodirect = false) {
 	} else {
 		document.getElementById('qbframe').style.display = "none";
 	};
+		
 		
 	return false; // Always fail - we do not want to actually execute this form
 	

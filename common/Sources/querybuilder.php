@@ -453,6 +453,8 @@
 		else 
 			$cqlbox = "<input id='cqlfld' name=cql value='$cql' style='width: 600px;'/> ";
 
+		$cqlbox .= "<input type=hidden id='fromqb' name=fromqb value=''/> ";
+
 		if ( $action == "cqp" ) $optionoption = "|
 					<a title=\"{%define search options}\" onClick=\"document.getElementById('optionbox').style.display = 'block';\">{%options}</a> 
 					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-right: -5px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\" title=\"{%close}\">&times;</span>$optiontext</div>";

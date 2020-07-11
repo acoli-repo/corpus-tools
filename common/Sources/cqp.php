@@ -191,6 +191,7 @@
 					$cql .= "[$wordfld=\"$swrd\"] ";
 				};
 			};
+						
 		};
 
 		# Allow word searches to be defined via URL
@@ -199,6 +200,18 @@
 				list ( $feat, $val ) = explode ( ":", $att );
 				$_POST['atts'][$feat] = $val;
 			};
+		};
+
+		if ( $_GET['preset'] && !$_POST['fromqb'] ) {
+			if ( preg_match("/::/", $cql ) ) $sep = "&"; else $sep = "::";
+			if ( preg_match("/(.*)( within .*)/", $cql, $matches ) ) { $cql = $matches[1]; $withincond = $matches[2]; };
+			foreach ( explode(";", $_GET['preset']) as $tmp ) {
+				if ( preg_match("/(.*?):(.*)/", $tmp, $matches )) { 
+					$cql .= " $sep match.{$matches[1]}=\"{$matches[2]}\"";
+				};
+				$sep = " & ";
+			};
+			$cql .= $withincond;
 		};
 
 		# This is a document search - turn it into CCQP
@@ -241,6 +254,7 @@
 
 		$maintext .= "<h1 style='text-align: left; margin-bottom: 20px;'>{%Corpus Search}</h1>
 
+			$subcorpustit
 			$subtit
 			$cqlfld
 
