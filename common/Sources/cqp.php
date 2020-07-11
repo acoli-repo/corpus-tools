@@ -207,7 +207,7 @@
 			if ( preg_match("/(.*)( within .*)/", $cql, $matches ) ) { $cql = $matches[1]; $withincond = $matches[2]; };
 			foreach ( explode(";", $_GET['preset']) as $tmp ) {
 				if ( preg_match("/(.*?):(.*)/", $tmp, $matches )) { 
-					$cql .= " $sep match.{$matches[1]}=\"{$matches[2]}\"";
+					if ( !preg_match("/{$matches[1]}/", $cql) ) $cql .= " $sep match.{$matches[1]}=\"{$matches[2]}\"";
 				};
 				$sep = " & ";
 			};
