@@ -701,6 +701,7 @@
 
 		if ( $subtit ) $cqptit = "&cqltit=".urlencode($subtit);
 		$maintext .= " - <a href='index.php?action=multisearch&act=store&cql=".urlencode($cqll)."$cqptit'>{%Remember query}</a>";
+		$maintext .= " - <a href='index.php?action=cqp&cql=".urlencode($cqll)."$cqptit'>{%Direct URL}</a>";
 
 		$useridtxt = $shortuserid;
 		if ( $_SESSION['myqueries'] || file_exists("Users/cql_$useridtxt.xml") )
