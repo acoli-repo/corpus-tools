@@ -491,7 +491,7 @@ $maintext .= "
 			
 			};
 			$maintext .= "</table>
-			<hr><p><a href='index.php?action=file&cid={$ttxml->fileid}'>{%Text view}</a>
+			<hr><p><a href='index.php?action=text&cid={$ttxml->fileid}'>{%Text view}</a>
 				&bull;
 				<a href='index.php?action=$action&act=conllu&cid={$ttxml->fileid}'>{%Download CoNNL-U}</a>
 				";

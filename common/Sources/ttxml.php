@@ -364,7 +364,7 @@ class TTXML
 		if ( $aftpag[$ap] ) {
 			$tmp = min(count($aftpag)-1, $ap+$max*2); $npag1 = $aftpag[$tmp]; $bid = $idxpag['id'];
 			$bnum1 = $this->elm2id($npag1);
-			$npag2 = $aftpag[$bp]; 
+			$npag2 = $aftpag[$ap]; 
 			$bnum2 = $this->elm2id($npag2);
 			if ( $npag1 == $npag2 ) $bnum = $bnum2; else $bnum = "$bnum2 - $bnum1";
 			$tmp = min(count($aftpag)-1, $ap+$max); $idxpag = $aftpag[$tmp]; $bid = $idxpag['id'];
