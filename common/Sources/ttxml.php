@@ -265,13 +265,12 @@ class TTXML
 			$tokid = preg_replace("/ .*/", "", $tokid);
 			$xmltxt = $this->context($tokid);
 			$this->pagenav = "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
-		} else if ( $settings['xmlfile']['paged'] != 2 && $_GET['div'] && 1==2 ) {
-			# Show a whole DIV
 		} else if ( !$whole && ( $settings['xmlfile']['paged']['type'] == "xp" ) ) {
 			$xmltxt = $this->xppage();
 		} else if ( !$whole && ( $settings['xmlfile']['paged'] || is_array($settings['xmlfile']['paged']) || ( $_GET['pbtype'] || $settings['xmlfile']['paged']['element'] ) ) ) {
 			$xmltxt = $this->page();
 		} else {
+			# Not restricted - just display the whole XML
 			$result = $this->xml->xpath($mtxtelement);
 			if ($result) {
 				$xmltxt = $result[0]->asXML();
@@ -279,11 +278,20 @@ class TTXML
 				$xmltxt = "($mtxtelement not found)";
 			};
 		};
-				
+						
 		# Protect empty elements
 		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
 		
 		return $xmltxt;
+	}
+
+	
+	function elm2id ( $elm ) {
+		global $settings;
+		$att = $settings['xmlfile']['paged']['att'] or $att = "n";
+		$elmid = $elm[$att] or $elmid = $elm['id'];
+		if ( $settings['xmlfile']['paged']['seqnum'] ) $elmid = preg_replace("/.*-/", "", $elmid);
+		return $elmid;
 	}
 	
 	function xppage($pageid = "") {
@@ -304,33 +312,63 @@ class TTXML
 		} else {
 			$xp = "//text//$pbelm";
 		};
-	
+
 		$page = current($this->xml->xpath($xp)); 
+		$befnum = $this->elm2id($page);
+		$aftnum = $befnum;
 		if ( !$page ) {
 			if ( $settings['xmlfile']['paged']['hard'] ) fatal("No such page: $xp");
 			else $page = $this->xml;
 		};
 		
-		$pbatt = $settings['xmlfile']['paged']['att'] or $pbatt = "n";
+		$befpag = array_reverse($page->xpath("preceding-sibling::$pbelm"));
+		$aftpag = $page->xpath("following-sibling::$pbelm");
+		$max = $settings['xmlfile']['paged']['multi'] or $max = 1;
+
+		$pagedxml = $page->asXML(); 
+		$bp = min($max, count($befpag));
+		for ( $i = 0; $i < $bp; $i++ ) {
+			$thispage = $befpag[$i];
+			if ($thispage) {
+				$pagedxml = $thispage->asXML() . $pagedxml;
+				$befnum = $this->elm2id($thispage);
+			};
+		}; 
+		$ap = min($max, count($aftpag));
+		for ( $i = 0; $i < $ap; $i++ ) {
+			$thispage = $aftpag[$i];
+			if ($thispage) {
+				$pagedxml = $pagedxml . $thispage->asXML();
+				$aftnum = $this->elm2id($thispage);
+			};
+		}; 
+		
+		if ( $befnum == $aftnum ) $num = $befnum; else $num = "$befnum - $aftnum";
+		
 
 		
-		$num = $page[$pbatt] or $num = $page['id'];
 		$folioname = $settings['xmlfile']['paged']['display'] or $folioname = "page";
 		if ( $settings['xmlfile']['paged']['i18n'] ) $folioname = "{%$folioname}";
 
-		$npag = current($page->xpath("./preceding-sibling::{$pbelm}[1]"));
-		if ( $npag ) {
-			$bnum = $npag[$pbatt] or $bnum = $npag['id'];
-			$bid = $npag['id'];
+		if ( $befpag[$bp] ) {
+			$tmp = min(count($befpag)-1, $bp+$max*2+1); $npag1 = $befpag[$tmp]; $bid = $idxpag['id'];
+			$bnum1 = $this->elm2id($npag1);
+			$npag2 = $befpag[$bp]; 
+			$bnum2 = $this->elm2id($npag2);
+			if ( $npag1 == $npag2 ) $bnum = $bnum2; else $bnum = "$bnum1 - $bnum2";
+			$tmp = min(count($befpag)-1, $bp+$max); $idxpag = $befpag[$tmp]; $bid = $idxpag['id'];
 			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a> &bull; <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a> <";
 			$hasnav = 1;
 		} else {
 			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
 		};
-		$npag = current($page->xpath("./following-sibling::$pbelm"));
-		if ( $npag ) {
-			$bnum = $npag[$pbatt] or $bnum = $npag['id'];
-			$bid = $npag['id'];
+		if ( $aftpag[$ap] ) {
+			$tmp = min(count($aftpag)-1, $bp+$max*2+1); $npag1 = $aftpag[$tmp]; $bid = $idxpag['id'];
+			$bnum1 = $this->elm2id($npag1);
+			$npag2 = $aftpag[$bp]; 
+			$bnum2 = $this->elm2id($npag2);
+			if ( $npag1 == $npag2 ) $bnum = $bnum2; else $bnum = "$bnum2 - $bnum1";
+			$tmp = min(count($aftpag)-1, $bp+$max); $idxpag = $aftpag[$tmp]; $bid = $idxpag['id'];
 			$nnav = "> <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a>";
 			$hasnav = 1;
 		};
@@ -363,7 +401,7 @@ class TTXML
 						<hr> 
 						";
 	
-		return $page->asXML();
+		return $pagedxml;
 	}
 	
 	function mtxt($editable=1) {
@@ -539,6 +577,7 @@ class TTXML
 			if ( $pagid ) 
 				fatal ("No such $pbelm in XML: $pagid"); 
 			else {
+				# There are no such elements in the document
 				global $mtxtelement;
 				$result = $this->xml->xpath($mtxtelement);
 				if ($result) {
