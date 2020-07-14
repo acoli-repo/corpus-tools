@@ -323,7 +323,7 @@ class TTXML
 		
 		$befpag = array_reverse($page->xpath("preceding-sibling::$pbelm"));
 		$aftpag = $page->xpath("following-sibling::$pbelm");
-		$max = $settings['xmlfile']['paged']['multi'] or $max = 1;
+		$max = $settings['xmlfile']['paged']['multi'] or $max = 0;
 
 		$pagedxml = $page->asXML(); 
 		$bp = min($max, count($befpag));
@@ -345,13 +345,12 @@ class TTXML
 		
 		if ( $befnum == $aftnum ) $num = $befnum; else $num = "$befnum - $aftnum";
 		
-
 		
 		$folioname = $settings['xmlfile']['paged']['display'] or $folioname = "page";
 		if ( $settings['xmlfile']['paged']['i18n'] ) $folioname = "{%$folioname}";
 
 		if ( $befpag[$bp] ) {
-			$tmp = min(count($befpag)-1, $bp+$max*2+1); $npag1 = $befpag[$tmp]; $bid = $idxpag['id'];
+			$tmp = min(count($befpag)-1, $bp+$max*2); $npag1 = $befpag[$tmp]; $bid = $idxpag['id'];
 			$bnum1 = $this->elm2id($npag1);
 			$npag2 = $befpag[$bp]; 
 			$bnum2 = $this->elm2id($npag2);
@@ -363,7 +362,7 @@ class TTXML
 			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
 		};
 		if ( $aftpag[$ap] ) {
-			$tmp = min(count($aftpag)-1, $bp+$max*2+1); $npag1 = $aftpag[$tmp]; $bid = $idxpag['id'];
+			$tmp = min(count($aftpag)-1, $bp+$max*2); $npag1 = $aftpag[$tmp]; $bid = $idxpag['id'];
 			$bnum1 = $this->elm2id($npag1);
 			$npag2 = $aftpag[$bp]; 
 			$bnum2 = $this->elm2id($npag2);
