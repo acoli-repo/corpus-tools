@@ -100,7 +100,8 @@
 			<div style='width: 90%; border-bottom: 1px solid #66aa66; margin-bottom: 6px; padding-bottom: 6px; clear: left;'>
 			$nrblock
 			<div style='padding-left: $pl;'>
-			<div style='$dircss'>$stxt</div>";
+			<div style='$dircss'>$stxt</div>
+			<div class=blockdata>";
 		foreach ( $settings['xmlfile']['sattributes'][$stype] as $item ) {
 			$key = $item['key'];
 			if ( $item['noshow'] ) continue;
@@ -111,7 +112,7 @@
 				$editxml .= "<div $scol title='{$item['display']}'>$atv</div>"; 
 			}
 		};
-		$editxml .= "</div></div>";
+		$editxml .= "</div></div></div>";
 	};
 	
 	$blockname = $blockdef['display'] or $blockname = $defdef[$stype] or $blockname = $stype;
