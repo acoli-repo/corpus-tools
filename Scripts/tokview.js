@@ -103,8 +103,8 @@ function showtokinfo(evt, element, poselm) {
     			shownrows = 1;
     			var rowval = element.getAttribute(att);
     			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['type'] == 'pos' ) { rowval = treatpos(element, att, 'full'); }
-					else if ( formdef[att] && formdef[att]['options'] ) { rowval = formdef[att]['options'][rowval]['display'] + ' (' + rowval + ')'; }
-					else if ( tagdef[att] && tagdef[att]['options'] ) { rowval = tagdef[att]['options'][rowval]['display'] + ' (' + rowval + ')';; }; 
+					else if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['options'] ) { rowval = formdef[att]['options'][rowval]['display'] + ' (' + rowval + ')'; }
+					else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['options'] ) { rowval = tagdef[att]['options'][rowval]['display'] + ' (' + rowval + ')';; }; 
 	    		tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + 
 	    			rowval + '</td></tr>';
 	    	};
