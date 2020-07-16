@@ -54,7 +54,10 @@
 	} else if ( $id ) {
 	
 		$ffid = $id;
-		$fflang = $_GET['pagelang'] or list ( $ffid, $fflang ) = explode ( "-", $id );
+		$fflang = $_GET['pagelang']; 
+		if ( !$fflang && preg_match("/(.*)-(.*)/") ) { $ffid = $matches[1]; $fflang = $matches[2]; };
+		
+		
 		if ( $id == "new" ) {
 		
 			$content = "";
