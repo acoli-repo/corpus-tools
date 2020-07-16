@@ -77,6 +77,8 @@
 			
 			if ( file_exists($_GET['name'].".html") ) {
 				$filename = $outname = $_GET['name'].".html"; 
+				$newfile = "";
+				$content = file_get_contents($filename);
 			} else {
 				$content = getlangfile($ffid, true, $fflang, 'nomd');
 				$outfile = str_replace($getlangfile_lastfolder, "Pages", $getlangfile_lastfile);
