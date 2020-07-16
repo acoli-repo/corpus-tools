@@ -54,6 +54,8 @@
 	} else if ( $id ) {
 	
 		$ffid = $id;
+		$filename = $id;
+		if ( !preg_match("/\.(html|md)$/", $filename ) ) $filename .= ".html";
 		$fflang = $_GET['pagelang']; 
 		if ( !$fflang && preg_match("/(.*)-(.*)/") ) { $ffid = $matches[1]; $fflang = $matches[2]; };
 		
@@ -66,10 +68,8 @@
 
 			$filename =  $_GET['name']; if ( substr($filename,-5) != '.html' && substr($filename,-3) != '.md' ) $filename .= ".html"; 
 		
-		} else if ( file_exists("Pages/{$_GET['id']}") ) {
-			$filename = $_GET['id'];
-			$content = file_get_contents("Pages/{$_GET['id']}");
-			$filename =  $_GET['id']; 
+		} else if ( file_exists( $filename ) ) {
+			$content = file_get_contents("Pages/$filename");
 			$maintext .= "<h1>Edit HTML Page</h1>
 				<h2>Page name: $filename</h2>";
 
