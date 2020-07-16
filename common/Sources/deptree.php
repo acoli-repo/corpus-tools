@@ -247,13 +247,10 @@ $graph
 <input type=hidden name=action value='edit'>
 </form>
 <script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
-<script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>
-<hr>
-<p>
-	<a href='index.php?action=text&cid={$ttxml->fileid}&tid=$sid'>{%Text view}</a>
-	&bull;
-	<a href='index.php?action=block&cid={$ttxml->fileid}&tid=$sid&elm=s'>{%Sentence view}</a>
-";
+<script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>";
+
+	$maintext .= "<hr><p>".$ttxml->viewswitch();
+
 if ( $_GET['view'] != "graph" ) {
 	$maintext .= "
 	&bull;
