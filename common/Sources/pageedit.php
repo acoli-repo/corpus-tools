@@ -75,14 +75,21 @@
 		} else {
 			if ( !$fflang ) { $fflang = $settings['languages']['default']; }; # hack to force opening non-localized file
 			
-			$content = getlangfile($ffid, true, $fflang, 'nomd');
-			$outfile = str_replace($getlangfile_lastfolder, "Pages", $getlangfile_lastfile);
-			$outname = str_replace("Pages/", "", $outfile);
-			$newfile = "<p style='color: red;'><i>New file, will be created upon saving</i>";
-			$filename = $outname;
-			if ( file_exists($outfile) ) {$id = $ffid; $newfile = ""; }
-			else if ( $getlangfile_lastfolder == "$ttroot/common/" ) $newfile .= " - pre-filled with content from $getlangfile_lastfolder";
-			else if ( $filename != "Pages/$id.html" ) $newfile .= " - pre-filled with content from $getlangfile_lastfile";
+			if ( file_exists($_GET['name'].".html") ) {
+				$filename = $outname = $_GET['name'].".html"; 
+			} else {
+				$content = getlangfile($ffid, true, $fflang, 'nomd');
+				$outfile = str_replace($getlangfile_lastfolder, "Pages", $getlangfile_lastfile);
+				$outname = str_replace("Pages/", "", $outfile);
+				$newfile = "<p style='color: red;'><i>New file, will be created upon saving</i>";
+				$filename = $outname;
+			};
+			if ( file_exists($outfile) ) { $id = $ffid; $newfile = ""; }
+			else if ( $getlangfile_lastfolder == "$ttroot/common/" ) {
+				$newfile .= " - pre-filled with content from $getlangfile_lastfolder";
+			}  else if ( $filename != "Pages/$id.html" ) {
+				$newfile .= " - pre-filled with content from $getlangfile_lastfile";
+			};
 
 			if ( file_exists("Pages/$id.html") && !is_writable("Pages/$id.html") ) {
 				fatal ("Due to file permissions, $id.html cannot be edited, please contact the server administrator");
