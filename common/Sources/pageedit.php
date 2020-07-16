@@ -68,7 +68,8 @@
 
 			$filename =  $_GET['name']; if ( substr($filename,-5) != '.html' && substr($filename,-3) != '.md' ) $filename .= ".html"; 
 		
-		} else if ( file_exists( $filename ) ) {
+		} else if ( file_exists( "Pages/$filename" ) ) {
+		
 			$content = file_get_contents("Pages/$filename");
 			$maintext .= "<h1>Edit HTML Page</h1>
 				<h2>Page name: $filename</h2>";
