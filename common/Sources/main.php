@@ -118,7 +118,7 @@
 	if ( $action == "" ) {
 		$tmp = str_replace("/", "\\/", preg_quote($baseurl));
 		$miniuri = preg_replace("/^.*$tmp/", "", $_SERVER['REQUEST_URI']);
-		if ( preg_match("/^([^\/]+)\.(html|php)/", $miniuri, $matches ) ) $action = $matches[1];
+		if ( preg_match("/([^\/]+)\.(html|php)/", $_SERVER['REQUEST_URI'], $matches ) ) $action = $matches[1];
 		else if ( preg_match("/\//", $miniuri, $matches ) && !preg_match("/index\.php/", $miniuri) ) {
 			$parts = explode("/", $miniuri );
 			$action = array_shift($parts);
