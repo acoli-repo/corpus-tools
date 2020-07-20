@@ -99,11 +99,11 @@
 		};
 		exit;
 
-	} else if ( $sid || $_GET['jmp'] ) {
+	} else if ( $sid || $_GET['jmp'] || $_GET['tid'] ) {
 
-		$jump = $_GET['jmp'];
-		if ( !$sid && $jump ) {
-			$sid =	current($ttxml->xml->xpath("//s[.//tok[@id='$jump']]/@id"));
+		$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
+		if ( !$sid && $jmp ) {
+			$sid =	current($ttxml->xml->xpath("//s[.//tok[@id='$jmp']]/@id"));
 		};
 
 		if ( $_POST['sent'] ) {	
@@ -499,7 +499,7 @@ $maintext .= "
 
 	function drawtree ( $node, $tokform = "form" ) {
 		global $showpunct, $rooted;
-		$jump = $_GET['jmp'];
+		$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
 		$treetxt = ""; if ( $_GET['form'] ) $tokform = $_GET['form'];
 		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight; global $maxwidth;
 
@@ -515,7 +515,7 @@ $maintext .= "
 			if ( $text == "--" ) continue;
 			if ( $text == "" ) $text = "`";
 			if ( strtoupper($tok['deprel']) != "PUNCT" || $showpunct ) {
-				if ( $jump != '' && $jump == $tok['id'] ) { $highl = " font-weight='bold' fill='#aa2200' "; } else { $highl = ""; };
+				if ( $jmp != '' && $jmp == $tok['id'] ) { $highl = " font-weight='bold' fill='#aa2200' "; } else { $highl = ""; };
 				$svgtxt .= "\n\t<text text-anchor='middle' tokid=\"{$tok['id']}\" font-size=\"12pt\" type=\"tok\" head=\"{$tok['head']}\" deprel=\"{$tok['deprel']}\" $onclick $highl>$text</text> ";
 			};
 		};

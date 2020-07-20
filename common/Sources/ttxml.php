@@ -735,6 +735,7 @@ class TTXML
 		};
 			
 		$jmp = $_GET['jmp'] or $jmp = $_GET['tid'];
+		$jmp = preg_replace("/ .*/", "", $jmp);
 		$sep = ""; if ( !$initial ) $sep = " &bull; ";
 		foreach ( $viewopts as $key => $val ) {
 			list ( $doaction, $dolvl ) = explode ( ":", $key );
