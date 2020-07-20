@@ -38,7 +38,8 @@
 			$cqp->exec($cqpcorpus); // Select the corpus
 			$cqp->exec("set PrettyPrint off");
 			$cqp->exec("Matches = [id=\"$tid\"] :: match.text_id=\"$fileid\"");
-			$pos = $cqp->exec("tabulate Matches match");
+			$tmp = $cqp->exec("tabulate Matches match, match text_id");
+			list ( $pos, $fileid ) = explode( "\t", $tmp ); 
 			$leftpos = $pos; $rightpos = $pos;
 		} else {
 			print "No position or token ID indicated"; exit;
