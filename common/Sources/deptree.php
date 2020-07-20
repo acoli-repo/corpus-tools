@@ -102,6 +102,7 @@
 	} else if ( $sid || $_GET['jmp'] || $_GET['tid'] ) {
 
 		$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
+		$jmp = preg_replace("/ .*/", "", $jmp);
 		if ( !$sid && $jmp ) {
 			$sid =	current($ttxml->xml->xpath("//s[.//tok[@id='$jmp']]/@id"));
 		};
