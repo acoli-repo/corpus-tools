@@ -11,7 +11,8 @@ For support and recent developments, there is also a [Google group mailing list]
 This package is maintained at
 [GitLab](https://gitlab.com/maartenes/TEITOK). Issues 
 should be submitted there. There is also a fork of the repository on [GitHub](https://github.com/ufal/teitok), which 
-is kept synchronised on a daily basis, so the repository can be cloned from there as well.
+is kept synchronised on a daily basis, so the repository can be cloned from there as well. Some conversion tools
+that are related to the TEITOK format are kept in a separate repository [GitHub](https://github.com/ufal/teitok-tools)
 
 ## License
 
