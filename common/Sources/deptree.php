@@ -619,13 +619,13 @@ $maintext .= "
 					$textnode['x'] = $textnode['col']*100 + 70; 
 				};		
 			};
-				if ( $mincol > 0 ) { 
-					foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
-						$textnode['col'] = $textnode['col'] - $mincol;
-						$textnode['x'] = $textnode['col']*100 + 70; 
-					};
-					$maxcol = $maxcol - $mincol; $mincol = 0;
-				};	
+// 				if ( $mincol > 0 ) { 
+// 					foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
+// 						$textnode['col'] = $textnode['col'] - $mincol;
+// 						$textnode['x'] = $textnode['col']*100 + 70; 
+// 					};
+// 					$maxcol = $maxcol - $mincol; $mincol = 0;
+// 				};	
 		};
 
 		$mainnode['maxcol'] = $maxcol;
