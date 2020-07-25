@@ -115,19 +115,10 @@
 		$fileid = $ttxml->fileid;
 		if ( !$sent ) { fatal("Sentence not found: $sid"); };
 
-		# Determine whether to show punctuation in tree
-		if ( isset($_GET['showpunct']) ) {
-			$showpunct = $_GET['showpunct'];
-			$_SESSION['showpunct'] = $showpunct;
-		} else {
-			if ( isset($_SESSION['showpunct']) ) {
-				$showpunct = $_SESSION['showpunct'];
-			} else if ( isset($settings['deptree']['showpunct']) ) {
-				$showpunct = $settings['deptree']['showpunct'];
-			} else {
-				$showpunct = 0;
-			};
-		};
+		$puctnsh = $_GET['puctnsh'] or $puctnsh = $_SESSION['puctnsh'] or $puctnsh = $settings['deptree']['showpunct'] or $puctnsh = "without";
+		$_SESSION['puctnsh'] = $puctnsh;
+		$hpos = $_GET['hpos'] or $hpos = $_SESSION['hpos'] or $hpos = $settings['deptree']['hpos'] or $hpos = "branch";
+		$_SESSION['hpos'] = $hpos;
 
 		if ( $_GET['auto'] ) {
 			foreach ( $deplabels['labels'] as $key => $val ) { if ( $val['base'] ) $nonamb[$val['base']] = $key; };
@@ -251,24 +242,7 @@ $graph
 <script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>";
 
 	$maintext .= "<hr><p>".$ttxml->viewswitch();
-
-if ( $_GET['view'] != "graph" ) {
-	$maintext .= "
-	&bull;
-	<a href='index.php?action=$action&cid={$ttxml->fileid}&sid=$sid&view=graph'>{%Graph view}</a>
-	&bull; ";
-	if ( $showpunct ) 
-		$maintext .= "<a href='index.php?action=$action&cid={$ttxml->fileid}&sid=$sid&view=tree&showpunct=0'>{%Hide punctuation}</a>";
-	else
-		$maintext .= "<a href='index.php?action=$action&cid={$ttxml->fileid}&sid=$sid&view=tree&showpunct=1'>{%Show punctuation}</a>";
-
-} else {
-	$maintext .= "
-	&bull;
-	<a href='index.php?action=$action&cid={$ttxml->fileid}&sid=$sid&view=tree'>{%Tree view}</a>
-	
-	";
-};
+	$minurl = "index.php?action=$action&cid={$ttxml->fileid}&sid=$sid";
 
 $formfld = $_GET['form'] or $formfld = "";
 $graphbase = base64_encode(str_replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ', $graph));
@@ -305,6 +279,28 @@ $maintext .= "
 			document.getElementById('pnglink').setAttribute('link', canvas.toDataURL());
 		});
 	</script>";
+	$maintext .= "
+	<h3>{%View options}</h3>
+	<table>
+	<tr><th>{%Main view}<td>
+		<ul>
+		<li><a href='$minurl&view=tree'>{%Tree}</a>
+		<li><a href='$minurl&view=graph'>{%Graph}</a>		
+		</ul>	
+	<tr><th>{%Punctuation}<td>
+		<ul>	
+		<li><a href='$minurl&puctnsh=without'>{%Hide}</a>
+		<li><a href='$minurl&puctnsh=with'>{%Show}</a>			
+		</ul>	
+	<tr><th>{%Horizontal placement}<td>
+		<ul>	
+		<li><a href='$minurl&hpos=branch'>{%Branching}</a>
+		<li><a href='$minurl&hpos=wordorder'>{%Word order}</a>			
+		<li><a href='$minurl&hpos=narrow'>{%Centralized}</a>	
+		</ul>	
+	</table>		
+	";
+
 
 # SVG:  value='data:image/svg+xml;base64,$graphbase' download=\"deptree.svg\"
 # PNG:  value='pnglink' download=\"deptree.png\"
@@ -499,7 +495,7 @@ $maintext .= "
 	};	
 
 	function drawtree ( $node, $tokform = "form" ) {
-		global $showpunct, $rooted;
+		global $puctnsh, $rooted, $hpos;
 		$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
 		$treetxt = ""; if ( $_GET['form'] ) $tokform = $_GET['form'];
 		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight; global $maxwidth;
@@ -511,14 +507,16 @@ $maintext .= "
 		# Read the tokens
 		$i = 0;
 		$svgtxt .= "<svg version=\"1.1\" style='z-index: 2; position: absolute;' width=\"100%\" height=\"500\">"; # xmlns=\"http://www.w3.org/2000/svg\" 
+		$tokar = array();
 		foreach ( $node->xpath($toksel) as $tok ) {
 			$text = forminherit($tok, $tokform, false);
 			if ( $text == "--" ) continue;
 			if ( $text == "" ) $text = "`";
-			if ( strtoupper($tok['deprel']) != "PUNCT" || $showpunct ) {
+			if ( strtoupper($tok['deprel']) != "PUNCT" || $puctnsh == "with" ) {
 				if ( $jmp != '' && $jmp == $tok['id'] ) { $highl = " font-weight='bold' fill='#aa2200' "; } else { $highl = ""; };
 				$svgtxt .= "\n\t<text text-anchor='middle' tokid=\"{$tok['id']}\" font-size=\"12pt\" type=\"tok\" head=\"{$tok['head']}\" deprel=\"{$tok['deprel']}\" $onclick $highl>$text</text> ";
 			};
+			array_push($tokar, $tok);
 		};
 		$svgtxt .= "</svg>";
 		
@@ -530,7 +528,7 @@ $maintext .= "
 		while (	count($result) > 0 && $somedone ) {
 			$somedone = 0;
 			foreach ( $result as $textnode ) { 
-				
+				$id2node[$textnode['tokid'].""] = $textnode;
 				unset($row);
 				if ( !$textnode['head'] ) {
 					$row = $rootrow ;
@@ -560,55 +558,78 @@ $maintext .= "
 		$mainnode = current($svgxml->xpath("//svg"));
 		$mainnode['height'] = $maxheight*100 + 50;
 		$mainnode['width'] = $maxwidth*100 + 50;
-				
-		$j = ($maxwidth - $elms[0])/2; 
-		foreach ( $svgxml->xpath("//text[@row=\"0\"]") as $textnode ) {
-			$textnode['col'] = $j++;
-			$textnode['x'] = $textnode['col']*100 + 70; # Simply distribute roots horizontally
-		};
-		for ( $i=1; $i<$maxheight+1; $i++ ) {
-			$cols = array(); $k = 0;
-			# Try to put every node under its parent
-			foreach ( $svgxml->xpath("//text[@row=\"$i\"]") as $j => $textnode ) {
-				$headnode = current($svgxml->xpath("//text[@tokid=\"{$textnode['head']}\"]"));
-				$cols[$j] = $headnode['col'].'';
+
+		# Distribute the nodes horizontally		
+		$maxcol = $maxwidth;		
+		if ( $hpos == "narrow" ) {
+			foreach ( $svgxml->xpath("//text") as $textnode ) {	
+				$tr = $textnode['row']."";
+				$colpos = $colcnt[$tr]++;
+				$textnode['col'] = ($colpos+1) * ($maxwidth/($elms[$tr]+1));
+				$textnode['x'] = $textnode['col']*100 + 70; 
 			};
-
-			# Order the nodes to avoid needless crossing
-			$tmp = $cols;
-			uksort( $tmp, "valsort" );
-			
-			$headcols = $cols;
-			$ocols = array_keys($tmp);
-
-			$conflict = 0; $k = 0; $conflicted = 1;
-			# Find the optimal horizontal distribution for this row
-			while ( $conflicted && $k < 10 ) {
-				$k++; $conflicted = 0; 
-				for ( $ji=0; $ji<count($ocols); $ji++ ) {
-					$j = $ocols[$ji];
-					$nextj = $ocols[($ji+1)];
-					$cols[$j] = floatval($cols[$j]) + floatval($conflict);
-					if ( $nextj && floatval($cols[$nextj])-floatval($cols[$j])+floatval($conflict) < 1 ) {	
-						$cols[$j] = max(0, floatval($cols[$j]) - 0.5);
-						$conflict = floatval($conflict) + 0.5;
-						$conflicted = 1;
-					} else if ( $nextj && floatval($cols[$nextj])-floatval($cols[$j])+floatval($conflict) > 1 && $cols[$nextj] > $headcols[$nextj] ) {	
-						# TODO: This does not work - we should close a gap to 1 if that moves it left of its parent...
-						$conflict = floatval($conflict) - 0.5;
-						$conflicted = 1;
+		} else if ( $hpos == "wordorder" ) {
+			# Put each word in sentence order
+			$colpos = -0.3; 
+			foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
+				$tr = $textnode['row'].""; 
+				if ( !isset($lastpos[$tr]) ) $colpos = $colpos + 0.3; 
+				else $colpos = max($colpos + 0.3, $lastpos[$tr] + 1);
+				$lastpos[$tr] = $colpos;
+				$textnode['col'] = $colpos;
+				$textnode['x'] = $textnode['col']*100 + 70; 
+			};
+			$maxcol = $colpos + 1;
+		} else if ( $hpos == "branch" ) {
+			# Put each word below its head
+			$maxcol = 0; $mincol = $maxwidth;
+			foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
+				$headid = $textnode['head']."";
+				$head = $id2node[$headid];
+				if ( $textnode['deprel']."" == "root" || $textnode['tokid']."" == $textnode['head']."" ) continue;
+				if ( !$branch[$headid] ) $branch[$headid] = array();
+				array_push($branch[$headid], $textnode);
+				$brcnt[$headid]++;
+			};
+			for ( $tr=0; $tr<$maxheight+1; $tr++ ) {
+				$rowres = $svgxml->xpath("//text[@row=\"$tr\"]");
+				$lasthead = ""; $firstfree = 0;
+				foreach ( $rowres as $colpos => $textnode ) {
+					if ( $tr == 0 ) {
+						$textnode['col'] = ($colpos+1) * ($maxwidth/($elms[$tr]+1));
+					} else {
+						$headid = $textnode['head'].""; 
+						$tokid = $textnode['tokid'].""; 
+						if ( $lasthead != $headid ) {
+							$ho = 0.5 - $brcnt[$headid]/2;
+							$wh = 0;
+							$lasthead = $headid;
+						} else {
+							$wh++;
+						};
+						$thisfirst =  $id2node[$headid]['col'] + $ho + $wh + 0.5 - $brcnt[$tokid]/2;
+						$overlap = max(0, $firstfree-$thisfirst);
+						$textnode['col'] = $id2node[$headid]['col'] + $ho + $wh + $overlap;
+						if ( $brcnt[$tokid] ) $firstfree = $textnode['col'] + $brcnt[$tokid]/2 + 0.5;
+						$textnode['firstfree'] = $firstfree; 
 					};
-					$maxwidth = max($maxwidth, $cols[$j]);
-				};
-				if ( floatval($conflict) > 1 ) $conflict = -0.5; else $conflict = 0;
+					$maxcol = max($maxcol, $textnode['col']+0);
+					$mincol = min($mincol, $textnode['col']+0);
+					$textnode['x'] = $textnode['col']*100 + 70; 
+				};		
 			};
-			foreach ( $svgxml->xpath("//text[@row=\"$i\"]") as $j => $textnode ) {
-				$textnode['col'] = $cols[$j];
-				$textnode['x'] = $cols[$j]*100 + 70;
-			};
+				if ( $mincol > 0 ) { 
+					foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
+						$textnode['col'] = $textnode['col'] - $mincol;
+						$textnode['x'] = $textnode['col']*100 + 70; 
+					};
+					$maxcol = $maxcol - $mincol; $mincol = 0;
+				};	
 		};
 
-		$mainnode['width'] = $maxwidth*100 + 170;
+		$mainnode['maxcol'] = $maxcol;
+		$mainnode['mincol'] = $mincol;
+		$mainnode['width'] = $maxcol*100 + 170;
 
 		# Draw the lines
 		foreach ( $svgxml->xpath("//text") as $textnode ) {
