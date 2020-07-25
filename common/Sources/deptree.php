@@ -614,7 +614,7 @@ $maintext .= "
 						$textnode['firstfree'] = $firstfree; 
 						$textnode['offset'] = "{$id2node[$headid]['col']} + $ho + $wh + $overlap"; 
 						$tmp = $id2node[$headid]['col'] + $ho + $wh + $overlap;
-						$textnode['offsetval'] = $tmp; 
+						$textnode['offsetval'] = $tmp.""; 
 					};
 					$maxcol = max($maxcol, $textnode['col']+0);
 					$mincol = min($mincol, $textnode['col']+0);
