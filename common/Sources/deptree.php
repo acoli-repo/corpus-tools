@@ -607,10 +607,10 @@ $maintext .= "
 						} else {
 							$wh++;
 						};
-						$thisfirst =  $id2node[$headid]['col'] + $ho + $wh + 0.5 - $brcnt[$tokid]/2;
+						$thisfirst =  $id2node[$headid]['col'] + $ho + $wh + 0.5 - ($brcnt[$tokid]/2);
 						$overlap = max(0, $firstfree-$thisfirst);
 						$textnode['col'] = $id2node[$headid]['col'] + $ho + $wh + $overlap;
-						if ( $brcnt[$tokid] ) $firstfree = $textnode['col'] + $brcnt[$tokid]/2 + 0.5;
+						if ( $brcnt[$tokid] > 0 ) $firstfree = $textnode['col'] + $brcnt[$tokid]/2 + 0.5;
 						$textnode['firstfree'] = $firstfree; 
 						$textnode['offset'] = "$ho + $wh + $overlap"; 
 					};
