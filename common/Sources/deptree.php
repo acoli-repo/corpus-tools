@@ -601,7 +601,7 @@ $maintext .= "
 						$headid = $textnode['head'].""; 
 						$tokid = $textnode['tokid'].""; 
 						if ( $lasthead != $headid ) {
-							$ho = 0.5 - $brcnt[$headid]/2;
+							$ho = 0.5 - ($brcnt[$headid]/2);
 							$wh = 0;
 							$lasthead = $headid;
 						} else {
@@ -610,7 +610,7 @@ $maintext .= "
 						$thisfirst =  $id2node[$headid]['col'] + $ho + $wh + 0.5 - ($brcnt[$tokid]/2);
 						$overlap = max(0, $firstfree-$thisfirst);
 						$textnode['col'] = $id2node[$headid]['col'] + $ho + $wh + $overlap;
-						if ( $brcnt[$tokid] > 0 ) $firstfree = $textnode['col'] + $brcnt[$tokid]/2 + 0.5;
+						if ( $brcnt[$tokid] > 0 ) $firstfree = $textnode['col'] + ($brcnt[$tokid]/2) + 0.5;
 						$textnode['firstfree'] = $firstfree; 
 						$textnode['offset'] = "$ho + $wh + $overlap"; 
 					};
