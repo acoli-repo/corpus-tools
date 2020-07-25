@@ -613,7 +613,7 @@ $maintext .= "
 						if ( $brcnt[$tokid] > 0 ) $firstfree = $textnode['col'] + ($brcnt[$tokid]/2) + 0.5;
 						$textnode['firstfree'] = $firstfree; 
 						$textnode['offset'] = "{$id2node[$headid]['col']} + $ho + $wh + $overlap"; 
-						$tmp = $id2node[$headid]['col'] + 0 + $ho + $wh + $overlap;
+						$tmp = 0 + $id2node[$headid]['col'] + $ho + $wh + $overlap;
 						$textnode['offsetval'] = $tmp; 
 					};
 					$maxcol = max($maxcol, $textnode['col']+0);
