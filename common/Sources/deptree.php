@@ -595,11 +595,13 @@ $maintext .= "
 				$rowres = $svgxml->xpath("//text[@row=\"$tr\"]");
 				$lasthead = ""; $firstfree = 0;
 				foreach ( $rowres as $colpos => $textnode ) {
+					$headid = $textnode['head'].""; 
+					$tokid = $textnode['tokid'].""; 
 					if ( $tr == 0 ) {
-						$textnode['col'] = ($colpos+1) * ($maxwidth/($elms[$tr]+1));
+						$thiscol = ($colpos+1) * ($maxwidth/($elms[$tr]+1));
+						$textnode['col'] = $thiscol;
+						$id2col[$tokid] = $thiscol;
 					} else {
-						$headid = $textnode['head'].""; 
-						$tokid = $textnode['tokid'].""; 
 						if ( $lasthead != $headid ) {
 							$ho = 0.5 - ($brcnt[$headid]/2);
 							$wh = 0;
@@ -607,15 +609,12 @@ $maintext .= "
 						} else {
 							$wh++;
 						};
-						$thisfirst =  $id2node[$headid]['col'] + $ho + $wh + 0.5 - ($brcnt[$tokid]/2);
+						$thisfirst =  $id2col[$headid] + $ho + $wh + 0.5 - ($brcnt[$tokid]/2);
 						$overlap = max(0, $firstfree-$thisfirst);
-						$textnode['col'] = $id2col[$headid] + $ho + $wh + $overlap;
-						$id2col[$tokid] = $textnode['col'];
-						if ( $brcnt[$tokid] > 0 ) $firstfree = $textnode['col'] + ($brcnt[$tokid]/2) + 0.5;
-						$textnode['firstfree'] = $firstfree; 
-						$textnode['offset'] = "{$id2node[$headid]['col']} + $ho + $wh + $overlap"; 
-						$tmp = 0 + $id2node[$headid]['col'] + $ho + $wh + $overlap;
-						$textnode['offsetval'] = $tmp; 
+						$thiscol = $id2col[$headid] + $ho + $wh + $overlap;
+						$textnode['col'] = $thiscol;
+						$id2col[$tokid] = $thiscol;
+						if ( $brcnt[$tokid] > 0 ) $firstfree = $id2col[$tokid] + ($brcnt[$tokid]/2) + 0.5;
 					};
 					$maxcol = max($maxcol, $textnode['col']+0);
 					$mincol = min($mincol, $textnode['col']+0);
@@ -624,7 +623,8 @@ $maintext .= "
 			};
 				if ( $mincol > 0 ) { 
 					foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
-						$textnode['col'] = $textnode['col'] - $mincol;
+						$tokid = $textnode['tokid'].""; 
+						$textnode['col'] = $id2col[$tokid] - $mincol;
 						$textnode['x'] = $textnode['col']*100 + 70; 
 					};
 					$maxcol = $maxcol - $mincol; $mincol = 0;
