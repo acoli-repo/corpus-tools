@@ -618,14 +618,14 @@ $maintext .= "
 					};
 					$maxcol = max($maxcol, $textnode['col']+0);
 					$mincol = min($mincol, $textnode['col']+0);
-					$textnode['x'] = $textnode['col']*100 + 70; 
+					$textnode['x'] = $id2col[$tokid]*100 + 70; 
 				};		
 			};
 				if ( $mincol > 0 ) { 
 					foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
 						$tokid = $textnode['tokid'].""; 
 						$textnode['col'] = $id2col[$tokid] - $mincol;
-						$textnode['x'] = $textnode['col']*100 + 70; 
+						$textnode['x'] = ($id2col[$tokid]-$mincol)*100 + 70; 
 					};
 					$maxcol = $maxcol - $mincol; $mincol = 0;
 				};	
