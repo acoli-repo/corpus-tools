@@ -206,6 +206,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 			$graph = drawgraph($sent);
 		} else {
 			$graph = drawtree($sent);
+			$morejs = "<script langauge=Javascript>scaletext();</script>";
 		};
 		
 		if ( $username && $act == "edit" ) {
@@ -239,7 +240,8 @@ $graph
 <input type=hidden name=action value='edit'>
 </form>
 <script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
-<script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>";
+<script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>
+$morejs";
 
 	$maintext .= "<hr><p>".$ttxml->viewswitch();
 	$minurl = "index.php?action=$action&cid={$ttxml->fileid}&sid=$sid";

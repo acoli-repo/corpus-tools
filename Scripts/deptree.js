@@ -137,4 +137,19 @@ function makelink ( clicked ) {
 	var link = option.getAttribute('link');
 	// console.log(link);
 	window.open(link, '_new');
-}
+};
+
+function scaletext () {
+	var elms = document.getElementById('svgdiv').getElementsByTagName('text');
+	for (i = 0; i <elms.length; i++) {
+		elm = elms[i]; 
+		bbox = elm.getBBox();
+		fontsize = elm.getAttribute('font-size').slice(0,-2);
+			console.log(fontsize);
+		while ( bbox.width > 150 && fontsize > 0) { 
+			console.log(fontsize);
+			elm.setAttribute('font-size', fontsize-- + 'pt'); 
+			bbox = elm.getBBox();
+		};
+	};
+};
