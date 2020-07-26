@@ -568,12 +568,12 @@ $maintext .= "
 		$maxcol = $maxwidth;		
 		if ( $hpos == "narrow" ) {
 			foreach ( $svgxml->xpath("//text") as $textnode ) {	
+				$tokid = $textnode['tokid'].""; 
 				$tr = $textnode['row']."";
 				$colpos = $colcnt[$tr]++;
 				$thiscol = ($colpos+1) * ($maxwidth/($elms[$tr]+1));
 				$textnode['col'] = $thiscol;
 				$id2col[$tokid] = $thiscol;
-				$textnode['x'] = $thiscol*100 + 70; 
 			};
 		} else if ( $hpos == "wordorder" ) {
 			# Put each word in sentence order
@@ -587,11 +587,6 @@ $maintext .= "
 				$lastpos[$tr] = $colpos;
 				$textnode['col'] = $colpos;
 				$id2col[$tokid] = $colpos;
-				if ( $tdval == "rtl" ) { 
-					$textnode['x'] = ($maxwidth-$colpos)*100 + 70; 
-				} else {
-					$textnode['x'] = $colpos*100 + 70; 
-				};
 			};
 			$maxcol = $colpos + 1;
 		} else if ( $hpos == "branch" ) {
@@ -601,8 +596,6 @@ $maintext .= "
 				$headid = $textnode['head']."";
 				$head = $id2node[$headid];
 				if ( $textnode['deprel']."" == "root" || $textnode['tokid']."" == $textnode['head']."" ) continue;
-				if ( !$branch[$headid] ) $branch[$headid] = array();
-				array_push($branch[$headid], $textnode);
 				$brcnt[$headid]++;
 			};
 			for ( $tr=0; $tr<$maxheight+1; $tr++ ) {
@@ -634,19 +627,19 @@ $maintext .= "
 					$mincol = min($mincol, $textnode['col']+0);
 				};		
 			};
-			foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
-				$tokid = $textnode['tokid'].""; 
-				$textnode['col'] = $id2col[$tokid] - $mincol;
-				
-				$poscol =  ($id2col[$tokid]-$mincol);
-				if ( $tdval == "rtl" ) { 
-					$textnode['x'] = ($maxwidth-$poscol)*100 + 70; 
-				} else {
-					$textnode['x'] = $poscol*100 + 70; 
-				};
-			};
-			$maxcol = $maxcol - $mincol; $mincol = 0;
 		};
+		# Place the node horizontally (taking into account RTL and left margin)
+		$maxcol = $maxcol - $mincol; 
+		foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
+			$tokid = $textnode['tokid'].""; 
+			$poscol =  $id2col[$tokid] - $mincol;
+			if ( $tdval == "rtl" ) { 
+				$textnode['x'] = ($maxcol-$poscol)*100 + 70; 
+			} else {
+				$textnode['x'] = $poscol*100 + 70; 
+			};
+		};
+		$mincol = 0;
 
 		$mainnode['maxcol'] = $maxcol;
 		$mainnode['mincol'] = $mincol;
