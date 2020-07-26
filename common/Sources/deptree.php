@@ -613,11 +613,11 @@ $maintext .= "
 							$ho = 0.5 - ($brcnt[$headid]/2);
 							$wh = 0;
 							$lasthead = $headid;
+							$thisfirst =  $id2col[$headid] + $ho + $wh + 0.5 - ($brcnt[$tokid]/2);
+							$overlap = max(0, $firstfree-$thisfirst);
 						} else {
 							$wh++;
 						};
-						$thisfirst =  $id2col[$headid] + $ho + $wh + 0.5 - ($brcnt[$tokid]/2);
-						$overlap = max(0, $firstfree-$thisfirst);
 						$thiscol = $id2col[$headid] + $ho + $wh + $overlap;
 						$textnode['col'] = $thiscol;
 						$id2col[$tokid] = $thiscol;
