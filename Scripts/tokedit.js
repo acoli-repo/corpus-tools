@@ -583,8 +583,10 @@ function setForm ( type ) {
 	} else if ( typeof(formdir) != 'undefined' && formdir['pform'] ) {
 		setdirc = formdir['pform'];
 	};
-	document.getElementById('mtxt').style['direction'] = setdirc;
-	document.getElementById('mtxt').direction = setdirc;
+	if ( setdirc ) { 
+		document.getElementById('mtxt').style['direction'] = setdirc;
+		document.getElementById('mtxt').direction = setdirc;
+	};
 		
 
 	// Do the <c> to allow for normalizing spaces

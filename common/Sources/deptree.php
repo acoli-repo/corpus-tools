@@ -192,7 +192,8 @@ window.addEventListener(\"beforeunload\", function (e) {
 			};
 			if ( $textdir ) {
 				// Defined in the teiHeader for mixed-writing corpora
-				$textdir = "dir='$textdir'";
+				$textdir = "dir='$textdir' style='text-direction: $textdir;'";
+				$morejs .= "var basedirection = '$textdir';";
 			};
 		};
 		
@@ -206,7 +207,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 			$graph = drawgraph($sent);
 		} else {
 			$graph = drawtree($sent);
-			$morejs = "<script langauge=Javascript>scaletext();</script>";
+			$morejs .= "scaletext();";
 		};
 		
 		if ( $username && $act == "edit" ) {
@@ -242,7 +243,7 @@ $graph
 </form>
 <script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
 <script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>
-$morejs";
+<script language=\"Javascript\">$morejs</script>";
 
 	$maintext .= "<hr><p>".$ttxml->viewswitch();
 	$minurl = "index.php?action=$action&cid={$ttxml->fileid}&sid=$sid";
@@ -479,7 +480,7 @@ $maintext .= "
 		
 			$maintext .= "
 				<p>Select a sentence
-				<table id=mtxt>"; 
+				<table id=mtxt $textdir>"; 
 		
 			foreach ( $sentlist as $sent ) {
 			
