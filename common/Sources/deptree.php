@@ -565,19 +565,23 @@ $maintext .= "
 			foreach ( $svgxml->xpath("//text") as $textnode ) {	
 				$tr = $textnode['row']."";
 				$colpos = $colcnt[$tr]++;
-				$textnode['col'] = ($colpos+1) * ($maxwidth/($elms[$tr]+1));
-				$textnode['x'] = $textnode['col']*100 + 70; 
+				$thiscol = ($colpos+1) * ($maxwidth/($elms[$tr]+1));
+				$textnode['col'] = $thiscol;
+				$id2col[$tokid] = $thiscol;
+				$textnode['x'] = $thiscol*100 + 70; 
 			};
 		} else if ( $hpos == "wordorder" ) {
 			# Put each word in sentence order
 			$colpos = -0.3; 
 			foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
+				$tokid = $textnode['tokid'].""; 
 				$tr = $textnode['row'].""; 
 				if ( !isset($lastpos[$tr]) ) $colpos = $colpos + 0.3; 
 				else $colpos = max($colpos + 0.3, $lastpos[$tr] + 1);
 				$lastpos[$tr] = $colpos;
 				$textnode['col'] = $colpos;
-				$textnode['x'] = $textnode['col']*100 + 70; 
+				$id2col[$tokid] = $colpos;
+				$textnode['x'] = $colpos*100 + 70; 
 			};
 			$maxcol = $colpos + 1;
 		} else if ( $hpos == "branch" ) {
