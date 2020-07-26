@@ -609,7 +609,8 @@ $maintext .= "
 						};
 						$thisfirst =  $id2node[$headid]['col'] + $ho + $wh + 0.5 - ($brcnt[$tokid]/2);
 						$overlap = max(0, $firstfree-$thisfirst);
-						$textnode['col'] = $id2node[$headid]['col'] + $ho + $wh + $overlap;
+						$textnode['col'] = $id2col[$headid] + $ho + $wh + $overlap;
+						$id2col[$tokid] = $textnode['col'];
 						if ( $brcnt[$tokid] > 0 ) $firstfree = $textnode['col'] + ($brcnt[$tokid]/2) + 0.5;
 						$textnode['firstfree'] = $firstfree; 
 						$textnode['offset'] = "{$id2node[$headid]['col']} + $ho + $wh + $overlap"; 
