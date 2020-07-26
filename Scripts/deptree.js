@@ -145,9 +145,7 @@ function scaletext () {
 		elm = elms[i]; 
 		bbox = elm.getBBox();
 		fontsize = elm.getAttribute('font-size').slice(0,-2);
-			console.log(fontsize);
 		while ( bbox.width > 150 && fontsize > 0) { 
-			console.log(fontsize);
 			elm.setAttribute('font-size', fontsize-- + 'pt'); 
 			bbox = elm.getBBox();
 		};

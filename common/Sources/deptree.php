@@ -214,6 +214,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 			<script language=\"Javascript\">var labelstxt = 'Select a dependency label from the popout list <div class=\"popoutlist\">$labelstxt</div>';</script>
 			";
 		};
+		
 	
 		$maintext .= "\n
 <div id=svgdiv>
@@ -639,7 +640,11 @@ $maintext .= "
 
 		$mainnode['maxcol'] = $maxcol;
 		$mainnode['mincol'] = $mincol;
-		$mainnode['width'] = $maxcol*100 + 170;
+		$width = $maxcol*100 + 170;
+		$height = $maxheight*100 + 70;
+		$mainnode['width'] = $width;
+		$mainnode['height'] = $height;
+		$mainnode['viewBox'] = "0 0 $width $height";
 
 		# Draw the lines
 		foreach ( $svgxml->xpath("//text") as $textnode ) {
@@ -685,6 +690,7 @@ $maintext .= "
 					
 			
 		};
+		
 		
 		return $svgxml->asXML();
 	};
