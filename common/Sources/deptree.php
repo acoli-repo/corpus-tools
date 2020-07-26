@@ -25,6 +25,21 @@
 	$sid = $_GET['sid'] or $sid = $_GET['sentence'];
 	$cid = $ttxml->fileid;
 
+	if ( $settings['xmlfile']['basedirection'] ) {
+		// Defined in the settings
+		$textdir = "dir='{$settings['xmlfile']['basedirection']}'";
+	} else {
+		$dirxpath = $settings['xmlfile']['direction'];
+		if ( $dirxpath ) {
+			$tdval = current($ttxml->xml->xpath($dirxpath));
+		};
+		if ( $tdval ) {
+			// Defined in the teiHeader for mixed-writing corpora
+			$textdir = "dir='$tdval' style='text-direction: $tdval;'";
+			$morejs .= "var basedirection = '$tdval';";
+		};
+	};
+
 	if ( $_POST['action'] == "save" ) { $act = "save"; };
 
 	if ( $act == "save" && $_POST['sent'] ) {
@@ -182,20 +197,6 @@ window.addEventListener(\"beforeunload\", function (e) {
 			};
 		};
 
-		if ( $settings['xmlfile']['basedirection'] ) {
-			// Defined in the settings
-			$textdir = "dir='{$settings['xmlfile']['basedirection']}'";
-		} else {
-			$dirxpath = $settings['xmlfile']['direction'];
-			if ( $dirxpath ) {
-				$textdir = current($ttxml->xml->xpath($dirxpath));
-			};
-			if ( $textdir ) {
-				// Defined in the teiHeader for mixed-writing corpora
-				$textdir = "dir='$textdir' style='text-direction: $textdir;'";
-				$morejs .= "var basedirection = '$textdir';";
-			};
-		};
 		
 		$xmltxt = $sent->asXML();
 		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
@@ -499,7 +500,7 @@ $maintext .= "
 	};	
 
 	function drawtree ( $node, $tokform = "form" ) {
-		global $puctnsh, $rooted, $hpos;
+		global $puctnsh, $rooted, $hpos, $tdval;
 		$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
 		$treetxt = ""; if ( $_GET['form'] ) $tokform = $_GET['form'];
 		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight; global $maxwidth;
@@ -582,10 +583,15 @@ $maintext .= "
 				$tr = $textnode['row'].""; 
 				if ( !isset($lastpos[$tr]) ) $colpos = $colpos + 0.3; 
 				else $colpos = max($colpos + 0.3, $lastpos[$tr] + 1);
+				
 				$lastpos[$tr] = $colpos;
 				$textnode['col'] = $colpos;
 				$id2col[$tokid] = $colpos;
-				$textnode['x'] = $colpos*100 + 70; 
+				if ( $tdval == "rtl" ) { 
+					$textnode['x'] = ($maxwidth-$colpos)*100 + 70; 
+				} else {
+					$textnode['x'] = $colpos*100 + 70; 
+				};
 			};
 			$maxcol = $colpos + 1;
 		} else if ( $hpos == "branch" ) {
@@ -626,17 +632,20 @@ $maintext .= "
 					};
 					$maxcol = max($maxcol, $textnode['col']+0);
 					$mincol = min($mincol, $textnode['col']+0);
-					$textnode['x'] = $id2col[$tokid]*100 + 70; 
 				};		
 			};
-				if ( $mincol > 0 ) { 
-					foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
-						$tokid = $textnode['tokid'].""; 
-						$textnode['col'] = $id2col[$tokid] - $mincol;
-						$textnode['x'] = ($id2col[$tokid]-$mincol)*100 + 70; 
-					};
-					$maxcol = $maxcol - $mincol; $mincol = 0;
-				};	
+			foreach ( $svgxml->xpath("//text") as $i => $textnode ) {	
+				$tokid = $textnode['tokid'].""; 
+				$textnode['col'] = $id2col[$tokid] - $mincol;
+				
+				$poscol =  ($id2col[$tokid]-$mincol);
+				if ( $tdval == "rtl" ) { 
+					$textnode['x'] = ($maxwidth-$poscol)*100 + 70; 
+				} else {
+					$textnode['x'] = $poscol*100 + 70; 
+				};
+			};
+			$maxcol = $maxcol - $mincol; $mincol = 0;
 		};
 
 		$mainnode['maxcol'] = $maxcol;
