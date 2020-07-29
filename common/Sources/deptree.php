@@ -600,7 +600,7 @@ $maintext .= "
 			};
 			for ( $tr=0; $tr<$maxheight+1; $tr++ ) {
 				$rowres = $svgxml->xpath("//text[@row=\"$tr\"]");
-				$lasthead = ""; $firstfree = 0;
+				$lasthead = ""; $firstfree = "";
 				foreach ( $rowres as $colpos => $textnode ) {
 					$headid = $textnode['head'].""; 
 					$tokid = $textnode['tokid'].""; 
@@ -614,7 +614,8 @@ $maintext .= "
 							$wh = 0;
 							$lasthead = $headid;
 							$thisfirst =  $id2col[$headid] + $ho + $wh + 0.5 - ($brcnt[$tokid]/2);
-							$overlap = max(0, $firstfree-$thisfirst);
+							$overlap = 0;
+							if ( $firstfree != "" ) $overlap = max(0, $firstfree-$thisfirst);
 						} else {
 							$wh++;
 						};

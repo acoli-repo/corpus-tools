@@ -77,7 +77,10 @@
 		$id = preg_replace ("/^[.\/]+/", "", $id);
 		
 		$fldr = "Resources";
-		if ( $_GET['folder'] && in_array($_GET['folder'], $blessed) ) $fldr = $_GET['folder'];
+		if ( $_GET['folder'] && in_array($_GET['folder'], $blessed) ) {
+			$fldr = $_GET['folder'];
+			check_folder($fldr);
+		};
 		
 		if ( $id == "new" ) {
 			$content = "";
