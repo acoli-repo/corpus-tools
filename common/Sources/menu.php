@@ -38,7 +38,7 @@
     foreach ( $settings['menu']['itemlist'] as $key => $item ) { 
     	if ( substr($key,0,4) == "http" ) $link = $key;
     	else $link = "{$tlpr}index.php?action=$key";
-    	if ( $key == $action ) {
+    	if ( preg_replace("/&.*/", "", $key) == $action ) {
     		$scl = " class='selected'"; 
     		$scli = " class='active'"; 
     	} else {
@@ -52,7 +52,7 @@
     		$menu .= "</ul><h3>{%$itemtxt}</h3><ul style='text-align: left'>";
 		} else if ( $item['admin'] ) {
     		if ( $item['admin'] == 1 || $user['permissions'] == "admin" ) {
-	    		$adminitems .= "<ul style='text-align: left'><li $scli><a href='$link'>{%$itemtxt}</a></ul>";
+	    		$adminitems .= "<ul style='text-align: left'><li $scli><a href='$link'$scl>{%$itemtxt}</a></ul>";
 	    	};
     	} else {
     		$menu .= "<li><a href='$link'$scl>{%$itemtxt}</a>";
@@ -85,7 +85,8 @@
 		}; }; 
 	} else {
 		$shortuserid = "guest";
-  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=login'>Login</a></ul>";
+  		$tmp = ""; if ( $action == "login" ) $tmp = "class=\"selected\""; 
+  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=login' $tmp>Login</a></ul>";
 	};
         	
         
