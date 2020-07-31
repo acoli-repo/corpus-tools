@@ -98,6 +98,32 @@
 		print $results;
 		exit;
 
+	} else if ( $act == "seq" ) {
+	
+		check_login();
+	
+		if ( !$_POST ) $_POST = $_GET;
+		$maintext .= "<h1>Raw CQP Query</h1>
+			<p>Below you can type in a sequence of CQP queries, and the interface will display the final result.
+		
+			<form action='index.php?action=$action&act=$act' method=post>
+				<textarea style='width: 100%; height: 200px;' name=query>{$_POST['query']}</textarea>
+				<p><input type=submit value='Execute'>
+			</form>";
+
+		if ( $_POST['query'] ) {
+			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+			$cqp = new CQP();
+			$cqp->exec($cqpcorpus); // Select the corpus
+			$cqp->exec("set PrettyPrint off");
+		
+			$result = $cqp->exec($_POST['query']);
+			if ( $result == "\n" ) $result = "No result";
+		
+			$maintext .= "<hr><h2>Result</h2><pre>".htmlentities($result)."</pre>";
+		};
+	
+
 	} else if ( $act == "distribute" ) {
 		# Distribute over a bunch of different sattributes
 
@@ -843,6 +869,10 @@
 		$explanation = getlangfile("cqptext", true);
 
 		$maintext .= $explanation;
+
+		if ( $username ) { 
+			$maintext .= " &bull; <a href='index.php?action=$action&act=seq' class=adminpart>Run sequence of queries</a>";
+		};
 
 		if ( $showdirect ) $maintext .= "\n<!-- auto open -->\n<script language=Javascript>showqb('cqlfld'); var direct = 1;</script>";
 
