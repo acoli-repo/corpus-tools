@@ -72,10 +72,10 @@
 		// define the word search		
 		foreach ( $cqpcols as $col ) {
 			$colname = pattname($col); 
-			$jsnames .= "pattname['$col'] = {'display': '{%$colname}'}; ";
+			$coldef = $settings['cqp']['pattributes'][$col];
+			$jsnames .= "pattname['$col'] = { 'values': '{$coldef['values']}', 'display': '{%$colname}'}; ";
 			if ( !$colname ) $colname = "[$col]";
 			$tstyle = ""; 
-			$coldef = $settings['cqp']['pattributes'][$col];
 			if ( $coldef['admin'] == "1" ) {
 				$tstyle = " class=adminpart";
 				if ( !$username ) { continue; };
@@ -141,7 +141,7 @@
 				foreach ( explode ( "\0", $tmp ) as $kva ) { 
 					if ( $kva ) {
 						if ( $coldef['values'] == "multi" ) {
-							$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+							$mvsep = $coldef['mvsep'] or $mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
 							$kvl = explode ( $mvsep, $kva );
 						} else {
 							$kvl = array ( $kva );
@@ -200,6 +200,7 @@
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";
 			};
 		};
+		if (  $settings['cqp']['multiseperator'] ) $prescript .= "var mvsep = '{$settings['cqp']['multiseperator']}'; ";
 
 		// Pass i18n to Javascript
 		$prescript .= "var pattname = [];\n var jstrans = []; var fldtypes= []; fldtypes['multi'] = [];\n$jsnames";

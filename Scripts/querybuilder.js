@@ -319,7 +319,13 @@ function updatequery(nodirect = false) {
 				} else if ( matchtype == 'endsin' ) {
 					val = '.*' + val;
 				};
-			};
+	        } else if ( flds[i].nodeName == "SELECT" ) {
+				if ( typeof(pattname) != 'undefined' && typeof(pattname[parse[2]]) != 'undefined' 
+								&& pattname[parse[2]].values == 'multi' ) {
+					if ( typeof(mvsep) == 'undefined' ) mvsep = ',';
+					val = '(.*'+mvsep+')?' + val + '('+mvsep+'.*)?';
+				};
+	        };
         	tokq += toksep + parse[2] + ' = "' + val + '"';
         	toksep = ' & ';
         } else if ( parse[1] == 'atts' ) {
@@ -337,7 +343,7 @@ function updatequery(nodirect = false) {
 				val = '.*' + val;
 			} else if ( typeof(pattname) != 'undefined' && typeof(pattname[parse[2]]) != 'undefined' 
 							&& pattname[parse[2]].values == 'multi' ) {
-				val = '.*' + val + '.*'; // TODO: '(.+,|)' + val + '(,.+|)'; - and this should not visualize as [contains] (maybe)
+				val = '(,.*)?' + val + '(,.*)?'; // TODO: '(.+,|)' + val + '(,.+|)'; - and this should not visualize as [contains] (maybe)
 			};
         	var tmp = /^(.*?)_(.*)$/.exec(parse[2]);
         	var gltype = tmp[1]; var glatt = tmp[2];
