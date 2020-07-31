@@ -322,7 +322,7 @@ function updatequery(nodirect = false) {
 	        } else if ( flds[i].nodeName == "SELECT" ) {
 				if ( typeof(pattname) != 'undefined' && typeof(pattname[parse[2]]) != 'undefined' 
 								&& pattname[parse[2]].values == 'multi' ) {
-					if ( typeof(mvsep) == 'undefined' ) mvsep = ',';
+					if ( typeof(mvsep) == 'undefined' ) var mvsep = ',';
 					val = '(.*'+mvsep+')?' + val + '('+mvsep+'.*)?';
 				};
 	        };
@@ -343,7 +343,8 @@ function updatequery(nodirect = false) {
 				val = '.*' + val;
 			} else if ( typeof(pattname) != 'undefined' && typeof(pattname[parse[2]]) != 'undefined' 
 							&& pattname[parse[2]].values == 'multi' ) {
-				val = '(,.*)?' + val + '(,.*)?'; // TODO: '(.+,|)' + val + '(,.+|)'; - and this should not visualize as [contains] (maybe)
+				if ( typeof(mvsep) == 'undefined' ) var mvsep = ',';
+				val = '('+mvsep+'.*)?' + val + '('+mvsep+'.*)?';
 			};
         	var tmp = /^(.*?)_(.*)$/.exec(parse[2]);
         	var gltype = tmp[1]; var glatt = tmp[2];
