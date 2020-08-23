@@ -387,7 +387,11 @@ x				<att key="tag" display="XML tag to be used in CQP (if not @key)"/>
 		<att key="xpath" display="XPath to the text body" default="//text"/> 
 		<att key="linebreaks" display="Interpret linebreaks as lb before tokenization (1/0)" default="0"/> 
 		<att key="mtokform" display="Allow mtoks to have alternative orthographies" default="0"/> 
-		<att key="nogaps" display="Do not convert gaps into [...] but let CSS take care of that (0/1)"/> 
+		<att key="nogaps" display="Do not convert gaps into [...] but let CSS take care of that (0/1)" default="0"/> 
+		<att key="nospace" display="Ignore spaces" default="0">
+			<val key="0" display="Keep XML as white-space sensitive"/>
+			<val key="1" display="Kill all spaces - real spaces are inside character nodes"/>
+		</att> 
 		<att key="l" display="How to interpret linebreaks">
 			<val key="nolb" display="Only interpret lb as a manuscript line"/>
 			<val key="lbl" display="Interpret both lb and l as manuscript lines"/>

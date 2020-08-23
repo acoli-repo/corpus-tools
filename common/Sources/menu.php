@@ -1,6 +1,6 @@
 <?php
 	// Script to display the menubar
-	// (c) Maarten Janssen, 2015
+	// Maarten Janssen, 2015
 	// Default items: {%Home}, {%Search}, {%About}, {%!help}
 
 	if ( is_array($settings['languages']['options']) && count($settings['languages']['options']) > 1 ) {

@@ -68,7 +68,11 @@ class TTXML
 			$this->rawtext = namespacemake($this->rawtext);
 		};
 			
-		$this->xml = simplexml_load_string($this->rawtext);
+		if ( $settings['xmlfile']['nospace'] == "1" || preg_match("/<text[^>]+xml:space=\"remove\"/", $rawtext) ) {
+			$this->xml = simplexml_load_string($this->rawtext, null, LIBXML_NOBLANKS);
+		} else {
+			$this->xml = simplexml_load_string($this->rawtext);
+		};
 		if ( !$this->xml && $fatal ) { fatal ( "Failing to read/parse $fileid" ); };
 		
 		// See if there is an Audio element in the header

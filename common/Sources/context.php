@@ -22,7 +22,7 @@
 	if ( $leftpos == "" ) $leftpos = $pos;
 	if ( $rightpos == "" ) $rightpos = $pos;
 
-	if ( $settings['context']['nopos'] ) $leftpos = ""; $rightpos = ""; # Ignore POS if indexes might differ
+	if ( $settings['context']['nopos'] ) { $pos = $leftpos = $rightpos = ""; }; # Ignore POS if indexes might differ
 
 	$fileid = "xmlfiles/$cid.xml"; 
 	$outfolder = "cqp"; 
