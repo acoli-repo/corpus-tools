@@ -73,7 +73,7 @@ if ( !$keepns ) {
 };
 
 # We cannot have an XML tag span a line, so join them back on a single line
-$rawxwl =~ s/<([^>]+)[\n\r]([^>]+)>/<\1 \2>/g;
+# $rawxwl =~ s/<([^>]+)[\n\r]([^>]+)>/<\1 \2>/g;
 
 # Check if this is valid XML to start with
 $parser = XML::LibXML->new(); $doc = "";
@@ -85,11 +85,18 @@ if ( !$doc ) {
 	exit;
 };
 
+
 # Take off the header and footer (ignore everything outside of $mtxtelm)
-if ( $rawxml =~ /(<$mtxtelm>|<$mtxtelm [^>]*>).*?<\/$mtxtelm>/gsmi ) { $tagtxt = $&; $head = $`; $foot = $'; }
+if ( $rawxml =~ /(<$mtxtelm>|<$mtxtelm [^>]*>).*?<\/$mtxtelm>/smi ) { $tagtxt = $&; $head = $`; $foot = $'; }
 else { print "No element <$mtxtelm>"; exit; };
 
- 
+
+# We need to remove linebreaks in the middle of a tag
+$lc = 0; while ( $tagtxt =~ /<([^>\n\r]*?)[\n\r]+\s*/g && $lc++ < 5) {
+	# print $tagtxt;
+	$tagtxt =~ s/<([^>\n\r]*?)[\n\r]+\s*/<\1 /g;
+};
+
 
 if ( $linebreaks ) {
 	if ( $debug ) {
@@ -140,9 +147,23 @@ while ( $tagtxt =~ /<(note|desc|gap|pb|fw|app)[^>]*(?<!\/)>.*?<\/\1>/gsmi )  {
 	$tagtxt =~ s/\Q$notetxt\E/<ntn n="$notecnt"\/>/;
 	$notecnt++;
 };	
+# Also do XML comments 
+while ( $tagtxt =~ /<!--.*?-->/gsmi )  {
+	$notetxt = $&; $leftc = $`;
+	$notes[$notecnt] = $notetxt; $newtxt = substr($leftc, -50).'#'.$notetxt;
+	if ( $oldtxt eq $newtxt ) { 
+		if ( $lc++ > 5 ) {
+			print "Oops - trying to remove notes but getting into an infinite loop (or at least seemingly so).";
+			print "before: $oldtxt"; 
+			print "now: $newtxt"; 
+			exit; 
+		};
+	};
+	$oldtxt = $newtxt;
+	$tagtxt =~ s/\Q$notetxt\E/<ntn n="$notecnt"\/>/;
+	$notecnt++;
+};	
 
-# We need to remove linebreaks in the middle of a tag
-$tagtxt =~ s/<([^>\n\r]*)[\n\r]+\s*/<\1 /g;
 
 if ( $debug ) {
 	print "\n\n----------------\nBEFORE TOKENIZING\n----------------\n$tagtxt----------------\n";
