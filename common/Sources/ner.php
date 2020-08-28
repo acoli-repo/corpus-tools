@@ -7,6 +7,7 @@
 		or 
 		$nerlist = array(
 			"placename" => array ( "display" => "Place Name", "cqp" => "place", "elm" => "placeName" ), 
+			"personname" => array ( "display" => "Person Name", "cqp" => "person", "elm" => "persName" ), 
 			"name" => array ( "display" => "Name", "elm" => "name" ),
 			"term" => array ( "display" => "Term", "elm" => "term" ),
 			);
@@ -95,7 +96,8 @@
 		
 		$nodetype = $nerlist[$type]['elm'];
 		$nodeatt = $nerlist[$type]['cqp'];
-		$cql = "Matches =  []+  :: match.{$nodeatt}_ref=\"{$_GET['ref']}\" within $nodeatt";
+		# $cql = "Matches =  []+  :: match.{$nodeatt}_ref=\"{$_GET['ref']}\" within $nodeatt";
+		$cql = "Matches = <$nodeatt> []+ </$nodeatt> :: match.{$nodeatt}_ref=\"{$_GET['ref']}\"";
 		$cqp->exec($cql); 
 		$results = $cqp->exec("tabulate Matches match, matchend, match text_id, match id");
 
@@ -107,7 +109,7 @@
 			$cmd = "$xidxcmd --filename='$fileid' --cqp='$cqpfolder' $expand $leftpos $rightpos";
 			$resxml = shell_exec($cmd);
 			$context = preg_replace("/.*\/(.*?)\.xml/", "\\1", $fileid);
-			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&ref={$_GET['ref']}'>$context</a><td>$resxml";
+			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&ref=".urlencode($_GET['ref'])."'>$context</a><td>$resxml";
 		};
 		$maintext .= "</table>";
 
@@ -137,7 +139,7 @@
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $ref, $cnt, $display ) = explode("\t", $resline);
 			if ( !$display ) $display = $ref;
-			$maintext .= "<tr><td><a href='index.php?action=$action&ref={$ref}&type=$type'>$display</a></tr>";
+			$maintext .= "<tr><td><a href='index.php?action=$action&ref=".urlencode($ref)."&type=$type'>$display</a></tr>";
 		};
 		$maintext .= "</table>";
 
