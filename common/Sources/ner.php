@@ -8,8 +8,8 @@
 		$nerlist = array(
 			"placename" => array ( "display" => "Place Name", "cqp" => "place", "elm" => "placeName" ), 
 			"personname" => array ( "display" => "Person Name", "cqp" => "person", "elm" => "persName" ), 
-			"name" => array ( "display" => "Name", "elm" => "name" ),
-			"term" => array ( "display" => "Term", "elm" => "term" ),
+			"name" => array ( "display" => "Name", "cqp" => "name", "elm" => "name" ),
+			"term" => array ( "display" => "Term", "cqp" => "term", "elm" => "term" ),
 			);
 	$nerjson = array2json($nerlist);
 
@@ -27,15 +27,22 @@
 		$maintext .= "<table>";
 		foreach ( $nerlist as $key => $val ) {
 			$nodelist = $xml->xpath("//text//{$val['elm']}");
+			unset($refnames);
 			if ( $nodelist ) {
 				$maintext .= "<tr><td colspan=2><h2>{$val['display']}</h2></tr>";
 			
 				foreach ( $nodelist as $node ) {
 					$ref = $node['ref'];
 					$name = $node->asXML() or $name = $ref;
-					$maintext .= "<tr><td><a href='index.php?action=$action&type=$key&ref=".urlencode($ref)."'>$name</a><td><a href='$ref'>$ref</a>";
+					$name = preg_replace("/<[^>]+>/", "", $name);
+					$refnames[$ref.""][$name.""]++;
+					# $maintext .= "<tr><td><a href='index.php?action=$action&type=$key&ref=".urlencode($ref)."'>$name</a><td><a href='$ref'>$ref</a>";
 				};
 			};	
+			foreach ( $refnames as $ref => $val ) {
+				$name = join("<br/>", array_keys($val));
+				$maintext .= "<tr><td><a href='index.php?action=$action&type=$key&ref=".urlencode($ref)."'>$name</a><td><a href='$ref'>$ref</a>";
+			};
 		};
 		$maintext .= "</table>
 				<hr> <a href='index.php?action=$action&cid={$ttxml->fileid}'>{%back}</a>";
