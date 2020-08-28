@@ -13,7 +13,34 @@
 			);
 	$nerjson = array2json($nerlist);
 
-	if ( $_GET['cid'] ) {
+	if ( $_GET['cid'] && $act == "list" ) {
+
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		$fileid = $ttxml->fileid;
+		$xmlid = $ttxml->xmlid;
+		$xml = $ttxml->xml;
+
+		$maintext .= "<h2>{%Named Entities}</h2><h1>".$ttxml->title()."</h1>";
+		$maintext .= $ttxml->tableheader();		
+
+		$maintext .= "<table>";
+		foreach ( $nerlist as $key => $val ) {
+			$nodelist = $xml->xpath("//text//{$val['elm']}");
+			if ( $nodelist ) {
+				$maintext .= "<tr><td colspan=2><h2>{$val['display']}</h2></tr>";
+			
+				foreach ( $nodelist as $node ) {
+					$ref = $node['ref'];
+					$name = $node->asXML() or $name = $ref;
+					$maintext .= "<tr><td><a href='index.php?action=$action&type=$key&ref=".urlencode($ref)."'>$name</a><td><a href='$ref'>$ref</a>";
+				};
+			};	
+		};
+		$maintext .= "</table>
+				<hr> <a href='index.php?action=$action&cid={$ttxml->fileid}'>{%back}</a>";
+
+	} else if ( $_GET['cid'] ) {
 
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
@@ -29,6 +56,7 @@
 		$maintext .= "<div id=mtxt>".$ttxml->asXML()."</div>";
 
 		$maintext .= "<hr>".$ttxml->viewswitch();
+		$maintext .= " &bull; <a href='index.php?action=$action&act=list&cid=$ttxml->fileid'>{%List names}</a>";
 
 		$maintext .= "<script language=Javascript>
 			var nerlist = $nerjson;
