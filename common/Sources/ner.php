@@ -41,13 +41,26 @@
 			};	
 			foreach ( $refnames as $ref => $val ) {
 				$name = join("<br/>", array_keys($val));
-				$maintext .= "<tr><td><a href='index.php?action=$action&type=$key&ref=".urlencode($ref)."'>$name</a><td><a href='$ref'>$ref</a>";
+				if ( substr($ref, 0, 4) == "http") $reftxt = "<a href='$ref'>$ref</a>";
+				else if ( substr($ref, 0, 1) == "#" ) {
+					$refxp = "//*[@id=\"".substr($ref,1)."\" or @xml:id=\"".substr($ref,1)."\"]";
+					$refnode = $xml->xpath($refxp);
+					$reftxt = ""; $sep = "";
+					if ( !$refnode ) $reftxt = $refxp; else 
+					foreach ( $refnode[0]->xpath(".//link") as $linknode ) {
+						$refname = $linknode['type'] or $refname = $linknode['target'];
+						$reftxt = $sep."<a href='{$linknode['target']}'>$refname</a>"; 
+						$sep = "<br/>";
+					};
+				} else $reftxt = $ref;
+				$cidr = ""; if ( substr($ref,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
+				$maintext .= "<tr><td><a href='index.php?action=$action&type=$key&ref=".urlencode($ref)."$cidr'>$name</a><td>$reftxt";
 			};
 		};
 		$maintext .= "</table>
 				<hr> <a href='index.php?action=$action&cid={$ttxml->fileid}'>{%back}</a>";
 
-	} else if ( $_GET['cid'] ) {
+	} else if ( $_GET['cid'] && !$_GET['ref'] ) {
 
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
@@ -115,8 +128,22 @@
 	
 		$maintext .= "<h2>{%Named Entities}</h2><h1>$name</h1>";
 	
-		if ( substr($_GET['ref'],0,4) == "http") {
+		$ref = $_GET['ref'];
+		if ( substr($ref,0,4) == "http") {
 			$maintext .= "<p>Reference: <a href='{$_GET['ref']}'>{$_GET['ref']}</a></p>";
+		} else if ( substr($ref, 0, 1) == "#" ) {
+			if ( $_GET['cid']) {
+				require("$ttroot/common/Sources/ttxml.php");
+				$ttxml = new TTXML();
+				$fileid = $ttxml->fileid;
+				$xmlid = $ttxml->xmlid;
+				$xml = $ttxml->xml;
+
+				$refxp = "//*[@id=\"".substr($ref,1)."\" or @xml:id=\"".substr($ref,1)."\"]";
+				$refnode = $xml->xpath($refxp);
+				$reftxt = ""; $sep = "";
+				if ( $refnode ) $maintext .= $refnode[0]->asXML();
+			};
 		};
 	
 		# Lookup all occurrences
