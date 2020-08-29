@@ -29,7 +29,7 @@
 			$nodelist = $xml->xpath("//text//{$val['elm']}");
 			unset($refnames);
 			if ( $nodelist ) {
-				$maintext .= "<tr><td colspan=2><h2>{$val['display']}</h2></tr>";
+				$maintext .= "<tr><td colspan=2 style='padding-top: 10px; padding-bottom: 10px; '><b style='font-size: larger;'>{$val['display']}</b></tr>";
 			
 				foreach ( $nodelist as $node ) {
 					$ref = $node['ref'];
