@@ -7,7 +7,7 @@
 		or 
 		$nerlist = array(
 			"placename" => array ( "display" => "Place Name", "cqp" => "place", "elm" => "placeName" ), 
-			"personname" => array ( "display" => "Person Name", "cqp" => "person", "elm" => "persName" ), 
+			"persname" => array ( "display" => "Person Name", "cqp" => "person", "elm" => "persName" ), 
 			"name" => array ( "display" => "Name", "cqp" => "name", "elm" => "name" ),
 			"term" => array ( "display" => "Term", "cqp" => "term", "elm" => "term" ),
 			);
@@ -79,10 +79,21 @@
 		$maintext .= "<hr>".$ttxml->viewswitch();
 		$maintext .= " &bull; <a href='index.php?action=$action&act=list&cid=$ttxml->fileid'>{%List names}</a>";
 
-		$maintext .= "<script language=Javascript>
+		$maintext .= "
+			<style>
+				#mtxt tok:hover { text-shadow: none;}
+			</style>
+			<script language=Javascript>
 			var nerlist = $nerjson;
 			var hlref = '{$_GET['hlref']}';
 			var mtxt = document.getElementById('mtxt');
+			
+			var tokinfo = document.getElementById('tokinfo');
+			if ( !tokinfo ) {
+				var tokinfo = document.createElement(\"div\"); 
+				tokinfo.setAttribute('id', 'tokinfo');
+				document.body.appendChild(tokinfo);
+			};
 			
 			for ( var i=0; i<Object.keys(nerlist).length; i++) {
 				var tmp = Object.keys(nerlist)[i];
@@ -113,12 +124,69 @@
 				var ttype = elm.nodeName;
 				window.open('index.php?action=$action&ref='+trgt+'&type='+ttype, '_self');
 			};
-			function showinfo(elm) {
-				console.log(elm);
+
+		function hideinfo(showelement) {
+			if ( document.getElementById('tokinfo') ) {
+				document.getElementById('tokinfo').style.display = 'none';
 			};
-			function hideinfo(elm) {
-				console.log(elm);
+			if ( typeof(hlbar) != \"undefined\" && typeof(facsdiv) != \"undefined\" ) {
+				hlbar.style.display = 'none';
+				var tmp = facsdiv.getElementsByClassName('hlbar'+hln);
 			};
+		};
+
+	
+		function showinfo(showelement) {
+			if ( !tokinfo ) { return -1; };
+			var nertype = nerlist[showelement.nodeName.toLowerCase()];
+
+			nername = showelement.nodeName;
+			if ( nertype ) nername =  nertype['display'];
+			infoHTML = '<table><tr><th colspan=2>' + nername + '</th></tr>';
+			
+			var ref = showelement.getAttribute(\"ref\");
+			if ( ref ) {
+				infoHTML += '<tr><th>Reference</th><td>' + ref  + '</th></tr>';
+				// start Ajax to replace info by full data
+			};
+			
+			tokinfo.style.display = 'block';
+			var foffset = offset(showelement);
+			if ( typeof(poselm) == \"object\" ) {
+				var foffset = offset(poselm);
+			};
+			tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
+			tokinfo.style.top = ( foffset.top + showelement.offsetHeight + 4 ) + 'px';
+
+			infoHTML += '</table>';
+
+			tokinfo.innerHTML = infoHTML;
+
+		};
+
+	function offset(elem) {
+		if(!elem) elem = this;
+
+		var x = elem.offsetLeft;
+		var y = elem.offsetTop;
+
+		if ( typeof(x) == \"undefined\" ) {
+
+			bbr = elem.getBoundingClientRect();
+			x = bbr.left + window.pageXOffset;
+			y = bbr.top + window.pageYOffset;
+
+		} else {
+
+			while (elem = elem.offsetParent) {
+				x += elem.offsetLeft;
+				y += elem.offsetTop;
+			}
+		
+		};
+		
+		return { left: x, top: y };
+	};  
 		</script>";
 		
 	} else if ( $_GET['ref'] ) {
