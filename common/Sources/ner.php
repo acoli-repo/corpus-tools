@@ -3,6 +3,8 @@
 	# Name-oriented document view and name index
 	# Maarten Janssen, 2020
 
+	if ( !$_GET['cid'] ) $_GET['cid']  = $_GET['id'];
+
 	$nerlist = $settings['xmlfiles']['ner']['tags'] 
 		or 
 		$nerlist = array(
@@ -115,6 +117,7 @@
 					};
 					if ( it.getAttribute('ref') == hlref ) { 
 						it.style['backgroundColor'] = '#ffffbb'; 
+						it.scrollIntoView(true); // TODO: this should depend on jmp
 					}
 				};
 			};
