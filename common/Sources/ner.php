@@ -80,7 +80,7 @@
 
 		$maintext .= "<script language=Javascript>
 			var nerlist = $nerjson;
-			var hlref = '{$_GET['ref']}';
+			var hlref = '{$_GET['hlref']}';
 			var mtxt = document.getElementById('mtxt');
 			
 			for ( var i=0; i<Object.keys(nerlist).length; i++) {
@@ -171,7 +171,7 @@
 			$cmd = "$xidxcmd --filename='$fileid' --cqp='$cqpfolder' $expand $leftpos $rightpos";
 			$resxml = shell_exec($cmd);
 			$context = preg_replace("/.*\/(.*?)\.xml/", "\\1", $fileid);
-			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&ref=".urlencode($_GET['ref'])."'>$context</a><td>$resxml";
+			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlref=".urlencode($_GET['ref'])."'>$context</a><td>$resxml";
 		};
 		$maintext .= "</table>";
 
