@@ -42,7 +42,7 @@
 			};	
 			foreach ( $idnames as $nerid => $val ) {
 				$name = join("<br/>", array_keys($val));
-				if ( substr($nerid, 0, 4) == "http") $nerid = "<a href='$ref'>$ref</a>";
+				if ( substr($nerid, 0, 4) == "http") $nerid = "<a href='$nerid'>$nerid</a>";
 				else if ( substr($nerid, 0, 1) == "#" ) {
 					$idxp = "//*[@id=\"".substr($ref,1)."\" or @xml:id=\"".substr($nerid,1)."\"]";
 					$idnode = $xml->xpath($idxp);
