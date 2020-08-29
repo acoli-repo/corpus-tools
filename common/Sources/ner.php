@@ -195,11 +195,12 @@
 	
 		$type = strtolower($_GET['type']);
 	
-		$maintext .= "<h2>{%Named Entities}</h2><h1>$name</h1>";
+		$maintext .= "<h2>{%Named Entities}</h2><h1>$name</h1>
+		<p>Type of entity: <b>{$nerlist[$type]['display']}</b>";
 	
 		$ref = $_GET['ref'];
 		if ( substr($ref,0,4) == "http") {
-			$maintext .= "<p>Reference: <a href='{$_GET['ref']}'>{$_GET['ref']}</a></p>";
+			$maintext .= "<p>Reference: <a href='{$_GET['ref']}'><b>{$_GET['ref']}</b></a></p>";
 		} else if ( substr($ref, 0, 1) == "#" ) {
 			if ( $_GET['cid']) {
 				require("$ttroot/common/Sources/ttxml.php");
