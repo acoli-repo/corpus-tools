@@ -24,7 +24,7 @@
 		$maintext .= "<h2>{%Named Entities}</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();		
 
-		$maintext .= "<table>";
+		$maintext .= "<style>#nertable .odd { background-color: #eeeeee; }</style><table id='nertable'>";
 		foreach ( $nerlist as $key => $val ) {
 			$nodelist = $xml->xpath("//text//{$val['elm']}");
 			unset($refnames);
@@ -46,7 +46,7 @@
 					$refxp = "//*[@id=\"".substr($ref,1)."\" or @xml:id=\"".substr($ref,1)."\"]";
 					$refnode = $xml->xpath($refxp);
 					$reftxt = ""; $sep = "";
-					if ( !$refnode ) $reftxt = $refxp; else 
+					if ( !$refnode ) $reftxt = ""; else 
 					foreach ( $refnode[0]->xpath(".//link") as $linknode ) {
 						$refname = $linknode['type'] or $refname = $linknode['target'];
 						$reftxt = $sep."<a href='{$linknode['target']}'>$refname</a>"; 
@@ -54,7 +54,8 @@
 					};
 				} else $reftxt = $ref;
 				$cidr = ""; if ( substr($ref,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
-				$maintext .= "<tr><td><a href='index.php?action=$action&type=$key&ref=".urlencode($ref)."$cidr'>$name</a><td>$reftxt";
+				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
+				$maintext .= "<tr class='$trc'><td><a href='index.php?action=$action&type=$key&ref=".urlencode($ref)."$cidr'>$name</a><td>$reftxt";
 			};
 		};
 		$maintext .= "</table>
