@@ -24,7 +24,7 @@
 		$maintext .= "<h2>{%Named Entities}</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();		
 
-		$maintext .= "<style>#nertable .odd { background-color: #eeeeee; }</style><table id='nertable'>";
+		$maintext .= "<table id='nertable'>";
 		foreach ( $nerlist as $key => $val ) {
 			$nodelist = $xml->xpath("//text//{$val['elm']}");
 			unset($refnames);
