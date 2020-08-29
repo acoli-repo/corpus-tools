@@ -8,10 +8,10 @@
 	$nerlist = $settings['xmlfiles']['ner']['tags'] 
 		or 
 		$nerlist = array(
-			"placename" => array ( "display" => "Place Name", "cqp" => "place", "elm" => "placeName" ), 
-			"persname" => array ( "display" => "Person Name", "cqp" => "person", "elm" => "persName" ), 
-			"name" => array ( "display" => "Name", "cqp" => "name", "elm" => "name" ),
-			"term" => array ( "display" => "Term", "cqp" => "term", "elm" => "term" ),
+			"placename" => array ( "display" => "Place Name", "cqp" => "place", "elm" => "placeName", "nerid" => "ref" ), 
+			"persname" => array ( "display" => "Person Name", "cqp" => "person", "elm" => "persName", "nerid" => "ref" ), 
+			"name" => array ( "display" => "Name", "cqp" => "name", "elm" => "name", "nerid" => "ref" ),
+			"term" => array ( "display" => "Term", "cqp" => "term", "elm" => "term", "nerid" => "ref" ),
 			);
 	$nerjson = array2json($nerlist);
 
@@ -29,41 +29,40 @@
 		$maintext .= "<table id='nertable'>";
 		foreach ( $nerlist as $key => $val ) {
 			$nodelist = $xml->xpath("//text//{$val['elm']}");
-			unset($refnames);
+			unset($idnames);
 			if ( $nodelist ) {
 				$maintext .= "<tr><td colspan=2 style='padding-top: 10px; padding-bottom: 10px; '><b style='font-size: larger;'>{$val['display']}</b></tr>";
 			
 				foreach ( $nodelist as $node ) {
-					$ref = $node['ref'];
-					$name = $node->asXML() or $name = $ref;
+					$nerid = $node[$val['nerid']];
+					$name = $node->asXML() or $name = $nerid;
 					$name = preg_replace("/<[^>]+>/", "", $name);
-					$refnames[$ref.""][$name.""]++;
-					# $maintext .= "<tr><td><a href='index.php?action=$action&type=$key&ref=".urlencode($ref)."'>$name</a><td><a href='$ref'>$ref</a>";
+					$idnames[$nerid.""][$name.""]++;
 				};
 			};	
-			foreach ( $refnames as $ref => $val ) {
+			foreach ( $idnames as $nerid => $val ) {
 				$name = join("<br/>", array_keys($val));
-				if ( substr($ref, 0, 4) == "http") $reftxt = "<a href='$ref'>$ref</a>";
-				else if ( substr($ref, 0, 1) == "#" ) {
-					$refxp = "//*[@id=\"".substr($ref,1)."\" or @xml:id=\"".substr($ref,1)."\"]";
-					$refnode = $xml->xpath($refxp);
-					$reftxt = ""; $sep = "";
-					if ( !$refnode ) $reftxt = ""; else 
-					foreach ( $refnode[0]->xpath(".//link") as $linknode ) {
-						$refname = $linknode['type'] or $refname = $linknode['target'];
-						$reftxt = $sep."<a href='{$linknode['target']}'>$refname</a>"; 
+				if ( substr($nerid, 0, 4) == "http") $nerid = "<a href='$ref'>$ref</a>";
+				else if ( substr($nerid, 0, 1) == "#" ) {
+					$idxp = "//*[@id=\"".substr($ref,1)."\" or @xml:id=\"".substr($nerid,1)."\"]";
+					$idnode = $xml->xpath($idxp);
+					$idtxt = ""; $sep = "";
+					if ( !$idnode ) $idtxt = ""; else 
+					foreach ( $idnode[0]->xpath(".//link") as $linknode ) {
+						$idname = $linknode['type'] or $idname = $linknode['target'];
+						$idtxt = $sep."<a href='{$linknode['target']}'>$idname</a>"; 
 						$sep = "<br/>";
 					};
-				} else $reftxt = $ref;
-				$cidr = ""; if ( substr($ref,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
+				} else $idtxt = $nerid;
+				$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
 				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
-				$maintext .= "<tr class='$trc'><td><a href='index.php?action=$action&type=$key&ref=".urlencode($ref)."$cidr'>$name</a><td>$reftxt";
+				$maintext .= "<tr class='$trc'><td><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a><td>$idtxt";
 			};
 		};
 		$maintext .= "</table>
 				<hr> <a href='index.php?action=$action&cid={$ttxml->fileid}'>{%back}</a>";
 
-	} else if ( $_GET['cid'] && !$_GET['ref'] ) {
+	} else if ( $_GET['cid'] && !$_GET['nerid'] ) {
 
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
@@ -87,7 +86,7 @@
 			</style>
 			<script language=Javascript>
 			var nerlist = $nerjson;
-			var hlref = '{$_GET['hlref']}';
+			var hlid = '{$_GET['hlid']}';
 			var mtxt = document.getElementById('mtxt');
 			
 			var tokinfo = document.getElementById('tokinfo');
@@ -115,7 +114,7 @@
 					it.onmouseout = function(event) {
 						hideinfo(this);
 					};
-					if ( it.getAttribute('ref') == hlref ) { 
+					if ( it.getAttribute(nerlist[tmp]['nerid']) == hlid ) { 
 						it.style['backgroundColor'] = '#ffffbb'; 
 						it.scrollIntoView(true); // TODO: this should depend on jmp
 					}
@@ -123,9 +122,9 @@
 			};
 			
 			function doclick(elm) {
-				var trgt = elm.getAttribute('ref');
 				var ttype = elm.nodeName;
-				window.open('index.php?action=$action&ref='+trgt+'&type='+ttype, '_self');
+				var trgt = elm.getAttribute(nerlist[ttype]['nerid']);
+				window.open('index.php?action=$action&nerid='+trgt+'&type='+ttype, '_self');
 			};
 
 		function hideinfo(showelement) {
@@ -192,19 +191,19 @@
 	};  
 		</script>";
 		
-	} else if ( $_GET['ref'] ) {
+	} else if ( $_GET['nerid'] ) {
 	
-		if ( !$name ) $name = $_GET['ref'];
+		if ( !$name ) $name = $_GET['nerid'];
 	
 		$type = strtolower($_GET['type']);
 	
 		$maintext .= "<h2>{%Named Entities}</h2><h1>$name</h1>
 		<p>Type of entity: <b>{$nerlist[$type]['display']}</b>";
 	
-		$ref = $_GET['ref'];
-		if ( substr($ref,0,4) == "http") {
-			$maintext .= "<p>Reference: <a href='{$_GET['ref']}'><b>{$_GET['ref']}</b></a></p>";
-		} else if ( substr($ref, 0, 1) == "#" ) {
+		$nerid = $_GET['nerid'];
+		if ( substr($nerid,0,4) == "http") {
+			$maintext .= "<p>Reference: <a href='{$_GET['nerid']}'><b>{$_GET['nerid']}</b></a></p>";
+		} else if ( substr($nerid, 0, 1) == "#" ) {
 			if ( $_GET['cid']) {
 				require("$ttroot/common/Sources/ttxml.php");
 				$ttxml = new TTXML();
@@ -212,10 +211,10 @@
 				$xmlid = $ttxml->xmlid;
 				$xml = $ttxml->xml;
 
-				$refxp = "//*[@id=\"".substr($ref,1)."\" or @xml:id=\"".substr($ref,1)."\"]";
-				$refnode = $xml->xpath($refxp);
-				$reftxt = ""; $sep = "";
-				if ( $refnode ) $maintext .= $refnode[0]->asXML();
+				$idxp = "//*[@id=\"".substr($nerid,1)."\" or @xml:id=\"".substr($nerid,1)."\"]";
+				$idnode = $xml->xpath($idxp);
+				$idtxt = ""; $sep = "";
+				if ( $idnode ) $maintext .= $idnode[0]->asXML();
 			};
 		};
 	
@@ -231,8 +230,8 @@
 		
 		$nodetype = $nerlist[$type]['elm'];
 		$nodeatt = $nerlist[$type]['cqp'];
-		# $cql = "Matches =  []+  :: match.{$nodeatt}_ref=\"{$_GET['ref']}\" within $nodeatt";
-		$cql = "Matches = <$nodeatt> []+ </$nodeatt> :: match.{$nodeatt}_ref=\"{$_GET['ref']}\"";
+
+		$cql = "Matches = <$nodeatt> []+ </$nodeatt> :: match.{$nodeatt}_nerid=\"{$_GET['nerid']}\"";
 		$cqp->exec($cql); 
 		$results = $cqp->exec("tabulate Matches match, matchend, match text_id, match id");
 
@@ -244,7 +243,7 @@
 			$cmd = "$xidxcmd --filename='$fileid' --cqp='$cqpfolder' $expand $leftpos $rightpos";
 			$resxml = shell_exec($cmd);
 			$context = preg_replace("/.*\/(.*?)\.xml/", "\\1", $fileid);
-			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlref=".urlencode($_GET['ref'])."'>$context</a><td>$resxml";
+			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlid=".urlencode($_GET['nerid'])."'>$context</a><td>$resxml";
 		};
 		$maintext .= "</table>";
 
@@ -267,14 +266,14 @@
 		$cql = "Matches = <$neratt> []"; 
 		$cqp->exec($cql); 
 		
-		$cql = "group Matches match {$neratt}_ref";
+		$cql = "group Matches match {$neratt}_nerid";
 		$results = $cqp->exec($cql); 
 		
 		$maintext .= "<table>";
 		foreach ( explode("\n", $results) as $resline ) {
-			list ( $ref, $cnt, $display ) = explode("\t", $resline);
-			if ( !$display ) $display = $ref;
-			$maintext .= "<tr><td><a href='index.php?action=$action&ref=".urlencode($ref)."&type=$type'>$display</a></tr>";
+			list ( $nerid, $cnt, $display ) = explode("\t", $resline);
+			if ( !$display ) $display = $nerid;
+			$maintext .= "<tr><td><a href='index.php?action=$action&nerid=".urlencode($nerid)."&type=$type'>$display</a></tr>";
 		};
 		$maintext .= "</table>";
 
