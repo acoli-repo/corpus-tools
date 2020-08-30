@@ -53,7 +53,7 @@
 						$idtxt = $sep."<a href='{$linknode['target']}'>$idname</a>"; 
 						$sep = "<br/>";
 					};
-				} else $idtxt = $nerid;
+				} else $idtxt = $nerid."!";
 				$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
 				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
 				$maintext .= "<tr class='$trc'><td><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a><td>$idtxt";
@@ -123,7 +123,8 @@
 			
 			function doclick(elm) {
 				var ttype = elm.nodeName;
-				var trgt = elm.getAttribute(nerlist[ttype]['nerid']);
+				var neratt = nerlist[ttype.toLowerCase()]['nerid'];
+				var trgt = elm.getAttribute(neratt);
 				window.open('index.php?action=$action&nerid='+trgt+'&type='+ttype, '_self');
 			};
 
