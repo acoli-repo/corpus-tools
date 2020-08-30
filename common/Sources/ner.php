@@ -194,6 +194,7 @@
 		
 	} else if ( $_GET['nerid'] ) {
 	
+		$name = $_GET['name'];
 		if ( !$name ) $name = $_GET['nerid'];
 	
 		$type = strtolower($_GET['type']);
@@ -267,14 +268,14 @@
 		$cql = "Matches = <$neratt> []"; 
 		$cqp->exec($cql); 
 		
-		$cql = "group Matches match {$neratt}_nerid by match {$neratt}_form";
+		$cql = "group Matches  match {$neratt}_form by match {$neratt}_nerid";
 		$results = $cqp->exec($cql); 
 		
 		$maintext .= "<table>";
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $nerid, $form, $cnt ) = explode("\t", $resline);
-			if ( !$form ) $form = $nerid;
-			$maintext .= "<tr><td><a href='index.php?action=$action&nerid=".urlencode($nerid)."&type=$type'>$form</a></tr>";
+			if ( $form == '' || $form == '_') $form = $nerid;
+			$maintext .= "<tr><td><a href='index.php?action=$action&nerid=".urlencode($nerid)."&type=$type&name=$form'>$form</a></tr>";
 		};
 		$maintext .= "</table>";
 
