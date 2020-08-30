@@ -122,10 +122,10 @@
 			};
 			
 			function doclick(elm) {
-				var ttype = elm.nodeName;
-				var neratt = nerlist[ttype.toLowerCase()]['nerid'];
+				var ttype = elm.nodeName.toLowerCase();
+				var neratt = nerlist[ttype]['nerid'];
 				var trgt = elm.getAttribute(neratt);
-				window.open('index.php?action=$action&nerid='+trgt+'&type='+ttype, '_self');
+				window.open('index.php?action=$action&nerid='+encodeURIComponent(trgt)+'&type='+ttype, '_self');
 			};
 
 		function hideinfo(showelement) {
