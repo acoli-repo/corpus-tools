@@ -5,7 +5,7 @@
 
 	if ( !$_GET['cid'] ) $_GET['cid']  = $_GET['id'];
 
-	$nerlist = $settings['xmlfiles']['ner']['tags'] 
+	$nerlist = $settings['xmlfile']['ner']['tags'] 
 		or 
 		$nerlist = array(
 			"placename" => array ( "display" => "Place Name", "cqp" => "place", "elm" => "placeName", "nerid" => "ref" ), 
@@ -267,14 +267,14 @@
 		$cql = "Matches = <$neratt> []"; 
 		$cqp->exec($cql); 
 		
-		$cql = "group Matches match {$neratt}_nerid";
+		$cql = "group Matches match {$neratt}_nerid by match {$neratt}_form";
 		$results = $cqp->exec($cql); 
 		
 		$maintext .= "<table>";
 		foreach ( explode("\n", $results) as $resline ) {
-			list ( $nerid, $cnt, $display ) = explode("\t", $resline);
-			if ( !$display ) $display = $nerid;
-			$maintext .= "<tr><td><a href='index.php?action=$action&nerid=".urlencode($nerid)."&type=$type'>$display</a></tr>";
+			list ( $nerid, $form, $cnt ) = explode("\t", $resline);
+			if ( !$form ) $form = $nerid;
+			$maintext .= "<tr><td><a href='index.php?action=$action&nerid=".urlencode($nerid)."&type=$type'>$form</a></tr>";
 		};
 		$maintext .= "</table>";
 
