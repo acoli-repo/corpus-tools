@@ -56,7 +56,7 @@
 				} else $idtxt = $nerid."!";
 				$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
 				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
-				$maintext .= "<tr class='$trc'><td><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a><td>$idtxt";
+				$maintext .= "<tr key='$name' class='$trc'><td><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a><td>$idtxt";
 			};
 		};
 		$maintext .= "</table>
@@ -271,13 +271,13 @@
 		$cql = "group Matches  match {$neratt}_form by match {$neratt}_nerid";
 		$results = $cqp->exec($cql); 
 		
-		$maintext .= "<table>";
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $nerid, $form, $cnt ) = explode("\t", $resline);
 			if ( $form == '' || $form == '_') $form = $nerid;
-			$maintext .= "<tr><td><a href='index.php?action=$action&nerid=".urlencode($nerid)."&type=$type&name=$form'>$form</a></tr>";
+			$rowhash[$form] = "<tr key='$name'><td><a href='index.php?action=$action&nerid=".urlencode($nerid)."&type=$type&name=$form'>$form</a></tr>";
 		};
-		$maintext .= "</table>";
+		ksort($rowhash);
+		$maintext .= "<table>".join("\n", array_values($rowhash))."</table>";
 
 	} else {
 	
