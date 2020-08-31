@@ -112,7 +112,7 @@
 				for ( var a = 0; a<its.length; a++ ) {
 					var it = its[a];	
 					it.style.color = nercolor;
-					it.style['font-weight'] = 'bold';
+					// it.style['font-weight'] = 'bold';
 					it.onclick = function(event) {
 						doclick(this);
 					};
