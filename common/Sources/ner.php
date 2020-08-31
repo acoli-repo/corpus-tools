@@ -67,6 +67,34 @@
 		$maintext .= "</table>
 				<hr> <a href='index.php?action=$action&cid={$ttxml->fileid}'>{%back}</a>";
 
+	} else if ( $act == "snippet" ) {
+	
+		$nerid = preg_replace("/.*#/", "", $_GET['nerid']);
+		if ( $nerxml ) {
+			$nernode = current($nerxml->xpath(".//*[@id=\"$nerid\"]"));
+			if ( $nernode ) {
+				$snippettxt = "<table>";
+				$tmp = $nernode->getName();
+				foreach ( $nerlist as $key => $val ) {
+					$tmp = $nernode->xpath(".//{$val['elm']}");
+					if ( $tmp ) {
+						$name = current($tmp)."";
+						$type = $val['display'];
+						last;
+					};
+				};
+				if ( $type) $snippettxt .= "<tr><th>$type: $name</th></tr>";
+				$snippetelm = $settings['xmlfile']['ner']['snippet'] or $snippetelm = "label";
+				$snippetxml = current($nernode->xpath(".//$snippetelm"));
+				if ( $snippetxml ) $snippettxt .= "<tr><td>".$snippetxml->asXML()."</td></tr>";
+				$snippettxt .= "</table>";
+			};
+		};
+	
+		if ( $snippettxt && $snippettxt != "<table></table>" ) print $snippettxt;
+		else header("HTTP/1.0 404 Not Found");
+		exit;
+
 	} else if ( $_GET['cid'] && !$_GET['nerid'] ) {
 
 		require("$ttroot/common/Sources/ttxml.php");
@@ -77,8 +105,6 @@
 
 		$maintext .= "<h2>{%Named Entity View}</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();
-
-
 
 		$maintext .= "<div id=mtxt>".$ttxml->asXML()."</div>";
 
@@ -159,6 +185,18 @@
 			if ( ref ) {
 				infoHTML += '<tr><th>Reference</th><td>' + ref  + '</th></tr>';
 				// start Ajax to replace info by full data
+				  var xhttp = new XMLHttpRequest();
+				  xhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+					 tokinfo.innerHTML = this.responseText;
+					}
+				  };
+				  var idfld = 'corresp';
+ 				  if ( nertype ) idfld =  nertype['nerid'];
+ 				  console.log(showelement);
+ 				  console.log(idfld);
+				  xhttp.open('GET', 'index.php?action=$action&act=snippet&nerid='+encodeURIComponent(showelement.getAttribute(idfld)), true);
+				  xhttp.send();
 			};
 			
 			tokinfo.style.display = 'block';
@@ -214,18 +252,19 @@
 		if ( !$name && $_GET['name'] ) $name = "<i>".$_GET['name']."</i>";
 		if ( !$name ) $name = $nerid;
 	
-	
 		$maintext .= "<h2>{%Named Entities}</h2><h1>$name</h1>
 		<p>Type of entity: <b>{$nerlist[$type]['display']}</b>";
 	
 		if ( $nernode ) {
+			$descflds = array ("note", "desc", "head", "label");
 			# $maintext .= "<div>".htmlentitieS($nernode->asXML())."</div>";
 			$maintext .= "<table>";
 			foreach ( $nernode->children() as $childnode ) {
-				if ( $childnode->getName() == "note"  || $childnode->getName() == "desc" ) {
+				$nodename = $childnode->getName();
+				if ( in_array( $descflds, $nodename ) ) {
 					$maintext .= "<tr><td colspan=2>".$childnode->asXML();
-				} else if ( trim($childnode) != "" && $childnode->getName() != $nameelm ) {
-					$maintext .= "<tr><th>{%".$childnode->getName()."}<td>$childnode";
+				} else if ( trim($childnode) != "" && $nodename != $nameelm ) {
+					$maintext .= "<tr><th>{%$nodename}<td>$childnode";
 				};
 			};
 			$maintext .= "</table>";
