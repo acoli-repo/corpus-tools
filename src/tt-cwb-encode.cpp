@@ -546,6 +546,7 @@ void treatfile ( string filename ) {
 							if ( debug > 2 ) { cout << "No node or value found for " << external << endl; };
 							formval = "";
 						} else {
+							if ( debug > 2 ) { cout << "External lookup start: " << xpath << endl; };
 							if ( extid.find("#") == string::npos ) { extid = "#" + extid; }; // For "incorrect" IDs
 							vector<string> vtmp = split(extid, "#");
 							string exfile = "";
