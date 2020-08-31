@@ -30,6 +30,7 @@
 		"Document Browser" => "Document Browser",
 		"none" => "none",
 		"documents" => "documents",
+		"All documents" => "All documents",
 		"Custom annotation" => "Custom annotation",
 		"My annotations" => "My annotations",
 		"Create your own annotation file" => "Create your own annotation file",
