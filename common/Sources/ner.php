@@ -181,7 +181,7 @@
 
 			nername = showelement.nodeName;
 			if ( nertype ) nername =  nertype['display'];
-			infoHTML = '<table><tr><th>' + nername + '</th><td><b>'+ showelement.innerHTML +'</b></td></tr>';
+			infoHTML = '<table><tr><th>' + nername + '</th><td><b><i>'+ showelement.innerHTML +'</i></b></td></tr>';
 			
 			var idfld = 'corresp';
 		    if ( nertype ) idfld =  nertype['nerid'];
