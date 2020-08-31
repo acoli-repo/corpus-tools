@@ -70,7 +70,7 @@
 		if ( $val == "" || $val == "_" ) $val = "({%none})";
 		else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
 
-		$size = $cqp->exec("size Matches");
+		$cnt = $cqp->exec("size Matches");
 
 		$max = $_GET['max'] or $max = 100;
 		$start = $_GET['start'] or $start = 0;
@@ -85,22 +85,78 @@
 		if ( $all ) $path = "<a href='index.php?action=$action'>{%!documents}</a> > all";
 		else $path = "<a href='index.php?action=$action'>{%!documents}</a> > <a href='index.php?action=$action&class=$class'>{%$cat}</a> > $val";
 
-		$maintext .= "<p>$path
-			<p>$size {%documents} $nav
-			<hr><ul id=sortlist>";
 
-		if ( $size > 0 ) {
-			$catq = "tabulate Matches $start $stop match text_id, match $titlefld";
-			$results = $cqp->exec($catq);
-
-			foreach ( explode("\n", $results) as $result ) {
-				list ( $cid, $title ) = explode("\t", $result);
-				if ( $titlefld == "text_id" ) {
-					$title = preg_replace("/.*\/(.*?)\.xml/", "$1", $cid);
+		if ( $cnt > 0 ) {
+			if ( $settings['defaults']['browser']['style'] == "table" ) {
+				$acnt = $bcnt = 0;
+				foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
+					if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
+					$val = $item['display']; # $val = $item['long'] or
+					if ( $item['type'] == "group" ) {
+						$fldval = $val; # substr($key,4);
+						if ( $fldval != "" ) $fldtxt = " ($fldval)";
+						else $fldtxt = "";
+					} else if ( $item['noshow'] ) {
+						# Ignore year if there also is a date
+					} else if ( $key != "id" ) {
+						$moreatts .= ", match $xkey";
+						$moreth .= "<th>{%$val}";
+						$atttik[$bcnt] = $key; $bcnt++;
+					};
+					$acnt++;
+					$atttit[$acnt] = $val;
 				};
-				if ( $cid && $title ) $maintext .= "<li key='$title'><a href='index.php?action=file&cid=$cid'>$title</a></li>";
+				$cqpquery = "tabulate Matches $start $stop match text_id$moreatts";
+				$results = $cqp->exec($cqpquery);
+				
+				$resarr = explode ( "\n", $results ); $scnt = count($resarr);
+				$maintext .= "<p>$path<p>$cnt {%results}";
+				if ( $scnt < $cnt ) {
+					$maintext .= " &bull; {%!showing} $start - $stop";
+				};
+				if ( $start > 0 ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$before'; document.resubmit.submit();\">{%previous}</a>";
+				if ( $stop < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$stop'; document.resubmit.submit();\">{%next}</a>";
+				$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
+					<table><tr><th>ID$moreth";
+				foreach ( $resarr as $line ) {
+					$fatts = explode ( "\t", $line ); $fid = array_shift($fatts);
+					if ( $admin ) {
+						$fidtxt = preg_replace("/^\//", "", $fid );
+					} else {
+						$fidtxt = preg_replace("/.*\//", "", $fid );
+					};
+					# Translate the columns where needed
+					foreach ( $fatts as $key => $fatt ) {
+						$attit = $atttik[$key];
+						$tmp = $settings['cqp']['sattributes']['text'][$attit]['type'];
+						if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" || $settings['cqp']['sattributes']['text'][$attit]['translate'] ) {
+							if ( $settings['cqp']['sattributes']['text'][$attit]['values'] == "multi" ) {
+								$fatts[$key] = ""; $sep = "";
+								foreach ( explode(",", $fatt) as $fattp ) { $fatts[$key] .= "$sep{%$attit-$fattp}"; $sep = ", "; };
+							} else $fatts[$key] = "{%$attit-$fatt}";
+						};
+					};
+					$maintext .= "<tr><td><a href='index.php?action=$fileview&cid={$fid}'>{$fidtxt}</a><td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>".join ( "<td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>", $fatts );
+				};
+				$maintext .= "</table>";
+
+			} else {
+				$maintext .= "<p>$path
+					<p>$cnt {%documents} $nav
+					<hr><ul id=sortlist>";
+
+				$catq = "tabulate Matches $start $stop match text_id, match $titlefld";
+				$results = $cqp->exec($catq);
+
+				foreach ( explode("\n", $results) as $result ) {
+					list ( $cid, $title ) = explode("\t", $result);
+					if ( $titlefld == "text_id" ) {
+						$title = preg_replace("/.*\/(.*?)\.xml/", "$1", $cid);
+					};
+					if ( $cid && $title ) $maintext .= "<li key='$title'><a href='index.php?action=file&cid=$cid'>$title</a></li>";
+				};
+				$maintext .= "</ul>";
 			};
-			$maintext .= "</ul>";
 		} else if ( $username ) $maintext .= "<p class=adminpart>Failed query: ".htmlentities($cqpquery);
 
 	} else if ( $class ) {
@@ -185,6 +241,8 @@
 						},
 					});
 				</script>";
+				
+	
 		} else {
 			$maintext .= "<ul id=sortlist>";
 			foreach ( $vals as $val => $cnt ) {
