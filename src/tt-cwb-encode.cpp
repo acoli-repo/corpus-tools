@@ -503,7 +503,7 @@ void treatfile ( string filename ) {
 
 				if ( debug > 2 ) { cout << " Found a range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
 
-				write_range(posa, posb, tagname );
+				write_range(posa, posb, tagname ); 
 
 				// Write the XXX_xidx.rng
 				int xmlpos1 = it->node().offset_debug()-1;
@@ -527,19 +527,58 @@ void treatfile ( string filename ) {
 					if ( xpath != "" ) {
 						pugi::xpath_node xres;
 						string external = formfld.attribute("external").value();
+						string extid = ""; pugi::xpath_node extval;
 						if ( external != "" ) {
 							// TODO: this is only external to the NODE, not a lookup from an external XML file
 							// so with an "external", we should split xpath on tmp = # an lookup tmp[1] potentially in Resources/tmp[0]
-							pugi::xpath_node tmp = it->node().select_node(external.c_str());
-							string tmp2 = tmp.attribute().value();
-							string extxpath = "//*[@id='"+tmp2+"']";
-							if ( debug > 3 ) { cout << " - External lookup: " << external << " = " << tmp2  << " => " << extxpath << " : " << xpath << endl; };
-							pugi::xpath_node xext = it->node().select_node(extxpath.c_str());
-							xres = xext.node().select_node(xpath.c_str());
-						} else {
-							xres = it->node().select_node(xpath.c_str());
+							extval = it->node().select_node(external.c_str());
+							if ( extval != NULL && extval.attribute() != NULL && extval.attribute().value() != NULL ) { extid = extval.attribute().value(); };
 						};
-						formval = pugi::xpath_query(".").evaluate_string(xres);;
+						if ( external == "" ) {
+							xres = it->node().select_node(xpath.c_str());
+							formval = pugi::xpath_query(".").evaluate_string(xres);;
+						} else if ( extval == NULL || extid == "" ) {
+							if ( debug > 2 ) { 
+								cout << "No node or value found for " << external << endl;
+							};
+							formval = "";
+						} else {
+							if ( extid.find("#") == string::npos ) { extid = "#" + extid; }; // For "incorrect" IDs
+							vector<string> vtmp = split(extid, "#");
+							string exfile = "";
+							if ( vtmp.size() == 1 ) {
+								extid = vtmp[1];
+							} else {
+								exfile = vtmp[0];
+								extid = vtmp[1];
+							};
+							// Protect for XPath
+							extid = replace_all(extid, "&", "&amp;" );
+							extid = replace_all(extid, ">", "&gt;" );
+							extid = replace_all(extid, "<", "&lt;" );
+							extid = replace_all(extid, "\n", " " );
+			
+							if ( exfile != "" ) {
+								if ( exfile.length() > 4 && exfile.substr(exfile.length()-4) == ".xml" && externals[exfile] == NULL ) {
+									exfile = "Resources/" + exfile;
+									if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << vtmp[1] << endl; };
+									externals[exfile] = new pugi::xml_document();
+									externals[exfile]->load_file(exfile.c_str());
+								};
+							};
+							pugi::xpath_node xext;
+							string extxpath = "//*[@id='"+extid+"']";
+							if ( debug > 4 ) { cout << " - External lookup: " << external << " = " << exfile << " / " << extid << " = " << extxpath << endl; };
+							if ( exfile != "" && externals[exfile] != NULL ) {
+								xext = externals[exfile]->select_node(extxpath.c_str());
+							} else {
+								xext = doc.select_node(extxpath.c_str());
+							};
+							xres = xext.node().select_node(xpath.c_str());
+							formval = pugi::xpath_query(".").evaluate_string(xres);;
+							if ( debug > 3 ) { cout << " - External lookup: " << external << " = " << extxpath << " / " << exfile << " => " << xext.node() << " : " << formval << endl; };
+						};
+					
 
 					} else if ( !strcmp(formfld.attribute("type").value(), "form") ) {
 						// calculate the form for form-type tags (on mtok and tok[dtok])
