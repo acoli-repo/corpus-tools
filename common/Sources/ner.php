@@ -181,11 +181,12 @@
 
 			nername = showelement.nodeName;
 			if ( nertype ) nername =  nertype['display'];
-			infoHTML = '<table><tr><th colspan=2>' + nername + '</th></tr>';
+			infoHTML = '<table><tr><th>' + nername + '</th><td><b>'+ showelement.innerHTML +'</b></td></tr>';
 			
-			var ref = showelement.getAttribute(\"ref\");
-			if ( ref ) {
-				infoHTML += '<tr><th>Reference</th><td>' + ref  + '</th></tr>';
+			var idfld = 'corresp';
+		    if ( nertype ) idfld =  nertype['nerid'];
+		    var nerid = showelement.getAttribute(idfld)
+			if ( nerid ) {
 				// start Ajax to replace info by full data
 				  var xhttp = new XMLHttpRequest();
 				  xhttp.onreadystatechange = function() {
@@ -193,11 +194,7 @@
 					 tokinfo.innerHTML = this.responseText;
 					}
 				  };
-				  var idfld = 'corresp';
- 				  if ( nertype ) idfld =  nertype['nerid'];
- 				  console.log(showelement);
- 				  console.log(idfld);
-				  xhttp.open('GET', 'index.php?action=$action&act=snippet&nerid='+encodeURIComponent(showelement.getAttribute(idfld)), true);
+				  xhttp.open('GET', 'index.php?action=$action&act=snippet&nerid='+encodeURIComponent(nerid), true);
 				  xhttp.send();
 			};
 			
