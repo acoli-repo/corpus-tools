@@ -83,16 +83,17 @@
 						last;
 					};
 				};
-				if ( $type) $snippettxt .= "<tr><th>$type: $name</th></tr>";
+				if ( $type) $snippettxt .= "<tr><th>{%$type}:<td style='font-weight: bold;'>$name</th></tr>";
 				$snippetelm = $settings['xmlfile']['ner']['snippet'] or $snippetelm = "label";
 				$snippetxml = current($nernode->xpath(".//$snippetelm"));
-				if ( $snippetxml ) $snippettxt .= "<tr><td>".$snippetxml->asXML()."</td></tr>";
+				if ( $snippetxml ) $snippettxt .= "<tr><td colspan=2>".$snippetxml->asXML()."</td></tr>";
 				$snippettxt .= "</table>";
 			};
 		};
 	
-		if ( $snippettxt && $snippettxt != "<table></table>" ) print $snippettxt;
-		else header("HTTP/1.0 404 Not Found");
+		if ( $snippettxt && $snippettxt != "<table></table>" ) print i18n($snippettxt);
+		else if ( $_GET['debug'] ) print "No info: $nerid";
+		else header("HTTP/1.0 500 Internal Server Error");
 		exit;
 
 	} else if ( $_GET['cid'] && !$_GET['nerid'] ) {
