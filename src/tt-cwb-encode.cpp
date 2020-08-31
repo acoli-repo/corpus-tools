@@ -542,7 +542,7 @@ void treatfile ( string filename ) {
 							} else {
 								formval = "";
 							};
-						} else if ( extval == NULL || extid == "" || extid.back() == "#" ) {
+						} else if ( extval == NULL || extid == "" || extid.back() == '#' ) {
 							if ( debug > 2 ) { cout << "No node or value found for " << external << endl; };
 							formval = "";
 						} else {
