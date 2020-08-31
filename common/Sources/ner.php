@@ -15,6 +15,10 @@
 			);
 	$nerjson = array2json($nerlist);
 
+	$nerfile = $settings['xmlfile']['ner']['nerfile'] or $nerfile = "ner.xml";
+	if ( strpos($nerfile, "/") == false ) $nerfile = "Resources/$nerfile";
+	if ( file_exists($nerfile) ) $nerxml = simplexml_load_file($nerfile); 
+
 	if ( $_GET['cid'] && $act == "list" ) {
 
 		require("$ttroot/common/Sources/ttxml.php");
@@ -54,10 +58,10 @@
 						$idtxt = $sep."<a href='{$linknode['target']}'>$idname</a>"; 
 						$sep = "<br/>";
 					};
-				} else $idtxt = $nerid."!";
+				} else $idtxt = "<i style='opacity: 0.5'>$nerid</i>";
 				$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
 				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
-				$maintext .= "<tr key='$name' class='$trc'><td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a><td>$idtxt<td style='opacity: 0.5;' title='{%Occurrences}'>{$idcnt[$nerid]}";
+				$maintext .= "<tr key='$name' class='$trc'><td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a><td>$idtxt<td style='opacity: 0.5; text-align: right; padding-left: 10px;' title='{%Occurrences}'>{$idcnt[$nerid]}";
 			};
 		};
 		$maintext .= "</table>
@@ -195,17 +199,45 @@
 		
 	} else if ( $_GET['nerid'] ) {
 	
-		$name = $_GET['name'];
-		if ( !$name ) $name = $_GET['nerid'];
-	
+		$nerid = preg_replace("/.*#/", "", $_GET['nerid']);
 		$type = strtolower($_GET['type']);
+		if ( $nerxml ) {
+			$nernode = current($nerxml->xpath(".//*[@id=\"$nerid\"]"));
+			if ( $nernode ) {
+				$nameelm = $nerlist[$type]['elm'] or $nameelm = "name";
+				$name = current($nernode->xpath(".//$nameelm"))."";
+			};
+		};
+		if ( !$name && $_GET['name'] ) $name = "<i>".$_GET['name']."</i>";
+		if ( !$name ) $name = $nerid;
+	
 	
 		$maintext .= "<h2>{%Named Entities}</h2><h1>$name</h1>
 		<p>Type of entity: <b>{$nerlist[$type]['display']}</b>";
 	
-		$nerid = $_GET['nerid'];
+		if ( $nernode ) {
+			# $maintext .= "<div>".htmlentitieS($nernode->asXML())."</div>";
+			$maintext .= "<table>";
+			foreach ( $nernode->children() as $childnode ) {
+				if ( $childnode->getName() == "note"  || $childnode->getName() == "desc" ) {
+					$maintext .= "<tr><td colspan=2>".$childnode->asXML();
+				} else if ( trim($childnode) != "" && $childnode->getName() != $nameelm ) {
+					$maintext .= "<tr><th>{%".$childnode->getName()."}<td>$childnode";
+				};
+			};
+			$maintext .= "</table>";
+			$links = $nernode->xpath(".//linkGrp/link");
+			if ( $links ) {
+				$maintext .= "<h2>{%External links}</h2><table>";
+				foreach ( $links as $key => $val ) {
+					if ( substr($val['target'],0,4) == "http" ) $maintext .= "<tr><th>{%{$val['type']}}<td><a href='{$val['target']}' target=info>{%{$val['target']}}</a>";
+				};
+				$maintext .= "</table>";
+			};
+		};
+	
 		if ( substr($nerid,0,4) == "http") {
-			$maintext .= "<p>Reference: <a href='{$_GET['nerid']}'><b>{$_GET['nerid']}</b></a></p>";
+			$maintext .= "<p>Reference: <a href='{$_GET['nerid']}'><b>{$nerid}</b></a></p>";
 		} else if ( substr($nerid, 0, 1) == "#" ) {
 			if ( $_GET['cid']) {
 				require("$ttroot/common/Sources/ttxml.php");
