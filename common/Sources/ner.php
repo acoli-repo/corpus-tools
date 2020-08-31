@@ -76,7 +76,8 @@
 				$snippettxt = "<table>";
 				$tmp = $nernode->getName();
 				foreach ( $nerlist as $key => $val ) {
-					$tmp = $nernode->xpath(".//{$val['elm']}");
+					$valelm = $val['indexelm'] or $valelm = $val['elm'];
+					$tmp = $nernode->xpath(".//$valelm");
 					if ( $tmp ) {
 						$name = current($tmp)."";
 						$type = $val['display'];
@@ -92,7 +93,7 @@
 		};
 	
 		if ( $snippettxt && $snippettxt != "<table></table>" ) print i18n($snippettxt);
-		else if ( $_GET['debug'] ) print "No info: $nerid";
+		else if ( $_GET['debug'] ) print "No info: $nerid ".$nernode->asXML();
 		else header("HTTP/1.0 500 Internal Server Error");
 		exit;
 
