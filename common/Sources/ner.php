@@ -38,6 +38,7 @@
 					$name = $node->asXML() or $name = $nerid;
 					$name = preg_replace("/<[^>]+>/", "", $name);
 					$idnames[$nerid.""][$name.""]++;
+					$idcnt[$nerid.""]++;
 				};
 			};	
 			foreach ( $idnames as $nerid => $val ) {
@@ -56,7 +57,7 @@
 				} else $idtxt = $nerid."!";
 				$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
 				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
-				$maintext .= "<tr key='$name' class='$trc'><td><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a><td>$idtxt";
+				$maintext .= "<tr key='$name' class='$trc'><td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a><td>$idtxt<td style='opacity: 0.5;' title='{%Occurrences}'>{$idcnt[$nerid]}";
 			};
 		};
 		$maintext .= "</table>
