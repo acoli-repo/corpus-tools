@@ -535,6 +535,7 @@ void treatfile ( string filename ) {
 							if ( extval != NULL && extval.attribute() != NULL && extval.attribute().value() != NULL ) { extid = extval.attribute().value(); };
 						};
 						if ( external == "" ) {
+							if ( debug > 2 ) { cout << "Internal lookup: " << xpath << endl; };
 							xres = it->node().select_node(xpath.c_str());
 							if ( xres != NULL ) {
 								formval = pugi::xpath_query(".").evaluate_string(xres);;
@@ -542,9 +543,7 @@ void treatfile ( string filename ) {
 								formval = "";
 							};
 						} else if ( extval == NULL || extid == "" ) {
-							if ( debug > 2 ) { 
-								cout << "No node or value found for " << external << endl;
-							};
+							if ( debug > 2 ) { cout << "No node or value found for " << external << endl; };
 							formval = "";
 						} else {
 							if ( extid.find("#") == string::npos ) { extid = "#" + extid; }; // For "incorrect" IDs
