@@ -90,6 +90,7 @@
 			if ( $settings['defaults']['browser']['style'] == "table" ) {
 				$acnt = $bcnt = 0;
 				foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
+					if ( $key == $class ) continue;
 					if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
 					$val = $item['display']; # $val = $item['long'] or
 					if ( $item['type'] == "group" ) {
@@ -127,6 +128,7 @@
 					};
 					# Translate the columns where needed
 					foreach ( $fatts as $key => $fatt ) {
+						if ( $key == $class ) continue;
 						$attit = $atttik[$key];
 						$tmp = $settings['cqp']['sattributes']['text'][$attit]['type'];
 						if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" || $settings['cqp']['sattributes']['text'][$attit]['translate'] ) {
