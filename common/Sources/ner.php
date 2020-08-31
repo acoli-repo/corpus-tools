@@ -101,14 +101,17 @@
 				document.body.appendChild(tokinfo);
 			};
 			
+			var nercolor;
 			for ( var i=0; i<Object.keys(nerlist).length; i++) {
 				var tmp = Object.keys(nerlist)[i];
 				var tagelm = nerlist[tmp]['elm'];
 				if ( !tagelm ) { tagelm = tmp; };
 				var its = mtxt.getElementsByTagName(tagelm);
+				nercolor = nerlist[tmp]['color']; if ( !nercolor ) { nercolor = 'green'; };
+				console.log('color: ' + nercolor);
 				for ( var a = 0; a<its.length; a++ ) {
 					var it = its[a];	
-					it.style.color = 'green';
+					it.style.color = nercolor;
 					it.style['font-weight'] = 'bold';
 					it.onclick = function(event) {
 						doclick(this);
