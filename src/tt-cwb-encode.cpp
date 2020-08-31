@@ -542,11 +542,11 @@ void treatfile ( string filename ) {
 							} else {
 								formval = "";
 							};
-						} else if ( extval == NULL || extid == "" ) {
+						} else if ( extval == NULL || extid == "" || extid.back() == "#" ) {
 							if ( debug > 2 ) { cout << "No node or value found for " << external << endl; };
 							formval = "";
 						} else {
-							if ( debug > 2 ) { cout << "External lookup start: " << external << " + " << extid << " + " << xpath << endl; };
+							if ( debug > 4 ) { cout << "External lookup start: " << external << " + " << extid << " + " << xpath << endl; };
 							if ( extid.find("#") == string::npos ) { extid = "#" + extid; }; // For "incorrect" IDs
 							vector<string> vtmp = split(extid, "#");
 							string exfile = "";
