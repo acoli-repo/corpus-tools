@@ -536,7 +536,11 @@ void treatfile ( string filename ) {
 						};
 						if ( external == "" ) {
 							xres = it->node().select_node(xpath.c_str());
-							formval = pugi::xpath_query(".").evaluate_string(xres);;
+							if ( xres != NULL ) {
+								formval = pugi::xpath_query(".").evaluate_string(xres);;
+							} else {
+								formval = "";
+							};
 						} else if ( extval == NULL || extid == "" ) {
 							if ( debug > 2 ) { 
 								cout << "No node or value found for " << external << endl;
