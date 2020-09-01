@@ -5,7 +5,7 @@
 
 	if ( !$_GET['cid'] ) $_GET['cid']  = $_GET['id'];
 	$nertitle = $settings['xmlfile']['ner']['title'] or $nertitle = "Named Entities";
-	$neritemname = $settings['xmlfile']['ner']['item'] or $nertitle = "entity";
+	$neritemname = $settings['xmlfile']['ner']['item'] or $neritemname = "entity";
 
 	$nerlist = $settings['xmlfile']['ner']['tags'] 
 		or 
