@@ -148,7 +148,6 @@
 		"use" => "use",
 		"Query Name" => "Query Name",
 		"add line" => "add line",
-		"Named Entities" => "Named Entities",
 		"Lemma" => "Lemma",
 		"Occurrences" => "Occurrences",
 		"back" => "back",

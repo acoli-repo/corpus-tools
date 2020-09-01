@@ -4,6 +4,8 @@
 	# Maarten Janssen, 2020
 
 	if ( !$_GET['cid'] ) $_GET['cid']  = $_GET['id'];
+	$nertitle = $settings['xmlfile']['ner']['title'] or $nertitle = "Named Entities";
+	$neritemname = $settings['xmlfile']['ner']['item'] or $nertitle = "entity";
 
 	$nerlist = $settings['xmlfile']['ner']['tags'] 
 		or 
@@ -27,7 +29,7 @@
 		$xmlid = $ttxml->xmlid;
 		$xml = $ttxml->xml;
 
-		$maintext .= "<h2>{%Named Entities}</h2><h1>".$ttxml->title()."</h1>";
+		$maintext .= "<h2>{%$nertitle}</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();		
 
 		$maintext .= "<table id='nertable'>";
@@ -251,8 +253,8 @@
 		if ( !$name && $_GET['name'] ) $name = "<i>".$_GET['name']."</i>";
 		if ( !$name ) $name = $nerid;
 	
-		$maintext .= "<h2>{%Named Entities}</h2><h1>$name</h1>
-		<p>Type of entity: <b>{$nerlist[$type]['display']}</b>";
+		$maintext .= "<h2>{%$nertitle}</h2><h1>$name</h1>
+		<p>Type of $neritemname: <b>{$nerlist[$type]['display']}</b>";
 	
 		if ( $nernode ) {
 			$descflds = array ("note", "desc", "head", "label");
@@ -293,7 +295,7 @@
 		};
 	
 		# Lookup all occurrences
-		$maintext .= "<h2>{%Occurrences}</h2>";
+		$maintext .= "<h2 style='margin-top: 20px;'>{%Occurrences}</h2>";
 		include ("$ttroot/common/Sources/cwcqp.php");
 		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
@@ -332,7 +334,7 @@
 		# List of types of NER we have
 		$nername = $nerlist[$type]['display'];
 		$neratt = $nerlist[$type]['cqp'];
-		$maintext .= "<h2>{%Named Entities}</h2><h1>{%$nername}</h1>";
+		$maintext .= "<h2>{%$nertitle}</h2><h1>{%$nername}</h1>";
 
 		include ("$ttroot/common/Sources/cwcqp.php");
 		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
@@ -359,7 +361,7 @@
 	} else {
 	
 		# List of types of NER we have
-		$maintext .= "<h2>{%Named Entities}</h2><h1>{%Select}</h1>";
+		$maintext .= "<h2>{%$nertitle}</h2><h1>{%Select}</h1>";
 		
 		foreach ( $nerlist as $key => $val ) {
 			$maintext .= "<p><a href='index.php?action=$action&type=$key'>{$val['display']}</a>";
