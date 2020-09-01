@@ -307,6 +307,7 @@
 		$nodetype = $nerlist[$type]['elm'];
 		$nodeatt = $nerlist[$type]['cqp'];
 
+
 		$cql = "Matches = <$nodeatt> []+ </$nodeatt> :: match.{$nodeatt}_nerid=\"{$_GET['nerid']}\"";
 		$cqp->exec($cql); 
 		$results = $cqp->exec("tabulate Matches match, matchend, match text_id, match id");
@@ -314,16 +315,21 @@
 		$xidxcmd = findapp("tt-cwb-xidx");
 
 		$csize = $settings['xmlfile']['ner']['context'] or $csize = 0;
-		
+		if ( $csize) {
+			$expand = "--context=$csize";			
+		};
+
+		$neridtxt = str_replace("/", "\/", preg_quote($nerid));
+			
 		$maintext .= "<div id=mtxt><table>";
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $leftpos, $rightpos, $fileid, $tokid ) = explode("\t", $resline);
 			if ( !$fileid ) continue;
-			$leftpos = max($leftpos-$csize, 0); $rightpos += $csize;
 			$cmd = "$xidxcmd --filename='$fileid' --cqp='$cqpfolder' $expand $leftpos $rightpos";
 			$resxml = shell_exec($cmd);
+			
 			if ( $csize ) {
-				$resxml = preg_replace("/ ({$nerlist[$type]['nerid']}=\"([^\"]*#)?$nerid\")/", " \1 hl=\"1\"", $resxml);
+				$resxml = preg_replace("/ ({$nerlist[$type]['nerid']}=\"([^\"]*#)?$neridtxt\")/", " \1 hl=\"1\"", $resxml);
 				# Replace block-type elements by vertical bars
 				$resxml = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l|lg|div) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<\\2>'>|</span> ", $resxml);
 				$resxml = preg_replace ( "/(<\/?(doc)>\s*|<(doc) [^>]*>\s*)+/", " <span style='color: #995555; font-weight: bold;' title='<\\2>'>|</span> ", $resxml);
