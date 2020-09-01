@@ -319,10 +319,19 @@
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $leftpos, $rightpos, $fileid, $tokid ) = explode("\t", $resline);
 			if ( !$fileid ) continue;
-			$leftpos -= $csize; $rightpos += $csize;
+			$leftpos = max($leftpos-$csize, 0); $rightpos += $csize;
 			$cmd = "$xidxcmd --filename='$fileid' --cqp='$cqpfolder' $expand $leftpos $rightpos";
 			$resxml = shell_exec($cmd);
-			if ( $csize ) $resxml = preg_replace("/ ({$nerlist[$type]['nerid']}=\"([^\"]*#)?$nerid\")/", " \1 hl=\"1\"", $resxml);
+			if ( $csize ) {
+				$resxml = preg_replace("/ ({$nerlist[$type]['nerid']}=\"([^\"]*#)?$nerid\")/", " \1 hl=\"1\"", $resxml);
+				# Replace block-type elements by vertical bars
+				$resxml = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l|lg|div) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<\\2>'>|</span> ", $resxml);
+				$resxml = preg_replace ( "/(<\/?(doc)>\s*|<(doc) [^>]*>\s*)+/", " <span style='color: #995555; font-weight: bold;' title='<\\2>'>|</span> ", $resxml);
+				$resxml = preg_replace ( "/(<(lb|br)[^>]*\/>\s*)+/", " <span style='color: #aaffaa' title='<p>'>|</span> ", $resxml);
+				$resxml = preg_replace ( "/(<sb[^>]*\/>\s*)+/", " <span style='color: #aaffaa' title='<p>'>|</span> ", $resxml); # non-standard section break
+				$resxml = preg_replace ( "/(<pb[^>]*\/>\s*)+/", " <span style='color: #ffaaaa' title='<p>'>|</span> ", $resxml);
+				$resxml = preg_replace ( "/(<\/?(table|cell|row)(?=[ >])[^>]*>\s*)+/", " ", $resxml);
+			};
 			$context = preg_replace("/.*\/(.*?)\.xml/", "\\1", $fileid);
 			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlid=".urlencode($_GET['nerid'])."'>$context</a><td>$resxml";
 		};
