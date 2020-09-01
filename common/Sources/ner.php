@@ -275,9 +275,7 @@
 				};
 				$maintext .= "</table>";
 			};
-		};
-	
-		if ( substr($nerid,0,4) == "http") {
+		} else if ( substr($nerid,0,4) == "http") {
 			$maintext .= "<p>Reference: <a href='{$_GET['nerid']}'><b>{$nerid}</b></a></p>";
 		} else if ( substr($nerid, 0, 1) == "#" ) {
 			if ( $_GET['cid']) {
@@ -312,16 +310,21 @@
 		$results = $cqp->exec("tabulate Matches match, matchend, match text_id, match id");
 
 		$xidxcmd = findapp("tt-cwb-xidx");
+
+		$csize = $settings['xmlfile']['ner']['context'] or $csize = 0;
 		
-		$maintext .= "<table>";
+		$maintext .= "<div id=mtxt><table>";
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $leftpos, $rightpos, $fileid, $tokid ) = explode("\t", $resline);
+			if ( !$fileid ) continue;
+			$leftpos -= $csize; $rightpos += $csize;
 			$cmd = "$xidxcmd --filename='$fileid' --cqp='$cqpfolder' $expand $leftpos $rightpos";
 			$resxml = shell_exec($cmd);
+			if ( $csize ) $resxml = preg_replace("/ ({$nerlist[$type]['nerid']}=\"([^\"]*#)?$nerid\")/", " \1 hl=\"1\"", $resxml);
 			$context = preg_replace("/.*\/(.*?)\.xml/", "\\1", $fileid);
 			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlid=".urlencode($_GET['nerid'])."'>$context</a><td>$resxml";
 		};
-		$maintext .= "</table>";
+		$maintext .= "</table></div>";
 
 	} else if ( $_GET['type'] ) {
 
