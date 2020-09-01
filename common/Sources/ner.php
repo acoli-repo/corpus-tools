@@ -262,7 +262,7 @@
 			$maintext .= "<table>";
 			foreach ( $nernode->children() as $childnode ) {
 				$nodename = $childnode->getName();
-				if ( in_array( $descflds, $nodename ) ) {
+				if ( in_array( $nodename, $descflds ) ) {
 					$maintext .= "<tr><td colspan=2>".$childnode->asXML();
 				} else if ( trim($childnode) != "" && $nodename != $nameelm ) {
 					$maintext .= "<tr><th>{%$nodename}<td>$childnode";
