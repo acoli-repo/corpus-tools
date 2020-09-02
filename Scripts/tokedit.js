@@ -1020,3 +1020,67 @@ function diffcalc ( fform, form ) {
 	};
 };
 
+// TODO - the functions below are redundant but might still get pulled form teitok.org
+
+function togglecol () { // Show or hide colours
+	var but = document.getElementById('btn-col');
+	if ( !but ) return;
+	if ( showcol ) {
+		showcol = false;
+		but.style.background = '#FFFFFF';
+	} else {
+		showcol = true;
+		but.style.background = '#eeeecc';
+	};
+	document.cookie = 'togglecol='+showcol;
+	setForm(showform);
+};
+
+function toggleimg () { // Show or hide images
+	var but = document.getElementById('btn-img');
+	if ( !but ) return;
+	if ( showimg ) {
+		showimg = false;
+		if (but && typeof(but.style) == "object") {
+			but.style['background-color'] = '#FFFFFF';
+		};
+	} else {
+		showimg = true;
+		if (but && typeof(but.style) == "object") {
+			but.style['background-color'] = '#eeeecc';
+		};
+	};
+	document.cookie = 'toggleimg='+showimg;
+
+	// Show/hide all IMG elements inside MTXT
+	var its = mtxt.getElementsByClassName("imgdiv");
+	for ( var a = 0; a<its.length; a++ ) {
+		var it = its[a];
+		if ( typeof(it) != 'object' ) { continue; };
+		if ( it.start ) { continue; }; // this is not a facs image but a sound control button
+		if ( showimg ) {
+			it.style.display = 'block';
+		} else {
+			it.style.display = 'none';
+		};
+	};
+};
+
+function toggleint () { // Interpret breaks or not
+	var but = document.getElementById('btn-int');
+	if ( !but ) return;
+	if ( interpret ) {
+		interpret = false;
+		if ( typeof(but) == "object" ) { 
+			but.style['background-color'] = '#FFFFFF';
+		};
+	} else {
+		interpret = true;
+		if ( typeof(but) == "object" && but != null ) { 
+			but.style['background-color'] = '#eeeecc';
+		};
+	};
+	document.cookie = 'toggleint='+interpret;
+	setview();
+};
+
