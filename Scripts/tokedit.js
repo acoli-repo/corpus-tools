@@ -345,18 +345,18 @@ function hidenote () {
 	document.getElementById('footnotediv').style.display = 'none';
 };
 
-function toggleshow () { // Show or hide empty elements
-	var but = document.getElementById('btn-see');
-	if ( showee ) {
-		showee = false;
-		but.style.background = '#FFFFFF';
-	} else {
-		showee = true;
-		but.style.background = '#eeeecc';
-	};
-	document.cookie = 'toggleshow='+showee;
-	setview();
-};
+// function toggleshow () { // Show or hide empty elements
+// 	var but = document.getElementById('btn-see');
+// 	if ( showee ) {
+// 		showee = false;
+// 		but.style.background = '#FFFFFF';
+// 	} else {
+// 		showee = true;
+// 		but.style.background = '#eeeecc';
+// 	};
+// 	document.cookie = 'toggleshow='+showee;
+// 	setview();
+// };
 
 function toggletn (tag) { // Show or hide empty elements
 	var but = document.getElementById('btn-tag-'+tag);
@@ -367,8 +367,25 @@ function toggletn (tag) { // Show or hide empty elements
 		showtag[tag] = true;
 		if  ( but != null ) but.style.background = '#eeeecc';
 	};
-	// document.cookie = tag+'='+showee;
-	setview();
+	document.cookie = 'toggle-'+tag+'='+showtag[tag];
+	if ( tag == 'colors' ) {
+		setForm(showform);
+	} else if ( tag == 'images' ) {
+		// Show/hide all IMG elements inside MTXT
+		var its = mtxt.getElementsByClassName("imgdiv");
+		for ( var a = 0; a<its.length; a++ ) {
+			var it = its[a];
+			if ( typeof(it) != 'object' ) { continue; };
+			if ( it.start ) { continue; }; // this is not a facs image but a sound control button
+			if ( showtag['images'] ) {
+				it.style.display = 'block';
+			} else {
+				it.style.display = 'none';
+			};
+		};
+	} else {
+		setview();
+	};
 };
 
 function toggletag (tag) { // Show or hide empty elements
@@ -386,68 +403,6 @@ function toggletag (tag) { // Show or hide empty elements
 	setForm(showform);
 };
 
-function togglecol () { // Show or hide colours
-	var but = document.getElementById('btn-col');
-	if ( !but ) return;
-	if ( showcol ) {
-		showcol = false;
-		but.style.background = '#FFFFFF';
-	} else {
-		showcol = true;
-		but.style.background = '#eeeecc';
-	};
-	document.cookie = 'togglecol='+showcol;
-	setForm(showform);
-};
-
-function toggleimg () { // Show or hide images
-	var but = document.getElementById('btn-img');
-	if ( !but ) return;
-	if ( showimg ) {
-		showimg = false;
-		if (but && typeof(but.style) == "object") {
-			but.style['background-color'] = '#FFFFFF';
-		};
-	} else {
-		showimg = true;
-		if (but && typeof(but.style) == "object") {
-			but.style['background-color'] = '#eeeecc';
-		};
-	};
-	document.cookie = 'toggleimg='+showimg;
-
-	// Show/hide all IMG elements inside MTXT
-	var its = mtxt.getElementsByClassName("imgdiv");
-	for ( var a = 0; a<its.length; a++ ) {
-		var it = its[a];
-		if ( typeof(it) != 'object' ) { continue; };
-		if ( it.start ) { continue; }; // this is not a facs image but a sound control button
-		if ( showimg ) {
-			it.style.display = 'block';
-		} else {
-			it.style.display = 'none';
-		};
-	};
-};
-
-function toggleint () { // Interpret breaks or not
-	var but = document.getElementById('btn-int');
-	if ( !but ) return;
-	if ( interpret ) {
-		interpret = false;
-		if ( typeof(but) == "object" ) { 
-			but.style['background-color'] = '#FFFFFF';
-		};
-	} else {
-		interpret = true;
-		if ( typeof(but) == "object" && but != null ) { 
-			but.style['background-color'] = '#eeeecc';
-		};
-	};
-	document.cookie = 'toggleint='+interpret;
-	setview();
-};
-
 function setview () {
 	var mtxt = document.getElementById('mtxt');
 	var pbs = mtxt.getElementsByTagName("pb");
@@ -459,13 +414,13 @@ function setview () {
 		var pbhl = pb.childNodes[0]; 
 		if ( typeof(pb) != 'object' ) { continue; };
 		if ( typeof(pbhl) == 'undefined' ) { continue; };
-		if ( interpret  && typeof(pagemode) == "undefined" ) {	
+		if ( ( interpret || showtag['interpret'] )  && typeof(pagemode) == "undefined" ) {	// interpret is deprecated
 			pbhl.innerHTML = '<hr style="background-color: #cccccc; clear: both;">';
 		} else {
 			pbhl.innerHTML = '';
 		};
 		var pbnum = pb.childNodes[1]; 
-		if ( showee || showtag['pb'] ) {	
+		if ( showee || showtag['pb'] || showtag['ee'] ) { // showee is deprecated
 			if ( pb.getAttribute('show') ) { pid = '' + pb.getAttribute('show'); } else 
 			if ( pb.getAttribute('n') ) { pid = '' + pb.getAttribute('n'); } 
 			else { pid = '<span style="opacity: 0.5;">'+a+'</span>'; };
@@ -479,10 +434,10 @@ function setview () {
 		var it = its[a];
 		if ( typeof(it) != 'object' ) { continue; };
 		it.innerHTML = '';
-		if ( interpret ) {	
+		if ( ( interpret || showtag['interpret'] ) ) {	 // interpret is deprecated
 			it.innerHTML += '<hr style="background-color: #aaffaa;">';
 		};
-		if ( showee || showtag['cb'] ) {
+		if ( showee || showtag['cb'] || showtag['ee'] ) { // showee is deprecated
 			it.innerHTML += '<span style="color: #4444ff; font-size: 12px;">[cb]</span>';
 			if ( it.getAttribute('id') && username != '' ) {
 				it.firstChild.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.parentNode.getAttribute('id'), '_top'); };
@@ -516,11 +471,11 @@ function setview () {
 		
 		// Handle the linebreak child
 		var lbhl = it.childNodes[1]; if ( typeof(lbhl) == "undefined" ) { var lbhl = document.createElement("span");  it.appendChild(lbhl); };
-		if ( interpret ) {
+		if ( ( interpret || showtag['interpret'] ) ) { // interpret is deprecated
 			lbhl.innerHTML = '<br>';
-		} else if ( ( showee || showtag['lb'] ) && lid != '' ) {
+		} else if ( lid != '' && ( showee || showtag['lb'] || showtag['ee'] ) ) { // showee is deprecated
 			lbhl.innerHTML = '<span style="color: #4444ff; font-size: 14px;">['+lid+']</span>';
-		} else if ( showee || showtag['lb'] ) {
+		} else if ( showee || showtag['lb']  || showtag['ee'] ) { // showee is deprecated
 			lbhl.innerHTML = '<span style="color: #4444ff; font-size: 14px;">|</span>';
 		} else {
 			lbhl.innerHTML = ''; lbrend.innerHTML = '';
@@ -528,8 +483,8 @@ function setview () {
 		
 		 // Handle the number child
 		var lbnum = it.childNodes[2];if ( typeof(lbnum) == "undefined" ) { var lbnum = document.createElement("span");  it.appendChild(lbnum); };
-		if ( showee || showtag['lb'] ) {
-			if ( interpret ) {
+		if ( showee || showtag['lb']  || showtag['ee'] ) { // showee is deprecated
+			if ( ( interpret || showtag['interpret'] ) ) { // interpret is deprecated
 				if ( lid == '' ) { 
 					lid = '-'; 
 				};
@@ -714,7 +669,7 @@ function setForm ( type ) {
 	};	
 	
 	// The inserted breaks do not have visuals - so rerun 
-	if ( interpret || showee ) {
+	if ( ( interpret || showtag['interpret'] ) || showee  || showtag['ee'] ) { // showee and interpret are deprecated
 		setview();
 	};
 };
@@ -928,7 +883,7 @@ function forminherit ( tok, fld ) {
 
 	if ( tok.getAttribute(fld) ) { 
 		// this value is defined for this token
-		if ( showcol && !tok.style['color'] ) { 
+		if ( ( showcol || showtag['colors'] ) && !tok.style['color'] ) { // showcol is deprecated
 			if ( typeof(formdef[fld]['color']) != "undefined" ) { col = formdef[fld]['color']; } else { col = '#222222'; };
 			tok.style['color'] = col;
 		};
@@ -942,7 +897,7 @@ function forminherit ( tok, fld ) {
 		var takeoff = forminherit(tok, substract);
 		var difffrm = diffcalc(baseform, takeoff);
 		// the subtracted form should be colored as this form	
-		if ( showcol && difffrm != baseform ) { 
+		if ( ( showcol || showtag['colors'] ) && difffrm != baseform ) { // showcol is deprecated
 			if ( typeof(formdef[fld]['color']) != "undefined" ) { col = formdef[fld]['color']; } else { col = '#222222'; };
 			tok.style['color'] = col;
 		};
@@ -953,7 +908,7 @@ function forminherit ( tok, fld ) {
 	if ( transfrom != undefined ) {
 		var fromform = forminherit(tok, transfrom);
 		var transform = transliterate(fromform)
-		if ( showcol && transform != fromform  ) { 
+		if ( ( showcol || showtag['colors'] ) && transform != fromform  ) { // showcol is deprecated
 			if ( typeof(formdef[fld]['color']) != "undefined" ) { col = formdef[fld]['color']; } else { col = '#222222'; };
 			tok.style['color'] = col;
 			// tok.style['opacity'] = 0.7;

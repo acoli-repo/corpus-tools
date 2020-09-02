@@ -148,32 +148,21 @@
 	# Define which view to show
 	$defaultview = $settings['xmlfile']['defaultview'];
 	// Calculate where to start from settings and cookies
-	if ( ( strpos($defaultview, "interpret") && !$_COOKIE['toggleint'] ) || $_COOKIE['toggleint'] == "true" ) {
-		$postjsactions .= "\n				toggleint();";
-	};
-	if ( ( strpos($defaultview, "breaks") && !$_COOKIE['toggleshow'] ) || $_COOKIE['toggleshow'] == "true" ) {
-		$postjsactions .= "\n				toggleshow();";
-	};
-	if ( ( strpos($defaultview, "pb") ) || $_COOKIE['pb'] == "true" ) {
-		$postjsactions .= "\n				toggletn('pb');";
-	};
-	if ( ( strpos($defaultview, "lb") ) || $_COOKIE['lb'] == "true" ) {
-		$postjsactions .= "\n				toggletn('lb');";
-	};
-	if ( ( strpos($defaultview, "colors") && !$_COOKIE['togglecol'] ) || $_COOKIE['togglecol'] == "true" ) {
-		$postjsactions .= "\n				togglecol();";
-	};
-	if ( ( strpos($defaultview, "images") && !$_COOKIE['toggleimg'] ) || $_COOKIE['toggleimg'] == "true" ) {
-		$postjsactions .= "\n				toggleimg();";
+	$tagoptlist = array ( "interpret", "colors", "images", 'pb', 'lb', 'ee' );
+	$setviews = explode(",", $_GET['setviews']);
+	foreach ( $tagoptlist as $tagtmp ) {
+		if ( ( strpos($defaultview, $tagtmp) && !$_COOKIE["toggle-$tagtmp"] ) || $_COOKIE["toggle-$tagtmp"] == "true" || in_array($tagtmp, $setviews) ) {
+			$postjsactions .= "\n				toggletn('$tagtmp');";
+		};
 	};
 	
+	# Define some global view options
 	if ( $settings['xmlfile']['autonumber'] == "1" ) {
 		$postjsactions .= "\n				var autonumber = 1;";
 	};
 	if ( $settings['xmlfile']['adminfacs'] == "1" && !$username ) {
 		$prejsactions .= "\n				var nofacs = 1;";
 	};
-
 	if ( $settings['xmlfile']['nogaps'] == "1" ) {
 		$postjsactions .= "\n				var nogaps = 1;";
 	};	
@@ -227,7 +216,7 @@
 
 	$sep = "<p>";
 	if ( $fbc > 1 ) {
-		$showoptions .= "<button id='btn-col' style='background-color: #ffffff;' title='{%color-code form origin}' onClick=\"togglecol();\">{%Colors}</button> ";
+		$showoptions .= "<button id='btn-tag-colors' style='background-color: #ffffff;' title='{%color-code form origin}' onClick=\"toggletn('colors');\">{%Colors}</button> ";
 		$sep = " - ";
 	};
 	
@@ -235,7 +224,7 @@
 	$tokpos = strpos($editxml, "<tok"); 
 	
 	if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) ||  strpos($editxml, "<lb", $tokpos)  ) ) {
-		$showoptions .= "<button id='btn-int' style='background-color: #ffffff;' title='{%format breaks}' onClick=\"toggleint();\">{%Formatting}</button>";
+		$showoptions .= "<button id='btn-tag-interpret' style='background-color: #ffffff;' title='{%format breaks}' onClick=\"toggletn('interpret');\">{%Formatting}</button>";
 	};
 	if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) || ( $username && strpos($editxml, "<pb") )  ) ) {
 		// Should the <pb> button be hidden if there is only one page? (not for admin - pb editing)
@@ -247,7 +236,7 @@
 	
 	if ( !$username ) $noadmin = "(?![^>]*admin=\"1\")";
 	if ( preg_match("/ facs=\"[^\"]+\"$noadmin/", $editxml) ) {
-		$showoptions .= " <button id='btn-img' style='background-color: #ffffff;' title='{%show facsimile images}' onClick=\"toggleimg();\">{%Images}</button>";
+		$showoptions .= " <button id='btn-tag-images' style='background-color: #ffffff;' title='{%show facsimile images}' onClick=\"toggletn('images');\">{%Images}</button>";
 	};
 					
 	foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
