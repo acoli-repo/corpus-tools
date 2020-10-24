@@ -187,8 +187,10 @@
 	$maintext .= "<div id=footnotediv style='display: none;'>This is where the footnotes go.</div>";
 
 	
-	#Build the view options	
-	foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+	# Build the view options	
+	$viewforms = $settings['xmlfile']['pattributes']['forms'];
+	if ( !$viewforms['pform'] ) $viewforms = array ( "pform" => array ("display" => "Transcription")) + $viewforms; # We always need a pform view
+	foreach ( $viewforms as $key => $item ) {
 		$formcol = $item['color'];
 		# Only show forms that are not admin-only
 		if ( $username || !$item['admin'] ) {
@@ -212,12 +214,13 @@
 	
 	
 	# Only show text options if there is more than one form to show
-	if ( $fbc > 1 ) $viewoptions .= "<p>{%Text}: $formbuts"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
+	if ( $fbc > 1 ) $viewoptions .= "<p><span>{%Text}</span>: $formbuts"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
 
 	$sep = "<p>";
+	$buttonsep = " <sep>-</sep> ";
 	if ( $fbc > 1 ) {
 		$showoptions .= "<button id='btn-tag-colors' style='background-color: #ffffff;' title='{%color-code form origin}' onClick=\"toggletn('colors');\">{%Colors}</button> ";
-		$sep = " - ";
+		$sep = $buttonsep;
 	};
 	
 	# Some of these checks work after the first token, so first find the first token
@@ -253,7 +256,7 @@
 			unset($labarray[$akey]);
 		};
 	};
-	if ( $tagstxt ) $showoptions .= " - {%Tags}: $tagstxt ";
+	if ( $tagstxt ) $tagoptions = "<span>{%Tags}</span>: $tagstxt ";
 	if ( $labarray ) {
 		$labtxt = join ( "','", $labarray );
 		$postjsactions .= "\n				labels=['$labtxt'];";
@@ -347,8 +350,10 @@
 	};
 
 	if ( $showoptions != "" ) {
-		$viewoptions .= $sep."{%Show}: $showoptions";
+		$viewoptions .= $sep."<span>{%Show}</span>: $showoptions";
 	};
+	if ( $viewoptions ) $viewoptions .= $buttonsep;
+	$viewoptions .= $tagoptions;
 	
 	if ( $viewoptions != "" ) {
 		# Show the View options - hidden when Javascript does not fire.

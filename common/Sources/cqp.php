@@ -100,11 +100,13 @@
 
 	} else if ( $act == "seq" ) {
 	
+		# TODO: check whether we can allow this for visitors
+	
 		check_login();
 	
 		if ( !$_POST ) $_POST = $_GET;
-		$maintext .= "<h1>Raw CQP Query</h1>
-			<p>Below you can type in a sequence of CQP queries, and the interface will display the final result.
+		$maintext .= "<h1>Raw CQL Query</h1>
+			<p>Below you can type in a sequence of CQL queries for the CQP processor, and the interface will display the final result.
 		
 			<form action='index.php?action=$action&act=$act' method=post>
 				<textarea style='width: 100%; height: 200px;' name=query>{$_POST['query']}</textarea>
@@ -825,7 +827,7 @@
 			$maintext .= "<div id='customfreq' style='display: none;'><p>Specifiy additional custom CQP command on the results above (Matches):
 
 
-					{%CQP Query}:
+					{%CQL Query}:
 					<input type=hidden name=cql value='$cqlu' $chareqfn>
 					<input name='query' value='group Matches match lemma' size=70>
 					<input type=submit value='{%Apply}'>

@@ -75,6 +75,7 @@
 		if ( $nerxml ) {
 			$nernode = current($nerxml->xpath(".//*[@id=\"$nerid\"]"));
 			if ( $nernode ) {
+				# print $nernode->asXML();
 				$snippettxt = "<table>";
 				$tmp = $nernode->getName();
 				foreach ( $nerlist as $key => $val ) {
