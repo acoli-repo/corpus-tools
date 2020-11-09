@@ -11,6 +11,7 @@
 		$suxml = simplexml_load_string($sufile);
 	};
 
+	$shareduser = false;
 	if ( $_POST["login"] ) {
 	
 		# Lookup the data for this user in the STAFF database - local or shared when defined
@@ -28,6 +29,7 @@
 		} else if ( $suxml ) {
 			$result = $suxml->xpath("//user[@email='{$_POST['login']}']"); 
 			$xrec = $result[0];
+			$shareduser = true;
 			$record['shared'] = 1;
 			$record['email'] = $xrec['email'].''; 
 			$record['short'] = $xrec['short'].''; 
@@ -50,6 +52,9 @@
 		## Check whether the password is correct
 		if ( password_verify($_POST['password'], $xrec['password']) )  { 
 			if ( $record['permissions'] != "none"  ){
+				if ( $shareduser && $record['projects'] == "all" ) {
+					$_SESSION[$gsessionvar] = $record; 
+				};
 				$_SESSION[$sessionvar] = $record; 
 				
 				$user = $_SESSION[$sessionvar]; 
@@ -57,7 +62,7 @@
 				
 				actionlog ( "user {$_POST['login']}" );
 				
-				// Check if this is not a admin-provided password that needs to be modified
+				// Check if this is an admin-provided password that needs to be modified
 				if ( $xrec['tochange'] ) {
 					header("location:index.php?action=user&act=pwdchange&forced=1");
 					exit;

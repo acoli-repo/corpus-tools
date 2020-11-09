@@ -62,7 +62,8 @@
 	
   	if ( $username ) {
 		$shortuserid = $user['short'];
-  		$menu .= "<hr>user: <a href='index.php?action=user'>$shortuserid</a><hr>";
+	 	$usertype = "user"; if ( $user['projects'] == "all" ) $usertype = "<span title='server-wide user'>guser</span>";
+  		$menu .= "<hr>$usertype: <a href='index.php?action=user'>$shortuserid</a><hr>";
   		$tmp = ""; if ( $action == "admin" ) $tmp = "class=\"selected\""; 
   		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=admin' $tmp>Admin</a></ul>";
   		$menu .= "<ul style='text-align: left'><li><a target=help href='http://www.teitok.org/index.php?action=help'>Help</a></ul>";

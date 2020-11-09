@@ -71,8 +71,10 @@
 		$foldername = preg_replace("/.*\/WebServer\/Documents\//", "", $foldername); # For MacOS
 		$foldername = preg_replace("/\/index\.php.*/", "", $foldername);
 	}; 
+	
+	$gsessionvar = "teitok-".preg_replace("/[^a-z0-9]/", "", $_SERVER['SERVER_NAME'] ); # Allow server-wide login
 	$sessionvar = "teitok-".preg_replace("/[^a-z0-9]/", "", $foldername); # Make the session relative to this project
-
+	
 	# Determine which language to use
 	$deflang = $settings['languages']['default'] or $deflang = "en";
 	if ( $_GET['lang'] ) $lang = $_GET['lang'];
@@ -146,7 +148,7 @@
 	$smarty = new Smarty;
 
 	// load user data 
-	$user = $_SESSION[$sessionvar]; 
+	$user = $_SESSION[$sessionvar] or $user = $_SESSION[$gsessionvar]; 
 	$username = $user['email'];
 	
 	# Some settings that used to be flexible, but now fixed
