@@ -438,7 +438,7 @@
 	function messagelog ( $txt ) {
 		global $settings;
 		
-		$logfile = $settings['log']['errorlog']['filename'];
+		if ( is_array( $settings['log']['errorlog']) ) $logfile = $settings['log']['errorlog']['filename'];
 		
 		$ip = $_SERVER['REMOTE_ADDR'];
 		$date = date ( "d/M/Y:h:i:s" );
