@@ -5,7 +5,7 @@
 	// (c) Maarten Janssen, 2018
 
 	if ( !$settings['permissions']['orcid']['public'] || !$settings['permissions']['orcid']['private'] ) {
-		print "ORCID identification not set-up yet for this server"; print_r($settings); exit;
+		print "ORCID identification not set-up yet for this server"; exit;
 	};
 
 	$maintext .= "<h1>ORCID Login</h1>";
