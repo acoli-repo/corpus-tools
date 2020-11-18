@@ -123,9 +123,10 @@
 			<h2>Existing folders</h2>";
 			
 		if ($handle = opendir('..')) {
+			$upfolder = preg_replace("/[^\/]+\/[^\/]+$/", "", $_SERVER['REQUEST_URI']);
 			while (false !== ($entry = readdir($handle))) {
 				if ( substr($entry,0,1) != "." ) {
-					$maintext .= "<p>$entry\n";
+					if ( file_exists("../$entry/index.php") ) $maintext .= "<p><a href='$upfolder$entry/index.php'>$entry</a>\n";
 				}
 			}
 			closedir($handle);
