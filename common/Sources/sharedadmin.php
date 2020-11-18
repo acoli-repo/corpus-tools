@@ -118,7 +118,18 @@
 			$corpusentry
 			
 			<p><input type=submit value='Create Project'>
-			</form>";
+			</form>
+			
+			<h2>Existing folders</h2>";
+			
+		if ($handle = opendir('..')) {
+			while (false !== ($entry = readdir($handle))) {
+				if ( substr($entry,0,1) != "." ) {
+					$maintext .= "<p>$entry\n";
+				}
+			}
+			closedir($handle);
+		}
 
 	} else if ( $act == "update" ) {
 		

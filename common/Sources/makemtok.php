@@ -13,7 +13,6 @@
 			print "No such XML File: $xmlfolder/$fileid"; 
 			exit;
 		};
-		# print_r($_POST); exit;
 		$file = file_get_contents("$xmlfolder/$fileid"); 
 		$xml = simplexml_load_string($file);
 		if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
@@ -25,7 +24,7 @@
 			$result = $xml->xpath("//dtok[@id='$tokid']"); 
 		else
 			$result = $xml->xpath("//*[@id='$tokid']"); 
-		$token = $result[0]; # print_r($token); exit;
+		$token = $result[0]; 
 		if ( !$token ) { print "Token not found: $tokid<hr>"; print $file; exit; };
 
 		$maintext .= "<h1>Create Multi-Token</h1>";

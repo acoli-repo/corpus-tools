@@ -33,7 +33,7 @@
 		if ($_POST['newxml']) {
 			$levels = $_GET['levels'] or $levels = 1;
 			$result = $xml->xpath("//tok[@id='$tokid']"); 
-			$token = $result[0]; # print_r($token); exit;
+			$token = $result[0];
 			if ( !$token ) { print "Token not found: $tokid<hr>"; print $file; exit; };
 				
 			$context = $token;	
@@ -61,7 +61,7 @@
 			$levels = $_GET['levels'] or $levels = 1;
 		
 			$result = $xml->xpath("//tok[@id='$tokid']"); 
-			$token = $result[0]; # print_r($token); exit;
+			$token = $result[0];
 			if ( !$token ) { print "Token not found: $tokid<hr>"; print $file; exit; };
 				
 			$context = $token;	

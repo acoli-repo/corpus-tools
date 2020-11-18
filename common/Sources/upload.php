@@ -32,7 +32,6 @@
 		$uploadOk = 1;
 		$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
 
-		// print_r($_POST); exit;
 		if ( isset($_POST["submit"]) && $_POST['submit'] != "Save" ) {
 			$dropzone = true;
 			header('Content-type: application/json');

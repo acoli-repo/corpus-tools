@@ -9,10 +9,6 @@
 	$temp = explode ( '/', $fileid );
 	$xmlid = array_pop($temp); $xmlid = preg_replace ( "/\.xml/", "", $xmlid );
 	
-	if ( $_POST ) {
-		print_r($_POST); exit;
-	};
-	
 	if ( !$fileid ) { 
 		print "No XML file selected."; 
 		exit;

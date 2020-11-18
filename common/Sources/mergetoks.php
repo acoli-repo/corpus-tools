@@ -55,12 +55,12 @@
 		} else {
 		
 			$result = $xml->xpath("//tok[@id='$tokid1']"); 
-			$token1 = $result[0]; # print_r($token); exit;
+			$token1 = $result[0]; 
 			if ( !$token1 ) { print "Token 1 not found: $tokid1<hr>"; print $file; exit; };
 			if ( strtolower($token1->getName()) != "tok" ) { print "Token 1 is not a &lt;tok&gt;: $tokid1<hr>"; print $file; exit; };
 
 			$result = $xml->xpath("//tok[@id='$tokid2']"); 
-			$token2 = $result[0]; # print_r($token); exit;
+			$token2 = $result[0]; 
 			if ( !$token2 ) { print "Token 2 not found: $tokid1<hr>"; print $file; exit; };
 			if ( strtolower($token2->getName()) != "tok" ) { print "Token 2 is not a &lt;tok&gt;: $tokid2<hr>"; print $file; exit; };
 

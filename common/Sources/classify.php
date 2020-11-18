@@ -213,9 +213,7 @@
 		";
 
 	} else if ( $act == "define" && $myfile ) {
-	
-		print_r($_POST);
-		
+			
 		$extann['name'] = $_POST['name'];
 		
 		if ( $_POST['flds']['new']['key'] ) {

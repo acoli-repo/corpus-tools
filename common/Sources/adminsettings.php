@@ -289,7 +289,7 @@
 		# Now save the actual file
 		if ( $_POST['goto'] ) {
 			$goto = $_POST['goto'];
-			preg_match_all("/{#([^\}]+)}/", $goto, $tmp); print_r($tmp);
+			preg_match_all("/{#([^\}]+)}/", $goto, $tmp);
 			foreach ( $tmp[1] as $key => $val ) {
 				$goto = preg_replace( "/\{#$val\}/", $_POST['flds'][$val], $goto );
 			};
