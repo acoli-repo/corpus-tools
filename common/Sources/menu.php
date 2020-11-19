@@ -36,7 +36,8 @@
     $menu .= "<ul style='text-align: left'>";
         	
     foreach ( $settings['menu']['itemlist'] as $key => $item ) { 
-    	if ( substr($key,0,4) == "http" ) $link = $key;
+    	if ( $item['link'] ) $link = $item['link'];
+    	else if ( substr($key,0,4) == "http" ) $link = $key;
     	else $link = "{$tlpr}index.php?action=$key";
     	if ( preg_replace("/&.*/", "", $key) == $action ) {
     		$scl = " class='selected'"; 
@@ -46,6 +47,7 @@
     		$scli = "";
     	};
 		$itemtxt = $item['display'] or $itemtxt = $key;
+		if ( $item['title'] ) $scl .= " title=\"{$item['title']}\"";
     	if ( $item['type'] == "separator" ) {
     		$menu .= "</ul><hr><ul style='text-align: left'>";
     	} else if ( $item['type'] == "header" ) {

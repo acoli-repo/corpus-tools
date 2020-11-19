@@ -168,7 +168,9 @@
 		<item key="itemlist" display="List of menu items">
 			<list>
 				<att key="key" display="link action (index.php?action=XX)"/>
+				<att key="link" display="link action (if key is different)"/>
 				<att key="display" req="1" display="link name"/>
+				<att key="title" display="roll-over title for the item"/>
 				<att key="type" display="item type" default="item">
 					<val key="item" display="Menu item"/>
 					<val key="separator" display="Separator"/>
