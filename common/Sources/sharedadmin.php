@@ -41,6 +41,7 @@
 			$corpxml = simplexml_load_string($tmp);
 
 			$new = $corpxml->addChild("corpus");
+			$new['id'] = $projectfolder;
 			foreach ( $_POST['corplist'] as $key => $val ) {
 				print "<p>$key: $val";
 				$new->addChild($key."", $val."");
