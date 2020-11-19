@@ -19,6 +19,7 @@
 
 	$sharedfolder = $settings['defaults']['shared']['folder'];
 	if ( !$sharedfolder ) $sharedfolder = getenv("TT_SHARED"); 
+	if ( !$sharedfolder ) $sharedfolder = $_SERVER["TT_SHARED"]; 
 	
 	# See if there are any local or shared startup scripts
 	if ( file_exists("Sources/startup.php") ) require("Sources/startup.php");
