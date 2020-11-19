@@ -250,6 +250,11 @@
 			
 			<p>For help on admin functions see the <a href='http://teitok.corpuswiki.org/site/index.php?action=help&project={$_SERVER['HTTP_HOST']}$baseurl'>Help</a> section online.
 			";
+		
+		if ( $sharedfolder ) {
+			if ( $sharedsettings ) $maintext .= "<p style='font-size: small; color: #999999;'>These settings are supplemented by shared settings from $sharedfolder";
+			else $maintext .= "<p style='font-size: small; color: #999999;'>These settings can be supplemented by shared settings in $sharedfolder";
+		};
 	
 		# Display the TEITOK version
 		if ( file_exists("$ttroot/common/Resources/version.xml") ) {
