@@ -76,9 +76,8 @@
 
   		$menu .= $adminitems;
 	} else if ( $_SESSION['extid'] ) {
-		if ( ! $settings['permissions']['shibboleth'] ) $settings['permissions']['shibboleth'] = array ( "display" => "AAI" ); # Always allow Shibboleth login
 		foreach ( $_SESSION['extid'] as $key => $val ) { 
-		if ( $tmp = $settings['permissions'][$idtype] ) { 
+		if ( $tmp = $settings['permissions'][$idtype] || $idtype == "shibboleth" ) { 
 			$idtype = $key;
 			$idname = $tmp['display'] or $idname = strtoupper($idtype); 
 			$idaction = $tmp['login'] or $idaction = "extuser"; 
@@ -89,7 +88,7 @@
 			};
 		}; }; 
 		if ( !$idtype ) {
-	  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=login' $tmp>Login</a></ul>";
+	  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=login'><i>Login</i></a></ul>";
 		};
 	} else {
 		$shortuserid = "guest";
