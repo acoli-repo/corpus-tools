@@ -76,16 +76,20 @@
 
   		$menu .= $adminitems;
 	} else if ( $_SESSION['extid'] ) {
-		foreach ( $_SESSION['extid'] as $idtype => $val ) { 
+		foreach ( $_SESSION['extid'] as $key => $val ) { 
 		if ( $tmp = $settings['permissions'][$idtype] ) { 
+			$idtype = $key;
 			$idname = $tmp['display'] or $idname = strtoupper($idtype); 
-			$idaction = $tmp['login'] or $idaction = $idtype; 
+			$idaction = $tmp['login'] or $idaction = "extuser"; 
 			$shortuserid = $_SESSION['extid'][$idtype];
 			$menu .= "<hr>$idname: <a href='index.php?action=$idaction'>$shortuserid</a><hr>";
 			foreach ( $tmp['functions'] as $key => $func ) {
 				$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action={$func['key']}' $tmp>{%{$func['display']}}</a></ul>";
 			};
 		}; }; 
+		if ( !$idtype ) {
+	  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=login' $tmp>Login</a></ul>";
+		};
 	} else {
 		$shortuserid = "guest";
   		$tmp = ""; if ( $action == "login" ) $tmp = "class=\"selected\""; 

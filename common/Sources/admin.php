@@ -252,8 +252,8 @@
 			";
 		
 		if ( $sharedfolder ) {
-			if ( $sharedsettings ) $maintext .= "<p style='font-size: small; color: #999999;'>These settings are supplemented by shared settings from $sharedfolder";
-			else $maintext .= "<p style='font-size: small; color: #999999;'>These settings can be supplemented by shared settings in $sharedfolder";
+			if ( $sharedsettings ) $maintext .= "<p style='font-size: small; color: #999999;'>These settings are supplemented by shared settings";
+			else $maintext .= "<p style='font-size: small; color: #999999;'>These settings can be supplemented by shared settings";
 		};
 	
 		# Display the TEITOK version
