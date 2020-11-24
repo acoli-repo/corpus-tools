@@ -77,7 +77,7 @@
   		$menu .= $adminitems;
 	} else if ( $_SESSION['extid'] ) {
 		foreach ( $_SESSION['extid'] as $key => $val ) { 
-		if ( $tmp = $settings['permissions'][$idtype] || $idtype == "shibboleth" ) { 
+		if ( $tmp = $settings['permissions'][$key] || $key == "shibboleth" ) { 
 			$idtype = $key;
 			$idname = $tmp['display'] or $idname = strtoupper($idtype); 
 			$idaction = $tmp['login'] or $idaction = "extuser"; 
