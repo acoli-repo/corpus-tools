@@ -76,7 +76,7 @@
 
   		$menu .= $adminitems;
 	} else if ( $_SESSION['extid'] ) {
-		if ( ! $settings['permissions']['shibboleth'] ) $settings['permissions']['shibboleth'] = array (  "display": "AAI" ); # Always allow Shibboleth login
+		if ( ! $settings['permissions']['shibboleth'] ) $settings['permissions']['shibboleth'] = array ( "display" => "AAI" ); # Always allow Shibboleth login
 		foreach ( $_SESSION['extid'] as $key => $val ) { 
 		if ( $tmp = $settings['permissions'][$idtype] ) { 
 			$idtype = $key;
