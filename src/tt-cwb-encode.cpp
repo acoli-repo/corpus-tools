@@ -390,7 +390,7 @@ void treatfile ( string filename ) {
 				if ( xpath != "" ) {
 					pugi::xpath_node xres;
 					if ( external != "" ) {
-						if ( external.find("#") == string::npos ) { external = "#" + external; }; // For "incorrect" IDs
+						if ( external.find("#") == string::npos && external.substr(0,1) != "/" && external.substr(0,1) != "." ) { external = "#" + external; }; // For "incorrect" IDs
 						if ( debug > 2 ) { cout << "External XML lookup: " << external << endl; };
 						string tmp = doc.select_node(external.c_str()).attribute().value();
 						if ( debug > 3 ) { cout << " -- lookup value: " << tmp << endl; };
