@@ -395,7 +395,7 @@ void treatfile ( string filename ) {
 						if ( debug > 3 ) { cout << " -- lookup value: " << tmp << endl; };
 						  vector <string> exval;
 						  // Initialize srings
-						string exfile = "exval[0]";
+						  string exfile = "";
 						  if ( tmp != "" ) { 
 						  	exval = split( tmp, "#" ); 
 						  	exfile = exval[0];
@@ -403,13 +403,13 @@ void treatfile ( string filename ) {
 						if ( exfile != "" && exfile.substr(exfile.length()-4) == ".xml" && externals[exfile] == NULL ) {
 							exfile = "Resources/" + exfile;
 							if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << tmp << endl; };
-							externals[exval[0]] = new pugi::xml_document();
-							externals[exval[0]]->load_file(exfile.c_str());
+							externals[exfile] = new pugi::xml_document();
+							externals[exfile]->load_file(exfile.c_str());
 						};
 						if ( exfile.substr(exfile.length()-4) != ".xml" && debug > 0 ) {
 							cout << "Invalid external lookup: " << tmp << endl;
 						};
-						if ( externals[exval[0]] != NULL ) {
+						if ( exfile != "" && externals[exfile] != NULL ) {
 							if ( exval.size() > 1 ) {
 								string idlookup = "//*[@id=\""+exval[1]+"\"]";
 								if ( debug > 1 ) { cout << "ID lookup: " << idlookup << endl; };
@@ -423,7 +423,7 @@ void treatfile ( string filename ) {
 								};
 							} else {
 								try {
-									xres = externals[exval[0]]->first_child().select_node(xpath.c_str());
+									xres = externals[exfile]->first_child().select_node(xpath.c_str());
 								} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
 							};
 						} else if ( exfile == "" ) {
