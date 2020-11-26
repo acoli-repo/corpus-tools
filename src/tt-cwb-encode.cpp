@@ -234,7 +234,7 @@ void treatfile ( string filename ) {
 	}; // We can only treat XML files and assume those always end on .xml
 
     // Now - read the file
-	string sep;
+	string sep = "";
 
     if (!doc.load_file(filename.c_str())) {
         cout << "  Failed to load XML file " << filename << endl;
@@ -276,7 +276,7 @@ void treatfile ( string filename ) {
 	if ( cqpsettings.attribute("withemptytext") != NULL && toks.size() == 0 ) {
 		// If we have no tokens in this file, but need to keep empty texts, create a single empty token inside this text
 		if ( debug > 1 ) cout << "- We have no tokens in this file (" << tokxpath << ") - but we want to keep it, so let's make one" << endl;
-		string textxpath;
+		string textxpath = "";
 		if ( cqpsettings.attribute("xpath") != NULL ) {
 			textxpath = cqpsettings.attribute("xpath").value();
 		} else {
@@ -333,8 +333,7 @@ void treatfile ( string filename ) {
 	}
 	int pos2 = tokcnt-1;
 
-	string idname;
-	idname = filename;
+	string idname = filename;
 
 	// Add the default attributes for <text>
 	if ( debug > 0 ) {
@@ -362,7 +361,7 @@ void treatfile ( string filename ) {
 	};
 
 	// add the sattributes for all levels
-	string formkey; string formval;
+	string formkey = ""; string formval = "";
 	string rel_tokxpath = tokxpath;
 
 	if ( rel_tokxpath.substr(0,1) == "/" ) {
@@ -396,8 +395,11 @@ void treatfile ( string filename ) {
 						if ( debug > 3 ) { cout << " -- lookup value: " << tmp << endl; };
 						  vector <string> exval;
 						  // Initialize srings
-						  if ( tmp != "" ) { exval = split( tmp, "#" ); };
-						string exfile = exval[0];
+						string exfile = "exval[0]";
+						  if ( tmp != "" ) { 
+						  	exval = split( tmp, "#" ); 
+						  	exfile = exval[0];
+						  };
 						if ( exfile != "" && exfile.substr(exfile.length()-4) == ".xml" && externals[exfile] == NULL ) {
 							exfile = "Resources/" + exfile;
 							if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << tmp << endl; };
