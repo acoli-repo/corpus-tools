@@ -389,47 +389,49 @@ void treatfile ( string filename ) {
 				if ( xpath != "" ) {
 					pugi::xpath_node xres;
 					if ( external != "" ) {
+						string exfile = "";
 						if ( external.find("#") == string::npos && external.substr(0,1) != "/" && external.substr(0,1) != "." ) { external = "#" + external; }; // For "incorrect" IDs
 						if ( debug > 2 ) { cout << "External XML lookup: " << external << endl; };
 						string tmp = doc.select_node(external.c_str()).attribute().value();
 						if ( debug > 3 ) { cout << " -- lookup value: " << tmp << endl; };
-						  vector <string> exval;
-						  // Initialize srings
-						  string exfile = "";
-						  if ( tmp != "" ) { 
+						vector <string> exval;
+						// Initialize srings
+						if ( tmp != "" ) { 
 						  	exval = split( tmp, "#" ); 
 						  	exfile = exval[0];
-						  };
-						if ( exfile != "" && exfile.substr(exfile.length()-4) == ".xml" && externals[exfile] == NULL ) {
-							exfile = "Resources/" + exfile;
-							if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << tmp << endl; };
-							externals[exfile] = new pugi::xml_document();
-							externals[exfile]->load_file(exfile.c_str());
 						};
-						if ( exfile.substr(exfile.length()-4) != ".xml" && debug > 0 ) {
-							cout << "Invalid external lookup: " << tmp << endl;
-						};
-						if ( exfile != "" && externals[exfile] != NULL ) {
-							if ( exval.size() > 1 ) {
-								string idlookup = "//*[@id=\""+exval[1]+"\"]";
-								if ( debug > 1 ) { cout << "ID lookup: " << idlookup << endl; };
-								pugi::xml_node exnode;
-								try {
-									exnode = externals[exval[0]]->select_node(idlookup.c_str()).node();
-								} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
-								if ( debug > 2 ) { exnode.print(cout); };
-								if ( exnode ) {
-									xres = exnode.select_node(xpath.c_str());
-								};
-							} else {
-								try {
-									xres = externals[exfile]->first_child().select_node(xpath.c_str());
-								} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
+						if ( exfile != "" ) {
+							if ( exfile.substr(exfile.length()-4) == ".xml" && externals[exfile] == NULL ) {
+								exfile = "Resources/" + exfile;
+								if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << tmp << endl; };
+								externals[exfile] = new pugi::xml_document();
+								externals[exfile]->load_file(exfile.c_str());
 							};
-						} else if ( exfile == "" ) {
+							if ( exfile.substr(exfile.length()-4) != ".xml" && debug > 0 ) {
+								cout << "Invalid external lookup: " << tmp << endl;
+							};
+							if ( exfile != "" && externals[exfile] != NULL ) {
+								if ( exval.size() > 1 ) {
+									string idlookup = "//*[@id=\""+exval[1]+"\"]";
+									if ( debug > 1 ) { cout << "ID lookup: " << idlookup << endl; };
+									pugi::xml_node exnode;
+									try {
+										exnode = externals[exfile]->select_node(idlookup.c_str()).node();
+									} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
+									if ( debug > 2 ) { exnode.print(cout); };
+									if ( exnode ) {
+										xres = exnode.select_node(xpath.c_str());
+									};
+								} else {
+									try {
+										xres = externals[exfile]->first_child().select_node(xpath.c_str());
+									} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
+								};
+							};
+						} else if ( tmp != "" ) {
 							// this is a local "external" reference
 							string idlookup = "//*[@id=\""+exval[1]+"\"]";
-							if ( debug > 1 ) { cout << "ID lookup: " << idlookup << endl; };
+							if ( debug > 1 ) { cout << "Local ID lookup: " << idlookup << endl; };
 							pugi::xml_node exnode;
 							try {
 								exnode = doc.select_node(idlookup.c_str()).node();
