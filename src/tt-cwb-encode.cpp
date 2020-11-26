@@ -396,9 +396,9 @@ void treatfile ( string filename ) {
 						if ( debug > 3 ) { cout << " -- lookup value: " << tmp << endl; };
 						  vector <string> exval;
 						  // Initialize srings
-						  exval = split( tmp, "#" );
+						  if ( tmp != "" ) { exval = split( tmp, "#" ); };
 						string exfile = exval[0];
-						if ( exfile.substr(exfile.length()-4) == ".xml" && externals[exfile] == NULL ) {
+						if ( exfile != "" && exfile.substr(exfile.length()-4) == ".xml" && externals[exfile] == NULL ) {
 							exfile = "Resources/" + exfile;
 							if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << tmp << endl; };
 							externals[exval[0]] = new pugi::xml_document();
