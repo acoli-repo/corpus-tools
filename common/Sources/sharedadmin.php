@@ -141,7 +141,7 @@
 		
 		$date = date("Ymd"); 
 		check_folder("log");
-		$cmd = "cd $ttroot; /usr/bin/git pull 2>&1 > log/gitpull-$date";
+		$cmd = "cd $ttroot; /usr/bin/git pull > log/gitpull-$date";
 		shell_exec($cmd);
 		$output = file_get_contents("log/gitpull-$date");
 		
