@@ -139,8 +139,11 @@
 		if ( $user['permissions'] != "admin" ) { fatal("Not allowed"); };
 		if ( !is_writable($ttroot) ) { fatal("TEITOK cannot be updated from within the browser $gitfldr"); };
 		
-		$cmd = "cd $ttroot; /usr/bin/git pull 2>&1";
-		$output = shell_exec($cmd);
+		$date = date("Ymd"); 
+		check_folder("log");
+		$cmd = "cd $ttroot; /usr/bin/git pull 2>&1 > log/gitpull-$date";
+		shell_exec($cmd);
+		$output = file_get_contents("log/gitpull-$date");
 		
 		$maintext .= "<h1>Updating the TEITOK system</h1>
 			<p>TEITOK Git folder: $gitfldr</p>
