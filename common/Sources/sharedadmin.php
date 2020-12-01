@@ -146,7 +146,8 @@
 		$output = file_get_contents("log/gitpull-$date");
 		
 		$maintext .= "<h1>Updating the TEITOK system</h1>
-			<p>TEITOK Git folder: $gitfldr</p>
+			<p>TEITOK Git folder: $ttroot</p>
+			<p>Update response:
 			<pre>$output</pre>";
 		
 	} else if ( $act == "configcheck" ) {
