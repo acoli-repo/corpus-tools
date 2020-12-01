@@ -20,6 +20,19 @@
 	};
 	
 	if ( $logintype ) {
+
+		if ( file_exists("Users/cql_$shortuserid.xml") ) {
+			$xmlq = simplexml_load_file("Users/cql_$useridtxt.xml");
+			$maintext .= "<tr><th colspan=4>{%Permanently stored queries}";
+			foreach ( $xmlq->xpath("//query") as $sq ) {
+				$done[$sq['cql'].""] = 1; 
+				$display = $sq['name'] or $display = $sq['display'] or $display = $sq['cql'];
+				if ( $sq['display'] && $sq['name'] ) $desc = "<span title='".urldecode($sq['cql'])."'>{$sq['display']}</span>"; else $desc = $sq['display'] or $desc = $cql; if ( $desc == $display ) $desc = "";
+				$cqltxt = urlencode($sq['cql']);
+				$maintext .= "<tr><td><input type=checkbox name='myqueries[$cqltxt]' value='1'><td>$display<td><a href='index.php?action=$action&act=storedit&cql=$cqltxt'>{%edit}</a><td><a href='index.php?action=cqp&cql=$cqltxt'>{%view}</a><td>$desc";
+			};
+		};
+
 		$maintext .= "<p><a href='index.php?action=login&act=exit'>logout</a>";
 	};
 
