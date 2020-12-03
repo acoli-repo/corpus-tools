@@ -42,7 +42,47 @@
 		";
 		
 	if ( $_GET['show'] == "all" ) $all = 1;
-	
+
+	if ( $settings['defaults']['browser']['style'] == "facs" ) {
+		$maintext .= "
+			<script>
+			var facslist = {};
+			var intfunc = setInterval(rolling, 2000);
+			var intelm; var intcid; var intidx = 0;
+			function rollimages( elm ) {
+				var cid = elm.getAttribute('cid');
+				intcid = cid;
+				intelm = elm;
+				intidx = 0;
+				rolling();
+			};
+			function rolloff( elm ) {
+				var cid = elm.getAttribute('cid');
+				if ( facslist[cid] ) { elm.src = intelm.src = 'Facsimile/' + facslist[cid][0]; };
+				intcid = 0;
+			};
+			function rolling() {
+				if ( !intcid ) { return; }
+				if ( !facslist[intcid] ) {
+				  var xhttp = new XMLHttpRequest();
+				  xhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+					  var tmp = JSON.parse(this.responseText);
+					   facslist[tmp.cid] = tmp.facs;
+					   rolling();
+					}
+				  };
+				  var url = 'index.php?action=facsbrowse&ajax=1&cid='+intcid;
+				  xhttp.open('GET', url, true);
+				  xhttp.send();
+				} else {
+					intidx++; if ( intidx >= facslist[intcid].length ) { intidx = 0; };
+					intelm.src = 'Facsimile/' + facslist[intcid][intidx];
+				};
+			};
+			</script>
+			<table>";
+	};
 
 	if ( ( $class && $val ) || $all ) {
 
@@ -87,7 +127,7 @@
 
 
 		if ( $cnt > 0 ) {
-			if ( $settings['defaults']['browser']['style'] == "table" ) {
+			if ( $settings['defaults']['browser']['style'] == "table" || $settings['defaults']['browser']['style'] == "facs" ) {
 				$acnt = $bcnt = 0;
 				foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
 					if ( $key == $class ) continue;
@@ -107,6 +147,10 @@
 					$acnt++;
 					$atttit[$acnt] = $val;
 				};
+				if ( $settings['defaults']['browser']['style'] == "facs" && $settings['cqp']['pattributes']['facs'] ) {
+					$withfacs = 1;
+					$moreatts .= ", match facs";
+				};
 				$cqpquery = "tabulate Matches $start $stop match text_id$moreatts";
 				$results = $cqp->exec($cqpquery);
 				
@@ -117,8 +161,13 @@
 				};
 				if ( $start > 0 ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$before'; document.resubmit.submit();\">{%previous}</a>";
 				if ( $stop < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$stop'; document.resubmit.submit();\">{%next}</a>";
-				$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
-					<table><tr><th>ID$moreth";
+				if ( $settings['defaults']['browser']['style'] == "facs" ) {
+					$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
+						<table id=rollovertable>";
+				} else { 
+					$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
+						<table><tr><th>ID$moreth";
+				};
 				foreach ( $resarr as $line ) {
 					$fatts = explode ( "\t", $line ); $fid = array_shift($fatts);
 					if ( $admin ) {
@@ -138,7 +187,16 @@
 							} else $fatts[$key] = "{%$attit-$fatt}";
 						};
 					};
-					$maintext .= "<tr><td><a href='index.php?action=file&cid={$fid}'>{$fidtxt}</a><td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>".join ( "<td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>", $fatts );
+					if ( $settings['defaults']['browser']['style'] == "facs" ) {
+						$facs = array_pop($fatts);
+						$cid = preg_replace("/.*\//", "", $fid);
+						$opttit = $titelm or $opttit = $cid;
+						$ff = ""; if ( $withfacs && $facs ) $ff = "<a href='index.php?action=text&cid=$cid'><img onmouseover=\"rollimages(this);\" onmouseout=\"rolloff(this);\" cid=\"$cid\" style='height: 100px; object-fit: cover; width: 100px; margin-right: 10px;' src='Facsimile/$facs'/></a>";
+						$maintext .= "<tr><td style='background-color: white;'>$ff
+							<td><a href='index.php?action=file&cid=$cid' style='font-size: large;'>$opttit</a><p>".join ( "<br/>", $fatts );
+					} else {
+						$maintext .= "<tr><td><a href='index.php?action=file&cid={$fid}'>{$fidtxt}</a><td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>".join ( "<td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>", $fatts );
+					};
 				};
 				$maintext .= "</table>";
 
