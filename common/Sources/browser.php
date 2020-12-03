@@ -81,7 +81,7 @@
 				};
 			};
 			</script>
-			<table>";
+			";
 	};
 
 	if ( ( $class && $val ) || $all ) {
