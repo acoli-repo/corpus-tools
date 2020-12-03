@@ -168,8 +168,10 @@
 					$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
 						<table><tr><th>ID$moreth";
 				};
+				if ( !$settings['defaults']['browser']['title'] ) $settings['defaults']['browser']['title'] = "title";
 				foreach ( $resarr as $line ) {
 					$fatts = explode ( "\t", $line ); $fid = array_shift($fatts);
+					if ( !$fid ) continue; # Skip empty rows
 					if ( $admin ) {
 						$fidtxt = preg_replace("/^\//", "", $fid );
 					} else {
@@ -179,6 +181,10 @@
 					foreach ( $fatts as $key => $fatt ) {
 						if ( $key == $class ) continue;
 						$attit = $atttik[$key];
+						if ( $attit == $settings['defaults']['browser']['title'] ) {
+							$titelm = $fatt;
+							unset($fatts[$key]);
+						};
 						$tmp = $settings['cqp']['sattributes']['text'][$attit]['type'];
 						if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" || $settings['cqp']['sattributes']['text'][$attit]['translate'] ) {
 							if ( $settings['cqp']['sattributes']['text'][$attit]['values'] == "multi" ) {
@@ -217,8 +223,10 @@
 				};
 				$maintext .= "</ul>";
 			};
-		} else if ( $username ) $maintext .= "<p class=adminpart>Failed query: ".htmlentities($cqpquery);
-
+		} else {
+			if ( $username ) $maintext .= "<p class=adminpart>Failed query: ".htmlentities($cqpquery);
+		};
+		
 	} else if ( $class ) {
 
 		$item = $settings['cqp']['sattributes']['text'][$class];
