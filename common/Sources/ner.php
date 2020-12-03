@@ -125,6 +125,7 @@
 			var hlid = '{$_GET['hlid']}';
 			var mtxt = document.getElementById('mtxt');
 			var nerdata = {};
+			var jmp = '{$_GET['jmp']}';
 			
 			var tokinfo = document.getElementById('tokinfo');
 			if ( !tokinfo ) {
@@ -132,6 +133,12 @@
 				tokinfo.setAttribute('id', 'tokinfo');
 				document.body.appendChild(tokinfo);
 			};
+
+			if ( jmp ) { 
+				var it = document.getElementById(jmp);
+				it.style['backgroundColor'] = '#ffffbb'; 
+				it.scrollIntoView(true); 
+			}; // TODO: this should depend on jmp
 			
 			var nercolor;
 			for ( var i=0; i<Object.keys(nerlist).length; i++) {
@@ -155,7 +162,7 @@
 					};
 					if ( it.getAttribute(nerlist[tmp]['nerid']) == hlid ) { 
 						it.style['backgroundColor'] = '#ffffbb'; 
-						it.scrollIntoView(true); // TODO: this should depend on jmp
+						if ( !jmp ) { it.scrollIntoView(true); }; // TODO: this should depend on jmp
 					}
 				};
 			};
