@@ -36,6 +36,7 @@
     $menu .= "<ul style='text-align: left'>";
         	
     foreach ( $settings['menu']['itemlist'] as $key => $item ) { 
+    	if ( !is_array($item) ) continue; # Skip attributes
     	if ( $item['link'] ) $link = $item['link'];
     	else if ( substr($key,0,4) == "http" ) $link = $key;
     	else $link = "{$tlpr}index.php?action=$key";

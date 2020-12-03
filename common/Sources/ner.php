@@ -124,6 +124,7 @@
 			var nerlist = $nerjson;
 			var hlid = '{$_GET['hlid']}';
 			var mtxt = document.getElementById('mtxt');
+			var nerdata = {};
 			
 			var tokinfo = document.getElementById('tokinfo');
 			if ( !tokinfo ) {
@@ -139,7 +140,6 @@
 				if ( !tagelm ) { tagelm = tmp; };
 				var its = mtxt.getElementsByTagName(tagelm);
 				nercolor = nerlist[tmp]['color']; if ( !nercolor ) { nercolor = 'green'; };
-				console.log('color: ' + nercolor);
 				for ( var a = 0; a<its.length; a++ ) {
 					var it = its[a];	
 					it.style.color = nercolor;
@@ -185,22 +185,7 @@
 			nername = showelement.nodeName;
 			if ( nertype ) nername =  nertype['display'];
 			infoHTML = '<table><tr><th>' + nername + '</th><td><b><i>'+ showelement.innerHTML +'</i></b></td></tr>';
-			
-			var idfld = 'corresp';
-		    if ( nertype ) idfld =  nertype['nerid'];
-		    var nerid = showelement.getAttribute(idfld)
-			if ( nerid ) {
-				// start Ajax to replace info by full data
-				  var xhttp = new XMLHttpRequest();
-				  xhttp.onreadystatechange = function() {
-					if (this.readyState == 4 && this.status == 200) {
-					 tokinfo.innerHTML = this.responseText;
-					}
-				  };
-				  xhttp.open('GET', 'index.php?action=$action&act=snippet&nerid='+encodeURIComponent(nerid), true);
-				  xhttp.send();
-			};
-			
+
 			tokinfo.style.display = 'block';
 			var foffset = offset(showelement);
 			if ( typeof(poselm) == \"object\" ) {
@@ -212,6 +197,27 @@
 			infoHTML += '</table>';
 
 			tokinfo.innerHTML = infoHTML;
+			
+			var idfld = 'corresp';
+		    if ( nertype ) idfld =  nertype['nerid'];
+		    var nerid = showelement.getAttribute(idfld)
+			if ( nerid ) {
+				if ( nerdata[nerid] ) {
+				  tokinfo.innerHTML = nerdata[nerid];
+				} else {
+					// start Ajax to replace info by full data
+					  var xhttp = new XMLHttpRequest();
+					  xhttp.onreadystatechange = function() {
+						if (this.readyState == 4 && this.status == 200) {
+						 nerdata[nerid] = this.responseText;
+						 tokinfo.innerHTML = this.responseText;
+						}
+					  };
+					  xhttp.open('GET', 'index.php?action=$action&act=snippet&nerid='+encodeURIComponent(nerid), true);
+					  xhttp.send();
+				};
+			};
+			
 
 		};
 

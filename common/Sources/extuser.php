@@ -3,7 +3,7 @@
 	$maintext .= "<h1>Visitor Session</h1>";
 
 	if ( $user['email']) {
-		$maintext .= "<p>You are currently logged in as corpus administrator <a href='index.php?action=user'>{$user['realname']}</a>";
+		$maintext .= "<p>You are currently logged in as <a href='index.php?action=user'>corpus administrator {$user['realname']}</a>";
 		$logintype = "admin";
 	};
 	
