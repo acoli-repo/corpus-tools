@@ -163,7 +163,7 @@
 				if ( $stop < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$stop'; document.resubmit.submit();\">{%next}</a>";
 				if ( $settings['defaults']['browser']['style'] == "facs" ) {
 					$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
-						<table id=rollovertable>";
+						<table id=facstable>";
 				} else { 
 					$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
 						<table><tr><th>ID$moreth";

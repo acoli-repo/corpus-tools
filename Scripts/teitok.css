@@ -114,3 +114,18 @@ anon::after { content: ']'; }
 	background-color: #ffffee; 
 	border: 1px solid #ffddaa;
 }
+
+#facstable {
+	border-collapse: separate;
+	border-spacing: 0 15px;
+}
+#facstable tr:hover {
+	background-color: #ffffdd;
+}
+#facstable td {
+	border-bottom: 1px  dotted #eeeeee;
+	padding: 0 5px 0 5px; 
+}
+#facstable img {
+	margin-bottom: 5px;
+}
