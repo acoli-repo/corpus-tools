@@ -1,5 +1,6 @@
 <?php
 	$i18n = array (
+		"back to list" => "back to list",
 		"select" => "select",
 		"Distribution" => "Distribution",
 		"Query" => "Query",
@@ -7,7 +8,6 @@
 		"Count" => "Count",
 		"Percentage" => "Percentage",
 		"to annotation list" => "to annotation list",
-		"back to list" => "back to list",
 		"text view" => "text view",
 		"edit definitions" => "edit definitions",
 		"show as list" => "show as list",

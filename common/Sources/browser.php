@@ -72,7 +72,7 @@
 					   rolling();
 					}
 				  };
-				  var url = 'index.php?action=facsbrowse&ajax=1&cid='+intcid;
+				  var url = 'index.php?action=ajax&data=facs&cid='+intcid;
 				  xhttp.open('GET', url, true);
 				  xhttp.send();
 				} else {
