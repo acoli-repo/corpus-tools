@@ -58,7 +58,7 @@
 			};
 			function rolloff( elm ) {
 				var cid = elm.getAttribute('cid');
-				if ( facslist[cid] ) { elm.src = intelm.src = 'Facsimile/' + facslist[cid][0]; };
+				if ( facslist[cid] ) { elm.src = intelm.src = facslist[cid][0]; };
 				intcid = 0;
 			};
 			function rolling() {
@@ -77,7 +77,7 @@
 				  xhttp.send();
 				} else {
 					intidx++; if ( intidx >= facslist[intcid].length ) { intidx = 0; };
-					intelm.src = 'Facsimile/' + facslist[intcid][intidx];
+					intelm.src = facslist[intcid][intidx];
 				};
 			};
 			</script>
@@ -197,7 +197,10 @@
 						$facs = array_pop($fatts);
 						$cid = preg_replace("/.*\//", "", $fid);
 						$opttit = $titelm or $opttit = $cid;
-						$ff = ""; if ( $withfacs && $facs ) $ff = "<a href='index.php?action=text&cid=$cid'><img onmouseover=\"rollimages(this);\" onmouseout=\"rolloff(this);\" cid=\"$cid\" style='height: 100px; object-fit: cover; width: 100px; margin-right: 10px;' src='Facsimile/$facs'/></a>";
+						$ff = ""; if ( $withfacs && $facs ) {
+							if ( file_exists("Thumbnails/$facs") ) $ffolder = "Thumbnails"; else $ffolder = "Facsimile";
+							$ff = "<a href='index.php?action=text&cid=$cid'><img onmouseover=\"rollimages(this);\" onmouseout=\"rolloff(this);\" cid=\"$cid\" style='height: 100px; object-fit: cover; width: 100px; margin-right: 10px;' src='$ffolder/$facs'/></a>";
+						};
 						$maintext .= "<tr><td style='background-color: white;'>$ff
 							<td><a href='index.php?action=file&cid=$cid' style='font-size: large;'>$opttit</a><p>".join ( "<br/>", $fatts );
 					} else {
