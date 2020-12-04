@@ -129,3 +129,9 @@ anon::after { content: ']'; }
 #facstable img {
 	margin-bottom: 5px;
 }
+#facstable .subtable th {
+	background: none;
+	border: none;
+	font-weight: bold;
+	opacity: 0.5;
+}

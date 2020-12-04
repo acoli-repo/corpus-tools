@@ -138,15 +138,15 @@
 						if ( $fldval != "" ) $fldtxt = " ($fldval)";
 						else $fldtxt = "";
 					} else if ( $item['noshow'] ) {
-						# Ignore year if there also is a date
+						# Ignore items that are not to be shown
 					} else if ( $key != "id" ) {
 						$moreatts .= ", match $xkey";
 						$moreth .= "<th>{%$val}";
 						$atttik[$bcnt] = $key; $bcnt++;
+						$atttit[$acnt] = $val;
+						$acnt++;
 					};
-					$acnt++;
-					$atttit[$acnt] = $val;
-				};
+				}; 
 				if ( $settings['defaults']['browser']['style'] == "facs" && $settings['cqp']['pattributes']['facs'] ) {
 					$withfacs = 1;
 					$moreatts .= ", match facs";
@@ -202,7 +202,11 @@
 							$ff = "<a href='index.php?action=text&cid=$cid'><img onmouseover=\"rollimages(this);\" onmouseout=\"rolloff(this);\" cid=\"$cid\" style='height: 100px; object-fit: cover; width: 100px; margin-right: 10px;' src='$ffolder/$facs'/></a>";
 						};
 						$maintext .= "<tr><td style='background-color: white;'>$ff
-							<td><a href='index.php?action=file&cid=$cid' style='font-size: large;'>$opttit</a><p>".join ( "<br/>", $fatts );
+							<td><a href='index.php?action=file&cid=$cid' style='font-size: large;'>$opttit</a><table class='subtable'>";
+						foreach ( $fatts as $key => $val ) { 
+							if ( $val != "_") $maintext .= "<tr><th>{$atttit[$key]}</th><td>$val</td></tr>"; 
+						};
+						$maintext .= "</table>";
 					} else {
 						$maintext .= "<tr><td><a href='index.php?action=file&cid={$fid}'>{$fidtxt}</a><td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>".join ( "<td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>", $fatts );
 					};
