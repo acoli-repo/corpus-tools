@@ -225,7 +225,7 @@
 				list ( $cvl, $cnt ) = explode ( "\t", $line );
 			
 				if ( $key == "project" ) $cvlt = $settings['projects'][$cvl]['name'];
-				else if ( $val['type'] == "kselect" ) $cvlt = "{%$key-$cvl}"; 
+				else if ( $val['type'] == "kselect" || $val['translate'] ) $cvlt = "{%$key-$cvl}"; 
 				else $cvlt = $cvl;
 				if ( $cvl ) $maintext .= "<tr><th>$cvlt<td style='text-align: right; padding-left: 10px;'>".number_format($cnt);
 			};
