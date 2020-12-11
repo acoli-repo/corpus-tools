@@ -15,7 +15,7 @@
 	$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
 
 	if ( $settings['defaults']['locale'] ) $localebit = ", '{$settings['defaults']['locale']}'";
-
+	$docname = $settings['defaults']['browser']['documents'] or $docname = "documents";
 
 	# Create the selected options
 	$sep = " :: "; foreach ( $_GET['q'] as $rp ) {
@@ -238,7 +238,7 @@
 				$results = $cqp->exec($cqpquery);
 				
 				$resarr = explode ( "\n", $results ); $scnt = count($resarr);
-				$maintext .= "<p>$path<p>$cnt {%results}";
+				$maintext .= "<p>$path<p>$cnt {%$docname}";
 				if ( $scnt < $cnt ) {
 					$maintext .= " &bull; {%!showing} $start - $stop";
 				};
