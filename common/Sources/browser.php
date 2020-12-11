@@ -40,6 +40,91 @@
 			};
 		</script>
 		";
+
+	# Deal with subselection style
+	if ( $settings['defaults']['browser']['select'] == "menu" ) {
+		$subsel = 1; $all = 1;
+	
+		# Show the selected options
+		$sep = " :: "; foreach ( $_GET['q'] as $rp ) {
+			list ( $fld, $val ) = explode(":", $rp);
+			$valtxt = $val; $fldtxt = $settings['cqp']['sattributes']['text'][$fld]['display'] or $fldtxt = $fld;
+			if ( $settings['cqp']['sattributes']['text'][$fld]['translate'] ) $valtxt = "{%$fld-$valtxt}";
+			$sels .= "<div class='selbox' title='$fldtxt'><span rst=\"$rp\" onclick='del(this);' class='x'>x</span> $valtxt</div>";
+			$cqlrest .= $sep."match.text_$fld = \"$val\""; $sep = " & ";
+			$jsrest .= "'$rp',";
+		};
+		$selmenu .= "<p>$sels</p>";
+
+		# Make the menu bar options
+		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
+			if ( !is_array($item) || $item['type'] != "select" ) continue;
+			$selmenu .= "<h2>{$item['display']}</h2>";
+			$xkey = "text_$key";
+
+			$tmp = file_get_contents("$cqpfolder/$xkey.avs"); unset($optarr); $optarr = array();
+			foreach ( explode ( "\0", $tmp ) as $kva ) { 
+				if ( $kva ) {
+					if ( $item['values'] == "multi" ) {
+						$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+						$kvl = explode ( $mvsep, $kva );
+					} else {
+						$kvl = array ( $kva );
+					}
+				
+					foreach ( $kvl as $kval ) {
+						if ( $item['type'] == "kselect" || $item['translate']  ) $ktxt = "{-%$key-$kval}"; else $ktxt = $kval;
+						if ( $presets[$xkey] == $kval ) $sld = "selected"; else $sld = "";
+						$optarr[$kval] = "<p onclick=\"add(this);\" rst =\"$key:$kval\");\">$ktxt</p>"; 
+					};
+				};
+				foreach ( $kvl as $kval ) {
+					if ( $kval && $kval != "_" ) {
+						if ( $item['type'] == "kselect" || $item['translate'] ) $ktxt = "{%$key-$kval}"; 
+							else $ktxt = $kval;
+						if ( $presets[$xkey] == $kval ) $sld = "selected"; else $sld = "";
+						$optarr[$kval] = "<p onclick=\"add(this);\" rst =\"$key:$kval\");\">$ktxt</p>"; 
+					};
+				};
+			};
+			if ( $item['sort'] == "numeric" ) sort( $optarr, SORT_NUMERIC ); 
+			else sort( $optarr, SORT_LOCALE_STRING ); 
+			$optlist = join ( "", $optarr );
+		
+			$selmenu .= "<div>$optlist</div>";
+		};
+	
+		$maintext .= "<div id=floatbox>$selmenu</div>
+			<script>
+				var jsrest = [$jsrest];
+				function add(elm) {
+					var rst = elm.getAttribute('rst');
+					jsrest.push(rst);
+					elm.style.display = 'none';
+					requery();
+				};
+				function del(elm) {
+					var i = 0;
+					var rst = elm.getAttribute('rst');
+					while ( i < jsrest.length) {
+						if (jsrest[i] === rst) {
+						  jsrest.splice(i, 1);
+						} else {
+						  ++i;
+						}
+					};
+					elm.parentNode.style.display = 'none';
+					requery();
+				};
+				function requery() {
+					newurl = 'index.php?action=$action';
+					for ( var i =0; i < jsrest.length; i++ ) {
+						newurl += '&q[]='+jsrest[i];
+					};
+					top.location = newurl;
+				};
+			</script>";
+	};			
 		
 	if ( $_GET['show'] == "all" ) $all = 1;
 
@@ -101,7 +186,7 @@
 
 		# $val = htmlentities($val);
 		$qval = preg_quote($val);
-		if ( $all ) $cqpquery = "Matches = <text> []";
+		if ( $all ) $cqpquery = "Matches = <text> [] $cqlrest";
 		else if ( $item['values'] == "multi" ) $cqpquery = "Matches = <text> [] :: match.text_$class = '.*$qval.*'";
 		else $cqpquery = "Matches = <text> [] :: match.text_$class = '$qval'";
 		$cqp->exec($cqpquery);
@@ -122,7 +207,8 @@
 			$nav = " - {%showing} $beg - $stop - $bnav";
 		};
 		
-		if ( $all ) $path = "<a href='index.php?action=$action'>{%!documents}</a> > all";
+		if ( $subsel ) $path = "";
+		else if ( $all ) $path = "<a href='index.php?action=$action'>{%!documents}</a> > all";
 		else $path = "<a href='index.php?action=$action'>{%!documents}</a> > <a href='index.php?action=$action&class=$class'>{%$cat}</a> > $val";
 
 

@@ -344,7 +344,7 @@
 								}
 								
 								foreach ( $kvl as $kval ) {
-									if ( $item['type'] == "kselect" ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
+									if ( $item['type'] == "kselect" || $item['translate']  ) $ktxt = "{%$key-$kval}"; else $ktxt = $kval;
 									if ( $presets[$xkey] == $kval ) $sld = "selected"; else $sld = "";
 									$optarr[$kval] = "<option value='$kval' $sld>$ktxt</option>"; 
 								};
