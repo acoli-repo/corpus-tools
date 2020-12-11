@@ -51,6 +51,7 @@
 			$valtxt = $val; $fldtxt = $settings['cqp']['sattributes']['text'][$fld]['display'] or $fldtxt = $fld;
 			if ( $settings['cqp']['sattributes']['text'][$fld]['translate'] ) $valtxt = "{%$fld-$valtxt}";
 			$sels .= "<div class='selbox' title='$fldtxt'><span rst=\"$rp\" onclick='del(this);' class='x'>x</span> $valtxt</div>";
+			$val = preg_quote($val);
 			$cqlrest .= $sep."match.text_$fld = \"$val\""; $sep = " & ";
 			$jsrest .= "'$rp',";
 		};
