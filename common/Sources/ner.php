@@ -90,7 +90,8 @@
 		foreach ( $settings['xmlfile']['ner']['tags'] as $tmp ) if ( $tmp['elm'] == $etype ) $nerdef = $tmp;
 		$sattdef = $settings['xmlfile']['sattributes'][$etype];
 		
-		$maintext .= "<h1>Edit Named Entity</h1>
+		$maintext .= "<h2>Edit Named Entity</h2>
+			<h1>".$ttxml->title()."</h1>
 			<h2>Entity type ($nerid): ".$etype." = {$sattdef['display']}</h2>
 			
 			<form action='index.php?action=toksave' method=post name=tagform id=tagform>

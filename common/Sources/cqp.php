@@ -386,7 +386,6 @@
 
 			if ( $debug ) $maintext .= "<p>TABULATE COMMAND:<br>$cqpquery";
 
-
 			$resarr = explode ( "\n", $results ); $scnt = count($resarr);
 			$maintext .= "<p>$cnt {%results}";
 			if ( $scnt < $cnt ) {
@@ -557,7 +556,10 @@
 						$attit = pattname($key); 
 						$attval = $resultarray[$idx]; $idx++;
 						if ( $attval == "_" ) $attval = "";
-						$metainfo .= "<td title='{%$attit}' class='kwic_$key'>$attval</a>";
+						list ( $kds, $kda ) = explode("_", $key); 
+						if ( $settings['cqp']['sattributes'][$kds][$kda]['translate'] ) $attval = "{%$kda-$attval}";
+						$style = ""; if ( $val['color'] ) $style = " style=\"color: {$val['color']}\"";
+						$metainfo .= "<td title='{%$attit}' class='kwic_$key' $style>$attval</a>";
 					};
 				};
 				

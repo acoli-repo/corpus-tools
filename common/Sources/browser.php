@@ -167,6 +167,7 @@
 				
 					foreach ( $kvl as $kval ) {
 						if ( $item['type'] == "kselect" || $item['translate']  ) $ktxt = "{-%$key-$kval}"; else $ktxt = $kval;
+						if ( $ktxt == "_" ) $ktxt = "none";
 						if ( $presets[$xkey] == $kval ) $sld = "selected"; else $sld = "";
 						$optarr[$kval] = "<p onclick=\"add(this);\" rst =\"$key:$kval\");\">$ktxt ($kcnt)</p>"; 
 					};
