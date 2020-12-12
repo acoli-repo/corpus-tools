@@ -154,7 +154,17 @@ use XML::LibXML;
 		$cnt++;
 		$ttnode->setAttribute('id', "app-$cnt");
 	}; 
+
 	
+	# Number the named entities
+	$cnt = 1;
+	foreach $nerelm ( split(",", "term,placeName,personName,orgName") ) {
+		foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//$nerelm")) {
+			while ( $tmpdoc->findnodes("$mtxtelem//$nerelm\[\@id=\"ner-$cnt\"\]") ) { $cnt++; };
+			if ( !$ttnode->getAttribute('id') )  { $ttnode->setAttribute('id', "ner-$cnt"); };
+		}; 
+	};
+		
 	# Number any custom defined items
 	if ( $xx ne '' ) {
 		$cnt = 0;

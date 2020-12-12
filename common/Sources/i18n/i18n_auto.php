@@ -150,7 +150,6 @@
 		"Lemma" => "Lemma",
 		"Occurrences" => "Occurrences",
 		"back" => "back",
-		"Named Entity View" => "Named Entity View",
 		"List names" => "List names",
 		"External links" => "External links",
 		"Select" => "Select",

@@ -3,6 +3,8 @@
 	# Name-oriented document view and name index
 	# Maarten Janssen, 2020
 
+	$viewname = $settings['xmlfile']['ner']['title'] or $viewname = "Named Entity View";
+
 	if ( !$_GET['cid'] ) $_GET['cid']  = $_GET['id'];
 	$nertitle = $settings['xmlfile']['ner']['title'] or $nertitle = "Named Entities";
 	$neritemname = $settings['xmlfile']['ner']['item'] or $neritemname = "entity";
@@ -69,6 +71,220 @@
 		$maintext .= "</table>
 				<hr> <a href='index.php?action=$action&cid={$ttxml->fileid}'>{%back}</a>";
 
+	} else if ( $_GET['cid'] && $act == "edit" ) {
+
+		check_login(); 
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		if ( !$ttxml ) fatal("Failed to load $ttxml");
+		$fileid = $ttxml->fileid;
+		$xmlid = $ttxml->xmlid;
+		$xml = $ttxml->xml;
+
+		$nerid = $_GET['nerid'] or $nerid = $_GET['id'];
+		$result = $xml->xpath("//*[@id='$nerid']"); 
+		$elm = $result[0]; # print_r($token); exit;
+		if ( !$elm ) fatal("No such element: $nerid");
+		$etype = $elm->getName();
+		
+		foreach ( $settings['xmlfile']['ner']['tags'] as $tmp ) if ( $tmp['elm'] == $etype ) $nerdef = $tmp;
+		$sattdef = $settings['xmlfile']['sattributes'][$etype];
+		
+		$maintext .= "<h1>Edit Named Entity</h1>
+			<h2>Entity type ($nerid): ".$etype." = {$sattdef['display']}</h2>
+			
+			<form action='index.php?action=toksave' method=post name=tagform id=tagform>
+			<input type=hidden name=cid value='$fileid'>
+			<input type=hidden name=tid value='$nerid'>
+			<table>";
+
+		foreach ( $sattdef as $key => $item ) {
+			if ( !is_array($item) ) continue;
+			$itemtxt = $item['display'];
+			$atv = $elm[$key]; 
+			$maintext .= "<tr><th>$key<td>$itemtxt<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
+		};
+
+		$result = $xml->xpath($mtxtelement); 
+		$txtxml = $result[0]; 
+
+		$maintext .= "</table>";
+
+		$maintext .= "<hr>
+		<input type=submit value=\"Save\">
+		<button onClick=\"window.open('index.php?action=file&cid=$fileid', '_self');\">Cancel</button></form>
+		<!-- <a href='index.php?action=file&cid=$fileid'>Cancel</a> -->
+		<hr><div id=mtxt>".$txtxml->asXML()."</div>
+		<script language=Javascript>
+			var telm = document.getElementById('$nerid');
+			telm.style.backgroundColor = '#ffffaa';
+		</script>
+		";
+
+		$correspid = $elm['corresp']; $elmtext = preg_replace("/<[^>]+>/", "", $elm->asXML());
+		if ( $correspid && file_exists("Resources/$nerfile") ) {
+			$nerid = $correspid; if ( strpos($nerid, '#') ) $nerid = substr($nerid, strpos($nerid, '#')+1);
+			$maintext .= "<hr><h2>Linked Entity $nerid</h2>";
+			if ( $nerxml ) {
+				$nerrec = current($nerxml->xpath("//*[@id=\"$nerid\"]"));
+				if ( $nerrec ) {
+					$maintext .= "<p><pre>".htmlentities($nerrec->asXML())."</pre>";
+				} else {
+					$maintext .= "<i>No such NER element: $nerid</i>";
+				};
+			} else {
+				$maintext .= "<i>Failed to load: $nerfile</i>";
+			};
+		} else {
+			## Attempt to find a corresponding record by looking at CQP corpus
+			$nerlist = getcqpner($nerdef['key']); 
+
+			foreach ( $nerlist as $line ) {
+				list ($nertext, $ref) = explode("\t", $line);
+				if ( $nertext == $elmtext && $nertext ) { 
+					$nerid = $ref; if ( strpos($ref, '#') ) $nerid = substr($ref, strpos($ref, '#')+1);
+					$nerrec = current($nerxml->xpath("//*[@id=\"$nerid\"]"));
+					$nerlemma = "undefined"; 
+					if ( $nerrec ) { 
+						$nerlemma = current($nerrec->xpath(".//{$nerdef['elm']}"));
+					};
+					$linkoptions .= "<tr><td><a onclick=\"var celm = document.getElementById('tagform').elements['atts[corresp]']; if ( celm ) { celm.value = '$ref'; } else { alert('no corresp'); };\">$ref</a><td>$nertext<td>$nerlemma";
+				};
+			};
+			
+			if ( $linkoptions ) $maintext .= "<h2>Potential Links for '$elmtext'</h2>
+				<table>
+				<tr><th>Reference ID<th>Previous occurrence<th>Reference form
+				$linkoptions
+				</table>
+				";
+		};
+
+	} else if ( $_GET['cid'] && $act == "detect" ) {
+
+		check_login(); 
+		
+
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		if ( !$ttxml ) fatal("Failed to load $ttxml");
+		$fileid = $ttxml->fileid;
+		$xmlid = $ttxml->xmlid;
+		$xml = $ttxml->xml;
+
+		$maintext .= "<h2>Automatic NER linking</h2>
+			<h1>$ttxml->title</h1>
+			<p>Below is the list of all possible Named Entities in the text, based on previously marked NER
+				in the CQP corpus
+			<script language=Javascript src=\"$jsurl/ner.js\"></script>";
+
+		$toklist = array(); $tcnt=0;
+		foreach ( $ttxml->xml->xpath("//tok") as $tok ) {
+			$toktext = preg_replace("/<[^>]+>/", "", $tok->asXML());
+			array_push($toklist, $toktext);
+			$tok2id[$tcnt] = $tok['id'];
+			$tok2xml[$tcnt] = $tok;
+			$tcnt++;
+		};
+
+		# Auto-detect possible NER
+		$nerlist = getcqpner();
+		$maintext .= "<table>
+			<tr><th>Text<th>NER reference<th>NER record";
+		$opts = " .//name "; $paropts = " .//ancestor::name "; 
+		foreach ( $settings['xmlfile']['ner']['tags'] as $key=>$tag ) {
+			$opts .= " | .//{$tag['elm']}"; 
+			$paropts .= " | .//ancestor::{$tag['elm']} "; 
+		};
+		foreach ( $nerlist as $line ) {
+			list ($nertext, $ref) = explode("\t", $line);
+			if ( $ref == "_" || $ref == "" ) continue;
+			$nertoks = explode(" ", $nertext);
+			$begins = array_keys($toklist, $nertoks[0]);
+			foreach ( $begins as $opt ) {
+				$matches = 1; $nermatch = ""; $idlist = "";
+				foreach ( $nertoks as $key => $val ) {
+					if ( $val != $toklist[$opt+$key] ) $matches = 0;
+					$idlist .= $tok2id[$opt+$key].";";
+				};
+				if ( $matches ) {
+					if ( !$nerlemmas[$ref] ) {
+						$nerid = $ref; if ( strpos($nerid, '#') ) $nerid = substr($nerid, strpos($nerid, '#')+1);
+						$nerrec = current($nerxml->xpath("//*[@id=\"$nerid\"]"));
+						if ( $nerrec ) {
+							$lemma = current($nerrec->xpath($opts));
+							if ( !$lemma ) $lemma = "<i>No lemma found in record</i>";
+							$nerlemmas[$ref] = $lemma;
+						} else {
+							$nerlemmas[$ref] = "<i>No such NER element: $nerid</i>";
+						};
+					};
+					$style = "";
+					$tmp = current($tok2xml[$opt]->xpath($paropts)); $parname = "";
+					if ( $tmp ) { 
+						$parelm = $tmp->getName();
+						$parname = " ($parelm)";
+						foreach ( $settings['xmlfile']['ner']['tags'] as $tmp ) if ( $tmp['elm'] == $parelm ) $pardef = $tmp;
+						$style = "style=\"opacity: 0.3; background-color: {$pardef['color']};\""; 
+					};
+					$maintext .= "<tr $style><td onClick=\"jumpto('$idlist');\" onMouseOver=\"highlight('$idlist');\" style=\"color: {$typedef['color']}\">$nertext$parname<td>$ref<td>{$nerlemmas[$ref]}";
+				};
+			};
+		}
+		$maintext .= "</table>";
+
+		$result = $ttxml->xml->xpath($mtxtelement); 
+		$txtxml = $result[0]; 
+		$maintext .= "<hr><div id=mtxt>".$txtxml->asXML()."</div>";
+
+	} else if ( $_GET['cid'] && $act == "addner" ) {
+
+		check_login(); 
+
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		if ( !$ttxml ) fatal("Failed to load $ttxml");
+		$fileid = $ttxml->fileid;
+		$xmlid = $ttxml->xmlid;
+		$xml = $ttxml->xml;
+		
+		if ( !is_writable("xmlfiles/".$ttxml->filename) ) fatal("Not writable: $ttxml->filename");
+
+		$dom = dom_import_simplexml($ttxml->xml)->ownerDocument;
+		$xpath = new DOMXpath($dom);
+	
+		# Attermpt to add an element around the indicated tokens
+		$idlist = explode(";", preg_replace("/;+$/", "", $_POST['toklist']));
+		$first = $idlist[0]; $last = end($idlist);
+		
+		print "<p>Creating new range $first - $last";
+		$tmp = $xpath->query("//tok[@id=\"$first\"]");
+		if ( !$tmp ) fatal ("Token not found: $first");
+		$el1 = $tmp->item(0);
+		
+		$nertype = $_POST['type'] or $nertype = "name";
+		$nerdef = $settings['xmlfile']['ner']['tags'][$nertype];
+		$nerelm = $nerdef['elm'] or $nerelm = "name";
+		$newner = $dom->createElement($nerelm);
+		$cnt=1;
+		while ( $ttxml->xml->xpath("//*[@id=\"ner-$cnt\"]") ) { $cnt++; };
+		$newner->setAttribute("id", "ner-$cnt");
+		
+		$el1->parentNode->insertBefore($newner, $el1); $nextnode = $newner;
+		print "<p>Created: ".htmlentities($dom->saveXML($nextnode));
+		while ( $nextnode  ) {
+			$nextnode = $newner->nextSibling;
+			print "<p>Adding: ".htmlentities($dom->saveXML($nextnode));
+			$tmp = $newner->appendChild($nextnode);
+			if ( $nextnode->nodeType == 1 && $nextnode->getAttribute('id') == $last ) break;
+		}; 
+		
+		saveMyXML($ttxml->xml->asXML(), $ttxml->filename);
+		$nexturl = "index.php?action=$action&act=edit&cid=$fileid&nerid=".$newner->getAttribute("id");
+		print "<hr><p>Your NER has been inserted - reloading to <a href='$nexturl'>the edit page</a>";
+		print "<script langauge=Javasript>top.location='$nexturl';</script>";		
+		exit;
+	
 	} else if ( $act == "snippet" ) {
 	
 		$nerid = preg_replace("/.*#/", "", $_GET['nerid']);
@@ -108,11 +324,30 @@
 		$xmlid = $ttxml->xmlid;
 		$xml = $ttxml->xml;
 
-		$maintext .= "<h2>{%Named Entity View}</h2><h1>".$ttxml->title()."</h1>";
+		$maintext .= "<h2>{%$viewname}</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();
 
-		$maintext .= "<div id=mtxt>".$ttxml->asXML()."</div>";
-
+		if ( $username ) {
+			$optlist = "";
+			if ( $settings['xmlfile']['ner']['tags'] ) {
+				foreach ( $settings['xmlfile']['ner']['tags'] as $key => $tag ) {
+					$optlist .= "<option value='$key'>{$tag['display']}</option>";
+				};
+			} else $optlist = "<option value='term'>term</option><option value='placeName'>placeName</option><option value='personName'>personName</option><option value='orgName'>orgName</option>";
+			$maintext .= "<div id='addner' style='float: right; width: 200px; display: none; border: 1px solid #aaaaaa;'>
+				<form action='index.php?action=$action&act=addner&cid=$ttxml->fileid' method=post>
+				<input id='toklist' name='toklist' type=hidden>
+				<table width='100%'>
+					<tr><th colspan=2>Add NER
+					<tr><th>Span<td id='nerspan'>
+					<tr><th>Type<td><select name=type>$optlist</select>
+					<tr><td colspan=2><input type=submit value='Create'>
+				</table>
+				</form></div>
+				";
+			$maintext .= "<div id=mtxt onmouseup='makespan(event);'>".$ttxml->asXML()."</div>";
+		} else  $maintext .= "<div id=mtxt>".$ttxml->asXML()."</div>";
+		
 		$maintext .= "<hr>".$ttxml->viewswitch();
 		$maintext .= " &bull; <a href='index.php?action=$action&act=list&cid=$ttxml->fileid'>{%List names}</a>";
 
@@ -121,137 +356,13 @@
 				#mtxt tok:hover { text-shadow: none;}
 			</style>
 			<script language=Javascript>
+			var username = '$username';
 			var nerlist = $nerjson;
 			var hlid = '{$_GET['hlid']}';
-			var mtxt = document.getElementById('mtxt');
-			var nerdata = {};
 			var jmp = '{$_GET['jmp']}';
-			
-			var tokinfo = document.getElementById('tokinfo');
-			if ( !tokinfo ) {
-				var tokinfo = document.createElement(\"div\"); 
-				tokinfo.setAttribute('id', 'tokinfo');
-				document.body.appendChild(tokinfo);
-			};
-
-			if ( jmp ) { 
-				var it = document.getElementById(jmp);
-				it.style['backgroundColor'] = '#ffffbb'; 
-				it.scrollIntoView(true); 
-			}; // TODO: this should depend on jmp
-			
-			var nercolor;
-			for ( var i=0; i<Object.keys(nerlist).length; i++) {
-				var tmp = Object.keys(nerlist)[i];
-				var tagelm = nerlist[tmp]['elm'];
-				if ( !tagelm ) { tagelm = tmp; };
-				var its = mtxt.getElementsByTagName(tagelm);
-				nercolor = nerlist[tmp]['color']; if ( !nercolor ) { nercolor = 'green'; };
-				for ( var a = 0; a<its.length; a++ ) {
-					var it = its[a];	
-					it.style.color = nercolor;
-					// it.style['font-weight'] = 'bold';
-					it.onclick = function(event) {
-						doclick(this);
-					};
-					it.onmouseover = function(event) {
-						showinfo(this);
-					};
-					it.onmouseout = function(event) {
-						hideinfo(this);
-					};
-					if ( it.getAttribute(nerlist[tmp]['nerid']) == hlid ) { 
-						it.style['backgroundColor'] = '#ffffbb'; 
-						if ( !jmp ) { it.scrollIntoView(true); }; // TODO: this should depend on jmp
-					}
-				};
-			};
-			
-			function doclick(elm) {
-				var ttype = elm.nodeName.toLowerCase();
-				var neratt = nerlist[ttype]['nerid'];
-				var trgt = elm.getAttribute(neratt);
-				window.open('index.php?action=$action&nerid='+encodeURIComponent(trgt)+'&type='+ttype, '_self');
-			};
-
-		function hideinfo(showelement) {
-			if ( document.getElementById('tokinfo') ) {
-				document.getElementById('tokinfo').style.display = 'none';
-			};
-			if ( typeof(hlbar) != \"undefined\" && typeof(facsdiv) != \"undefined\" ) {
-				hlbar.style.display = 'none';
-				var tmp = facsdiv.getElementsByClassName('hlbar'+hln);
-			};
-		};
-
-	
-		function showinfo(showelement) {
-			if ( !tokinfo ) { return -1; };
-			var nertype = nerlist[showelement.nodeName.toLowerCase()];
-
-			nername = showelement.nodeName;
-			if ( nertype ) nername =  nertype['display'];
-			infoHTML = '<table><tr><th>' + nername + '</th><td><b><i>'+ showelement.innerHTML +'</i></b></td></tr>';
-
-			tokinfo.style.display = 'block';
-			var foffset = offset(showelement);
-			if ( typeof(poselm) == \"object\" ) {
-				var foffset = offset(poselm);
-			};
-			tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
-			tokinfo.style.top = ( foffset.top + showelement.offsetHeight + 4 ) + 'px';
-
-			infoHTML += '</table>';
-
-			tokinfo.innerHTML = infoHTML;
-			
-			var idfld = 'corresp';
-		    if ( nertype ) idfld =  nertype['nerid'];
-		    var nerid = showelement.getAttribute(idfld)
-			if ( nerid ) {
-				if ( nerdata[nerid] ) {
-				  tokinfo.innerHTML = nerdata[nerid];
-				} else {
-					// start Ajax to replace info by full data
-					  var xhttp = new XMLHttpRequest();
-					  xhttp.onreadystatechange = function() {
-						if (this.readyState == 4 && this.status == 200) {
-						 nerdata[nerid] = this.responseText;
-						 tokinfo.innerHTML = this.responseText;
-						}
-					  };
-					  xhttp.open('GET', 'index.php?action=$action&act=snippet&nerid='+encodeURIComponent(nerid), true);
-					  xhttp.send();
-				};
-			};
-			
-
-		};
-
-	function offset(elem) {
-		if(!elem) elem = this;
-
-		var x = elem.offsetLeft;
-		var y = elem.offsetTop;
-
-		if ( typeof(x) == \"undefined\" ) {
-
-			bbr = elem.getBoundingClientRect();
-			x = bbr.left + window.pageXOffset;
-			y = bbr.top + window.pageYOffset;
-
-		} else {
-
-			while (elem = elem.offsetParent) {
-				x += elem.offsetLeft;
-				y += elem.offsetTop;
-			}
-		
-		};
-		
-		return { left: x, top: y };
-	};  
-		</script>";
+			var fileid = '$ttxml->fileid';
+			</script>
+			<script language=Javascript src=\"$jsurl/ner.js\"></script>";
 		
 	} else if ( $_GET['nerid'] ) {
 	
@@ -396,6 +507,31 @@
 			$maintext .= "<p><a href='index.php?action=$action&type=$key'>{$val['display']}</a>";
 		};
 
+	};
+	
+	function getcqpner( $type = "all" ) {
+		# Get the list of all existing NER from the CQP corpus
+		global $settings, $ttroot;
+		include ("$ttroot/common/Sources/cwcqp.php");
+		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+
+		$cqp = new CQP();
+		$cqp->exec($cqpcorpus); // Select the corpus
+		$cqp->exec("set PrettyPrint off");
+		
+		$resarr	= array();
+		foreach ( $settings['xmlfile']['ner']['tags'] as $key => $tag ) {
+			if ( ( $key == $type || $type == "all" ) && $tag['cqp'] ) {
+				$cqpelm = $tag['cqp']."";
+				$cqp->exec("Matches = <$cqpelm> []+ </$cqpelm>");
+				$cqp->exec("sort Matches by form");
+				$tmp = $cqp->exec("tabulate Matches match[0]..matchend[0] form, match {$cqpelm}_nerid");
+				$resarr = array_merge($resarr, explode("\n", $tmp)); 
+			};
+		};
+		return array_unique($resarr);
+		
 	};
 	
 

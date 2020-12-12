@@ -23,7 +23,11 @@
 
 		$result = $xml->xpath("//*[@id='$tokid']"); 
 		$elm = $result[0]; # print_r($token); exit;
+
+		if ( !$elm ) fatal("No such element: $tokid");
+
 		$etype = $elm->getName();
+
 
 		$maintext .= "<h1>Edit Element</h1>
 			<h2>Structural element ($tokid): ".$etype."</h2>
@@ -34,24 +38,34 @@
 			<table>";
 
 
-		$elmatts = Array ( 
+		if ( $settings['xmlfile']['sattributes'][$etype] ) {
+			foreach ( $settings['xmlfile']['sattributes'][$etype] as $key => $item ) {
+				if ( !is_array($item) ) continue;
+				$itemtxt = $item['display'];
+				$atv = $elm[$key]; 
+				$maintext .= "<tr><th>$key<td>$itemtxt<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
+			};
+		} else {
+			$elmatts = Array ( 
 			"pb" => Array ( "n" => "Page number", "facs" => "Facsimile image", "admin" => "Admin-only image"  ),
 			"lb" => Array ( "n" => "True linebreak",  ),
 			"deco" => Array ( "decoRef" => "decoration ID",  ),
 			"gap" => Array ( "extent" => "Gap size", "reason" => "Gap reason",  ),
-		);
-
-		// Show all the defined attributes
-		foreach ( $elmatts[$etype] as $key => $val ) {
-			$atv = $elm[$key]; 
-			if ( $key == "facs" ) {
-				$maintext .= "<tr><th>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>
-					<a href='index.php?action=images&act=list' target=select>(see list)</a>";
-			} else if ( $key == "admin" ) {
-				if ( $atv == "1" ) $aon = "selected";
-				$maintext .= "<tr><th>$key<td>$val<td><select name=atts[$key] id='f$key'><option value=''>no</option><option value='1' $aon>yes</option></select>";
-			} else $maintext .= "<tr><th>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
+			);
+			
+			// Show all the defined attributes
+			foreach ( $elmatts[$etype] as $key => $val ) {
+				$atv = $elm[$key]; 
+				if ( $key == "facs" ) {
+					$maintext .= "<tr><th>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>
+						<a href='index.php?action=images&act=list' target=select>(see list)</a>";
+				} else if ( $key == "admin" ) {
+					if ( $atv == "1" ) $aon = "selected";
+					$maintext .= "<tr><th>$key<td>$val<td><select name=atts[$key] id='f$key'><option value=''>no</option><option value='1' $aon>yes</option></select>";
+				} else $maintext .= "<tr><th>$key<td>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
+			};
 		};
+
 
 		$result = $xml->xpath($mtxtelement); 
 		$txtxml = $result[0]; 
@@ -65,17 +79,23 @@
 		<hr><div id=mtxt>".$txtxml->asXML()."</div>
 		<script language=Javascript>
 			var telm = document.getElementById('$tokid');
-			 var sp1 = document.createElement('span');
-			 var sp1_content = document.createTextNode('[$etype]');
-			 sp1.appendChild(sp1_content);
-			 sp1.style['color'] = '#0000ff';
-			 sp1.style['font-size'] = '11pt';
- 			telm.insertBefore(sp1, telm.firstChild);
+			if ( telm.innerText ) {
+				// highlight
+				telm.style.backgroundColor = '#ffffaa';
+			} else {
+				// Place a dummy element before
+				 var sp1 = document.createElement('span');
+				 var sp1_content = document.createTextNode('[$etype]');
+				 sp1.appendChild(sp1_content);
+				 sp1.style['color'] = '#0000ff';
+				 sp1.style['font-size'] = '11pt';
+				telm.insertBefore(sp1, telm.firstChild);
+			};
 		</script>
 		";
 	
 	} else {
-		print "Oops"; exit;
+		fatal("No XML file selected"); 
 	};
 	
 ?>

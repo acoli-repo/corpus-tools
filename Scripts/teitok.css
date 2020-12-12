@@ -137,6 +137,6 @@ anon::after { content: ']'; }
 }
 
 #floatbox { float: right; width: 200px; border: 1px solid #cccccc; padding: 5px; padding-left: 15px; background-color: white; }
-#floatbox .selbox { color: black; font-size: 11px; display: inline-block; background-color: #dddddd; border 1px solid #666666; padding: 5px; margin-right: 5px; margin-bottom: 5px; }
+#floatbox .selbox { color: black; display: inline-block; background-color: #eeeeee; border 1px solid #666666; padding: 5px; margin-right: 5px; margin-bottom: 5px; }
 #floatbox .x { cursor: pointer; }
 

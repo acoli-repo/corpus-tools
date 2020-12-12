@@ -58,7 +58,7 @@
 		
 	} else {
 	
-		print "oops"; exit;
+		fatal("No XML file selected"); 
 	
 	};
 
