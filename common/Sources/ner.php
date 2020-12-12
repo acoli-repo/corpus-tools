@@ -122,9 +122,11 @@
 		";
 
 		$correspid = $elm['corresp']; $elmtext = preg_replace("/<[^>]+>/", "", $elm->asXML());
-		if ( $correspid && $nerxml ) {
+		if ( $correspid ) {
 			$nerid = $correspid; if ( strpos($nerid, '#') ) $nerid = substr($nerid, strpos($nerid, '#')+1);
-			$maintext .= "<hr><h2>Linked Entity $nerid</h2>";
+			$nertype = $nerdef['key'];
+			$maintext .= "<hr><h2>Linked Entity $nerid</h2>
+			<p><a href='index.php?action=$action&type=$nertype&nerid=".urlencode($correspid)."'>Go to occurrences</a>";
 			if ( $nerxml ) {
 				$nerrec = current($nerxml->xpath("//*[@id=\"$nerid\"]"));
 				if ( $nerrec ) {
