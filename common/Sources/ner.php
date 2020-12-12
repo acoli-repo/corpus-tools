@@ -122,7 +122,7 @@
 		";
 
 		$correspid = $elm['corresp']; $elmtext = preg_replace("/<[^>]+>/", "", $elm->asXML());
-		if ( $correspid && file_exists("Resources/$nerfile") ) {
+		if ( $correspid && $nerxml ) {
 			$nerid = $correspid; if ( strpos($nerid, '#') ) $nerid = substr($nerid, strpos($nerid, '#')+1);
 			$maintext .= "<hr><h2>Linked Entity $nerid</h2>";
 			if ( $nerxml ) {
