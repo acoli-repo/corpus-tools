@@ -175,7 +175,7 @@
 		$xml = $ttxml->xml;
 
 		$maintext .= "<h2>Automatic NER linking</h2>
-			<h1>$ttxml->title</h1>
+			<h1>".$ttxml->title()."</h1>
 			<p>Below is the list of all possible Named Entities in the text, based on previously marked NER
 				in the CQP corpus
 			<script language=Javascript src=\"$jsurl/ner.js\"></script>";
