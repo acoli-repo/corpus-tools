@@ -600,6 +600,13 @@
 			$imgsrc = $pagexml['facs'];
 			$imgsrc = preg_replace("/^Facsimile\//", "" , $imgsrc );
 			if ( !strstr($imgsrc, "http") ) $imgsrc = "Facsimile/$imgsrc";
+				
+			if ( $pagexml['crop'] == "right"  ) 
+				$crop = "width: 200%; float: right;";
+			else if ( $pagexml['crop'] == "left"  ) 
+				$crop = "width: 200%; float: left;";
+			else 
+				$crop = "width: 100%";
 			
 			if ( !strstr("http", $pagexml['facs']) && !file_exists("Facsimile/{$pagexml['facs']}") ) {
 				# TODO: create an upload button to upload the facs
@@ -629,14 +636,6 @@
 				$imgfld = "<img id=facs src=\"$imgsrc\" style=\"$crop\" onmousemove='zoomIn(event)' onmouseout='zoomOut();'/>";
 			};
 			
-					
-			if ( $pagexml['crop'] == "right"  ) 
-				$crop = "width: 200%; float: right;";
-			else if ( $pagexml['crop'] == "left"  ) 
-				$crop = "width: 200%; float: left;";
-			else 
-				$crop = "width: 100%";
-				
 				
 			$maintext .= "<p>
 				<div id='buttons' style='padding: 2px; height: 20px; z-index: 200; left: 5px; top: 5px; width: 50%;'>

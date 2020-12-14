@@ -14,6 +14,7 @@
 		"edit raw XML file" => "edit raw XML file",
 		"Text" => "Text",
 		"Annotations" => "Annotations",
+		"Select a file" => "Select a file",
 		"format breaks" => "format breaks",
 		"Formatting" => "Formatting",
 		"Combined" => "Combined",

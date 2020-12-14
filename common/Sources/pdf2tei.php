@@ -122,16 +122,23 @@
 		# Wait for a couple of seconds to avoid file conflicts
 		sleep(2);
 
+		$offset = $_POST['offset'] or $offset = 0;
+		$pagtype = $_POST['pagtype'];
 		# Run the pdf2tei.pl script in the background
-		$cmd = "perl ../common/Scripts/pdf2tei.pl --parse={$_POST['postprocess']} --retok --pagtype={$_POST['pagtype']} --offset={$_POST['offset']} --input=$fileid.pdf > /dev/null &";
-		fwrite($logfile, "Running post-command:\n$cmd\n");
-		fclose($logfile);
+		if ( $pagtype ) {
+			$cmd = "perl ../common/Scripts/pdf2tei.pl --parse={$_POST['postprocess']} --retok --pagtype='$pagtype' --offset=$offset --input=$fileid.pdf > /dev/null &";
+			fwrite($logfile, "Running post-command:\n$cmd\n");
+			fclose($logfile);
 
-		$start = shell_exec($cmd); $bg = 1;
+			$start = shell_exec($cmd); $bg = 1;
 
-		print "<p>New XML file has been created. Reloading to edit mode.
-			<script language=Javascript>top.location='index.php?action=$action&act=log&cid=$fileid&bg=$bg&na=$savefolder'</script>"; exit;
-			
+			print "<p>New XML file has been created. Reloading to progress check
+				<script language=Javascript>top.location='index.php?action=$action&act=log&cid=$fileid&bg=$bg&na=$savefolder'</script>"; exit;
+		} else {
+			print "<p>New XML file has been created. Reloading to edit mode.
+				<script language=Javascript>top.location='index.php?action=pagetrans&cid=$fileid'</script>"; exit;
+		};
+					
 	} else if ( $act == "log" ) {
 	
 		$maintext .= "<h1>Manuscript PDF to TEI</h1>

@@ -5,102 +5,104 @@
 	if ( !$annotation ) {
 		if ( is_array($settings['annotations']) && count($settings['annotations']) == 1 ) {
 			$annotation = join(";", array_keys($settings['annotations']));
-		} else {
-			fatal ( "No annotation selected" );
+		} else if ( !$act ) {
+			// Redirect to annotation selection
+			$act = "select";
 		};
 	};
 
-	require ("$ttroot/common/Sources/ttxml.php");
-	$ttxml = new TTXML();
-	$fileid = preg_replace("/.*\//", "", $ttxml->fileid);
+	if ( $_GET['cid'] ) {
+		require ("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		$fileid = preg_replace("/.*\//", "", $ttxml->fileid);
 
+		# Make a clean version of the text
+		$cleaned = $ttxml->rawtext;
+		$cleaned = preg_replace("/.*<text[^>]*>/smi", "", $cleaned);
+		$cleaned = preg_replace("/<\/text>.*/smi", "", $cleaned);
+		if ( !$keepxml ) {
+			$cleaned = preg_replace("/<(?!\/?(d?tok|p))[^>]+>/", "", $cleaned);
+			$cleaned = preg_replace("/<\/tok>(\s+)/", " </tok>", $cleaned);
+		};
 
-	# Read the annotation definition
-	if ( $user['permissions'] == "admin" && !file_exists("Annotations/{$annotation}_def.xml") ) { 
-		print "<p>Definition file for $annotation does not exist - reloading to create file
-				<script language=Javascript>top.location='index.php?action=adminedit&folder=Annotations&id={$annotation}_def.xml&preload=annoation_def.xml';</script>
-		";
-		exit;
+		$maintext .= "<h1>{%{$settings['annotations'][$annotation]['display']}}</h1>";
+
+		$maintext .= "<h2 title=\"$filename\">".$ttxml->title()."</h2>"; 
 	};
 	
-	$andef = simplexml_load_file("Annotations/{$annotation}_def.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-	if ( ( !$settings['annotations'][$annotation] || $settings['annotations'][$annotation]['admin'] ) && !$username )  {
-		fatal ( "Annotation data for <i>{$andef['name']}</i> are not publicly accessible" );
+	if ( $annotation && $user['permissions'] == "admin" && !file_exists("Annotations/{$annotation}_def.xml") ) { 
+		$act = "define";
 	};
-	if ( !$andef ) {
-		if ( $username ) 
-			fatal ( "Error reading annotation definition file Annotations/{$annotation}_def.xml" );
-		else
-			fatal ( "Annotation data for <i>{$andef['name']}</i> cannot be read" );
-	};
-	$headertxt = current($andef->xpath("desc")); 
-	if ( $headertxt ) $headertxt .= "<hr>";
 
-	# Read the actual annotation for this file (if any)
-	$filename = "Annotations/{$annotation}_".$fileid;
-	$antxt = file_get_contents($filename);
-	if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
-	$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+	# Read the annotation definition
+	if ( $annotation && file_exists("Annotations/{$annotation}_def.xml") ) {
+	
+		$andef = simplexml_load_file("Annotations/{$annotation}_def.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		if ( ( !$settings['annotations'][$annotation] || $settings['annotations'][$annotation]['admin'] ) && !$username )  {
+			fatal ( "Annotation data for <i>{$andef['name']}</i> are not publicly accessible" );
+		};
+		if ( !$andef ) {
+			if ( $username ) 
+				fatal ( "Error reading annotation definition file Annotations/{$annotation}_def.xml" );
+			else
+				fatal ( "Annotation data for <i>{$andef['name']}</i> cannot be read" );
+		};
+		$headertxt = current($andef->xpath("desc")); 
+		if ( $headertxt ) $headertxt .= "<hr>";
+
+		# Read the actual annotation for this file (if any)
+		$filename = "Annotations/{$annotation}_".$fileid;
+		$antxt = file_get_contents($filename);
+		if ( !$antxt ) $antxt = "<spanGrp id=\"$xmlid\"></spanGrp>";
+		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		
-	$result = $andef->xpath("//interp"); 
-	if ( $andef['keepxml'] || $settings['annotation']['keepxml'] ) { $keepxml = 1; } else { $keepxml = 0; };
-	$moreactions .= "var keepxml = $keepxml; var interp = []; var codetrans = [];\n"; 
-	foreach ( $result as $tmp ) { 
-		$tagset[$tmp['key'].''] = $tmp;
-		if ( $tmp['type'] != "long" ) {
-			if ( $tmp['key'] == $dist ) $sel = "selected"; else $sel = "";
-			$distlist .= "<option value='{$tmp['key']}' $sel>{$tmp['long']}</option>"; 
-		};
-		 $i = 0;
-		if ( $tmp->xpath("option") ) {
-			$optionlist = "";
-			foreach ( $tmp->xpath("option") as $child ) {
-				$optionlist .= "<option value=\"{$child['value']}\">{$child}</option>";
-				if ( $child['display'] ) $tagnames[$tmp['key'].'-'.$child['value']] = $child['display']."";
+		$result = $andef->xpath("//interp"); 
+		if ( $andef['keepxml'] || $settings['annotation']['keepxml'] ) { $keepxml = 1; } else { $keepxml = 0; };
+		$moreactions .= "var keepxml = $keepxml; var interp = []; var codetrans = [];\n"; 
+		foreach ( $result as $tmp ) { 
+			$tagset[$tmp['key'].''] = $tmp;
+			if ( $tmp['type'] != "long" ) {
+				if ( $tmp['key'] == $dist ) $sel = "selected"; else $sel = "";
+				$distlist .= "<option value='{$tmp['key']}' $sel>{$tmp['long']}</option>"; 
 			};
-			$pulldowns[$tmp['key'].''] = $optionlist; 
-			$annotationrows .= "<tr><th>{$tmp['display']}<td><select name=news[$i][{$tmp['key']}]><option value=''>[{%select}]</option>$optionlist</select>";
-		} else {
-			$annotationrows .= "<tr><th>{$tmp['display']}<td><input name=news[$i][{$tmp['key']}] style='width: 100%'/>";
-		};
-		if ( $tmp['colored'] ) {
-			if ( $tmp['display'] ) {
-				$marktit = $tmp['long'] or $marktit = $tmp['display'];
-				$marktit = "<h3>$marktit</h3>";
-			};
-			foreach ( $tmp->children() as $tmp2 ) {
-				$color = $tmp2['color']."";
-				# Check if this one exists
-				if ( !$anxml->xpath("//span[@{$tmp['key']}=\"{$tmp2['value']}\"]") ) { continue; };
-				if ( $color == "" ) $color = array_shift($colorlist);
-				$markfeat = $tmp['key'].""; 
-				$markcolor[$tmp2["value"].""] = $color; 
-				$spantit = ""; 
-				if ( $tmp2['display'] ) {
-					$spantit = "title=\"{%{$tmp2['display']}}\"";
-					$moreactions .= "codetrans['{$tmp2['value']}'] = '{%{$tmp2['display']}}'; ";
+			 $i = 0;
+			if ( $tmp->xpath("option") ) {
+				$optionlist = "";
+				foreach ( $tmp->xpath("option") as $child ) {
+					$optionlist .= "<option value=\"{$child['value']}\">{$child}</option>";
+					if ( $child['display'] ) $tagnames[$tmp['key'].'-'.$child['value']] = $child['display']."";
 				};
-				$markbuttons .= "<span $spantit style=\"border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '{$tmp2['value']}');\">{$tmp2['value']}</span> ";
+				$pulldowns[$tmp['key'].''] = $optionlist; 
+				$annotationrows .= "<tr><th>{$tmp['display']}<td><select name=news[$i][{$tmp['key']}]><option value=''>[{%select}]</option>$optionlist</select>";
+			} else {
+				$annotationrows .= "<tr><th>{$tmp['display']}<td><input name=news[$i][{$tmp['key']}] style='width: 100%'/>";
 			};
-			if ( $markbuttons ) $annotations = "$marktit$markbuttons<hr>";
+			if ( $tmp['colored'] ) {
+				if ( $tmp['display'] ) {
+					$marktit = $tmp['long'] or $marktit = $tmp['display'];
+					$marktit = "<h3>$marktit</h3>";
+				};
+				foreach ( $tmp->children() as $tmp2 ) {
+					$color = $tmp2['color']."";
+					# Check if this one exists
+					if ( !$anxml->xpath("//span[@{$tmp['key']}=\"{$tmp2['value']}\"]") ) { continue; };
+					if ( $color == "" ) $color = array_shift($colorlist);
+					$markfeat = $tmp['key'].""; 
+					$markcolor[$tmp2["value"].""] = $color; 
+					$spantit = ""; 
+					if ( $tmp2['display'] ) {
+						$spantit = "title=\"{%{$tmp2['display']}}\"";
+						$moreactions .= "codetrans['{$tmp2['value']}'] = '{%{$tmp2['display']}}'; ";
+					};
+					$markbuttons .= "<span $spantit style=\"border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '{$tmp2['value']}');\">{$tmp2['value']}</span> ";
+				};
+				if ( $markbuttons ) $annotations = "$marktit$markbuttons<hr>";
+			};
+			$moreactions .= "interp['{$tmp['key']}'] = '{%{$tmp['long']}}'; ";
 		};
-		$moreactions .= "interp['{$tmp['key']}'] = '{%{$tmp['long']}}'; ";
+		$moreactions .= "var markfeat = '$markfeat'; ";
 	};
-	$moreactions .= "var markfeat = '$markfeat'; ";
-
-	# Make a clean version of the text
-	$cleaned = $ttxml->rawtext;
-	$cleaned = preg_replace("/.*<text[^>]*>/smi", "", $cleaned);
-	$cleaned = preg_replace("/<\/text>.*/smi", "", $cleaned);
-	if ( !$keepxml ) {
-		$cleaned = preg_replace("/<(?!\/?(d?tok|p))[^>]+>/", "", $cleaned);
-		$cleaned = preg_replace("/<\/tok>(\s+)/", " </tok>", $cleaned);
-	};
-
-	$maintext .= "<h1>{%{$andef['name']}}</h1>";
-
-	$maintext .= "<h2 title=\"$filename\">".$ttxml->title()."</h2>"; 
-
+	
 
 	if ( $act == "save" && $fileid ) {
 		
@@ -346,12 +348,170 @@
 				<a href='index.php?action=$action&annotation=$annotation&act=&&cid=$fileid'>{%text view}</a>
 				";
 			if ( $user['permissions'] == "admin" ) $maintext .= "				&bull;
-				<a href='index.php?action=adminedit&folder=Annotations&id={$annotation}_def.xml' class=adminpart>{%edit definitions}</a>
+				<a href='index.php?action=$action&act=define&annotation=$annotation' class=adminpart>{%edit definitions}</a>
 				";
 
 		};
 		
-	} else {
+	} else if ( $act == "savedef" ) {
+		
+		check_login();
+		
+		# Save the definition file
+		$annotation = $_GET['annotation']; # Hard code in case we switched in the meantime
+
+		$newandef = simplexml_load_string("<interpGrp id=\"{$annotation}\" name=\"{$_POST['name']}\" keepxml=\"1\">
+			<desc>{$_POST['desc']}</desc>
+			</interpGrp>");
+		foreach ( $_POST['grp'] as $key => $grpdef ) {
+			if ( $key."" == "new" || !$grpdef['key'] ) continue;
+			$grpfld = $newandef->addChild("interp");
+			foreach ( $grpdef as $key => $val ) {
+				$grpfld[$key] = $val;
+			};
+			foreach ( $grpdef['values'] as $key2 => $val2 ) {
+				if ( $key2."" == "new" || !$val2['value'] ) continue;
+				$valuesfld = $grpfld->addChild("option");
+				foreach ( $val2 as $key3 => $val3 ) {
+					$valuesfld[$key3] = $val3;
+				};
+			};
+		};
+
+		$maintext .= showxml($newandef);
+		$dom = new DOMDocument("1.0");
+		$dom->preserveWhiteSpace = false;
+		$dom->formatOutput = true;
+		$dom->loadXML($newandef->asXML());
+		file_put_contents("Annotations/{$annotation}_def.xml", $dom->saveXML());
+		$maintext .= "<hr><p>New definitions have been saved - reloading
+			<script>top.location = 'index.php?action=$action&annotation=$annotation';</script>";
+		
+	
+	} else if ( $act == "define" ) {
+	
+		check_login();
+		$maintext .= "<h2>Define a stand-off annotation</h2>
+			<h1>{$settings['annotations'][$annotation]['display']}</h1>";
+
+		if ( !$andef ) {
+			$andef = simplexml_load_string("<interpGrp id=\"$annotation\" name=\"{$settings['annotations'][$annotation]['display']}\" keepxml=\"1\">
+	<desc/>
+	</interpGrp>");
+			$newxml = 1;
+		};
+
+		# Edit the definitions
+		$maintext .= "<form action='index.php?action=$action&act=savedef&annotation=$annotation' method=post>
+			<table>
+			<tr><th>ID<td>$annotation = {$settings['annotations'][$annotation]['display']}
+			<tr><th>Name<td><input size=80 name=name value=\"{$andef['name']}\">
+			<tr><th>Description<td><textarea style='width:100%; height: 40px;' name=desc>".htmlentities($andef->desc)."</textarea>
+			</table>
+			<h2>Fields</h2>
+			<table id='fieldtable'>
+			<tr><th>Field ID<th>Display name<th>Long name<th>Col<th>Fixed values (Value/Display)";
+		
+		$tmp = $andef->xpath("./interp");
+		foreach ( $tmp as $key => $item ) {
+			$maintext .= "<tr id='antable[{$key}]'>
+							<td><input name='grp[{$key}][key]' size=20 value=\"{$item['key']}\">
+							<td><input name='grp[{$key}][display]' size=30 value=\"{$item['display']}\">
+							<td><input name='grp[{$key}][long]' size=30 value=\"{$item['long']}\">
+							<td><input name='grp[{$key}][colored]' size=2 value=\"{$item['colored']}\">
+							<td><table id='valtable[{$key}]'>";
+				$tmp2 = $item->xpath("./option");
+				foreach ( $tmp2 as $key2 => $val2 ) {
+					$maintext .= "<tr>
+						<td><input name='grp[{$key}][values][$key2][value]' size=30 value=\"{$val2['value']}\">
+						<td><input name='grp[{$key}][values][$key2][display]' size=20 value=\"{$val2['display']}\">
+						";
+				};
+				$maintext .= "<tr style='display: none;'  id='valrow[{$key}][new]'>
+					<td><input name='grp[{$key}][values][new2][value]' size=30 value=\"\">
+					<td><input name='grp[{$key}][values][new2][display]' size=20 value=\"\">
+					";
+			$maintext .= "</table>";
+			if ( count($tmp2) ) { 
+				$maintext .= "<span onclick='addvalue(this)';' class='button'>add value</span>";
+			} else { 
+				$maintext .= "<span onclick='makevalues(this)';' class='button'>make fixed values</span>";
+			};
+		};
+		$key = count($tmp);
+			$maintext .= "<tr style='display: none;'  id='antable[new]'>
+							<td><input name='grp[new][key]' size=20 value=\"\">
+							<td><input name='grp[new][display]' size=30 value=\"\">
+							<td><input name='grp[new][long]' size=30 value=\"\">
+							<td><input name='grp[new][colored]' size=2 value=\"\">
+							<td><table id='valtable[new]'>
+								<tr style='display: none;'  id='valrow[{$key}][new]'>
+									<td><input name='grp[new][values][new2][value]' size=30 value=\"\">
+									<td><input name='grp[new][values][new2][display]' size=20 value=\"\">							</table><span onclick='makevalues(this)';' class='button'>make fixed values</span>";			
+		$maintext .= "</table>
+			<span onclick='addfield()' class='button'>add field</span>
+			<script>
+				var fieldtable = document.getElementById('fieldtable');
+				function addfield() { 
+					var lastnum = fieldtable.rows.length - 1;
+					var lastrow = fieldtable.rows[lastnum];
+					var newrow = fieldtable.insertRow(fieldtable.rows.length-1);
+					var newhtml = lastrow.innerHTML.replaceAll('[new]', '['+(lastnum-1)+']');
+					newrow.innerHTML = newhtml;
+				};
+				function addvalue(elm) { 
+					var rownum = elm.parentNode.parentNode.getAttribute('id').replace(/antable\[(.*)\]/, '$1');
+					console.log(rownum);
+					var valtable = document.getElementById('valtable['+rownum+']');
+					var lastnum = valtable.rows.length - 1;
+					var lastrow = valtable.rows[lastnum];
+					var newrow = valtable.insertRow(valtable.rows.length-1);
+					var newhtml = lastrow.innerHTML.replaceAll('[new2]', '['+(lastnum)+']');
+					newrow.innerHTML = newhtml;
+				};
+				function makevalues(elm) { 
+					elm.innerHTML = 'add value';
+					addvalue(elm);
+				};
+			</script>
+			<style>.button { color: #aaaaaa; }</style>
+			<p><input type=submit value=\"Save\">
+			</form>";
+		
+		
+		if ( $newxml ) {
+			$maintext .= "<hr><p>Here you can create the definitions for a new stand-off annotation.
+				Here you define which data you want to record each annotation so that they can be easily 
+				edited and displayed correctly. Fields are stored as XML attributes, in which the key corresponds
+				to the Field ID. The value is an open text field, unless you define a list of fixed values, in 
+				which case you will be asked to select a value from a pull-down list. Since annotations
+				can be of any type, there are no pre-defined fields at all.
+				<p>A detailed explanation about how stand-off annotations work can be
+				found in the <a target=help href='http://www.teitok.org/index.php?action=help&id=standoff'>Help pages</a>.
+				";
+		} else {
+			$maintext .= "<hr><h2>Raw XML</h2>$newxml".showxml($andef)."<hr><p><a href='index.php?action=adminedit&folder=Annotations&id={$annotation}_def.xml'>edit raw XML</a>";
+		};
+		
+	} else if ( $act == "select" ) {
+		
+		$maintext .= "<h1>Select a stand-off annotation</h1>
+			<table>";
+		
+		foreach ( $settings['annotations'] as $ann ) {
+			$maintext .= "<tr><th>".print_r($ann,1);
+			$somedone = 1;
+		};
+		
+		$maintext .= "</table>";
+		if ( !$somedone ) $maintext .= "<i>No stand-off annotations defined yet";
+
+		if ( $username ) {
+			# $maintext .= "<hr><p><a href='index.php?action=$action&act=new'>define a new stand-off annotation</a>";
+			$maintext .= "<hr><p><a href='index.php?action=adminsettings&act=additem&force=1&xpath=/ttsettings/annotations&goto=index.php?action=$action&act=define&annotation=[newid]'>define a new stand-off annotation</a>";
+		};
+			
+	} else if ( $ttxml ) {
 	
 		if ( $anxml ) {
 			$xpath = "//span$squery";
@@ -397,7 +557,7 @@
 
 			# TODO: there should be a GUI for making the definitions...
 			if ( $user['permissions'] == "admin" ) $rawedit = "				&bull;
-				<a href='index.php?action=adminedit&folder=Annotations&id={$annotation}_def.xml' class=adminpart target=edit>{%edit definitions}</a>
+				<a href='index.php?action=$action&act=define&annotation=$annotation' class=adminpart>{%edit definitions}</a>
 				";
 	
 		# Allow for form switch buttons when so desired
@@ -485,6 +645,23 @@
 					<script language=Javascript src=\"$jsurl/tokedit.js\"></script>
 			<script src=\"$jsurl/annotation.js\"></script>
 			";
+	} else {
+	
+		$maintext .= "<h1>{%{$andef['name']}}</h1>";
+		$maintext .= "<p>{%Select a file}</p>";
+		
+		foreach ( glob("Annotations/{$annotation}_*.xml") as $file ) {
+		
+			if ( preg_match("/Annotations\/{$annotation}_(.*)\.xml/", $file, $matches) ) { $fileid = $matches[1]; };
+			if ( $fileid == "def" ) continue;
+		
+			$maintext .= "<p><a href='index.php?action=$action&annotation=$annotation&cid=$fileid.xml'>$fileid</a>";
+		};
+
+		if ( $user['permissions'] == "admin" ) $maintext .= "<hr>
+			<a href='index.php?action=$action&act=define&id=annotation=$annotation' class=adminpart>{%edit definitions}</a>
+			";
+		
 	};
 	
 ?>

@@ -1,9 +1,11 @@
 use XML::LibXML;
 use Getopt::Long;
-
+use Cwd qw();
 $parser = XML::LibXML->new(); 
 
 $\ = "\n"; $, = "\n";
+
+$wrkpath = Cwd::cwd(); # print "PATH: $wrkpath\n";
 
  GetOptions ( ## Command line options
             'debug' => \$debug, # debugging mode
@@ -25,13 +27,19 @@ if ( !$input ) {
 
 if ( !defined($offset) ) { $offset = 1; };
 
+if ( -e "$wrkpath/tmp/$filename.create.log" && !$debug ) {
+	open LOG, ">>$wrkpath/tmp/$filename.create.log";
+	select LOG;
+	print "---------";
+} else { *LOG = *STDOUT; };
+
 if ( !-e $input && !$useimg ) { 
 	if ( -e "Originals/$input" ) {
 		$input = "Originals/$input";
 	} elsif ( -e "pdf/$input" ) {
 		$input = "pdf/$input";
 	} else {
-		print "Error - no such file: $input (aborting)"; exit; 
+		print LOG "Error - no such file: $input (aborting)"; exit; 
 	};
 };
 
@@ -58,11 +66,6 @@ $filename = $input;
 $filename =~ s/\.pdf//;
 $filename =~ s/.*\///;
 
-if ( -e "tmp/$filename.create.log" && !$debug ) {
-	open LOG, ">>tmp/$filename.create.log";
-	select LOG;
-	print "---------";
-};
 
 $xmlfile = "$xmlfiles/$filename.xml";
 

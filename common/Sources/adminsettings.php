@@ -217,8 +217,12 @@
 		
 		# Check whether new
 		$tmp = $settingsxml->xpath($xpath); $valnode = $tmp[0];
-		if ( !$tmp ) { fatal ("No such node: $xpath"); };
-
+		if ( !$tmp ) { 
+			if ( $_GET['force'] ) {
+				$valnode = xpathnode($settingsxml, $xpath);
+				file_put_contents("Resources/settings.xml", $settingsxml->asXML());
+			} else fatal ("No such node: $xpath"); 
+		};
 
 		$tmp = explode('/', $xpath); $dxp = "/ttsettings";
 		foreach ( $tmp as $prt ) {
@@ -231,6 +235,7 @@
 			<div>".current($opts->xpath("./desc"))."</div>
 			<p><form method=post action='index.php?action=$action&act=makeitem'>
 			<input name=xpath value='$xpath' type=hidden>
+			<input name=goto value='{$_GET['goto']}' type=hidden>
 			<table>
 			";
 		$optlist = current($opts->xpath("./list"));
