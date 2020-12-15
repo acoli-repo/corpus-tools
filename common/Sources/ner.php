@@ -140,7 +140,8 @@
 			};
 		} else {
 			## Attempt to find a corresponding record by looking at CQP corpus
-			$nerlist = getcqpner($nerdef['key']); 
+			$tmp = getcqpner($nerdef['key']); 
+			$nerlist = $tmp[$nerdef['key']];
 
 			foreach ( $nerlist as $line ) {
 				list ($nertext, $ref) = explode("\t", $line);
@@ -163,11 +164,34 @@
 				";
 		};
 
+	} else if ( $_GET['cid'] && $act == "multiadd" ) {
+
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+
+		print "Adding NER nodes";
+		foreach ( $_POST['sels'] as $key => $val ) {
+			$nertype = $_POST['type'][$key];
+			$nernode = $settings['xmlfile']['ner']['tags'][$nertype]['elm'];
+			$toklist = $_POST['toks'][$key];
+			print "<hr>$key: {$_POST['toks'][$key]} = $nernode  / {$_POST['corresp'][$key]}</hr>";
+			$newner = addparentnode($ttxml->xml, $toklist , $nernode);
+			$newner->setAttribute('corresp', $_POST['corresp'][$key]);
+		};
+		
+		print "<hr>";
+
+		$fileid = $ttxml->fileid;
+		saveMyXML($ttxml->xml->asXML(), $ttxml->filename);
+		$nexturl = "index.php?action=renumber&cid=$fileid";
+		print "<hr><p>Your NERs have been inserted - reloading to renumber page";
+		print "<script langauge=Javasript>top.location='$nexturl';</script>";		
+		exit;
+
 	} else if ( $_GET['cid'] && $act == "detect" ) {
 
 		check_login(); 
 		
-
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
 		if ( !$ttxml ) fatal("Failed to load $ttxml");
@@ -192,19 +216,22 @@
 
 		# Auto-detect possible NER
 		$nerlist = getcqpner();
-		$maintext .= "<table>
-			<tr><th>Text<th>NER reference<th>NER record";
+		$maintext .= "
+			<form action='index.php?action=$action&cid=$ttxml->fileid&act=multiadd' method=post>
+			<table>
+			<tr><td>Add<th>Text<th>NER reference<th>NER record";
 		$opts = " .//name "; $paropts = " .//ancestor::name "; 
 		foreach ( $settings['xmlfile']['ner']['tags'] as $key=>$tag ) {
 			$opts .= " | .//{$tag['elm']}"; 
 			$paropts .= " | .//ancestor::{$tag['elm']} "; 
 		};
-		foreach ( $nerlist as $line ) {
+		foreach ( $nerlist as $nertype => $typelist )
+		foreach ( $typelist as $line ) {
 			list ($nertext, $ref) = explode("\t", $line);
 			if ( $ref == "_" || $ref == "" ) continue;
 			$nertoks = explode(" ", $nertext);
 			$begins = array_keys($toklist, $nertoks[0]);
-			foreach ( $begins as $opt ) {
+			foreach ( $begins as $ord => $opt ) {
 				$matches = 1; $nermatch = ""; $idlist = "";
 				foreach ( $nertoks as $key => $val ) {
 					if ( $val != $toklist[$opt+$key] ) $matches = 0;
@@ -228,13 +255,29 @@
 						$parelm = $tmp->getName();
 						$parname = " ($parelm)";
 						foreach ( $settings['xmlfile']['ner']['tags'] as $tmp ) if ( $tmp['elm'] == $parelm ) $pardef = $tmp;
-						$style = "style=\"opacity: 0.3; background-color: {$pardef['color']};\""; 
+						if ( $_GET['show'] == "all" ) {
+							$style = "style=\"opacity: 0.3; background-color: {$pardef['color']};\""; 
+						} else {
+							$style = "style=\"display: none;\""; 
+						};
+						$checkbox = "";
+					} else {
+						$checkbox = "<input type=checkbox name='sels[$ord]' value=\"1\">
+							<input type=hidden name='toks[$ord]' value=\"$idlist\">
+							<input type=hidden name='corresp[$ord]' value=\"$ref\">
+							<input type=hidden name='type[$ord]' value=\"$nertype\">
+							";
 					};
-					$maintext .= "<tr $style><td onClick=\"jumpto('$idlist');\" onMouseOver=\"highlight('$idlist');\" style=\"color: {$typedef['color']}\">$nertext$parname<td>$ref<td>{$nerlemmas[$ref]}";
+					$maintext .= "<tr $style><td style='background-color: white;'>$checkbox
+						<td onClick=\"jumpto('$idlist');\" onMouseOver=\"highlight('$idlist');\" style=\"color: {$typedef['color']}\">$nertext$parname
+						<td>$ref<td>{$nerlemmas[$ref]}";
 				};
 			};
 		}
-		$maintext .= "</table>";
+		$maintext .= "</table>
+			<p><input type=submit value='Add Selected NERs'>
+			</form>";	
+		if ( $_GET['show'] != "all" ) $maintext .= "<p><a href='{$_SERVER['REQUEST_URI']}&show=all'>Show marked NER</a>";
 
 		$result = $ttxml->xml->xpath($mtxtelement); 
 		$txtxml = $result[0]; 
@@ -252,35 +295,16 @@
 		$xml = $ttxml->xml;
 		
 		if ( !is_writable("xmlfiles/".$ttxml->filename) ) fatal("Not writable: $ttxml->filename");
-
-		$dom = dom_import_simplexml($ttxml->xml)->ownerDocument;
-		$xpath = new DOMXpath($dom);
 	
-		# Attermpt to add an element around the indicated tokens
-		$idlist = explode(";", preg_replace("/;+$/", "", $_POST['toklist']));
-		$first = $idlist[0]; $last = end($idlist);
-		
-		print "<p>Creating new range $first - $last";
-		$tmp = $xpath->query("//tok[@id=\"$first\"]");
-		if ( !$tmp ) fatal ("Token not found: $first");
-		$el1 = $tmp->item(0);
-		
 		$nertype = $_POST['type'] or $nertype = "name";
 		$nerdef = $settings['xmlfile']['ner']['tags'][$nertype];
 		$nerelm = $nerdef['elm'] or $nerelm = "name";
-		$newner = $dom->createElement($nerelm);
+
+		$newner = addparentnode($ttxml->xml, $_POST['toklist'], $nerelm);
+
 		$cnt=1;
 		while ( $ttxml->xml->xpath("//*[@id=\"ner-$cnt\"]") ) { $cnt++; };
 		$newner->setAttribute("id", "ner-$cnt");
-		
-		$el1->parentNode->insertBefore($newner, $el1); $nextnode = $newner;
-		print "<p>Created: ".htmlentities($dom->saveXML($nextnode));
-		while ( $nextnode  ) {
-			$nextnode = $newner->nextSibling;
-			print "<p>Adding: ".htmlentities($dom->saveXML($nextnode));
-			$tmp = $newner->appendChild($nextnode);
-			if ( $nextnode->nodeType == 1 && $nextnode->getAttribute('id') == $last ) break;
-		}; 
 		
 		saveMyXML($ttxml->xml->asXML(), $ttxml->filename);
 		$nexturl = "index.php?action=$action&act=edit&cid=$fileid&nerid=".$newner->getAttribute("id");
@@ -353,6 +377,7 @@
 		
 		$maintext .= "<hr>".$ttxml->viewswitch();
 		$maintext .= " &bull; <a href='index.php?action=$action&act=list&cid=$ttxml->fileid'>{%List names}</a>";
+		if ( $username ) $maintext .= " &bull; <a href='index.php?action=$action&act=detect&cid=$ttxml->fileid' class=adminpart>{%Auto-detect names}</a>";
 
 		$maintext .= "
 			<style>
@@ -530,12 +555,39 @@
 				$cqp->exec("Matches = <$cqpelm> []+ </$cqpelm>");
 				$cqp->exec("sort Matches by form");
 				$tmp = $cqp->exec("tabulate Matches match[0]..matchend[0] form, match {$cqpelm}_nerid");
-				$resarr = array_merge($resarr, explode("\n", $tmp)); 
+				$resarr[$key] = array_unique(explode("\n", $tmp));
 			};
 		};
-		return array_unique($resarr);
+		return $resarr;
 		
 	};
 	
+	function addparentnode( $xml, $toklist, $parent ) {
+
+		$dom = dom_import_simplexml($xml)->ownerDocument;
+		$xpath = new DOMXpath($dom);
+
+		# Attermpt to add an element around the indicated tokens
+		$idlist = explode(";", preg_replace("/;+$/", "", $toklist));
+		$first = $idlist[0]; $last = end($idlist);
+		
+		$tmp = $xpath->query("//tok[@id=\"$first\"]");
+		if ( !$tmp ) return -1; // fatal ("Token not found: $first");
+		$el1 = $tmp->item(0);
+		
+		$newner = $dom->createElement($parent);
+		
+		$el1->parentNode->insertBefore($newner, $el1); $nextnode = $newner;
+		if ( $debug ) { print "<p>Created: ".htmlentities($dom->saveXML($nextnode)); };
+		while ( $nextnode  ) {
+			$nextnode = $newner->nextSibling;
+			if ( $debug ) { print "<p>Adding: ".htmlentities($dom->saveXML($nextnode)); };
+			$tmp = $newner->appendChild($nextnode);
+			if ( $nextnode->nodeType == 1 && $nextnode->getAttribute('id') == $last ) break;
+		}; 
+		
+		return $newner;
+
+	};
 
 ?>
