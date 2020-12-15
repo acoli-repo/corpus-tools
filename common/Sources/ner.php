@@ -202,7 +202,8 @@
 		$maintext .= "<h2>Automatic NER linking</h2>
 			<h1>".$ttxml->title()."</h1>
 			<p>Below is the list of all possible Named Entities in the text, based on previously marked NER
-				in the CQP corpus
+				in the CQP corpus. Select the correctly identified names, and click the add button to add the
+				corresponding nodes with their reference to the NER file to the TEI/XML.
 			<script language=Javascript src=\"$jsurl/ner.js\"></script>";
 
 		$toklist = array(); $tcnt=0;
@@ -276,8 +277,9 @@
 		}
 		$maintext .= "</table>
 			<p><input type=submit value='Add Selected NERs'>
-			</form>";	
-		if ( $_GET['show'] != "all" ) $maintext .= "<p><a href='{$_SERVER['REQUEST_URI']}&show=all'>Show marked NER</a>";
+			</form>
+			<p><a href='index.php?action=$action&cid=$ttxml->fileid'>Cancel</a>";	
+		if ( $_GET['show'] != "all" ) $maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}&show=all'>Show marked NER</a>";
 
 		$result = $ttxml->xml->xpath($mtxtelement); 
 		$txtxml = $result[0]; 
