@@ -514,6 +514,23 @@ x				<att key="tag" display="XML tag to be used in CQP (if not @key)"/>
 				<att key="att" display="Attribute for the level name"/>
 			</list>
 		</item>
+		<item key="styles" display="Conditional CSS styles">
+			<desc>
+				TEITOK can show buttons above the text display that toggle CSS files on and off. With this,
+				you can have different CSS based renderings for the same text, for instance optionally
+				highlighting named entities in the text.
+			</desc>
+			<list>
+				<att key="key" display="ID for the button"/>
+				<att key="display" display="Display text for the button"/>
+				<att key="long" display="Rollover title for the button"/>
+				<att key="css" display="Associated CSS file (in Resources)"/>
+				<att key="xpcond" display="XPath condition for the button to be displayed"/>
+				<att key="xprest" display="XPath restriction for the button to be displayed"/>
+				<att key="recond" display="RegEx condition for the button to be displayed"/>
+				<att key="rerest" display="RegEx restriction for the button to be displayed"/>
+			</list>
+		</item>
 	</item>
 
     <item key="download" display="Define how the XML files can be downloaded">
