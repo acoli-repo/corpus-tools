@@ -249,7 +249,8 @@
 	
 	if ( !$username ) $noadmin = "(?![^>]*admin=\"1\")";
 	if ( preg_match("/ facs=\"[^\"]+\"$noadmin/", $editxml) ) {
-		$postjsactions .= "\n				toggletn('images');";		
+		# Toggle to have the image button work right from the start (images should be on by default)
+		$postjsactions .= "\n				toggletn('images');toggletn('images');";		
 		$showoptions .= " <button id='btn-tag-images' title='{%show facsimile images}' onClick=\"toggletn('images');\">{%Images}</button> ";
 	};
 					
