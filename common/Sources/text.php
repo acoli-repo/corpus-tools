@@ -255,12 +255,12 @@
 	foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
 		$val = $item['display'];
 		if ( preg_match("/ $key=/", $editxml) ) {
-			if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
+			if ( is_array($labarray) && in_array($key, $labarray) ) $active = " active=\"1\""; else $active = "";
 			if ( !$item['admin'] || $username ) {
 				$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
 				$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 				$pcolor = $item['color'];
-				$tagstxt .= "<button id='tbt-$key' style='background-color: #$bc; color: $pcolor;' onClick=\"toggletag('$key')\">{%$val}</button>";
+				$tagstxt .= "<button id='tbt-$key' $active style='color: $pcolor;' onClick=\"toggletag('$key')\">{%$val}</button>";
 			};
 		} else if ( is_array($labarray) && ($akey = array_search($key, $labarray)) !== false) {
 			unset($labarray[$akey]);
