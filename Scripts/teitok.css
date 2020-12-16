@@ -140,3 +140,5 @@ anon::after { content: ']'; }
 #floatbox .selbox { color: black; display: inline-block; background-color: #eeeeee; border 1px solid #666666; padding: 5px; margin-right: 5px; margin-bottom: 5px; }
 #floatbox .x { cursor: pointer; }
 
+#jsoptions button { background-color: #ffffff; }
+#jsoptions button[active] { background-color: #eeeecc; }

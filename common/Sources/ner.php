@@ -220,7 +220,7 @@
 		$maintext .= "
 			<form action='index.php?action=$action&cid=$ttxml->fileid&act=multiadd' method=post>
 			<table>
-			<tr><td>Add<th>Text<th>NER reference<th>NER record";
+			<tr><th>Add<th>Text<th>NER reference<th>NER record";
 		$opts = " .//name "; $paropts = " .//ancestor::name "; 
 		foreach ( $settings['xmlfile']['ner']['tags'] as $key=>$tag ) {
 			$opts .= " | .//{$tag['elm']}"; 

@@ -43,11 +43,11 @@ function setbut (id) {
 		if ( typeof(it) != 'object' ) { continue; };
 		if ( it.getAttribute('id') == undefined ) { continue; };
 		if ( it.getAttribute('id').substr(0,4) == "but-" ) {
-			it.style.background = '#FFFFFF';
+			it.removeAttribute('active')
 		};
 	};
 	if ( document.getElementById(id) ) {
-		document.getElementById(id).style.background = '#eeeecc';
+		document.getElementById(id).setAttribute('active', 1)
 	};
 };
 
@@ -345,27 +345,14 @@ function hidenote () {
 	document.getElementById('footnotediv').style.display = 'none';
 };
 
-// function toggleshow () { // Show or hide empty elements
-// 	var but = document.getElementById('btn-see');
-// 	if ( showee ) {
-// 		showee = false;
-// 		but.style.background = '#FFFFFF';
-// 	} else {
-// 		showee = true;
-// 		but.style.background = '#eeeecc';
-// 	};
-// 	document.cookie = 'toggleshow='+showee;
-// 	setview();
-// };
-
 function toggletn (tag) { // Show or hide empty elements
 	var but = document.getElementById('btn-tag-'+tag);
 	if ( showtag[tag] ) {
 		showtag[tag] = false;
-		if  ( but != null ) but.style.background = '#FFFFFF';
+		if ( but != null ) but.removeAttribute('active');
 	} else {
 		showtag[tag] = true;
-		if  ( but != null ) but.style.background = '#eeeecc';
+		if ( but != null ) but.setAttribute('active', 1);
 	};
 	document.cookie = 'toggle-'+tag+'='+showtag[tag];
 	if ( tag == 'colors' ) {
@@ -388,16 +375,28 @@ function toggletn (tag) { // Show or hide empty elements
 	};
 };
 
+function togglestyle(id) {
+	var styleelm = document.getElementById('style-'+id);
+	var but = document.getElementById('btn-style-'+id);
+	if ( styleelm.hasAttribute('media') ) {
+		if ( styleelm != null ) styleelm.removeAttribute('media');
+		if ( but != null ) but.setAttribute('active', 1);
+	} else {
+		if ( styleelm != null ) styleelm.setAttribute('media', 'not all')		
+		if ( but != null ) but.removeAttribute('active');
+	};
+};
+
 function toggletag (tag) { // Show or hide empty elements
 	var but = document.getElementById('tbt-'+tag);
 	if ( !but ) return;
 	var idx = labels.indexOf(tag);
 	if ( idx > -1 ) {
 		labels.splice(idx, 1);;
-		but.style.background = '#FFFFFF';
+		if ( but != null ) but.removeAttribute('active');
 	} else {
 		labels.push(tag);
-		but.style.background = '#eeeecc';
+		if ( but != null ) but.setAttribute('active', 1);
 	};
 	document.cookie = 'labels='+labels.join();
 	setForm(showform);
@@ -1027,10 +1026,10 @@ function togglecol () { // Show or hide colours
 	if ( !but ) return;
 	if ( showcol ) {
 		showcol = false;
-		but.style.background = '#FFFFFF';
+		if ( but != null ) but.removeAttribute('active');
 	} else {
 		showcol = true;
-		but.style.background = '#eeeecc';
+		if ( but != null ) but.setAttribute('active', 1);
 	};
 	document.cookie = 'togglecol='+showcol;
 	setForm(showform);
@@ -1042,12 +1041,12 @@ function toggleimg () { // Show or hide images
 	if ( showimg ) {
 		showimg = false;
 		if (but && typeof(but.style) == "object") {
-			but.style['background-color'] = '#FFFFFF';
+		if ( but != null ) but.removeAttribute('active');
 		};
 	} else {
 		showimg = true;
 		if (but && typeof(but.style) == "object") {
-			but.style['background-color'] = '#eeeecc';
+		if ( but != null ) but.setAttribute('active', 1);
 		};
 	};
 	document.cookie = 'toggleimg='+showimg;
@@ -1072,12 +1071,12 @@ function toggleint () { // Interpret breaks or not
 	if ( interpret ) {
 		interpret = false;
 		if ( typeof(but) == "object" ) { 
-			but.style['background-color'] = '#FFFFFF';
+		if ( but != null ) but.removeAttribute('active');
 		};
 	} else {
 		interpret = true;
 		if ( typeof(but) == "object" && but != null ) { 
-			but.style['background-color'] = '#eeeecc';
+		if ( but != null ) but.setAttribute('active', 1);
 		};
 	};
 	document.cookie = 'toggleint='+interpret;

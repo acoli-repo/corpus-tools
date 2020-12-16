@@ -219,7 +219,7 @@
 	$sep = "<p>";
 	$buttonsep = " <sep>-</sep> ";
 	if ( $fbc > 1 ) {
-		$showoptions .= "<button id='btn-tag-colors' style='background-color: #ffffff;' title='{%color-code form origin}' onClick=\"toggletn('colors');\">{%Colors}</button> ";
+		$showoptions .= "<button id='btn-tag-colors' title='{%color-code form origin}' onClick=\"toggletn('colors');\">{%Colors}</button> ";
 		$sep = $buttonsep;
 	};
 	
@@ -227,19 +227,29 @@
 	$tokpos = strpos($editxml, "<tok"); 
 	
 	if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) ||  strpos($editxml, "<lb", $tokpos)  ) ) {
-		$showoptions .= "<button id='btn-tag-interpret' style='background-color: #ffffff;' title='{%format breaks}' onClick=\"toggletn('interpret');\">{%Formatting}</button>";
+		$showoptions .= "<button id='btn-tag-interpret' title='{%format breaks}' onClick=\"toggletn('interpret');\">{%Formatting}</button>";
 	};
 	if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) || ( $username && strpos($editxml, "<pb") )  ) ) {
 		// Should the <pb> button be hidden if there is only one page? (not for admin - pb editing)
-		$showoptions .= "<button id='btn-tag-pb' style='background-color: #ffffff;' title='{%show pagebreaks}' onClick=\"toggletn('pb');\">&lt;pb&gt;</button>";
+		$showoptions .= "<button id='btn-tag-pb' title='{%show pagebreaks}' onClick=\"toggletn('pb');\">&lt;pb&gt;</button>";
 	};
 	if ( !$nobreakoptions && ( strpos($editxml, "<lb", $tokpos) ) ) {
-		$showoptions .= "<button id='btn-tag-lb' style='background-color: #ffffff;' title='{%show linebreaks}' onClick=\"toggletn('lb');\">&lt;lb&gt;</button>";
+		$showoptions .= "<button id='btn-tag-lb' title='{%show linebreaks}' onClick=\"toggletn('lb');\">&lt;lb&gt;</button>";
+	};
+	
+	# Deal with conditional styling
+	foreach ( $settings['xmlfile']['styles'] as $key => $item ) {
+		if ( $item['recond'] && !preg_match("/{$item['recond']}/", $editxml ) ) continue;
+		if ( $item['rerest'] && preg_match("/{$item['rerest']}/", $editxml ) ) continue;
+		if ( $item['xpcond'] && !$xml->xpath($item['xpcond']) ) continue;
+		if ( $item['xprest'] && $xml->xpath($item['xprest']) ) continue;
+		$showoptions .= "<button id='btn-style-$key' title='{%{$item['long']}}' onClick=\"togglestyle('$key');\">{%{$item['display']}}</button>";
+		$showoptions .= "<link rel=\"stylesheet\" type=\"text/css\" id=\"style-$key\" media=\"not all\" href=\"Resources/{$item['css']}\">";
 	};
 	
 	if ( !$username ) $noadmin = "(?![^>]*admin=\"1\")";
 	if ( preg_match("/ facs=\"[^\"]+\"$noadmin/", $editxml) ) {
-		$showoptions .= " <button id='btn-tag-images' style='background-color: #ffffff;' title='{%show facsimile images}' onClick=\"toggletn('images');\">{%Images}</button>";
+		$showoptions .= " <button id='btn-tag-images' title='{%show facsimile images}' onClick=\"toggletn('images');\">{%Images}</button>";
 	};
 					
 	foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
@@ -345,7 +355,7 @@
 	# Check if there are sub-sounds to display
 	$result = $xml->xpath("//*[@start]"); 
 	if ( $result && $audiobit ) {
-		$showoptions .= " <button id='btn-audio' style='background-color: #ffffff;' onClick=\"toggleaudio();\">{%$audiobut}</button> ";
+		$showoptions .= " <button id='btn-audio' onClick=\"toggleaudio();\">{%$audiobut}</button> ";
 		$postjsactions .= "makeaudio();";
 	};
 
