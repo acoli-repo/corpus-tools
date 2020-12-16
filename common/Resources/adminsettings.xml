@@ -521,10 +521,10 @@ x				<att key="tag" display="XML tag to be used in CQP (if not @key)"/>
 				highlighting named entities in the text.
 			</desc>
 			<list>
-				<att key="key" display="ID for the button"/>
-				<att key="display" display="Display text for the button"/>
+				<att key="key" display="ID for the button"  obl="1"/>
+				<att key="display" display="Display text for the button"  obl="1"/>
 				<att key="long" display="Rollover title for the button"/>
-				<att key="css" display="Associated CSS file (in Resources)"/>
+				<att key="css" display="Associated CSS file (in Resources)" obl="1"/>
 				<att key="xpcond" display="XPath condition for the button to be displayed"/>
 				<att key="xprest" display="XPath restriction for the button to be displayed"/>
 				<att key="recond" display="RegEx condition for the button to be displayed"/>

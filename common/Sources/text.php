@@ -219,7 +219,7 @@
 	$sep = "<p>";
 	$buttonsep = " <sep>-</sep> ";
 	if ( $fbc > 1 ) {
-		$showoptions .= "<button id='btn-tag-colors' title='{%color-code form origin}' onClick=\"toggletn('colors');\">{%Colors}</button> ";
+		$showoptions .= " <button id='btn-tag-colors' title='{%color-code form origin}' onClick=\"toggletn('colors');\">{%Colors}</button> ";
 		$sep = $buttonsep;
 	};
 	
@@ -227,14 +227,14 @@
 	$tokpos = strpos($editxml, "<tok"); 
 	
 	if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) ||  strpos($editxml, "<lb", $tokpos)  ) ) {
-		$showoptions .= "<button id='btn-tag-interpret' title='{%format breaks}' onClick=\"toggletn('interpret');\">{%Formatting}</button>";
+		$showoptions .= " <button id='btn-tag-interpret' title='{%format breaks}' onClick=\"toggletn('interpret');\">{%Formatting}</button> ";
 	};
 	if ( !$nobreakoptions && ( strpos($editxml, "<pb", $tokpos) || ( $username && strpos($editxml, "<pb") )  ) ) {
 		// Should the <pb> button be hidden if there is only one page? (not for admin - pb editing)
-		$showoptions .= "<button id='btn-tag-pb' title='{%show pagebreaks}' onClick=\"toggletn('pb');\">&lt;pb&gt;</button>";
+		$showoptions .= " <button id='btn-tag-pb' title='{%show pagebreaks}' onClick=\"toggletn('pb');\">&lt;pb&gt;</button> ";
 	};
 	if ( !$nobreakoptions && ( strpos($editxml, "<lb", $tokpos) ) ) {
-		$showoptions .= "<button id='btn-tag-lb' title='{%show linebreaks}' onClick=\"toggletn('lb');\">&lt;lb&gt;</button>";
+		$showoptions .= " <button id='btn-tag-lb' title='{%show linebreaks}' onClick=\"toggletn('lb');\">&lt;lb&gt;</button> ";
 	};
 	
 	# Deal with conditional styling
@@ -243,13 +243,14 @@
 		if ( $item['rerest'] && preg_match("/{$item['rerest']}/", $editxml ) ) continue;
 		if ( $item['xpcond'] && !$xml->xpath($item['xpcond']) ) continue;
 		if ( $item['xprest'] && $xml->xpath($item['xprest']) ) continue;
-		$showoptions .= "<button id='btn-style-$key' title='{%{$item['long']}}' onClick=\"togglestyle('$key');\">{%{$item['display']}}</button>";
+		$showoptions .= " <button id='btn-style-$key' title='{%{$item['long']}}' onClick=\"togglestyle('$key');\">{%{$item['display']}}</button> ";
 		$showoptions .= "<link rel=\"stylesheet\" type=\"text/css\" id=\"style-$key\" media=\"not all\" href=\"Resources/{$item['css']}\">";
 	};
 	
 	if ( !$username ) $noadmin = "(?![^>]*admin=\"1\")";
 	if ( preg_match("/ facs=\"[^\"]+\"$noadmin/", $editxml) ) {
-		$showoptions .= " <button id='btn-tag-images' title='{%show facsimile images}' onClick=\"toggletn('images');\">{%Images}</button>";
+		$postjsactions .= "\n				toggletn('images');";		
+		$showoptions .= " <button id='btn-tag-images' title='{%show facsimile images}' onClick=\"toggletn('images');\">{%Images}</button> ";
 	};
 					
 	foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
@@ -260,7 +261,7 @@
 				$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
 				$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 				$pcolor = $item['color'];
-				$tagstxt .= "<button id='tbt-$key' $active style='color: $pcolor;' onClick=\"toggletag('$key')\">{%$val}</button>";
+				$tagstxt .= "<button id='tbt-$key' $active style='color: $pcolor;' onClick=\"toggletag('$key')\">{%$val}</button> ";
 			};
 		} else if ( is_array($labarray) && ($akey = array_search($key, $labarray)) !== false) {
 			unset($labarray[$akey]);
@@ -362,7 +363,7 @@
 	if ( $showoptions != "" ) {
 		$viewoptions .= $sep."<span>{%Show}</span>: $showoptions";
 	};
-	if ( $viewoptions ) $viewoptions .= $buttonsep;
+	if ( $viewoptions && $tagoptions ) $viewoptions .= $buttonsep;
 	$viewoptions .= $tagoptions;
 	
 	if ( $viewoptions != "" ) {
