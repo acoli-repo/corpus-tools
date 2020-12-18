@@ -23,7 +23,9 @@
 		$formtxt = $form;
 		if ( $item['link'] ) {
 			$formtxt = "<a href='".str_replace('{$val}', $form, $item['link'])."'>$form</a>";
-		};
+		} else if ( $item['type'] == "pos" && file_exists("Resources/tagset.xml") ) {
+			$formtxt = "<a href='index.php?action=tagset&act=analyze&tag=$form'>$form</a>";
+		}
 		if ( $node[$key.''] || $key == "form" ) $maintext .= "<tr><th>".pattname($key)."<td>$formtxt<td style='padding-left: 20px;'><a href='{$cqlbase}[$key=\"$form\"]'>{%search similar}</i></a>";
 	};
 	$maintext .= "</table>";
