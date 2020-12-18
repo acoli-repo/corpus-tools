@@ -16,10 +16,15 @@
 	$cqlbase = $settings['cqp']['cqlbase'] or $cqlbase = "index.php?action=cqp&cql=";
 	
 	$maintext .= "<tr><th>{%Attributes}<td><table>";
-	foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
+	$tags = array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']);
+	foreach ( $tags as $key => $item ) {
 		if ( $item['nosearch'] ) continue;
 		$form = forminherit($node, $key);
-		if ( $node[$key.''] || $key == "form" ) $maintext .= "<tr><th>".pattname($key)."<td>$form<td style='padding-left: 20px;'><a href='{$cqlbase}[$key=\"$form\"]'>{%search similar}</i></a>";
+		$formtxt = $form;
+		if ( $item['link'] ) {
+			$formtxt = "<a href='".str_replace('{$val}', $form, $item['link'])."'>$form</a>";
+		};
+		if ( $node[$key.''] || $key == "form" ) $maintext .= "<tr><th>".pattname($key)."<td>$formtxt<td style='padding-left: 20px;'><a href='{$cqlbase}[$key=\"$form\"]'>{%search similar}</i></a>";
 	};
 	$maintext .= "</table>";
 	
