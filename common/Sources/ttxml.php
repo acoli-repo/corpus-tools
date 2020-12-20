@@ -690,6 +690,7 @@ class TTXML
 		foreach ( $settings['views'] as $key => $item ) {	
 			# Check whether we should do this
 			$dothis = 1;
+			# TODO: we might want to have functions only with tok/s selected
 			if ( $item['xprest'] ) {
 				$tmp = $this->xml->xpath($item['xprest']);
 				if ( $tmp ) $dothis = 0;
@@ -710,6 +711,7 @@ class TTXML
 				$viewopts[$key] = $lvltxt;
 			}; 
 		}; 
+		
 		// Add the annotation levels
 		if ( $settings['annotations'] ) {
 			foreach ( $settings['annotations'] as $key => $val ) {
@@ -744,11 +746,17 @@ class TTXML
 		foreach ( $viewopts as $key => $val ) {
 			list ( $doaction, $dolvl ) = explode ( ":", $key );
 			if ( $action != $doaction || ($dolvl && $dolvl != $_GET['elm']) ) {
+
+			$elmref = "";
+			if ( $_GET['pageid'] ) $elmref .= "&pageid={$_GET['pageid']}";
+			if ( $_GET['sid'] ) $elmref .= "&sid={$_GET['sid']}";
+			if ( $jmp ) $elmref .= "&jmp=$jmp";
+			if ( $dolvl ) $elmref .= "&elm=$dolvl";
 				if ( $initial."" == "select" ) {
-					$views .= $sep."<option value='index.php?action=$doaction&cid=$this->fileid&pageid={$_GET['pageid']}&jmp=$jmp&elm=$dolvl'>{%$val}</option>";
+					$views .= $sep."<option value='index.php?action=$doaction&cid=$this->fileid$elmref'>{%$val}</option>";
 					$sep = "\n";
 				} else {
-					$views .= $sep."<a href='index.php?action=$doaction&cid=$this->fileid&pageid={$_GET['pageid']}&jmp=$jmp&elm=$dolvl'>{%$val}</a>";
+					$views .= $sep."<a href='index.php?action=$doaction&cid=$this->fileid$elmref'>{%$val}</a>";
 					$sep = " &bull; ";
 				};
 			};

@@ -15,6 +15,9 @@
 	
 	$maintext .= "<h1>Dependency Tree</h1>"; 
 
+	$treeview = $_SESSION['treeview'] or $treeview = $_GET['view'] or $treeview = "tree";
+	$_SESSION['treeview'] = $treeview;
+
 	require ("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML($cid, true, "keepns");
 	
@@ -149,13 +152,13 @@
 		if ( $nextsent ) {
 			$nid = $nextsent['id'];
 			$nexts = $nextsent['n'] or $nexts = $nid;
-			$nnav = "<a href='index.php?action=$action&cid=$fileid&sid=$nid&view={$_GET['view']}'>> $nexts</a>";
+			$nnav = "<a href='index.php?action=$action&cid=$fileid&sid=$nid&view={$treeview}'>> $nexts</a>";
 		};
 		$prevsent = current($sent->xpath("preceding::s[1]")); 
 		if ( $prevsent ) {
 			$pid = $prevsent['id'];
 			$prevs = $prevsent['n'] or $prevs = $pid;
-			$bnav = "<a href='index.php?action=$action&cid=$fileid&sid=$pid&view={$_GET['view']}'>$prevs <</a>";
+			$bnav = "<a href='index.php?action=$action&cid=$fileid&sid=$pid&view={$treeview}'>$prevs <</a>";
 		};
 		
 		$pagenav = "<table style='width: 100%'><tr> <!-- /<$pbelm [^>]*id=\"{$_GET['pageid']}\"[^>]*n=\"(.*?)\"/ -->
@@ -169,7 +172,7 @@
 		$maintext .= $pagenav;
 
 		if ( $username ) {
-			$maintext .= "<p><span id='linktxt'>Click <a href='index.php?action=$action&act=edit&sid=$sid&cid=$cid&view={$_GET['view']}'>here</a> to edit the dependency tree</a></span>";
+			$maintext .= "<p><span id='linktxt'>Click <a href='index.php?action=$action&act=edit&sid=$sid&cid=$cid&view={$treeview}'>here</a> to edit the dependency tree</a></span>";
 			if ( $_POST['sent'] ) {
 				$maintext .= " - <span style='color: #cc2000;' onClick=\"document.sentform.action.value = 'save'; scriptedexit=true; document.sentform.submit();\"><b>Click here to save the modified dependencies</b><span>
 <script language=Javascript>
@@ -204,7 +207,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 		$maintext .= "			
 			<div id=mtxt $textdir>$xmltxt</div><hr>";
 
-		if ( $_GET['view'] == "graph" ) {
+		if ( $treeview == "graph" ) {
 			$graph = drawgraph($sent);
 		} else {
 			$graph = drawtree($sent);
@@ -283,26 +286,33 @@ $maintext .= "
 		drawInlineSVG(svgelm, ctxt, function(){
 			document.getElementById('pnglink').setAttribute('link', canvas.toDataURL());
 		});
-	</script>";
+	</script>
+	<style>a.selected { font-weight: bold; }</style>";
+	$selopt = "class=\"selected\"";
+	if ( $treeview == "graph" ) $selvg = $selopt; else $selvt = $selopt;
+	if ( $_GET['puctnsh'] == "with" ) $selpz = $selopt; else $selpm = $selopt;
+	if ( $_GET['hpos'] == "narrow" ) $selhn = $selopt; else if ( $_GET['hpos'] == "wordorder" ) $selhw = $selopt;  else $selhb = $selopt;
 	$maintext .= "
 	<h3>{%View options}</h3>
 	<table>
 	<tr><th>{%Main view}<td>
 		<ul>
-		<li><a href='$minurl&view=tree'>{%Tree}</a>
-		<li><a href='$minurl&view=graph'>{%Graph}</a>		
+		<li><a href='$minurl&view=tree' $selvt>{%Tree}</a>
+		<li><a href='$minurl&view=graph' $selvg>{%Graph}</a>		
 		</ul>	
 	<tr><th>{%Punctuation}<td>
 		<ul>	
-		<li><a href='$minurl&puctnsh=without'>{%Hide}</a>
-		<li><a href='$minurl&puctnsh=with'>{%Show}</a>			
-		</ul>	
+		<li><a href='$minurl&puctnsh=without' $selpm>{%Hide}</a>
+		<li><a href='$minurl&puctnsh=with' $selpz>{%Show}</a>			
+		</ul>";
+	if ( $treeview != "graph" ) $maintext .= "
 	<tr><th>{%Horizontal placement}<td>
 		<ul>	
-		<li><a href='$minurl&hpos=branch'>{%Branching}</a>
-		<li><a href='$minurl&hpos=wordorder'>{%Word order}</a>			
-		<li><a href='$minurl&hpos=narrow'>{%Centralized}</a>	
-		</ul>	
+		<li><a href='$minurl&hpos=branch' $selhb>{%Branching}</a>
+		<li><a href='$minurl&hpos=wordorder' $selhw>{%Word order}</a>			
+		<li><a href='$minurl&hpos=narrow' $selhn>{%Centralized}</a>	
+		</ul>";
+	$maintext .= "
 	</table>		
 	";
 
