@@ -294,7 +294,8 @@
 
 	# See if there is a sound to display
 	if ( $settings['defaults']['media']['type'] == "inline" ) {
-		$prejsactions .= "\t\tvar inlinemedia = true;";
+		$mediabaseurl =  $settings['defaults']['media']['baseurl'] or $mediabaseurl = "Audio";
+		$prejsactions .= "\t\tvar inlinemedia = true; var mediabaseurl = '$mediabaseurl';";
 		# Only treat media in the teiHeader here if we want things inline
 		$result = $xml->xpath("//teiHeader//media"); 
 	} else {
@@ -307,8 +308,8 @@
 			if ( $mtype == "audio" ) {
 				# Determine the URL of the audio fragment
 				$audiourl = $medianode['url'];
-				if ( $settings['defaults']['base']['media'] ) {
-					$audiourl = $settings['defaults']['base']['media'].$audiourl;
+				if ( $settings['defaults']['media']['baseurl'] ) {
+					$audiourl = $settings['defaults']['media']['baseurl'].$audiourl;
 				} else if ( !strstr($audiourl, 'http') ) {
 					if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
 					else $audiourl = $baseurl."Audio/$audiourl"; 

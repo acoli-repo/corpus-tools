@@ -234,9 +234,10 @@ function formify () {
 			} else {
 				mediaelm = document.createElement("audio");
 			}
+			if ( typeof(mediabaseurl) == "undefined" ) { mediabaseurl = baseurl + 'Audio/' };
 			var mediaurl = it.getAttribute('url');
 			if ( mediaurl.substr(0,4) != "http" ) {
-				mediaurl = baseurl + 'Audio/' + mediaurl;
+				mediaurl = mediabaseurl + mediaurl;
 			};
 			mediaelm.setAttribute('src', mediaurl);
 			mediaelm.setAttribute('id', 'track');
