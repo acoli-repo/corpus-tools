@@ -221,6 +221,38 @@ function formify () {
 		it.innerHTML = decotxt;
 	};
 		
+	if ( typeof(inlinemedia) != "undefined" && inlinemedia ) {
+		var its = mtxt.getElementsByTagName("media");
+		// there should be no <c_pb> at this point
+		for ( var a = 0; a<its.length; a++ ) {
+			var it = its[a];
+
+			var mediaelm;
+			var mime = it.getAttribute('mime');
+			if ( mime && mime.substr(0,5) == 'video') {
+				mediaelm = document.createElement("video");
+			} else {
+				mediaelm = document.createElement("audio");
+			}
+			var mediaurl = it.getAttribute('url');
+			if ( mediaurl.substr(0,4) != "http" ) {
+				mediaurl = baseurl + 'Audio/' + mediaurl;
+			};
+			mediaelm.setAttribute('src', mediaurl);
+			mediaelm.setAttribute('id', 'track');
+			mediaelm.setAttribute('controls', true);
+			mediaelm.ontimeupdate = function(){ checkstop(); };			
+			console.log(mediaelm);
+			
+			if ( it.parentNode.nodeName == "tok" || it.parentNode.nodeName == "TOK" ) {
+				// We need to place this next to the tok - so go on to grandparent iff tok
+				var tmp = it.parentNode.parentNode.insertBefore( mediaelm, it.parentNode.nextSibling );
+			} else {
+				var tmp = it.parentNode.insertBefore( mediaelm, it.nextSibling );
+			};
+		};
+	};
+		
 	// Treat all pb elements
 	var pbs = mtxt.getElementsByTagName("pb");
 	// there should be no <c_pb> at this point

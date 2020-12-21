@@ -189,6 +189,7 @@
 	
 	# Build the view options	
 	$viewforms = $settings['xmlfile']['pattributes']['forms'];
+	if ( !$viewforms ) $viewforms = array(); # If you do not have any view forms, this generates an error
 	if ( !$viewforms['pform'] ) $viewforms = array ( "pform" => array ("display" => "Transcription")) + $viewforms; # We always need a pform view
 	foreach ( $viewforms as $key => $item ) {
 		$formcol = $item['color'];
@@ -292,7 +293,13 @@
 	};
 
 	# See if there is a sound to display
-	$result = $xml->xpath("//media"); 
+	if ( $settings['defaults']['media']['type'] == "inline" ) {
+		$prejsactions .= "\t\tvar inlinemedia = true;";
+		# Only treat media in the teiHeader here if we want things inline
+		$result = $xml->xpath("//teiHeader//media"); 
+	} else {
+		$result = $xml->xpath("//media"); 
+	};
 	if ( $result ) {
 		foreach ( $result as $medianode ) {
 			list ( $mtype, $mform ) = explode ( '/', $medianode['mimeType'] );
