@@ -293,8 +293,9 @@
 	};
 
 	# See if there is a sound to display
+	# TODO: defaults/base/@media is deprecated
+	$mediabaseurl =  $settings['defaults']['media']['baseurl'] or $mediabaseurl =  $settings['defaults']['base']['media'] or $mediabaseurl = "Audio";
 	if ( $settings['defaults']['media']['type'] == "inline" ) {
-		$mediabaseurl =  $settings['defaults']['media']['baseurl'] or $mediabaseurl = "Audio";
 		$prejsactions .= "\t\tvar inlinemedia = true; var mediabaseurl = '$mediabaseurl';";
 		# Only treat media in the teiHeader here if we want things inline
 		$result = $xml->xpath("//teiHeader//media"); 
@@ -310,6 +311,9 @@
 				$audiourl = $medianode['url'];
 				if ( $settings['defaults']['media']['baseurl'] ) {
 					$audiourl = $settings['defaults']['media']['baseurl'].$audiourl;
+				} else if ( $settings['defaults']['base']['media'] ) {
+					## Deprecated
+					$audiourl = $settings['defaults']['base']['media'].$audiourl;
 				} else if ( !strstr($audiourl, 'http') ) {
 					if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
 					else $audiourl = $baseurl."Audio/$audiourl"; 
