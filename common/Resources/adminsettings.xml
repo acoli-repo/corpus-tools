@@ -72,6 +72,7 @@
 			<att key="base" display="HTML base setting for the site"/>
 		    <att key="proxy" display="An outgoing Proxy server when loading external resources"/> 
 		    <att key="javascript" display="URL to the Javascript folder" default="http://www.teitok.org/Scripts"/>
+		    <att key="media" display="Base URL for audio/video" deprecated="1"/>
 		</item>
 	    <item key="cwblog" display="Keep CQP queries in a log file">
 	    	<att key="file" display="Filename for the log file"/>

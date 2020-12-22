@@ -197,6 +197,7 @@ class TTXML
 						// Link when so asked
 						if ( $val['link'] ) {
 							if ( strpos($val['link'], "http") != false ) $tmp = $val['link'];
+							else if ( strpos($val['link'], "{#") != false ) $tmp = xpathrun($val['link'], $this->xml);
 							else $tmp = current($this->xml->xpath($val['link']));
 							if ( $tmp ) $hval = "<a href='$tmp'>$hval</a>";
 						};
