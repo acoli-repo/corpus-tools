@@ -71,9 +71,10 @@ class CQP
     public function exec($cmd) {
     	global $settings;
     	
-    	$cmd = preg_replace("/\n/", " ", $cmd); # Keep commands on a single line
-    	$cmd = preg_replace("/;*$/", ";\n;.EOL.;\n", $cmd); // Append the .EOL. command to mark the end of the CQP output
-		
+    	$cmd = str_replace("\0", " ", $cmd);
+    	$cmd = preg_replace("/[\n\r]/", " ", $cmd); # Keep commands on a single line
+    	$cmd = preg_replace("/\s*;*\s*$/", "", $cmd).";\n;.EOL.;\n"; // Append the .EOL. command to mark the end of the CQP output
+			
         if (is_resource($this->prcs)) {
 			fwrite($this->pipes[0], $cmd);
 			

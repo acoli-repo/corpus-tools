@@ -157,21 +157,40 @@
 		check_login();
 	
 		if ( !$_POST ) $_POST = $_GET;
+		$query = $_POST['query'];
 		$maintext .= "<h1>Raw CQP Query</h1>
 			<p>Below you can type in a sequence of CQP queries, and the interface will display the final result.
 		
-			<form action='index.php?action=$action&act=$act' method=post>
-				<textarea style='width: 100%; height: 200px;' name=query>{$_POST['query']}</textarea>
-				<p><input type=submit value='Execute'>
-			</form>";
+			<div id=\"editor\" style='width: 100%; height: 150px; border: 1px solid #aaaaaa;'>".htmlentities($query)."</div>
+	
+			<form action=\"index.php?action=$action&act=seq\" id=frm name=frm method=post>
+			<textarea style='display:none' name=query></textarea>
+			<p><input type=button value='Execute Query' onClick=\"return runsubmit();\"> $switch
+			</form>
 
-		if ( $_POST['query'] ) {
+			<script src=\"$aceurl\" type=\"text/javascript\" charset=\"utf-8\"></script>
+			<script>
+				var editor = ace.edit(\"editor\");
+				editor.setTheme(\"ace/theme/chrome\");
+				ace.config.setModuleUrl(\"ace/mode/cql\", \"$jsurl/mode-cql.js\");
+				editor.getSession().setMode(\"ace/mode/cql\");
+	
+				function runsubmit ( ) {
+					var querytxt = editor.getSession().getValue();
+					document.frm.query.value = querytxt;
+					document.frm.submit();
+				};
+			</script>
+		";
+
+		if ( $query ) {
+			$maintext .= "<p>{$query}";
 			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 			$cqp = new CQP();
 			$cqp->exec($cqpcorpus); // Select the corpus
 			$cqp->exec("set PrettyPrint off");
 		
-			$result = $cqp->exec($_POST['query']);
+			$result = $cqp->exec($query);
 			if ( $result == "\n" ) $result = "No result";
 		
 			$maintext .= "<hr><h2>Result</h2><pre>".htmlentities($result)."</pre>";
