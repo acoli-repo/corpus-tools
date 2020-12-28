@@ -33,6 +33,11 @@
 			$maintext .= "<hr><a href='index.php?action=$action'>{%back to list}</a> &bull; ".$ttxml->viewswitch();
 		
 		print "{\"cid\": \"{$_GET['cid']}\", \"facs\": [\"".join("\", \"", $facslist)."\"]}"; 
+
+	} else if ( $_GET['data'] == "docinfo" ) {
+		
+		print $ttxml->tableheader("", false);
+		exit;
 		
 	} else {
 		print "{\"error\": \"no data selected\"]}"; 

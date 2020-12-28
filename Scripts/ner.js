@@ -75,9 +75,6 @@ infoHTML = '<table><tr><th>' + nername + '</th><td><b><i>'+ showelement.innerHTM
 
 tokinfo.style.display = 'block';
 var foffset = offset(showelement);
-if ( typeof(poselm) == "object" ) {
-	var foffset = offset(poselm);
-};
 tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
 tokinfo.style.top = ( foffset.top + showelement.offsetHeight + 4 ) + 'px';
 

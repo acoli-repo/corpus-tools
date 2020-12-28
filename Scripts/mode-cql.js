@@ -61,7 +61,7 @@ ace.define('ace/mode/cql_highlight_rules', ['require', 'exports', 'ace/lib/oop',
             {token : "operator",   regex : "\\s*[&|]\\s*", next : "tokatt"},
         ],
         "globalstart" : [
-            {token : "keyword",   regex : "(match|target|matchend)\.", next : "globalatt"},
+            {token : ["keyword", "operator"],   regex : "(match|target|matchend)(\.)", next : "globalatt"},
             {token : "operator",   regex : ";", next : "start"},
         ],
         "globalatt" : [
