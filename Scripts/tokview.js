@@ -274,7 +274,7 @@ function showdocinfo(showelement) {
 	var cid = showelement.getAttribute('cid');
 
 	var foffset = offset(showelement);
-	tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset )  + showelement.offsetWidth + 'px'; 
+	tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset )  + showelement.offsetWidth + 10 + 'px'; 
 	tokinfo.style.top = ( foffset.top + 4 ) + 'px';
 
 	tokinfo.style.display = 'block';
