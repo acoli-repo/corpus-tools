@@ -36,7 +36,7 @@
 
 	} else if ( $_GET['data'] == "docinfo" ) {
 		
-		$output = "<h3>".$ttxml->title()."</h3>".$ttxml->tableheader("", false);
+		$output = "<table width=100% style='margin-bottom: -4px;'><tr><th><b>".$ttxml->title()."</b></th><tr></table>".$ttxml->tableheader("", false);
 		print i18n($output);
 		exit;
 		
