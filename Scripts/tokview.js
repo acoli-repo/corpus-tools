@@ -278,7 +278,7 @@ function showdocinfo(showelement) {
 	tokinfo.style.top = ( foffset.top + 4 ) + 'px';
 
 	tokinfo.style.display = 'block';
-	tokinfo.innerHTML = '<p>'+cid+'</p>';
+	tokinfo.innerHTML = '<p><i style="color: #aaaaaa;">loading document info</i></p>';
 
 	if ( cid ) {
 		if ( docdata[cid] ) {
