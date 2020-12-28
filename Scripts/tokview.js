@@ -163,30 +163,31 @@ function showtokinfo(evt, element, poselm) {
 
     };
  
-	function offset(elem) {
-		if(!elem) elem = this;
-
-		var x = elem.offsetLeft;
-		var y = elem.offsetTop;
-
-		if ( typeof(x) == "undefined" ) {
-
-			bbr = elem.getBoundingClientRect();
-			x = bbr.left + window.pageXOffset;
-			y = bbr.top + window.pageYOffset;
-
-		} else {
-
-			while (elem = elem.offsetParent) {
-				x += elem.offsetLeft;
-				y += elem.offsetTop;
-			}
-		
-		};
-		
-		return { left: x, top: y };
-	}    
 } 
+
+function offset(elem) {
+	if(!elem) elem = this;
+
+	var x = elem.offsetLeft;
+	var y = elem.offsetTop;
+
+	if ( typeof(x) == "undefined" ) {
+
+		bbr = elem.getBoundingClientRect();
+		x = bbr.left + window.pageXOffset;
+		y = bbr.top + window.pageYOffset;
+
+	} else {
+
+		while (elem = elem.offsetParent) {
+			x += elem.offsetLeft;
+			y += elem.offsetTop;
+		}
+	
+	};
+	
+	return { left: x, top: y };
+}    
 
 function highlightbb (elm, hln=0) {
 
@@ -265,5 +266,37 @@ function highlightbb (elm, hln=0) {
 	
 };
 
+// Show docinfo
+var docdata = {};
+function showdocinfo(showelement) {
+	var tokinfo = document.getElementById('tokinfo');
+	if ( !tokinfo ) { return -1; };
+	var cid = showelement.getAttribute('cid');
+
+	var foffset = offset(showelement);
+	tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset )  + showelement.offsetWidth + 'px'; 
+	tokinfo.style.top = ( foffset.top + 4 ) + 'px';
+
+	tokinfo.style.display = 'block';
+	tokinfo.innerHTML = '<p>'+cid+'</p>';
+
+	if ( cid ) {
+		if ( docdata[cid] ) {
+		  tokinfo.innerHTML = docdata[cid];
+		} else {
+			// start Ajax to replace info by full data
+			  var xhttp = new XMLHttpRequest();
+			  xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					docdata[cid] = this.responseText;
+					tokinfo.innerHTML = this.responseText;
+				}
+			  };
+			  xhttp.open('GET', 'index.php?action=ajax&data=docinfo&cid='+cid, true);
+			  xhttp.send();
+		};
+	};
+
+};
 
 

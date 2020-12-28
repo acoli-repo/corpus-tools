@@ -36,8 +36,8 @@
 
 	} else if ( $_GET['data'] == "docinfo" ) {
 		
-		$rawtable = $ttxml->tableheader("", false);
-		print i18n($rawtable);
+		$output = "<h3>".$ttxml->title()."</h3>".$ttxml->tableheader("", false);
+		print i18n($output);
 		exit;
 		
 	} else {
