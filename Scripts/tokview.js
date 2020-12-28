@@ -30,9 +30,9 @@ function clickEvent(evt) {
 		} else {
 			jumpid = tid;
 		};
-    	if ( username ) {
+    	if ( username && jumpid ) {
     		window.open('index.php?action=tokedit&cid='+jumpid+'&tid='+element.getAttribute('id'), 'edit');
-    	} else if ( typeof(wordinfo) != null && typeof(wordinfo) != 'undefined' ) {
+    	} else if ( typeof(wordinfo) != null && typeof(wordinfo) != 'undefined' && jumpid ) {
     		window.open('index.php?action=wordinfo&cid='+jumpid+'&tid='+element.getAttribute('id'), '_self');
     	};
     };
