@@ -36,7 +36,8 @@
 
 	} else if ( $_GET['data'] == "docinfo" ) {
 		
-		print $ttxml->tableheader("", false);
+		$rawtable = $ttxml->tableheader("", false);
+		print i18n($rawtable);
 		exit;
 		
 	} else {
