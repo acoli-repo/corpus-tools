@@ -1,4 +1,5 @@
 <?php
+
 	// Viewport hub - determine which view to use to display a file
 	// (c) Maarten Janssen, 2018
 
@@ -16,6 +17,11 @@
 	else $viewaction = "text";
 
 	$action = $viewaction;
-	include("$viewaction.php");
+	if ( file_exists("Sources/$viewaction.php") ) $viewphp = "Sources/$viewaction.php";
+	else if ( file_exists("$sharedfolder/Sources/$viewaction.php") ) $viewphp = "$sharedfolder/Sources/$viewaction.php";
+	else if ( file_exists("$ttroot/common/Sources/$viewaction.php") ) $viewphp = "$ttroot/common/Sources/$viewaction.php";
+	else fatal("No such action: $viewaction");
+	
+	include($viewphp);
 
 ?>
