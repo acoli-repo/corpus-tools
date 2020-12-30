@@ -689,8 +689,11 @@ class TTXML
 		}; 
 
 		foreach ( $settings['views'] as $key => $item ) {	
+			
 			# Check whether we should do this
 			$dothis = 1;
+			if ( $item['admin'] && !$username ) { $dothis = 0; };
+			
 			# TODO: we might want to have functions only with tok/s selected
 			if ( $item['xprest'] ) {
 				$tmp = $this->xml->xpath($item['xprest']);
