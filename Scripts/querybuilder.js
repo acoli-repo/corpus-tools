@@ -344,7 +344,7 @@ function updatequery(nodirect = false) {
 			} else if ( typeof(pattname) != 'undefined' && typeof(pattname[parse[2]]) != 'undefined' 
 							&& pattname[parse[2]].values == 'multi' ) {
 				if ( typeof(mvsep) == 'undefined' ) var mvsep = ',';
-				val = '('+mvsep+'.*)?' + val + '('+mvsep+'.*)?';
+				val = '(.*'+mvsep+')?' + val + '('+mvsep+'.*)?';
 			};
         	var tmp = /^(.*?)_(.*)$/.exec(parse[2]);
         	var gltype = tmp[1]; var glatt = tmp[2];
