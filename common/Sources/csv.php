@@ -21,13 +21,31 @@ if ( $act == "export" && $_POST['queries']  ) {
 	$cmd = "perl $ttroot/common/Scripts/tei2csv.pl --xmlfolder='{$_POST['xmlfolder']}' --restrfld='{$_POST['restrfld']}' --restrval='{$_POST['restrval']}' --queries='{$_POST['queries']}' --header --info --csvfile='tmp/$filename' > /dev/null 2>/dev/null &";
 	exec($cmd);
 	
-	$maintext .= "<p>You export is currently being created. Depending on the number of XML files in the folder you selected, 
-		this may take quite a while to generate. Once the process is finished, you can view (and edit) the CSV file 
-		<a href='index.php?action=$action&act=view&wait=1&file=tmp/$filename'>here</a>.
+	$newurl = "index.php?action=$action&act=wait&file=tmp/$filename";
+	$maintext .= "<p>You export is currently being created. You will be redirected to the waiting area.
+		If it does not open, click <a href='$newurl'>here</a>.
 		";	
+	header( "refresh:1;url=$newurl" );
 	
 	$maintext .= "<p>$cmd";
 
+} else if ( $act == "wait" && $file  ) {
+	
+	if ( !file_exists($file) ) fatal ( "No such CSV export: $file" );
+	$tmp = shell_exec("wc '$file'"); $cnt = preg_replace("/^\s*(\d+)/", "\\1", $tmp ) -1;
+
+	if ( file_exists("$file.info") ) {
+		$next = "index.php?action=$action&act=view&file=$file";
+		print  "Process finished. Reloading to <a href='$next'>$next</a>.
+			<script>top.location = '$next';</script>";
+		exit;
+	} else {
+		$maintext .= "<h2>Waiting for Processes</h2>
+			<p>This page will refresh every 3 seconds until the export is finished.
+			<p>Files already exported: $cnt";
+		header( "refresh:3" );
+	};
+	
 } else if ( $act == "upload" ) {
 
 	$maintext .= "<h2>Import CSV</h2>
@@ -45,10 +63,8 @@ if ( $act == "export" && $_POST['queries']  ) {
 	// Define a new export	
 	
 	// read the items from teiHeader-edit.tpl
-	$tmp = file_get_contents("Resources/teiHeader-edit.tpl");
-	preg_match_all("/<th>([^><]+)<\/th><td>{#([^><]+)}<\/td>/", $tmp, $matches );
-	foreach ( $matches[1] as $nr => $match ) {
-		$xpathselect .= "<option value='{$matches[2][$nr]}'>$match</option>";
+	foreach ( $settings['teiheader'] as $key => $val ) {
+		$xpathselect .= "<option value='{$val['xpath']}'>{$val['display']}</option>";
 	};
 	
 	// read the subfolders of xmlfiles
@@ -63,9 +79,9 @@ if ( $act == "export" && $_POST['queries']  ) {
 	<form action='index.php?action=$action&act=export' method=post>
 
 	<h2>Fields</h2>
-	<p>Define xpath queries for the fields from each XML file you want to export (or select from the teiHeader-edit template)
+	<p>Define xpath queries (comma separated) for the fields from each XML file you want to export (or select from the teiHeader-edit template)
 	<p><input name=queries id=queries size=100> 
-	<p>Select from teiHeader-edit.tpl: <select name=selector onChange=\"document.getElementById('queries').value = this.value;\"><option value=\"\">[select]</option>$xpathselect</select>
+	<p>Select from teiHeader definition: <select name=selector onChange=\"addxp(this);\"><option value=\"\">[select]</option>$xpathselect</select>
 	<h2>Folder</h2>
 	<p>Define the folder from which you want to select the XML files
 	<p><select name=xmlfolder><option value=\"xmlfiles\">xmlfiles</option>$folderselect</select>
@@ -76,6 +92,13 @@ if ( $act == "export" && $_POST['queries']  ) {
 	<hr>
 	<p> <input type=submit value=Create> <a href='index.php?action=$action'>cancel</a>
 	</form>
+	<script>
+		function addxp(elm) {
+			var fld = document.getElementById('queries');
+			if (fld.value) fld.value += ',';
+			fld.value += elm.value;
+		};
+	</script>
 	";
 	
 } else if ( ( $act == "view" || $act == "edit" ) && $file ) {
@@ -108,13 +131,15 @@ if ( $act == "export" && $_POST['queries']  ) {
 	}; 
 	
 	
-	$infofile = str_replace(".csv", ".info", $file);
-	if ( file_exists($infofile) ) {
+	$infofile = $file.".info";
+	if ( !file_exists($file) ) {
+		fatal("No such CSV file: $file");
+	} else if ( file_exists($infofile) ) {
 		$tmp = file_get_contents($infofile);
-		$info = simplexml_load_string($tmp);
+		$infoxml = simplexml_load_string($tmp);
 		
 		$maintext .= "<table>";
-		foreach ( $info->children() as $key => $childnode ) {
+		foreach ( $infoxml->children() as $key => $childnode ) {
 			$name = $childnode['display'] or $name = $key;
 			$maintext .= "<tr><th>$name<td>".$childnode;
 		};

@@ -25,6 +25,9 @@ GetOptions (
 if ( $xmlfolder eq '' ) { $xmlfolder = "xmlfiles"; };
 if ( !$restrfld && $restrval ) { $restrfld = $xpathqueries; };
 
+$filecnt = $filedone = $filereject = $fileerror = 0;
+$modifications = "";
+
 if ( $xpathqueries eq '' ) { 
 	$xpathqueries = "//title"; 
 } elsif ( -e $xpathqueries ) {
@@ -57,7 +60,7 @@ close OUTPUT;
 
 # When so asked, create a .info file
 if ( $info && $csvfile ) {
-	( $infofile = $csvfile ) =~ s/\.csv/.info/;
+	$infofile = $csvfile.".info";
 	if ( $debug ) { print " - saving export info to $infofile\n"; };
 	
 	open OUTPUT, ">$infofile" or die("Unable to open $infofile\n");
@@ -65,11 +68,14 @@ if ( $info && $csvfile ) {
 	$restriction = "$restrfld"; if ( $restrval ) { $restriction .= " =~ $restrval"; };
 	print OUTPUT "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <info>
-	<filename>dates.csv</filename>
+	<filename>$csvfile</filename>
 	<date display=\"creation date\">$now</date>
 	<queries>$xpathqueries</queries>
 	<folder>$xmlfolder</folder>
 	<restriction>$restriction</restriction>
+	<count>$filecnt file checked, $filedone files exported, $filereject non-matching files, $fileerror errors</count>
+	<modifications>$mods</modifications>
+	<errors>$errorlist</errors>
 </info>";
 	close OUTPUT;
 };
@@ -98,11 +104,14 @@ sub readfolder ( $folder ) {
 sub treatfile ( $file ) {
 	my $file = @_[0]; 
 	if ( $debug ) { print "Treating file: $file\n"; };
+	$filecnt++;
 	
 	eval {
 		$xml = $parser->load_xml(location => $file);
 	}; if ( $@ ) {
 		if ( $debug ) { print " - unable to parse\n"; };
+		$errorlist .= "unable to parse $file;";
+		$fileerror++;
 		return;
 	};
 	
@@ -111,10 +120,12 @@ sub treatfile ( $file ) {
 		$restnode = $xml->findnodes($restrfld)->item(0);
 		if ( !$restnode ) { 
 			if ( $debug ) { print " - restriction field not found: $restrfld\n"; };
+			$filereject++;
 			return; 
 		} elsif ( $restrval ) {
 			if ( $restnode->textContent !~ /$restrval/ ) {
 				if ( $debug ) { print " - restriction field ($restrfld) does not match: $restrval <= ".$restnode->textContent."\n"; };
+				$filereject++;
 				return; 
 			};
 		};
@@ -125,7 +136,12 @@ sub treatfile ( $file ) {
 		@tmp = $xml->findnodes($xpath."");
 		print OUTPUT "\t";
 		if ( @tmp ) {
-			print OUTPUT $tmp[0]->textContent;
+			$fieldvalue = $tmp[0]->textContent;
+			if ( $fieldvalue =~ /\n/ ) {
+				$mods = "Removed newlines in $file#$xpath;";
+			};
+			$fieldvalue =~ s/\n/ /g;
+			print OUTPUT $fieldvalue;
 		} else {
 			if ( $debug ) {
 				print OUTPUT "*".$xpath;
@@ -134,5 +150,6 @@ sub treatfile ( $file ) {
 			};
 		};
 	};	
+	$filedone++;
 	print OUTPUT "\n";
 }
