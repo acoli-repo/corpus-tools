@@ -18,7 +18,7 @@ if ( $act == "export" && $_POST['queries']  ) {
 	if ( $_POST['type'] ) $type = "_".$_POST['type'];
 
 	$filename = "export_{$date}$type.csv";
-	$cmd = "perl $ttroot/common/Scripts/tei2csv.pl --xmlfolder='{$_POST['xmlfolder']}' --restrfld='{$_POST['restrfld']}' --restrval='{$_POST['restrval']}' --queries='{$_POST['queries']}' --header --info --csvfile='tmp/$filename' > /dev/null 2>/dev/null &";
+	$cmd = "perl $ttroot/common/Scripts/tei2csv.pl --xmlfolder='{$_POST['xmlfolder']}' --restrfld='{$_POST['restrfld']}' --restrval='{$_POST['restrval']}' --queries='{$_POST['queries']}' --header --info --csvfile='tmp/$filename' > /dev/null 2>tmp/export.error &";
 	exec($cmd);
 	
 	$newurl = "index.php?action=$action&act=wait&file=tmp/$filename";
@@ -169,8 +169,11 @@ if ( $act == "export" && $_POST['queries']  ) {
 	// Show the header line if there is one
 	if ( count($header) ) {
 		foreach ( $header as $nr => $fld ) {
+			$thxp = "//teiheader/item[@xpath=".xpath_quote($fld)."]";
 			if ( $desc[$nr] != "" ) {
 				$maintext .= "<th title='$fld'>{$desc[$nr]}";				
+			} else if ( $setnode = current($settingsxml->xpath($thxp)) ) {
+				$maintext .= "<th title='$fld'>{$setnode['display']}";				
 			} else {
 				$maintext .= "<th>$fld";
 			};
@@ -371,5 +374,39 @@ function subdirs ( $dir ) {
 	};
 	return $array;
 };
+
+function xpath_quote(string $value):string{
+    if(false===strpos($value,'"')){
+        return '"'.$value.'"';
+    }
+    if(false===strpos($value,'\'')){
+        return '\''.$value.'\'';
+    }
+    // if the value contains both single and double quotes, construct an
+    // expression that concatenates all non-double-quote substrings with
+    // the quotes, e.g.:
+    //
+    //    concat("'foo'", '"', "bar")
+    $sb='concat(';
+    $substrings=explode('"',$value);
+    for($i=0;$i<count($substrings);++$i){
+        $needComma=($i>0);
+        if($substrings[$i]!==''){
+            if($i>0){
+                $sb.=', ';
+            }
+            $sb.='"'.$substrings[$i].'"';
+            $needComma=true;
+        }
+        if($i < (count($substrings) -1)){
+            if($needComma){
+                $sb.=', ';
+            }
+            $sb.="'\"'";
+        }
+    }
+    $sb.=')';
+    return $sb;
+}
 
 ?>
