@@ -13,7 +13,6 @@ $parser = XML::LibXML->new();
 GetOptions (
             'csvfile=s' => \$csvfile,
             'delim=s' => \$delim,
-            'teiheader=s' => \$teiheader,
             'xmlfolder=s' => \$xmlfolder, # Which folder to use
             'debug' => \$debug, 
             'verbose' => \$verbose, 
@@ -72,14 +71,13 @@ if ( $xpathqueries ) {
 	close XFILE;
 	if ( !$fnfld ) { unshift(@xpfields, "[fn]"); };
 	if ( $debug ) { print "Xpath definitions:\n".join ( "\n", @xpfields); };
-} elsif ( $teiheader ) {
 } else {
 	$xprow = <FILE>; chomp($xprow);
 	@xpfields = split ( "\t", $xprow );
 	$orgfields = shift(@orglines);
 	if ( $debug ) { print "Xpath definitions:\n".join ( "\n", @xpfields); };
 	if ( $orgfields && $orgfields ne $xprow ) {
-		print " - Error: header of original file not matching: ".$checkheader;
+		print " - Error: header of original file not matching: \n$orgfields\n=/=\n$xprow";
 		exit;
 	};
 };

@@ -160,7 +160,7 @@ if ( $act == "export" && $_POST['queries']  ) {
 	} else if ( $act == "edit" ) {
 		$maintext .= "
 			<form action=\"index.php?action=$action&act=save\" method=post>
-			<input type=hidden name=file value=\"$file\">
+			<input type=hidden name=file value=\"".str_replace('"', '&quot;', $file)."\">
 			";
 	};
 
@@ -180,7 +180,7 @@ if ( $act == "export" && $_POST['queries']  ) {
 			if ( $headedit ) {
 				$maintext .= "<input size=40 name=head[$nr] value=\"$fld\">";			
 			} else {
-				$maintext .= "<input type=hidden name=head[$nr] value=\"$fld\">";			
+				$maintext .= "<input type=hidden name=head[$nr] value=\"".str_replace('"', '&quot;', $fld)."\">";			
 			};
 		};	
 	};
