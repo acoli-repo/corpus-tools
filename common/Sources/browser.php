@@ -427,7 +427,7 @@
 			$cat = $item['display']; # $val = $item['long'] or
 
 			if ( ( $item['type'] == "select" || $item['browse'] || $item['type'] == "kselect"  || $item['type'] == "date" )
-					&& ( ( !$item['noshow'] && !$item['admin']  ) || $username ) ) {
+					&& is_array($item) && ( ( !$item['noshow'] && !$item['admin']  ) || $username ) ) {
 				$foundsome = 1;
 				$maintext .= "<li key='$cat'><a href='index.php?action=$action&class=$key'>{%$cat}</a></li>";
 			};
