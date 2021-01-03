@@ -148,7 +148,7 @@
 
 		# Make the menu bar options
 		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
-			if ( !is_array($item) || $item['type'] != "select" ) continue;
+			if ( !is_array($item) || ( $item['type'] != "select" && !$item['browse'] ) ) continue;
 			$selmenu .= "<h2>{$item['display']}</h2>";
 			$xkey = "text_$key"; 
 
@@ -426,7 +426,7 @@
 			if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
 			$cat = $item['display']; # $val = $item['long'] or
 
-			if ( ( $item['type'] == "select" || $item['type'] == "kselect"  || $item['type'] == "date" )
+			if ( ( $item['type'] == "select" || $item['browse'] || $item['type'] == "kselect"  || $item['type'] == "date" )
 					&& ( ( !$item['noshow'] && !$item['admin']  ) || $username ) ) {
 				$foundsome = 1;
 				$maintext .= "<li key='$cat'><a href='index.php?action=$action&class=$key'>{%$cat}</a></li>";

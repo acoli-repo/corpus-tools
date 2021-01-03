@@ -258,6 +258,9 @@ if ( $act == "export" && $_POST['queries']  ) {
 	};
 		$maintext .= "</p>";
 	
+	// Add a session logout tester
+	if ( $act == "edit" ) $maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
+	
 } else if ( $act == "save" ) {
 	// save a modified CSV file
 	
