@@ -195,7 +195,7 @@ class TTXML
 						if ( preg_match("/@[^\/]+$/", $val['xpath']) ) $hval = "".$xval;
 						else $hval = preg_replace( "/^<[^>]+>|<[^>]+>$/", "", $xval->asXML());
 						// Link when so asked
-						if ( $val['link'] ) {
+						if ( $val['link'] && $hval ) {
 							if ( strpos($val['link'], "http") != false ) $tmp = $val['link'];
 							else if ( strpos($val['link'], "{#") != false ) $tmp = xpathrun($val['link'], $this->xml);
 							else $tmp = current($this->xml->xpath($val['link']));
@@ -205,7 +205,7 @@ class TTXML
 							$hval = $settings['teiheader'][$key]['options'][$hval]['display'];
 						if ( $settings['teiheader'][$key]['i18n'] ) 
 							$hval = "{%$hval}";
-						$tableheader .= "<tr><th>{%$disp}<td>$hval";
+						if ($hval != "" && $hval != "{%}") $tableheader .= "<tr><th>{%$disp}<td>$hval";
 					} else {
 						$moretoshow = 1;
 					};
