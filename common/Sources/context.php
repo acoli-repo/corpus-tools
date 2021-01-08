@@ -70,8 +70,9 @@
 	$cmd = "$xidxcmd --filename='$fileid' --cqp='$outfolder' $expand $leftpos $rightpos";
 	$resxml = shell_exec($cmd);
 
-	$cssfile = file_get_contents("Resources/xmlstyles.css");
+	$cssfile = "";
 	if ( $sharedfolder ) $cssfile .= file_get_contents("$sharedfolder/Resources/xmlstyles.css");
+	$cssfile .= file_get_contents("Resources/xmlstyles.css");
 	$more = file_get_contents("Resources/context.css");
 	if ( !$more && $sharedfolder ) $more = file_get_contents("$sharedfolder/Resources/context.css");
 	if ( $more ) {
@@ -90,6 +91,9 @@
 		$cidx = $cid; if ( substr($cidx, -4) != ".xml" ) $cidx .= ".xml";
 		$header = "<p class='linktxt'><a href='{$baseurl}index.php?action=file&cid=$cidx&tid=$tid'>$headtext</a></p>";
 	};
+	
+	# Protect empty elements
+	$resxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $resxml );
 
 	if ( $format == "json" ) {
 		print "{'results': '$resxml'}";
