@@ -80,7 +80,7 @@ function makeaudio() {
 		audioelm.end = end;
 		audioelm.onclick = function() { playpart('', this.start, this.end ); };
 
-		if ( thisNode.firstChild ) {
+		if ( thisNode.firstChild && thisNode.firstChild.nodeType != 3 ) {
 			var tmp = thisNode.insertBefore( audioelm, thisNode.firstChild );
 		} else {
 			var tmp = thisNode.parentNode.insertBefore( audioelm, thisNode );
