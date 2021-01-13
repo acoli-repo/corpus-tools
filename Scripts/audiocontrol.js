@@ -56,6 +56,8 @@ function makeaudio() {
 	  var thisNode = iterator.iterateNext();
   
 	  while (thisNode) {
+	  	console.log(thisNode.nodeName);
+	  	console.log(typeof(audiotok));
 		if ( thisNode.nodeName != "TOK"  || typeof(audiotok) != null ) {
 			audiolist.push(thisNode);
 		};
