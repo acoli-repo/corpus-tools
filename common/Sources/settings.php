@@ -18,9 +18,10 @@
 	};	
 
 	$sharedfolder = $settings['defaults']['shared']['folder'];
-	if ( $sharedfolder && !isdir($sharedfolder) ) $sharedfolder = ""; # In case there are wrong local settnigs
+	if ( $sharedfolder && !is_dir($sharedfolder) ) $sharedfolder = ""; # In case there are wrong local settnigs
 	if ( !$sharedfolder ) $sharedfolder = getenv("TT_SHARED"); 
 	if ( !$sharedfolder ) $sharedfolder = $_SERVER["TT_SHARED"]; 
+	if ( $sharedfolder && !is_dir($sharedfolder) ) $sharedfolder = ""; # In case there are wrong local settnigs
 	
 	# See if there are any local or shared startup scripts
 	if ( file_exists("Sources/startup.php") ) require("Sources/startup.php");
