@@ -18,6 +18,7 @@
 	};	
 
 	$sharedfolder = $settings['defaults']['shared']['folder'];
+	if ( $sharedfolder && !isdir($sharedfolder) ) $sharedfolder = ""; # In case there are wrong local settnigs
 	if ( !$sharedfolder ) $sharedfolder = getenv("TT_SHARED"); 
 	if ( !$sharedfolder ) $sharedfolder = $_SERVER["TT_SHARED"]; 
 	
