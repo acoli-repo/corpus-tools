@@ -36,11 +36,21 @@
 		exit;
 		
 	} else {
-		$maintext .= "<h1>{%Download XML}</h1>
+		
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		
+		$maintext .= "<h2>{%Download XML}</h2>
+			<h1>".$ttxml->title()."</h1>
+			".$ttxml->tableheader()."
 			<p>{%Select download format}
 			<table>";
 			
 		foreach ( $downloadoptions as $key => $val ) {
+			if ( $val['xprest'] || $val['xpcond'] ) {
+				if ( $val['xprest'] && $ttxml->xml->xpath($val['xprest']) ) continue;
+				if ( $val['xpcond'] && !$ttxml->xml->xpath($val['xpcond']) ) continue;
+			};
 			$maintext .= "<tr><td><a href='index.php?action=$action&type=$key&cid=$fileid'>{%{$val['display']}}</a>
 				<td>{$val['description']}";
 		};
