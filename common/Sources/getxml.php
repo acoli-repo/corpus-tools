@@ -20,9 +20,9 @@
 	
 		$mime = $downloadoptions[$type]['mime'] or $mime = "text/xml";
 		if ( $downloadoptions[$type]['outfile'] ) {
-			$outfile = $downloadoptions[$type]['cmd'];
-			$outfile = preg_replace ( "/\[fn\]/", "$fileid", $cmd );
-			$outfile = preg_replace ( "/\[id\]/", "$id", $cmd );
+			$outfile = $downloadoptions[$type]['outfile'];
+			$outfile = preg_replace ( "/\[fn\]/", "$fileid", $outfile );
+			$outfile = preg_replace ( "/\[id\]/", "$id", $outfile );
 		} else $outfile = $filename;
 	
 		$cmd = $downloadoptions[$type]['cmd'];
