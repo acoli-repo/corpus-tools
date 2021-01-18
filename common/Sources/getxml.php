@@ -37,12 +37,14 @@
 		
 	} else {
 		$maintext .= "<h1>{%Download XML}</h1>
-			<p>{%Select download format}";
+			<p>{%Select download format}
+			<table>";
 			
 		foreach ( $downloadoptions as $key => $val ) {
-			$maintext .= "<p><a href='index.php?action=$action&type=$key&cid=$fileid'>{%{$val['display']}}</a>";
+			$maintext .= "<tr><td><a href='index.php?action=$action&type=$key&cid=$fileid'>{%{$val['display']}}</a>
+				<td>{%{$val['description']}}";
 		};
-		
+		$maintext .= "</table>";
 	};
 
 ?>
