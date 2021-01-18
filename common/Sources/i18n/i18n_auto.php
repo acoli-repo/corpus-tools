@@ -114,7 +114,6 @@
 		"Jump to" => "Jump to",
 		"Edit queries" => "Edit queries",
 		"fullscreen" => "fullscreen",
-		"Download XML" => "Download XML",
 		"Select download format" => "Select download format",
 		"contains" => "contains",
 		"Hightlighting Query" => "Hightlighting Query",

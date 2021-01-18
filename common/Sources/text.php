@@ -585,7 +585,8 @@
 	
 	$sep = "<hr style='clear: both; margin-top: 10px;'><p>";
 	if ( ( $settings['download']['admin'] != "1" && $settings['download']['disabled'] != "1" ) || $username ) {
-		$maintext .= "$sep<a href='index.php?action=getxml&cid=$fileid'>{%Download XML}</a> &bull; ";
+		$dltit = $settings['download']['title'] or $dltit = "Download XML";
+		$maintext .= "$sep<a href='index.php?action=getxml&cid=$fileid'>{%$dltit}</a> &bull; ";
 		$sep = "";
 	};
 	if ( $settings['download']['disabled'] != "1" ) {

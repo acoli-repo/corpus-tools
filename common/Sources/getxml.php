@@ -40,7 +40,9 @@
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
 		
-		$maintext .= "<h2>{%Download XML}</h2>
+		$dltit = $settings['download']['title'] or $dltit = "Download XML";
+		
+		$maintext .= "<h2>{%$dltit}</h2>
 			<h1>".$ttxml->title()."</h1>
 			".$ttxml->tableheader()."
 			<p>{%Select download format}
