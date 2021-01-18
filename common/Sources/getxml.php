@@ -42,7 +42,7 @@
 			
 		foreach ( $downloadoptions as $key => $val ) {
 			$maintext .= "<tr><td><a href='index.php?action=$action&type=$key&cid=$fileid'>{%{$val['display']}}</a>
-				<td>{%{$val['description']}}";
+				<td>{$val['description']}";
 		};
 		$maintext .= "</table>";
 	};
