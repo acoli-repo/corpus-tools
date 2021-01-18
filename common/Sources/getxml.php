@@ -1,6 +1,6 @@
 <?php
 	
-	$fileid = $_GET['cid'] or $fileid = $id;
+	$fileid = $_GET['cid'] or $fileid = $_GET['id'];
 	$filename = preg_replace("/.*\//", "", $fileid);
 	if ( preg_match("/([^\/]+)\.xml/", $filename, $matches ) ) $id = $matches[1];
 
@@ -18,12 +18,20 @@
 
 	if ( $type && $downloadoptions[$type] ) {
 	
+		$mime = $downloadoptions[$type]['mime'] or $mime = "text/xml";
+		if ( $downloadoptions[$type]['outfile'] ) {
+			$outfile = $downloadoptions[$type]['cmd'];
+			$outfile = preg_replace ( "/\[fn\]/", "$fileid", $cmd );
+			$outfile = preg_replace ( "/\[id\]/", "$id", $cmd );
+		} else $outfile = $filename;
+	
 		$cmd = $downloadoptions[$type]['cmd'];
-		header("Content-type: text/xml"); 
-		header('Content-disposition: attachment; filename="'.$filename.'"');
-		
 		$cmd = preg_replace ( "/\[fn\]/", "$xmlfolder/$fileid", $cmd );
 		$cmd = preg_replace ( "/\[id\]/", "$id", $cmd );
+
+		header("Content-type: text/xml"); 
+		header('Content-disposition: attachment; filename="'.$outfile.'"');
+		
 		passthru($cmd);
 		exit;
 		
