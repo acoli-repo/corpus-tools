@@ -208,7 +208,6 @@
 		"Shortest match" => "Shortest match",
 		"Create query" => "Create query",
 		"define search options" => "define search options",
-		"CQP Query" => "CQP Query",
 		"Related Documents" => "Related Documents",
 		"Raw corpus search" => "Raw corpus search",
 		"index" => "index",
