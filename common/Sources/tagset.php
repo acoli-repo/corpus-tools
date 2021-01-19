@@ -6,6 +6,9 @@
 	require ( "$ttroot/common/Sources/tttags.php" );
 
 	$maintext .= "<h1>{%Tagset}</h1>";
+	if ( $_GET['type'] ) {
+		$tagsetfile = "Resources/tagset-{$_GET['type']}.xml";
+	};
 	$ttfile = $_GET['tagset'] or $ttfile = $tagsetfile;
 	$tttags = new TTTAGS($ttfile, false);
 	$tagset = $tttags->tagset['positions'];
@@ -121,13 +124,15 @@
 	} else {
 
 		// Get the description text when available
-		$descriptionpage = getlangfile("tagsettext");
-		if ( $descriptionpage ) $maintext .= $descriptionpage;
-		else if ( $tttags->xml->xpath("//description") ) {
-			$descriptiontext = current($tttags->xml->xpath("//description"))->asXML();
+		if ( $_GET['type'] ) $subtype = "-{$_GET['type']}";
+		$descriptionpage = getlangfile("tagsettext$subtype");
+		if ( $tttags->xml->xpath("//description") ) {
+			$description = current($tttags->xml->xpath("//description"))->asXML();
+			$maintext .= "<div>".$description."</div>";
+		} else if ( $descriptionpage ) {
 			$maintext .= "<div style='margin-bottom: 20px;'>$descriptiontext</div>";		
 		} else {	
-			$maintext .= "<h2>{%Description}</h2>";
+			$maintext .= "";
 		};
 		
 		$maintext .= "<table id=\"tagset\">";

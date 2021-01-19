@@ -65,7 +65,9 @@
 				} else $idtxt = "<i style='opacity: 0.5'>$nerid</i>";
 				$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
 				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
-				$maintext .= "<tr key='$name' class='$trc'><td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a><td>$idtxt<td style='opacity: 0.5; text-align: right; padding-left: 10px;' title='{%Occurrences}'>{$idcnt[$nerid]}";
+				$maintext .= "<tr key='$name' class='$trc'><td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a>
+					<td>$idtxt
+					<td style='opacity: 0.5; text-align: right; padding-left: 10px;' title='{%Occurrences}'>{$idcnt[$nerid]}";
 			};
 		};
 		$maintext .= "</table>
