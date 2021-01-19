@@ -9,23 +9,24 @@ class TTTAGS
 	public $tagset; # The array version of the tagset
 	public $username; # Username
 
-	function __construct($filename = "", $fatal = 1) {	
-		global $lang;
-		if ( $filename != "" && file_exists($filename) ) {
-			$this->xml = simplexml_load_file($filename);
-			$this->tagset = xmlflatten($this->xml);
-		} else if ( file_exists("Resources/tagset-$lang.xml") ) { // allow language-specific tagsets
-			$filename = "Resources/tagset-$lang.xml";
-			$this->xml = simplexml_load_file($filename);
-			$this->tagset = xmlflatten($this->xml);
-		} else if ( file_exists("Resources/tagset.xml") ) {
-			$filename = "Resources/tagset.xml";
-			$this->xml = simplexml_load_file($filename);
-			$this->tagset = xmlflatten($this->xml);
-		} else {
-			global $settings; # Use settings when needed
-			$this->tagset = $settings['tagset'];
+	function __construct($filename = "xxxxxx", $fatal = 1) {	
+		global $lang, $sharedfolder, $settings;
+		if ( !$sharedfolder ) $sharedfolder = "xxxxx";
+		$attempts = array (
+			$filename, "Resources/$filename",  "$sharedfolders/Resources/$filename", 
+			$settings['tagset'], "Resources/{$settings['tagset']}",  "$sharedfolders/Resources/{$settings['tagset']}", 
+			"Resources/tagset-$lang.xml", "Resources/tagset.xml",
+			"$sharedfolders/Resources/tagset-$lang.xml", "$sharedfolders/Resources/tagset.xml",			
+		);
+		foreach ( $attempts as $attempt ) {
+			if ( file_exists($attempt) ) { $filename = $attempt; break; };
 		};
+		
+		if ( $filename ) {
+			$this->xml = simplexml_load_file($filename);
+			$this->tagset = xmlflatten($this->xml);
+		};
+		
 		if ( $fatal && !$this->tagset ) { fatal("Failed to load tagset"); };
 	}
 	

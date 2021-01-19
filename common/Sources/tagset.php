@@ -7,7 +7,7 @@
 
 	$maintext .= "<h1>{%Tagset}</h1>";
 	if ( $_GET['type'] ) {
-		$tagsetfile = "Resources/tagset-{$_GET['type']}.xml";
+		$tagsetfile = "tagset-{$_GET['type']}.xml";
 	};
 	$ttfile = $_GET['tagset'] or $ttfile = $tagsetfile;
 	$tttags = new TTTAGS($ttfile, false);
