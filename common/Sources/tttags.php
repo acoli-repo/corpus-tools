@@ -13,10 +13,10 @@ class TTTAGS
 		global $lang, $sharedfolder, $settings;
 		if ( !$sharedfolder ) $sharedfolder = "xxxxx";
 		$attempts = array (
-			$filename, "Resources/$filename",  "$sharedfolders/Resources/$filename", 
-			$settings['tagset'], "Resources/{$settings['tagset']}",  "$sharedfolders/Resources/{$settings['tagset']}", 
+			$filename, "Resources/$filename",  "$sharedfolder/Resources/$filename", 
+			$settings['tagset'], "Resources/{$settings['tagset']}",  "$sharedfolder/Resources/{$settings['tagset']}", 
 			"Resources/tagset-$lang.xml", "Resources/tagset.xml",
-			"$sharedfolders/Resources/tagset-$lang.xml", "$sharedfolders/Resources/tagset.xml",			
+			"$sharedfolder/Resources/tagset-$lang.xml", "$sharedfolder/Resources/tagset.xml",			
 		);
 		foreach ( $attempts as $attempt ) {
 			if ( file_exists($attempt) ) { $filename = $attempt; break; };
