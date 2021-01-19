@@ -64,14 +64,20 @@ if ( typeof(hlbar) != "undefined" && typeof(facsdiv) != "undefined" ) {
 };
 };
 
-
 function showinfo(showelement) {
 if ( !tokinfo ) { return -1; };
 var nertype = nerlist[showelement.nodeName.toLowerCase()];
 
-nername = showelement.nodeName;
+nername = showelement.nodeName; 
 if ( nertype ) nername =  nertype['display'];
 infoHTML = '<table><tr><th>' + nername + '</th><td><b><i>'+ showelement.innerHTML +'</i></b></td></tr>';
+if ( showelement.getAttribute('type') ) {
+	var typetext = showelement.getAttribute('type') + '';
+	if ( typeof(attnames) != 'undefined' && attnames[typetext] ) { typetext = 	attnames[typetext]; }
+	else 
+	if ( document.getElementById('tagset') ) { typetext = treattag(showelement, 'type', 'full'); }
+	infoHTML += '<tr><th>' + 'Type' + '</th><td>'+ typetext +'</td></tr>';
+};
 
 tokinfo.style.display = 'block';
 var foffset = offset(showelement);
@@ -225,3 +231,85 @@ function highlight (tmp) {
 		seq.push(it);
 	};
 };
+
+function getlang ( node, type ) {
+	if ( !node ) { return ""; };
+	if ( typeof(lang) == 'undefined' ) { lang = ''; };
+	var langtext;
+	if ( lang && type != "full" ) { langtext = node.getAttribute('short-'+lang); };
+	if ( !langtext && lang ) { langtext = node.getAttribute('display-'+lang); };
+	if ( !langtext && lang ) { langtext = node.getAttribute('lang-'+lang); }; // backward compatibility
+	if ( !langtext && type != "full" ) { langtext = node.getAttribute('short'); };
+	if ( !langtext ) { langtext = node.getAttribute('display'); };
+	return langtext;
+};
+
+function treattag ( elm, label, type ) {
+	tag = elm.getAttribute(label);
+	if ( !tag ) { return ''; };
+	var tagset = document.getElementById('tagset');
+	if ( tagset ) {
+		// Show the main pos name of a position-based tagset
+		var mainpos = tag.substring(0,1); 
+		var xpath = "//item[@key='"+mainpos+"' and @maintag]"
+		var tmp = document.evaluate(xpath, tagset, null, XPathResult.ANY_TYPE, null); 
+		var tagdef = tmp.iterateNext();
+		if ( tagdef ) {
+			var maintext;
+			prtlen = 1+parseInt(tagdef.getAttribute('maintag'));
+			if ( prtlen == 1 ) {
+				maintext = getlang(tagdef, type);
+			} else {
+				var tmp;
+				do { // Get the longest defined match
+					var posprt = tag.substr(0,prtlen);
+					var xpath = ".//multi/item[@key='"+posprt+"']"
+					var tmp = document.evaluate(xpath, tagdef, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); 
+					prtlen--;
+				} while ( !tmp.snapshotLength && prtlen > 0 );
+				var mtagdef;
+				if ( tmp.snapshotLength ) { 
+					mtagdef = tmp.snapshotItem(0);
+				} else { 
+					mtagdef = tagdef; // Default to main tag definition
+				};
+				maintext = getlang(mtagdef, type);
+			};
+			if ( type == "main" ) { 
+				return maintext; 
+			} else if ( type == "full" ) {
+				var mfs; var sep; 
+				sep = ''; mfs= '';
+				var mychildren = tagdef.childNodes;
+				for ( ilc=0; ilc<mychildren.length; ilc++ ) {
+					var posdef = mychildren[ilc];
+					if ( posdef.tagName == "ITEM" ) {
+						var posnr = parseInt(posdef.getAttribute('pos'));
+						if ( posnr <= parseInt(tagdef.getAttribute('maintag')) ) { continue; };
+						var posprt = tag.substring(posnr,1+posnr);
+						if ( posprt != "" && posprt != "0" ) {
+							var xpath = "item[@key='"+posprt+"']";
+							var tmp = document.evaluate(xpath, posdef, null, XPathResult.ANY_TYPE, null); 
+							var valdef = tmp.iterateNext();
+							if ( valdef ) {
+								var postxt;
+								postxt = valdef.getAttribute('display-'+lang);
+								if ( postxt == "" || postxt === null ) postxt = valdef.getAttribute('display');
+								if ( postxt != "" ) {
+									mfs += sep + postxt; 
+									sep = '; ';
+								};
+							};
+						};
+					};
+				};
+				var fulltext = maintext + ' (' + tag+ ')' + '<br>' + mfs;
+				return fulltext;				
+			} else {
+				return maintext;
+			};
+		};
+	};
+	
+	return tag;
+}

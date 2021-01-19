@@ -383,6 +383,15 @@
 		$maintext .= " &bull; <a href='index.php?action=$action&act=list&cid=$ttxml->fileid'>{%List names}</a>";
 		if ( $username ) $maintext .= " &bull; <a href='index.php?action=$action&act=detect&cid=$ttxml->fileid' class=adminpart>{%Auto-detect names}</a>";
 
+		// Load the tagset 
+		require ( "$ttroot/common/Sources/tttags.php" );
+		$tttags = new TTTAGS("tagset-ner.xml", false);
+		if ( $tttags->tagset['positions'] ) {
+			$tmp = $tttags->xml->asXML();
+			$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);
+			$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
+		};
+
 		$maintext .= "
 			<style>
 				#mtxt tok:hover { text-shadow: none;}
