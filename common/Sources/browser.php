@@ -118,7 +118,7 @@
 	if ( $settings['defaults']['browser']['select'] == "menu" ) {
 		$subsel = 1; $all = 1;
 	};
-	if ( $_GET['all'] ) $all = 1;
+	if ( $_GET['all'] || $_GET['show'] == "all" ) $all = 1;
 	
 	if ( ( $class && $val ) || $all ) {
 
