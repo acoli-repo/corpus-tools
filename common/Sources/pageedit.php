@@ -86,7 +86,7 @@
 			$outfile = $filename;
 			$content = file_get_contents("Pages/$filename");
 			$maintext .= "<h1>Edit HTML Page</h1>
-				<h2>Page name: $filename ($ffid</h2>";
+				<h2>Page name: $filename</h2>";
 
 			$idfield = "<input type=hidden name=id value='$filename'>";
 
@@ -251,7 +251,7 @@
 				<p><form action='index.php?action=$action&act=save' method=post>
 				$idfield
 				<textarea name=content onChange='onupdate'>$content</textarea>
-				<p><input type=submit value=Save onClick=\"changed = false;\"> <a href='index.php?action=$action&act=trash&id=$id'>move to trash</a>
+				<p><input type=submit value=Save onClick=\"changed = false;\"> <a href='index.php?action=$action&act=trash&id=$filename'>move to trash</a>
 				</form>
 				";
 		};
