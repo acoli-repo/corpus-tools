@@ -55,10 +55,23 @@
 	
 		$ffid = $id;
 		$filename = $id;
-		if ( !preg_match("/\.(html|md)$/", $filename ) ) $filename .= ".html";
+		if ( preg_match("/(.*)\.(html|md)$/", $filename, $matches ) ) {
+			$ffid = $matches[1];
+			$ffext = $matches[2];
+		} else {
+			$ffext = "html";
+			$filename .= ".html";
+		};
 		$fflang = $_GET['pagelang']; 
-		if ( !$fflang && preg_match("/(.*)-(.*)/") ) { $ffid = $matches[1]; $fflang = $matches[2]; };
-		
+		$defaultlang = $settings['languages']['default'] or $defaultlang = "en";
+		if ( $fflang ) {
+			$filename = "$ffid-$fflang.$ffext";
+		} else if (  preg_match("/(.*)-(.*)/") ) { 
+			$ffid = $matches[1]; 
+			$fflang = $matches[2]; 
+		} else {
+			$fflang = $defaultlang;
+		};
 		
 		if ( $id == "new" ) {
 		
@@ -70,31 +83,37 @@
 		
 		} else if ( file_exists( "Pages/$filename" ) ) {
 		
+			$outfile = $filename;
 			$content = file_get_contents("Pages/$filename");
 			$maintext .= "<h1>Edit HTML Page</h1>
-				<h2>Page name: $filename</h2>";
+				<h2>Page name: $filename ($ffid</h2>";
 
 			$idfield = "<input type=hidden name=id value='$filename'>";
 
+		} else if ( file_exists( "Pages/$ffid.$ffext" ) && $fflang == $defaultlang ) {
+		
+			//  Non-localized file
+			$content = file_get_contents("Pages/$ffid.$ffext");
+			$maintext .= "<h1>Edit HTML Page</h1>
+				<h2>Page name: $filename</h2>";
+
+			$idfield = "<input type=hidden name=id value='$ffid.$ffext'>";
+
 		} else {
-			if ( !$fflang ) { $fflang = $settings['languages']['default']; }; # hack to force opening non-localized file
-			
-			if ( file_exists($_GET['name'].".html") ) {
-				$filename = $outname = $_GET['name'].".html"; 
-				$newfile = "";
-				$content = file_get_contents($filename);
-			} else {
-				$content = getlangfile($ffid, true, $fflang, 'nomd');
-				$outfile = str_replace($getlangfile_lastfolder, "Pages", $getlangfile_lastfile);
-				$outname = str_replace("Pages/", "", $outfile);
-				$newfile = "<p style='color: red;'><i>New file, will be created upon saving</i>";
-				$filename = $outname;
-			};
-			if ( file_exists($outfile) ) { $id = $ffid; $newfile = ""; }
-			else if ( $getlangfile_lastfolder == "$ttroot/common/" ) {
-				$newfile .= " - pre-filled with content from $getlangfile_lastfolder";
+				
+			// Try to open any language for this file	
+			$content = getlangfile($ffid, true, $fflang, 'nomd');
+			$outfile = str_replace($getlangfile_lastfolder, "Pages", $getlangfile_lastfile);
+			$outname = str_replace("Pages/", "", $outfile);
+			$nftxt = "<p style='color: red;'><i>New file, will be created upon saving</i>";
+			$filename = $outname;
+
+			if ( $getlangfile_lastfolder == "$ttroot/common/" ) {
+				$nftxt .= " - pre-filled with content from $getlangfile_lastfolder";
 			}  else if ( $filename != "Pages/$id.html" ) {
-				$newfile .= " - pre-filled with content from $getlangfile_lastfile";
+				$nftxt .= " - pre-filled with content from $getlangfile_lastfile";
+			} else {
+				$nftxt .= " - non-existing, creating new file";
 			};
 
 			if ( file_exists("Pages/$id.html") && !is_writable("Pages/$id.html") ) {
@@ -104,7 +123,7 @@
 			$outfile = str_replace($getlangfile_lastfolder, "Pages", $getlangfile_lastfile);
 			$outname = str_replace("Pages/", "", $outfile);
 			$maintext .= "<h1>Edit HTML Page</h1>
-				<h2>Page name: $outname</h2>$newfile";
+				<h2>Page name: $outname</h2>$nftxt";
 
 			$idfield = "<input type=hidden name=id value='$outname'>";
 		};
