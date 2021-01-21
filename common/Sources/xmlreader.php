@@ -63,7 +63,7 @@
 		if ( gettype($xml) != "object" ) fatal ( "Failed to load XML file" );
 
 		$entryxml = simplexml_load_string($entry, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		$recname = $entryxml->getName().""; 
+		if ( $entryxml ) $recname = $entryxml->getName().""; 
 
 		$maintext .= "<h1>{%$title}</h1>";
 		$id = $_GET['id'];

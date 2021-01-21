@@ -199,6 +199,10 @@
   				</form>
 				</div>
 			";
+			
+			// You need to be logged in to upload
+			// Add a session logout tester
+			$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
 
 		} else {
 			// Simple style
