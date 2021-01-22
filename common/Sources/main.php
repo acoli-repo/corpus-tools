@@ -166,9 +166,15 @@
 	};
 			
 	# Use the shared template if no local one exists
-	# TODO: should more be shared?
-	if (  !file_exists("templates/$template.tpl") && file_exists ("$sharedfolder/templates/main.tpl") ) {
+	if (  $_GET['template'] == "none" ) {
+		# Use the shared-default template as a failsafe if your template does not load
+		$templatedir = realpath("$ttroot/common/../projects/default-shared/templates");
+		$smarty->setTemplateDir($templatedir);
+		$template = "main";
+		if ( !is_writable("templates_c") ) $smarty->setCompileDir("$sharedfolder/templates_c");
+	} else if (  !file_exists("templates/$template.tpl") && file_exists ("$sharedfolder/templates/main.tpl") ) {
 		$smarty->setTemplateDir("$sharedfolder/templates");
+		if ( !file_exists ("$sharedfolder/templates/$template.tpl") ) $template = "main";
 		if ( !is_writable("templates_c") ) $smarty->setCompileDir("$sharedfolder/templates_c");
 	};
 	
