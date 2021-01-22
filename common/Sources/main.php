@@ -167,7 +167,7 @@
 			
 	# Use the shared template if no local one exists
 	# TODO: should more be shared?
-	if (  !file_exists("templates/$template.tpl") && file_exists ("$sharedfolder/templates/$template.tpl") ) {
+	if (  !file_exists("templates/$template.tpl") && file_exists ("$sharedfolder/templates/main.tpl") ) {
 		$smarty->setTemplateDir("$sharedfolder/templates");
 		if ( !is_writable("templates_c") ) $smarty->setCompileDir("$sharedfolder/templates_c");
 	};
