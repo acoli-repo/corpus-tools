@@ -4,10 +4,11 @@
   // jsondata format: [ { "lat": lat, "lng": lng, "location": placename, "cnt": nr of docs } ]
   var map; var sublist = ['a', 'b', 'c'];
   if ( typeof tilelayer == "undefined" ) {
-		tilelayer = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+		tilelayer = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
 		tiletit = 'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
   };
   if ( typeof tiletit == "undefined" ) { tiletit = ''; };
+  if ( typeof tileid == "undefined" ) { tileid = 'mapbox/streets-v11'; };
   if ( tilelayer.includes("google") ) {
 	tiletit = 'Imagery © <a href="https://maps.google.com/">Google</a>';
 	sublist = ['mt0','mt1','mt2','mt3'];
@@ -48,7 +49,7 @@
 		maxZoom: 18,
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
 			'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>' + tiletit,
-		id: 'mapbox.streets',
+		id: tileid,
 		subdomains: sublist
 	}).addTo(map);
 

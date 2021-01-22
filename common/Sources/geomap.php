@@ -324,6 +324,7 @@ if ( $act == "xml" ) {
 	// Draw the actual map 
 	if ( $settings['geomap']['osmlayer'] ) $moresettings .= "var tilelayer = '{$settings['geomap']['osmlayer']}'; ";
 	if ( $settings['geomap']['osmlayertit'] ) $moresettings .= "var tiletit = '{$settings['geomap']['osmlayertit']}'; ";
+	if ( $settings['geomap']['osmlayerid'] ) $moresettings .= "var tileid = '{$settings['geomap']['osmlayerid']}'; ";
 
 	if ( $direct ) { $bottomactions .= $bsep."<a href='$direct'>{%Direct URL}</a>"; $bsep = " &bull; "; };
 
