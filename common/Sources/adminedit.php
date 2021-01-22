@@ -6,7 +6,7 @@
 
 	check_login("admin");
 	$id = $_GET['id'];
-	$blessed = array("Annotations", "Resources", "xdxf");
+	$blessed = array("Annotations", "Resources", "xdxf", "templates");
 	if ( $settings['files']['blessed'] ) {
 		foreach ( explode(",", $settings['files']['blessed']) as $tmp ) array_push($blessed, $tmp);
 	};
@@ -112,8 +112,8 @@
 		}; 
 		# XSLT is a type of XML
 		if ( $filetype == "xslt" ) $filetype = "xml";
-		# TPL (here) is a type of HTML
-		if ( $filetype == "tpl" ) $filetype = "html";
+		# TPL (here) is a type of Smarty
+		if ( $filetype == "tpl" ) $filetype = "smarty";
 		
 		if ( $filetype == "md" ) $filetype = "markdown";
 		
