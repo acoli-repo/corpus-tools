@@ -141,6 +141,7 @@
 		if ( preg_match( "/\/(.+)\./", $_SERVER['REDIRECT_URL'], $matches ) ) $action=  $matches[1];
 	};
 
+	$template = "main";
 	if ( $_GET['template'] && file_exists("templates/{$_GET['template']}.tpl") ) $template =  $_GET['template'];
 	if ( $template == "print" ) $printable = true;
 
