@@ -26,12 +26,14 @@
 
 	if ( $settings['menu']['name'] ) $menu .= "<p class='title'>{%{$settings['menu']['name']}}</p>";
 
-	if ( $settings['menu']['title'] ) {
+	if ( $settings['menu']['title'] == "none" ) $nomentit = 1; # Do nothing
+	else if ( $settings['menu']['title'] ) {
 		$menutitle = $settings['menu']['title'];
-		if ( $menutitle == "[title]" ) $menutitle = $settings['defaults']['title']['display']; 
-		$menu .= "<p class='header'>{%$menutitle}</p>";
-	}
-	else $menu .= "<p>{%Main Menu}</p>";
+		if ( $menutitle == "[title]" ) $menutitle = $settings['defaults']['title']['display'];
+		$menutitle = "{%$menutitle}";
+		if ( $settings['menu']['link'] ) $menutitle = "<a href='{$settings['menu']['link']}'>{%$menutitle}</a>";
+		$menu .= "<p class='header'>$menutitle</p>";
+	} else $menu .= "<p>{%Main Menu}</p>";
 	
     $menu .= "<ul style='text-align: left'>";
         	
@@ -40,6 +42,7 @@
     	if ( $item['link'] ) $link = $item['link'];
     	else if ( substr($key,0,4) == "http" ) $link = $key;
     	else $link = "{$tlpr}index.php?action=$key";
+    	$trgt = ""; if ( $link['target'] ) $trgt = " target=\"{$link['target']}\"";
     	if ( preg_replace("/&.*/", "", $key) == $action ) {
     		$scl = " class='selected'"; 
     		$scli = " class='active'"; 
@@ -55,15 +58,16 @@
     		$menu .= "</ul><h3>{%$itemtxt}</h3><ul style='text-align: left'>";
 		} else if ( $item['admin'] ) {
     		if ( $item['admin'] == 1 || $user['permissions'] == "admin" ) {
-	    		$adminitems .= "<ul style='text-align: left'><li $scli><a href='$link'$scl>{%$itemtxt}</a></ul>";
+	    		$adminitems .= "<ul style='text-align: left'><li $scli><a$trgt href='$link'$scl>{%$itemtxt}</a></ul>";
 	    	};
     	} else {
-    		$menu .= "<li><a href='$link'$scl>{%$itemtxt}</a>";
+    		$menu .= "<li><a$trgt href='$link'$scl>{%$itemtxt}</a>";
     	};
 	};
    $menu .= "</ul>";
 	
   	if ( $username ) {
+  	
 		$shortuserid = $user['short'];
 	 	$usertype = "user"; if ( $user['projects'] == "all" ) $usertype = "<span title='server-wide user'>guser</span>";
   		$menu .= "<hr>$usertype: <a href='index.php?action=user'>$shortuserid</a><hr>";
@@ -89,10 +93,10 @@
 				$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action={$func['key']}' $tmp>{%{$func['display']}}</a></ul>";
 			};
 		}; }; 
-		if ( !$idtype ) {
+		if ( !$idtype && !$settings['menu']['nologin'] ) {
 	  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=login'><i>Login</i></a></ul>";
 		};
-	} else {
+	} else if ( !$settings['menu']['nologin']  ){
 		$shortuserid = "guest";
   		$tmp = ""; if ( $action == "login" ) $tmp = "class=\"selected\""; 
   		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=login' $tmp>Login</a></ul>";
