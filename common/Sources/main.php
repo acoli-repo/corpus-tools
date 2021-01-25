@@ -21,7 +21,9 @@
 
 	// Deal with sessions and cookies
 	session_start();
-
+	$gsessionvar = "teitok-".preg_replace("/[^a-z0-9]/", "", $_SERVER['SERVER_NAME'] ); # Allow server-wide login
+	$sessionvar = "teitok-".preg_replace("/[^a-z0-9]/", "", $foldername); # Make the session relative to this project
+	
 	// load user data 
 	$user = $_SESSION[$sessionvar] or $user = $_SESSION[$gsessionvar]; 
 	$username = $user['email'];
@@ -76,9 +78,6 @@
 		$foldername = preg_replace("/.*\/WebServer\/Documents\//", "", $foldername); # For MacOS
 		$foldername = preg_replace("/\/index\.php.*/", "", $foldername);
 	}; 
-	
-	$gsessionvar = "teitok-".preg_replace("/[^a-z0-9]/", "", $_SERVER['SERVER_NAME'] ); # Allow server-wide login
-	$sessionvar = "teitok-".preg_replace("/[^a-z0-9]/", "", $foldername); # Make the session relative to this project
 	
 	# Determine which language to use
 	$deflang = $settings['languages']['default'] or $deflang = "en";
