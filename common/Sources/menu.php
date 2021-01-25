@@ -31,7 +31,7 @@
 		$menutitle = $settings['menu']['title'];
 		if ( $menutitle == "[title]" ) $menutitle = $settings['defaults']['title']['display'];
 		$menutitle = "{%$menutitle}";
-		if ( $settings['menu']['link'] ) $menutitle = "<a href='{$settings['menu']['link']}'>{%$menutitle}</a>";
+		if ( $settings['menu']['link'] ) $menutitle = "<a href='{$settings['menu']['link']}'>$menutitle</a>";
 		$menu .= "<p class='header'>$menutitle</p>";
 	} else $menu .= "<p>{%Main Menu}</p>";
 	
