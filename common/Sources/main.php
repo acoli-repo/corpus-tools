@@ -19,6 +19,9 @@
 		ini_set("session.cookie_secure", 0); // TEITOK typically does not work on HTTPS, so SESSION vars have to be allow on HTTP
 	};
 
+	// Deal with sessions and cookies
+	session_start();
+
 	// load user data 
 	$user = $_SESSION[$sessionvar] or $user = $_SESSION[$gsessionvar]; 
 	$username = $user['email'];
@@ -44,8 +47,6 @@
 	};
 	include(SMARTY_DIR . 'Smarty.class.php');
 	
-	// Deal with sessions and cookies
-	session_start();
 
 	// Have a uniform treatment of magic quotes
 	// set_magic_quotes_runtime(false); // turn magic quotes off (this throws an error in newer PHP versions)
