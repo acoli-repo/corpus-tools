@@ -146,6 +146,11 @@
 		
 		if ( $debug ) $maintext .= "<p style='color: #999999'>You are using: {$_SERVER['HTTP_USER_AGENT']}";
 				
+	} else if ( $_GET['action'] == "login" ) {
+			print "<script language=javascript>top.location='?action=user';</script>Already logged in. This page will now reload. If it does not, please click 
+				<a href='index.php?action=user'>here</a>.";
+			exit();
+
 	};
 
 ?>

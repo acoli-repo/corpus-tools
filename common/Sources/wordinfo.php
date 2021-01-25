@@ -18,7 +18,7 @@
 	$maintext .= "<tr><th>{%Attributes}<td><table>";
 	$tags = array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']);
 	foreach ( $tags as $key => $item ) {
-		if ( $item['admin'] ) continue;
+		if ( $item['admin'] && !$username ) continue;
 		$form = forminherit($node, $key);
 		$formtxt = $form;
 		if ( $item['link'] ) {

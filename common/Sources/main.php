@@ -19,6 +19,10 @@
 		ini_set("session.cookie_secure", 0); // TEITOK typically does not work on HTTPS, so SESSION vars have to be allow on HTTP
 	};
 
+	// load user data 
+	$user = $_SESSION[$sessionvar] or $user = $_SESSION[$gsessionvar]; 
+	$username = $user['email'];
+
 	// Determine the location of the Smarty scripts
 	if ( getenv('SMARTY_DIR') != "" && !defined('SMARTY_DIR') && file_exists(getenv('SMARTY_DIR').'Smarty.class.php') ) define('SMARTY_DIR', getenv('SMARTY_DIR'));
 	if ( !defined(SMARTY_DIR) ) {
@@ -148,9 +152,6 @@
 	// create smarty object
 	$smarty = new Smarty;
 
-	// load user data 
-	$user = $_SESSION[$sessionvar] or $user = $_SESSION[$gsessionvar]; 
-	$username = $user['email'];
 	
 	# Some settings that used to be flexible, but now fixed
 	$xmlfolder = "xmlfiles";
