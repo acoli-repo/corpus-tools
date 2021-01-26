@@ -45,10 +45,10 @@
 			$xml = simplexml_load_file("Resources/$xmlfile.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 			print "Loaded: ".count($xml->children());
 			$tmp = current($xml->children()); $tryentry = $tmp[0];
-			foreach ( $tryentry->children() as $child ) {
+			if ( $tryentry ) foreach ( $tryentry->children() as $child ) {
 				$child[0] = $child->getName();
+				$tryentry = $tryentry->asXML();
 			};
-			$tryentry = $tryentry->asXML();
 		} else $tryentry = "<record></record>";
 		file_put_contents("Resources/$xmlfile-entry.xml", $tryentry);
 		print "<p>Definition file does not exist - reloading to generate
@@ -563,7 +563,9 @@
 					} else 
 						$linkurl = current($record->xpath($fldrec["link"].""));
 					if ( $fldrec["target"] ) $target = $fldrec["target"]; else $target = "details";
-					if ( $linkurl != "" ) $val = "<a target=$target href='$linkurl'>$val</a>";
+					$trgt = "";
+					if ( $target && $target != "none" ) $trgt = " target=\"$target\"";
+					if ( $linkurl != "" ) $val = "<a$trgt href='$linkurl'>$val</a>";
 				} else if ( $fldrec["select"] ) {
 					$vals = $sep = "";
 					$prevq = $_GET['q']; 
