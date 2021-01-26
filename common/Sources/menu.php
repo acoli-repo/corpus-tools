@@ -38,15 +38,14 @@
     $menu .= "<ul style='text-align: left'>";
         	
     foreach ( $settings['menu']['itemlist'] as $key => $item ) { 
+		$scl = $scli = $trgt = $link = "";
     	if ( !is_array($item) ) continue; # Skip attributes
     	if ( $item['link'] ) $link = $item['link'];
     	else if ( substr($key,0,4) == "http" ) {
     		$link = $key;
     	} else $link = "{$tlpr}index.php?action=$key";
-    	$trgt = ""; 
     	if ( $item['target'] ) $trgt = " target=\"{$item['target']}\"";
     	else if ( $link['target'] ) $trgt = " target=\"{$link['target']}\"";
-		$scl = $scli = $trgt = "";
 		if ( $item['class'] ) $scli .= " {$item['class']}";
     	if ( preg_replace("/&.*/", "", $key) == $action ) {
     		$scl .= " selected"; 
