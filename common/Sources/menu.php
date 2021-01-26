@@ -45,7 +45,7 @@
     		$link = $key;
     	} else $link = "{$tlpr}index.php?action=$key";
     	if ( $item['target'] ) $trgt = " target=\"{$item['target']}\"";
-    	else if ( $link['target'] ) $trgt = " target=\"{$link['target']}\"";
+    	else if ( is_array($link) && $link['target'] ) $trgt = " target=\"{$link['target']}\"";
 		if ( $item['class'] ) $scli .= " {$item['class']}";
     	if ( preg_replace("/&.*/", "", $key) == $action ) {
     		$scl .= " selected"; 
