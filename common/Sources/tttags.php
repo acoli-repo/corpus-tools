@@ -12,9 +12,12 @@ class TTTAGS
 	function __construct($filename = "xxxxxx", $fatal = 1) {	
 		global $lang, $sharedfolder, $settings;
 		if ( !$sharedfolder ) $sharedfolder = "xxxxx";
+		if ( !$filename) $filename = "xxxxxxxx";
+		$settingstagset = $settings['tagset'] or $settingstagset = "xxxxxxx";
 		$attempts = array (
 			$filename, "Resources/$filename",  "$sharedfolder/Resources/$filename", 
-			$settings['tagset'], "Resources/{$settings['tagset']}",  "$sharedfolder/Resources/{$settings['tagset']}", 
+			$settingstagset, "Resources/$settingstagset",  
+			"$sharedfolder/Resources/$settingstagset", 
 			"Resources/tagset-$lang.xml", "Resources/tagset.xml",
 			"$sharedfolder/Resources/tagset-$lang.xml", "$sharedfolder/Resources/tagset.xml",			
 		);
