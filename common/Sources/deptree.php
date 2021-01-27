@@ -19,7 +19,7 @@
 	$_SESSION['treeview'] = $treeview;
 
 	require ("$ttroot/common/Sources/ttxml.php");
-	$ttxml = new TTXML($cid, true, "keepns");
+	$ttxml = new TTXML($cid, true); # TODO: we did keepns before, why? (breaks //s test)
 	
 	$maintext .= "<h2>".$ttxml->title()."</h2>"; 
 	$maintext .= $ttxml->tableheader(); 
@@ -473,7 +473,7 @@ $maintext .= "
 			};
 		
 		
-		} else if ( !strstr($ttxml->asXML(), "deprel=" ) ) {
+		} else if ( !strstr($ttxml->asXML(), "head=" ) ) {
 
 			$maintext .= "<p>Dependency trees are not available for this text, since the text is not yet parsed with dependency relations.";
 		

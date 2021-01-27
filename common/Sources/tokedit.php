@@ -712,7 +712,7 @@
 		$lookupform
 		";
 
-		// Add a session logout tester
+		// Add a session logout tester live check
 		$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
 	
 	} else {
