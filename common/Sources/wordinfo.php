@@ -22,7 +22,8 @@
 		$form = forminherit($node, $key);
 		$formtxt = $form;
 		if ( $item['link'] ) {
-			$formtxt = "<a href='".str_replace('{$val}', $form, $item['link'])."'>$form</a>";
+			$cls = ""; if ( substr( $item['link'], 0, 4 ) == "http" ) $cls = "class=\"extlink\"";
+			$formtxt = "<a $cls href='".str_replace('{$val}', $form, $item['link'])."'>$form</a>";
 		} else if ( $item['type'] == "pos" && file_exists("Resources/tagset.xml") ) {
 			$formtxt = "<a href='index.php?action=tagset&act=analyze&tag=$form'>$form</a>";
 		}
