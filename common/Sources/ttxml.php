@@ -13,6 +13,7 @@ class TTXML
 	public $audio = array(); # An array with the audio file(s) in this XML
 	public $audiourl; # The URL for the first AUDIO node
 	public $video = array(); # An array with the video file(s) in this XML
+	public $videourl; # The URL for the first AUDIO node
 	
 	var $xmlfolder;
 	var $rawtext;
@@ -78,8 +79,10 @@ class TTXML
 		// See if there is an Audio element in the header
 		foreach ( $this->xml->xpath("//recording//media") as $medianode ) {
 			$mimetype = $medianode['mimeType'] or $mimetype = $medianode['mimetype'] or $mimetype = mime_content_type($medianode['url']);
-			if ( strstr($mimetype, "video") ) {
+			list ( $mtype, $mform ) = explode ( '/', $mimetype );
+			if ( $mtype == "video" ) {
 				array_push($this->video, $medianode);
+				if ( $videourl == "" ) $videourl = $medianode['url']; 
 			} else { // If it ain't video, it's audio
 				array_push($this->audio, $medianode);
 				if ( $audiourl == "" ) $audiourl = $medianode['url']; 

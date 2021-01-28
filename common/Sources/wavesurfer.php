@@ -22,10 +22,12 @@
 	};
 	
 	$audiourl = $ttxml->audiourl; 
+	$videourl = $ttxml->video[0]['url']; 
+	if ( !$audiourl ) $audiourl = $ttxml->video[0]['url'];
 	if ( $audiourl == "" ) fatal ("XML file has no media element providing a URL to the sound file");
 
 	$audiolink = preg_replace("/.*Audio\//", "", $audiourl); // Kill folder from Audio file name
-	if ( $username && !preg_match("^http:", $audiourl) && !file_exists("Audio/$audiolink") ) {
+	if ( $username && !preg_match("/^https?:/", $audiourl) && !file_exists("Audio/$audiolink") ) {
 		$maintext .= "<p>The audio file for this file ({$audiolink}) does not exist on the server - please upload it first.		
 					</form>
 					<p><form action='index.php?action=upload&act=save' method=post enctype=\"multipart/form-data\">
@@ -59,9 +61,9 @@
 	
 		$maintext .= "
 		<!-- Sound file: $audiourl -->
-		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.4.0/wavesurfer.min.js\"></script>
-		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.4.0/plugin/wavesurfer.regions.min.js\"></script>
-		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.4.0/plugin/wavesurfer.minimap.min.js\"></script>
+		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/wavesurfer.min.js\"></script>
+		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/plugin/wavesurfer.regions.min.js\"></script>
+		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/plugin/wavesurfer.minimap.min.js\"></script>
 		<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">
 
 		<div id='loading'>Loading wave form: 0%</div>
