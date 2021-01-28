@@ -27,6 +27,7 @@
 		$defaultsort = $xrset["defaultsort"];
 		$recname = "entry";
 		$defaultsort = "name";
+		$viewtxt = $xrset['view'] or $viewtxt = "view";
 	
 		$description = getlangfile("{$xmlfile}_text");
 		if ( !$description && $username ) $description = "<p class=adminpart>There is no description for this XML file yet, click <a href='index.php?action=pageedit&id=new&name={$xmlfile}_text.html'>here</a> to add one.</p>";
@@ -558,7 +559,7 @@
 			$sortkey = current($record->xpath($sort));
 			$id = current($record->xpath("@id"));
 			$tableline = "\n<tr id='$sortkey'><td>";
-			if ( !$xrset["noview"] || $username ) $tableline .= "<a href='index.php?action=$action&id=$id' style='font-size: smaller;'>{%view}</a>";
+			if ( !$xrset["noview"] || $username ) $tableline .= "<a href='index.php?action=$action&id=$id' style='font-size: smaller;'>{%$viewtxt}</a>";
 
 			foreach ( $entryxml->children() as $fldrec ) {
 				if ( !$fldrec['list'] ) continue;
