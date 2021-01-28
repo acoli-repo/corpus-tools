@@ -18,6 +18,7 @@
 		$hprot = "http";
 		ini_set("session.cookie_secure", 0); // TEITOK typically does not work on HTTPS, so SESSION vars have to be allow on HTTP
 	};
+	session_start();
 
 	// Load the settings.xml file (via PHP)
 	include("$ttroot/common/Sources/settings.php");
@@ -38,7 +39,6 @@
 	}; 
 
 	// Deal with sessions and cookies
-	session_start();
 	$gsessionvar = "teitok-".preg_replace("/[^a-z0-9]/", "", $_SERVER['SERVER_NAME'] ); # Allow server-wide login
 	$sessionvar = "teitok-".preg_replace("/[^a-z0-9]/", "", $foldername); # Make the session relative to this project
 	
