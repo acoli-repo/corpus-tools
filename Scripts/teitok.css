@@ -142,3 +142,5 @@ anon::after { content: ']'; }
 
 #jsoptions button { background-color: #ffffff; }
 #jsoptions button[active] { background-color: #eeeecc; }
+
+#track { display: block; position: fixed; right: 0px; top: 0px; }
