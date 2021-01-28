@@ -19,6 +19,24 @@
 		ini_set("session.cookie_secure", 0); // TEITOK typically does not work on HTTPS, so SESSION vars have to be allow on HTTP
 	};
 
+	// Load the settings.xml file (via PHP)
+	include("$ttroot/common/Sources/settings.php");
+	
+	# Determine the folder to set a folder-specific user cookie
+	if ( !$foldername )
+	if ( preg_match("/\/([^\/]*)\/\.\.\/index\.php\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
+		$foldername = $matches[1];
+	} else if ( preg_match("/\/([^\/]*)\/index\.php/", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
+		$foldername = $matches[1];
+	} else if ( preg_match("/.*\/teitok\/([^\/]*?)\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
+		$foldername = $matches[1];
+	} else {
+		$foldername = $_SERVER['SCRIPT_FILENAME'];
+		$foldername = preg_replace("/.*\/www\/(html\/)?/", "", $foldername); # For /var/www/html
+		$foldername = preg_replace("/.*\/WebServer\/Documents\//", "", $foldername); # For MacOS
+		$foldername = preg_replace("/\/index\.php.*/", "", $foldername);
+	}; 
+
 	// Deal with sessions and cookies
 	session_start();
 	$gsessionvar = "teitok-".preg_replace("/[^a-z0-9]/", "", $_SERVER['SERVER_NAME'] ); # Allow server-wide login
@@ -62,23 +80,6 @@
 		$_GET = strip_array($_GET);
 	}
 
-	// Load the settings.xml file (via PHP)
-	include("$ttroot/common/Sources/settings.php");
-	
-	# Determine the folder to set a folder-specific user cookie
-	if ( !$foldername )
-	if ( preg_match("/\/([^\/]*)\/\.\.\/index\.php\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
-		$foldername = $matches[1];
-	} else if ( preg_match("/\/([^\/]*)\/index\.php/", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
-		$foldername = $matches[1];
-	} else if ( preg_match("/.*\/teitok\/([^\/]*?)\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
-		$foldername = $matches[1];
-	} else {
-		$foldername = $_SERVER['SCRIPT_FILENAME'];
-		$foldername = preg_replace("/.*\/www\/(html\/)?/", "", $foldername); # For /var/www/html
-		$foldername = preg_replace("/.*\/WebServer\/Documents\//", "", $foldername); # For MacOS
-		$foldername = preg_replace("/\/index\.php.*/", "", $foldername);
-	}; 
 	
 	# Determine which language to use
 	$deflang = $settings['languages']['default'] or $deflang = "en";
