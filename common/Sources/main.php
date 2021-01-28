@@ -66,6 +66,7 @@
 	include("$ttroot/common/Sources/settings.php");
 	
 	# Determine the folder to set a folder-specific user cookie
+	if ( !$foldername )
 	if ( preg_match("/\/([^\/]*)\/\.\.\/index\.php\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
 		$foldername = $matches[1];
 	} else if ( preg_match("/\/([^\/]*)\/index\.php/", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
