@@ -552,6 +552,8 @@
 		$totnum = count($result);
 		$result = array_slice($result,0,$maxnum);
 		foreach ( $result as $record ) { 
+				
+			if ( $record['deactivated'] ) continue;
 							
 			$sortkey = current($record->xpath($sort));
 			$id = current($record->xpath("@id"));
