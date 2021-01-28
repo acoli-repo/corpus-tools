@@ -43,13 +43,18 @@
 		if ( $xmlfile && file_exists("Resources/$xmlfile.xml") ) {
 			# Read XML file only when defined
 			$xml = simplexml_load_file("Resources/$xmlfile.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-			print "Loaded: ".count($xml->children());
-			$tmp = current($xml->children()); $tryentry = $tmp[0];
-			if ( $tryentry ) foreach ( $tryentry->children() as $child ) {
-				$child[0] = $child->getName();
-				$tryentry = $tryentry->asXML();
-			};
+			$tmp = current($xml->children());
+			if ( $tmp ) {
+				$rn = $tmp[0]->getName();
+				$tryentry = "<$rn>";
+				foreach ( $tmp[0]->children() as $child ) {
+					$nn = $child->getName();
+					$tryentry .= "\n\t<$nn>$nn</$nn>";
+				};
+				$tryentry .= "\n</$rn>";
+			} else $tryentry = "<record></record>";
 		} else $tryentry = "<record></record>";
+		print "Saving temptative entry defition: "; htmlentities($tryentry);
 		file_put_contents("Resources/$xmlfile-entry.xml", $tryentry);
 		print "<p>Definition file does not exist - reloading to generate
 			<script language=Javascript>top.location='index.php?action=adminedit&id=$xmlfile-entry.xml';</script>
@@ -356,7 +361,18 @@
 			$val = $fldrec."";
 			$fldval = current($record->xpath($key))."";
 			if ( $fldval == "" ) continue;
-			if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
+			if ( $fldrec["link"] ) {
+				 $linkurl = $fldrec["link"]."";
+				if ( preg_match_all("{#([^\}]+)}", $linkurl, $matches ) ) {
+					foreach ( $matches[1] as $xp ) {
+						$linkurl = str_replace("{#$xp}",  current($record->xpath($xp)), $linkurl);
+					};
+				};
+				if ( $fldrec["target"] ) $target = $fldrec["target"]; else $target = "details";
+				$trgt = "";
+				if ( $target && $target != "none" ) $trgt = " target=\"$target\"";
+				if ( $linkurl != "" ) $fldval = "<a$trgt href='$linkurl'>$fldval</a>";
+			} else if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
 			if ( $fldrec['type'] == "xml" || $fldrec['type'] == "rte" ) {
 				if ( !$fldrec['notitle'] ) $maintext .= "<tr><th span='row'>{%$val}</th><td colspan=2>".$fldval->asXML();
 				else $maintext .= "<tr><td colspan=2>".$fldval->asXML();
