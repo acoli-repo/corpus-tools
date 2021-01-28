@@ -575,8 +575,17 @@
 								$linkurl = str_replace("{#$xp}",  current($record->xpath($xp)), $linkurl);
 							};
 						};
-					} else 
+					} else {
 						$linkurl = current($record->xpath($fldrec["link"].""));
+						if ( !$linkurl ) {
+							 $linkurl = $fldrec["link"]."";
+							if ( preg_match_all("{#([^\}]+)}", $linkurl, $matches ) ) {
+								foreach ( $matches[1] as $xp ) {
+									$linkurl = str_replace("{#$xp}",  current($record->xpath($xp)), $linkurl);
+								};
+							};
+						};
+					};
 					if ( $fldrec["target"] ) $target = $fldrec["target"]; else $target = "details";
 					$trgt = "";
 					if ( $target && $target != "none" ) $trgt = " target=\"$target\"";
