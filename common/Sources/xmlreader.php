@@ -368,8 +368,7 @@
 						$linkurl = str_replace("{#$xp}",  current($record->xpath($xp)), $linkurl);
 					};
 				};
-				if ( $fldrec["target"] ) $target = $fldrec["target"]; else $target = "details";
-				$trgt = "";
+				if ( $fldrec["target"] ) $target = $fldrec["target"]; $trgt = "";
 				if ( $target && $target != "none" ) $trgt = " target=\"$target\"";
 				if ( $linkurl != "" ) $fldval = "<a$trgt href='$linkurl'>$fldval</a>";
 			} else if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
