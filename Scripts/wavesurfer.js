@@ -6,7 +6,10 @@ document.onmousedown = mouseDown;
 document.onmouseup = mouseUp; 
 document.onmousemove = mouseMove; 
 
-var wavesurfer = Object.create(WaveSurfer);
+var WaveSurfer = window.WaveSurfer;
+var RegionPlugin = window.WaveSurfer.regions;
+var MinimapPlugin = window.WaveSurfer.minimap;
+
 var waveform = document.getElementById('waveform');
 var utteditor = document.getElementById('utteditor');
 var mtxt = document.getElementById('mtxt');
@@ -326,29 +329,64 @@ function changeutt (frm) {
 	return false;
 };
 
-wavesurfer.init({
-	container: document.querySelector('#waveform'),
-	// backend: 'WebAudio',
-	pixelRatio: 1,
-	// normalize: false,
-	// barWidth: 2,
-	// barHeight: 200,
-	// responsive: false,	
-	scrollParent: true,
-	waveColor: '#992200',
-	autoCenter: true,
-	audioRate: 1,
-	fillParent: false,
-	renderer: 'MultiCanvas',
-	// splitChannels: true,
-});
 
 var minimap; var zoomregion;
 var uttarray = Array();
 var regionarray = Array();
 var durtxt;
 
-wavesurfer.load(soundfile);
+var mediaElt = document.querySelector('video');
+if ( mediaElt ) {
+	var wavesurfer = WaveSurfer.create({
+		container: document.querySelector('#waveform'),
+		pixelRatio: 1,
+		scrollParent: true,
+		waveColor: '#992200',
+		autoCenter: true,
+		audioRate: 1,
+		fillParent: false,
+		backend: 'MediaElement',
+		plugins: [
+			MinimapPlugin.create({
+			height: 30,
+			waveColor: '#ddd',
+			progressColor: '#999',
+			cursorColor: '#68A93D',
+			barHeight: 1.4
+			}),
+			RegionPlugin.create(),
+		],
+	});
+	wavesurfer.load(mediaElt);
+} else {
+	var wavesurfer = WaveSurfer.create({
+		container: document.querySelector('#waveform'),
+		// backend: 'WebAudio',
+		pixelRatio: 1,
+		// normalize: false,
+		// barWidth: 2,
+		// barHeight: 200,
+		// responsive: false,	
+		scrollParent: true,
+		waveColor: '#992200',
+		autoCenter: true,
+		audioRate: 1,
+		fillParent: false,
+		// renderer: 'MultiCanvas',
+		// splitChannels: true,
+		plugins: [
+			MinimapPlugin.create({
+			height: 30,
+			waveColor: '#ddd',
+			progressColor: '#999',
+			cursorColor: '#68A93D',
+			barHeight: 1.4
+			}),
+			RegionPlugin.create(),
+		],
+	});
+	wavesurfer.load(soundfile);
+};
 wavesurfer.on('ready', function () {
 	document.getElementById('loading').style.display = 'none';
 	document.getElementById('waveblock').style.visibility = 'visible';
@@ -365,13 +403,6 @@ wavesurfer.on('ready', function () {
 	setzoom(1);
 	loaded = true;
 
-	minimap = wavesurfer.initMinimap({
-		height: 30,
-		waveColor: '#ddd',
-		progressColor: '#999',
-		cursorColor: '#68A93D',
-		barHeight: 1.4
-	});
 
 	// Load the utterances
 	var mtch = document.evaluate(uttxp, waveform, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -393,6 +424,7 @@ wavesurfer.on('ready', function () {
 		newregion.id = utt.getAttribute('id');
 		regionarray[uttid] = newregion;
 	};
+
 	
 	// Now, resize the mtxt to fill the whole space below the wavesurfer element
 	var setheight = window.innerHeight - mtxt.offsetTop - 5;

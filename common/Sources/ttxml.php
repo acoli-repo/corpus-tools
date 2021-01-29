@@ -95,6 +95,13 @@ class TTXML
 			};
 			$this->audiourl = $audiourl;
 		};		
+		if ( $videourl != "" ) {
+			if ( !strstr($videourl, 'http') ) {
+				if ( file_exists($videourl) ) $videourl =  "$baseurl/$videourl"; 
+				else if ( !strstr($videourl, 'Video') ) $videourl = $baseurl."Video/$videourl"; 
+			};
+			$this->videourl = $videourl;
+		};		
 		
 		// If we have pseudonimization rules, pseudonimize the text
 		if ( $settings['anonymization'] && !$settings['anonymization']['manual'] ) {

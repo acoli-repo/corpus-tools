@@ -21,14 +21,19 @@
 		$maintext .= "<p class=wrong>The XML does not have a proper set-up with a /TEI/teiHeader. You should resolve this before editing this file.</p>";
 	};
 	
-	$audiourl = $ttxml->audiourl; 
-	$videourl = $ttxml->video[0]['url']; 
-	if ( !$audiourl ) $audiourl = $ttxml->video[0]['url'];
+	$audiourl = $ttxml->audiourl; $fldr = "Audio";
+	$videourl = $ttxml->videourl; 
+	if ( !$audiourl && $videourl ) { 
+		$audiourl = $videourl; $fldr = "Video"; 
+		$videobit .= "<video id=\"track\" class=\"wavesurfer\" src=\"$videourl\" controls ontimeupdate=\"checkstop();\">
+				<p><i><a href='$videourl'>{%Video fragment for this text}</a></i></p>
+			</video>";
+	};
 	if ( $audiourl == "" ) fatal ("XML file has no media element providing a URL to the sound file");
 
-	$audiolink = preg_replace("/.*Audio\//", "", $audiourl); // Kill folder from Audio file name
-	if ( $username && !preg_match("/^https?:/", $audiourl) && !file_exists("Audio/$audiolink") ) {
-		$maintext .= "<p>The audio file for this file ({$audiolink}) does not exist on the server - please upload it first.		
+	$audiolink = preg_replace("/.*(Audio|Video)\//", "", $audiourl); // Kill folder from Audio file name
+	if ( $username && !preg_match("/^https?:/", $audiourl) && !file_exists("$fldr/$audiolink") ) {
+		$maintext .= "<p>The $fldr file for this file ({$audiolink}) does not exist on the server - please upload it first.		
 					</form>
 					<p><form action='index.php?action=upload&act=save' method=post enctype=\"multipart/form-data\">
 					<p>Add new file:
@@ -69,6 +74,7 @@
 		<div id='loading'>Loading wave form: 0%</div>
 	
 		<div id=\"waveblock\" style='visibility: hidden;'>
+			$videobit
 			<div id=\"waveform\"></div>
 			<table width='100%'>
 			<tr>
@@ -172,11 +178,12 @@
 			var username = '$username'; 
 			var tid = '$ttxml->fileid'; 
 			var	jmp = '$jmp';
+			var	fldr = '$fldr';
 			var alttag = '$utttag';
 			var setedit = $setedit;
 			</script>";
 
-		$maintext .= "<script src=\"$jsurl/wavesurfer.js\"></script>";
+		$maintext .= "<script src=\"$jsurl/wavesurfer4.js\"></script>";
 	};
 	
 ?>
