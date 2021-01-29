@@ -45,6 +45,13 @@
 					</form> ";	
 		$nofile = 1;			
 	};
+	
+	if ( $settings['defaults']['media']['spectogram'] ) {
+		# TODO: this does not work yet - the spectrogram shows, but is not the same width
+		$spectjs = "var spect = 1;";
+		$spectelm = "<div id=\"wave-spectrogram\"></div>";
+		$specturl = "<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/plugin/wavesurfer.spectrogram.min.js\"></script>";
+	};
 
 	if ( $act == "save" ) {
 	
@@ -69,6 +76,7 @@
 		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/wavesurfer.min.js\"></script>
 		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/plugin/wavesurfer.regions.min.js\"></script>
 		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/plugin/wavesurfer.minimap.min.js\"></script>
+		$specturl
 		<link href=\"//fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">
 
 		<div id='loading'>Loading wave form: 0%</div>
@@ -76,6 +84,7 @@
 		<div id=\"waveblock\" style='visibility: hidden;'>
 			$videobit
 			<div id=\"waveform\"></div>
+			$spectelm
 			<table width='100%'>
 			<tr>
 			<td>
@@ -181,6 +190,7 @@
 			var	fldr = '$fldr';
 			var alttag = '$utttag';
 			var setedit = $setedit;
+			$spectjs
 			</script>";
 
 		$maintext .= "<script src=\"$jsurl/wavesurfer.js\"></script>";

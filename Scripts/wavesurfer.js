@@ -9,6 +9,7 @@ document.onmousemove = mouseMove;
 var WaveSurfer = window.WaveSurfer;
 var RegionPlugin = window.WaveSurfer.regions;
 var MinimapPlugin = window.WaveSurfer.minimap;
+var SpectrogramPlugin = window.WaveSurfer.spectogram;
 
 var waveform = document.getElementById('waveform');
 var utteditor = document.getElementById('utteditor');
@@ -358,6 +359,32 @@ if ( mediaElt ) {
 		],
 	});
 	wavesurfer.load(mediaElt);
+} else if ( typeof(spect) != 'undefined' ) {
+	var wavesurfer = WaveSurfer.create({
+		container: document.querySelector('#waveform'),
+		pixelRatio: 1,
+		scrollParent: true,
+		waveColor: '#992200',
+		autoCenter: true,
+		audioRate: 1,
+		fillParent: false,
+		plugins: [
+			MinimapPlugin.create({
+			height: 30,
+			waveColor: '#ddd',
+			progressColor: '#999',
+			cursorColor: '#68A93D',
+			barHeight: 1.4
+			}),
+			RegionPlugin.create(),
+			WaveSurfer.spectrogram.create({
+				wavesurfer: wavesurfer,
+				container: "#wave-spectrogram",
+				labels: false
+			}),
+		],
+	});
+	wavesurfer.load(soundfile);
 } else {
 	var wavesurfer = WaveSurfer.create({
 		container: document.querySelector('#waveform'),

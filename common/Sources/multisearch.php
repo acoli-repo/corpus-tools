@@ -114,10 +114,8 @@
 			$name = $sq['name'] or $name = $sq['display'] or $name = $cql;
 			$querylist .= "<tr><td><td><a onClick=\"addquery('$cqltxt', '$name')\">{%use}</a><td>$name<td><span style='color: #cccccc'>$cql</span>";
 		};
-		if ( $querylist ) {
-			$querylist = "<h2>{%Stored CQL queries}</h2><table>$querylist</table>
+		$maintext .= "	
 			<script language=Javascript>
-				var cqlfld;
 				function addquery ( cql, name ) {
 					// Find the first empty query line
 					var i=0; fnd = 0;
@@ -141,6 +139,11 @@
 					cqlfld.value = decodeURI(cql);
 					namefld.value = name;
 				};
+			</script>";
+		if ( $querylist ) {
+			$querylist = "<h2>{%Stored CQL queries}</h2><table>$querylist</table>
+			<script language=Javascript>
+				var cqlfld;
 				function addline() {
 					// Add a new line
 					var table = document.getElementById('inputtable');
