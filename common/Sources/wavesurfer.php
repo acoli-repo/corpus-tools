@@ -69,7 +69,7 @@
 		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/wavesurfer.min.js\"></script>
 		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/plugin/wavesurfer.regions.min.js\"></script>
 		<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/plugin/wavesurfer.minimap.min.js\"></script>
-		<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">
+		<link href=\"//fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">
 
 		<div id='loading'>Loading wave form: 0%</div>
 	
@@ -183,7 +183,7 @@
 			var setedit = $setedit;
 			</script>";
 
-		$maintext .= "<script src=\"$jsurl/wavesurfer4.js\"></script>";
+		$maintext .= "<script src=\"$jsurl/wavesurfer.js\"></script>";
 	};
 	
 ?>
