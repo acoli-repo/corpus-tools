@@ -81,7 +81,6 @@
 		$_GET = strip_array($_GET);
 	}
 
-	
 	# Determine which language to use
 	$deflang = $settings['languages']['default'] or $deflang = "en";
 	if ( $_GET['lang'] ) $lang = $_GET['lang'];
@@ -104,6 +103,7 @@
 	
 	# Set the base META tag when asked
 	$baseurl = str_replace("{project}", $foldername, $baseurl);
+	$baseurl = str_replace("{lang}", $foldername, $lang);
 	if ( $settings['defaults']['base']['meta'] ) {
 		$moresmarty{'baseurl'} = $baseurl;
 		$rooturl = $baseurl;
