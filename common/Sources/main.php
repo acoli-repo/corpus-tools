@@ -105,6 +105,7 @@
 	$baseurl = str_replace("{project}", $foldername, $baseurl);
 	if ( $settings['defaults']['base']['meta'] ) {
 		$moresmarty{'baseurl'} = $baseurl;
+		$rooturl = $baseurl;
 	}; 
 
 	// Determine where to get the Javascript files from

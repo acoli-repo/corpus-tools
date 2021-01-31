@@ -10,7 +10,7 @@
 			if ( $key == $lang ) $langstxt .= "<span class=langon>$sep{$item['menu']}</span>";
 			else {
 				if ( $settings['languages']['prefixed'] ) {
-					$langurl = "$baseurl$key/index.php?".$_SERVER['QUERY_STRING'];
+					$langurl = "$rooturl$key/index.php?".$_SERVER['QUERY_STRING'];
 				} else {
 					if ( preg_match("/\?/", $_SERVER['REQUEST_URI']) ) $ss = "&"; else $ss = "?";
 					$langurl = $_SERVER['REQUEST_URI']."{$ss}lang=$key";
