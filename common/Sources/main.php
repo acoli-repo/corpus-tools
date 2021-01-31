@@ -24,15 +24,16 @@
 	include("$ttroot/common/Sources/settings.php");
 	
 	# Determine the folder to set a folder-specific user cookie
+	$scriptfolder = realpath($_SERVER['SCRIPT_FILENAME']);
 	if ( !$foldername )
-	if ( preg_match("/\/([^\/]*)\/\.\.\/index\.php\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
+	if ( preg_match("/\/([^\/]*)\/\.\.\/index\.php\//", $scriptfolder, $matches ) ) {
 		$foldername = $matches[1];
-	} else if ( preg_match("/\/([^\/]*)\/index\.php/", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
+	} else if ( preg_match("/\/([^\/]*)\/index\.php/", $scriptfolder, $matches ) ) {
 		$foldername = $matches[1];
-	} else if ( preg_match("/.*\/teitok\/([^\/]*?)\//", $_SERVER['SCRIPT_FILENAME'], $matches ) ) {
+	} else if ( preg_match("/.*\/teitok\/([^\/]*?)\//", $scriptfolder, $matches ) ) {
 		$foldername = $matches[1];
 	} else {
-		$foldername = $_SERVER['SCRIPT_FILENAME'];
+		$foldername = $scriptfolder;
 		$foldername = preg_replace("/.*\/www\/(html\/)?/", "", $foldername); # For /var/www/html
 		$foldername = preg_replace("/.*\/WebServer\/Documents\//", "", $foldername); # For MacOS
 		$foldername = preg_replace("/\/index\.php.*/", "", $foldername);
