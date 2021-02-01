@@ -89,7 +89,7 @@
 	if ( $withheader ) {
 		if ( $withlang ) $headtext = lgMsg("{%headtext}"); 
 		$cidx = $cid; if ( substr($cidx, -4) != ".xml" ) $cidx .= ".xml";
-		$header = "<p class='linktxt'><a href='{$baseurl}index.php?action=file&cid=$cidx&tid=$tid'>$headtext</a></p>";
+		$header = "<p class='linktxt'><a href='$baseurl/index.php?action=file&cid=$cidx&tid=$tid'>$headtext</a></p>";
 	};
 	
 	# Protect empty elements

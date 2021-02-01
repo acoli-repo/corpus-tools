@@ -103,7 +103,7 @@
 	
 	# Set the base META tag when asked
 	$baseurl = str_replace("{project}", $foldername, $baseurl);
-	$baseurl = str_replace("{lang}", $foldername, $lang);
+	$baseurl = str_replace("{lang}", $lang, $baseurl);
 	if ( $settings['defaults']['base']['meta'] ) {
 		$moresmarty{'baseurl'} = $baseurl;
 		$rooturl = $baseurl;
