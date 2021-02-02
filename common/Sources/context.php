@@ -11,65 +11,76 @@
 	if ( isset($_GET['header']) ) $withheader = $_GET['header']; else if ( isset($settings['context']['header']) ) $withheader = $settings['context']['header']; else $withheader = 1;
 	if ( isset($_GET['wordh']) ) $withword = $_GET['wordh']; else if ( isset($settings['context']['wordheader']) ) $withword = $settings['context']['wordheader']; else $withword = 0; # Whether to display the word itself
 	$context = $_GET['context'] or $context = $settings['context']['context'] or $context = "s";
-	if ( $context + 0 == 0 && !$settings['cqp']['sattributes'][$context] ) {
-		if ( $username ) fatal("Context set to $context, which is not a CQP level in this corpus. Please correct in settings.xml//context");
-		$context = 5;
-	};      
-
-	$leftpos = $_GET['leftpos'];
-	$rightpos = $_GET['rightpos'];
 	
-	if ( $leftpos == "" ) $leftpos = $pos;
-	if ( $rightpos == "" ) $rightpos = $pos;
-
-	if ( $settings['context']['nopos'] ) { $pos = $leftpos = $rightpos = ""; }; # Ignore POS if indexes might differ
-
-	$fileid = "xmlfiles/$cid.xml"; 
-	$outfolder = "cqp"; 
-	$xidxcmd = findapp("tt-cwb-xidx");
+	if ( $settings['context']['method'] == "xml"  ) {
 	
-	# If we do not have a left/right position 
-	if ( $leftpos == "" ) {
-		if ( $tid ) {
-			# lookup the position in CQP
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		$xp = "//text//{$context}[.//tok[@id=\"$tid\"] | .//dtok[@id=\"$tid\"]]";
+		$node = current($ttxml->xml->xpath($xp));
+		$resxml = $node->asXML();
+	
+	} else {
+		if ( $context + 0 == 0 && !$settings['cqp']['sattributes'][$context] ) {
+			if ( $username ) fatal("Context set to $context, which is not a CQP level in this corpus. Please correct in settings.xml//context");
+			$context = 5;
+		};      
+
+		$leftpos = $_GET['leftpos'];
+		$rightpos = $_GET['rightpos'];
+	
+		if ( $leftpos == "" ) $leftpos = $pos;
+		if ( $rightpos == "" ) $rightpos = $pos;
+
+		if ( $settings['context']['nopos'] ) { $pos = $leftpos = $rightpos = ""; }; # Ignore POS if indexes might differ
+
+		$fileid = "xmlfiles/$cid.xml"; 
+		$outfolder = "cqp"; 
+		$xidxcmd = findapp("tt-cwb-xidx");
+	
+		# If we do not have a left/right position 
+		if ( $leftpos == "" ) {
+			if ( $tid ) {
+				# lookup the position in CQP
+				include ("$ttroot/common/Sources/cwcqp.php");
+				$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+				$cqp = new CQP();
+				$cqp->exec($cqpcorpus); // Select the corpus
+				$cqp->exec("set PrettyPrint off");
+				$cqp->exec("Matches = [id=\"$tid\"] :: match.text_id=\"$fileid\"");
+				$tmp = $cqp->exec("tabulate Matches match, match text_id");
+				list ( $pos, $fileid ) = explode( "\t", $tmp ); 
+				$leftpos = $pos; $rightpos = $pos;
+			} else {
+				print "No position or token ID indicated"; exit;
+			};
+		};
+	
+		if ( preg_match("/^\d+$/", $context) ) {
+			$leftpos -= $context;
+			$rightpos += $context;
+		} else {
+			$expand = "--expand=$context";
+		};
+
+		# If we do not have a tid, look it up (so that we can highlight the word)
+		if ( !$tid ) {
 			include ("$ttroot/common/Sources/cwcqp.php");
 			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 			$cqp = new CQP();
 			$cqp->exec($cqpcorpus); // Select the corpus
 			$cqp->exec("set PrettyPrint off");
-			$cqp->exec("Matches = [id=\"$tid\"] :: match.text_id=\"$fileid\"");
-			$tmp = $cqp->exec("tabulate Matches match, match text_id");
-			list ( $pos, $fileid ) = explode( "\t", $tmp ); 
-			$leftpos = $pos; $rightpos = $pos;
-		} else {
-			print "No position or token ID indicated"; exit;
-		};
+			$lupos = $pos or $lupos = $leftpos;
+			$cqp->exec("Matches = [] :: match=$lupos");
+			$tid = chop($cqp->exec("tabulate Matches match id"));
+		};	
+	
+		if ( $hls ) $hlstyle = "<style>tok[highlight] { background-color: #ffee77; }</style>";
+
+		$cmd = "$xidxcmd --filename='$fileid' --cqp='$outfolder' $expand $leftpos $rightpos";
+		$resxml = shell_exec($cmd);
 	};
 	
-	if ( preg_match("/^\d+$/", $context) ) {
-		$leftpos -= $context;
-		$rightpos += $context;
-	} else {
-		$expand = "--expand=$context";
-	};
-
-	# If we do not have a tid, look it up (so that we can highlight the word)
-	if ( !$tid ) {
-		include ("$ttroot/common/Sources/cwcqp.php");
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-		$cqp = new CQP();
-		$cqp->exec($cqpcorpus); // Select the corpus
-		$cqp->exec("set PrettyPrint off");
-		$lupos = $pos or $lupos = $leftpos;
-		$cqp->exec("Matches = [] :: match=$lupos");
-		$tid = chop($cqp->exec("tabulate Matches match id"));
-	};	
-	
-	if ( $hls ) $hlstyle = "<style>tok[highlight] { background-color: #ffee77; }</style>";
-
-	$cmd = "$xidxcmd --filename='$fileid' --cqp='$outfolder' $expand $leftpos $rightpos";
-	$resxml = shell_exec($cmd);
-
 	$cssfile = "";
 	if ( $sharedfolder ) $cssfile .= file_get_contents("$sharedfolder/Resources/xmlstyles.css");
 	$cssfile .= file_get_contents("Resources/xmlstyles.css");
