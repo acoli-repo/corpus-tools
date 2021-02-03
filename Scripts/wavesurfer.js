@@ -473,8 +473,13 @@ wavesurfer.on('ready', function () {
 		
 	if ( jmp ) {
 		// Jump to a token
-		var mtch = document.evaluate("//*[@id=\""+jmp+"\"]/ancestor::u", mtxt, null, XPathResult.ANY_TYPE, null);
+		var mtch = document.evaluate("//*[@id=\""+jmp+"\"]", mtxt, null, XPathResult.ANY_TYPE, null);
+		var jmptok = mtch.iterateNext(); 
+		var mtch = document.evaluate("./ancestor::u", jmptok, null, XPathResult.ANY_TYPE, null);
 		var utt = mtch.iterateNext(); 
+		if ( jmptok ) {
+			if ( !editmode ) jmptok.setAttribute('hl', '1');
+		};
 		if ( utt ) {
 			scrollToElementD(utt);
 			if ( !editmode ) utt.style.backgroundColor = "#ffffcc";

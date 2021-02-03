@@ -597,7 +597,7 @@
 	
 	if ( $audiobit ) {
 		if ( $username ) $maintext .= " &bull; <a href='index.php?action=audiomanage&cid=$fileid'>Audio management</a>";
-		$maintext .= " &bull; <a href='index.php?action=wavesurfer&cid=$fileid'>{%Waveform view}</a>";
+		if ( !$settings['views']['wavesurfer'] ) $maintext .= " &bull; <a href='index.php?action=wavesurfer&cid=$fileid'>{%Waveform view}</a>";
 	};
 	
 	// TODO: do a viewswitch in ttxml

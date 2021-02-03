@@ -173,7 +173,7 @@
 		$maintext .= " &bull;  <a href='http://www.teitok.org/index.php?action=help&id=wavesurfer' target=help>{%!help}</a>";
 		
 		if ( !$editmsg ) {
-			$jmp = $_GET['jump'] or $jmp = $_GET['tid'];
+			$jmp = $_GET['jmp'] or $jmp = $_GET['jump'] or $jmp = $_GET['tid'];
 		} else {
 			// In edit mode, make utterances without a @start opaque
 			$maintext .= "<style>
