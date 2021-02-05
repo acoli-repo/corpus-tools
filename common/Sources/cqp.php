@@ -288,9 +288,14 @@
 
 			<script language=Javascript>
 			function cqpdo(elm) {
-				console.log(typeof(elm));
-				if ( typeof(elm) == 'string ')  document.cqp.cql.value = elm;
-				else document.cqp.cql.value = elm.innerHTML;
+				var newcql;
+				if ( typeof(elm) == 'string ') newcql = elm;
+				else newcql = elm.innerHTML;
+				document.cqp.cql.value = newcql;
+				if ( typeof(code) == 'object') { 
+					code.innerText = newcql; 
+					dohighlight(code);
+				};
 			};
 			</script>
 
@@ -863,11 +868,28 @@
 
 			<script language=Javascript>
 			function cqpdo(elm, autorun = false) {
-				if ( typeof(elm) == 'string' )  document.cqp.cql.value = elm;
-				else document.cqp.cql.value = elm.innerHTML;
+				var newcql;
+				if ( typeof(elm) == 'string ') newcql = elm;
+				else newcql = elm.innerHTML;
+				document.cqp.cql.value = newcql;
+				if ( typeof(code) == 'object') { 
+					code.innerText = newcql; 
+					dohighlight(code);
+				};
 				if ( autorun ) document.cqp.submit();
 			};
 			</script>
+			<link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css\">
+			<style>
+			@font-face { ... }
+			div[onclick] { 
+				cursor: pointer;
+			}
+			div[onclick]:before { 
+				font-family: \"FontAwesome\"; font-weight: 100; content: \"\\f021\" ' ';
+				color: #aaaaaa;
+			}
+			</style>
 			";
 
 		$explanation = getlangfile("cqptext", true);
