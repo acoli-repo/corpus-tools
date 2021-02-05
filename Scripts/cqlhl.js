@@ -71,7 +71,7 @@
 		}
 	}
     
-    var code = document.getElementById('cqlfld');
+    var code = document.querySelector('#code')
     var misbehave = new Misbehave(code, {
       oninput : function() {
         dohighlight(code)
