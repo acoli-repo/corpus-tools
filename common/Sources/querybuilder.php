@@ -495,6 +495,9 @@
 					#code .Number { color: orange; }
 					#code .Multiplier { color: brown; }
 					#code .Regionname { color: red; }
+					#code .Globalname { color: blue; }
+					#code .Globalexpr { color: brown; }
+					#code .Tokname { color: brown; }
 					</style>
 				";
 		} else {

@@ -165,7 +165,7 @@
 				aceeditor.getSession().setMode(\"ace/mode/xml\");
 			</script>";
 			
-		$maintext .= "<hr><a href='index.php?action=file&cid=$ttxml->fileid'>{%Text view}</a>";
+		$maintext .= "<hr><a href='index.php?action=text&cid=$ttxml->fileid'>{%Text view}</a>";
 	
 		if ( $username && $act != "edit" ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&cid=$ttxml->fileid'>Edit transcripion</a>";
 		if ( $username ) $maintext .= " &bull;  <a onClick='toelan(this);'>Export as ELAN</a>";

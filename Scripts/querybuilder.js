@@ -256,7 +256,6 @@ function patt2name (it, region='') {
 	} else if ( it.number ) {
 		name = '<b>' + it.number + '</b>';
 	} else if ( typeof(it.re) != 'undefined' ) {
-		console.log(it.re);
 		if ( it.re == ''  ) {
 			name = '(' + i18n('empty') + ')';
 		} else if ( it.re.match(/^([a-zA-Z0-9]+)\.\*$/) ) {
@@ -398,6 +397,11 @@ function updatequery(nodirect = false) {
 	if ( !newcql.match(/ within /) && !docquery ) newcql += ' within text';
     
 	cqpfld.value = newcql;
+	// Copy to #code as well if there is one
+	if ( typeof(code) == 'object') { 
+		code.innerText = newcql; 
+		dohighlight(code);
+	};
 	if ( document.getElementById('fromqb') != null ) {
 		document.getElementById('fromqb').value = '1';
 	}
