@@ -483,7 +483,7 @@
 						var expllist = ['Item'];
 						code.onmouseover = 
 							 function(e) { 
-							 	if ( cqlerr != '' ) { console.log(cqlerr); return; };
+							 	if ( cqlerr != '' ) { return; };
 								helm = e.srcElement;
 								while ( helm.nodeName == 'SPAN' && !expllist.includes(helm.getAttribute('title')) ) { 
 									helm = helm.parentNode; 

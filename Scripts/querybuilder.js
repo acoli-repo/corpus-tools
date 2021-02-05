@@ -465,13 +465,17 @@ function getSelectValues(select) {
 var cqlerr;
 function setcqlerror (txt) {
 	cqlerr = txt;
-	console.log(cqlerr);
 	document.getElementById('cqlconsole').innerHTML = cqlerr;
+	document.getElementById('cqlconsole').style.color = 'red';
+};
+function delcqlerror () {
+	cqlerr = '';
+	document.getElementById('cqlconsole').style.color = '#006600';
 };
 
 // Functions for the Misbehave/PEG parser
 function dohighlight(code) {
-	setcqlerror('');
+	delcqlerror();
 	var cql = code.innerText;
 	var parser = window.HLPARSER; var parsed;
 	var hl = cql;
