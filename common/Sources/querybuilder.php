@@ -467,8 +467,8 @@
 			$prescript .= "	var pattlist = [$pattlist]; var sattlist = [$sattlist]; var regionlist = [$regionlist];";
 			$cqlbox = "	
 				{%CQL Query}: &nbsp; <div id=\"code\" class=\"language-cql\" contenteditable=\"true\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\">$cql</div>
+				<input type=hidden id='cqlfld' name='cql' value='$cql' style='width: 600px;'>
 				<div id='cqlerror'></div>
-				<input type=hidden id='cqlfld' name='cql' value='$cql'>
 			";
 			$postcode .= "<script src=\"https://orbitbot.github.io/misbehave/lib/prism.js\"></script>
 					<script src=\"https://orbitbot.github.io/misbehave/lib/misbehave.js\"></script>

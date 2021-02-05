@@ -471,6 +471,7 @@ function dohighlight(code) {
 		try {
 			parsed = parser.parse(cql);
 			hl = htmlFrom(parsed);
+			if ( typeof(hl) == 'object' ) hl = cql; // Avoid showing [object]
 			code.innerHTML = hl;
 			checkatts(code);
 		} catch (err) {
