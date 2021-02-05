@@ -468,7 +468,7 @@
 			$cqlbox = "	
 				{%CQL Query}: &nbsp; <div id=\"code\" class=\"language-cql\" contenteditable=\"true\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\">$cql</div>
 				<input type=hidden id='cqlfld' name='cql' value='$cql' style='width: 600px;'>
-				<div id='cqlerror'></div>
+				<div id='cqlconsole'></div>
 			";
 			$postcode .= "<script src=\"https://orbitbot.github.io/misbehave/lib/prism.js\"></script>
 					<script src=\"https://orbitbot.github.io/misbehave/lib/misbehave.js\"></script>
@@ -480,10 +480,27 @@
 							dohighlight(code)
 						  }
 						})
+						var expllist = ['Item'];
+						code.onmouseover = 
+							 function(e) { 
+							 	if ( cqlerr != '' ) { console.log(cqlerr); return; };
+								helm = e.srcElement;
+								while ( helm.nodeName == 'SPAN' && !expllist.includes(helm.getAttribute('title')) ) { 
+									helm = helm.parentNode; 
+								};
+								expl = elm2txt(helm);
+								document.getElementById('cqlconsole').innerHTML = expl; 
+							 };
+						code.onmouseout =  
+							 function(e) { 
+							 	if ( cqlerr == '' ) 
+									document.getElementById('cqlconsole').innerHTML = ''; 
+							};
 					</script>
 					<style>
+					#pre { width: 720px; }
 					#options { padding-top: 2px; padding-bottom: 15px; }
-					#cqlerror { color: #999999; font-size: 12px; }
+					#cqlconsole {  }
 					#code { padding: 5px; width: 600px; border: 1px dotted grey; margin-right: 15px; display: inline-block; font-family: monospace; }
 					#code .Item { color: blue; }
 					#code .Attname { color: red; }

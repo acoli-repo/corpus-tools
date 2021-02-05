@@ -24,22 +24,7 @@
 
 
 	$maintext .= "<h1>CQP Match List</h1>
-			<script language=Javascript>
-				$prescript
-				function checksearch (frm) {
-					if ( frm.cqlfld.value == '' ) {
-						updatequery(true); 
-						if ( frm.cqlfld.value == '[] within text' ) frm.cqlfld.value = '';
-						if ( frm.cqlfld.value == '' ) return false;
-					};
-				}; 
-			</script>
-			<form action='$postaction' onsubmit=\"return checksearch(this);\" method=post id=cqp name=cqp><p>CQP Query: &nbsp; 
-				$cqlbox
-				<input type=submit value=\"{%Search}\"> 
-					<a onClick=\"showqb('cqlfld');\" title=\"{%define a CQL query}\">{%query builder}</a>
-					| <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a>
-				$optionoption
+			$cqlfld
 
 			<h2>Features to show</h2>
 			$showlist

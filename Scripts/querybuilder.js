@@ -462,11 +462,18 @@ function getSelectValues(select) {
   return result;
 }
 
+var cqlerr;
+function setcqlerror (txt) {
+	cqlerr = txt;
+	console.log(cqlerr);
+	document.getElementById('cqlconsole').innerHTML = cqlerr;
+};
+
 // Functions for the Misbehave/PEG parser
 function dohighlight(code) {
+	setcqlerror('');
 	var cql = code.innerText;
 	var parser = window.HLPARSER; var parsed;
-	document.getElementById('cqlerror').innerHTML = '';
 	var hl = cql;
 	if ( cql != '' ) {
 		try {
@@ -477,7 +484,7 @@ function dohighlight(code) {
 			checkatts(code);
 		} catch (err) {
 			parsed = { 'items': [] };
-			document.getElementById('cqlerror').innerHTML = err;
+			setcqlerror(err.message);
 			code.innerHTML = hl;
 		};
 	};
@@ -510,18 +517,18 @@ function checkatts (code) {
 	patts = code.getElementsByClassName('pAttname');
 	for(var i=0;i<patts.length;i++ ){
 		patt = patts[i].innerText;
-		if ( pattlist instanceof Array && !pattlist.includes(patt) ) document.getElementById('cqlerror').innerHTML = 'pattribute <b>' + patt + '</b> is not defined in this corpus'
+		if ( pattlist instanceof Array && !pattlist.includes(patt) ) setcqlerror('pattribute <b>' + patt + '</b> is not defined in this corpus');
 
 	};
 	satts = code.getElementsByClassName('sAttname');
 	for(var i=0;i<satts.length;i++ ){
 		satt = satts[i].innerText;
-		if ( sattlist instanceof Array && !sattlist.includes(satt) ) document.getElementById('cqlerror').innerHTML = 'sattribute <b>' + satt + '</b> is not defined in this corpus'
+		if ( sattlist instanceof Array && !sattlist.includes(satt) ) setcqlerror('sattribute <b>' + satt + '</b> is not defined in this corpus');
 	};
 	regions = code.getElementsByClassName('Regionname');
 	for(var i=0;i<regions.length;i++ ){
 		region = regions[i].innerText;
-		if ( regionlist instanceof Array && !regionlist.includes(region) ) document.getElementById('cqlerror').innerHTML = 'region <b>' + region + '</b> is not defined in this corpus'
+		if ( regionlist instanceof Array && !regionlist.includes(region) ) setcqlerror('region <b>' + region + '</b> is not defined in this corpus');
 	};
 	toknames = code.getElementsByClassName('Tokname');
 	deftoks = [];
@@ -535,7 +542,7 @@ function checkatts (code) {
 		tokname = toknames[i].innerText;
 		if ( tokname == 'match' || tokname == 'matchend' || tokname == 'target' ) {
 		} else {
-			if ( !deftoks.includes(tokname) ) document.getElementById('cqlerror').innerHTML = 'token name <b>' + tokname + '</b> is not defined in the query'
+			if ( !deftoks.includes(tokname) ) setcqlerror('token name <b>' + tokname + '</b> is not defined in the query');
 		};
 	};
 };
@@ -551,3 +558,67 @@ function htmlFrom(node){
 		return node || "";
 	};
 };
+
+function elm2txt(helm) {
+	var helmtype = helm.getAttribute('title');
+	expl = '<span>'+helm.innerHTML+'</span>';
+	if ( helmtype == 'Item' ) {
+		var multi = helm.querySelector('.Multiplier').innerText;
+		if ( multi == '+' ) {
+			tokcnt = 'one or more';
+		} else if ( multi == '*' ) {
+			tokcnt = '0 or more';
+		} else if ( res = multi.match(/\{([0-9,]+),\}/) ) {
+			tokcnt = res[1] + ' or more';
+		} else if ( res = multi.match(/\{,([0-9,]+)\}/) ) {
+			tokcnt = 'up to ' + res[1];
+		} else if ( res = multi.match(/\{([0-9,]+)\}/) ) {
+			tokcnt = res[1].replace(',', ' to ');
+		} else if ( multi == '?' ) {
+			tokcnt = '1 optional';
+		} else {
+			tokcnt = '1';
+		};
+		expl += '<span style="color: grey; font-style: italic;">' + tokcnt + ' token(s) ';
+		var tokname = helm.querySelector('.Tokname').innerText.replace(':', '');
+		if ( tokname ) { 
+			if ( tokname == '@' ) expl += '[the target token]';
+			else expl += '[named ' + tokname +  ']';
+		}; 
+		var tokexpr = helm.querySelector('.Tokenexpr');
+		if ( tokexpr ) {
+			var exprelm = tokexpr.cloneNode(true);
+			var patts = exprelm.querySelectorAll('.pAttname');
+			patts.forEach(
+			  function(currentValue) {
+				if ( pattname && pattname[currentValue.innerText] ) var tmp = pattname[currentValue.innerText]['display'];
+				if ( tmp ) currentValue.innerHTML = tmp;
+			  },
+			);
+			var regs = exprelm.querySelectorAll('.Regex');
+			regs.forEach(
+			  function(currentValue) {
+				var tmp = currentValue.innerText;
+				var rep = "";
+				if ( reval = tmp.match(/"\.\*(.+)\.\*"/) ) rep = "contains <b>" + reval[1] + "</b>";
+				else if ( reval = tmp.match(/"\.\*(.+)"/) ) rep = "ends in <b>" + reval[1] + "</b>";
+				else if ( reval = tmp.match(/"(.+)\.\*"/) ) rep = "starts with <b>" + reval[1] + "</b>";
+				if ( rep ) {
+					currentValue.innerHTML = rep;
+					var tmp = currentValue.parentNode.previousSibling;
+					if ( tmp.textContent == "=" ) {	
+						tmp.textContent = " ";
+					};
+				};
+			  },
+			);
+			expl += ' where ' + exprelm.innerHTML;
+		} else {
+			expl += ' of any type';
+		};
+		expl += '</span>';
+	} else {
+		expl = '';
+	};
+	return expl;
+}
