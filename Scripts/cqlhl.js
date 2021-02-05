@@ -3,13 +3,11 @@
 		var parser = PARSER; var parsed;
 		document.getElementById('cqlerror').innerHTML = '';
 		var hl = cql;
-		console.log('parsing');
 		if ( cql != '' ) {
 			try {
 				parsed = parser.parse(cql);
 				hl = htmlFrom(parsed);
 				code.innerHTML = hl;
-				console.log('parsed - now checking attributes');
 				checkatts(code);
 			} catch (err) {
 				parsed = { 'items': [] };
@@ -73,7 +71,7 @@
 		}
 	}
     
-    var code = document.querySelector('#code')
+    var code = document.getElemenById('cqlfld');
     var misbehave = new Misbehave(code, {
       oninput : function() {
         dohighlight(code)
