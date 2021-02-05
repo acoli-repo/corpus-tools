@@ -34,11 +34,12 @@ function addtoken() {
     
     if ( tokq != '' ) {
     	tokq = '[' + tokq + '] ';
+
+		document.getElementById('toklist').value += tokq;
+	
+		cqlparse(document.getElementById('toklist').value, 'cqltoks');
     };
     
-	document.getElementById('toklist').value += tokq;
-	
-	cqlparse(document.getElementById('toklist').value, 'cqltoks');
 
 };
 
