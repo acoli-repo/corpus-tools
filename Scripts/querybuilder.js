@@ -522,6 +522,21 @@ function checkatts (code) {
 		region = regions[i].innerText;
 		if ( regionlist instanceof Array && !regionlist.includes(region) ) document.getElementById('cqlerror').innerHTML = 'region <b>' + region + '</b> is not defined in this corpus'
 	};
+	toknames = code.getElementsByClassName('Tokname');
+	deftoks = [];
+	for(var i=0;i<toknames.length;i++ ) {
+		tmp = toknames[i].innerText;
+		var mtch = tmp.match(/^([a-zA-Z0-9]+):/);
+		if (mtch) deftoks.push(mtch[1]);
+	}; 
+	toknames = code.getElementsByClassName('Tokenname');
+	for(var i=0;i<toknames.length;i++ ){
+		tokname = toknames[i].innerText;
+		if ( tokname == 'match' || tokname == 'matchend' || tokname == 'target' ) {
+		} else {
+			if ( !deftoks.includes(tokname) ) document.getElementById('cqlerror').innerHTML = 'token name <b>' + tokname + '</b> is not defined in the query'
+		};
+	};
 };
 
 function htmlFrom(node){
