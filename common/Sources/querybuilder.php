@@ -449,11 +449,57 @@
 		} else $searchmake = "{%Create query}"; 
 		$querytext .= "<p><input type=submit value=\"$searchmake\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a></form>";
 	
-		if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
-			$cqlbox = "<textarea id='cqlfld' name=cql value='$cql' style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
-		else 
-			$cqlbox = "<input id='cqlfld' name=cql value='$cql' style='width: 600px;'/> ";
-
+		if ( $settings['cqp']['longbox'] or $_GET['boxtype'] == "textarea" or $settings['cqp']['boxtype'] == "textarea" ) {
+			$cqlbox = "{%CQL Query}: &nbsp; <textarea id='cqlfld' name=cql value='$cql' style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
+		} else if ( $_GET['boxtype'] == "pegdiv" or $settings['cqp']['boxtype'] == "pegdiv" ) {
+			$pattlist = "'word', "; // word is always defined
+			foreach ( $settings['cqp']['pattributes'] as $key => $val ) {
+				$pattlist .= "'$key', ";
+			};
+			$regionlist = "'text', "; // text_id is always defined
+			$sattlist = "'text_id', "; // text_id is always defined
+			foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
+				$regionlist .= "'$key', ";
+				foreach ( $val as $key2 => $val2 ) {
+					$sattlist .= "'{$key}_{$key2}', ";
+				};
+			};
+			$prescript .= "	var pattlist = [$pattlist]; var sattlist = [$sattlist]; var regionlist = [$regionlist];";
+			$cqlbox = "	
+				{%CQL Query}: &nbsp; <div id=\"code\" class=\"language-cql\" contenteditable=\"true\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\">$cql</div>
+				<div id='cqlerror'></div>
+				<input type=hidden id='cqlfld' name='cql' value='$cql'>
+			";
+			$postcode .= "<script src=\"https://orbitbot.github.io/misbehave/lib/prism.js\"></script>
+					<script src=\"https://orbitbot.github.io/misbehave/lib/misbehave.js\"></script>
+					<script src=\"$jsurl/cql_highlight.js\"></script>
+					<script>
+						var code = document.querySelector('#code')
+						var misbehave = new Misbehave(code, {
+						  oninput : function() {
+							dohighlight(code)
+						  }
+						})
+					</script>
+					<style>
+					#options { padding-top: 2px; padding-bottom: 15px; }
+					#cqlerror { color: #999999; font-size: 12px; }
+					#code { padding: 5px; width: 600px; border: 1px dotted grey; margin-right: 15px; display: inline-block; font-family: monospace; }
+					#code .Item { color: blue; }
+					#code .Attname { color: red; }
+					#code .sAttname { color: red; }
+					#code .pAttname { color: red; }
+					#code .Regex { color: green; }
+					#code .Within { color: purple; }
+					#code .Tokenname { color: brown; }
+					#code .Number { color: orange; }
+					#code .Multiplier { color: brown; }
+					#code .Regionname { color: red; }
+					</style>
+				";
+		} else {
+			$cqlbox = "{%CQL Query}: &nbsp; <input id='cqlfld' name=cql value='$cql' style='width: 600px;'/> ";
+		};
 		$cqlbox .= "<input type=hidden id='fromqb' name=fromqb value=''/> ";
 
 		if ( $action == "cqp" ) $optionoption = "|
@@ -461,9 +507,13 @@
 					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-right: -5px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\" title=\"{%close}\">&times;</span>$optiontext</div>";
 
 		$cqlfld = "
+			$precode
 			<script language=Javascript>
 				$prescript
 				function checksearch (frm) {
+					if ( typeof(code) == 'object' ) {
+						frm.cqlfld.value = code.innerText;
+					};
 					if ( frm.cqlfld.value == '' ) {
 						updatequery(true); 
 						if ( frm.cqlfld.value == '[] within text' ) frm.cqlfld.value = '';
@@ -471,19 +521,24 @@
 					};
 				}; 
 			</script>
-			<form action='$postaction' onsubmit=\"return checksearch(this);\" method=post id=cqp name=cqp><p>{%CQL Query}: &nbsp; 
+			<form action='$postaction' onsubmit=\"return checksearch(this);\" method=post id=cqp name=cqp> 
+			<table><tr><td id=\"pre\">
 				$cqlbox
+			<td valign=top>
 				<input type=submit value=\"{%Search}\"> 
 					<a onClick=\"showqb('cqlfld');\" title=\"{%define a CQL query}\">{%query builder}</a>
 					| <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a>
 				$optionoption
+			</pre> 	
+			</table>
 			</form>
 			$chareqjs
 			$tagbuilder
 			<div style='display: none;' class='helpbox' id='cqlview'></div>
 			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-right: -5px; float: right; cursor: pointer;' onClick=\"this.parentNode.style.display = 'none';\" title=\"{%close}\">&times;</span>$querytext</div>
 			<script language='Javascript' src=\"$jsurl/cqlparser.js\"></script>
-			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>";
+			<script language='Javascript' src=\"$jsurl/querybuilder.js\"></script>
+			$postcode";
 
 	
 ?>
