@@ -500,7 +500,7 @@
 					<style>
 					#pre { width: 720px; }
 					#options { padding-top: 2px; padding-bottom: 15px; }
-					#cqlconsole { min-height: 20px; }
+					#cqlconsole { min-height: 28px; }
 					#code { padding: 5px; width: 600px; border: 1px dotted grey; margin-right: 15px; display: inline-block; font-family: monospace; }
 					#code .Item { color: blue; }
 					#code .Attname { color: red; }
