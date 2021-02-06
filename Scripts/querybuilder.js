@@ -556,7 +556,7 @@ function checkatts (code) {
 
 function htmlFrom(node){
 	if ( node && isArraysOfStrings(node.val) ) {
-		return '<span title="'+node.elm+'" class="'+node.elm+'">'+flatten(node.val).replace('<', '&lt;')+'</span>';
+		return '<span class="'+node.elm+'">'+flatten(node.val).replace('<', '&lt;')+'</span>';
 	} else if (node instanceof Array){
 		return node.map(htmlFrom).join('');		
 	} else if (node && node.elm){
@@ -567,7 +567,7 @@ function htmlFrom(node){
 };
 
 function elm2txt(helm) {
-	var helmtype = helm.getAttribute('title');
+	var helmtype = helm.getAttribute('class');
 	expl = '';
 	if ( helmtype == 'Token' ) {
 		var multi = helm.querySelector('.Multiplier').innerText;

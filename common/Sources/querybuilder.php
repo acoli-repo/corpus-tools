@@ -492,7 +492,7 @@
 							 function(e) { 
 							 	if ( cqlerr != '' ) { return; };
 								helm = e.srcElement;
-								while ( helm.nodeName == 'SPAN' && !expllist.includes(helm.getAttribute('title')) ) { 
+								while ( helm.nodeName == 'SPAN' && !expllist.includes(helm.getAttribute('class')) ) { 
 									helm = helm.parentNode; 
 								};
 								expl = elm2txt(helm);
