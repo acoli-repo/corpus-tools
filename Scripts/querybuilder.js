@@ -491,8 +491,12 @@ function dohighlight(code) {
 			checkatts(code);
 		} catch (err) {
 			parsed = { 'items': [] };
+			var start = err.location.start.offset;
+			var end = err.location.end.offset;
+			hl = hl.replace('<', '&lt;');
+			hl = hl.substr(0,start) + '<span class=wrong>' + hl.substr(start,end-start) + '</span>' + hl.substr(end);
 			setcqlerror(err.message);
-			code.innerHTML = hl.replace('<', '&lt;');
+			code.innerHTML = hl;
 		};
 	};
 };
