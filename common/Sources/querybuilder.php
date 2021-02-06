@@ -450,10 +450,12 @@
 		$querytext .= "<p><input type=submit value=\"$searchmake\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a></form>";
 	
 		if ( $settings['cqp']['longbox'] ) $settings['cqp']['boxtype'] = "textarea"; // Legacy option
+		$optionoption = "| <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a>";
 		$boxtype = $_GET['boxtype'] or $boxtype = $settings['cqp']['boxtype'];
 		if ( $boxtype == "textarea" ) {
 			$cqlbox = "<textarea id='cqlfld' name=cql value='$cql' style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
 		} else if ( $boxtype == "pegdiv" ) {
+			$optionoption = "";
 			$pattlist = "'word', 'id', "; // word and id are always defined
 			foreach ( $settings['cqp']['pattributes'] as $key => $val ) {
 				$pattlist .= "'$key', ";
@@ -510,7 +512,7 @@
 		};
 		$cqlbox .= "<input type=hidden id='fromqb' name=fromqb value=''/> ";
 
-		if ( $action == "cqp" ) $optionoption = "|
+		if ( $action == "cqp" ) $optionoption .= "|
 					<a title=\"{%define search options}\" onClick=\"document.getElementById('optionbox').style.display = 'block';\">{%options}</a> 
 					<div style='display: none;' class='helpbox' id='optionbox'><span style='margin-right: -5px; float: right;' onClick=\"document.getElementById('optionbox').style.display = 'none';\" title=\"{%close}\">&times;</span>$optiontext</div>";
 
@@ -538,7 +540,6 @@
 			<td valign=top style=\"padding-top: 3px;\">
 				<input type=submit value=\"{%Search}\"> 
 					<a onClick=\"showqb('cqlfld');\" title=\"{%define a CQL query}\">{%query builder}</a>
-					| <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a>
 				$optionoption
 			</pre> 	
 			</table>
