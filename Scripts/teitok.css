@@ -151,15 +151,15 @@ video#track { display: block; position: fixed; right: 0px; top: 0px; }
 #cqlcode { padding: 5px; width: 600px; border: 1px dotted grey; margin-right: 15px; display: inline-block; font-family: monospace; }
 #cqlcode .Token { color: blue; }
 #cqlcode .regionEdge { color: blue; }
-#cqlcode .Attname { color: red; }
-#cqlcode .sAttname { color: red; }
-#cqlcode .pAttname { color: red; }
+#cqlcode .Attname { color: #aa0000; }
+#cqlcode .sAttname { color: #aa0000; }
+#cqlcode .pAttname { color: #aa0000; }
 #cqlcode .Regex { color: green; }
 #cqlcode .Within { color: purple; }
-#cqlcode .Tokenname { color: brown; }
+#cqlcode .Tokenname { color: #009999; }
 #cqlcode .Number { color: orange; }
 #cqlcode .Multiplier { color: brown; }
-#cqlcode .Regionname { color: red; }
+#cqlcode .Regionname { color: #aa0000; }
 #cqlcode .Globalname { color: blue; }
-#cqlcode .Globalexpr { color: brown; }
-#cqlcode .Tokname { color: brown; }
+#cqlcode .Globalexpr { color: #009999; }
+#cqlcode .Tokname { color: #009999; }
