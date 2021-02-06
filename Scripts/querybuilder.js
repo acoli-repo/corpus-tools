@@ -646,6 +646,47 @@ function elm2txt(helm) {
 				expl += ' = ' + tmp.outerHTML;
 			};
 		}; 
+	} else if ( helmtype == 'Globalexpr' ) {
+		expl += 'restrict results where ';
+		var exprelm = helm.cloneNode(true);
+		console.log(exprelm);
+		var tmp = exprelm.querySelector('.Tokenname');
+		if ( tmp ) { 
+			var tokname = tmp.innerText; var ttxt = '';
+			if ( tokname == 'match' ) {
+				ttxt = ' first token in the result ';
+			} else if ( tokname == 'matchend' ) {
+				varttxt = ' last token in the result ';
+			} else if ( tokname == 'target' ) {
+				varttxt = ' the target token ';
+			} else {
+				varttxt = ' the token named <b>' + tokname + '</b> ';
+			};
+			tmp.innerHTML = ttxt;
+			var tmp2 = tmp.nextSibling;
+			if ( tmp2.textContent == "." ) {	
+				tmp2.textContent = " fulfills ";
+			};
+		};
+		var patts = exprelm.querySelectorAll('.pAttname');
+		patts.forEach(
+		  function(currentValue) {
+			if ( pattname && pattname[currentValue.innerText] ) var tmp = pattname[currentValue.innerText]['display'];
+			if ( tmp ) currentValue.innerHTML = '<b>' + tmp + '</b>';
+		  },
+		);
+		var satts = exprelm.querySelectorAll('.sAttname');
+		satts.forEach(
+		  function(currentValue) {
+			var sattname = currentValue.innerText;
+			var res = sattname.split('_');
+			var regnametxt = res[0];
+			if ( regionname[regnametxt] ) regnametxt = regionname[regnametxt];
+			ttxt = ' <b>' + regnametxt + '</b> with attribute <b>' + res[1] + '</b>';
+			currentValue.innerHTML = ttxt;
+		  },
+		);
+		expl += exprelm.innerHTML;
 	} else {
 		expl;
 	};

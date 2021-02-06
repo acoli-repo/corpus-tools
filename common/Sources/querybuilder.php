@@ -454,7 +454,7 @@
 		if ( $boxtype == "textarea" ) {
 			$cqlbox = "<textarea id='cqlfld' name=cql value='$cql' style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
 		} else if ( $boxtype == "pegdiv" ) {
-			$pattlist = "'word', "; // word is always defined
+			$pattlist = "'word', 'id', "; // word and id are always defined
 			foreach ( $settings['cqp']['pattributes'] as $key => $val ) {
 				$pattlist .= "'$key', ";
 			};
@@ -487,7 +487,7 @@
 							dohighlight(code)
 						  }
 						})
-						var expllist = ['Token', 'regionEdge'];
+						var expllist = ['Token', 'regionEdge', 'Globalexpr'];
 						code.onmouseover = 
 							 function(e) { 
 							 	if ( cqlerr != '' ) { return; };
