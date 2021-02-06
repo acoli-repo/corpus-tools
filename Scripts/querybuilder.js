@@ -560,7 +560,7 @@ function htmlFrom(node){
 	} else if (node instanceof Array){
 		return node.map(htmlFrom).join('');		
 	} else if (node && node.elm){
-		return '<span title="'+node.elm+'" class="'+node.elm+'">'+htmlFrom(node.val)+'</span>';
+		return '<span class="'+node.elm+'">'+htmlFrom(node.val)+'</span>';
 	} else{
 		return node || "";
 	};
