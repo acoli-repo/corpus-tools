@@ -465,11 +465,14 @@ function getSelectValues(select) {
 var cqlerr;
 function setcqlerror (txt) {
 	cqlerr = txt;
+	if ( !document.getElementById('cqlconsole') ) return;
 	document.getElementById('cqlconsole').innerHTML = cqlerr;
-	document.getElementById('cqlconsole').style.color = 'red';
+	document.getElementById('cqlconsole').style.color = '#aa0000';
 };
 function delcqlerror () {
 	cqlerr = '';
+	if ( !document.getElementById('cqlconsole') ) return;
+	document.getElementById('cqlconsole').innerHTML = cqlerr;
 	document.getElementById('cqlconsole').style.color = '#006600';
 };
 
@@ -481,7 +484,7 @@ function dohighlight(code) {
 	var hl = cql;
 	if ( cql != '' ) {
 		try {
-			parsed = parser.parse(cql);
+			parsed = parser.parse(cql); // Make HTML safe);
 			hl = htmlFrom(parsed);
 			if ( typeof(hl) == 'object' ) hl = cql; // Avoid showing [object]
 			code.innerHTML = hl;
@@ -489,7 +492,7 @@ function dohighlight(code) {
 		} catch (err) {
 			parsed = { 'items': [] };
 			setcqlerror(err.message);
-			code.innerHTML = hl;
+			code.innerHTML = hl.replace('<', '&lt;');
 		};
 	};
 };
@@ -553,7 +556,7 @@ function checkatts (code) {
 
 function htmlFrom(node){
 	if ( node && isArraysOfStrings(node.val) ) {
-		return '<span title="'+node.elm+'" class="'+node.elm+'">'+flatten(node.val)+'</span>';
+		return '<span title="'+node.elm+'" class="'+node.elm+'">'+flatten(node.val).replace('<', '&lt;')+'</span>';
 	} else if (node instanceof Array){
 		return node.map(htmlFrom).join('');		
 	} else if (node && node.elm){
@@ -565,8 +568,8 @@ function htmlFrom(node){
 
 function elm2txt(helm) {
 	var helmtype = helm.getAttribute('title');
-	expl = '<span>'+helm.innerHTML+'</span>';
-	if ( helmtype == 'Item' ) {
+	expl = '';
+	if ( helmtype == 'Token' ) {
 		var multi = helm.querySelector('.Multiplier').innerText;
 		if ( multi == '+' ) {
 			tokcnt = 'one or more';
@@ -583,7 +586,7 @@ function elm2txt(helm) {
 		} else {
 			tokcnt = '1';
 		};
-		expl += '<span style="color: grey; font-style: italic;">' + tokcnt + ' token(s) ';
+		expl += tokcnt + ' token(s) ';
 		var tokname = helm.querySelector('.Tokname').innerText.replace(':', '');
 		if ( tokname ) { 
 			if ( tokname == '@' ) expl += '[the target token]';
@@ -620,9 +623,32 @@ function elm2txt(helm) {
 		} else {
 			expl += ' of any type';
 		};
-		expl += '</span>';
+	} else if ( helmtype == 'regionEdge' ) {
+		var startend = 'start';
+		var tmp = helm.querySelector('.Endmarker');
+		if ( tmp ) startend = 'end';
+		expl += startend + ' of sattribute region ';
+		var regname = helm.querySelector('.Regionname');
+		if ( regname ) { 
+			var regnametxt = regname.innerText;
+			if ( regionname[regnametxt] ) regnametxt = regionname[regnametxt];
+			expl += ' <b>' + regnametxt + '</b>';
+		}; 
+		var regname = helm.querySelector('.sAttname');
+		if ( regname ) { 
+			var sattname = regname.innerText;
+			var res = sattname.split('_');
+			var regnametxt = res[0];
+			if ( regionname[regnametxt] ) regnametxt = regionname[regnametxt];
+			expl += ' <b>' + regnametxt + '</b> with attribute <b>' + res[1] + '</b>';
+			var tmp = helm.querySelector('.Regex');
+			if ( tmp ) {
+				expl += ' = ' + tmp.outerHTML;
+			};
+		}; 
 	} else {
-		expl = '';
+		expl;
 	};
+	if ( expl ) expl = '<span>'+helm.innerHTML+'</span> <span style="color: grey; font-style: italic;">' + expl + '</span>';
 	return expl;
 }

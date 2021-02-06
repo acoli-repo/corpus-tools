@@ -144,3 +144,22 @@ anon::after { content: ']'; }
 #jsoptions button[active] { background-color: #eeeecc; }
 
 video#track { display: block; position: fixed; right: 0px; top: 0px; }
+
+/* CQL Highlighting */
+#cqlbox { width: 620px; }
+#cqlconsole { min-height: 28px; }
+#cqlcode { padding: 5px; width: 600px; border: 1px dotted grey; margin-right: 15px; display: inline-block; font-family: monospace; }
+#cqlcode .Token { color: blue; }
+#cqlcode .regionEdge { color: blue; }
+#cqlcode .Attname { color: red; }
+#cqlcode .sAttname { color: red; }
+#cqlcode .pAttname { color: red; }
+#cqlcode .Regex { color: green; }
+#cqlcode .Within { color: purple; }
+#cqlcode .Tokenname { color: brown; }
+#cqlcode .Number { color: orange; }
+#cqlcode .Multiplier { color: brown; }
+#cqlcode .Regionname { color: red; }
+#cqlcode .Globalname { color: blue; }
+#cqlcode .Globalexpr { color: brown; }
+#cqlcode .Tokname { color: brown; }

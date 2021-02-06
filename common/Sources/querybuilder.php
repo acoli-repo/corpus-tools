@@ -449,24 +449,31 @@
 		} else $searchmake = "{%Create query}"; 
 		$querytext .= "<p><input type=submit value=\"$searchmake\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a></form>";
 	
-		if ( $settings['cqp']['longbox'] or $_GET['boxtype'] == "textarea" or $settings['cqp']['boxtype'] == "textarea" ) {
-			$cqlbox = "{%CQL Query}: &nbsp; <textarea id='cqlfld' name=cql value='$cql' style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
-		} else if ( $_GET['boxtype'] == "pegdiv" or $settings['cqp']['boxtype'] == "pegdiv" ) {
+		if ( $settings['cqp']['longbox'] ) $settings['cqp']['boxtype'] = "textarea"; // Legacy option
+		$boxtype = $_GET['boxtype'] or $boxtype = $settings['cqp']['boxtype'];
+		if ( $boxtype == "textarea" ) {
+			$cqlbox = "<textarea id='cqlfld' name=cql value='$cql' style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
+		} else if ( $boxtype == "pegdiv" ) {
 			$pattlist = "'word', "; // word is always defined
 			foreach ( $settings['cqp']['pattributes'] as $key => $val ) {
 				$pattlist .= "'$key', ";
 			};
 			$regionlist = "'text', "; // text_id is always defined
 			$sattlist = "'text_id', "; // text_id is always defined
+			$defregname['text'] = "Document"; $defregname['s'] = "Sentences"; 
+			$defregname['u'] = "Utterance"; $defregname['l'] = "Verse line"; 
+			$defregname['lb'] = "Manuscript line"; $defregname['pb'] = "Page"; 
 			foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
 				$regionlist .= "'$key', ";
+				$regname = $val['name'] or $regname = $defregname[$key];
+				if ( $regname ) $regionnames .= "'$key': '{$val['name']}', ";
 				foreach ( $val as $key2 => $val2 ) {
 					$sattlist .= "'{$key}_{$key2}', ";
 				};
 			};
-			$prescript .= "	var pattlist = [$pattlist]; var sattlist = [$sattlist]; var regionlist = [$regionlist];";
+			$prescript .= "	var pattlist = [$pattlist]; \nvar sattlist = [$sattlist]; \nvar regionlist = [$regionlist]; \nvar regionname = { $regionnames };";
 			$cqlbox = "	
-				{%CQL Query}: &nbsp; <div id=\"code\" class=\"language-cql\" contenteditable=\"true\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\">$cql</div>
+				<div id=\"cqlcode\" class=\"language-cql\" contenteditable=\"true\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\">$cql</div>
 				<input type=hidden id='cqlfld' name='cql' value='$cql' style='width: 600px;'>
 				<div id='cqlconsole'></div>
 			";
@@ -474,13 +481,13 @@
 					<script src=\"https://orbitbot.github.io/misbehave/lib/misbehave.js\"></script>
 					<script src=\"$jsurl/cql_highlight.js\"></script>
 					<script>
-						var code = document.querySelector('#code')
+						var code = document.querySelector('#cqlcode')
 						var misbehave = new Misbehave(code, {
 						  oninput : function() {
 							dohighlight(code)
 						  }
 						})
-						var expllist = ['Item'];
+						var expllist = ['Token', 'regionEdge'];
 						code.onmouseover = 
 							 function(e) { 
 							 	if ( cqlerr != '' ) { return; };
@@ -497,28 +504,9 @@
 									document.getElementById('cqlconsole').innerHTML = ''; 
 							};
 					</script>
-					<style>
-					#pre { width: 720px; }
-					#options { padding-top: 2px; padding-bottom: 15px; }
-					#cqlconsole { min-height: 28px; }
-					#code { padding: 5px; width: 600px; border: 1px dotted grey; margin-right: 15px; display: inline-block; font-family: monospace; }
-					#code .Item { color: blue; }
-					#code .Attname { color: red; }
-					#code .sAttname { color: red; }
-					#code .pAttname { color: red; }
-					#code .Regex { color: green; }
-					#code .Within { color: purple; }
-					#code .Tokenname { color: brown; }
-					#code .Number { color: orange; }
-					#code .Multiplier { color: brown; }
-					#code .Regionname { color: red; }
-					#code .Globalname { color: blue; }
-					#code .Globalexpr { color: brown; }
-					#code .Tokname { color: brown; }
-					</style>
 				";
 		} else {
-			$cqlbox = "{%CQL Query}: &nbsp; <input id='cqlfld' name=cql value='$cql' style='width: 600px;'/> ";
+			$cqlbox = "<input id='cqlfld' name=cql value='$cql' style='width: 600px;'/> ";
 		};
 		$cqlbox .= "<input type=hidden id='fromqb' name=fromqb value=''/> ";
 
@@ -542,9 +530,12 @@
 				}; 
 			</script>
 			<form action='$postaction' onsubmit=\"return checksearch(this);\" method=post id=cqp name=cqp> 
-			<table><tr><td id=\"pre\">
+			<table><tr>
+			<td valign=top style=\"padding-top: 3px;\">
+				{%CQL Query}: 
+			<td id=\"cqlbox\" valign=top>
 				$cqlbox
-			<td valign=top>
+			<td valign=top style=\"padding-top: 3px;\">
 				<input type=submit value=\"{%Search}\"> 
 					<a onClick=\"showqb('cqlfld');\" title=\"{%define a CQL query}\">{%query builder}</a>
 					| <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a>
