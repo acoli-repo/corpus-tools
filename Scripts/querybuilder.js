@@ -606,6 +606,19 @@ function elm2txt(helm) {
 				if ( tmp ) currentValue.innerHTML = tmp;
 			  },
 			);
+			var tmp = exprelm.querySelectorAll('.Flag');
+			tmp.forEach(
+			  function(currentValue) {
+				var tmp = currentValue.innerText;
+				var rep = "";
+				if ( tmp.match(/c/) && tmp.match(/d/) ) rep = "(case/diacritics insensitive)";
+				else if ( tmp.match(/c/) ) rep = "(case insensitive)";
+				else if ( tmp.match(/d/) ) rep = "(diacritics insensitive)";
+				if ( rep ) {
+					currentValue.innerHTML = rep;
+				};
+			  },
+			);
 			var regs = exprelm.querySelectorAll('.Regex');
 			regs.forEach(
 			  function(currentValue) {

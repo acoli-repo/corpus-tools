@@ -163,3 +163,4 @@ video#track { display: block; position: fixed; right: 0px; top: 0px; }
 #cqlcode .Globalname { color: blue; }
 #cqlcode .Globalexpr { color: #009999; }
 #cqlcode .Tokname { color: #009999; }
+#cqlcode .Flag { color: #009999; }
