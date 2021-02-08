@@ -208,7 +208,11 @@ int main(int argc, char *argv[])
 	if ( clsettings.attribute("debug") != NULL ) { debug = atoi(clsettings.attribute("debug").value()); };
 	if ( clsettings.attribute("test") != NULL ) { test = true; verbose = true; };
 	if ( clsettings.attribute("verbose") != NULL ) { verbose = true; };
-	if ( clsettings.attribute("extension") != NULL ) { extension = atoi(clsettings.attribute("extension").value()); };
+	if ( clsettings.attribute("extension") != NULL ) { 
+		extension = atoi(clsettings.attribute("extension").value()); 
+		if (extension.substr(0,1) != "." ) { extension = "." + extension; };
+    	if ( verbose ) { cout << "- Using extension " << extension << endl;   }; 	
+	};
 
 	if ( clsettings.attribute("version") != NULL ) { 
 		cout << "tt-xpath version 1.0" << endl;

@@ -30,6 +30,8 @@ sudo g++ -std=c++11 -o /usr/local/bin/neotagxml neotagxml.cpp pugixml.cpp functi
 
 sudo g++ -std=c++11 -o /usr/local/bin/neotagtrain neotagtrain.cpp pugixml.cpp functions-c11.cpp
 
+sudo g++ -std=c++11 -o /usr/local/bin/tt-xpath tt-xpath.cpp pugixml.cpp functions-c11.cpp
+
 sudo g++ -std=c++11 -o /usr/local/bin/tt-cwb-encode tt-cwb-encode.cpp pugixml.cpp functions-c11.cpp
 
 sudo g++ -std=c++11 -o /usr/local/bin/tt-cwb-xidx tt-cwb-xidx.cpp pugixml.cpp functions-c11.cpp
