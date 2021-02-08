@@ -384,14 +384,17 @@
 		if ( $username ) $maintext .= " &bull; <a href='index.php?action=$action&act=detect&cid=$ttxml->fileid' class=adminpart>{%Auto-detect names}</a>";
 
 		// Load the tagset 
-		require ( "$ttroot/common/Sources/tttags.php" );
-		$tttags = new TTTAGS("tagset-ner.xml", false);
-		if ( $tttags->tagset['positions'] ) {
-			$tmp = $tttags->xml->asXML();
-			$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);
-			$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
+		if ( $settings['xmlfile']['ner']['tagset'] != "none" ) {
+			$tagsetfile = $settings['xmlfile']['ner']['tagset'] or $tagsetfile = "tagset-ner.xml";
+			require ( "$ttroot/common/Sources/tttags.php" );
+			$tttags = new TTTAGS($tagsetfile, false);
+			if ( $tttags->tagset['positions'] ) {
+				$tmp = $tttags->xml->asXML();
+				$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);
+				$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
+			};
 		};
-
+				
 		$maintext .= "
 			<style>
 				#mtxt tok:hover { text-shadow: none;}
@@ -402,6 +405,7 @@
 			var hlid = '{$_GET['hlid']}';
 			var jmp = '{$_GET['jmp']}';
 			var fileid = '$ttxml->fileid';
+			$moreaction
 			</script>
 			<script language=Javascript src=\"$jsurl/ner.js\"></script>";
 		
