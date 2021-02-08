@@ -288,6 +288,7 @@ class TTXML
 			# Not restricted - just display the whole XML
 			$result = $this->xml->xpath($mtxtelement);
 			if ($result) {
+				if ( $result[0]->getName() == "text" && $result[0]['title'] ) unset($result[0]['title']);
 				$xmltxt = $result[0]->asXML();
 			} else {
 				$xmltxt = "($mtxtelement not found)";
