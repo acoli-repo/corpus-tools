@@ -132,6 +132,11 @@
 			<textarea style='display: none;' type=hidden name=xpath>$xptxt</textarea>
 			";
 		
+		if ( $defnode['serverval'] && $valdef != "(none)" ) {
+			$maintext .= "<div class=warning>This is a server-specific value that should ideally not be set in
+				the project, but in the shared settings on the server.</div>";
+		};
+		
 		if ( $defnode && $defnode->val && $defnode['listvals'] ) {
 			foreach ( $defnode->val as $option ) {
 				if ( $option["key"] == $valtxt ) $seltxt = "selected"; else $seltxt = "";
