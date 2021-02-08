@@ -70,7 +70,10 @@ var nertype = nerlist[showelement.nodeName.toLowerCase()];
 
 nername = showelement.nodeName; 
 if ( nertype ) nername =  nertype['display'];
-infoHTML = '<table><tr><th>' + nername + '</th><td><b>'+ showelement.innerHTML +'</b></td></tr>';
+if ( typeof(lemmafld) == 'undefined'  ) var lemmafld = 'form';
+var nervalue = showelement.getAttribute(lemmafld);
+if ( !nervalue ) nervalue = showelement.innerHTML;
+infoHTML = '<table><tr><th>' + nername + '</th><td><b>'+ nervalue +'</b></td></tr>';
 var subtypef = 'type';
 if ( nertype.subtypes && nertype.subtypes.fld ) subtypef = nertype.subtypes.fld;
 if ( showelement.getAttribute(subtypef) ) {

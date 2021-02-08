@@ -413,6 +413,7 @@
 	
 		$nerid = preg_replace("/.*#/", "", $_GET['nerid']);
 		$type = strtolower($_GET['type']);
+		$subtype = $_GET['subtype'];
 		if ( $nerxml ) {
 			$nernode = current($nerxml->xpath(".//*[@id=\"$nerid\"]"));
 			if ( $nernode ) {
@@ -425,6 +426,10 @@
 	
 		$maintext .= "<h2>{%$nertitle}</h2><h1>$name</h1>
 		<p>Type of $neritemname: <b>{$nerlist[$type]['display']}</b>";
+	
+		$subtypefld = $nerlist[$type]['subtypes']['fld'] or $subtypefld = "type";
+		$subdisplay = $nerlist[$type]['subtypes'][$subtype]['display'] or $subdisplay = $subvalue;
+		if ( $subdisplay ) $maintext .= "<p>Subtype: <b>$subdisplay</b>";
 	
 		if ( $nernode ) {
 			$descflds = array ("note", "desc", "head", "label");
@@ -516,6 +521,8 @@
 	} else if ( $_GET['type'] ) {
 
 		$type = strtolower($_GET['type']);
+		$subtypefld = $nerlist[$type]['subtypes']['fld'] or $subtypefld = "type";
+
 		# List of types of NER we have
 		$nername = $nerlist[$type]['display'];
 		$neratt = $nerlist[$type]['cqp'];
@@ -532,13 +539,13 @@
 		$cql = "Matches = <$neratt> []"; 
 		$cqp->exec($cql); 
 		
-		$cql = "group Matches  match {$neratt}_form by match {$neratt}_nerid";
+		$cql = "group Matches match {$neratt}_form by match {$neratt}_nerid";
 		$results = $cqp->exec($cql); 
 		
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $nerid, $form, $cnt ) = explode("\t", $resline);
 			if ( $form == '' || $form == '_') $form = $nerid;
-			$rowhash[$form] = "<tr key='$name'><td><a href='index.php?action=$action&nerid=".urlencode($nerid)."&type=$type&name=$form'>$form</a></tr>";
+			$rowhash[$form] = "<tr key='$name'><td><a href='index.php?action=$action&nerid=".urlencode($nerid)."&type=$type&name=$form$'>$form</a></tr>";
 		};
 		ksort($rowhash);
 		$maintext .= "<table>".join("\n", array_values($rowhash))."</table>";

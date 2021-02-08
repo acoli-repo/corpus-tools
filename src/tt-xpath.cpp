@@ -13,6 +13,7 @@
 
 using namespace std;
 
+string extension = ".xml";
 int debug = 0;
 bool test = false;
 bool verbose = false;
@@ -68,7 +69,7 @@ void treatfile ( string filename ) {
 
 	pugi::xml_document doc;
 
-	if ( filename.find(".xml") == -1 ) { 
+	if ( filename.find(extension) == -1 ) { 
         if ( debug > 0 ) { cout << "  Skipping non-XML file: " << filename << endl; };
 		return; 
 	}; // We can only treat XML files and assume those always end on .xml
@@ -207,6 +208,7 @@ int main(int argc, char *argv[])
 	if ( clsettings.attribute("debug") != NULL ) { debug = atoi(clsettings.attribute("debug").value()); };
 	if ( clsettings.attribute("test") != NULL ) { test = true; verbose = true; };
 	if ( clsettings.attribute("verbose") != NULL ) { verbose = true; };
+	if ( clsettings.attribute("extension") != NULL ) { extension = atoi(clsettings.attribute("extension").value()); };
 
 	if ( clsettings.attribute("version") != NULL ) { 
 		cout << "tt-xpath version 1.0" << endl;
