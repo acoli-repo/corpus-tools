@@ -236,7 +236,7 @@ void treatfile ( string filename ) {
     // Now - read the file
 	string sep = "";
 
-    if (!doc.load_file(filename.c_str())) {
+    if (!doc.load_file(filename.c_str(), pugi::parse_ws_pcdata)) {
         cout << "  Failed to load XML file " << filename << endl;
     	return;
     };
