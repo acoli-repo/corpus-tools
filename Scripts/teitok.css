@@ -148,7 +148,7 @@ video#track { display: block; position: fixed; right: 0px; top: 0px; }
 /* CQL Highlighting */
 #cqlbox { width: 620px; }
 #cqlconsole { min-height: 28px; }
-#cqlcode { padding: 5px; width: 600px; border: 1px dotted grey; margin-right: 15px; display: inline-block; font-family: monospace; }
+#cqlcode { padding: 5px; width: 600px; border: 1px dotted grey; margin-right: 15px; display: inline-block; font-family: monospace; white-space: pre; }
 #cqlcode .Token { color: blue; }
 #cqlcode .regionEdge { color: blue; }
 #cqlcode .Attname { color: #aa0000; }

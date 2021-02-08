@@ -450,7 +450,7 @@
 		$querytext .= "<p><input type=submit value=\"$searchmake\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a></form>";
 	
 		if ( $settings['cqp']['longbox'] ) $settings['cqp']['boxtype'] = "textarea"; // Legacy option
-		$optionoption = "| <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a>";
+		$optionoption = " | <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a> ";
 		$boxtype = $_GET['boxtype'] or $boxtype = $settings['cqp']['boxtype'];
 		if ( $boxtype == "textarea" ) {
 			$cqlbox = "<textarea id='cqlfld' name=cql value='$cql' style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
@@ -490,6 +490,15 @@
 						  }
 						})
 						var expllist = ['Token', 'regionEdge', 'Globalexpr'];
+						code.onkeydown = function(e) {
+							if ( e.key == 'Enter'  && !e.shiftKey ) {
+								e.preventDefault();
+// 								frm = document.getElementById('cqp');
+// 								if ( checksearch(frm) ) {
+// 									frm.submit(); // preventDefault does not work, so this will go bad
+// 								};
+							};
+						}
 						code.onmouseover = 
 							 function(e) { 
 							 	if ( cqlerr != '' ) { return; };
@@ -527,8 +536,9 @@
 					if ( frm.cqlfld.value == '' ) {
 						updatequery(true); 
 						if ( frm.cqlfld.value == '[] within text' ) frm.cqlfld.value = '';
-						if ( frm.cqlfld.value == '' ) return false;
+						if ( frm.cqlfld.value == '' ) { return false; }
 					};
+					return true;
 				}; 
 			</script>
 			<form action='$postaction' onsubmit=\"return checksearch(this);\" method=post id=cqp name=cqp> 

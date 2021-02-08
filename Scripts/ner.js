@@ -71,11 +71,15 @@ var nertype = nerlist[showelement.nodeName.toLowerCase()];
 nername = showelement.nodeName; 
 if ( nertype ) nername =  nertype['display'];
 infoHTML = '<table><tr><th>' + nername + '</th><td><b>'+ showelement.innerHTML +'</b></td></tr>';
-if ( showelement.getAttribute('type') ) {
-	var typetext = showelement.getAttribute('type') + '';
+var subtypef = 'type';
+if ( nertype.subtypes && nertype.subtypes.fld ) subtypef = nertype.subtypes.fld;
+if ( showelement.getAttribute(subtypef) ) {
+	var typetext = showelement.getAttribute(subtypef) + '';
 	if ( typeof(attnames) != 'undefined' && attnames[typetext] ) { typetext = 	attnames[typetext]; }
 	else 
-	if ( document.getElementById('tagset') ) { typetext = treattag(showelement, 'type', 'full'); }
+	  if ( nertype.subtypes && nertype.subtypes[typetext] ) { typetext = nertype.subtypes[typetext]['display']; }
+	else 
+	  if ( document.getElementById('tagset') ) { typetext = treattag(showelement, subtypef, 'full'); }
 	infoHTML += '<tr><th>' + 'Type' + '</th><td>'+ typetext +'</td></tr>';
 };
 
