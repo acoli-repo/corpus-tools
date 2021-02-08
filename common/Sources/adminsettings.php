@@ -337,7 +337,7 @@
 		$maintext .= settingstable($valdef, $secdef, $_GET['showunused'] );		
 	
 		$maintext .= "<hr><p><a href='index.php?action=$action'>back to sections</a>";
-		if ( !$_GET['showunused'] ) $maintext .= " &bull; <a href='index.php?action=$action&section=$section&subsection={$_GET['subsection']}&showunused=1'>show/edit unused items and attributes</a>";
+		if ( !$_GET['showunused'] ) $maintext .= " &bull; <a href='index.php?action=$action&section=$section&subsection={$_GET['subsection']}&showunused=1'>show/edit unused/shared items and attributes</a>";
 	
 	} else {
 	
@@ -385,7 +385,11 @@
 	}; 
 	
 	function settingstable ( $valnode, $defnode, $showunused = false ) {
-		global $user; global $action; global $section;
+		global $user; global $action; global $section; global $sharedfolder;
+
+		if ( $sharedfolder && file_exists("$sharedfolder/Resources/settings.xml") ) {
+			$sharedxml = simplexml_load_string(file_get_contents("$sharedfolder/Resources/settings.xml"));
+		};
 
 		if ( $valnode == null ) return "";
 		if ( $valnode->asXML() == "" ) return "";
@@ -423,14 +427,22 @@
 				if ( $item->getName() != "att"  || $item['deprecated'] ) continue;
 				$key = $item['key'].""; $value = "";
 				$deftxt = $item['display'];
-				if ( $item['default'] ) $itemtxt = "default: ".$item['default']; else $itemtxt = "(unused)";
+				$txtcol = "#888888"; $thcol = "#d2d2ff";
+				if ( $sharedfolder )  {
+					$xpath = makexpath($valnode)."/@$key";
+					$sharednode = current($sharedxml->xpath($xpath));
+				} 
+				if ( $sharednode ) {
+					$itemtxt = "shared: ".$sharednode;
+					$txtcol = "black"; $thcol = "#d2ffd2";
+				} else if ( $item['default'] ) $itemtxt = "default: ".$item['default']; else $itemtxt = "(unused)";
 				if ( !$done[$key] ) {
 					if ( $user['permissions'] == "admin" ) {
 						$xpath = makexpath($valnode)."/@$key";
 						$itemtxt = "<a href='index.php?action=adminsettings&act=edit&node=$xpath'  style='color: #888888;'>$itemtxt</a>";
 					};
-					$tabletext .= "<tr><th style='background-color: #d2d2ff'>$key
-						<td style='color: #888888;'>$itemtxt
+					$tabletext .= "<tr><th style='background-color: $thcol'>$key
+						<td style='color: $txtcol;'>$itemtxt
 						<td style='color: #888888; padding-left: 20px;'>$deftxt
 						<td>$value
 						";

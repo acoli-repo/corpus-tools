@@ -87,6 +87,18 @@
 	    	<att key="url" display="URL for the shared resources"/>
 	    	<att key="folder" display="Path to the shared resources"/>
 		</item>
+	    <item key="browser" display="Settings for the document browser">
+	    	<att key="documents" display="Name used for documents"/>
+	    	<att key="select" display="Document select style" default="none">
+				<val key="none" display="Only use a start screen with fields"/>
+				<val key="menu" display="Use a floating diff with sibselection options"/>
+	    	</att>
+	    	<att key="style" display="Display style" default="list">
+				<val key="list" display="List the document IDs"/>
+				<val key="table" display="Show a table with document attributes"/>
+				<val key="facs" display="Show a list of items with attributes next to a thumbnail"/>
+	    	</att>
+		</item>
 	</item>
 	
 	<item key="views" display="Settings for the fileviews">
@@ -207,11 +219,21 @@
 		<att key="searchmethod" display="Default search method"/>	
 		<att key="wordfld" default="form" display="Which pattribute to use as the CQP word (and default CQP search attribute)"/>	
 		<att key="nodtoks" display="Export tokens even if there are dtoks" default="0" deprecated="1"/>	
+		<att key="boxtype" display="Input type to use for the CQL input box" default="input" beta="1">
+			<desc>
+				TEITOK offers several different styles for the CQL input box - for now, the default is
+				a simple HTML input box, but the still-in-beta option pegdiv will most likely become the
+				default. In PEGdiv, the "analyze" button is no longer shown
+			</desc>
+			<val key="input" display="A simple HTML input field"/>
+			<val key="textarea" display="A simple HTML textarea field that can be made larger"/>
+			<val key="pegdiv" display="An editable DIV with syntax highlighting an mouseover deglossing"/>
+		</att>	
 		<att key="cqpfolder" display="Folder where the CQP files are stored" default="cqp"/>	
 		<att key="tokxpath" display="Which XML elements to export as tokens" default="//tok"/>	
 		<att key="multiseperator" display="Symbol used for separating multi-value sattributes" default=","/>	
 		<att key="withemptytext" display="Whether to include texts with no tokens (0/1)" default="0"/>	
-		<att key="longbox" display="Whether to use a textarea instead of an input for the CQP query (0/1)" default="0"/>	
+		<att key="longbox" display="Whether to use a textarea instead of an input for the CQP query (0/1)" default="0" deprecated="1"/>	
 		<att key="titlefld" display="Which CQP sattribute to use as title (XPath)"/>	
 		<att key="listnone" display="List items with no value (0/1)"/>	
 		<att key="toktype" display="How to export mtok and dtok" default="td" >	
@@ -520,6 +542,34 @@ x				<att key="tag" display="XML tag to be used in CQP (if not @key)"/>
 				<att key="xp" display="Node name for this level" obl="1" placeholder="//text//milestone[@type='chapter']"/>
 				<att key="att" display="Attribute for the level name"/>
 			</list>
+		</item>
+		<item key="ner" display="Named Entities" subsection="1">
+			<desc>
+				For documents with NER, there is a special view that leaves out the linguitic information on
+				mouseover, and shows NER types instead
+			</desc>
+			<att key="title" display="Title to use for the NER"/>
+			<att key="item" display="Name to use for a NER item"/>
+			<att key="nerfile" display="XML file to use for the NER" default="ner.xml"/>
+			<att key="snippet" display="Element to use for short definition" default="label"/>
+			<att key="context" display="Length of the context in the KWIC list" default="0"/>
+			<item key="tags" display="NER type definitions">
+				<list>
+					<att key="key" display="ID for the tag"/>
+					<att key="display" display="Display name for the tag"/>
+					<att key="cqp" display="Corresponding CQP region"/>
+					<att key="item" display="Nodename for this tag"/>
+					<att key="color" display="Display color for this tag"/>
+					<att key="nerid" display="Attribute corresponding to the ID in the ner.xml" default="corresp"/>
+					<item key="subtypes" display="Subtype definitions for this tag">
+						<att key="fld" display="Attribute to use for subtypes" default="type"/>
+						<list display="Subtypes">
+							<att key="key" display="ID for the subfield value"/>
+							<att key="display" display="Display name"/>
+						</list>
+					</item>
+				</list>
+			</item>
 		</item>
 		<item key="styles" display="Conditional CSS styles">
 			<desc>

@@ -687,7 +687,7 @@ class TTXML
 	function viewswitch($initial = true, $withself = false ) {
 		global $settings; global $username; global $action; global $xml; 
 
-		$viewopts['text'] = "Text view";
+		if ( !$viewopts['text'] ) $viewopts['text'] = "Text view"; // Unless otherwise defined, always use Text view
 		
 		// Add the sattribute levels
 		if ( !$settings['views'] ) foreach ( $settings['xmlfile']['sattributes'] as $key => $item ) {	

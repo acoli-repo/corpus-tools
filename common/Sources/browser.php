@@ -144,7 +144,7 @@
 
 
 	# Deal with subselection style
-	if ( $settings['defaults']['browser']['select'] == "menu" ) {
+	if ( $subsel == "menu" ) {
 
 		# Make the menu bar options
 		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
