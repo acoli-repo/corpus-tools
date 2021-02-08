@@ -93,13 +93,24 @@
 		if ( $defnode['default'] ) { 
 			$defval = $defnode['default'];
 			$tmp = $defnode->xpath("val[@key=\"$defval\"]"); $defdis = $tmp[0]['display'];
-			$deftxt .= "<p>Default value: $defval";
+			$deftxt .= "<p>Default value: <b>$defval</b>";
 			if ( $defdis ) $deftxt .= " = ".$defdis; 
+		};
+		
+		if ( $sharedfolder ) {
+			$sharedxml = simplexml_load_string(file_get_contents("$sharedfolder/Resources/settings.xml"));
+			$sharednode = current($sharedxml->xpath($xpath));
+			$sharedval = $sharednode."";
+			$defval = $sharedval;
+			if ( $sharedval ) {
+				$tmp = $defnode->xpath("val[@key=\"$sharedval\"]"); $shareddis = $tmp[0]['display'];
+				$deftxt .= "<p>Shared value: <b>$sharedval</b>";
+				if ( $shareddis ) $deftxt .= " = ".$shareddis; 
+			};
 		};
 
 		$tmp = $defnode->xpath("ancestor::item[parent::ttsettings]"); 
 		$section = $tmp[0]['key'];
-		
 		
 		$xptxt = "".$xpath;
 		$valtxt = addslashes($valnode);
@@ -110,13 +121,13 @@
 		} else {
 			$valdef = "(none)";
 		};
-		if ( !$valtxt ) $valtxt = $defnode['default']."";
+		if ( !$valtxt ) $valtxt = $defval;
 
 		$maintext .= "<h1>Edit settings</h1>
 			<p>Settings node: $xpath
 			<p style='color: #666666;'>{$defnode['display']}
 			$deftxt 
-			<p>Current value: <b>$valdef</b>
+			<p>Current local value: <b>$valdef</b>
 			<form action=\"index.php?action=$action&act=save\" method=post name=myform id=myform>
 			<textarea style='display: none;' type=hidden name=xpath>$xptxt</textarea>
 			";
