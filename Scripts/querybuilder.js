@@ -482,7 +482,7 @@ function dohighlight(code) {
 	var cql = code.innerText;
 	var parser = window.HLPARSER; var parsed;
 	var hl = cql;
-	if ( cql != '' ) {
+	if ( cql.match(/\[/) ) { // Only run the parser if we have a CQL type query
 		try {
 			parsed = parser.parse(cql); // Make HTML safe);
 			hl = htmlFrom(parsed);
