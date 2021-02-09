@@ -32,7 +32,7 @@ pugi::xml_document xmlsettings;
 
 string xprest;
 string xpquery;
-string filepat;
+string filepat = "";
 int perpage = 100;
 int start;
 int sofar;
@@ -332,6 +332,11 @@ int main(int argc, char *argv[])
 			};
 			treatdir ( fldr );
 		}
+	} else if ( filepat != "" ) {
+		if ( debug ) {
+			cout << "  - Analyzing file: " << filepat << endl;    	
+		};
+		treatfile(filepat);
 	} else {
 		if ( verbose ) cout << "- Default training folder: ./xmlfiles" << endl;
 		treatdir ( "xmlfiles" ); 

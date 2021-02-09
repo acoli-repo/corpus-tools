@@ -64,6 +64,7 @@
 		return $filepath;
 	};
 	function rsearch($folder, $pattern) {
+		// rsearch('myfldr', 'this**file')
 		$dir = new RecursiveDirectoryIterator($folder);
 		$ite = new RecursiveIteratorIterator($dir);
 		$files = new RegexIterator($ite, $pattern, RegexIterator::GET_MATCH);
@@ -74,6 +75,7 @@
 		return $fileList;
 	};
 	function rglob($pattern, $flags = 0) {
+		// rglob('myfldr/**/this**file')
 		$files = glob($pattern, $flags); 
 		foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
 			$files = array_merge($files, rglob($dir.'/'.basename($pattern), $flags));
