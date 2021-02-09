@@ -30,7 +30,8 @@
 
 		$cmd = "/usr/local/bin/tt-xpath --folder='' --filename='{$filenames[0]}' --xpquery='$xp'"; 
 		$tmp = shell_exec($cmd);
-		$node = simplexml_load_string($tmp);
+		$tmp2 = simplexml_load_string($tmp);
+		$node = $tmp2->firstChild;
 		
 		$node['id'] = "mtxt";
 		$node->setName("div");
