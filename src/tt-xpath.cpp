@@ -32,6 +32,7 @@ pugi::xml_document xmlsettings;
 
 string xprest;
 string xpquery;
+string filepat;
 int perpage = 100;
 int start;
 int sofar;
@@ -72,6 +73,8 @@ void treatfile ( string filename ) {
 
 	pugi::xml_document doc;
 
+	if ( debug > 2 ) {	cout << "-- Trying: " << filename << endl;  };
+
 	if ( filename.find(extension) == -1 ) { 
         if ( debug > 0 ) { cout << "  Skipping non-XML file: " << filename << endl; };
 		return; 
@@ -90,6 +93,15 @@ void treatfile ( string filename ) {
 
 	// Run the XPath restriction to see if this file is appropriate		
 	pugi::xpath_node_set xres;
+	if ( filepat != "" ) {
+		string regex = ".*"+filepat+".*";
+		if ( !preg_match(filename, regex) ) {
+			if ( verbose ) {
+				cout << "-- Rejecting, filename restriction not met: " << regex << endl; 
+			};
+			return;
+		};
+	}
 	if ( xprest != "" ) {
 		string xpp = xprest;
 		
@@ -100,9 +112,10 @@ void treatfile ( string filename ) {
 			};
 			return;
 		};
-		if ( verbose ) {	cout << "-- Eligible file: " << filename << endl;  };
 	};
 		
+	if ( debug > 1 ) {	cout << "-- Eligible file: " << filename << endl;  };
+
 	// Run the XPath query to return the results		
 	if ( xpquery != "" ) {
 		string xpp = xpquery;
@@ -260,6 +273,7 @@ int main(int argc, char *argv[])
 
 	xpquery = ""; xprest = "";
 	if ( clsettings.attribute("xprest") != NULL ) { xprest = clsettings.attribute("xprest").value(); }
+	if ( clsettings.attribute("filename") != NULL ) { filepat = clsettings.attribute("filename").value(); }
 	if ( clsettings.attribute("xpquery") != NULL ) { xpquery = clsettings.attribute("xpquery").value(); }
 	if ( clsettings.attribute("max") != NULL ) { perpage = atoi(clsettings.attribute("max").value()); };
 	if ( clsettings.attribute("start") != NULL ) { start = atoi(clsettings.attribute("start").value()); } else { start = 0; };

@@ -20,6 +20,19 @@
 		$node = current($ttxml->xml->xpath($xp));
 		$resxml = $node->asXML();
 	
+	} else if ( $settings['context']['method'] == "xpath"  ) {
+
+		$app = findapp("tt-xpath");
+		if ( !$app ) fatal ("This function relies on tt-xpath, which is not installed on the server");
+		
+		$xp = "//text//{$context}[.//tok[@id=\"$tid\"] | .//dtok[@id=\"$tid\"]]";
+
+		$cmd = "/usr/local/bin/tt-xpath --folder=xmlfiles --filename='$cid' --xpquery='$xp'"; 
+		// print $cmd; exit; 
+		$tmp = shell_exec($cmd);
+		
+		$resxml = $node->asXML();
+	
 	} else {
 		if ( $context + 0 == 0 && !$settings['cqp']['sattributes'][$context] ) {
 			if ( $username ) fatal("Context set to $context, which is not a CQP level in this corpus. Please correct in settings.xml//context");
