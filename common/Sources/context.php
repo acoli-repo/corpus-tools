@@ -29,13 +29,7 @@
 		$xp = "//text//{$context}[.//tok[@id=\"$tid\"] | .//dtok[@id=\"$tid\"]]";
 
 		$cmd = "/usr/local/bin/tt-xpath --folder='' --filename='{$filenames[0]}' --xpquery='$xp'"; 
-		$tmp = shell_exec($cmd);
-		$tmp2 = simplexml_load_string($tmp);
-		$node = $tmp2->firstChild;
-		
-		$node['id'] = "mtxt";
-		$node->setName("div");
-		$resxml = $node->asXML();
+		$resxml = shell_exec($cmd);
 	
 	} else {
 		if ( $context + 0 == 0 && !$settings['cqp']['sattributes'][$context] ) {
