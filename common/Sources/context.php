@@ -31,6 +31,8 @@
 		// print $cmd; exit; 
 		$tmp = shell_exec($cmd);
 		
+		$node['id'] = "mtxt";
+		$node->setName("div");
 		$resxml = $node->asXML();
 	
 	} else {
