@@ -18,6 +18,7 @@ string cqpfolder;
 string xmlfile;
 int debug = 0;
 bool verbose;
+bool recover;
 int context;
 
 // Read network style
@@ -299,6 +300,20 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 
 	if ( verbose ) { cout << "XML filename: " << xmlfile << endl; };
 	string value = read_file_range(rpos1, rpos2, xmlfile);
+	
+	if ( recover ) {
+		if ( debug > 2 ) { cout << "Repairing invalid XML fragments where needed in cases of mismatches" << endl; };
+		int loopcnt = 0;
+		while ( loopcnt < 100 && value.substr(value.length() - 1) != ">" ) {
+			rpos2++;
+			string value = read_file_range(rpos1, rpos2, xmlfile);
+		};
+		loopcnt = 0;
+		while ( rpos1 > 0 && loopcnt < 100 && value.substr(0,1) != "<" ) {
+			rpos1--;
+			string value = read_file_range(rpos1, rpos2, xmlfile);
+		};
+	};
 
 	if ( debug > 2 ) {
 		cout << "--------------------------" << endl;
@@ -340,6 +355,7 @@ int main (int argc, char *argv[]) {
 	string satt = ""; if ( clarg.find("R") != clarg.end() ) { satt = clarg["R"];  };
 	if ( clarg.find("verbose") != clarg.end() ) { verbose = true; };
 	if ( clarg.find("debug") != clarg.end() ) { debug = atoi(clarg["debug"].c_str()); };
+	if ( clarg.find("recover") != clarg.end() ) { recover = true; };
 
 	if ( clarg.find("context") != clarg.end() ) { context = atoi(clarg["context"].c_str()); } else { context = 0; };
 

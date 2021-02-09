@@ -358,7 +358,7 @@ if ( mediaElt ) {
 			RegionPlugin.create(),
 		],
 	});
-	wavesurfer.load(mediaElt);
+	wavesurfer.load(mediaElt, peaks);
 } else if ( typeof(spect) != 'undefined' ) {
 	var wavesurfer = WaveSurfer.create({
 		container: document.querySelector('#waveform'),
@@ -384,7 +384,7 @@ if ( mediaElt ) {
 			}),
 		],
 	});
-	wavesurfer.load(soundfile);
+	wavesurfer.load(soundfile, peaks);
 } else {
 	var wavesurfer = WaveSurfer.create({
 		container: document.querySelector('#waveform'),
@@ -412,7 +412,7 @@ if ( mediaElt ) {
 			RegionPlugin.create(),
 		],
 	});
-	wavesurfer.load(soundfile);
+	wavesurfer.load(soundfile, peaks);
 };
 wavesurfer.on('ready', function () {
 	document.getElementById('loading').style.display = 'none';

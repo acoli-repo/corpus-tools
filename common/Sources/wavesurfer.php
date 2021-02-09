@@ -154,6 +154,12 @@
 			<a target=help href='http://www.teitok.org/index.php?action=help&id=wavesurfer#codes'>recommended codes</a>
 			</form>
 			</div>";
+			
+		$peaksfile = preg_replace("/\..*?$/", ".arr", preg_replace("/^.*\//", "Audio/", $audiourl));
+		if ( file_exists($peaksfile) ) {
+			$peaks = file_get_contents($peaksfile);
+		} else { $peaks = "null"; };
+		$maintext .= "<script language=Javascript>var peaks = $peaks</script>";
 
 		if ( $editmsg ) $maintext .= "
 			<div id='sourceeditor' style='visibility: hidden; position: absolute; top: 120px; width: 100%; left: 20px; z-index: 600;'>
