@@ -25,11 +25,12 @@
 		$app = findapp("tt-xpath");
 		if ( !$app ) fatal ("This function relies on tt-xpath, which is not installed on the server");
 		
+		$filenames = rglob("xmlfiles/*/$cid*");  // There should be only one file
 		$xp = "//text//{$context}[.//tok[@id=\"$tid\"] | .//dtok[@id=\"$tid\"]]";
 
-		$cmd = "/usr/local/bin/tt-xpath --folder=xmlfiles --filename='$cid' --xpquery='$xp'"; 
-		// print $cmd; exit; 
+		$cmd = "/usr/local/bin/tt-xpath --folder='' --filename='{$filenames[0]}' --xpquery='$xp'"; 
 		$tmp = shell_exec($cmd);
+		$node = simplexml_load_string($tmp);
 		
 		$node['id'] = "mtxt";
 		$node->setName("div");
