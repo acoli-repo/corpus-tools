@@ -15,8 +15,11 @@ using namespace std;
 
 string extension = ".xml";
 int debug = 0;
+bool group = false;
 bool test = false;
 bool verbose = false;
+
+std::ostream* myout;
 
 char tokxpath [50];
 pugi::xml_document trainlog;
@@ -29,7 +32,7 @@ pugi::xml_document xmlsettings;
 
 string xprest;
 string xpquery;
-int perpage;
+int perpage = 100;
 int start;
 int sofar;
 
@@ -65,7 +68,7 @@ bool file_exists (const std::string& name) {
 
 void treatfile ( string filename ) {
 
-	if ( sofar > perpage-1 ) { return; };
+	if ( perpage > 0 && sofar > perpage-1 ) { return; };
 
 	pugi::xml_document doc;
 
@@ -80,7 +83,7 @@ void treatfile ( string filename ) {
     // Now - read the file 
 	string sep;
 
-    if (!doc.load_file(filename.c_str())) {
+    if (!doc.load_file(filename.c_str(), pugi::parse_ws_pcdata)) {
         cout << "  Failed to load XML file " << filename << endl;
     	return;
     };
@@ -97,29 +100,36 @@ void treatfile ( string filename ) {
 			};
 			return;
 		};
+		if ( verbose ) {	cout << "-- Eligible file: " << filename << endl;  };
 	};
-
-	if ( verbose ) {	cout << "-- Eligible file: " << filename << endl;  };
-	
+		
 	// Run the XPath query to return the results		
 	if ( xpquery != "" ) {
 		string xpp = xpquery;
         if ( debug > 0 ) { cout << "  Running query: " << xpp << endl; };
 		
 		xres = doc.select_nodes(xpp.c_str()); 
+		if ( group ) {
+			if ( xres.size() > 0 ) {
+				sofar += xres.size();
+				*myout << "<doc name=\"" << filename << "\" rescnt=\"" << xres.size() << "\""; 
+				*myout << "/>" << endl;
+			};
+		} else 
 		for (pugi::xpath_node_set::const_iterator it = xres.begin(); it != xres.end(); ++it) {
 			pugi::xpath_node node = *it;
 			sofar = sofar + 1;
 	        if ( debug > 0 ) { cout << "  Result nr: " << sofar << " / " << perpage << endl; };
 	        node.node().append_attribute("resnr") = to_string(sofar).c_str();
 	        node.node().append_attribute("fileid") = fileid.c_str();
-			if ( sofar > start ) { node.node().print(cout); };
-			if ( sofar > perpage-1 ) {
+			if ( sofar > start ) { 
+				node.node().print(*myout);
+			};
+			if ( perpage > 0 && sofar > perpage-1 ) {
 				break;
 			};
-		}
+		};
 	};
-	
 
 };
 
@@ -128,7 +138,7 @@ int treatdir (string dirname) {
     struct dirent *entry;
     DIR *dp;
 
-	if ( sofar > perpage-1 ) { return 0; };
+	if ( perpage > 0 && sofar > perpage-1 ) { return 0; };
 
 	if ( verbose ) {
 		cout << "- Treating folder " << dirname << endl; 
@@ -206,6 +216,7 @@ int main(int argc, char *argv[])
 	// Some things we want as accessible variables
 	verbose = false; debug = false; test = false;
 	if ( clsettings.attribute("debug") != NULL ) { debug = atoi(clsettings.attribute("debug").value()); };
+	if ( clsettings.attribute("group") != NULL ) { group = true; perpage = 0; };
 	if ( clsettings.attribute("test") != NULL ) { test = true; verbose = true; };
 	if ( clsettings.attribute("verbose") != NULL ) { verbose = true; };
 	if ( clsettings.attribute("extension") != NULL ) { 
@@ -230,6 +241,7 @@ int main(int argc, char *argv[])
 		cout << "  --verbose	  verbose output" << endl;
 		cout << "  --settings=[s] name of the settings file" << endl;
 		cout << "  --log=[s]	  write log to file [s]" << endl;
+		cout << "  --extension=[s]	  which file extension to allow for the XML files" << endl;
 		return -1; 
 	};
 	
@@ -249,7 +261,7 @@ int main(int argc, char *argv[])
 	xpquery = ""; xprest = "";
 	if ( clsettings.attribute("xprest") != NULL ) { xprest = clsettings.attribute("xprest").value(); }
 	if ( clsettings.attribute("xpquery") != NULL ) { xpquery = clsettings.attribute("xpquery").value(); }
-	if ( clsettings.attribute("max") != NULL ) { perpage = atoi(clsettings.attribute("max").value()); } else { perpage = 100; };
+	if ( clsettings.attribute("max") != NULL ) { perpage = atoi(clsettings.attribute("max").value()); };
 	if ( clsettings.attribute("start") != NULL ) { start = atoi(clsettings.attribute("start").value()); } else { start = 0; };
 
 
@@ -265,10 +277,7 @@ int main(int argc, char *argv[])
 		return -1;
 	};
 
-	if ( verbose ) { 
-		cout << "Query: " << xpquery << endl;
-	};
-	if ( clsettings.attribute("header") == NULL && strstr(xpquery.c_str(), "text") == NULL ) {
+	if ( clsettings.attribute("header") == NULL && strstr(xpquery.c_str(), "text") == NULL && extension == ".xml" ) {
 		// Unless specifically asked to, only look in the //text
 		string base = "";
 		if ( xpquery.substr(0,1) != "/" ) {
@@ -276,13 +285,21 @@ int main(int argc, char *argv[])
 		};
 		xpquery = "//text"+base+xpquery;
 	};
+
+	if ( clsettings.attribute("outfile") != NULL ) { 
+		string outfile = clsettings.attribute("outfile").value(); 
+		if ( verbose ) { cout << "Writing output to " << outfile << endl; };
+		myout = new std::ofstream(outfile.c_str());
+	} else {
+		myout = &std::cout;
+	}
 	
 	if ( verbose ) { 
 		cout << "Query: " << xpquery << endl;
 	};
 
 	sofar = 0;
-	cout << "<results start='" << start << "' max='" << perpage << "'>" << endl;
+	*myout << "<results start='" << start << "' max='" << perpage << "'>" << endl;
 
 	// This does not listen to the command line at the moment, should be reverted back to clsettings
 	string dofolders;
@@ -306,6 +323,7 @@ int main(int argc, char *argv[])
 		treatdir ( "xmlfiles" ); 
 	};
 
-	cout << "</results>" << endl;
+	*myout << "</results>" << endl;
+	if ( verbose ) cout << "Total number of matches found: " << sofar << endl;
 
 }
