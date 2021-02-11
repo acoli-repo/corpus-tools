@@ -507,8 +507,9 @@
 				# XMLIDX does not work perfectly, so if we just missed the <tok>, repair it
 				if ( substr($resxml, 0,3) == "tok" || substr($resxml, 0,4) == "dtok" ) { $resxml = "<".$resxml; }; # Missing the beginning of <tok>
 				if ( substr($resxml, -4) == "</tok" ) { $resxml = $resxml.">"; }; # Missing the end of </tok>
-				$resxml = preg_replace("/<[^<>]+$/", "", $resxml); # A bit the beginning of a tag
-				$resxml = preg_replace("/^[^<>]+>/", "", $resxml); # A bit the end of a tag
+				$resxml = preg_replace("/<[^<>]+$/", "", $resxml); # A bit the end of a tag
+				$resxml = preg_replace("/^[^<>]+>/", "", $resxml); # A bit the beginnin of a tag
+				$resxml = preg_replace("/<tok [^<>]+>[^<>]+\n?$/", "", $resxml); # Half-words at the end (to prevent broken HTML tags - alternatively: &#[^;]+$)
 
 				# Replace block-type elements by vertical bars
 				$resxml = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l|lg|div) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<\\2>'>|</span> ", $resxml);
