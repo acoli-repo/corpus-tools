@@ -295,6 +295,7 @@
 							$kvaltxt = $val2['display'] or $kvaltxt = $kva;
 							$maxsize = max($maxsize, strlen($kval));
 							if ($item['i18n']) $kvaltxt = "{%$kvaltxt}"; 
+							$seltxt = ""; if ( $kval == $atv ) $seltxt = "selected";
  							$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
  						}; 
 						if ( !$item['nosort'] ) sort( $optarr, SORT_LOCALE_STRING ); 
