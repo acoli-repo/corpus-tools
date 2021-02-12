@@ -18,7 +18,11 @@
 		$cqp->exec("set PrettyPrint off");
 	};
 	
-	if ( $_GET['data'] == "facs" ) {
+	if ( $_GET['data'] == "page" ) {
+	
+		print file_get_contents("Pages/{$_GET['id']}"); exit;
+	
+	} else if ( $_GET['data'] == "facs" ) {
 
 		# Get the list of facsimile images from an XML file
 		if ( !$ttxml->xml ) { print "{\"error\": \"unable to load XML file\"]}"; exit; }

@@ -233,6 +233,7 @@
 		"Download text" => "Download text",
 		"Search inside" => "Search inside",
 		"Waveform view" => "Waveform view",
+		"Interactive Timeline" => "Interactive Timeline",
 		"more header data" => "more header data",
 		"edit header data" => "edit header data",
 		"Due to copyright restrictions, only a fragment of this text is displayed" => "Due to copyright restrictions, only a fragment of this text is displayed",
