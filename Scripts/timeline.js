@@ -37,8 +37,18 @@ var data = new vis.DataSet(options);
 			 info.innerHTML = this.responseText;
 			}
 		  };
-		  xhttp.open("GET", "index.php?action=ajax&data=page&id=timeline_"+value+".html", true);
+		  xhttp.open("GET", "index.php?action=ajax&data=page&id=timeline_"+value+"", true);
 		  xhttp.send();
+		  if ( typeof(cqpfld) != 'undefined' ) {
+			  xhttp = new XMLHttpRequest();
+			  xhttp.onreadystatechange = function(value) {
+				if (this.readyState == 4 && this.status == 200) {
+				 info.innerHTML += this.responseText;
+				}
+			  };
+			  xhttp.open("GET", "index.php?action=ajax&data=doctable&cqp="+cqpfld+"%20%3D%20\""+value+"\"", true);
+			  xhttp.send();
+		  };
   	});
   });
   timeline.on('rangechange', function (properties) {
@@ -62,10 +72,10 @@ function setgroup(num) {
 	timeline.setWindow(begin, rightnow);
 	timeline.setOptions({ timeAxis: {step: 10*(1/years) }, });
 	resetdata();
+  	info.innerHTML = '';
 };
 
 function resetdata() {
-  	info.innerHTML = '';
 	data.clear();
 	datelist.forEach(function(value, index, array) {
 		if ( !( value.minzoom && value.maxzoom && zoomlevel ) || ( value.minzoom <= zoomlevel && value.maxzoom >= zoomlevel ) ) {
