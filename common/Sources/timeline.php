@@ -20,8 +20,43 @@ if ( $id && $settings['timeline']['events'][$id] ) {
 	$frameend = "new Date(\"{$settings['timeline']['end']}\")";
 };
 
-if (  $settings['timeline']['cqpfld'] ) {
-	$morescript .= "var cqpfld = '{$settings['timeline']['cqpfld']}';\n";
+if (  $settings['timeline']['cqpevent'] ) {
+	$morescript .= "var cqpfld = '{$settings['timeline']['cqpevent']}';\n";
+};
+if (  $settings['timeline']['cqpdate'] ) {
+		include ("$ttroot/common/Sources/cwcqp.php");
+		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+		$cqp = new CQP();
+		$cqp->exec($cqpcorpus); // Select the corpus
+		$cqp->exec("set PrettyPrint off");
+
+		$cqpdate = $settings['timeline']['cqpdate'];
+		$cqpquery = "Matches = <$cqpdate> []";
+		$results = $cqp->exec($cqpquery); 
+		$rescnt = $cqp->exec("size Matches"); 
+
+		$titlefld = $settings['cqp']['titlefld'];
+		if ( !$titlefld )
+			if ( $settings['cqp']['sattributes']['text']['title'] ) $titlefld = "text_title"; else $titlefld = "text_id";
+		
+		if ( $rescnt ) { 
+		
+			$cqpquery = "tabulate Matches match text_id, match $cqpdate, match $titlefld";
+			$results = $cqp->exec($cqpquery);
+		
+			$resarr = explode ( "\n", $results ); $scnt = count($resarr);
+			
+			foreach ( $resarr as $resline ) {
+				list ( $resid, $resdate, $restitle ) = explode("\t", $resline);
+				$xmldate = $resdate;
+				$restitle  = str_replace("'", "&#039;", $restitle);
+				if ( $xmldate ) $datearray[$xmldate.""] .= "'<a href=\"index.php?action=file&cid=$resid\">$resdate. $restitle</a>',";
+			};
+			foreach ( $datearray as $xmldate => $doclist ) {
+				$datelist .= "\t{id: '$xmldate', content: '$xmldate', list: [$doclist], start: \"$xmldate\", className:'document'},\n"; //  type: 'point', 
+			};
+		};
 };
 
 $maintext .= "
@@ -47,6 +82,10 @@ $morescript
 
 <style>
 .vis-item.document {
+  background-color: #aaffaa;
+  border-color: green;
+}
+.vis-item.event {
   background-color: greenyellow;
   border-color: green;
 }

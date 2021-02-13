@@ -9,19 +9,11 @@ var date = year+'-'+('0000'+month).slice(-2)+'-'+day;
 var container = document.getElementById('visualization');
 var info = document.getElementById('info');
 var periods = [];
+var itlist = [];
 
 var options = {
 	showCurrentTime: true,
 	max: rightnow,
-//     showMinorLabels: false,
-//     showMajorLabels: false,
-//     timeAxis: { scale: 'hour', step: 0.1 },
-//     format: {
-//       majorLabels: function(date, scale, step) {
-// 		var seconds = Math.round(new Date(date).getTime() / 1000);
-// 		return seconds;
-//       }
-//     }
 };
 var data = new vis.DataSet(options);
 
@@ -31,6 +23,13 @@ var data = new vis.DataSet(options);
   timeline.on('select', function (properties) {
   	info.innerHTML = '';
   	properties.items.forEach(function(value, index, array) {
+  		var tlit = itlist[value];
+  		if ( tlit.className == 'document' ) {
+			info.innerHTML = '<h2>'+value+'</h2><ul>';
+			tlit.list.forEach(function(value, index, array) {
+				info.innerHTML += '<li>'+value+'</li>';
+			});
+  		} else { // if ( tlit.className == 'event' ) {
 		  var xhttp = new XMLHttpRequest();
 		  xhttp.onreadystatechange = function(value) {
 			if (this.readyState == 4 && this.status == 200) {
@@ -49,6 +48,7 @@ var data = new vis.DataSet(options);
 			  xhttp.open("GET", "index.php?action=ajax&data=doctable&cqp="+cqpfld+"%20%3D%20\""+value+"\"", true);
 			  xhttp.send();
 		  };
+		};
   	});
   });
   timeline.on('rangechange', function (properties) {
@@ -77,26 +77,14 @@ function setgroup(num) {
 
 function resetdata() {
 	data.clear();
+	itlist = [];
 	datelist.forEach(function(value, index, array) {
 		if ( !( value.minzoom && value.maxzoom && zoomlevel ) || ( value.minzoom <= zoomlevel && value.maxzoom >= zoomlevel ) ) {
 			value.group = zoomlevel;
 			data.add(value);
+			itlist[value.id] = value;
 		};
 	}); 
-};
-
-function setperiod(id) {
-	var pardata = periods[id];
-	console.log(pardata);
-	setgroup(pardata.zoom);
-	document.getElementById('pername').innerHTML = pardata.display;
-
-	pardata.items.forEach(function(value, index, array) {
-		value.group = id;
-		data.add(value);
-	}); 
-
-	timeline.setWindow(pardata.start, pardata.end);
 };
 
 resetdata();
