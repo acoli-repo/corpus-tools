@@ -473,9 +473,10 @@
 					$sattlist .= "'{$key}_{$key2}', ";
 				};
 			};
+			$cqltxt = str_replace("<", "&lt;", $cql);
 			$prescript .= "	var pattlist = [$pattlist]; \nvar sattlist = [$sattlist]; \nvar regionlist = [$regionlist]; \nvar regionname = { $regionnames };";
 			$cqlbox = "	
-				<div id=\"cqlcode\" class=\"language-cql\" contenteditable=\"true\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\">$cql</div>
+				<div id=\"cqlcode\" class=\"language-cql\" contenteditable=\"true\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\">$cqltxt</div>
 				<input type=hidden id='cqlfld' name='cql' value='$cql' style='width: 600px;'>
 				<div id='cqlconsole'></div>
 			";

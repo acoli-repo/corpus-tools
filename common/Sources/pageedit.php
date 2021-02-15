@@ -72,6 +72,7 @@
 		} else {
 			$fflang = $defaultlang;
 		};
+
 		
 		if ( $id == "new" ) {
 		
@@ -105,6 +106,7 @@
 			$content = getlangfile($ffid, true, $fflang, 'nomd');
 			$outfile = str_replace($getlangfile_lastfolder, "Pages", $getlangfile_lastfile);
 			$outname = str_replace("Pages/", "", $outfile);
+			if ( $outname == "" ) $outname = $id;
 			$nftxt = "<p style='color: red;'><i>New file, will be created upon saving</i>";
 			$filename = $outname;
 
@@ -121,6 +123,7 @@
 			};
 			
 			$outfile = str_replace($getlangfile_lastfolder, "Pages", $getlangfile_lastfile);
+			if ( $outfile == "" ) $outfile = $id;
 			$outname = str_replace("Pages/", "", $outfile);
 			$maintext .= "<h1>Edit HTML Page</h1>
 				<h2>Page name: $outname</h2>$nftxt";

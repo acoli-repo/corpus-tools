@@ -312,6 +312,7 @@ int main(int argc, char *argv[])
 		cout << "Query: " << xpquery << endl;
 	};
 
+
 	sofar = 0;
 	*myout << "<results start='" << start << "' max='" << perpage << "'>" << endl;
 
@@ -322,6 +323,8 @@ int main(int argc, char *argv[])
 	else {
 		dofolders = xmlsettings.select_node("//cqp/@searchfolder").attribute().value();
 	};
+
+
 	if ( dofolders != "" ) {
 		if ( verbose ) cout << "- Indexing folder(s): " << dofolders << endl;
 		vector<string> tokens = split(dofolders, sep); 

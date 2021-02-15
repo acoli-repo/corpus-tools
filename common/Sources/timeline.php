@@ -8,6 +8,17 @@ foreach ( $settings['timeline']['events'] as $key => $val ) {
 	$startend = "start: '{$val['start']}'"; if ( $val['end'] ) $startend .= ", end: '{$val['end']}'";
 	$datelist .= "\t{id: '$key', content: '{$val['display']}', $startend, minzoom: '{$val['minzoom']}', maxzoom: '{$val['maxzoom']}'},\n";
 };
+if ( $settings['timeline']['xml'] ) {
+	$xmlfile = "Resources/{$settings['timeline']['xml']}"; if ( substr($xmlfile, -4) != ".xml" ) $xmlfile .= ".xml";
+	$eventxml = simplexml_load_file($xmlfile);
+	foreach ( $eventxml->children() as $event ) {
+		$key = $event['id'];
+		unset($val);
+		foreach ( $event->children() as $child ) { 	$val[$child->getName().""] = $child.""; };
+		$startend = "start: '{$val['start']}'"; if ( $val['end'] ) $startend .= ", end: '{$val['end']}'";
+		$datelist .= "\t{id: '$key', content: '{$val['display']}', $startend, minzoom: '{$val['minzoom']}', maxzoom: '{$val['maxzoom']}'},\n";
+	};
+};
 
 $id = $_GET['id'];
 if ( $id && $settings['timeline']['events'][$id] ) {
@@ -51,7 +62,7 @@ if (  $settings['timeline']['cqpdate'] ) {
 				list ( $resid, $resdate, $restitle ) = explode("\t", $resline);
 				$xmldate = $resdate;
 				$restitle  = str_replace("'", "&#039;", $restitle);
-				if ( $xmldate ) $datearray[$xmldate.""] .= "'<a href=\"index.php?action=file&cid=$resid\">$resdate. $restitle</a>',";
+				if ( $xmldate ) $datearray[$xmldate.""] .= "'<a target=details href=\"index.php?action=file&cid=$resid\">$resdate. $restitle</a>',";
 			};
 			foreach ( $datearray as $xmldate => $doclist ) {
 				$datelist .= "\t{id: '$xmldate', content: '$xmldate', list: [$doclist], start: \"$xmldate\", className:'document'},\n"; //  type: 'point', 
@@ -59,8 +70,10 @@ if (  $settings['timeline']['cqpdate'] ) {
 		};
 };
 
+$modtitle = $settings['timeline']['title'] or $modtitle = "Interactive Timeline";	
+
 $maintext .= "
-<h1>{%Interactive Timeline}</h1>
+<h1>{%$modtitle}</h1>
 
 <div id=\"visualization\"></div>
 <p>
@@ -90,5 +103,18 @@ $morescript
   border-color: green;
 }
 </style>";
+
+if ( $username && $settings['timeline']['xml'] ) {
+	$xmlfile = str_replace(".xml", "", $settings['timeline']['xml']);
+	if ( !file_exists("Resources/$xmlfiles-entry.xml") ) 
+		file_put_contents("Resources/$xmlfiles-entry.xml", "<event>
+	<start list=\"1\">Start date</start>
+	<end list=\"1\">End date</end>
+	<display list=\"1\">Display name</display>
+	<minzoom>Minimum window size for display</minzoom>
+	<maxzoom>Maximum window size for display</maxzoom>
+</event>");
+	$maintext .= "<hr><a href='index.php?action=xmlreader&xml=$xmlfile'>edit events</a>";
+};
 
 ?>

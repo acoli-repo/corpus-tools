@@ -80,6 +80,11 @@ anon::after { content: ']'; }
 	font-style: normal;
 }
 
+
+*[onclick] {
+	cursor: pointer;
+}
+
 /* Some common definitions for the XML styles */
 #mtxt mtok:hover { text-shadow: 1pt 1pt #99dd99;}
 

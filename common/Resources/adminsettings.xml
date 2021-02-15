@@ -226,7 +226,7 @@
 				default. In PEGdiv, the "analyze" button is no longer shown
 			</desc>
 			<val key="input" display="A simple HTML input field"/>
-			<val key="textarea" display="A simple HTML textarea field that can be made larger"/>
+			<val key="textarea" display="A simple HTML textarea field that can be made larger" deprecated="1"/>
 			<val key="pegdiv" display="An editable DIV with syntax highlighting an mouseover deglossing"/>
 		</att>	
 		<att key="cqpfolder" display="Folder where the CQP files are stored" default="cqp"/>	
@@ -234,7 +234,7 @@
 		<att key="multiseperator" display="Symbol used for separating multi-value sattributes" default=","/>	
 		<att key="withemptytext" display="Whether to include texts with no tokens (0/1)" default="0"/>	
 		<att key="longbox" display="Whether to use a textarea instead of an input for the CQP query (0/1)" default="0" deprecated="1"/>	
-		<att key="titlefld" display="Which CQP sattribute to use as title (XPath)"/>	
+		<att key="titlefld" display="Which CQP sattribute to use as title (text_xxx)"/>	
 		<att key="listnone" display="List items with no value (0/1)"/>	
 		<att key="toktype" display="How to export mtok and dtok" default="td" >	
 			<desc>

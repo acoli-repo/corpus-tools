@@ -611,9 +611,14 @@ function elm2txt(helm) {
 			  function(currentValue) {
 				var tmp = currentValue.innerText;
 				var rep = "";
-				if ( tmp.match(/c/) && tmp.match(/d/) ) rep = "(case/diacritics insensitive)";
-				else if ( tmp.match(/c/) ) rep = "(case insensitive)";
-				else if ( tmp.match(/d/) ) rep = "(diacritics insensitive)";
+				if ( tmp.match(/c/) && tmp.match(/d/) ) rep = "(case/diacritics insensitive";
+				else if ( tmp.match(/c/) ) rep = "(case insensitive";
+				else if ( tmp.match(/d/) ) rep = "(diacritics insensitive";
+				if ( tmp.match(/l/) ) {
+					if ( rep ) { rep += ' - '; } else rep = '(';
+					rep += "literal match";
+				};
+				rep += ')';
 				if ( rep ) {
 					currentValue.innerHTML = rep;
 				};

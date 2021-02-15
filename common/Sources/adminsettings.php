@@ -417,6 +417,7 @@
 			$tmp = $defnode->xpath("att[@key=\"$key\"]"); $itdef = $tmp[0];
 			if ( $itdef ) {
 				$tmp = $itdef->xpath("val[@key=\"$item\"]"); $value = $tmp[0]['display'];
+				if ( $tmp[0]['deprecated'] ) $value .= " <span class=warning>(deprecated)</span>";
 			};
 			$deftxt = $itdef['display'] or $deftxt = "<i style='color: #992000'>Unknown attribute</i>";
 			if ( $itdef['desc'] ) $deftxt .= "<p>".$itdef['desc']."</p>";
@@ -427,7 +428,7 @@
 			if ( $itdef['deprecated'] ) {
 				$tabletext .= "<tr><th style='background-color: #ffcccc'>$key
 					<td>$item
-					<td style='color: #888888; padding-left: 20px;'>$deftxt (deprecated)
+					<td style='color: #888888; padding-left: 20px;'>$deftxt <span class=warning>(deprecated)</span>
 					<td>$value
 					";
 			} else {
