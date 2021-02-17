@@ -301,3 +301,11 @@ function showdocinfo(showelement) {
 };
 
 
+// Convert a UD features label to text
+function treatfeats ( tok, label, type ) {
+	tag = tok.getAttribute(label);
+	if ( !tag ) { return ''; };
+	return tag.replaceAll('|', ', ');
+};
+
+
