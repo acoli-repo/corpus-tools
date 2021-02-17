@@ -308,7 +308,7 @@ function treatfeats ( tok, label, type ) {
 	var tagexpl = '';
 	if ( !tag ) { return ''; };
 	var tagset = document.getElementById('tagset');
-	if ( tagset || 1==1 ) {
+	if ( tagset ) {
 		var sep = '';
 		tag.split('|').forEach(function(element) {
 		  var arr = element.split('=');
