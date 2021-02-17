@@ -98,9 +98,12 @@ function showtokinfo(evt, element, poselm) {
     		if ( element.getAttribute(att) && ( !formdef[att] || ( !formdef[att]['noshow'] && ( !formdef[att]['admin'] || username ) ) ) ) {
     			shownrows = 1;
     			var rowval = element.getAttribute(att);
-    			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['type'] == 'pos' ) { rowval = treatpos(element, att, 'full'); }
-	    			else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['type'] == 'udfeats' ) { rowval = treatfeats(element, att, 'full'); }
-	    			else if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['type'] == 'udfeats' ) { rowval = treatfeats(element, att, 'full'); }
+    			var atttype = '';
+    			if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['type'] ) atttype = formdef[att]['type'];
+    			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['type'] ) atttype = tagdef[att]['type'];
+    			if ( atttype == 'pos' ) { rowval = treatpos(element, att, 'full'); }
+	    			else if ( atttype == 'udfeats' ) { rowval = treatfeats(element, att, 'full'); }
+	    			else if ( atttype == 'ref' ) { rowval = treatref(element, att, 'full'); }
 					else if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['options'] ) { rowval = formdef[att]['options'][rowval]['display'] + ' (' + rowval + ')'; }
 					else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['options'] && tagdef[att]['options'][rowval] ) { rowval = tagdef[att]['options'][rowval]['display'] + ' (' + rowval + ')';; }; 
 	    		tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + 
@@ -325,6 +328,21 @@ function treatfeats ( tok, label, type ) {
 		});
 	} else {
 		tagexpl = tag.replaceAll('|', ', ');
+	};
+	return tagexpl;
+};
+
+// Convert a (head) reference to text
+function treatref ( tok, label, type ) {
+	var tag = tok.getAttribute(label);
+	var tagexpl = tag;
+	if ( !tag ) { return ''; };
+	var mtxt = document.getElementById('mtxt');
+	var xpath = "//tok[@id='"+tag+"']";
+    var tmp = document.evaluate(xpath, mtxt, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); 
+	if ( tmp ) {
+		var refnode = tmp.snapshotItem(0);
+		tagexpl = refnode.innerHTML + ' ('+tag+')'
 	};
 	return tagexpl;
 };
