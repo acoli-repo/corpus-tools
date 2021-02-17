@@ -151,7 +151,9 @@
 	$tagoptlist = array ( "interpret", "colors", "images", 'pb', 'lb', 'ee' );
 	$setviews = explode(",", $_GET['setviews']);
 	foreach ( $tagoptlist as $tagtmp ) {
-		if ( ( strpos($defaultview, $tagtmp) && !$_COOKIE["toggle-$tagtmp"] ) || $_COOKIE["toggle-$tagtmp"] == "true" || in_array($tagtmp, $setviews) ) {
+		if ( ( strpos($defaultview, $tagtmp) && !$_COOKIE["toggle-$tagtmp"] ) 
+				|| $_COOKIE["toggle-$tagtmp"] == "true" 
+				|| in_array($tagtmp, $setviews) ) {
 			$postjsactions .= "\n				toggletn('$tagtmp');";
 		};
 	};
@@ -527,7 +529,7 @@
 	// Load the tagset 
 	require ( "$ttroot/common/Sources/tttags.php" );
 	$tttags = new TTTAGS($tagsetfile, false);
-	if ( $tttags->tagset['positions'] ) {
+	if ( $tttags->tagset['positions'] || $tttags->tagset['upos'] ) {
 		$tmp = $tttags->xml->asXML();
 		$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);
 		$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";

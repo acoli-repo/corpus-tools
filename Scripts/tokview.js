@@ -304,9 +304,29 @@ function showdocinfo(showelement) {
 
 // Convert a UD features label to text
 function treatfeats ( tok, label, type ) {
-	tag = tok.getAttribute(label);
+	var tag = tok.getAttribute(label);
+	var tagexpl = '';
 	if ( !tag ) { return ''; };
-	return tag.replaceAll('|', ', ');
+	var tagset = document.getElementById('tagset');
+	if ( tagset || 1==1 ) {
+		var sep = '';
+		tag.split('|').forEach(function(element) {
+		  var arr = element.split('=');
+		  var feat = arr[0]; var val = arr[1];
+  		  var xpath = "//values/item[@key='"+feat+"']/item[@key='"+val+"']";
+		  var tmp = document.evaluate(xpath, tagset, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); 
+		  var valdef = '';
+		  if ( tmp ) {
+			valdef = tmp.snapshotItem(0);
+		  };
+		  if ( valdef && valdef.getAttribute('display') ) { val = valdef.getAttribute('display'); };
+		  tagexpl += sep + feat + '=' + val;		  
+		  sep = ", ";
+		});
+	} else {
+		tagexpl = tag.replaceAll('|', ', ');
+	};
+	return tagexpl;
 };
 
 

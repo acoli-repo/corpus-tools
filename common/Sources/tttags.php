@@ -25,6 +25,7 @@ class TTTAGS
 			if ( file_exists($attempt) ) { $filename = $attempt; break; };
 		};
 		
+		print $filename;
 		if ( $filename ) {
 			$this->xml = simplexml_load_file($filename);
 			$this->tagset = xmlflatten($this->xml);
