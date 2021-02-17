@@ -11,6 +11,7 @@ foreach ( $settings['timeline']['events'] as $key => $val ) {
 if ( $settings['timeline']['xml'] ) {
 	$xmlfile = "Resources/{$settings['timeline']['xml']}"; if ( substr($xmlfile, -4) != ".xml" ) $xmlfile .= ".xml";
 	$eventxml = simplexml_load_file($xmlfile);
+	if ( $eventxml )
 	foreach ( $eventxml->children() as $event ) {
 		$key = $event['id'];
 		unset($val);

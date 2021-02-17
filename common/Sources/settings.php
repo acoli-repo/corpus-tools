@@ -22,6 +22,8 @@
 	if ( !$sharedfolder ) $sharedfolder = getenv("TT_SHARED"); 
 	if ( !$sharedfolder ) $sharedfolder = $_SERVER["TT_SHARED"]; 
 	if ( $sharedfolder && !is_dir($sharedfolder) ) $sharedfolder = ""; # In case there are wrong local settnigs
+	$checkshared = preg_replace("/.*\/([^\/]+)\/?/", "\\1", $sharedfolder );
+	if ( $checkshared == $foldername ) $isshared = 1;
 	
 	# See if there are any local or shared startup scripts
 	if ( file_exists("Sources/startup.php") ) require("Sources/startup.php");
@@ -31,6 +33,7 @@
 	function readinshared($sharr, &$starr) {
 		global $settings;
 		if ( !is_array($sharr) ) return;
+		if ( $starr['nolocal'] && $isshared ) unset($starr); # Remove shared-only items in shared project
 		if ( $sharr['noshare'] || $starr['noshare'] ) return; # Shared settings can be marked as not-to-read
 		foreach ( $sharr as $key => $val ) {
 			if ( is_array($val) ) {

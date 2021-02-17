@@ -457,7 +457,7 @@ $maintext .= "
 			$maintext .= "<p>Dependency trees are not available for this text, since the text is not yet tokenized. ";
 
 			if ( $username ) {
-				$maintext .= "<p class=adminpart>You can tokenize by clicking <a href='index.php?action=tokenize&id=$fileid&display=tok&s=1'>here</a> -
+				$maintext .= "<p class=adminpart>You can tokenize by clicking <a href='index.php?action=tokenize&cid=$ttxml->fileid&display=tok&s=1'>here</a> -
 					tokenization will also attempt to split the text into sentences";
 			};
 		
