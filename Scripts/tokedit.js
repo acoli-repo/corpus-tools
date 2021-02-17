@@ -717,7 +717,15 @@ function getlang ( node, type ) {
 	return langtext;
 };
 
+function treatfeats ( tok, label, type ) {
+	// Convert a UD features label to text
+	tag = tok.getAttribute(label);
+	if ( !tag ) { return ''; };
+	return tag.replaceAll('|', ', ');
+};
+
 function treatpos ( tok, label, type ) {
+	// Convert a POS label to text
 	tag = tok.getAttribute(label);
 	if ( !tag ) { return ''; };
 	var tagset = document.getElementById('tagset');
