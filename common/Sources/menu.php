@@ -37,12 +37,13 @@
 	
     $menu .= "<ul style='text-align: left'>";
         	
-	$checkshared = preg_replace("/.*\/([^\/]+)\/?/", "\\1", getenv('TT_SHARED'));
     foreach ( $settings['menu']['itemlist'] as $key => $item ) { 
 		$scl = $scli = $trgt = $link = "";
     	if ( !is_array($item) ) continue; # Skip attributes
-		if ( $checkshared == $foldername && $item['nolocal'] ) continue; # Shared item not to be used in shared project
-    	if ( $item['link'] ) $link = $item['link'];
+    	if ( $item['xp'] ) {
+    		$link = current($settingsxml->xpath($item['xp']));
+    		if ( !$link ) continue; # Do not show the item if the XPath does not match
+    	} else if ( $item['link'] ) $link = $item['link'];
     	else if ( substr($key,0,4) == "http" ) {
     		$link = $key;
     	} else $link = "{$tlpr}index.php?action=$key";
