@@ -999,7 +999,7 @@ int main(int argc, char *argv[])
 	};
 	if ( dofolders != "" ) {
 		if ( verbose ) cout << "- Indexing folder(s): " << dofolders << endl;
-		vector<string> tokens = split(dofolders, sep);
+		vector<string> tokens = split(dofolders, ",");
 		for( vector<string>::iterator it2 = tokens.begin(); it2 != tokens.end(); it2++ ) {
 			string fldr = *it2;
 			if ( debug ) {
