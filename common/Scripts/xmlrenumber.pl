@@ -1,4 +1,3 @@
-# use encoding 'utf8';
 use Getopt::Long;
 use XML::LibXML;
  

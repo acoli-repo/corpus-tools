@@ -383,7 +383,10 @@ class wordtoken {
 		// Copy the information from the lexitem (or local info) onto the token
 		if ( !strcmp(lexitem.name(), "tok") ) {
 			// This is a known word - copy from the lexicon
-			if ( debug > 4 ) { lexitem.print(std::cout); };
+			if ( debug > 4 ) { 	
+				cout << "  - Updating pos and lemma from calculated token: "; 
+				lexitem.print(std::cout); 
+			};
 			lemma = lexitem.attribute("lemma").value();
 			for (pugi::xml_attribute_iterator it = lexitem.attributes_begin(); it != lexitem.attributes_end(); ++it) {
 				if ( !strcmp((*it).name(), "key") || !strcmp((*it).name(), "cnt")) { continue; };
@@ -417,7 +420,10 @@ class wordtoken {
 				};
 			};
 		} else {
-			if ( debug > 4 ) { lexitem.print(std::cout); };
+			if ( debug > 4 ) { 	
+				cout << "  - Updating pos and lemma from calculated token: "; 
+				lexitem.print(std::cout); 
+			};
 			// This is a new word - add calculated lemma and tag
  			if ( dtoks.size() > 0 ) {
  				// Either add the list of dtoks
@@ -446,6 +452,10 @@ class wordtoken {
 		};
 		if ( tagsrcshow ) {
 			token.append_attribute("tagsrc") =  source.c_str();
+		};
+		if ( debug > 4 ) {
+			cout << "  - Updated token: ";
+			token.print(cout);
 		};
 	};	
 		

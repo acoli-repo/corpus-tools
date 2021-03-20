@@ -1,6 +1,5 @@
 use XML::LibXML;
 use utf8;
-use encoding 'utf8';
 
 $pid = shift; $\ = "\n"; $, = "\t";
 $chfn = "tmp/pid$pid.xml";

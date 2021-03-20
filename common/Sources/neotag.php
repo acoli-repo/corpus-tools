@@ -170,13 +170,12 @@
 		$exec = $settings['bin']['neotagtrain'] or $exec = "/usr/local/bin/neotagtrain";
 		
 		if ( $params['pid'] ) $pid = "--pid='{$params['pid']}'";
-		$cmd = "$exec --verbose $pid";
+		$cmd = "$exec --verbose $pid > tmp/neotag-update.log &";
 		$response = shell_exec($cmd);
 		
-		$maintext .= "<h1>NeoTag Parameter Seting Updated</h1>
-			<p>Update command: $cmd 
-			<p>Reponse text: 
-			<pre>$response</pre>
+		$maintext .= "<h1>NeoTag parameter settings being updated</h1>
+			<p>Update command: $cmd</p>
+			<p>Log will be stored in tmp/neotag-update.log</p>
 		
 		" ;
 			$maintext .= "<hr><p><a href='index.php?action=$action&params=$paramsfile'>Back to parameter definitions</a>";

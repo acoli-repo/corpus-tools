@@ -216,12 +216,21 @@ void treatnode ( pugi::xpath_node node ) {
 		if ( tagtag != "" ) {
 			lexitems[tagform][tagtag] = tok;
 		};
+
+		if (debug > 4) {
+			cout << "Resulting new item: ";
+			lexitem.print(std::cout);
+		};
+	
 	   
 	};
 
+	if (debug > 1) {
+		cout << "New/updated item: ";
+		tok.print(std::cout);
+	}; 
 		
-	if (debug > 1) lexitem.print(std::cout);
-
+	
 	// push back tagtag onto tagHist
 	if ( !node.node().child("dtok").empty() ) {
         for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
