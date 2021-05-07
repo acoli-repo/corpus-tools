@@ -81,7 +81,7 @@ eval {
 	$doc = $parser->load_xml(string => $rawxml);
 };
 if ( !$doc ) { 
-	print "Invalid XML in $filename"; 
+	print "Invalid XML in $filename\n$@"; 
 	exit;
 };
 

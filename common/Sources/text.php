@@ -305,6 +305,7 @@
 		$result = $xml->xpath("//media"); 
 	};
 	if ( $result ) {
+		if ( $settings['defaults']['playbutton'] ) $prejsactions .= "\t\tvar playimg1 = '{$settings['defaults']['playbutton']}';";
 		foreach ( $result as $medianode ) {
 			list ( $mtype, $mform ) = explode ( '/', $medianode['mimeType'] );
 			if ( !$mtype ) $mtype = "audio";

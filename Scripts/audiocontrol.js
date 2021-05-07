@@ -7,7 +7,7 @@ var playimage = false;
 if ( typeof(playimg1) == undefined || typeof(playimg1) == 'undefined' ) {
 	var playimg1 = 'Images/playbutton.gif';
 };
-var playimg2 = playimg1.replace('button.gif', 'button2.gif');
+var playimg2 = playimg1.replace('.gif', '2.gif');
 var audiolist = new Array();
 
 // We should check whether we can play this sound
