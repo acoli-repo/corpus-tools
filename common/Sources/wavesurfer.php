@@ -66,7 +66,7 @@
 		$nexturl = urlencode("index.php?action=$action&cid=$ttxml->filename");
 		print "Saved to $ttxml->fileid"; 
  			print "Your file has been saved
- 					<script language=Javascript>top.location='index.php?action=renumber&cid=$ttxml->filename&nexturl=$nexturl';</script>"; 
+ 					<script language=Javascript>top.location='index.php?action=renumber&cid=$ttxml->fileid&nexturl=$nexturl';</script>"; 
     	exit;
 	
 	} else if ( !$nofile ) {
