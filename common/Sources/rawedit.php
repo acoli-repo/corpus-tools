@@ -71,6 +71,7 @@
 	} else {
 		$result = $xml->xpath($mtxtelement); 
 		$txtxml = $result[0]; 
+		if ( !$txtxml ) fatal("Text element $mtxtelement not found in XML");
 		$editxml = $txtxml->asXML();
 		$switch = "<a href='index.php?action=rawedit&cid=$fileid&full=1'>switch to full XML including header</a>";
 	}; $switch .= " &bull; <a href='index.php?action=file&cid=$fileid&full=1'>back to view mode</a>";

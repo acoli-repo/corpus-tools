@@ -29,7 +29,7 @@
 				<p><i><a href='$videourl'>{%Video fragment for this text}</a></i></p>
 			</video>";
 	};
-	if ( $audiourl == "" ) fatal ("XML file has no media element providing a URL to the sound file");
+	if ( $audiourl == "" ) fatal ("XML file $fileid has no media element providing a URL to the sound file");
 
 	$audiolink = preg_replace("/.*(Audio|Video)\//", "", $audiourl); // Kill folder from Audio file name
 	if ( $username && !preg_match("/^https?:/", $audiourl) && !file_exists("$fldr/$audiolink") ) {
