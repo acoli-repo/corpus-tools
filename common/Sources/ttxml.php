@@ -23,7 +23,7 @@ class TTXML
 	public $facsimg; # The facsimile image for the page
 
 	function __construct($fileid = "", $fatal = 1, $options = "" ) {	
-		global $xmlfolder; global $baseurl; global $settings;
+		global $xmlfolder; global $baseurl; global $settings; global $username;
 		
 		# Use $_GET to find the file
 		if ( !$xmlfolder ) $xmlfolder = "xmlfiles";
@@ -69,12 +69,38 @@ class TTXML
 			$this->rawtext = namespacemake($this->rawtext);
 		};
 			
+		libxml_use_internal_errors(true);
 		if ( $settings['xmlfile']['nospace'] == "1" || preg_match("/<text[^>]+xml:space=\"remove\"/", $rawtext) ) {
 			$this->xml = simplexml_load_string($this->rawtext, null, LIBXML_NOBLANKS);
 		} else {
 			$this->xml = simplexml_load_string($this->rawtext);
 		};
-		if ( !$this->xml && $fatal ) { fatal ( "Failing to read/parse $fileid" ); };
+		if ( !$this->xml && $fatal ) { 
+			if ( $username ) {
+				$ermsg = "<h2>Incorrect XML</h2><p>Failing to read/parse $fileid
+				<hr><p>Since the XML cannot be opened, the error cannot be corrected within the interface. The
+					error message is displayed below. You can either edit the XML directly on the server if you have 
+					access to it, or revert to a <a href='index.php?action=backups&cid=$this->fileid'>backup</a>
+					if there is one.
+				<hr>";
+				$rawarr = explode("\n", $this->rawtext);
+				foreach(libxml_get_errors() as $error) {
+					$tmp = $rawarr[$error->line-1];
+					$linetxt = "<span style='opacity: 0;'>".htmlentities(substr($tmp, 0, $error->column))."</span>"
+						."<span style='color:red; font-weight: bold; '>-</span>";
+					$ermsg .= "". htmlentities($error->message). "(line $error->line, col $error->column)".
+					"<div style='width:800px; overflow-x: scroll;'>
+						<pre>".htmlentities($tmp)."</pre>"."<pre style='margin-top: -17px; line-height: 5px;'>$linetxt</pre>
+					</div><hr>";
+				}
+				$time = time();
+				if (!is_dir("tmp")) mkdir("tmp"); 
+				file_put_contents("tmp/error_$time.txt", $ermsg);
+				print "<h1>Fatal Error</h1><p>A fatal error has occurred
+					<script language=Javascript>top.location='index.php?action=error&msg=$time';</script>";
+				exit;
+			} else fatal ( "An error occurred with this file. We apologize for the inconvenience." ); 
+		};
 		
 		// See if there is an Audio element in the header
 		foreach ( $this->xml->xpath("//recording//media") as $medianode ) {

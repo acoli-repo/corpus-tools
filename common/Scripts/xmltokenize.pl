@@ -4,6 +4,7 @@ use HTML::Entities;
 use XML::LibXML;
 use Getopt::Long;
 use POSIX qw(strftime);
+use Cwd 'abs_path';
 
 # Script to tokenize XML files inline; splits on spaces, and splits off UTF punctuation chars at the beginning and end of a token
 # Splits existing XML tags if they get broken by the tokens
@@ -26,6 +27,7 @@ $scriptname = $0;
 $\ = "\n"; $, = "\t";
 
 if ( $mtxtelm eq '' ) { $mtxtelm = 'text'; };
+if ( $debug ) { print "Tokenizing $mtxtelm"; };
 
 if ( $filename eq '' ) {
 	$filename = shift;
@@ -586,11 +588,13 @@ if ( $test ) {
 	print FILE $xmlfile;
 	close FILE;
 
+	$fullfilename = abs_path($filename); # Send the full path to the renumber script 
+
 	( $renum = $scriptname ) =~ s/xmltokenize/xmlrenumber/;
 
 	print "$filename has been tokenized - renumbering tokens now";
 	# Finally, run the renumber command over the same file
-	$cmd = "/usr/bin/perl $renum --filename=$filename";
+	$cmd = "/usr/bin/perl $renum --filename=$fullfilename";
 	# print $cmd;
 	`$cmd`;
 };
