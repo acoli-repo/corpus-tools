@@ -675,32 +675,48 @@ int treatdir (string dirname) {
 
 	const char *path = dirname.c_str();
 
-
-    dp = opendir(path);
-    if (dp == NULL) {
+    struct stat st;
+	ifstream idxfile;
+	idxfile.open(dirname + "/index.txt");
+    if ( idxfile ) {
+    
     	if ( debug ) {
-    		cout << "  Failed to open dir: " << path << endl;
+	    	cout << "Reading file list from index.txt" << endl;
     	};
-        return -1;
-    }
+    	
+    	string line;
+		while( std::getline( idxfile, line ) ) {
+			string ffname = dirname + '/' + line;
+		    treatfile(ffname);
+		}
+    	
+	} else {
+		dp = opendir(path);
+		if (dp == NULL) {
+			if ( debug ) {
+				cout << "  Failed to open dir: " << path << endl;
+			};
+			return -1;
+		}
 
-   struct stat st;
-   while ((entry = readdir(dp))) {
-		string ffname = dirname + '/' + string(entry->d_name);
-		lstat(ffname.c_str(), &st);
-		if(S_ISDIR(st.st_mode)) {
-		   if ( entry->d_name[0] != '.' ) {
-		   	  treatdir(ffname);
-		   };
-		} else if(S_ISLNK(st.st_mode)) {
-		  treatdir(ffname); // We assume links always to be links to directories
-		} else {
-		   treatfile(ffname);
+	   while ((entry = readdir(dp))) {
+			string ffname = dirname + '/' + string(entry->d_name);
+			lstat(ffname.c_str(), &st);
+			if(S_ISDIR(st.st_mode)) {
+			   if ( entry->d_name[0] != '.' ) {
+				  treatdir(ffname);
+			   };
+			} else if(S_ISLNK(st.st_mode)) {
+			  treatdir(ffname); // We assume links always to be links to directories
+			} else {
+			   treatfile(ffname);
+			};
+
 		};
 
-    };
-
-    closedir(dp);
+		closedir(dp);
+	};
+	
     return 0;
 };
 
