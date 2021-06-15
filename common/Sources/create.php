@@ -174,12 +174,14 @@
 			<script language=Javascript>top.location='index.php?action=file&cid=$filename&display=shand'</script>"; exit;
 
 	} else {
+
+		if ( $_GET['folder'] ) $sug = str_replace("xmlfiles/", "", $_GET['folder'])."/";
 	
 		$maintext .= "<h1>Create New XML File</h1>
 					<form action='index.php?action=$action' method=post  name=frm id=frm enctype=\"multipart/form-data\">
 
 		<h2>XML Filename</h2>
-		<p>XML id (filename): <input name=fname size=30>
+		<p>XML id (filename): <input name=fname value='$sug' size=30>
 		";
 		
 		# Choose a folder

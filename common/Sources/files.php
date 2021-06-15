@@ -26,9 +26,10 @@
 		
 	} else if ( $act == "mkdir" && $username ) {
 		
+		if ( $_GET['folder'] ) $sug = str_replace("xmlfiles/", "", $_GET['folder'])."/";
 		$maintext .= "<h1>Create new folder</h1>
 			<form class=adminpart action='index.php?action=$action&act=$act' method=post>
-			<p>Type in the path of the folder you want to create: <input name=name> <input type=submit value=Create>
+			<p>Type in the path of the folder you want to create: <input name=name value='$sug'> <input type=submit value=Create>
 			</form>		
 			";
 	
@@ -173,8 +174,8 @@
 		if ( $dirlist && $filelist ) $maintext .= "<hr>";
 		$maintext .= "$filelist<hr>$cnt files$showing";
 		if ( !$filelist && !$dirlist ) $maintext .= "<p><i>There are no XML files in this folder (yet)</i>";
-		if ($username) $maintext .= " &bull; <a href='index.php?action=$action&act=mkdir'>create new folder</a>";
-		if ($username) $maintext .= " &bull; <a href='index.php?action=create'>create new XML file</a>";
+		if ($username) $maintext .= " &bull; <a href='index.php?action=$action&act=mkdir&folder={$_GET['folder']}'>create new folder</a>";
+		if ($username) $maintext .= " &bull; <a href='index.php?action=create&folder={$_GET['folder']}'>create new XML file</a>";
 	};
 		
 	function find_all_files($dir, $type, $opt) 

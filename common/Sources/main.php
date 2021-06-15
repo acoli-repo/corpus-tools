@@ -11,7 +11,8 @@
 	include ( "$ttroot/common/Sources/functions.php" ); # Global functions
 	
 	if ( isSecure() ) {
-		header('HTTPS/1.0 200 OK'); ## Hard code this as NOT an error page!
+		# TODO : should this not specify HTTPS?
+		header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page! 
 		$hprot = "https";
 	} else {
 		header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page!
