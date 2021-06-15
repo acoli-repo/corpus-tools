@@ -5,13 +5,14 @@
 	check_login();
 	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']);
 
+
 	# If not defined in settings, predefine which files go where
 	if ( !$settings['files'] ) {
 		$settings['files'] = array (
 			"facsimile" => array ( "display" => "Facsimile Images", "folder" => "Facsimile", "extension" => "*.jpg", "description" => "Facsimile images of XML pages (best done <a href='index.php?action=images'>here</a>)" ),
 			"image" => array ( "display" => "Site Images", "folder" => "Images", "extension" => "*.jpg,*.png,*.gif,*.jpeg", "description" => "Image files used for the site design" ),
 			"audio" => array ( "display" => "Audio files", "folder" => "Audio", "extension" => "*.wav,*.mp3", "description" => "Sound files for XML files" ),
-			"xml" => array ( "display" => "TEI XML Files", "folder" => "xmlfiles", "extension" => "*.xml", "description" => "Externally generated TEI files" ),
+			"xml" => array ( "display" => "TEI XML Files", "folder" => "xmlfiles", "extension" => "*.xml", "description" => "Externally generated TEI files", "subfolders" => 1 ),
 			"psdx" => array ( "display" => "PSDX Annotation files", "folder" => "Annotations", "extension" => "*.psdx,*.psd", "description" => "PSD(X) Syntactic annotations" ),
 		    "pdf" => array ( "display" => "PDF files", "folder" => "pdf", "extension" => "*.pdf", "description" => "PDF file linked within the site" ),
 			// "html" => array ( "display" => "HTML Pages", "folder" => "Pages", "extension" => "*.html,*.htm", "description" => "HTML Pages created externally (best done <a href='index.php?action=pageedit'>here</a>)" ),
@@ -19,11 +20,18 @@
 		$nodef = 1;
 	};
 
+	$type = $_POST['type'] or $type = $_GET['type']; 
+	$typedef = $settings['files'][$type];
+
 	if ( $act == "save" ) {
 
-		$type = $_POST['type']; if ( !$type ) fatal ("POST data incorrectly set");
+		if ( !$type ) fatal ("POST data incorrectly set");
 
 		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed for upload");
+		
+		if ( $typedef['subfolders'] && $_POST['subfolder'] )  {
+			$target_folder .= "/".str_replace(".", "", $_POST['subfolder']);
+		};
 		check_folder($target_folder); # Create the folder if needed
 
 		if ( $_POST["filename"] ) {
@@ -81,6 +89,29 @@
 				print '{"error": "no file received"}';
 		};
 		exit;
+
+	} else if ( $act == "newfolder" ) {
+		
+		$name = $_POST['name'];
+		$name = preg_replace("/[^A-Z0-9a-z]/", "_", $name); # Remove problematic characters from the name
+		$basefolder = $typedef['folder'];
+		$sf = $_GET['subfolder'];
+		if ( $sf ) {
+			$basefolder .= "/".$sf;
+		};
+		if ( $name ) {		
+			if ( is_dir("$basefolder/$name") ) { fatal("Folder $basefolder/$name already exists"); };
+			mkdir ("$basefolder/$name");
+			print "<h1>Folder Created</h1>
+				<p>Click <a href='index.php?action=$action&type=$type'>here</a> to return to list
+				<script>top.location='index.php?action=$action&act=list&type=$type&subfolder=$sf'</script>";
+		} else 
+			$maintext .= "<h1>Create new folder</h1>
+			<form class=adminpart action='index.php?action=$action&type=$type&act=$act' method=post>
+			<p>Type in the path of the folder you want to create: <input name=name> <input type=submit value=Create>
+			</form>		
+			";
+		
 
 	} else if ( $act == "delete" ) {
 
@@ -143,16 +174,27 @@
 		passthru($cmd);
 		exit;
 
-	} else if ( $act == "list" ) {
+	} else if ( $act == "list" && $typedef['display'] ) {
 
-		$type = $_GET['type'];
-		$typedef = $settings['files'][$type];
 		if ( $typedef['admin'] ) check_login("admin"); 
 		$accept = str_replace('*', '', $typedef['extension']);
+		$acar = explode ( " ", $accept );
 		$maxsize = min(intval(ini_get("upload_max_filesize")), intval(ini_get("post_max_size")), intval(ini_get("memory_limit")));
 
 		$maintext .= "<h1>File Upload</h1>
 				<h2>{$typedef['display']}</h2>";
+
+		# First - read all the files
+		if ( $typedef['subfolders'] ) {
+			$sf = str_replace(".", "", $_GET['subfolder']);
+			$sf = preg_replace("/^\//", "", $sf);
+			$glob = "{$typedef['folder']}/$sf/*";
+			$files = glob($glob);
+			if ( $sf ) $maintext .= "<h3>Subfolder: $sf</h3>";
+		} else {
+			$glob = "{$typedef['folder']}/*";
+			$files = glob($glob, GLOB_BRACE);
+		};
 
 		if ( !$settings['files']['nodropzone'] && !$_GET['nodropzone'] ) {
 			// Dropzone.js
@@ -187,6 +229,7 @@
 				<div id=\"dropzone\">
 				<form action=\"index.php?action=$action&act=save\" class=\"dropzone needsclick\" id=\"upload-zone\"  method=post enctype=\"multipart/form-data\">
 				<input type=hidden name=type value='$type'>
+				<input type=hidden name=subfolder value='$sf'>
 				<div class=\"dz-message needsclick\">
 					Drop files here or click to upload.
 					<br/>Accepted files: $accept
@@ -221,6 +264,7 @@
 					<p>Accepted extensions: <i>{$typedef['extension']}</i>
 					<p>Maximum file size: <i>$maxsize</i> $warning
 					<input type=hidden name=type value='$type'>
+					<input type=hidden name=subfolder value='$sf'>
 					<p>Add new file:
 						<input type=file name=upfile accept=\"$accept\">
 						<input type=submit value=Save name=submit>
@@ -234,21 +278,40 @@
 				<table cellpadding='5px'>
 				";
 
-		# First - read all the files
-		$glob = "{$typedef['folder']}/{{$typedef['extension']}}";
-		$files = glob($glob, GLOB_BRACE);
 		foreach ( $files as $line ) {
-			$maintext .= "<tr><td><a href='$baseurl$line' target=file>view</a>
-				<td> <a href='index.php?action=$action&act=download&type={$typedef['folder']}&file=$line' target=file>download</a>
-				<td> {$line} <td align=right>".human_filesize(filesize($line));
-			$deltype = $settings['files'][$type]['delete'] or $deltype = $settings['files']['delete'];
-			if ( $deltype != "none" && ( $deltype != "sudo" || $user['permissions'] == "admin" ) )  $maintext .= "<td><a href='index.php?action=$action&act=delete&type=$type&file=$line'>delete</a>";
-			$totsize += filesize($line); $cnt++;
+			$fn = preg_replace("/.*\//", "", $line);
+			$ffn = str_replace("xmlfiles/", "", $line);
+			$ffn = preg_replace("/^\//", "", $ffn);
+			list ( $bn, $ext ) = explode(".", $fn);
+			if ( is_dir($line) ) {
+				if ( $typedef['subfolders'] ) {
+					if ( !$dirlist ) $dirlist .= "<h3>Subfolders</h3>";
+					$dirlist .= "<p><a href='index.php?action=$action&act=list&type=$type&subfolder=$sf/$fn'>$fn</a>";
+				} else $maintext .= "<tr><td><td style='color: grey'>$ffn";
+			} else if ( in_array($acar, ".$ext") ) {
+				$maintext .= "<tr><td><td style='color: grey'>$ffn (no allowed: $ext - ".join(",", $acar).")";
+			} else {
+				$maintext .= "<tr><td><a href='$baseurl$line' target=file>view</a>
+				<td> <a href='index.php?action=$action&act=download&type={$typedef['folder']}&file=$ffn' target=file>download</a>
+				<td> {$ffn} <td align=right>".human_filesize(filesize($line));
+				$deltype = $settings['files'][$type]['delete'] or $deltype = $settings['files']['delete'];
+				if ( $deltype != "none" && ( $deltype != "sudo" || $user['permissions'] == "admin" ) )  $maintext .= "<td><a href='index.php?action=$action&act=delete&type=$type&file=$line'>delete</a>";
+				$totsize += filesize($line); $cnt++;
+			};
 		};
-		$maintext .= "
-			<tr><td><td><td style='border-top: 1px solid #999999; color: #666666'>$cnt files<td align=right style='border-top: 1px solid #999999; color: #666666'>".human_filesize($totsize)."
-			</table>
-			<hr><p><a href='index.php?action=$action'>select a different file type</a>";
+		if ( $totsize ) 
+			$maintext .= "
+			<tr><td><td><td style='border-top: 1px solid #999999; color: #666666'>$cnt files<td align=right style='border-top: 1px solid #999999; color: #666666'>".human_filesize($totsize);	
+		else $maintext .= "<p><i>No files</i>";
+		$maintext .= "</table>$dirlist";
+		$maintext .= "<hr><p><a href='index.php?action=$action'>select a different file type</a>";
+		if ( $typedef['subfolders'] ) {
+			$maintext .= " &bull; <a href='index.php?action=$action&act=newfolder&type=$type&subfolder=$sf'>create folder</a>";
+			if ( $sf ) { 
+				$nsf = preg_replace("/[^\/]+$/", "", $sf);
+				$maintext .= " &bull; <a href='index.php?action=$action&act=list&type=$type&subfolder=$nsf'>leave subfolder</a>";
+			};
+		};
 
 	} else {
 
