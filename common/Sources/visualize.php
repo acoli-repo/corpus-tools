@@ -174,7 +174,7 @@
 
 					// Bug in tt-cqp: remove lines with no category
 					$json = preg_replace("/\n\[[^'][^\]]+\],\s*/", "", $json);
-
+					
 				} else {
 
 					// Fallback in case tt-cqp is not installed
@@ -208,6 +208,7 @@
 					$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}], ";
 					foreach ( explode("\n", $results) as $line ) {
 						list ( $grp, $cnt ) = explode ( "\t", $line );
+						$grp = str_replace("/'/", "\\'", $grp); # Protect '
 						if ( $grp && $cnt ) $json .= "['$grp', $cnt], ";
 					};
 					$json .= "]";
