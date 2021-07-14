@@ -208,7 +208,7 @@
 					$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}], ";
 					foreach ( explode("\n", $results) as $line ) {
 						list ( $grp, $cnt ) = explode ( "\t", $line );
-						$grp = str_replace("/'/", "\\'", $grp); # Protect '
+						$grp = str_replace("'", "\\'", $grp); # Protect '
 						if ( $grp && $cnt ) $json .= "['$grp', $cnt], ";
 					};
 					$json .= "]";
