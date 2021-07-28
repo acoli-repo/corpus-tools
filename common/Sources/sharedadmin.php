@@ -30,7 +30,7 @@
 		};
 		
 		# Copy the index.php into the folder
-		shell_exec("cp $ttroot/projects/default-shared/index.php $projectfolder");
+		copy("$ttroot/projects/default-shared/index.php", $projectfolder);
 		if ( !file_exists("$projectfolder/index.php") ) {
 			fatal("Failed to copy index from $ttroot/projects/default-shared/ to $projectfolder");
 		};
