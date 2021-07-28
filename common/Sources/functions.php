@@ -731,14 +731,14 @@
 		return $resnode;
 	};
 	
-	function createnode ($xml, $xquery) {
+	function createnode ($xml, $xquery, $elm = $xml) {
 		# See if XML has a node matching the XPath, if not - create it
 		global $verbose;
 			if ( $verbose ) { print "\n<p>Creating node $xquery"; };
 	
 		$xpath = new DOMXpath($xml);
 
-		$result = $xpath->query($xquery); 
+		$result = $xpath->query($xquery, $elm); 
 		if ( $result->length ) {
 			if ( $verbose ) { print "\n<p>Node exists ($xquery) - returning"; };
 			return $xml;

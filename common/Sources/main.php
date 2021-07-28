@@ -11,7 +11,7 @@
 	include ( "$ttroot/common/Sources/functions.php" ); # Global functions
 	
 	if ( isSecure() ) {
-		# TODO : should this not specify HTTPS?
+	# TODO : should this not specify HTTPS?
 		header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page! 
 		$hprot = "https";
 	} else {
@@ -72,7 +72,7 @@
 
 	// Have a uniform treatment of magic quotes
 	// set_magic_quotes_runtime(false); // turn magic quotes off (this throws an error in newer PHP versions)
-	if (get_magic_quotes_gpc()) {
+	if (get_magic_quotes_gpc()) { 
 		function strip_array($var) {
 			return is_array($var)? array_map("strip_array", $var):stripslashes($var);
 		}

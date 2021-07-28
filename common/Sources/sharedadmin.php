@@ -24,7 +24,7 @@
 		if ( !is_writable($rootfolder) ) {
 			fatal("Apache cannot write to $rootfolder - cannot create from within here");
 		};
-		shell_exec("mkdir $projectfolder"); 
+		mkdir($projectfolder); 
 		if ( !is_dir($projectfolder) ) {
 			fatal("Failed to create $projectfolder");
 		};
