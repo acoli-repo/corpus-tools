@@ -197,6 +197,7 @@
 			<textarea style='display:none' name=rawxml></textarea>
 			<p><input type=button value=Save onClick=\"runsubmit();\"> 
 			<input type=button value=Cancel onClick=\"window.open('index.php?action=$action', '_self');\"> 
+			<span onclick='prettify();'>pretty-print XML</span>
 			</form>
 	
 			<script src=\"$aceurl\" type=\"text/javascript\" charset=\"utf-8\"></script>
@@ -247,6 +248,16 @@
 				enableSnippets: false
 			});
 			
+			function prettify () {
+				var rawxml = editor.getSession().getValue();
+				var pretty = new XmlBeautify().beautify(rawxml, 
+					{
+						indent: \"  \",  //indent pattern like white spaces
+						useSelfClosingElement: true //true:use self-closing element when empty element.
+					});				
+    			editor.getSession().setValue(pretty);
+			};
+			
 			function runsubmit ( ) {
 				var rawxml = editor.getSession().getValue();
 				var oParser = new DOMParser();
@@ -260,6 +271,8 @@
 				};						
 			};	
 			</script>
+			<script src=\"https://cdn.jsdelivr.net/npm/xml-beautify@1.1.2/dist/XmlBeautify.js\"></script>
+
 		";
 		
 	} else if ( $act == "advanced" && $dict['search'] ) {
