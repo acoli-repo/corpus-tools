@@ -175,7 +175,7 @@
 		};
 		
 		# Close empty tags
-		$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
+		# $editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
 
 		if ( $id == "meta_info") {
 			if ( file_exists("$xdxfdir/xdxfmetatags.xml") )  $tmp = "$xdxfdir/xdxfmetatags.xml";
