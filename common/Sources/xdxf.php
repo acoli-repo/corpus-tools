@@ -27,7 +27,7 @@
 	$filename = "$xdxfdir/$dictfile";
 	$id = $_POST['id']; $id = $_GET['id'];
 
-	$arxpath = $dict['entry'] or $arxpath = "//lexicon/ar";
+	$arxpath = $dict['entry'] or $_GET['arxp'] or $arxpath = "//lexicon/ar";
 	$hwxpath = $dict['headword'] or $hwxpath = "k";
 	$posxpath = $dict['pos'] or $posxpath = "gr";
 
@@ -92,12 +92,8 @@
 		if ( !$filename ) fatal("something went wrong - unable to load data for $did");
 		
 		$file = file_get_contents("$xdxfdir/$filename"); 
-		
-		# Check if this new person is valid XML
-		$test = simplexml_load_string($newrec, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		if ( !$test ) fatal ( "XML Error in AR record. Please go back and make sure to input valid XML" );
-		print $test->asXML();
-		
+		$xml = simplexml_load_file("$xdxfdir/$filename", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+				
 		if ( $id == "new" ) {
 			# Add the new record after the last entry
 			$newrec = preg_replace ( "/<!--.*?-->/", "", $newrec );
@@ -113,11 +109,19 @@
 			$newxml = preg_replace ( "/<meta_info.*?<\/meta_info>/smi", $newrec, $newxml );
 		} else {
 			# Overwrite the existing record
-			$newxml = preg_replace ( "/<ar id=\"$id\".*?<\/ar>/smi", $newrec, $file );
+			$oldrec = current($xml->xpath("//ar[@id=\"$id\"]"));
+			
+			replacenode($oldrec, $newrec);
+			$newxml = $xml->asXML();
+			
 		};
 		
-		$test = simplexml_load_string($newxml, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		if ( !$test ) fatal ( "XML Error in XDXF - something went wrong here (record XML was valid though)" );
+		try { 
+			$test = simplexml_load_string($newxml, NULL);
+		} catch ( Exception $e ) { 
+			fatal ( "XML Error in XDXF - something went wrong here (record XML was valid though) <br>Error: $e" );
+		}
+		if ( !$test ) fatal ( "XML Error in XDXF - something went wrong here (record XML was valid though) <br>New XML: <pre>".htmlentities($newxml)."</pre>" );
 		
 		# Save new XML to file
 		file_put_contents("$xdxfdir/$filename", $newxml);

@@ -942,5 +942,20 @@
 		return $flatxml;
 	};
 
+	function replacenode ( $oldrec, $newcode ) {
+	
+		# Check if this new person is valid XML
+		$newxr = simplexml_load_string($newcode, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+		if ( !$newxr ) fatal ( "XML Error in record. Please go back and make sure to input valid XML<br>".htmlentities($newcode) );
+		
+		if ( !$oldrec ) fatal("No record to replace");
+
+		$domToChange = dom_import_simplexml($oldrec);
+		$domReplace  = dom_import_simplexml($newxr);
+		$nodeImport  = $domToChange->ownerDocument->importNode($domReplace, TRUE);
+		$domToChange->parentNode->replaceChild($nodeImport, $domToChange);
+			
+	};
+	
 	
 ?>
