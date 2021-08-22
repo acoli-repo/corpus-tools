@@ -300,10 +300,11 @@
 	if ( $settings['defaults']['media']['type'] == "inline" ) {
 		$prejsactions .= "\t\tvar inlinemedia = true; var mediabaseurl = '$mediabaseurl';";
 		# Only treat media in the teiHeader here if we want things inline
-		$result = $xml->xpath("//teiHeader//media"); 
+		$mediaxp = "//teiHeader//media"; 
 	} else {
-		$result = $xml->xpath("//media"); 
+		$mediaxp = "//media"; 
 	};
+	$result = $xml->xpath("//teiHeader//media"); 
 	if ( $result ) {
 		if ( $settings['defaults']['playbutton'] ) $prejsactions .= "\t\tvar playimg1 = '{$settings['defaults']['playbutton']}';";
 		foreach ( $result as $medianode ) {
@@ -363,11 +364,26 @@
 				};
 			};
 		};
+	} else {
+		# Define the audio button even for inline media nodes
+		$result = $xml->xpath("//media"); 
+		if ( $result ) {
+			if ( $settings['defaults']['playbutton'] ) $prejsactions .= "\t\tvar playimg1 = '{$settings['defaults']['playbutton']}';";
+			foreach ( $result as $medianode ) {
+				list ( $mtype, $mform ) = explode ( '/', $medianode['mimeType'] );
+				if ( !$mtype ) $mtype = "audio";
+				if ( $mtype == "audio" ) {
+					$audiobut = "Audio";
+				} else if ( $mtype == "video" ) {
+					$audiobut = "Video";
+				};
+			};
+		};
 	};
 	
 	# Check if there are sub-sounds to display
 	$result = $xml->xpath("//*[@start]"); 
-	if ( $result && $audiobit ) {
+	if ( $result && $audiobut ) {
 		$showoptions .= " <button id='btn-audio' onClick=\"toggleaudio();\">{%$audiobut}</button> ";
 		$postjsactions .= "makeaudio();";
 	};
@@ -394,7 +410,7 @@
 				
 	};				
 
-	if ( $audiobit ) $maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>
+	if ( $audiobut ) $maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>
 		$audiobit
 		<hr>";
 
