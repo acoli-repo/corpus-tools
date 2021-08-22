@@ -78,6 +78,7 @@ var subtypef = 'type';
 if ( nertype.subtypes && nertype.subtypes.fld ) subtypef = nertype.subtypes.fld;
 if ( showelement.getAttribute(subtypef) ) {
 	var typetext = showelement.getAttribute(subtypef) + '';
+	typetext = typetext.split(':').pop(); // Kill the namespace if there is any
 	if ( typeof(attnames) != 'undefined' && attnames[typetext] ) { typetext = 	attnames[typetext]; }
 	else 
 	  if ( nertype.subtypes && nertype.subtypes[typetext] ) { typetext = nertype.subtypes[typetext]['display']; }
