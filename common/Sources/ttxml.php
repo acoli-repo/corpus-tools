@@ -698,7 +698,7 @@ class TTXML
 		else if ( $settings['xmlfile']['paged']['display'] ) $foliotxt = $settings['xmlfile']['paged']['display'];
 		else if ( $pbelm == "pb" ) $foliotxt = "Folio";
 		if ( $settings['xmlfile']['paged']['i18n'] ) $foliotxt = "{%$foliotxt}";
-		
+				
 		# Build the page navigation
 		$this->pagenav = "<table style='width: 100%'><tr> <!-- /<$pbelm [^>]*id=\"$pagid\"[^>]*n=\"(.*?)\"/ -->
 						<td style='width: 33%' align=left>$bnav
@@ -707,7 +707,7 @@ class TTXML
 						</table>
 						<hr> 
 						";
-		
+
 		return $editxml;
 	}
 

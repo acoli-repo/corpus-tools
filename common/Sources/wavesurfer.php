@@ -3,6 +3,20 @@
 	require("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML();
 	$fileid = $ttxml->fileid;
+	
+	# Determine if we need to cut out part of the text based on audio
+	if ( $settings['defaults']['media']['type'] == "inline" ) {
+		$settings['xmlfile']['paged'] = array ( 
+			"element" => "media",
+			"display" => "audio file",
+			"closed" => 1,
+			"custom" => 1,
+			"i18n" => 1,
+		);
+	} else {
+		unset($settings['xmlfiles']['paged']);
+	};
+	
 	$editxml = $ttxml->asXML();
 	
 	if ( $act == "edit" ) $editmode = " - <span class=adminpart>Edit mode</span>";
@@ -44,6 +58,10 @@
 			</video>";
 	};
 	if ( $audiourl == "" ) fatal ("XML file $fileid has no media element providing a URL to the sound file");
+
+	if ( $settings['xmlfile']['paged']['element'] == "media" ) {
+		$pagenav = $ttxml->pagenav;
+	};
 
 	$audiolink = preg_replace("/.*(Audio|Video)\//", "", $audiourl); // Kill folder from Audio file name
 	if ( $username && !preg_match("/^https?:/", $audiourl) && !file_exists("$fldr/$audiolink") ) {
@@ -146,7 +164,8 @@
 		};
 	
 		$maintext .= "<hr>
-		
+			
+			$pagenav
 			<div id='fullmtxt' style='visibility: hidden;'>
 			<!-- $editmsg -->
 			<div $editable id=mtxt style='margin-top: 20px; height: 0; overflow: scroll;'>$editxml</div>
