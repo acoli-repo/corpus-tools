@@ -195,6 +195,7 @@
 			var	jmp = '$jmp';
 			var	fldr = '$fldr';
 			var alttag = '$utttag';
+			var utttag = '$utttag';
 			var setedit = $setedit;
 			$spectjs
 			</script>";
