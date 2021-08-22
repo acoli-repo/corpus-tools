@@ -399,6 +399,7 @@ class TTXML
 		$folioname = $settings['xmlfile']['paged']['display'] or $folioname = "page";
 		if ( $settings['xmlfile']['paged']['i18n'] ) $folioname = "{%$folioname}";
 
+		if ( $action == "text" || $action == "file" || $settings['xmlfile']['paged']['index'] ) $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
 		if ( $befpag[$bp] ) {
 			$tmp = min(count($befpag)-1, $bp+$max*2); $npag1 = $befpag[$tmp]; $bid = $idxpag['id'];
 			$bnum1 = $this->elm2id($npag1);
@@ -406,10 +407,9 @@ class TTXML
 			$bnum2 = $this->elm2id($npag2);
 			if ( $npag1 == $npag2 ) $bnum = $bnum2; else $bnum = "$bnum1 - $bnum2";
 			$tmp = min(count($befpag)-1, $bp+$max); $idxpag = $befpag[$tmp]; $bid = $idxpag['id'];
-			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a> &bull; <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a> <";
+			if ( $bnav ) $bnav .= " &bull; ";
+			$bnav .= "<a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a> <";
 			$hasnav = 1;
-		} else {
-			$bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
 		};
 		if ( $aftpag[$ap] ) {
 			$tmp = min(count($aftpag)-1, $ap+$max*2); $npag1 = $aftpag[$tmp]; $bid = $idxpag['id'];
@@ -657,14 +657,15 @@ class TTXML
 		# Find the previous page/chapter (for navigation)
 		$bidx = rstrpos($editxml, "<$pbelm ", $pidx-1); 
 		if ( !$bidx || $bidx == -1 ) { 
-			$bidx = strpos($editxml, "<text", 0); $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
+			$bidx = strpos($editxml, "<text", 0); 
+			if ( $action == "text" || $action == "file" || $settings['xmlfile']['paged']['index'] ) $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
 		} else {
 			$tmp = substr($editxml, $bidx, 150 ); 
 			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $bpid = $matches[1]; };
 			if ( preg_match("/$pbatt=\"(.*?)\"/", $tmp, $matches ) ) { $bpag = $matches[1]; } else { $bpag = ""; };
 			if ( $bpid  )  $bnav = "<a href='index.php?action=$action&cid=$this->fileid&pageid=$bpid$pbsel'>$bpag <</a> ";
 			else $bnav = "<a id=prevpag href='index.php?action=$action&cid=$this->fileid&page=$bpag'>$bpag <</a>";
-			if ( !$firstpage ) { $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a> &nbsp; $bnav"; };
+			if ( !$firstpage && ( $action == "text" || $action == "file" ) ) { $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a> &nbsp; $bnav"; };
 		};
 
 		// when pbelm != pb, grab the <pb/> from just before the milestone
