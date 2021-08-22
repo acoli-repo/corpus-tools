@@ -3,6 +3,7 @@
 	require("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML();
 	$fileid = $ttxml->fileid;
+	$editxml = $ttxml->asXML();
 	
 	if ( $act == "edit" ) $editmode = " - <span class=adminpart>Edit mode</span>";
 	$maintext .= "
@@ -23,7 +24,20 @@
 	
 	$audiourl = $ttxml->audiourl; $fldr = "Audio";
 	$videourl = $ttxml->videourl; 
-	if ( !$audiourl && $videourl ) { 
+	if ( $settings['defaults']['media']['type'] == "inline" ) {
+		if ( preg_match("/<media [^<>]+>/", $editxml, $matches) ) {
+			$mediaxml = $matches[0];
+			if ( preg_match("/url=\"([^\"]+)\"/", $mediaxml, $matches) ) { $audiourl = $matches[1]; };
+			$mediabaseurl =  $settings['defaults']['media']['baseurl'] or $mediabaseurl =  $settings['defaults']['base']['media'] or $mediabaseurl = "Audio";
+			if ( $audiourl != "" ) {
+				if ( !strstr($audiourl, 'http') ) {
+					if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
+					else $audiourl =  "$mediabaseurl/$audiourl";
+					# else if ( !strstr($audiourl, 'Audio') ) $audiourl = $baseurl."Audio/$audiourl"; 
+				};
+			};		
+		};
+ 	} else if ( !$audiourl && $videourl ) { 
 		$audiourl = $videourl; $fldr = "Video"; 
 		$videobit .= "<video id=\"track\" class=\"wavesurfer\" src=\"$videourl\" controls ontimeupdate=\"checkstop();\">
 				<p><i><a href='$videourl'>{%Video fragment for this text}</a></i></p>
@@ -103,8 +117,6 @@
 		</div>
 
 		";
-
-		$editxml = $ttxml->asXML();
 		
 		$setedit = "false";
 		if ( count($ttxml->xml->xpath("//".strtolower($utttag))) == 0 && $username ) {
