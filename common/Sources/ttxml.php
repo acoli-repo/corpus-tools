@@ -103,7 +103,13 @@ class TTXML
 		};
 		
 		// See if there is an Audio element in the header
-		foreach ( $this->xml->xpath("//recording//media") as $medianode ) {
+		if ( $_GET['media'] ) {
+			$mediaxp = "//media[@id=\"{$_GET['media']}\"]";
+		} else {
+			$mediaxp = "//recording//media";
+		};
+		$mediabaseurl =  $settings['defaults']['media']['baseurl'] or $mediabaseurl =  $settings['defaults']['base']['media'] or $mediabaseurl = "Audio";
+		foreach ( $this->xml->xpath($mediaxp) as $medianode ) {
 			$mimetype = $medianode['mimeType'] or $mimetype = $medianode['mimetype'] or $mimetype = mime_content_type($medianode['url']);
 			list ( $mtype, $mform ) = explode ( '/', $mimetype );
 			if ( $mtype == "video" ) {
@@ -117,14 +123,16 @@ class TTXML
 		if ( $audiourl != "" ) {
 			if ( !strstr($audiourl, 'http') ) {
 				if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
-				else if ( !strstr($audiourl, 'Audio') ) $audiourl = $baseurl."Audio/$audiourl"; 
+				else $audiourl =  "$mediabaseurl/$audiourl";
+				# else if ( !strstr($audiourl, 'Audio') ) $audiourl = $baseurl."Audio/$audiourl"; 
 			};
 			$this->audiourl = $audiourl;
 		};		
 		if ( $videourl != "" ) {
 			if ( !strstr($videourl, 'http') ) {
 				if ( file_exists($videourl) ) $videourl =  "$baseurl/$videourl"; 
-				else if ( !strstr($videourl, 'Video') ) $videourl = $baseurl."Video/$videourl"; 
+				else $videourl =  "$mediabaseurl/$videourl"; 
+				# else if ( !strstr($videourl, 'Video') ) $videourl = $baseurl."Video/$videourl"; 
 			};
 			$this->videourl = $videourl;
 		};		
