@@ -259,6 +259,7 @@ function treattag ( elm, label, type ) {
 	if ( tagset ) {
 		// Show the main pos name of a position-based tagset
 		var mainpos = tag.substring(0,1); 
+		mainpos = mainpos.split(':').pop(); // Kill the namespace if there is any
 		var xpath = "//item[@key='"+mainpos+"' and @maintag]"
 		var tmp = document.evaluate(xpath, tagset, null, XPathResult.ANY_TYPE, null); 
 		var tagdef = tmp.iterateNext();
