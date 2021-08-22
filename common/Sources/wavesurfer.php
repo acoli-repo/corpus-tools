@@ -10,7 +10,7 @@
 		<h1>".$ttxml->title()."</h1>";
 	// $maintext .= $ttxml->tableheader();
 	
-	$utttag = $settings['xmlfile']['defaults']['speechturn'] or $utttag = strtoupper($_GET["utt"]) or $utttag = "U"; // Make it possible to use <p> instead of <u>
+	$utttag = strtoupper($_GET["utt"]) or $utttag = $settings['xmlfile']['defaults']['speechturn'] or $utttag = "U"; // Make it possible to use <p> instead of <u>
  	$tmp = "//".strtolower($utttag)."[not(@id)]"; // print $tmp; exit;
 	if ( $username && $ttxml->xml->xpath($tmp) ) {
 		$maintext .= "<p class=wrong>The waveform function will not work properly since the XML file has not been (properly) numbered -
