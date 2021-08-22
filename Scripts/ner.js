@@ -254,12 +254,12 @@ function getlang ( node, type ) {
 
 function treattag ( elm, label, type ) {
 	tag = elm.getAttribute(label);
+	tag = tag.split(':').pop(); // Kill the namespace if there is any
 	if ( !tag ) { return ''; };
 	var tagset = document.getElementById('tagset');
 	if ( tagset ) {
 		// Show the main pos name of a position-based tagset
 		var mainpos = tag.substring(0,1); 
-		mainpos = mainpos.split(':').pop(); // Kill the namespace if there is any
 		var xpath = "//item[@key='"+mainpos+"' and @maintag]"
 		var tmp = document.evaluate(xpath, tagset, null, XPathResult.ANY_TYPE, null); 
 		var tagdef = tmp.iterateNext();
@@ -312,7 +312,7 @@ function treattag ( elm, label, type ) {
 						};
 					};
 				};
-				var fulltext = maintext + ' (' + tag+ ')' + '<br>' + mfs;
+				var fulltext = maintext + ' (' + tag + ')' + '<br>' + mfs;
 				return fulltext;				
 			} else {
 				return maintext;
