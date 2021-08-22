@@ -528,7 +528,8 @@ class TTXML
 	function page ( $pagid = "" ) {
 		global $action; global $settings; global $pbtype;
 		
-		$editxml = $this->rawtext;
+		# $editxml = $this->rawtext; # We might have white-trimmed the XML
+		$editxml = $this->xml->asXML();
 	
 		# Return the xml for a page (or other element) of the text
 		
