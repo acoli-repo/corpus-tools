@@ -44,6 +44,7 @@
 				foreach ( $nodelist as $node ) {
 					$nerid = $node[$val['nerid']];
 					$name = $node->asXML() or $name = $nerid;
+					if ( $settings['xmlfile']['nospace'] ) $name = $name = preg_replace("/<\/tok>/", " ", $name);
 					$name = preg_replace("/<[^>]+>/", "", $name);
 					$idnames[$nerid.""][$name.""]++;
 					$idcnt[$nerid.""]++;
