@@ -19,13 +19,16 @@ var zoom = 100;
 var loaded = false;
 var pointa = 0;
 var pointe = 0;
-var utttag = "U";
 var currregion;
 var editmode;
 var downpoint;
 var downtype;
 var lastdown;
 var modified = false;
+
+if ( typeof(utttag) == "undefined" ) { // use utttag where predefined
+	var utttag = "U";
+};
 
 var uttxp = "//" + utttag;
 
