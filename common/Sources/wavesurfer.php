@@ -164,7 +164,7 @@
 		};
 	
 		if ( $settings['defaults']['media']['skipempty'] ) {
-			$jmpbuts .= "<p><a onclick='jumpinit();'><i class=\"material-icons\">play_arrow</i> {%play from start of transcription}</a>
+			$jmpbuts .= "<p><a onclick='jumpinit();'><i class=\"material-icons\" style='font-size: 18px; vertical-align:middle;'>play_arrow</i> {%play from start of transcription}</a>
 			<script language=Javascript>
 				function jumpinit( an='start' ) {
 					var first = getElementByXpath(\"//*[@start]/@start\");
