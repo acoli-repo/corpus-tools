@@ -363,6 +363,8 @@
 
 		$maintext .= "<h2>{%$viewname}</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();
+		$editxml = $ttxml->asXML();
+		$maintext .= $ttxml->pagenav;
 
 		if ( $username ) {
 			$optlist = "";
@@ -382,7 +384,7 @@
 				</table>
 				</form></div>
 				";
-			$maintext .= "<div id=mtxt onmouseup='makespan(event);'>".$ttxml->asXML()."</div>";
+			$maintext .= "<div id=mtxt onmouseup='makespan(event);'>$editxml</div>";
 		} else  $maintext .= "<div id=mtxt>".$ttxml->asXML()."</div>";
 		
 		$maintext .= "<hr>".$ttxml->viewswitch();
