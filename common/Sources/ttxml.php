@@ -70,7 +70,7 @@ class TTXML
 		};
 			
 		libxml_use_internal_errors(true);
-		if ( $settings['xmlfile']['nospace'] == "1" || preg_match("/<text[^>]+xml:space=\"remove\"/", $rawtext) ) {
+		if ( $settings['xmlfile']['nospace'] || preg_match("/<text[^>]+xml:space=\"remove\"/", $rawtext) ) {
 			$this->xml = simplexml_load_string($this->rawtext, null, LIBXML_NOBLANKS);
 		} else {
 			$this->xml = simplexml_load_string($this->rawtext);

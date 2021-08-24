@@ -320,6 +320,7 @@
 	} else if ( $act == "snippet" ) {
 	
 		$nerid = preg_replace("/.*#/", "", $_GET['nerid']);
+
 		if ( $nerxml ) {
 			$nernode = current($nerxml->xpath(".//*[@id=\"$nerid\"]"));
 			if ( $nernode ) {
@@ -340,7 +341,11 @@
 				$snippetxml = current($nernode->xpath(".//$snippetelm"));
 				if ( $snippetxml ) $snippettxt .= "<tr><td colspan=2>".$snippetxml->asXML()."</td></tr>";
 				$snippettxt .= "</table>";
+			} else {
+				print "<!-- Node $nerid not found -->";
 			};
+		} else {
+			print "<!-- Error loading NER -->";
 		};
 	
 		if ( $snippettxt && $snippettxt != "<table></table>" ) print i18n($snippettxt);
