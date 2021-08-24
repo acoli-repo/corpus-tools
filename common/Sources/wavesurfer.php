@@ -164,8 +164,14 @@
 		};
 	
 		if ( $settings['defaults']['media']['skipempty'] ) {
-			$jmpbuts .= "<p><a onclick='jumpinit();'><i class=\"material-icons\" style='font-size: 18px; vertical-align:middle;'>play_arrow</i> {%play from start of transcription}</a>
-			<script language=Javascript>
+			$jmpbuts .= "<p id='tostart' style='display: none;'><a onclick='jumpinit();'><i class=\"material-icons\" style='font-size: 18px; vertical-align:middle;'>play_arrow</i> {%play from start of transcription}</a></p>";
+			$morescript .= "<script language=Javascript>
+				wavesurfer.on('ready', function () {
+					var first = getElementByXpath(\"//*[@start]/@start\");
+					if ( first.value > 1 ) { 
+						document.getElementById('tostart').style.display = 'block';
+					};				
+				});				
 				function jumpinit( an='start' ) {
 					var first = getElementByXpath(\"//*[@start]/@start\");
 					wavesurfer.seekAndCenter(first.value/wavesurfer.getDuration());
@@ -251,7 +257,8 @@
 			$spectjs
 			</script>";
 
-		$maintext .= "<script src=\"$jsurl/wavesurfer.js\"></script>";
+		$maintext .= "<script src=\"$jsurl/wavesurfer.js\"></script>
+			$morescript";
 	};
 	
 ?>
