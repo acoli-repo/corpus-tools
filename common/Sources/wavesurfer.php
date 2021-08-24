@@ -165,10 +165,11 @@
 	
 		if ( $settings['defaults']['media']['skipempty'] ) {
 			$jmpbuts .= "<p id='tostart' style='display: none;'><a onclick='jumpinit();'><i class=\"material-icons\" style='font-size: 18px; vertical-align:middle;'>play_arrow</i> {%play from start of transcription}</a></p>";
+			$mintime = $settings['defaults']['media']['skipempty'] * 1;
 			$morescript .= "<script language=Javascript>
 				wavesurfer.on('ready', function () {
 					var first = getElementByXpath(\"//*[@start]/@start\");
-					if ( first.value > 1 ) { 
+					if ( first.value > $mintime ) { 
 						document.getElementById('tostart').style.display = 'block';
 					};				
 				});				
