@@ -164,7 +164,7 @@
 		};
 	
 		if ( $settings['defaults']['media']['skipempty'] ) {
-			$jmpbuts .= "<p><a onclick='jumpinit();'>{%play from start of transcription}</a>
+			$jmpbuts .= "<p><a onclick='jumpinit();'><i class=\"fas fa-play\"></i> {%play from start of transcription}</a>
 			<script language=Javascript>
 				function jumpinit( an='start' ) {
 					var first = getElementByXpath(\"//*[@start]/@start\");
