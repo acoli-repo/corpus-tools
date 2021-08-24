@@ -163,11 +163,31 @@
 
 		};
 	
+		if ( $settings['defaults']['media']['skipempty'] ) {
+			$jmpbuts .= "<p><a onclick='jumpinit();'>{%play from start of transcription}</a>
+			<script language=Javascript>
+				function jumpinit( an='start' ) {
+					var first = getElementByXpath(\"//*[@start]/@start\");
+					wavesurfer.seekAndCenter(first.value/wavesurfer.getDuration());
+					if ( an == 'start' ) {
+						wavesurfer.play();
+					} else {
+						wavesurfer.pause();		
+					};
+				};
+				function getElementByXpath(path) {
+				  return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+				}
+			</script>";
+		};
+	
 		$maintext .= "<hr>
 			
 			$pagenav
+			
 			<div id='fullmtxt' style='visibility: hidden;'>
 			<!-- $editmsg -->
+			$jmpbuts
 			<div $editable id=mtxt style='margin-top: 20px; height: 0; overflow: scroll;'>$editxml</div>
 			$editbuts
 			</div>
