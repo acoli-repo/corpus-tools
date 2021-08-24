@@ -1,8 +1,6 @@
 <?php
 
 	require("$ttroot/common/Sources/ttxml.php");
-	$ttxml = new TTXML();
-	$fileid = $ttxml->fileid;
 	
 	# Determine if we need to cut out part of the text based on audio
 	if ( $settings['defaults']['media']['type'] == "inline" ) {
@@ -13,9 +11,14 @@
 			"custom" => 1,
 			"i18n" => 1,
 		);
+		if ( $_GET['pageid'] && strpos($_SERVER['HTTP_REFERER'], 'action=wavesurfer') == false )
+			unset($_GET['pageid']);
 	} else {
 		unset($settings['xmlfiles']['paged']);
 	};
+
+	$ttxml = new TTXML("", false);
+	$fileid = $ttxml->fileid;
 	
 	$editxml = $ttxml->asXML();
 	

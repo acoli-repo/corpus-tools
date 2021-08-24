@@ -624,7 +624,7 @@ class TTXML
 			$pidx = $matches[0][1];
 		};
 		if ( !$pidx || $pidx == -1 ) { 
-			if ( $pagid ) 
+			if ( $pagid && $fatal ) 
 				fatal ("No such $pbelm in XML: $pagid"); 
 			else {
 				# There are no such elements in the document
