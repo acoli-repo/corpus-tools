@@ -24,7 +24,14 @@ for ( var i=0; i<Object.keys(nerlist).length; i++) {
 	nercolor = nerlist[tmp]['color']; if ( !nercolor ) { nercolor = 'green'; };
 	for ( var a = 0; a<its.length; a++ ) {
 		var it = its[a];	
-		it.style.color = nercolor;
+		var itcolor = nercolor;
+		if ( nerlist[tmp]['subtypes'] ) {
+			var subt = it.getAttribute(nerlist[tmp]['subtypes']['fld']);
+			if ( nerlist[tmp]['subtypes'][subt] && nerlist[tmp]['subtypes'][subt]['color'] ) {
+				itcolor = nerlist[tmp]['subtypes'][subt]['color'];
+			};
+		};
+		it.style.color = itcolor;
 		// it.style['font-weight'] = 'bold';
 		it.onclick = function(event) {
 			doclick(this);
@@ -69,7 +76,7 @@ if ( !tokinfo ) { return -1; };
 var nertype = nerlist[showelement.nodeName.toLowerCase()];
 
 nername = showelement.nodeName; 
-if ( nertype ) nername =  nertype['display'];
+if ( nertype && nertype['display'] ) nername =  nertype['display'];
 if ( typeof(lemmafld) == 'undefined'  ) var lemmafld = 'form';
 var nervalue = showelement.getAttribute(lemmafld);
 if ( !nervalue ) nervalue = showelement.innerHTML;
@@ -83,7 +90,7 @@ if ( showelement.getAttribute(subtypef) ) {
 	typetext = typetext.split(':').pop(); // Kill the namespace if there is any
 	if ( typeof(attnames) != 'undefined' && attnames[typetext] ) { typetext = 	attnames[typetext]; }
 	else 
-	  if ( nertype.subtypes && nertype.subtypes[typetext] ) { typetext = nertype.subtypes[typetext]['display']; }
+	  if ( nertype.subtypes && nertype.subtypes[typetext] && nertype.subtypes[typetext]['display'] ) { typetext = nertype.subtypes[typetext]['display']; }
 	else 
 	  if ( document.getElementById('tagset') ) { typetext = treattag(showelement, subtypef, 'full'); }
 	infoHTML += '<tr><th>' + subtyped + '</th><td>'+ typetext +'</td></tr>';
