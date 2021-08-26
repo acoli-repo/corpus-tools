@@ -16,6 +16,8 @@
 			$did = $dict['key'];
 		};
 		$dictfile = $dict['filename'];
+	} else if ( $username ) {
+		 $act = "newdict";
 	} else {
 		 $dictfile = "dict.xml";
 	};
