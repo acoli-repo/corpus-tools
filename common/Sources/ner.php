@@ -440,7 +440,7 @@
 		if ( $subdisplay ) $maintext .= "<p>Subtype: <b>$subdisplay</b>";
 	
 		if ( $nernode ) {
-			$descflds = array ("note", "desc", "head", "label");
+			$descflds = $nerlist[$type]['descflds'] or $descflds = array ("note", "desc", "head", "label");
 			# $maintext .= "<div>".htmlentitieS($nernode->asXML())."</div>";
 			$maintext .= "<table>";
 			foreach ( $nernode->children() as $childnode ) {

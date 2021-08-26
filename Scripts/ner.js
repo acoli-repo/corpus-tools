@@ -76,6 +76,8 @@ if ( !nervalue ) nervalue = showelement.innerHTML;
 infoHTML = '<table><tr><th>' + nername + '</th><td><b>'+ nervalue +'</b></td></tr>';
 var subtypef = 'type';
 if ( nertype.subtypes && nertype.subtypes.fld ) subtypef = nertype.subtypes.fld;
+var subtyped = 'type';
+if ( nertype.subtypes && nertype.subtypes.display ) subtyped = nertype.subtypes.display;
 if ( showelement.getAttribute(subtypef) ) {
 	var typetext = showelement.getAttribute(subtypef) + '';
 	typetext = typetext.split(':').pop(); // Kill the namespace if there is any
@@ -84,7 +86,7 @@ if ( showelement.getAttribute(subtypef) ) {
 	  if ( nertype.subtypes && nertype.subtypes[typetext] ) { typetext = nertype.subtypes[typetext]['display']; }
 	else 
 	  if ( document.getElementById('tagset') ) { typetext = treattag(showelement, subtypef, 'full'); }
-	infoHTML += '<tr><th>' + 'Type' + '</th><td>'+ typetext +'</td></tr>';
+	infoHTML += '<tr><th>' + subtyped + '</th><td>'+ typetext +'</td></tr>';
 };
 
 tokinfo.style.display = 'block';
