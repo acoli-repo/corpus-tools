@@ -88,11 +88,12 @@
 		$guessroot = $settings['defaults']['apacheroot'] or $guessroot = preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']);
 		
 		$tmp = scandir($guessroot);
+		$rootbase = str_replace($_SERVER['DOCUMENT_ROOT'], "", $guessroot);
 		foreach ( $tmp as $fl ) {
 			if ( is_dir("$guessroot/$fl") && substr($fl, 0, 1) != "." && file_exists("$guessroot/$fl/Resources/settings.xml") ) {
 				$xtmp = simplexml_load_file("$guessroot/$fl/Resources/settings.xml");
 				$prtit = current($xtmp->xpath("//defaults/title"));
-				if ( $prtit['display'] ) $maintext .= "<tr><td><a href='$fl/index.php'>$fl</a><td>{$prtit['display']}";
+				if ( $prtit['display'] ) $maintext .= "<tr><td><a href='$rootbase/$fl/index.php'>$fl</a><td>{$prtit['display']}";
 			};
 		};
 		$maintext .= "</table>";
