@@ -44,7 +44,7 @@
 	}; 
 
 	if ( $act == "newdict" ) {
-		
+				
 		$maintext .= "<h1>Create new dictionary</h1>
 			
 			<style>.obl { color: #992200; }</style>	
@@ -52,6 +52,7 @@
 				There data for the dictionary are stored in the settings - more data about the dictionary can later be added in the meta_info section.</p>
 
 			<p><form method=post action='index.php?action=adminsettings&act=makeitem'>
+			<input name=force value='1' type=hidden>
 			<input name=xpath value='/ttsettings/xdxf' type=hidden>
 			<input name=goto value='index.php?action=$action&did={#key}' type=hidden>
 			<table>

@@ -290,8 +290,23 @@
 	} else if ( $act == "makeitem" ) {
 
 		$tmp = $settingsxml->xpath($_POST['xpath']); $valnode = $tmp[0];
-		if ( !$tmp ) fatal("No such section: {$_POST['xpath']}");
+		if ( !$tmp && $_POST['force'] ) {
+			$dom = dom_import_simplexml($settingsxml)->ownerDocument; #->ownerDocument		
+			createnode($dom, $_POST['xpath']); 	
+			# Add the ection
+			# Save a backup copy
+			$date = date("Ymd"); 
+			$buname = "settings-$date.xml";
+			if ( !file_exists("backups/$buname") ) {
+				copy ( "Resources/settings.xml", "backups/$buname");
+			};
+			# Now save the actual file
+			file_put_contents("Resources/settings.xml", $settingsxml->asXML());
 
+			$tmp = $settingsxml->xpath($_POST['xpath']); $valnode = $tmp[0];
+		};
+		if ( !$tmp ) fatal("No such section: {$_POST['xpath']}");
+		
 		# Create the section
 		if ( !$_POST['flds']['key'] ) fatal("No ID given"); 
 		foreach ( $valnode->xpath("./item") as $tmp ) { if ( $tmp['key'] == $_POST['flds']['key'] ) fatal("ID {$_POST['flds']['key']} already exists");  };
