@@ -76,7 +76,7 @@
 		};	
 
 		if ( $username  ) {
-			$maintext .= "<hr><p>
+			$maintext .= "<hr><p class=adminpart>
 				<a href='index.php?action=$action&act=newdict'>add new dictionary</a>
 				";
 		};

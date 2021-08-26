@@ -80,6 +80,22 @@
 		print "<p>Project created, redirecting to probable project.
 			<script language=Javascript>top.location='$newurl'</script>";
 		exit;
+
+	
+	} else if ( $act == "list" ) {
+	
+		$maintext .= "<h1>Local Project List</h1><table>";
+		$guessroot = $settings['defaults']['apacheroot'] or $guessroot = preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']);
+		
+		$tmp = scandir($guessroot);
+		foreach ( $tmp as $fl ) {
+			if ( is_dir("$guessroot/$fl") && substr($fl, 0, 1) != "." && file_exists("$guessroot/$fl/Resources/settings.xml") ) {
+				$xtmp = simplexml_load_file("$guessroot/$fl/Resources/settings.xml");
+				$prtit = current($xtmp->xpath("//defaults/title"));
+				if ( $prtit['display'] ) $maintext .= "<tr><td><a href='$fl/index.php'>$fl</a><td>{$prtit['display']}";
+			};
+		};
+		$maintext .= "</table>";
 	
 	} else if ( $act == "newproject" ) {
 	
@@ -234,6 +250,7 @@
 			<ul>";
 			
 		$maintext .= "<li><a href='index.php?action=$action&act=configcheck'>Check server configuration</a>";
+		$maintext .= "<li><a href='index.php?action=$action&act=list'>List local projects</a>";
 		$maintext .= "<li><a href='index.php?action=$action&act=newproject'>Create new project</a>";
 
 		# Display the TEITOK version
