@@ -16,7 +16,7 @@
 #include "functions.hpp"
 
 // This is a version of NeoTag that tags directly in XML
-// Designed within the TEITOK frameword: http://teitok.corpuwiki.org
+// Designed within the TEITOK frameword: http://www.teitok.org
 // (c) Maarten Janssen, 2015
 
 using namespace std;
@@ -580,11 +580,11 @@ string applylemrule ( string word, string rule ) {
 		prefix = prefix + lemtr[0]; lemtr.erase(0,1); 
 		if ( debug > 4 ) { cout << "  - added: " << prefix << ", " << lemtr << endl; };
 	};
-	while ( lemtr[lemtr.size()-1] != '*'  && lemtr.size() > 0 ) {
+	while ( lemtr != "" && lemtr[lemtr.size()-1] != '*'  && lemtr.size() > 0 ) {
 		suffix = lemtr[lemtr.size()-1] + suffix; lemtr.erase(lemtr.size()-1,1); 
 		if ( debug > 4 ) { cout << "  - added: " << suffix << ", " << lemtr << endl; };
 	};
-	while ( wrdtr[0] != '*' && root.size() > 0 ) {
+	while ( wrdtr[0] != '*' && !root.empty() ) {
 		if ( root[0] != wrdtr[0] ) { 
 			if ( debug > 4 ) { cout << "  - not applicable: " << root[0] << ", " << wrdtr[0] << endl; };
 			return ""; 
@@ -604,7 +604,7 @@ string applylemrule ( string word, string rule ) {
 			wrdtr.erase(wrdtr.size()-1,1); root.erase(wrdidx,1); 
 			if ( debug > 4 ) { cout << "  - removed: " << root << ", " << wrdtr << endl; };
 			// if we have a character in the replacement as well, insert that here
-			while ( lemtr[lemtr.size()-1] != '*' && lemtr.size() > 0 ) {
+			while ( lemtr != "" && lemtr[lemtr.size()-1] != '*' && lemtr.size() > 0 ) {
 				root.insert(wrdidx,lemtr,lemtr.size()-1,1);
 				lemtr.erase(lemtr.size()-1,1);
 			};
@@ -613,7 +613,7 @@ string applylemrule ( string word, string rule ) {
 		if ( wrdtr[wrdtr.size()-1] == '*' ) { 
 			wrdtr.erase(wrdtr.size()-1,1);
 		};
-		if ( lemtr[lemtr.size()-1] == '*' ) { 
+		if ( lemtr != "" && lemtr[lemtr.size()-1] == '*' ) { 
 			lemtr.erase(lemtr.size()-1,1);
 		};
 		if ( wrdtr.size() > 0 ) { 

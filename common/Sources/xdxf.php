@@ -100,9 +100,16 @@
 		if ( $id == "new" ) {
 			# Add the new record after the last entry
 			$newrec = preg_replace ( "/<!--.*?-->/", "", $newrec );
-			$newxml = preg_replace ( "/<\/lexicon>/smi", "\n".$newrec."\n</lexicon>", $file, 1 );
-			$newk = $test->k[0]."";
+			$newitem = simplexml_load_string("$newrec");
+			$newk = $newitem->xpath("//k");
 			if ( !$newk ) { fatal ("No headword given"); };
+			if ( !$newitem ) fatal ("invalid XML in new record");
+			$newdom = dom_import_simplexml($newitem);
+			$lex =  dom_import_simplexml($xml->lexicon);
+			if ( !$lex ) fatal ("no lexicon in XDXF");
+			$newdom  = $lex->ownerDocument->importNode($newdom, TRUE);
+			$lex->appendChild($newdom);
+			$newxml = $xml->asXML();
 		} else if ( $id == "meta_info" ) {
 			# Add the new record after the last entry
 			$newxml = $file;
@@ -327,6 +334,8 @@
 		$cssfile = $dict['css'] or $cssfile = "dict.css";
 		if ( file_exists("$xdxfdir/$cssfile") ) {
 			$maintext .= "\n<style type=\"text/css\"> @import url(\"$xdxfdir/$cssfile\"); </style>\n";
+		} else if ( file_exists("$sharedfolder/$xdxfdir/$cssfile") ) {
+			$maintext .= "\n<style type=\"text/css\"> @import url(\"$sharedroot/$xdxfdir/$cssfile\"); </style>\n";
 		} else {
 			$css = file_get_contents("$ttroot/common/$xdxfdir/dict.css");
 			$maintext .= "\n<style>\n$css\n</style>\n";
