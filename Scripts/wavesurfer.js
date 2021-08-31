@@ -523,7 +523,7 @@ function aligntranscription (region, e) {
 		
 	// Highlight the utterance (and unhighlight the previous one)
 	if (lastutt) lastutt.style.backgroundColor = "";
-	selutt.style.backgroundColor = "#ffffcc";
+	selutt.style.backgroundColor = "#ddffdd";
 	lastutt = selutt;
 	
 	// Scroll to the utterance
