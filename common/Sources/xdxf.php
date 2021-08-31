@@ -332,10 +332,12 @@
 	} else {
 		
 		$cssfile = $dict['css'] or $cssfile = "dict.css";
+		$sharedroot = $settings['defaults']['shared']['url'];
 		if ( file_exists("$xdxfdir/$cssfile") ) {
 			$maintext .= "\n<style type=\"text/css\"> @import url(\"$xdxfdir/$cssfile\"); </style>\n";
-		} else if ( file_exists("$sharedfolder/$xdxfdir/$cssfile") ) {
-			$maintext .= "\n<style type=\"text/css\"> @import url(\"$sharedroot/$xdxfdir/$cssfile\"); </style>\n";
+		} else if ( file_exists("$sharedfolder/Resources/$cssfile") ) {
+			$css = file_get_contents("$sharedfolder/Resources/$cssfile");
+			$maintext .= "\n<style>\n$css\n</style>\n";
 		} else {
 			$css = file_get_contents("$ttroot/common/$xdxfdir/dict.css");
 			$maintext .= "\n<style>\n$css\n</style>\n";
