@@ -267,8 +267,8 @@
 						$attit = $atttik[$key];
 						if ( $attit == $settings['defaults']['browser']['title'] ) {
 							$titelm = $fatt;
-							# TODO: This was here for a reason - why did we want to delete this?
-							# unset($fatts[$key]);
+							# TODO: This was here for a reason - why did we want to delete this? Only in facs?
+							if ( $settings['defaults']['browser']['style'] == "facs" ) unset($fatts[$key]);
 						};
 						$tmp = $settings['cqp']['sattributes']['text'][$attit]['type'];
 						if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" || $settings['cqp']['sattributes']['text'][$attit]['translate'] ) {
