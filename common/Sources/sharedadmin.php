@@ -97,6 +97,7 @@
 				if ( $prtit['display'] ) $maintext .= "<tr><td><a href='$rootbase/$fl/index.php'>$fl</a><td>{$prtit['display']}";
 			};
 		};
+		
 		$maintext .= "</table>";
 	
 	} else if ( $act == "newproject" ) {

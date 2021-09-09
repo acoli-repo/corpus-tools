@@ -439,6 +439,22 @@ class TTXML
 			};
 		};
 
+		if ( $page && $settings['xmlfile']['paged']['header'] ) {
+			$pageinfo = "<center><table>";
+			foreach ( $settings['xmlfile']['paged']['header'] as $kk => $vv ) {
+				$vval = $page[$kk];
+				if ( $vv['type'] == "url" ) { 	
+					$vname = $vv['name'] or $vname = $vval; 
+					if ( $vv['url'] ) { 
+						$vurl = str_replace('%%', $vval, $vv['url']); 
+					} else $vurl = $vval;
+					$vval = "<a href='$vurl' target='details'>$vname</a>"; 
+				};
+				if ( $vval ) $pageinfo .= "<tr><th>{$vv['display']}</th><td>$vval</td></tr>";
+			};
+			$pageinfo .= "</table></center>";
+		};
+
 		# Build the page navigation
 		if ( $hasnav ) $this->pagenav = "
 						$tocnav
@@ -447,6 +463,7 @@ class TTXML
 						<td style='width: 33%' align=center>$foliotxt $folionr
 						<td style='width: 33%' align=right>$nnav
 						</table>
+						$pageinfo
 						<hr> 
 						";
 	
