@@ -387,7 +387,8 @@ void treatfile ( string filename ) {
 				string external = formfld.attribute("external").value();
 				string xpath = formfld.attribute("xpath").value();
 				if ( xpath != "" ) {
-					pugi::xpath_node xres;
+					pugi::xpath_node_set xres;
+					pugi::xpath_node xresi;
 					if ( external != "" ) {
 						string exfile = "";
 						if ( external.find("#") == string::npos && external.substr(0,1) != "/" && external.substr(0,1) != "." ) { external = "#" + external; }; // For "incorrect" IDs
@@ -420,11 +421,11 @@ void treatfile ( string filename ) {
 									} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
 									if ( debug > 2 ) { exnode.print(cout); };
 									if ( exnode ) {
-										xres = exnode.select_node(xpath.c_str());
+										xres = exnode.select_nodes(xpath.c_str());
 									};
 								} else {
 									try {
-										xres = externals[exfile]->first_child().select_node(xpath.c_str());
+										xres = externals[exfile]->first_child().select_nodes(xpath.c_str());
 									} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
 								};
 							};
@@ -438,27 +439,37 @@ void treatfile ( string filename ) {
 							} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
 							if ( debug > 2 ) { exnode.print(cout); };
 							if ( exnode ) {
-								xres = exnode.select_node(xpath.c_str());
+								xres = exnode.select_nodes(xpath.c_str());
 							};
 						};
 					} else {
-						 xres = doc.select_node(xpath.c_str());
+						 xres = doc.select_nodes(xpath.c_str());
 					};
-					if ( xres.attribute() ) {
-						formval = xres.attribute().value();
-					} else if ( formfld.attribute("xml") ) {
-						string xmltype = formfld.attribute("xml").value();
-						std::ostringstream oss;
-						xres.node().print(oss);
-						if ( xmltype == "raw" ) {
-							formval = oss.str();
-						} else {	
-							// Flatten the content
-							formval = oss.str();
-							formval = preg_replace(formval, "<[^>]+>", "");
+					formval = ""; string valsep = "";
+					// Loop through the values - break after the first unless defined as values="multi"
+					for (pugi::xpath_node_set::const_iterator it = xres.begin(); it != xres.end(); ++it) {
+						xresi = *it; string formival = "";
+						if ( xresi.attribute() ) {
+							formival = xresi.attribute().value();
+						} else if ( formfld.attribute("xml") ) {
+							string xmltype = formfld.attribute("xml").value();
+							std::ostringstream oss;
+							xresi.node().print(oss);
+							if ( xmltype == "raw" ) {
+								formival += oss.str();
+							} else {	
+								// Flatten the content
+								formival = oss.str();
+								formival = preg_replace(formival, "<[^>]+>", "");
+							};
+						} else {
+							formival = xresi.node().child_value();
 						};
-					} else {
-						formval = xres.node().child_value();
+						formval += valsep + formival;
+						string valtype = formfld.attribute("values").value();
+						if ( valtype != "multi" ) { break; };
+						valsep = formfld.attribute("multisep").value();
+						if ( valsep.empty() ) valsep = ",";
 					};
 				};
 

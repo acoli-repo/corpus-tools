@@ -555,7 +555,8 @@ class TTXML
 		
 		# $editxml = $this->rawtext; # We might have white-trimmed the XML
 		$editxml = $this->xml->asXML();
-	
+		$page = current($this->xml->xpath($xp)); 
+
 		# Return the xml for a page (or other element) of the text
 		
 		// Determine what element to use
@@ -716,6 +717,22 @@ class TTXML
 		else if ( $settings['xmlfile']['paged']['display'] ) $foliotxt = $settings['xmlfile']['paged']['display'];
 		else if ( $pbelm == "pb" ) $foliotxt = "Folio";
 		if ( $settings['xmlfile']['paged']['i18n'] ) $foliotxt = "{%$foliotxt}";
+
+		if ( $page && $settings['xmlfile']['paged']['header'] ) {
+			$pageinfo = "<center><table>";
+			foreach ( $settings['xmlfile']['paged']['header'] as $kk => $vv ) {
+				$vval = $page[$kk];
+				if ( $vv['type'] == "url" ) { 	
+					$vname = $vv['name'] or $vname = $vval; 
+					if ( $vv['url'] ) { 
+						$vurl = str_replace('%%', $vval, $vv['url']); 
+					} else $vurl = $vval;
+					$vval = "<a href='$vurl' target='details'>$vname</a>"; 
+				};
+				if ( $vval ) $pageinfo .= "<tr><th>{$vv['display']}</th><td>$vval</td></tr>";
+			};
+			$pageinfo .= "</table></center>";
+		};
 				
 		# Build the page navigation
 		$this->pagenav = "<table style='width: 100%'><tr> <!-- /<$pbelm [^>]*id=\"$pagid\"[^>]*n=\"(.*?)\"/ -->
@@ -723,6 +740,7 @@ class TTXML
 						<td style='width: 33%' align=center>$foliotxt $folionr
 						<td style='width: 33%' align=right>$nnav
 						</table>
+						$pageinfo
 						<hr> 
 						";
 
