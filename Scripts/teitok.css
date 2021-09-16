@@ -137,6 +137,7 @@ anon::after { content: ']'; }
 	margin-bottom: 5px;
 	font-weight: bold;
 }
+#footnotediv label { color: #88aa88; font-style: italic; display: inline-block; margin: 0; padding-right: 10px; }
 
 app:hover { background-color: #ffee00; }
 
