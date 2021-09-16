@@ -211,10 +211,10 @@ function formify () {
 			var it = its[a];  
 			if ( typeof(it) != 'object' ) { continue; };
 			var notenr = it.getAttribute('n');
-			if (!notenr) { notenr = notecnt; notecnt++; };
+			if (!notenr) { notenr = '['+notecnt+']'; notecnt++; };
 			var noteid = it.getAttribute('id');
 			if ( !footnotes[noteid] ) { footnotes[noteid] = it.innerHTML; };
-			it.innerHTML = '['+notenr+']';
+			it.innerHTML = notenr;
 			it.style.display = 'inline';
 			// Make this node roll-over
 			it.onmouseover = function() { shownote(this.getAttribute('id')); };
