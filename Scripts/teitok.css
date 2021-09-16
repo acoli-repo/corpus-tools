@@ -120,6 +120,8 @@ anon::after { content: ']'; }
 	border: 1px solid #ffddaa;
 }
 
+#mtxt note { color: #0000aa; display: none; font-size: 10pt; vertical-align: super; }
+#mtxt note[type=app] { color: #00aa00; }
 #footnotediv {
     z-index: 50;
     width: 400px;
