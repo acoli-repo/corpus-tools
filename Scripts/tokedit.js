@@ -172,14 +172,46 @@ function formify () {
 			it.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
 	};
 
+	// create notes for APP systems
+	if ( typeof(apptype) == "undefined" || apptype != "hide" ) {
+		var its = mtxt.getElementsByTagName("app");
+		for ( var a = 0; a<its.length; a++ ) {
+			var it = its[a];  
+			if ( typeof(it) != 'object' ) { continue; };
+			var itid = it.getAttribute('id');
+				var newHTML = '<p class="title">Apparatus</p>';
+				var lem = it.getElementsByTagName("lem").item(0);
+				if ( !lem ) { continue; };
+				var apptab;
+				// Add the lemma
+				if ( lem ) {
+					apptab = '<tr><th><b>' + lem.getAttribute('wit') + '</b></th><td>' + lem.innerHTML + '</td></th>'
+				};
+				var rdgs = it.getElementsByTagName("rdg");
+				for ( var b = 0; b<rdgs.length; b++ ) {
+					var it2 = rdgs[b];
+					it2.style.display='none';
+					apptab += '<tr><th>' + it2.getAttribute('wit') + '</th><td>' + it2.innerHTML + '</td></th>'
+				};
+				if ( apptab ) { newHTML += '<table>'+apptab+'</table>'; };
+				appelm = document.createElement("note");
+				var tmp = it.appendChild( appelm );
+				appelm.setAttribute('id', itid);
+				appelm.setAttribute('n', 'app');
+				appelm.innerHTML = newHTML;
+				appelm.style.display = 'inline';
+		};
+	};
+
 	// Make <note> into roll-over numbers (optional, can be turned off)
+	var notecnt = 1;
 	if ( typeof(floatnotes) != "undefined" && floatnotes ) {
 		var its = mtxt.getElementsByTagName("note");
 		for ( var a = 0; a<its.length; a++ ) {
 			var it = its[a];  
 			if ( typeof(it) != 'object' ) { continue; };
 			var notenr = it.getAttribute('n');
-			if (!notenr) { notenr = parseInt(a)+1; };
+			if (!notenr) { notenr = notecnt; notecnt++; };
 			var noteid = it.getAttribute('id');
 			if ( !footnotes[noteid] ) { footnotes[noteid] = it.innerHTML; };
 			it.innerHTML = '['+notenr+']';
@@ -192,23 +224,7 @@ function formify () {
 		};
 	};
 
-	var its = mtxt.getElementsByTagName("app");
-	for ( var a = 0; a<its.length; a++ ) {
-		var it = its[a];  
-		if ( typeof(it) != 'object' ) { continue; };
-		var itnr = it.getAttribute('n');
-		if (!itnr) { itnr = parseInt(a)+1; };
-		var itid = it.getAttribute('id');
-		if ( !footnotes[itid] ) { footnotes[itid] = it.innerHTML; };
-		it.innerHTML = '['+itnr+']';
-		it.style.display = 'inline';
-		// Make this node roll-over
-		it.onmouseover = function() { shownote(this.getAttribute('id')); };
-		it.onmouseout = function() { hidenote(); };
-		// if ( it.getAttribute('id') && username != '' )
-		//	it.onclick = function() { window.open('index.php?action=noteedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
-	};
-	
+		
 	var its = mtxt.getElementsByTagName("deco");
 	for ( var a = 0; a<its.length; a++ ) {
 		var it = its[a];

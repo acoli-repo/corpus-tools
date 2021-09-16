@@ -17,7 +17,8 @@ $scriptname = $0;
             'debug' => \$debug, # debugging mode
             'force' => \$force, # tag even if already tagged
             'test' => \$test, # tokenize to string, do not change the database
-            'keepns' => \$test, # do not kill the xmlns
+            'keepns' => \$keepns, # do not kill the xmlns
+            'nobu' => \$nobu, # do not kill the xmlns
             'linebreaks' => \$linebreaks, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
             'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
@@ -134,7 +135,7 @@ $tagtxt = decode_entities($tagtxt);
 # Take them out and put them back later
 # TODO: this goes wrong with nested notes (which apt. are allowed in TEI)
 $notecnt = 0;
-while ( $tagtxt =~ /<(note|desc|gap|pb|fw|app)[^>]*(?<!\/)>.*?<\/\1>/gsmi )  {
+while ( $tagtxt =~ /<(note|desc|gap|pb|fw|rdg)[^>]*(?<!\/)>.*?<\/\1>/gsmi )  {
 	$notetxt = $&; $leftc = $`;
 	$notes[$notecnt] = $notetxt; $newtxt = substr($leftc, -50).'#'.$notetxt;
 	if ( $oldtxt eq $newtxt ) { 
@@ -578,12 +579,14 @@ if ( $test ) {
 } else {
 
 	# Make a backup of the file
-	( $buname = $filename ) =~ s/xmlfiles.*\//backups\//;
-	$date = strftime "%Y%m%d", localtime; 
-	$buname =~ s/\.xml/-$date.nt.xml/;
-	$cmd = "/bin/cp $filename $buname";
-	`$cmd`;
-
+	if ( !$nobu ) {
+		( $buname = $filename ) =~ s/xmlfiles.*\//backups\//;
+		$date = strftime "%Y%m%d", localtime; 
+		$buname =~ s/\.xml/-$date.nt.xml/;
+		$cmd = "/bin/cp $filename $buname";
+		`$cmd`;
+	};
+	
 	open FILE, ">$filename";
 	print FILE $xmlfile;
 	close FILE;

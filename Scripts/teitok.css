@@ -119,6 +119,13 @@ anon::after { content: ']'; }
 	background-color: #ffffee; 
 	border: 1px solid #ffddaa;
 }
+#footnotediv p.title {
+	font-size: normal;
+	margin: 0px;
+	margin-bottom: 5px;
+	font-weight: bold;
+}
+app:hover { background-color: #ffee00; }
 
 #facstable {
 	border-collapse: separate;

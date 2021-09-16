@@ -17,9 +17,9 @@
 
 		$xml = simplexml_load_string($file);
 
-		$result = $xml->xpath("//note[@id='$tokid']"); 
+		$result = $xml->xpath("//note[@id='$tokid'] | //app[@id='$tokid']"); 
 		$token = $result[0]; # print_r($token); exit;
-		if ( !$token ) { print "Note not found: $tokid<hr>"; print $file; exit; };
+		if ( !$token ) { print "Note/app not found: $tokid<hr>"; print $file; exit; };
 
 	if ( $_POST['innerxml'] ) {
 	
