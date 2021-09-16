@@ -197,6 +197,7 @@ function formify () {
 				appelm = document.createElement("note");
 				var tmp = it.appendChild( appelm );
 				appelm.setAttribute('id', itid);
+				appelm.setAttribute('type', 'app');
 				appelm.setAttribute('n', 'app');
 				appelm.innerHTML = newHTML;
 				appelm.style.display = 'inline';
