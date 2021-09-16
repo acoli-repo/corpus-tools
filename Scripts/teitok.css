@@ -119,12 +119,23 @@ anon::after { content: ']'; }
 	background-color: #ffffee; 
 	border: 1px solid #ffddaa;
 }
+
+#footnotediv {
+    z-index: 50;
+    width: 400px;
+    position: fixed; 
+    top: 10px; right: 10px; 
+    border: 1px solid #cccccc;
+    padding: 20px;
+    background-color: #eeffee;
+}
 #footnotediv p.title {
 	font-size: normal;
 	margin: 0px;
 	margin-bottom: 5px;
 	font-weight: bold;
 }
+
 app:hover { background-color: #ffee00; }
 
 #facstable {
