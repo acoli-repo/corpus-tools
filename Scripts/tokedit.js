@@ -181,17 +181,23 @@ function formify () {
 			var itid = it.getAttribute('id');
 				var newHTML = '<p class="title">Apparatus</p>';
 				var lem = it.getElementsByTagName("lem").item(0);
-				if ( !lem ) { continue; };
-				var apptab;
+				var rdgs = it.getElementsByTagName("rdg");
+				if ( !rdgs.length ) { continue; };
+				var apptab = '';
 				// Add the lemma
 				if ( lem ) {
-					apptab = '<tr><th><b>' + lem.getAttribute('wit') + '</b></th><td>' + lem.innerHTML + '</td></th>'
+					var witname =  '';
+					var witsrc = lem.getAttribute('wit'); if ( witsrc ) { witname += witsrc; } else { witname = '[Lem]'; };
+					apptab = '<tr><th><b>' + witname + '</b></th><td>' + lem.innerHTML + '</td></th>'
 				};
-				var rdgs = it.getElementsByTagName("rdg");
 				for ( var b = 0; b<rdgs.length; b++ ) {
 					var it2 = rdgs[b];
 					it2.style.display='none';
-					apptab += '<tr><th>' + it2.getAttribute('wit') + '</th><td>' + it2.innerHTML + '</td></th>'
+					var witname =  '';
+					var witsrc = it2.getAttribute('wit'); if ( witsrc ) { witname += witsrc; };
+					var witsrc = it2.getAttribute('source'); if ( witsrc ) { witname += ' src:' +witsrc; };
+					var witsrc = it2.getAttribute('hand'); if ( witsrc ) { witname += ' hand:' +witsrc; };
+					apptab += '<tr><th>' + witname + '</th><td>' + it2.innerHTML + '</td></th>'
 				};
 				if ( apptab ) { newHTML += '<table>'+apptab+'</table>'; };
 				appelm = document.createElement("note");
