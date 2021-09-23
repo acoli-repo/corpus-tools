@@ -264,11 +264,7 @@
 			
 			function prettify () {
 				var rawxml = editor.getSession().getValue();
-				var pretty = new XmlBeautify().beautify(rawxml, 
-					{
-						indent: \"  \",  //indent pattern like white spaces
-						useSelfClosingElement: true //true:use self-closing element when empty element.
-					});				
+				var pretty = formatXml(rawxml, '\t');
     			editor.getSession().setValue(pretty);
 			};
 			
@@ -285,7 +281,7 @@
 				};						
 			};	
 			</script>
-			<script src=\"https://cdn.jsdelivr.net/npm/xml-beautify@1.1.2/dist/XmlBeautify.js\"></script>
+			<script src=\"https://jsonbrowser.sourceforge.io/formatxml.js\"></script>
 
 		";
 		
