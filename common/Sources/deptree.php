@@ -63,7 +63,7 @@
 			};
 		};
 		$ttxml->save();
-		print "<script>top.location='$baseurl/index.php?action=$action&act=edit&sid=$sid&cid=$ttxml->fileid';</script>";
+		print "<script>top.location='index.php?action=$action&act=edit&sid=$sid&cid=$ttxml->fileid';</script>";
 		exit;		
 
 	} else if ( $act == "conllu" ) {
