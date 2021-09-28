@@ -945,10 +945,16 @@
 	function replacenode ( $oldrec, $newcode ) {
 	
 		# Check if this new person is valid XML
-		$newxr = simplexml_load_string($newcode, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		if ( !$newxr ) fatal ( "XML Error in record. Please go back and make sure to input valid XML<br>".htmlentities($newcode) );
+		$use_errors = libxml_use_internal_errors(true);
+		$newxr = simplexml_load_string($newcode);
+		if ( $newxr === false ) {
+			foreach(libxml_get_errors() as $error) {
+				$errors .= $error->message.";";
+			}
+			fatal ( "XML Error in record. Please go back and make sure to input valid XML<br>".htmlentities($newcode)." $errors");
+		};
 		
-		if ( !$oldrec ) fatal("No record to replace");
+		if ( $oldrec === false ) fatal("No record to replace");
 
 		$domToChange = dom_import_simplexml($oldrec);
 		$domReplace  = dom_import_simplexml($newxr);
