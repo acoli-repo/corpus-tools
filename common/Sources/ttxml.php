@@ -100,6 +100,8 @@ class TTXML
 					<script language=Javascript>top.location='index.php?action=error&msg=$time';</script>";
 				exit;
 			} else fatal ( "An error occurred with this file. We apologize for the inconvenience." ); 
+		} else if ( !$this->xml ) {
+			return;
 		};
 		
 		// See if there is an Audio element in the header

@@ -9,8 +9,11 @@
 	if ( $ttroot == "" ) $ttroot = "..";
 
 	include ( "$ttroot/common/Sources/functions.php" ); # Global functions
+
+	// Load the settings.xml file (via PHP)
+	include("$ttroot/common/Sources/settings.php");
 	
-	if ( isSecure() ) {
+	if ( isSecure() || $settings['defaults']['base']['protocol'] == "https" ) {
 		# TODO : should this not specify HTTPS?
 		header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page! 
 		$hprot = "https";
@@ -21,8 +24,6 @@
 	};
 	session_start();
 
-	// Load the settings.xml file (via PHP)
-	include("$ttroot/common/Sources/settings.php");
 	
 	# Determine the folder to set a folder-specific user cookie
 	$scriptfolder = realpath($_SERVER['SCRIPT_FILENAME']);
