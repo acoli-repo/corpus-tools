@@ -66,6 +66,22 @@
 		print "<script>top.location='index.php?action=$action&act=edit&sid=$sid&cid=$ttxml->fileid';</script>";
 		exit;		
 
+	} else if ( $act == "autofill" ) {
+
+		$sent =	current($ttxml->xml->xpath("//s[@id='$sid']"));
+
+		foreach ( $sent->xpath ($toksel) as $tok ) {
+			
+			if ( $tok['upos'] == "PUNCT" ) $tok['deprel'] = "punct";
+			if ( $tok['upos'] == "DET" ) $tok['deprel'] = "det";
+		
+			print "<p>".htmlentities($tok->asXML());
+		};	 
+		$ttxml->save();
+		print "<p>Autofill completed. Reloading";
+		print "<script>top.location='index.php?action=$action&act=edit&sid=$sid&cid=$ttxml->fileid';</script>";
+		exit;	
+
 	} else if ( $act == "conllu" ) {
 
 		$ccid = $ttxml->xmlid;
@@ -172,7 +188,10 @@
 		$maintext .= $pagenav;
 
 		if ( $username ) {
-			$maintext .= "<p><span id='linktxt'>Click <a href='index.php?action=$action&act=edit&sid=$sid&cid=$cid&view={$treeview}'>here</a> to edit the dependency tree</a></span>";
+			$maintext .= "<p><span id='linktxt'>Click <a href='index.php?action=$action&act=edit&sid=$sid&cid=$cid'>here</a> to edit the dependency tree</a></span>";
+			if ( $act != "edit" && $sent->xpath(".//tok[not(@deprel)]") && $sent->xpath(".//tok[@upos]") ) {
+				$maintext .= " &bull; <a href='index.php?action=$action&act=autofill&sid=$sid&cid=$cid'>Auto-fill</a> obligatory deprel";
+			};
 			if ( $_POST['sent'] ) {
 				$maintext .= " - <span style='color: #cc2000;' onClick=\"document.sentform.action.value = 'save'; scriptedexit=true; document.sentform.submit();\"><b>Click here to save the modified dependencies</b><span>
 <script language=Javascript>
@@ -191,6 +210,9 @@ window.addEventListener(\"beforeunload\", function (e) {
 			$maintext .= "</p><hr>";
 			
 			if ( $act == "edit" ) {
+				if ( !$_GET['view'] ) $_GET['view'] = "tree";
+				if ( !$_GET['hpos'] ) $_GET['hpos'] = "wordorder";
+				if ( !$_GET['punctnsh'] ) $_GET['punctnsh'] = "with";
 				$deptreename = $deplabels['description'] or $deptreename = "Dependency Relations";
 				$labelstxt = "<h2 style=\"margin-top: 0px; margin-bottom: 5px;\">$deptreename</h2><table>";
 				foreach ( $deplabels['labels'] as $key => $val ) {
