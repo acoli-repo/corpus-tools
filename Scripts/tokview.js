@@ -97,7 +97,7 @@ function showtokinfo(evt, element, poselm) {
 			if ( !attname ) { attname = att; };
 			var attdef = false;
 			if ( formdef[att] ) attdef = formdef[att];
-			else if ( typeof(tagdef) != "undefined" && tagdef[att] ) attdef = tagdef[att];
+			else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] ) attdef = tagdef[att];
     		if ( element.getAttribute(att) && attdef && !attdef['noshow'] && ( !attdef['admin'] || username ) ) {
     			shownrows = 1;
     			var rowval = element.getAttribute(att);
