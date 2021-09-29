@@ -107,7 +107,7 @@ function showtokinfo(evt, element, poselm) {
     			if ( atttype == 'pos' ) { rowval = treatpos(element, att, 'full'); }
 	    			else if ( atttype == 'udfeats' ) { rowval = treatfeats(element, att, 'full'); }
 	    			else if ( atttype == 'ref' ) { rowval = treatref(element, att, 'full'); }
-					else if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['options'] ) { rowval = formdef[att]['options'][rowval]['display'] + ' (' + rowval + ')'; }
+					else if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['options'] && formdef[att]['options'][rowval] ) { rowval = formdef[att]['options'][rowval]['display'] + ' (' + rowval + ')'; }
 					else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['options'] && tagdef[att]['options'][rowval] ) { rowval = tagdef[att]['options'][rowval]['display'] + ' (' + rowval + ')';; }; 
 	    		tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + 
 	    			rowval + '</td></tr>';
