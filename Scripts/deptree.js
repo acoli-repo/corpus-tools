@@ -122,8 +122,11 @@ function relink ( clicked ) {
 	} else {
 		
 		var changenode = sentxml.getElementById(selected.getAttribute('tokid'));
-		// Protect against self-linking
-		if ( changenode.getAttribute('tokid')+'' == clicked.getAttribute('tokid')+'' ) { return; };
+		if ( selected.getAttribute('tokid')+'' == clicked.getAttribute('tokid')+'' ) { 
+			document.getElementById('linktxt').innerText = "Self-headedness not allowed";
+			selected = null;
+			return; 
+		};
 		changenode.setAttribute('head', clicked.getAttribute('tokid'));
 		senttxt = new XMLSerializer().serializeToString(sentxml);
 		document.getElementById('sentxml').value = senttxt;
