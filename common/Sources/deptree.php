@@ -74,6 +74,7 @@
 			
 			if ( $tok['upos'] == "PUNCT" ) $tok['deprel'] = "punct";
 			if ( $tok['upos'] == "DET" ) $tok['deprel'] = "det";
+			if ( $tok['upos'] == "AUX" ) $tok['deprel'] = "aux";
 		
 			print "<p>".htmlentities($tok->asXML());
 		};	 
