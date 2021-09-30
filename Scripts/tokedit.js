@@ -576,6 +576,7 @@ function setbd (bd) {
 	basedirection = bd;
 };
 
+var tokarr;
 function setForm ( type ) {
 	if ( type != "" ) { setbut('but-'+type); };
 	document.cookie = 'showform='+type;
@@ -632,77 +633,9 @@ function setForm ( type ) {
 	};
 			
 	var toks = document.getElementsByTagName("tok");
-	for ( var a = 0; a<toks.length; a++ ) {
-		var tok = toks[a];		
-		if ( typeof(tok) != 'object' ) { continue; };
-		if ( showlist == "" ) { tok.className = ''; };
-		var tokid = tok.getAttribute('id');
-		// Lookup the XML version of this node
-		var tokxml = orgtoks[tokid];
-		if ( tokxml == undefined ) { 
-			// We cannot find the orgtok - leave tok in place
-			tokxml = '';
-			console.log('Error: no orgtok found for '+tokid);
-		} else {
-			tok.innerHTML = tokxml;
-		};
-		// if ( showcol ) { tok.style['color'] = '#000000'; };
-		tok.style['color'] = '';
-		opre = "";  opost = "";
-		var patt = new RegExp("<[pcl]b[^>]*>.*?</[pcl]b>", "g");
-		while ( ( match = patt.exec(tokxml) ) != null ) {
-    		opre += match;
-		}
-		patt = new RegExp("<dtok[^>]*></dtok>", "g");
-		while ( ( match = patt.exec(tokxml) ) != null ) {
-    		opre += match;
-		}
-		if ( type != "" && type != "pform" ) { // pform is the innerHTML
-
-			var thisform = forminherit(tok,type);
-			if ( thisform == '--' ) { thisform = "<ee/>"; };
-			if ( thisform.search(/<[pcl]b/) > -1 ) {
-				tok.innerHTML = thisform; // In calculated forms, the breaks might still be inside a non-pform
-			} else if ( thisform != '' ) {
-				// If we cannot find the form (inheritance error?) just do not touch the token
-				tok.innerHTML = opre +  thisform + opost;
-			};						
-		};
-		// If there are any labels to show, do so
-		if ( labels.length && tok.innerHTML != '' ) {
-			tok.className = 'floatblock';
-			for ( var ab = 0; ab<labels.length; ab++ ) {
-				label = labels[ab];
-				var ltxt = tok.getAttribute(label); 
-    			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[label]['type'] == 'pos' ) { ltxt = treatpos(tok, label, 'main'); }; 
-				// Add dtoks to the view
-				var children = tok.childNodes;
-				var done = []; var sep = ""; var dtxt = "";
-				for ( i=0; i<children.length; i++ ) {
-					var child = children[i];
-					if ( child.tagName == "DTOK" && !done[child.getAttribute('id')] ) {
-						if ( child.getAttribute(label) != null ) { 
-							var labtxt;
-			    			if ( tagdef && tagdef[label]['type'] == 'pos' ) { labtxt = treatpos(child, label, 'main'); } else { labtxt = child.getAttribute(label); };
-							dtxt += sep + labtxt; sep = "+"; 
-							done[child.getAttribute('id')] = 1;
-						};
-					};
-				};
-				if ( ltxt != null && ltxt != "" && dtxt != "" && dtxt != null ) { ltxt += ":" + dtxt; };
-				if ( ( ltxt == null || ltxt == "" ) && dtxt != "" && dtxt != null ) { ltxt = dtxt; };
-				if ( pattcolors[label] ) { 
-					lcol = pattcolors[label]; 
-				} else { lcol = "#999999"; };
-				if ( but = document.getElementById('tbt-'+label) ) {
-					ltit = " title=\""+but.textContent+"\"";
-				} else { ltit = ""; };
-				if ( ltxt != "" && ltxt != null ) { tok.innerHTML += "<div style='color: "+lcol+"'"+ltit+">" + ltxt + '</div>'; };
-			};
-		} else {
-			tok.className = '';
-		};
-	};
+	tokarr = Array.prototype.slice.call(toks);
+	console.log(tokarr);
+	settokform(type);
 	
 	// This is a little hack to allow for :before and :after on <del> elements that can disappear when they get empty
 	// TODO: is there a better way? is this only needed for <del>?
@@ -728,6 +661,82 @@ function setForm ( type ) {
 		setview();
 	};
 };
+
+function settokform(type) {
+	// Do tokens one at a time to avoid the browser from halting
+	var tok = tokarr.shift();		
+	console.log(tok);
+	if ( typeof(tok) != 'object' ) { return; };
+	if ( showlist == "" ) { tok.className = ''; };
+	var tokid = tok.getAttribute('id');
+	// Lookup the XML version of this node
+	var tokxml = orgtoks[tokid];
+	if ( tokxml == undefined ) { 
+		// We cannot find the orgtok - leave tok in place
+		tokxml = '';
+		console.log('Error: no orgtok found for '+tokid);
+	} else {
+		tok.innerHTML = tokxml;
+	};
+	// if ( showcol ) { tok.style['color'] = '#000000'; };
+	tok.style['color'] = '';
+	opre = "";  opost = "";
+	var patt = new RegExp("<[pcl]b[^>]*>.*?</[pcl]b>", "g");
+	while ( ( match = patt.exec(tokxml) ) != null ) {
+		opre += match;
+	}
+	patt = new RegExp("<dtok[^>]*></dtok>", "g");
+	while ( ( match = patt.exec(tokxml) ) != null ) {
+		opre += match;
+	}
+	if ( type != "" && type != "pform" ) { // pform is the innerHTML
+
+		var thisform = forminherit(tok,type);
+		if ( thisform == '--' ) { thisform = "<ee/>"; };
+		if ( thisform.search(/<[pcl]b/) > -1 ) {
+			tok.innerHTML = thisform; // In calculated forms, the breaks might still be inside a non-pform
+		} else if ( thisform != '' ) {
+			// If we cannot find the form (inheritance error?) just do not touch the token
+			tok.innerHTML = opre +  thisform + opost;
+		};						
+	};
+	// If there are any labels to show, do so
+	if ( labels.length && tok.innerHTML != '' ) {
+		tok.className = 'floatblock';
+		for ( var ab = 0; ab<labels.length; ab++ ) {
+			label = labels[ab];
+			var ltxt = tok.getAttribute(label); 
+			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[label]['type'] == 'pos' ) { ltxt = treatpos(tok, label, 'main'); }; 
+			// Add dtoks to the view
+			var children = tok.childNodes;
+			var done = []; var sep = ""; var dtxt = "";
+			for ( i=0; i<children.length; i++ ) {
+				var child = children[i];
+				if ( child.tagName == "DTOK" && !done[child.getAttribute('id')] ) {
+					if ( child.getAttribute(label) != null ) { 
+						var labtxt;
+						if ( tagdef && tagdef[label]['type'] == 'pos' ) { labtxt = treatpos(child, label, 'main'); } else { labtxt = child.getAttribute(label); };
+						dtxt += sep + labtxt; sep = "+"; 
+						done[child.getAttribute('id')] = 1;
+					};
+				};
+			};
+			if ( ltxt != null && ltxt != "" && dtxt != "" && dtxt != null ) { ltxt += ":" + dtxt; };
+			if ( ( ltxt == null || ltxt == "" ) && dtxt != "" && dtxt != null ) { ltxt = dtxt; };
+			if ( pattcolors[label] ) { 
+				lcol = pattcolors[label]; 
+			} else { lcol = "#999999"; };
+			if ( but = document.getElementById('tbt-'+label) ) {
+				ltit = " title=\""+but.textContent+"\"";
+			} else { ltit = ""; };
+			if ( ltxt != "" && ltxt != null ) { tok.innerHTML += "<div style='color: "+lcol+"'"+ltit+">" + ltxt + '</div>'; };
+		};
+	} else {
+		tok.className = '';
+	};
+	if ( tokarr.length ) { settokform(type); };
+};
+
 
 function getlang ( node, type ) {
 	if ( !node ) { return ""; };
