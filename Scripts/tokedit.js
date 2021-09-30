@@ -576,7 +576,7 @@ function setbd (bd) {
 	basedirection = bd;
 };
 
-var tokarr;
+var tokarr; var tokintv;
 function setForm ( type ) {
 	if ( type != "" ) { setbut('but-'+type); };
 	document.cookie = 'showform='+type;
@@ -634,8 +634,7 @@ function setForm ( type ) {
 			
 	var toks = document.getElementsByTagName("tok");
 	tokarr = Array.prototype.slice.call(toks);
-	console.log(tokarr);
-	settokform(type);
+	tokintv = setInterval(function(){ settokform(type); }, 1);	
 	
 	// This is a little hack to allow for :before and :after on <del> elements that can disappear when they get empty
 	// TODO: is there a better way? is this only needed for <del>?
@@ -665,7 +664,6 @@ function setForm ( type ) {
 function settokform(type) {
 	// Do tokens one at a time to avoid the browser from halting
 	var tok = tokarr.shift();		
-	console.log(tok);
 	if ( typeof(tok) != 'object' ) { return; };
 	if ( showlist == "" ) { tok.className = ''; };
 	var tokid = tok.getAttribute('id');
@@ -734,7 +732,7 @@ function settokform(type) {
 	} else {
 		tok.className = '';
 	};
-	if ( tokarr.length ) { settokform(type); };
+	if ( !tokarr.length ) { clearInterval(tokintv); };
 };
 
 
