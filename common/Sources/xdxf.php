@@ -327,7 +327,7 @@
 		
 	} else {
 		
-		$cssfile = $dict['css'] or $cssfile = "dict.css";
+		$cssfile = $dict['css'] or $cssfile = $settings['xdxf']['css'] or $cssfile = "dict.css";
 		$sharedroot = $settings['defaults']['shared']['url'];
 		if ( file_exists("$xdxfdir/$cssfile") ) {
 			$maintext .= "\n<style type=\"text/css\"> @import url(\"$xdxfdir/$cssfile\"); </style>\n";

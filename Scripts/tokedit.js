@@ -662,6 +662,7 @@ function setForm ( type ) {
 };
 
 function settokform(type) {
+	if ( !tokarr.length ) { clearInterval(tokintv); return; };
 	// Do tokens one at a time to avoid the browser from halting
 	var tok = tokarr.shift();		
 	if ( typeof(tok) != 'object' ) { return; };
@@ -732,7 +733,6 @@ function settokform(type) {
 	} else {
 		tok.className = '';
 	};
-	if ( !tokarr.length ) { clearInterval(tokintv); };
 };
 
 
