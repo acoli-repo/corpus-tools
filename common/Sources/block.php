@@ -163,6 +163,7 @@
 			};
 			
 				$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
+				$jsontags = array2json($settings['xmlfile']['pattributes']['tags']);
 				$jsontrans = array2json($settings['transliteration']);
 
 				if ( $tagstxt ) $showoptions .= "<p>{%Tags}: $tagstxt ";
@@ -185,6 +186,7 @@
 					<script language=Javascript>
 						var username = '$username';
 						var formdef = $jsonforms;
+						var tagdef = $jsontags;
 						var orgtoks = new Object();
 						var noimg = true;
 						var tid = '$ttxml->fileid';
