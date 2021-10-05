@@ -40,13 +40,23 @@
     foreach ( $settings['menu']['itemlist'] as $key => $item ) { 
 		$scl = $scli = $trgt = $link = "";
     	if ( !is_array($item) ) continue; # Skip attributes
+    	# For shared menu item
+    	if ( $tmp = $item['check'] ) {
+    	 if ( ( $tmp == "php" && !file_exists("Sources/$key.php") ) || ( $tmp == "html" && !file_exists("Pages/$key.html") ) ) {
+			if ( $username ) {
+				$item['admin'] = 1;
+			} else continue; 
+    	 }
+    	};
     	if ( $item['xp'] ) {
     		$link = current($settingsxml->xpath($item['xp']));
     		if ( !$link ) continue; # Do not show the item if the XPath does not match
     	} else if ( $item['link'] ) $link = $item['link'];
     	else if ( substr($key,0,4) == "http" ) {
     		$link = $key;
-    	} else $link = "{$tlpr}index.php?action=$key";
+    	} else {
+    		$link = "{$tlpr}index.php?action=$key";    		
+    	};
     	if ( $item['target'] ) $trgt = " target=\"{$item['target']}\"";
     	else if ( is_array($link) && $link['target'] ) $trgt = " target=\"{$link['target']}\"";
 		if ( $item['class'] ) $scli .= " {$item['class']}";
