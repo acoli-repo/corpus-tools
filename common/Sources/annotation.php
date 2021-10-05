@@ -636,7 +636,7 @@
 			<div style='vertical-align: top; width: 22%; float: right; overflow: scroll; position: fixed; top: 0px; right: 30px; height: 100%; ' id=annotations><h2 style='margin-top: 75px'>{%Annotations}</h2>$annotations</div>
 			<div style='vertical-align: top; width: 70%; height: 80%; overflow: scroll;' onmouseup='makespan(event);'>$headertxt
 			$formbutsdiv
-			<div id=mtxt>$cleaned</div>
+			<div id='mtxt' mod='$action'>$cleaned</div>
 				<hr><p><a href='index.php?action=file&cid=$fileid'>{%text view}</a>
 				$rawedit
 				</div>

@@ -641,7 +641,7 @@
 					<hr>
 				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 				$countrow
-				<div id='mtxt'$tba><text><table class='kwictable' $direc>$editxml</table></text></div>
+				<div id='mtxt' mod='$action' $textdir><text><table class='kwictable' $direc>$editxml</table></text></div>
 
 					<script language=Javascript src='$jsurl/tokedit.js'></script>
 					<script language=Javascript src='$jsurl/tokview.js'></script>

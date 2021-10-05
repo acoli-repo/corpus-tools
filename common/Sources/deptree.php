@@ -228,7 +228,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
 
 		$maintext .= "			
-			<div id=mtxt $textdir>$xmltxt</div><hr>";
+			<div id='mtxt' mod='$action' $textdir>$xmltxt</div><hr>";
 
 		if ( $treeview == "graph" ) {
 			$graph = drawgraph($sent);
@@ -514,7 +514,7 @@ $maintext .= "
 		
 			$maintext .= "
 				<p>Select a sentence
-				<table id=mtxt $textdir>"; 
+				<table id='mtxt' mod='$action' $textdir>"; 
 		
 			foreach ( $sentlist as $sent ) {
 			
