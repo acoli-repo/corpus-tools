@@ -170,7 +170,7 @@
 		$exec = $settings['bin']['neotagtrain'] or $exec = "/usr/local/bin/neotagtrain";
 		
 		if ( $params['pid'] ) $pid = "--pid='{$params['pid']}'";
-		if ( !$settingsxml->xpath("//neotag") && $sharedsettingsxml['neotag'] )  $pid .= " --settings=$sharedfolder/Resources/settings.xml";
+		if ( !$settingsxml->xpath("//neotag") && $sharedsettings['neotag'] )  $pid .= " --settings=$sharedfolder/Resources/settings.xml";
 		$cmd = "$exec --verbose $pid > tmp/neotag-update.log &";
 		$response = shell_exec($cmd);
 		

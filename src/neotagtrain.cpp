@@ -230,7 +230,6 @@ void treatnode ( pugi::xpath_node node ) {
 		tok.print(std::cout);
 	}; 
 		
-	
 	// push back tagtag onto tagHist
 	if ( !node.node().child("dtok").empty() ) {
         for ( pugi::xml_node dtoken = node.node().child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
@@ -399,6 +398,12 @@ void treatfile ( string filename ) {
 	if ( tagsettings.attribute("restriction") != NULL 
 			&& doc.select_node(tagsettings.attribute("restriction").value()) == NULL ) {
 		if ( debug ) cout << "- XML " << filename << " not matching " << tagsettings.attribute("restriction") .value() << endl;
+		return;
+	};
+
+	if ( tagsettings.attribute("trainrest") != NULL 
+			&& doc.select_node(tagsettings.attribute("trainrest").value()) == NULL ) {
+		if ( debug ) cout << "- XML " << filename << " not matching " << tagsettings.attribute("trainrest") .value() << endl;
 		return;
 	};
 
