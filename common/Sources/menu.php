@@ -42,7 +42,7 @@
     	if ( !is_array($item) ) continue; # Skip attributes
     	# For shared menu item
     	if ( $tmp = $item['check'] ) {
-    	 if ( ( $tmp == "php" && !file_exists("Sources/$key.php") ) || ( $tmp == "html" && !file_exists("Pages/$key.html") ) ) {
+    	 if ( ( $tmp == "php" && !file_exists("Sources/$key.php") ) || ( $tmp == "html" && !file_exists("Pages/$key.html") )  || ( $tmp == "file" && !file_exists($key) ) ) {
 			if ( $username ) {
 				$item['admin'] = 1;
 			} else continue; 
