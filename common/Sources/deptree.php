@@ -290,6 +290,8 @@ $maintext .= "
 		document.getElementById('svgdiv').style.height = document.querySelector('svg').getAttribute('height') + 'px';
 		var localhl = 1; // use a local highlight function
 		var orgtoks = new Object();
+		var username = '$username';
+		var tid = '$ttxml->fileid';
 		formify(); setForm('$formfld');
 		var canvas=document.getElementById('myCanvas');
 		var ctxt = canvas.getContext('2d');

@@ -26,11 +26,11 @@ function clickEvent(evt) {
 		if ( typeof(tid) == "undefined" ) { // For KWIC rows
 			var mtch = document.evaluate("ancestor::tr[@tid]", element, null, XPathResult.ANY_TYPE, null); 
 			var mitm = mtch.iterateNext();
-			jumpid = mitm.getAttribute('tid');
+			if ( mitm ) { jumpid = mitm.getAttribute('tid'); };
 		} else {
 			jumpid = tid;
 		};
-    	if ( username && jumpid ) {
+    	if ( username && typeof(jumpid) != 'undefined' && jumpid ) {
     		window.open('index.php?action=tokedit&cid='+jumpid+'&tid='+element.getAttribute('id'), 'edit');
     	} else if ( typeof(wordinfo) != null && typeof(wordinfo) != 'undefined' && jumpid ) {
     		window.open('index.php?action=wordinfo&cid='+jumpid+'&tid='+element.getAttribute('id'), '_self');
