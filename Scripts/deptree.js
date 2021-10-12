@@ -103,6 +103,14 @@ function setlabel ( clicked ) {
 	
 };
 
+function toksel (event) {
+	var tid = event.target.getAttribute('id');
+	if ( !tid ) { return; };
+	var tmp = document.querySelectorAll('[tokid="'+tid+'"]');
+	if ( !tmp.length ) { return; };
+	relink(tmp[0]);
+};
+
 function relink ( clicked ) {
 	
 		if ( selected != null ) {

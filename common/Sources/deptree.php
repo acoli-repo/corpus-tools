@@ -227,8 +227,16 @@ window.addEventListener(\"beforeunload\", function (e) {
 		$xmltxt = $sent->asXML();
 		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
 
+		if ( $username ) { 
+			if ( $act == "edit" ) {
+				$tokselect = " onClick='toksel(event);'";
+			} else {
+				$tokedit = "var tid = '$ttxml->fileid';";
+			};
+		};
+
 		$maintext .= "			
-			<div id='mtxt' mod='$action' $textdir>$xmltxt</div><hr>";
+			<div id='mtxt' mod='$action' $textdir $tokselect>$xmltxt</div><hr>";
 
 		if ( $treeview == "graph" ) {
 			$graph = drawgraph($sent);
@@ -275,6 +283,7 @@ $graph
 	$maintext .= "<hr><p>".$ttxml->viewswitch();
 	$minurl = "index.php?action=$action&cid={$ttxml->fileid}&sid=$sid";
 
+
 $formfld = $_GET['form'] or $formfld = "";
 $graphbase = base64_encode(str_replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ', $graph));
 $maintext .= "
@@ -291,7 +300,7 @@ $maintext .= "
 		var localhl = 1; // use a local highlight function
 		var orgtoks = new Object();
 		var username = '$username';
-		var tid = '$ttxml->fileid';
+		$tokedit
 		formify(); setForm('$formfld');
 		var canvas=document.getElementById('myCanvas');
 		var ctxt = canvas.getContext('2d');
