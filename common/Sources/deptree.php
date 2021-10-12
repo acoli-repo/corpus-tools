@@ -203,8 +203,9 @@
 		if ( $username ) {
 			if ( $settings['xmlfile']['sattributes']['s']['status'] ) {
 				$st = $sent['status'] or $st = "none";
+				if ( $act != "edit" ) $oncl = " onclick=\"document.getElementById('statbox').style.display='block';";
 				$statsel = "<option value='auto'>automatically assigned</option><option value='checked'>manually verified</option><option value='wrong'>wrong - to correct</option>";
-				$maintext .= "<span style='float: right; text-align: right;' onclick=\"document.getElementById('statbox').style.display='block';\">Status: <span status='$st'>$st</span></div><div id=statbox style='display: none;'><form action='index.php?action=$action&act=changesent&cid=$ttxml->fileid&sid={$sent['id']}' method=post><select name='sent[status]' onChange='this.parentNode.submit();'>$statsel</select></form></div></span>";
+				$maintext .= "<span style='float: right; text-align: right;' $oncl\">Status: <span status='$st'>$st</span></div><div id=statbox style='display: none;'><form action='index.php?action=$action&act=changesent&cid=$ttxml->fileid&sid={$sent['id']}' method=post><select name='sent[status]' onChange='this.parentNode.submit();'>$statsel</select></form></div></span>";
 			};
 			$maintext .= "<p><span id='linktxt'>Click <a href='index.php?action=$action&act=edit&sid=$sid&cid=$cid'>here</a> to edit the dependency tree</a></span>";
 			if ( $act != "edit" && $sent->xpath(".//tok[not(@deprel)]") && $sent->xpath(".//tok[@upos]") ) {
@@ -224,7 +225,7 @@ window.addEventListener(\"beforeunload\", function (e) {
     }
 });
 </script>";
-			}; 
+			} else if ( $act == "edit" ) { $maintext .= " - <a href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid'>cancel</a>"; };
 			$maintext .= "</p><hr>";
 			
 			if ( $act == "edit" ) {
@@ -293,6 +294,7 @@ $graph
 	border: 1px solid #aaaaaa;
 	height: 50%;
 	overflow: scroll;
+	z-index: 1000;
 }
 </style>
 <form action='' method=post id=sentform name=sentform style='display: none;'>
@@ -303,7 +305,7 @@ $graph
 <script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>
 <script language=\"Javascript\">$morejs</script>";
 
-	$maintext .= "<hr><p>".$ttxml->viewswitch();
+	$maintext .= "<hr><p><a href='index.php?action=$action&cid=$ttxml->fileid'>{%back to list}</a> &bull; ".$ttxml->viewswitch();
 	$minurl = "index.php?action=$action&cid={$ttxml->fileid}&sid=$sid";
 
 
@@ -554,7 +556,7 @@ $maintext .= "
 			
 				if ( $username && $settings['xmlfile']['sattributes']['s']['status'] ) {
 					$st = $sent['status'] or $st = "none";
-					$stattd = "<td><span status='$st' title='status: $st'>&#9638;</span>";
+					$stattd = "<td><span status='$st' title='status: $st' style='font-size: 10px'>&#9638;</span>";
 				};
 			
 				$maintext .= "<tr>$stattd<td><a href='index.php?action=$action&cid={$ttxml->fileid}&sid={$sent['id']}'>{$sent['id']}
