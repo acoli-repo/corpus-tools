@@ -83,6 +83,18 @@
 		print "<script>top.location='index.php?action=$action&act=edit&sid=$sid&cid=$ttxml->fileid';</script>";
 		exit;	
 
+	} else if ( $act == "changesent" ) {
+
+		$sent =	current($ttxml->xml->xpath("//s[@id='$sid']"));
+
+		foreach ( $_POST['sent'] as $key => $val ) {
+			$sent[$key] = $val;			
+		};	 
+		$ttxml->save();
+		print "<p>Autofill completed. Reloading";
+		print "<script>top.location='index.php?action=$action&act=edit&sid=$sid&cid=$ttxml->fileid';</script>";
+		exit;	
+
 	} else if ( $act == "conllu" ) {
 
 		$ccid = $ttxml->xmlid;
@@ -189,6 +201,11 @@
 		$maintext .= $pagenav;
 
 		if ( $username ) {
+			if ( $settings['xmlfile']['sattributes']['s']['status'] ) {
+				$st = $sent['status'] or $st = "none";
+				$statsel = "<option value='auto'>automatically assigned</option><option value='checked'>manually verified</option><option value='wrong'>wrong - to correct</option>";
+				$maintext .= "<span style='float: right; text-align: right;' onclick=\"document.getElementById('statbox').style.display='block';\">Status: <span status='$st'>$st</span></div><div id=statbox style='display: none;'><form action='index.php?action=$action&act=changesent&cid=$ttxml->fileid&sid={$sent['id']}' method=post><select name='sent[status]' onChange='this.parentNode.submit();'>$statsel</select></form></div></span>";
+			};
 			$maintext .= "<p><span id='linktxt'>Click <a href='index.php?action=$action&act=edit&sid=$sid&cid=$cid'>here</a> to edit the dependency tree</a></span>";
 			if ( $act != "edit" && $sent->xpath(".//tok[not(@deprel)]") && $sent->xpath(".//tok[@upos]") ) {
 				$maintext .= " &bull; <a href='index.php?action=$action&act=autofill&sid=$sid&cid=$cid'>Auto-fill</a> obligatory deprel";
@@ -235,8 +252,14 @@ window.addEventListener(\"beforeunload\", function (e) {
 			};
 		};
 
-		$maintext .= "			
-			<div id='mtxt' mod='$action' $textdir $tokselect>$xmltxt</div><hr>";
+		$maintext .= "<div id='mtxt' mod='$action' $textdir $tokselect>$xmltxt</div><table>";
+		foreach ( $settings['xmlfile']['sattributes']['s'] as $key => $val ) {
+			if ( $val['noshow'] || $val['nodeptree'] || $key == "id" ) continue;
+			if ( $val['color'] ) $style = " style=\"color: {$val['color']}\"";
+			$xval = $sent[$key];
+			if ( $xval ) $maintext .= "<div title='{$val['display']}' $style>$xval</div>";
+		};
+		$maintext .= "</table><hr>";
 
 		if ( $treeview == "graph" ) {
 			$graph = drawgraph($sent);
@@ -529,7 +552,12 @@ $maintext .= "
 		
 			foreach ( $sentlist as $sent ) {
 			
-				$maintext .= "<tr><td><a href='index.php?action=$action&cid={$ttxml->fileid}&sid={$sent['id']}'>{$sent['id']}
+				if ( $username && $settings['xmlfile']['sattributes']['s']['status'] ) {
+					$st = $sent['status'] or $st = "none";
+					$stattd = "<td><span status='$st' title='status: $st'>&#9638;</span>";
+				};
+			
+				$maintext .= "<tr>$stattd<td><a href='index.php?action=$action&cid={$ttxml->fileid}&sid={$sent['id']}'>{$sent['id']}
 					<td>".$sent->asXML();
 			
 			};
