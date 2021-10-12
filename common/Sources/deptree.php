@@ -227,13 +227,14 @@
 
 		if ( $username ) {
 			if ( $settings['xmlfile']['sattributes']['s']['status'] ) {
-				$st = $sent['status'] or $st = "none";
+				$st = $sent['status']."" or $st = "none";
 				if ( !$_POST ) $oncl = " onclick=\"document.getElementById('statbox').style.display='block';";
 				foreach ( $stlist as $key => $val ) {
 					$kval = $val['value'] or $kval = $key;
 					$statsel .= "<option value='$kval'>{$val['display']}</option>";
 				}
-				$maintext .= "<span style='float: right; text-align: right;' $oncl\">Status: <span status='$st'>$st</span></div><div id=statbox style='display: none;'><form action='index.php?action=$action&act=changesent&cid=$ttxml->fileid&sid={$sent['id']}' method=post><select name='sent[status]' onChange='this.parentNode.submit();'>$statsel</select></form></div></span>";
+				$sttxt = $stlist[$st]['display'] or $sttxt = $st;
+				$maintext .= "<span style='float: right; text-align: right;' $oncl\">Status: <span status='$st' title='$st'>$sttxt</span></div><div id=statbox style='display: none;'><form action='index.php?action=$action&act=changesent&cid=$ttxml->fileid&sid={$sent['id']}' method=post><select name='sent[status]' onChange='this.parentNode.submit();'>$statsel</select></form></div></span>";
 			};
 			$maintext .= "<p><span id='linktxt'>Click <a href='index.php?action=$action&act=edit&sid=$sid&cid=$cid'>here</a> to edit the dependency tree</a></span>";
 			if ( $act != "edit" && $sent->xpath(".//tok[not(@deprel)]") && $sent->xpath(".//tok[@upos]") ) {
