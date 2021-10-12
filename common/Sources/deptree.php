@@ -106,7 +106,7 @@
 			$xval = $sent[$key];
 			$maintext .= "<tr><td><th>{$val['display']}<td><input name='sent[$key]' size=80 value=\"$xval\"></tr>";
 		};
-		$maintext .= "</table><p><input type=submit value=Save> &bull; <a href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid'>cancel</a></form>";
+		$maintext .= "</table><hr><p><input type=submit value=Save> &bull; <a href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid'>cancel</a></form>";
 
 	} else if ( $act == "changesent" ) {
 
@@ -189,7 +189,7 @@
 
 		$puctnsh = $_GET['puctnsh'] or $puctnsh = $_SESSION['puctnsh'] or $puctnsh = $settings['deptree']['showpunct'] or $puctnsh = "without";
 		$_SESSION['puctnsh'] = $puctnsh;
-		$hpos = $_GET['hpos'] or $hpos = $_SESSION['hpos'] or $hpos = $settings['deptree']['hpos'] or $hpos = "branch";
+		$hpos = $_GET['hpos'] or $hpos = $_SESSION['hpos'] or $hpos = $settings['defaults']['deptree']['hpos'] or $hpos = "branch";
 		$_SESSION['hpos'] = $hpos;
 
 		if ( $_GET['auto'] ) {
@@ -228,9 +228,10 @@
 		if ( $username ) {
 			if ( $settings['xmlfile']['sattributes']['s']['status'] ) {
 				$st = $sent['status'] or $st = "none";
-				if ( $act != "edit" ) $oncl = " onclick=\"document.getElementById('statbox').style.display='block';";
+				if ( !$_POST ) $oncl = " onclick=\"document.getElementById('statbox').style.display='block';";
 				foreach ( $stlist as $key => $val ) {
-					$statsel .= "<option value='$key'>{$val['display']}</option>";
+					$kval = $val['value'] or $kval = $key;
+					$statsel .= "<option value='$kval'>{$val['display']}</option>";
 				}
 				$maintext .= "<span style='float: right; text-align: right;' $oncl\">Status: <span status='$st'>$st</span></div><div id=statbox style='display: none;'><form action='index.php?action=$action&act=changesent&cid=$ttxml->fileid&sid={$sent['id']}' method=post><select name='sent[status]' onChange='this.parentNode.submit();'>$statsel</select></form></div></span>";
 			};
