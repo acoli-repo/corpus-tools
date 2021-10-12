@@ -192,6 +192,6 @@ video#track { display: block; position: fixed; right: 0px; top: 0px; }
 #cqlcode .Flag { color: #009999; }
 
 span[status=checked] { color: green; }
-span[status=none] { color: #aaaaaa; }
+span[status=none] { color: #cccccc; }
 span[status=auto] { color: orange; }
 span[status=wrong] { color: red; }
