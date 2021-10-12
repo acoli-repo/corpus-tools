@@ -10,6 +10,13 @@
 		$deplabels = xmlflatten($deptreexml);
 	}; 
 
+	$stlist = $settings['xmlfile']['sattributes']['s']['status']['options'];
+	if ( !$stlist )	$stlist = array ( 
+		"auto" => array("display" => "automatically assigned"),
+		"checked" => array("display" => "manually verified"),
+		"wrong" => array("display" => "wrong - to correct"),
+		);
+
 	# Define what counts as a token in the dependency graph	
 	$toksel = ".//mtok[not(./dtok)] | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok[not(ancestor::tok/ancestor::mtok)]";
 	
@@ -82,6 +89,24 @@
 		print "<p>Autofill completed. Reloading";
 		print "<script>top.location='index.php?action=$action&act=edit&sid=$sid&cid=$ttxml->fileid';</script>";
 		exit;	
+
+	} else if ( $act == "metaedit" ) {
+
+		$maintext .= "<h1>Edit Sentence Metadata</h1>";
+		$sent =	current($ttxml->xml->xpath("//s[@id='$sid']"));
+
+		$maintext .= "<div id=mtxt>".$sent->asXML()."</div>
+		<hr>
+		<form action='index.php?action=$action&cid=$ttxml->fileid&sid=$sid&act=changesent' method=post>
+		<table>";
+
+		foreach ( $settings['xmlfile']['sattributes']['s'] as $key => $val ) {
+			if ( $val['noshow'] || $val['nodeptree'] || $key == "id" ) continue;
+			if ( $val['color'] ) $style = " style=\"color: {$val['color']}\"";
+			$xval = $sent[$key];
+			$maintext .= "<tr><td><th>{$val['display']}<td><input name='sent[$key]' size=80 value=\"$xval\"></tr>";
+		};
+		$maintext .= "</table><p><input type=submit value=Save> &bull; <a href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid'>cancel</a></form>";
 
 	} else if ( $act == "changesent" ) {
 
@@ -204,7 +229,9 @@
 			if ( $settings['xmlfile']['sattributes']['s']['status'] ) {
 				$st = $sent['status'] or $st = "none";
 				if ( $act != "edit" ) $oncl = " onclick=\"document.getElementById('statbox').style.display='block';";
-				$statsel = "<option value='auto'>automatically assigned</option><option value='checked'>manually verified</option><option value='wrong'>wrong - to correct</option>";
+				foreach ( $stlist as $key => $val ) {
+					$statsel .= "<option value='$key'>{$val['display']}</option>";
+				}
 				$maintext .= "<span style='float: right; text-align: right;' $oncl\">Status: <span status='$st'>$st</span></div><div id=statbox style='display: none;'><form action='index.php?action=$action&act=changesent&cid=$ttxml->fileid&sid={$sent['id']}' method=post><select name='sent[status]' onChange='this.parentNode.submit();'>$statsel</select></form></div></span>";
 			};
 			$maintext .= "<p><span id='linktxt'>Click <a href='index.php?action=$action&act=edit&sid=$sid&cid=$cid'>here</a> to edit the dependency tree</a></span>";
@@ -254,13 +281,15 @@ window.addEventListener(\"beforeunload\", function (e) {
 		};
 
 		$maintext .= "<div id='mtxt' mod='$action' $textdir $tokselect>$xmltxt</div><table>";
+		if ( count($settings['xmlfile']['sattributes']['s']) > 1 && $username ) $maintext .= "<a style='float: right' href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid&act=metaedit'>edit metadata</a>";
 		foreach ( $settings['xmlfile']['sattributes']['s'] as $key => $val ) {
 			if ( $val['noshow'] || $val['nodeptree'] || $key == "id" ) continue;
 			if ( $val['color'] ) $style = " style=\"color: {$val['color']}\"";
-			$xval = $sent[$key];
+			$xval = $sent[$key]; $some = 1;
 			if ( $xval ) $maintext .= "<div title='{$val['display']}' $style>$xval</div>";
 		};
-		$maintext .= "</table><hr>";
+		$maintext .= "</table>";
+		$maintext .= "<hr>";
 
 		if ( $treeview == "graph" ) {
 			$graph = drawgraph($sent);
@@ -555,8 +584,9 @@ $maintext .= "
 			foreach ( $sentlist as $sent ) {
 			
 				if ( $username && $settings['xmlfile']['sattributes']['s']['status'] ) {
-					$st = $sent['status'] or $st = "none";
-					$stattd = "<td><span status='$st' title='status: $st' style='font-size: 10px'>&#9638;</span>";
+					$st = $sent['status']."" or $st = "none";
+					$sttxt = $stlist[$st]['display']; if ( !$sttxt ) $sttxt = $st;
+					$stattd = "<td><span status='$st' title='status: $sttxt' style='font-size: 10px'>&#9638;</span>";
 				};
 			
 				$maintext .= "<tr>$stattd<td><a href='index.php?action=$action&cid={$ttxml->fileid}&sid={$sent['id']}'>{$sent['id']}
