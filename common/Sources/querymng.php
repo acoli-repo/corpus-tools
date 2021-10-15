@@ -21,7 +21,7 @@
 		if ( $qlist === false ) { fatal("Error loading query file"); };
 		$qroot = current($qlist->xpath("/queries"));
 	
-		$q = $_POST['q'] or $q = $_POST['query'] or $q = $_POST['querytxt'];
+		$q = $_POST['q'] or $q = $_POST['query'] or $q = $_POST['querytxt'] or $q = $_POST['cql'];
 		$id = uniqid();
 		$qrec = $qroot->addChild("query");
 		$qrec['ql'] = $_GET['type'];

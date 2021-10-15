@@ -744,12 +744,25 @@
 		$cqll = str_replace("'", "&#039;", $cql);
 
 		if ( $subtit ) $cqptit = "&cqltit=".urlencode($subtit);
-		$maintext .= " - <a href='index.php?action=multisearch&act=store&cql=".urlencode($cqll)."$cqptit'>{%Remember query}</a>";
-		$maintext .= " - <a href='index.php?action=cqp&cql=".urlencode($cqll)."$cqptit'>{%Direct URL}</a>";
+		#$maintext .= " - <a href='index.php?action=querymng&act=save&cql=".urlencode($cqll)."$cqptit'>{%store query}</a>";
+		$qsid = time(); $query = $pattern;
+		if ( $query && !$qid ) $_SESSION['queries'][$qsid] = array("query" => $query, "ql" => $action);
+		$maintext .= " &bull; <a onclick='submitq();'>{%store this query}</a>
+			<script>
+				function submitq() {
+					var qf = document.getElementById('cqp');
+					qf.setAttribute('action', 'index.php?action=querymng&type=$action&act=save');
+					qf.submit();
+				};
+			</script>";
+		# $maintext .= " - <a href='index.php?action=cqp&cql=".urlencode($cqll)."$cqptit'>{%Direct URL}</a>";
 
 		$useridtxt = $shortuserid;
-		if ( $_SESSION['myqueries'] || file_exists("Users/cql_$useridtxt.xml") )
-			$maintext .= " - <a href='index.php?action=multisearch&act=stored&cql=".urlencode($cqll)."'>{%Stored CQL queries}</a>";
+		$qfldr = preg_replace("/[^a-z0-9]/", "", strtolower($userid));
+		$qfn = "Users/$qfldr/queries.xml";
+		if ( file_exists($qfn) || file_exists("Resources/queries.xml") ) $maintext .= " &bull; <a href='index.php?action=querymng&type=$action'>{%stored queries}</a>";
+// 		if ( $_SESSION['myqueries'] || file_exists("Users/cql_$useridtxt.xml") )
+// 			$maintext .= " - <a href='index.php?action=multisearch&act=stored&cql=".urlencode($cqll)."'>{%Stored CQL queries}</a>";
 
 
 		# Do not allow frequency counts if we already have a pre-select CQL
