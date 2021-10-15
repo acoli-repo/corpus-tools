@@ -10,6 +10,7 @@
 		require("$ttroot/common/Sources/querymng.php");
 		$qid = $_GET['qid'];
 		$xpath = getq($qid);
+		$act = "xpath";
 	};
 	$xpath = stripslashes($xpath);
 	$psdxfile = "Annotations/$cid.psdx";

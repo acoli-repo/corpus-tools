@@ -101,6 +101,7 @@
 		if ( $qlist ) $qres = $qlist->xpath("//query$qlq");
 		if ( $qres && count($qres)>0 ) {
 			if ( !$ql ) $qlh = "<th>{%Query Language}";
+			$maintext .= "<h2>{%Personal Queries}</h2>";
 			$maintext .= "<table id=qlist><tr><td><th>{%Name}$qlh<th>{%Query}<th>{%Description}";
 			foreach ( $qres as $qq ) {
 				$qname = $qq['name'] or $qname = "<i>unnamed</i>";

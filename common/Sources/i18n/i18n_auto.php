@@ -214,6 +214,7 @@
 		"run this query" => "run this query",
 		"Edit Query" => "Edit Query",
 		"Query Manager" => "Query Manager",
+		"Personal Queries" => "Personal Queries",
 		"Login to manage your queries" => "Login to manage your queries",
 		"No personal queries yet" => "No personal queries yet",
 		"Related Documents" => "Related Documents",
