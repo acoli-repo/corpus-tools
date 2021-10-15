@@ -73,7 +73,7 @@
 			$maintext .= "<h2>{%Query Language}: $ql</h2>";
 		};
 		if ( $qlist ) $qres = $qlist->xpath("//query$qlq");
-		if ( $qres ) {
+		if ( count($qres) ) {
 			if ( !$ql ) $qlh = "<th>{%Query Language}";
 			$maintext .= "<table id=qlist><tr><td><th>{%Name}$qlh<th>{%Query}<th>{%Description}";
 			foreach ( $qres as $qq ) {
