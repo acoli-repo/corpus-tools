@@ -213,6 +213,7 @@
 		"Query Language" => "Query Language",
 		"Query Manager" => "Query Manager",
 		"Login to manage your queries" => "Login to manage your queries",
+		"No personal queries yet" => "No personal queries yet",
 		"Related Documents" => "Related Documents",
 		"Raw corpus search" => "Raw corpus search",
 		"index" => "index",

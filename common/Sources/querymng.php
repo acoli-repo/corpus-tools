@@ -73,7 +73,7 @@
 			$maintext .= "<h2>{%Query Language}: $ql</h2>";
 		};
 		if ( $qlist ) $qres = $qlist->xpath("//query$qlq");
-		if ( count($qres) ) {
+		if ( $qres && $qres->length>0 ) {
 			if ( !$ql ) $qlh = "<th>{%Query Language}";
 			$maintext .= "<table id=qlist><tr><td><th>{%Name}$qlh<th>{%Query}<th>{%Description}";
 			foreach ( $qres as $qq ) {
@@ -87,7 +87,7 @@
 			};
 			$maintext .= "</table>";
 		} else if ( !$userid ) $maintext .= "<p><i>{%Login to manage your queries}</i></p>";
-		else $maintext .= "<p><i>{%No personal queries yet]</i></p>";
+		else $maintext .= "<p><i>{%No personal queries yet}</i></p>";
 			
 	};
 
