@@ -11,6 +11,7 @@
 	if ( $act == "save" ) {
 	
 		if ( !$userid ) fatal("You can only store queries when logged in.");
+		
 		if ( !$qlist ) {
 			check_folder("Users");
 			check_folder("Users/$qfldr");
@@ -32,6 +33,8 @@
 	
 	} else if ( $act == "modify" && $qlist ) {
 
+		if ( !$userid ) fatal("Not logged in");
+
 		$id = $_GET['id'];
 		$qrec = current($qlist->xpath("//query[@id=\"$id\"]"));
 		$qrec['name'] = $_POST['name'];
@@ -41,6 +44,19 @@
 		$qdesc = $qrec->desc;
 		if ( $qdesc ) $qdesc[0] = $_POST['description'];
 		else $qrec->addChild('desc', $_POST['description']);
+	
+		file_put_contents($qfn, $qlist->asXML()); 
+		print "<p>Query saved<script>top.location='index.php?action=$action&type={$qrec['ql']}';</script>";
+		exit;
+	
+	} else if ( $act == "delete" && $qlist ) {
+
+		if ( !$userid ) fatal("Not logged in");
+
+		$id = $_GET['id'];
+		$qrec = current($qlist->xpath("//query[@id=\"$id\"]"));
+
+		if ($qrec) unset($qrec[0]);
 	
 		file_put_contents($qfn, $qlist->asXML()); 
 		print "<p>Query saved<script>top.location='index.php?action=$action&type={$qrec['ql']}';</script>";
@@ -67,12 +83,11 @@
 			<tr><th>{%Description}<td>$qdesc
 			</table>
 			
-			<p><a href='index.php?action=$qaction&qid=$id'>{%run this query}</a>";
-		
-		
+			<p><a href='index.php?action=$qaction&qid=$id'>{%run this query}</a>";		
 			
 	} else if ( $act == "edit" && $qlist ) {
 	
+		if ( !$userid ) fatal("Not logged in");
 		$id = $_GET['id'];
 		$qrec = current($qlist->xpath("//query[@id=\"$id\"]"));
 		$qname = $qrec['name'];
@@ -86,7 +101,10 @@
 			<tr><th>{%Query}<td><textarea style='width: 600px; height: 50px;' name=query>$qq</textarea>
 			<tr><th>{%Description}<td><textarea style='width: 600px; height: 50px;' name=description>$qdesc</textarea>
 			</table>
-			<p><input type=submit value=\"{%Save}\"> <a href='index.php?action=$action&type={$qrec['ql']}'>{%cancel}</a>
+			<p><input type=submit value=\"{%Save}\"> 
+				<a href='index.php?action=$action&type={$qrec['ql']}'>{%cancel}</a>
+				&bull; 
+				<a href='index.php?action=$action&id=$id&act=delete'>{%delete}</a>
 			</form>";
 	
 	} else if ( $action == "querymng" ) {
@@ -96,23 +114,23 @@
 		if ( $_GET['type'] ) {
 			$ql = $qls[$_GET['type']] or $ql = $_GET['type'];
 			$qlq = "[@ql=\"$ql\"]";
-			$maintext .= "<h2>{%Query Language}: $ql</h2>";
+			$maintext .= "<p>{%Query Language}: <b>$ql</b></p><hr>";
 		};
 		if ( $qlist ) $qres = $qlist->xpath("//query$qlq");
 		if ( $qres && count($qres)>0 ) {
 			if ( !$ql ) $qlh = "<th>{%Query Language}";
 			$maintext .= "<h2>{%Personal Queries}</h2>";
-			$maintext .= "<table id=qlist><tr><td><th>{%Name}$qlh<th>{%Query}<th>{%Description}";
+			$maintext .= "<table id=rollovertable><tr><td><th>{%Name}$qlh<th>{%Query}<th>{%Description}";
 			foreach ( $qres as $qq ) {
 				$qname = $qq['name'] or $qname = "<i>unnamed</i>";
 				$qaction = $qq['ql'];
-				if ( !$ql ) $qlr = "<td>{$qq['ql']}";
+				if ( !$ql ) $qlr = "<td><a href='index.php?action=$action&type={$qq['ql']}'>{$qq['ql']}</a>";
 				$maintext .= "<tr><td>
 					<a href='index.php?action=$action&act=edit&id={$qq['id']}'>edit</a>
 					<a href='index.php?action=$qaction&qid={$qq['id']}'>run</a>
 					<td>$qname$qlr<td>".$qq->q."<td>".$qq->desc;
 			};
-			$maintext .= "</table>";
+			$maintext .= "</table><hr>";
 		} else if ( !$userid ) $maintext .= "<p><i>{%Login to manage your queries}</i></p>";
 		else $maintext .= "<p><i>{%No personal queries yet}</i></p>";
 
@@ -120,18 +138,22 @@
 		if ( $qres && count($qres)>0 ) {
 			$maintext .= "<h2>{%Predefined Queries}</h2>";
 			if ( !$ql ) $qlh = "<th>{%Query Language}";
-			$maintext .= "<table id=qlist><tr><td><th>{%Name}$qlh<th>{%Query}<th>{%Description}";
+			$maintext .= "<table id=rollovertable><tr><td><th>{%Name}$qlh<th>{%Query}<th>{%Description}";
 			foreach ( $qres as $qq ) {
 				$qname = $qq['name'] or $qname = "<i>unnamed</i>";
 				$qaction = $qq['ql'];
-				if ( !$ql ) $qlr = "<td>{$qq['ql']}";
+				if ( !$ql ) $qlr = "<td><a href='index.php?action=$action&type={$qq['ql']}'>{$qq['ql']}</a>";
 				$maintext .= "<tr><td>
 					<a href='index.php?action=$action&act=view&global=1&id={$qq['id']}'>details</a>
 					<a href='index.php?action=$qaction&qid={$qq['id']}'>run</a>
 					<td>$qname$qlr<td>".$qq->q."<td>".$qq->desc;
 			};
-			$maintext .= "</table>";
+			$maintext .= "</table><hr>";
 		}	
+		
+		if ( $ql ) {
+			$maintext .= "<p><a href='index.php?action=$action'>{%See queries in all query languages}</a>";
+		};
 				
 	};
 

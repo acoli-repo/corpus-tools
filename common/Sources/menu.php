@@ -94,6 +94,9 @@
   		if ( count(scandir("pagetrans")) > 2 && !$settings['menu']['itemlist']['pagetrans'] ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=pagetrans'>Page-by-Page</a></ul>"; 
   		$tmp = ""; if ( $action == "files" ) $tmp = "class=\"selected\""; 
   		if ( file_exists("xmlfiles") ) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
+		$qfldr = preg_replace("/[^a-z0-9]/", "", strtolower($username));
+		$qfn = "Users/$qfldr/queries.xml";
+		if ( file_exists($qfn) ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=querymng'>{%Query Manager}</a></li></ul>";
 
   		$menu .= $adminitems;
   		
@@ -108,6 +111,9 @@
 			$shortuserid = $_SESSION['extid'][$idtype];
 			$userid = $shortuserid;
 			$menu .= "<hr>$idname: <a href='index.php?action=$idaction'>$shortuserid</a><hr>";
+			$qfldr = preg_replace("/[^a-z0-9]/", "", strtolower($userid));
+			$qfn = "Users/$qfldr/queries.xml";
+			if ( file_exists($qfn) ) $menu .= "<ul><li><a href='index.php?action=querymng'>{%Query Manager}</a></li></ul>";
 			foreach ( $tmp['functions'] as $key => $func ) {
 				$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action={$func['key']}' $tmp>{%{$func['display']}}</a></ul>";
 			};
