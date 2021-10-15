@@ -5,7 +5,12 @@
 	$cid = preg_replace("/\.xml/", "", $cid);
 	$treeid = $_GET['treeid'];
 	$sentenceid = $_GET['sentence'];
-	$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'];
+	$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'] or $xpath = $_GET['query'];
+	if ( !$xpath && $_GET['qid'] && ( $userid || $username ) ) {
+		require("$ttroot/common/Sources/querymng.php");
+		$qid = $_GET['qid'];
+		$xpath = getq($qid);
+	};
 	$xpath = stripslashes($xpath);
 	$psdxfile = "Annotations/$cid.psdx";
 	if ( !file_exists($psdxfile) ) {
@@ -94,7 +99,7 @@
 	} else if ( $act == "xpath" || $act == "query" ) {
 	
 		// Allow queries over PSDX files using xpath wrapped in xsltproc
-		
+				
 		$searchfile = $_GET['cid'];
 		if ( $searchfile ) {	
 			$searchfiles = "Annotations/$searchfile.psdx"; 
@@ -114,7 +119,7 @@
 			<h3>XPath Search</h3>
 			
 			<form action='index.php?action=$action&act=$act&cid=$searchfile' method=post id=xpf name=xpf>
-			<textarea style='width: 100%; height: 50px;' name='xpath' id=xpathfield>$xpath</textarea>
+			<textarea style='width: 100%; height: 50px;' name='query' id=xpathfield>$xpath</textarea>
 			<p> {%Tree style}: 
 			<select name=treestyle>";
 			
@@ -229,6 +234,15 @@
 				exit;
 			} else {
 				// Display the results
+				$morebuts = " &bull; <a onclick='submitq();'>store this query</a>
+					<script>
+						function submitq() {
+							var qf = document.getElementById('xpf');
+							qf.setAttribute('action', 'index.php?action=querymng&type=$action&act=save');
+							qf.submit();
+						};
+					</script>";
+
 				$maintext .= "<h2>Results</h2>$subtit<p>";
 
 				$resxml = simplexml_load_string($results, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
@@ -353,7 +367,8 @@
 					$xpathurl = addslashes($xpath);
 					$maintext .= "<hr> <form  style='display: none;' id=xpdf name=xpdf action='index.php?action=$action&act=xpath&dltype=psd' method=post>
 							<input type=hidden name=xpath value='$xpathurl'></form>
-						<a onclick=\"document.getElementById('xpdf').submit();\">Download results as PSD</a>";
+						";
+					$morebuts .= " <a onclick=\"document.getElementById('xpdf').submit();\">Download results as PSD</a> ";
 				} else { 
 					$maintext .= "<p><i>Error while getting the result</i><hr>".htmlentities($results); 
 				};
@@ -441,6 +456,8 @@
 		};
 		$maintext .= "</form>";
 		$maintext .= "</td></tr></table>";
+		
+		$maintext .= "<hr><p><a href='index.php?action=querymng&type=$action'>stored queries</a> $morebuts";
 
 	} else if ( $act == "nodesave" ) {
 		check_login();

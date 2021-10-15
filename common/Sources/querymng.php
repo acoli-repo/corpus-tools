@@ -6,6 +6,7 @@
 	
 	$qfn = "Users/$qfldr/queries.xml";
 	if ( file_exists($qfn) ) $qlist = simplexml_load_file($qfn);
+	if ( "Resources/queries.xml" ) $glqs= simplexml_load_file("Resources/queries.xml");
 
 	if ( $act == "save" ) {
 	
@@ -45,6 +46,31 @@
 		print "<p>Query saved<script>top.location='index.php?action=$action&type={$qrec['ql']}';</script>";
 		exit;
 	
+	} else if ( $act == "view" ) {
+	
+		$id = $_GET['id'];
+		if ( $_GET['global'] ) $doq = $glqs; else $doq = $qlist;
+		$qrec = current($doq->xpath("//query[@id=\"$id\"]"));
+		$qname = $qrec['name'];
+		$qq = $qrec->q;
+		$qdesc = $qrec->desc;
+		$timestamp = substr($id, 0, -5);
+		$date = date('Y-m-;d h:i:s', hexdec($timestamp));  // Thu, 05 Sep 2013 15:55:04 -0400
+		
+		$qaction = $qrec['ql'];
+		$maintext .= "<h1>{%Query}</h1>
+			<p>{%Query Language}: {$qrec['ql']}</p>
+			<p>{%Date}: $date</p>
+			<table >
+			<tr><th>{%Name}<td>$qname
+			<tr><th>{%Query}$qq
+			<tr><th>{%Description}<td>$qdesc
+			</table>
+			
+			<p><a href='index.php?action=$qaction&qid=$id'>{%run this query}</a>";
+		
+		
+			
 	} else if ( $act == "edit" && $qlist ) {
 	
 		$id = $_GET['id'];
@@ -73,7 +99,7 @@
 			$maintext .= "<h2>{%Query Language}: $ql</h2>";
 		};
 		if ( $qlist ) $qres = $qlist->xpath("//query$qlq");
-		if ( $qres && $qres->length>0 ) {
+		if ( $qres && count($qres)>0 ) {
 			if ( !$ql ) $qlh = "<th>{%Query Language}";
 			$maintext .= "<table id=qlist><tr><td><th>{%Name}$qlh<th>{%Query}<th>{%Description}";
 			foreach ( $qres as $qq ) {
@@ -88,14 +114,35 @@
 			$maintext .= "</table>";
 		} else if ( !$userid ) $maintext .= "<p><i>{%Login to manage your queries}</i></p>";
 		else $maintext .= "<p><i>{%No personal queries yet}</i></p>";
-			
+
+		if ( $glqs )  $qres = $glqs->xpath("//query$qlq"); 
+		if ( $qres && count($qres)>0 ) {
+			$maintext .= "<h2>{%Predefined Queries}</h2>";
+			if ( !$ql ) $qlh = "<th>{%Query Language}";
+			$maintext .= "<table id=qlist><tr><td><th>{%Name}$qlh<th>{%Query}<th>{%Description}";
+			foreach ( $qres as $qq ) {
+				$qname = $qq['name'] or $qname = "<i>unnamed</i>";
+				$qaction = $qq['ql'];
+				if ( !$ql ) $qlr = "<td>{$qq['ql']}";
+				$maintext .= "<tr><td>
+					<a href='index.php?action=$action&act=view&global=1&id={$qq['id']}'>details</a>
+					<a href='index.php?action=$qaction&qid={$qq['id']}'>run</a>
+					<td>$qname$qlr<td>".$qq->q."<td>".$qq->desc;
+			};
+			$maintext .= "</table>";
+		}	
+				
 	};
 
 	function getq ($qid) {
-		global $qlist; 
+		global $qlist, $glqs; 
 		if ( $qlist ) {
 			$qrc = current($qlist->xpath("//query[@id=\"$qid\"]/q"));
-			return $qrc[0];
+			if ( $qrc ) return $qrc[0];
+		};
+		if ( $glqs ) {
+			$qrc = current($glqs->xpath("//query[@id=\"$qid\"]/q"));
+			if ( $qrc ) return $qrc[0];
 		};
 
 	};
