@@ -115,7 +115,7 @@
 		} else if ( !$userid ) $maintext .= "<p><i>{%Login to manage your queries}</i></p>";
 		else $maintext .= "<p><i>{%No personal queries yet}</i></p>";
 
-		undef ($qres); if ( $glqs )  $qres = $glqs->xpath("//query$qlq"); 
+		unset($qres); if ( $glqs )  $qres = $glqs->xpath("//query$qlq"); 
 		if ( $qres && count($qres)>0 ) {
 			$maintext .= "<h2>{%Predefined Queries}</h2>";
 			if ( !$ql ) $qlh = "<th>{%Query Language}";
