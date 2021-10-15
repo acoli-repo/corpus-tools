@@ -243,6 +243,8 @@
 							qf.submit();
 						};
 					</script>";
+				$qsid = time(); $query = $xpath;
+				if ( $query && !$qid ) $_SESSION['queries'][$qsid] = array("query" => $query, "ql" => $action);
 
 				$maintext .= "<h2>Results</h2>$subtit<p>";
 

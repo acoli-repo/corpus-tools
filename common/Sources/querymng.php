@@ -6,7 +6,7 @@
 	
 	$qfn = "Users/$qfldr/queries.xml";
 	if ( file_exists($qfn) ) $qlist = simplexml_load_file($qfn);
-	if ( "Resources/queries.xml" ) $glqs= simplexml_load_file("Resources/queries.xml");
+	if ( file_exists("Resources/queries.xml") ) $glqs= simplexml_load_file("Resources/queries.xml");
 
 	if ( $act == "save" ) {
 	
@@ -28,7 +28,7 @@
 		$qrec['id'] = $id;
 		$qdef = $qrec->addChild("q", $q);
 		file_put_contents($qfn, $qlist->asXML()); 
-		print "<p>Query saved<script>top.location='index.php?action=$action&type={$_GET['type']}';</script>";
+		print "<p>Query saved<script>top.location='index.php?action=$action&act=edit&id=$id';</script>";
 		exit;
 	
 	} else if ( $act == "modify" && $qlist ) {
@@ -83,7 +83,8 @@
 			<tr><th>{%Description}<td>$qdesc
 			</table>
 			
-			<p><a href='index.php?action=$qaction&qid=$id'>{%run this query}</a>";		
+			<p><a href='index.php?action=$qaction&qid=$id'>{%run this query}</a> 
+				&bull; <a href='index.php?action=$action&type={$qrec['ql']}'>{%back to list}</a>";		
 			
 	} else if ( $act == "edit" && $qlist ) {
 	
@@ -150,6 +151,35 @@
 			};
 			$maintext .= "</table><hr>";
 		}	
+		
+		if ( $_SESSION['queries'] ) {
+			$maintext .= "<h2>{%Recent Queries}</h2>
+				<form id=qfm style='display: none;' action='index.php?action=$action&act=save' method=post>
+				<textarea name='query'></textarea>
+				</form>
+				<script>
+					function setq(cnt, ql) {
+						var qfm = document.getElementById('qfm');
+						qfm.action = 'index.php?action=$action&act=save&type='+ql;
+						qfm['query'].value = document.getElementById('q-'+cnt).innerText; 
+						qfm.submit();
+					};
+				</script>";
+			$maintext .= "<table id=rollovertable><tr><td><th>{%Query Language}<th>{%Query}";
+			$cnt = 0;
+			$recnt = $_SESSION['queries'];
+			krsort($recnt);
+			foreach ( $recnt as $id => $qrec ) {
+				$qq = $qrec['query']; $ql = $qrec['ql'];
+				$qqt = urlencode($qq); $cnt++;
+				$qaction = $ql;
+				$maintext .= "<tr><td>
+					<div style='display: none' id='q-$cnt'>$qq</div> <a onclick=\"setq($cnt, '$ql');\">store</a>
+					<a href='index.php?action=$qaction&query=$qqt'>run</a>
+					<td>$ql<td>$qq<td style='color: #bbbbbb; background-color: white;'><i>".date("Y-m-d h:i:s", $id)."</i>";
+			};
+			$maintext .= "</table><hr>";
+		};
 		
 		if ( $ql ) {
 			$maintext .= "<p><a href='index.php?action=$action'>{%See queries in all query languages}</a>";

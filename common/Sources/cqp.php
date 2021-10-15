@@ -70,7 +70,7 @@
 
 	$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = $_GET['query'];
 	if ( !$cql && $_GET['qid'] && ( $userid || $username ) ) {
-		require("$ttfolder/Sources/querymng.php");
+		require_once("$ttroot/common/Sources/querymng.php");
 		$qid = $_GET['qid'];
 		$cql = getq($qid);
 	};
@@ -171,6 +171,7 @@
 		};
 
 	} else if ( $cql || $_POST['atts'] || $_GET['atts'] || $_POST['vals'] ) {
+
 
 		# Display the results for a given CQP search
 		# Can have a pre-query (to search within a selection)
@@ -345,6 +346,9 @@
 		if ( preg_match("/\@\[/", $cql) ) {
 			$targetmatch = 1;
 		};
+
+		$qsid = time(); $query = $cql;
+		if ( $query && !$qid ) $_SESSION['queries'][$qsid] = array("query" => $query, "ql" => $action);
 
 		$maintext .= $subtit;
 		$cqp->exec("Matches = ".$cql);

@@ -218,6 +218,7 @@
 		"Personal Queries" => "Personal Queries",
 		"Login to manage your queries" => "Login to manage your queries",
 		"No personal queries yet" => "No personal queries yet",
+		"Recent Queries" => "Recent Queries",
 		"See queries in all query languages" => "See queries in all query languages",
 		"Related Documents" => "Related Documents",
 		"Raw corpus search" => "Raw corpus search",
