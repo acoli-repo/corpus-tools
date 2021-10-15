@@ -53,29 +53,29 @@
 		$qq = $qrec->q;
 		$qdesc = $qrec->desc;
 		$maintext .= "<h1>{%Edit Query}</h1>
-			<p>Query Language: {$qrec['ql']}</p>
+			<p>{%Query Language}: {$qrec['ql']}</p>
 			<form action='index.php?action=$action&act=modify&id=$id' method=post>
 			<table >
-			<tr><th>Query Name<td><input size=80 name=name value=\"$qname\">
-			<tr><th>Query<td><textarea style='width: 600px; height: 50px;' name=query>$qq</textarea>
-			<tr><th>Description<td><textarea style='width: 600px; height: 50px;' name=description>$qdesc</textarea>
+			<tr><th>{%Name}<td><input size=80 name=name value=\"$qname\">
+			<tr><th>{%Query}<td><textarea style='width: 600px; height: 50px;' name=query>$qq</textarea>
+			<tr><th>{%Description}<td><textarea style='width: 600px; height: 50px;' name=description>$qdesc</textarea>
 			</table>
 			<p><input type=submit value=\"{%Save}\"> <a href='index.php?action=$action&type={$qrec['ql']}'>{%cancel}</a>
 			</form>";
 	
 	} else if ( $action == "querymng" ) {
 	
-		$maintext .= "<h1>Query Manager</h1><style>#qlist q::before, #qlist q::after { content: ''; }</style>";
+		$maintext .= "<h1>{%Query Manager}</h1><style>#qlist q::before, #qlist q::after { content: ''; }</style>";
 	
 		if ( $_GET['type'] ) {
 			$ql = $qls[$_GET['type']] or $ql = $_GET['type'];
 			$qlq = "[@ql=\"$ql\"]";
-			$maintext .= "<h2>Query Language: $ql</h2>";
+			$maintext .= "<h2>{%Query Language}: $ql</h2>";
 		};
 		if ( $qlist ) $qres = $qlist->xpath("//query$qlq");
 		if ( $qres ) {
-			if ( !$ql ) $qlh = "<th>Query Language";
-			$maintext .= "<table id=qlist><tr><td><th>Query Name$qlh<th>Query<th>Description";
+			if ( !$ql ) $qlh = "<th>{%Query Language}";
+			$maintext .= "<table id=qlist><tr><td><th>{%Name}$qlh<th>{%Query}<th>{%Description}";
 			foreach ( $qres as $qq ) {
 				$qname = $qq['name'] or $qname = "<i>unnamed</i>";
 				$qaction = $qq['ql'];
@@ -86,7 +86,8 @@
 					<td>$qname$qlr<td>".$qq->q."<td>".$qq->desc;
 			};
 			$maintext .= "</table>";
-		} else $maintext .= "<p><i>No personal queries yet</i></p>";
+		} else if ( !$userid ) $maintext .= "<p><i>{%Login to manage your queries}</i></p>";
+		else $maintext .= "<p><i>{%No personal queries yet]</i></p>";
 			
 	};
 
