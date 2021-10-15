@@ -96,7 +96,7 @@
   		if ( file_exists("xmlfiles") ) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
 		$qfldr = preg_replace("/[^a-z0-9]/", "", strtolower($username));
 		$qfn = "Users/$qfldr/queries.xml";
-		if ( file_exists($qfn) ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=querymng'>{%Query Manager}</a></li></ul>";
+		if ( file_exists($qfn) || $_SESSION['queries'] ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=querymng'>{%Query Manager}</a></li></ul>";
 
   		$menu .= $adminitems;
   		
@@ -113,7 +113,7 @@
 			$menu .= "<hr>$idname: <a href='index.php?action=$idaction'>$shortuserid</a><hr>";
 			$qfldr = preg_replace("/[^a-z0-9]/", "", strtolower($userid));
 			$qfn = "Users/$qfldr/queries.xml";
-			if ( file_exists($qfn) ) $menu .= "<ul><li><a href='index.php?action=querymng'>{%Query Manager}</a></li></ul>";
+			if ( file_exists($qfn) || $_SESSION['queries'] ) $menu .= "<ul><li><a href='index.php?action=querymng'>{%Query Manager}</a></li></ul>";
 			foreach ( $tmp['functions'] as $key => $func ) {
 				$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action={$func['key']}' $tmp>{%{$func['display']}}</a></ul>";
 			};
