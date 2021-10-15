@@ -5,7 +5,7 @@
 	$cid = preg_replace("/\.xml/", "", $cid);
 	$treeid = $_GET['treeid'];
 	$sentenceid = $_GET['sentence'];
-	$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'] or $xpath = $_GET['query'];
+	$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'] or $xpath = $_POST['query'] or $xpath = $_GET['query'];
 	if ( !$xpath && $_GET['qid'] && ( $userid || $username ) ) {
 		require("$ttroot/common/Sources/querymng.php");
 		$qid = $_GET['qid'];
