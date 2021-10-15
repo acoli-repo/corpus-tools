@@ -96,7 +96,9 @@
   		if ( file_exists("xmlfiles") ) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
 
   		$menu .= $adminitems;
+  		
 	} else if ( $_SESSION['extid'] ) {
+
 		if ( ! $settings['permissions']['shibboleth'] ) $settings['permissions']['shibboleth'] = array ( "display" => "visitor" ); # Always allow Shibboleth login
 		foreach ( $_SESSION['extid'] as $key => $val ) { 
 		if ( $tmp = $settings['permissions'][$key] ) { 
@@ -104,6 +106,7 @@
 			$idname = $tmp['display'] or $idname = strtoupper($idtype); 
 			$idaction = $tmp['login'] or $idaction = "extuser"; 
 			$shortuserid = $_SESSION['extid'][$idtype];
+			$userid = $shortuserid;
 			$menu .= "<hr>$idname: <a href='index.php?action=$idaction'>$shortuserid</a><hr>";
 			foreach ( $tmp['functions'] as $key => $func ) {
 				$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action={$func['key']}' $tmp>{%{$func['display']}}</a></ul>";

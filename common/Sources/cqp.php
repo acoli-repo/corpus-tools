@@ -68,10 +68,13 @@
 		$moresel .= ", match $key";
 	};
 
-	$cql = stripslashes($_POST['cql']);
-	if ( !$cql ) $cql = stripslashes($_GET['cql']);
-
-	# print_r($_POST); exit;
+	$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = $_GET['query'];
+	if ( !$cql && $_GET['qid'] && ( $userid || $username ) ) {
+		require("$ttfolder/Sources/querymng.php");
+		$qid = $_GET['qid'];
+		$cql = getq($qid);
+	};
+	$cql = stripslashes($cql);
 
 
 	if ( $act == "download" ) {

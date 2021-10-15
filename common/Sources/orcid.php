@@ -77,6 +77,7 @@
 			if ( preg_match("/\"orcid\":\"([^\"]+)\"/", $result, $matches ) ) $_SESSION['extid']['orcid'] = $matches[1];
 			if ( preg_match("/\"name\":\"([^\"]+)\"/", $result, $matches ) ) $_SESSION['extid']['realname'] = $matches[1];
 			$orcid = $_SESSION['extid']['orcid'];
+			$_SESSION['extid']['userid'] = $orcid;
 		
 			# Store/load this user in an XML file
 			print "Logged in - going to store data in XML file as /userlist/user[@id=\"$orcid\"]";

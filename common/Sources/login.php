@@ -59,6 +59,7 @@
 				
 				$user = $_SESSION[$sessionvar]; 
 				$username = $user['email']; 
+				$userid = $username;
 				
 				actionlog ( "user {$_POST['login']}" );
 				
@@ -112,13 +113,16 @@
 		$action = $_POST['goon'];
 
 	} else if ( $action == "logout"  || $act == "exit" ) { 
-		$username = ""; 
+		$username = ""; $userid = "";
 		$_SESSION[$sessionvar] = ""; 
 		unset($_SESSION);
 		session_destroy(); 
 			print "<script language=javascript>top.location='?action=home';</script>You have been logged out. This page will now reload. If it does not, please click 
 				<a href='$newurl'>here</a>.";
 			exit();
+	};
+	if ( $_SESSION['extid'] ) {
+		$userid = $username;
 	};
 
 	## When we are not logged in at this point, show the login
