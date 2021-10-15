@@ -82,7 +82,7 @@
 				if ( !$ql ) $qlr = "<td>{$qq['ql']}";
 				$maintext .= "<tr><td>
 					<a href='index.php?action=$action&act=edit&id={$qq['id']}'>edit</a>
-					<a href='index.php?action=$qaction&query={$qq['id']}'>run</a>
+					<a href='index.php?action=$qaction&qid={$qq['id']}'>run</a>
 					<td>$qname$qlr<td>".$qq->q."<td>".$qq->desc;
 			};
 			$maintext .= "</table>";
