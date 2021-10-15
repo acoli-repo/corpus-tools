@@ -31,6 +31,24 @@
 		print "<p>Query saved<script>top.location='index.php?action=$action&act=edit&id=$id';</script>";
 		exit;
 	
+	} else if ( $act == "publish" && $qlist ) {
+
+		if ( !$username ) fatal("Only for admin users");
+
+		if ( !$glqs ) $glqs = simplexml_load_string("<queries/>");
+
+		$id = $_GET['id'];
+		$qrec = current($qlist->xpath("//query[@id=\"$id\"]"));
+		if ( !$qrec ) fatal ("No such record");
+		$tmp = $glqs->addChild("query", "");
+		replacenode($tmp, $qrec->asXML());
+		unset($qrec[0]);
+	
+		file_put_contents($qfn, $qlist->asXML()); 
+		file_put_contents("Resources/queries.xml", $glqs->asXML()); 
+		print "<p>Query published<script>top.location='index.php?action=$action&type={$qrec['ql']}';</script>";
+		exit;
+	
 	} else if ( $act == "modify" && $qlist ) {
 
 		if ( !$userid ) fatal("Not logged in");
@@ -105,8 +123,10 @@
 			<p><input type=submit value=\"{%Save}\"> 
 				<a href='index.php?action=$action&type={$qrec['ql']}'>{%cancel}</a>
 				&bull; 
-				<a href='index.php?action=$action&id=$id&act=delete'>{%delete}</a>
-			</form>";
+				<a href='index.php?action=$action&id=$id&act=delete'>{%delete}</a>";
+		if ( $username ) $maintext .= "&bull; 
+				<a href='index.php?action=$action&id=$id&act=publish' class=adminpart>{%publish}</a>";
+		$maintext .= "</form>";
 	
 	} else if ( $action == "querymng" ) {
 	

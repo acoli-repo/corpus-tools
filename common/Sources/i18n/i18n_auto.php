@@ -217,6 +217,7 @@
 		"run this query" => "run this query",
 		"Edit Query" => "Edit Query",
 		"delete" => "delete",
+		"publish" => "publish",
 		"Personal Queries" => "Personal Queries",
 		"Login to manage your queries" => "Login to manage your queries",
 		"No personal queries yet" => "No personal queries yet",
