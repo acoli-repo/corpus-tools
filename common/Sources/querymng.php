@@ -29,10 +29,39 @@
 		print "<p>Query saved<script>top.location='index.php?action=$action&type={$_GET['type']}';</script>";
 		exit;
 	
+	} else if ( $act == "modify" && $qlist ) {
+
+		$id = $_GET['id'];
+		$qrec = current($qlist->xpath("//query[@id=\"$id\"]"));
+		$qrec['name'] = $_POST['name'];
+		$qq = $qrec->q;
+		if ( $qq ) $qq[0] = $_POST['query'];
+		else $qrec->addChild('q', $_POST['query']);
+		$qdesc = $qrec->desc;
+		if ( $qdesc ) $qdesc[0] = $_POST['description'];
+		else $qrec->addChild('desc', $_POST['description']);
+	
+		file_put_contents($qfn, $qlist->asXML()); 
+		print "<p>Query saved<script>top.location='index.php?action=$action&type={$qrec['ql']}';</script>";
+		exit;
+	
 	} else if ( $act == "edit" && $qlist ) {
 	
-		$qrec = current($qlist->xpath("//query[@id=\"{$_GET['id']}\"]"));
-		print showxml($qrec); exit;
+		$id = $_GET['id'];
+		$qrec = current($qlist->xpath("//query[@id=\"$id\"]"));
+		$qname = $qrec['name'];
+		$qq = $qrec->q;
+		$qdesc = $qrec->desc;
+		$maintext .= "<h1>{%Edit Query}</h1>
+			<p>Query Language: {$qrec['ql']}</p>
+			<form action='index.php?action=$action&act=modify&id=$id' method=post>
+			<table >
+			<tr><th>Query Name<td><input size=80 name=name value=\"$qname\">
+			<tr><th>Query<td><textarea style='width: 600px; height: 50px;' name=query>$qq</textarea>
+			<tr><th>Description<td><textarea style='width: 600px; height: 50px;' name=description>$qdesc</textarea>
+			</table>
+			<p><input type=submit value=\"{%Save}\"> <a href='index.php?action=$action&type={$qrec['ql']}'>{%cancel}</a>
+			</form>";
 	
 	} else if ( $action == "querymng" ) {
 	
@@ -45,14 +74,16 @@
 		};
 		if ( $qlist ) $qres = $qlist->xpath("//query$qlq");
 		if ( $qres ) {
-			$maintext .= "<table id=qlist><tr><td><th>Query Name<th>Query Language<th>Query";
+			if ( !$ql ) $qlh = "<th>Query Language";
+			$maintext .= "<table id=qlist><tr><td><th>Query Name$qlh<th>Query<th>Description";
 			foreach ( $qres as $qq ) {
 				$qname = $qq['name'] or $qname = "<i>unnamed</i>";
 				$qaction = $qq['ql'];
+				if ( !$ql ) $qlr = "<td>{$qq['ql']}";
 				$maintext .= "<tr><td>
 					<a href='index.php?action=$action&act=edit&id={$qq['id']}'>edit</a>
 					<a href='index.php?action=$qaction&query={$qq['id']}'>run</a>
-					<td>$qname<td>{$qq['ql']}<td>".$qq->asXML();
+					<td>$qname$qlr<td>".$qq->q."<td>".$qq->desc;
 			};
 			$maintext .= "</table>";
 		} else $maintext .= "<p><i>No personal queries yet</i></p>";

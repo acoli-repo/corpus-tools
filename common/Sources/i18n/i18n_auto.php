@@ -209,6 +209,7 @@
 		"Shortest match" => "Shortest match",
 		"Create query" => "Create query",
 		"define search options" => "define search options",
+		"Edit Query" => "Edit Query",
 		"Related Documents" => "Related Documents",
 		"Raw corpus search" => "Raw corpus search",
 		"index" => "index",
