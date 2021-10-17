@@ -54,10 +54,10 @@ function showcql() {
 	cqlparse(cql, divid);
 
 	// Unhide the visualization
-	document.getElementById(divid).style.display = 'block';
+	if ( document.getElementById(divid) ) { document.getElementById(divid).style.display = 'block'; };
 
 	// Hide the qb
-	document.getElementById('qbframe').style.display = 'none';
+	if ( document.getElementById('qbframe') ) { document.getElementById('qbframe').style.display = 'none'; };
 	
 };
 
@@ -281,10 +281,10 @@ function showqb( useid = '' ) {
 	// parse the query
 
 	// Unhide the qbframe
-	document.getElementById('qbframe').style.display = 'block';
+	if ( document.getElementById('qbframe') ) { document.getElementById('qbframe').style.display = 'block'; };
 
 	// Hide the visualization
-	document.getElementById('cqlview').style.display = 'none';
+	if ( document.getElementById('cqlview') ) { document.getElementById('cqlview').style.display = 'none'; };
 	
 
 };

@@ -116,6 +116,7 @@
 		};
 		$maintext .= "	
 			<script language=Javascript>
+				var cqlfld;
 				function addquery ( cql, name ) {
 					// Find the first empty query line
 					var i=0; fnd = 0;
@@ -123,11 +124,14 @@
 					while ( !fnd ) {
 						namefld = document.getElementById('name'+i);
 						cqlfld = document.getElementById('query'+i);
+						console.log(namefld);
 						if ( !cqlfld ) {
-							fnd = 1;
+							fnd = 1; // Make sure to exit if there are no more fields
 						} else if ( cqlfld.value == '' ) {
 							fnd = 1;
 						};
+						console.log(fnd);
+						console.log(cqlfld);
 						i++;
 					};
 					if ( !cqlfld ) {
@@ -143,7 +147,6 @@
 		if ( $querylist ) {
 			$querylist = "<h2>{%Stored CQL queries}</h2><table>$querylist</table>
 			<script language=Javascript>
-				var cqlfld;
 				function addline() {
 					// Add a new line
 					var table = document.getElementById('inputtable');
@@ -216,6 +219,16 @@
 			$querylines .= "<tr><td><input id='name$i' name=myqueries[$i][display] size=20 value='{$cqppt[$i]}'><td><input name=myqueries[$i][cql] size=80 id='query$i'  value='{$cqpp[$i]}'>";
 		};	
 
+		require("$ttroot/common/Sources/querymng.php");
+		$qlist = getqlist("cqp");
+		if ( $qlist ) {
+			foreach ( $qlist as $id => $item ) {
+				$val = str_replace('"', "&quot;", $item['query']);
+				$optlist .= "<option value=\"$val\">{$item['name']}</option>";
+			};
+			$qselect = " &bull; {%stored queries}: <select name=query onChange=\"var qname = this.options[this.selectedIndex].text; addquery(this.value, qname);\"><option value=''>[{%select}]</option>$optlist</select>";
+		};
+		
 		$maintext .= "<h1>{%$pagetit}</h1>
 
 			$subtit
@@ -226,7 +239,6 @@
 				function doqb() {
 					addquery ( '', '' ) // Adding a query will set cqlfld to the first empty CQL field
 					var cqlid = cqlfld.getAttribute('id');
-					console.log(cqlid);
 					showqb(cqlid);
 				};
 			</script>
@@ -238,6 +250,7 @@
 			<span onClick=\"addline('', '')\" style='font-size: 12pt; color: #666666;' title='{%add line}'>&nbsp; ⊕</span>
 			<p><input type=submit value=\"{%Search}\">
 					<a onClick=\"doqb();\" title=\"{%define a CQL query}\">{%query builder}</a>
+					$qselect
 			</form>
 			<div style='display: none;' class='helpbox' id='qbframe'><span style='margin-right: -5px; float: right;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>$querytext</div>
 			$querylist

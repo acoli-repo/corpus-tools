@@ -220,4 +220,19 @@
 
 	};
 
+	function getqlist ($type) {
+		global $qlist, $glqs;
+		if ( $qlist) foreach ( $qlist->xpath("//query[@ql=\"$type\"]") as $item ) {
+			$qq = $item->q;
+			$qname = $item['name']."" or $qname = $qq."";
+			$qs[$item['id'].""] = array ( "name" => $qname."", "query" => $qq."" );
+		};
+		if ( $glqs) foreach ( $glqs->xpath("//query[@ql=\"$type\"]") as $item ) {
+			$qq = $item->q;
+			$qname = $item['name']."" or $qname = $qq."";
+			$qs[$item['id'].""] = array ( "name" => $qname."", "query" => $qq."" ) ;
+		};
+		return $qs;
+	};
+	
 ?>
