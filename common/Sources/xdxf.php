@@ -152,7 +152,8 @@
 	
 		$xml = simplexml_load_file($filename, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		if ( !$xml ) fatal("Error reading dictionary");
-		$maintext .= "\n<h1>{$dict['title']}</h1>";
+		$dicttitle = $dict['title'] or $dicttitle = "{%Dictionary}";
+		$maintext .= "\n<h1>$dicttitle</h1>";
 		if ( $id == "new" ) {
 			$result = $xml->xpath("//ar[@id=\"new\"]"); 
 			if ( !$result ) {
@@ -287,7 +288,7 @@
 		
 	} else if ( $act == "advanced" && $dict['search'] ) {
 	
-		$dicttitle = $dict['title'];
+		$dicttitle = $dict['title'] or $dicttitle = "{%Dictionary}";
 		$maintext .= "\n<h1>$dicttitle</h1>";
 		$maintext .= "<h2>Advanced Search</h2>
 			<form action='index.php?action=$action' method=post>
@@ -355,7 +356,7 @@
 		if ( preg_match("/lang_from=\"(.*?)\"/", $file, $matches) ) $langfrom = "{%lang-{$matches[1]}}";
 		if ( preg_match("/lang_to=\"(.*?)\"/", $file, $matches) ) $langto = " - {%lang-{$matches[1]}}";
 		
-		$dicttitle = $dict['title'];
+		$dicttitle = $dict['title'] or $dicttitle = "{%Dictionary}";
 		$maintext .= "\n<h1>$dicttitle</h1>";
 		if ( $_GET['match'] == "match" ) $msel = "selected";
 		

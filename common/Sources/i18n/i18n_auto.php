@@ -296,6 +296,7 @@
 		"Sketch field" => "Sketch field",
 		"Dictionary Reader" => "Dictionary Reader",
 		"Select a dictionary" => "Select a dictionary",
+		"Dictionary" => "Dictionary",
 		"patterns" => "patterns",
 		"Full Title" => "Full Title",
 		"Edition" => "Edition",
