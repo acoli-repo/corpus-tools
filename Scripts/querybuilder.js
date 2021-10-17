@@ -289,7 +289,33 @@ function showqb( useid = '' ) {
 
 };
 
-function updatequery(nodirect = false) {
+function setquery(newcql) {
+
+	var cqpfld = document.getElementById(cqpid); 
+	if ( typeof(cqpfld) == "undefined" ) { return false; }; // In case the field does not exist
+        
+	cqpfld.value = newcql;
+	// Copy to #code as well if there is one
+	if ( typeof(code) == 'object') { 
+		code.innerText = newcql; 
+		dohighlight(code);
+	};
+	if ( document.getElementById('fromqb') != null ) {
+		document.getElementById('fromqb').value = '1';
+	}
+	
+	// If the CQL field is hidden, auto submit
+	if ( typeof(direct) != "undefined"  ) {
+		if ( !nodirect ) cqpfld.form.submit();
+	} else {
+		document.getElementById('qbframe').style.display = "none";
+	};
+
+	return false; // Always fail - we do not want to actually execute this form
+		
+};
+
+function updatequery( nodirect = false ) {
 
 	if ( cqpid == '' ) cqpid = defid;
 	var docquery = false; // This is a document-only query

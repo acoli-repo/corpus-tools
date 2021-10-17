@@ -442,12 +442,22 @@
 			$querytext .= "</table></div>"; 
 		};	
 
+		require_once("$ttroot/common/Sources/querymng.php");
+		$qrlist = getqlist("cqp");
+		if ( $qrlist ) {
+			foreach ( $qrlist as $id => $item ) {
+				$val = str_replace('"', "&quot;", $item['query']);
+				$optlist .= "<option value=\"$val\">{$item['name']}</option>";
+			};
+			$qselect = " | {%stored queries}: <select name=query onChange=\"var qname = this.options[this.selectedIndex].text; setquery(this.value);\"><option value=''>[{%select}]</option>$optlist</select>";
+		};
+
 		$querytext .= "</table>"; 
 		if ( $showdirect ) {
 			$searchmake = "{%Search}"; 
 			$prescript .= "var direct = 1;";
 		} else $searchmake = "{%Create query}"; 
-		$querytext .= "<p><input type=submit value=\"$searchmake\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a></form>";
+		$querytext .= "<p><input type=submit value=\"$searchmake\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a> $qselect</form>";
 	
 		if ( $settings['cqp']['longbox'] ) $settings['cqp']['boxtype'] = "textarea"; // Legacy option
 		$optionoption = " | <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a> ";

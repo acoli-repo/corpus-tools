@@ -219,10 +219,10 @@
 			$querylines .= "<tr><td><input id='name$i' name=myqueries[$i][display] size=20 value='{$cqppt[$i]}'><td><input name=myqueries[$i][cql] size=80 id='query$i'  value='{$cqpp[$i]}'>";
 		};	
 
-		require("$ttroot/common/Sources/querymng.php");
-		$qlist = getqlist("cqp");
-		if ( $qlist ) {
-			foreach ( $qlist as $id => $item ) {
+		require_once("$ttroot/common/Sources/querymng.php");
+		$qrlist = getqlist("cqp");
+		if ( $qrlist ) {
+			foreach ( $qrlist as $id => $item ) {
 				$val = str_replace('"', "&quot;", $item['query']);
 				$optlist .= "<option value=\"$val\">{$item['name']}</option>";
 			};
