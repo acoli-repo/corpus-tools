@@ -181,7 +181,7 @@
 	";
 
 		// Check for CQP
-		$cqpcheck = shell_exec("/usr/local/bin/cqp -v");
+		$cqpcheck = shell_exec("$bindir/cqp -v");
 		if ( !$cqpcheck ) $cqpcheck = shell_exec("cqp -v"); // if not in /usr/local/bin - try just running it if server allows
 		if ( !$cqpcheck ) {
 			$maintext .= "<p class=warn> CQP not installed or not found. Please install <a href='http://cwb.sourceforge.net/'>CQP</a>,
@@ -196,7 +196,7 @@
 		$cpps = array ('tt-cwb-encode', 'tt-cwb-xidx');
 		foreach ( $cpps as $cpp ) {
 			$cmd = "which $cpp";
-			if ( file_exists("/usr/local/bin/$cpp") ) {
+			if ( file_exists("$bindir/$cpp") ) {
 			} else {
 				$cpperrors .= $sep."$cpp.cpp"; $sep = ", ";
 			};

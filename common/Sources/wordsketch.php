@@ -30,7 +30,7 @@
 		
 		$cqp = "Matches = $cql; stats Matches $fld :: context:head measure:all show:deprel;";	
 			
-		$cmd = "echo '$cqp' | /usr/local/bin/tt-cqp";
+		$cmd = "echo '$cqp' | $bindir/tt-cqp";
 		$results = shell_exec($cmd);
 
 		if ( $debug ) { $maintext .= "<pre>$cmd</pre>"; };

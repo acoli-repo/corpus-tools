@@ -64,5 +64,6 @@
 	$aceurl = $settings['defaults']['src']['ace'] or $aceurl = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.8/ace.js";
 	if ( $aceurl == "local" ) $aceurl = "$jsurl/ace/ace.js";
 
+	$bindir = $settings['defaults']['base']['bin'] or $bindir = "/usr/local/bin";
 	
 ?>

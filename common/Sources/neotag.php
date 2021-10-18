@@ -145,7 +145,7 @@
 		$cid = $_GET['cid'];
 		if ( !file_exists($cid) ) { fatal ( "File does not exist: $cid" ); };
 		
-		$exec = $settings['bin']['neotag'] or $exec = "/usr/local/bin/neotagxml";
+		$exec = $settings['bin']['neotag'] or $exec = "$bindir/neotagxml";
 		
 		if ( $params['pid'] ) $moreopt .= " --pid='{$params['pid']}'";
 		if ( $params['tagsrc'] ) $moreopt .= " --tagsrc";
@@ -167,7 +167,7 @@
 		// Update this settings file
 		check_login();
 		
-		$exec = $settings['bin']['neotagtrain'] or $exec = "/usr/local/bin/neotagtrain";
+		$exec = $settings['bin']['neotagtrain'] or $exec = "$bindir/neotagtrain";
 		
 		if ( $params['pid'] ) $pid = "--pid='{$params['pid']}'";
 		if ( !$settingsxml->xpath("//neotag") && $sharedsettings['neotag'] )  $pid .= " --settings=$sharedfolder/Resources/settings.xml";
@@ -245,7 +245,7 @@
 			};
 			
 			$maintext .= "<hr><p><a href='index.php?action=$action&params=$paramsfile&act=lexicon'>Search lexicon for this parameter set</a>";
-			if ( $params['training'] && ( file_exists("/usr/local/bin/neotagtrain") || $settings['neotag']['exec'] )  ) {
+			if ( $params['training'] && ( file_exists("$bindir/neotagtrain") || $settings['neotag']['exec'] )  ) {
 				$maintext .= "<p><a href='index.php?action=$action&params=$paramsfile&act=update'>Update this parameter set</a>";
 			};
 			$maintext .= "<p><a href='index.php?action=adminsettings&section=neotag'>Go to the NeoTag settings section</a>";

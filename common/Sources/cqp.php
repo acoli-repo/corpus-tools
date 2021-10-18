@@ -262,7 +262,7 @@
 			$fileonly = true;
 		};
 
-		$cqpapp = $_POST['cqpapp'] or $cqpapp = $_GET['cqpapp'] or $cqpapp = "/usr/local/bin/cqp";
+		$cqpapp = $_POST['cqpapp'] or $cqpapp = $_GET['cqpapp'] or $cqpapp = "$bindir/cqp";
 		$cqp = new CQP("", $cqpapp);
 
 		if ( strstr($cqpapp, "tt-cqp") !== false  ) {

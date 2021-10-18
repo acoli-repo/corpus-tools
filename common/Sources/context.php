@@ -28,7 +28,7 @@
 		$filenames = rglob("xmlfiles/*/$cid*");  // There should be only one file
 		$xp = "//text//{$context}[.//tok[@id=\"$tid\"] | .//dtok[@id=\"$tid\"]]";
 
-		$cmd = "/usr/local/bin/tt-xpath --folder='' --filename='{$filenames[0]}' --xpquery='$xp'"; 
+		$cmd = "$bindir/tt-xpath --folder='' --filename='{$filenames[0]}' --xpquery='$xp'"; 
 		$resxml = shell_exec($cmd);
 	
 	} else {

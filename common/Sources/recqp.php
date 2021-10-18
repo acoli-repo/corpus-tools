@@ -207,7 +207,7 @@
 			$script .= "\n`$cmd`;";
 		
 			# Encode the corpus with all the required fields
-			$cmd = "export PATH=$PATH:/usr/local/bin; /usr/bin/which cwb-encode"; $pxenc = chop(shell_exec($cmd)); if ( !$pxenc ) { print "<p>Error: cwb-encode not found"; exit; };
+			$cmd = "export PATH=$PATH:$bindir; /usr/bin/which cwb-encode"; $pxenc = chop(shell_exec($cmd)); if ( !$pxenc ) { print "<p>Error: cwb-encode not found"; exit; };
 			foreach ( $cqpcols as $val ) { $poscols .= " -P $val "; };
 			foreach ( $settings['cqp']['sattributes'] as $xatt ) {
 				$xkey = $xatt['key'];
@@ -226,7 +226,7 @@
 		};
 			
 		# Create the actual CQP corpus
-		$cmd = "export PATH=$PATH:/usr/local/bin; /usr/bin/which cwb-makeall "; $pxmal = chop(shell_exec($cmd)); if ( !$pxmal) { print "<p>Error: cwb-makeall not found"; exit; };
+		$cmd = "export PATH=$PATH:$bindir; /usr/bin/which cwb-makeall "; $pxmal = chop(shell_exec($cmd)); if ( !$pxmal) { print "<p>Error: cwb-makeall not found"; exit; };
 		$cmd = "$pxmal  -r $registryfolder $cqpcorpus";
 
 		$script .= "\n\nprint FILE '----------------------';";

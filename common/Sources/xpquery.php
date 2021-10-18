@@ -50,7 +50,7 @@
 		};
 
 
-		$cmd = "/usr/local/bin/tt-xpath $opts --xpquery='$qt' $qrest"; 
+		$cmd = "$bindir/tt-xpath $opts --xpquery='$qt' $qrest"; 
 		// print $cmd; exit; 
 		$tmp = shell_exec($cmd);
 	

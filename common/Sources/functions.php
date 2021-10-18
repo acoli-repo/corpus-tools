@@ -214,7 +214,8 @@
 	};
 
 	function i18n ( $text, $tolang = "" ) {
-		global $lang; global $i18n; global $langprefix; global $deflang; global $debug; global $ttroot; global $i18nlang; global $sharedfolder;
+		global $lang; global $i18n; global $langprefix; global $deflang; global $debug; global $ttroot; 
+		global $i18nlang; global $sharedfolder;
 		if ( !$tolang ) $tolang = $lang;
 		
 		if ( strpos("{%", $text) == -1 ) return $text; # If there is nothing to translate - return to save time
@@ -328,12 +329,14 @@
 	};
 
 	function findapp ( $appname ) {
-	
+		global $bindir;
+		
 		if ( $settings['bin'][$appname] ) return $settings['bin'][$appname];
 		
-		if ( file_exists("/usr/local/bin/$appname") ) return "/usr/local/bin/$appname";
+		if ( file_exists("$bindir/$appname") ) return "$bindir/$appname";
 
 		if ( file_exists("/usr/bin/$appname") ) return "/usr/bin/$appname"; // For Fedora
+		if ( file_exists("/usr/local/bin/$appname") ) return "/usr/local/bin/$appname"; // As backup
 	
 		return false;
 	};
