@@ -11,7 +11,7 @@
 	if ( $act == "save" ) {
 	
 		if ( !$userid ) fatal("You can only store queries when logged in.");
-		
+				
 		if ( !$qlist ) {
 			check_folder("Users");
 			check_folder("Users/$qfldr");
@@ -26,7 +26,7 @@
 		$qrec = $qroot->addChild("query");
 		$qrec['ql'] = $_GET['type'];
 		$qrec['id'] = $id;
-		$qdef = $qrec->addChild("q", $q);
+		$qdef = $qrec->addChild("q", htmlspecialchars($q, ENT_QUOTES, "utf-8"));
 		file_put_contents($qfn, $qlist->asXML()); 
 		print "<p>Query saved<script>top.location='index.php?action=$action&act=edit&id=$id';</script>";
 		exit;
