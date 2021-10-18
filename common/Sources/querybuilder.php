@@ -443,7 +443,7 @@
 		};	
 
 		require_once("$ttroot/common/Sources/querymng.php");
-		$qrlist = getqlist("cqp");
+		$qrlist = getqlist("cqp"); unset($optlist);
 		if ( $qrlist ) {
 			foreach ( $qrlist as $id => $item ) {
 				$val = str_replace('"', "&quot;", $item['query']);

@@ -289,11 +289,11 @@ function showqb( useid = '' ) {
 
 };
 
-function setquery(newcql) {
+function setquery(newcql, nodirect = false) {
 
 	var cqpfld = document.getElementById(cqpid); 
 	if ( typeof(cqpfld) == "undefined" ) { return false; }; // In case the field does not exist
-        
+    
 	cqpfld.value = newcql;
 	// Copy to #code as well if there is one
 	if ( typeof(code) == 'object') { 

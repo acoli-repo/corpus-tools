@@ -93,7 +93,7 @@
 		if ( ( file_exists("$bindir/tt-cqp") && $settings["cqp"] ) || $settings["defaults"]["tt-cqp"] ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=classify'>Custom annotation</a></ul>"; 
   		if ( count(scandir("pagetrans")) > 2 && !$settings['menu']['itemlist']['pagetrans'] ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=pagetrans'>Page-by-Page</a></ul>"; 
   		$tmp = ""; if ( $action == "files" ) $tmp = "class=\"selected\""; 
-  		if ( file_exists("xmlfiles") ) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
+  		if ( is_dir("xmlfiles") ) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
 		$qfldr = preg_replace("/[^a-z0-9]/", "", strtolower($username));
 		$qfn = "Users/$qfldr/queries.xml";
 		if ( file_exists($qfn) || $_SESSION['queries'] ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=querymng'>{%Query Manager}</a></li></ul>";
