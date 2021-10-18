@@ -596,7 +596,8 @@
 				} else if ( $fldrec["select"] ) {
 					$vals = $sep = "";
 					$prevq = $_GET['q']; 
-					foreach ( explode ( ", ", $val ) as $tmp ) { 
+					foreach ( explode ( ",", $val ) as $tmp ) { 
+						$tmp = trim($tmp);
 						$vals .= $sep."<a class='black' href='index.php?action=$action&q=$keyt:$tmp;$prevq'>$tmp</a>"; $sep = ", ";
 					};
 					$val = $vals;
