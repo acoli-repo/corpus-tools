@@ -462,8 +462,9 @@
 		if ( $settings['cqp']['longbox'] ) $settings['cqp']['boxtype'] = "textarea"; // Legacy option
 		$optionoption = " | <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a> ";
 		$boxtype = $_GET['boxtype'] or $boxtype = $settings['cqp']['boxtype'];
+		$cqlu = str_replace("'", "&#039;", $cql);
 		if ( $boxtype == "textarea" ) {
-			$cqlbox = "<textarea id='cqlfld' name=cql value='$cql' style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
+			$cqlbox = "<textarea id='cqlfld' name=cql value='$cqlu' style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
 		} else if ( $boxtype == "pegdiv" ) {
 			$optionoption = "";
 			$pattlist = "'word', 'id', "; // word and id are always defined
@@ -487,7 +488,7 @@
 			$prescript .= "	var pattlist = [$pattlist]; \nvar sattlist = [$sattlist]; \nvar regionlist = [$regionlist]; \nvar regionname = { $regionnames };";
 			$cqlbox = "	
 				<div id=\"cqlcode\" class=\"language-cql\" contenteditable=\"true\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\">$cqltxt</div>
-				<input type=hidden id='cqlfld' name='cql' value='$cql' style='width: 600px;'>
+				<input type=hidden id='cqlfld' name='cql' value='$cqlu' style='width: 600px;'>
 				<div id='cqlconsole'></div>
 			";
 			$postcode .= "<script src=\"https://orbitbot.github.io/misbehave/lib/prism.js\"></script>
@@ -528,7 +529,7 @@
 					</script>
 				";
 		} else {
-			$cqlbox = "<input id='cqlfld' name=cql value='$cql' style='width: 600px;'/> ";
+			$cqlbox = "<input id='cqlfld' name=cql value='$cqlu' style='width: 600px;'/> ";
 		};
 		$cqlbox .= "<input type=hidden id='fromqb' name=fromqb value=''/> ";
 

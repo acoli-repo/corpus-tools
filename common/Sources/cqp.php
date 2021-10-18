@@ -332,11 +332,14 @@
 		# To make sure that we can modify our query, create a hidden post
 		$maintext .= "\n<form action='' method=post id=resubmit name=resubmit>";
 		foreach ( $_POST as $key => $val ) {
+			$val = str_replace("'", "&#039;", $val);
 			$maintext .= "<input type=hidden name=$key value='$val'>";
 			if ( is_array($val) ) {
 				foreach ( $val as $key2 => $val2 )
+					$val2 = str_replace("'", "&#039;", $val2);
 					$maintext .= "\n    <input type=hidden id='rs$key$key2' name={$key}[$key2] value='$val2'>";
 			} else {
+				$val = str_replace("'", "&#039;", $val);
 				$maintext .= "\n  <input type=hidden name=$key id='rs$key' value='$val'>";
 			};
 		};
@@ -723,6 +726,7 @@
 		$cqlu = $cqltxt;
 
 		$cqp->close();
+		$cqlu = str_replace("'", "&#039;", $cqlu);
 		$maintext .= "\n<hr>\n\n<p><form action='index.php?action=download' id=cqlform name=cqlform method=post>
 			<input type=hidden name=cql value='$cqlu' $chareqfn></form>";
 		if ( $username && !$fileonly && ( $user['permissions'] == "admin" || $settings['defaults']['cqpedit'] == 1 ) ) {
