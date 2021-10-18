@@ -595,8 +595,9 @@
 					if ( $linkurl != "" ) $val = "<a$trgt href='$linkurl'>$val</a>";
 				} else if ( $fldrec["select"] ) {
 					$vals = $sep = "";
+					$fldsep = $fldrec['sep'] or $fldsep = ", ";
 					$prevq = $_GET['q']; 
-					foreach ( explode ( ",", $val ) as $tmp ) { 
+					foreach ( explode ( $fldsep, $val ) as $tmp ) { 
 						$tmp = trim($tmp);
 						$vals .= $sep."<a class='black' href='index.php?action=$action&q=$keyt:$tmp;$prevq'>$tmp</a>"; $sep = ", ";
 					};
