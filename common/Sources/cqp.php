@@ -436,6 +436,14 @@
 		} else {
 
 			# Text searches
+				
+			if ( !$settings['cqp']['noipm'] ) {
+				$corpsize = $cqp->exec("All = []; size All;");			
+				if ( preg_match("/^[^:;]+ :: ([^;:]+)$/", $cql, $matches) ) {
+					$globals = $matches[1];
+					$relsize = $cqp->exec("Rel = [] :: $globals; size Rel;");		
+				};	
+			};
 
 			if ( $sort ) {
 				# $maintext .= "Sorted by $sort"; - this is not
@@ -450,6 +458,10 @@
 
 			$resarr = explode ( "\n", $results ); $scnt = count($resarr);
 			$maintext .= "<p>$cnt {%results}";
+			if ( $corpsize ) $ipm = sprintf("%0.2f", ($cnt/$corpsize)*1000000);
+			if ( $ipm ) $maintext .= " &bull; <span title='{%instances per million tokens}'>ipm</span>: <span title='{%over whole corpus}'>$ipm</span> "; 
+			if ( $relsize && $relsize != $corpsize ) $ipr = sprintf("%0.2f", ($cnt/$relsize)*1000000);
+			if ( $ipr ) $maintext .= " / <span title='{%over subcorpus}: $globals'>$ipr</span> "; 
 			if ( $scnt < $cnt ) {
 				$maintext .= " &bull; {%!showing} $start - $end";
 			};
