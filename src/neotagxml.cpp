@@ -1547,6 +1547,7 @@ void treatWord ( wordtoken insertword ) {
 // Deleted the READPARAMETERS
 void parseparameters () {
 	// Preload the posProbs - this might improve speed
+	if ( verbose ) { cout << "* Pre-processing parameter files" << endl; };
 	for ( pugi::xml_node lexitem = parameters.first_child().child("lexicon").child("item"); lexitem != NULL; lexitem = lexitem.next_sibling("item") ) {
 		string word = lexitem.attribute("key").value();
 		pugi::xpath_node_set tmp = lexitem.select_nodes("tok");
@@ -1737,8 +1738,8 @@ int main (int argc, char * const argv[]) {
 		};
 	};
 	
-	// Preparse the XML to build the endlemma list and such
-	parseparameters();
+	if ( debug > 4 ) { cout << "* Calculated settings: " << endl; tagsettings.print(cout); };
+	
 	
 	// Some default settings
 	char tokxpath [50]; string tmp2;
@@ -1801,6 +1802,9 @@ int main (int argc, char * const argv[]) {
 			if ( verbose ) { cout << "- Using external lexicon: " << tagsettings.attribute("lexicon").value() << endl; };
 		};
 	};
+
+	// Preparse the XML to build the endlemma list and such
+	parseparameters();
 	
 	outstream = &std::cout;
 	tofile = false;

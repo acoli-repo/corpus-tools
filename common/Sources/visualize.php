@@ -131,7 +131,6 @@
 			} else if ( $act == "collocations" || $_POST['mode'] == "collocations" ) {
 
 				$maintext .= "<h1>{%Collocations}</h1>";
-
 				$tmpfile = time();
 
 				$moredirect .= "&context=".urlencode($_POST['context']);
@@ -149,10 +148,52 @@
 								<tr><th>{%Collocates}:<td><span title='$cmd'>{%Direction}: $dirtxt; {%!context}: $context; {%Field}: {%$fldname}</span></tr>
 							</table>";
 
-				$cmd = "echo 'Matches = $cql; stats Matches $fld :: context:$dir$context' | $ttcqp --output=json";
-				if ( $debug ) $maintext .= "<!-- $cmd -->";
-				$json = shell_exec($cmd);
-
+				if ( $ttcqp && !$usecwb && 1==2  ) {
+					# Use tt-cqp by default
+					$cmd = "echo 'Matches = $cql; stats Matches $fld :: context:$dir$context' | $ttcqp --output=json";
+					if ( $debug ) $maintext .= "<!-- $cmd -->";
+					$json = shell_exec($cmd);
+				} else {
+					require_once ("$ttroot/common/Sources/cwcqp.php");
+					$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+					$cqpfolder = $settings['cqp']['searchfolder'];
+					if  ( !$corpusfolder ) $corpusfolder = "cqp";
+					# Check whether the registry file exists
+					if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
+						# For backward compatibility, always check the central registry
+						$registryfolder = "/usr/local/share/cwb/registry/";
+					};
+					if ( !file_exists($registryfolder.'/'.strtolower($cqpcorpus)) ) {
+						fatal ( "Corpus $cqpcorpus has no registry file" );
+					};
+				
+					$cqp = new CQP();
+					$cqp->exec($cqpcorpus); // Select the corpus
+					$cqp->exec("set PrettyPrint off");
+					$cqpquery = "Matches = $cql";
+					$cqp->exec($cqpquery);
+					$num = $cqp->exec("size Matches"); $num = $num + 0;
+					$sep = "";
+					$fld = $_POST["fld"] or $fld = "form";
+					if ( $_POST['dir'] == "" || $_POST['dir'] == 'left'  ) {
+						if ( $_POST['context'] == 1 ) $what .= $sep."match[-1] $fld";
+						else if ( $_POST['context'] > 1 ) $what .= $sep."match[-{$_POST['context']}]..match[-1] $fld";
+						$sep = ", ";
+					};
+					if ( $_POST['dir'] == "" || $_POST['dir'] == 'right'  ) {
+						if ( $_POST['context'] == 1 ) $what .= $sep."match[1] $fld";
+						else if ( $_POST['context'] > 1 ) $what .= $sep."matchend[1]..matchend[{$_POST['context']}] $fld";
+						$sep = ", ";
+					};
+					$tabql = "tabulate Matches $what;";
+					$res = $cqp->exec($tabql);
+					$resarr = preg_split("/\s+/", $res);
+					$colls = array_count_values($resarr);
+					$json = json_encode($colls);
+					# This is not the right json format {"a": 2, "b": 1}
+				};
+							
 				$headrow = "false";
 
 				$wpmsel = " | {%Count}: <select name='cntcol' onChange='setcnt(this.value);'><option value=1 title='{%Observed frequency}'>Observed</option><option value=4 title='{%Chi Square}'>{%Chi Square}</option><option value=5 title='{%Mutual Information}'>{%Mutual Information}</option></select>";
