@@ -243,16 +243,36 @@
 					$cqp->exec("set PrettyPrint off");
 					$cqpquery = "Matches = $cql";
 					$cqp->exec($cqpquery);
+					$cqpquery = "All = []";
+					$cqp->exec($cqpquery);
 					$results = $cqp->exec($grquery);
-
-					$label = "Group"; # {%Group}
-					$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}], ";
-					foreach ( explode("\n", $results) as $line ) {
-						list ( $grp, $cnt ) = explode ( "\t", $line );
-						$grp = str_replace("'", "\\'", $grp); # Protect '
-						if ( $grp && $cnt ) $json .= "['$grp', $cnt], ";
-					};
-					$json .= "]";
+					
+					if ( !$settings['cqp']['nowpm'] ) {
+						$resall = $cqp->exec(str_replace("Matches", "All", $grquery));
+						foreach ( explode("\n", $resall) as $line ) {
+							list ( $grp, $cnt ) = explode ( "\t", $line );
+							$allcnt[$grp] = $cnt;
+						};
+						$label = "Group"; # {%Group}
+						$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'wpm', 'label':'{%WPM}', 'type':'number'}], ";
+						foreach ( explode("\n", $results) as $line ) {
+							list ( $grp, $cnt ) = explode ( "\t", $line );
+							$grp = str_replace("'", "\\'", $grp); # Protect '
+							$wpm = 0; if ( $allcnt[$grp] ) $wpm = sprintf("%0.2f", ($cnt/$allcnt[$grp])*10000000);
+							if ( $grp && $cnt ) $json .= "['$grp', $cnt, $wpm], ";
+						};
+						$json .= "]";
+					} else {
+						$label = "Group"; # {%Group}
+						$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}], ";
+						foreach ( explode("\n", $results) as $line ) {
+							list ( $grp, $cnt ) = explode ( "\t", $line );
+							$grp = str_replace("'", "\\'", $grp); # Protect '
+							if ( $grp && $cnt ) $json .= "['$grp', $cnt], ";
+						};
+						$json .= "]";
+					}
+										
 
 					if ( preg_match("/group Matches match (.*)/", $grquery, $matches ) ) {
 					$grtxt = "<span title='".htmlentities($grquery)."'>{%".pattname($matches[1])."}</span>";

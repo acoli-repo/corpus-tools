@@ -72,7 +72,7 @@
 	if ( !$cql && $_GET['qid'] && ( $userid || $username ) ) {
 		require_once("$ttroot/common/Sources/querymng.php");
 		$qid = $_GET['qid'];
-		$cql = getq($qid);
+		$tmp = getq($qid);
 	};
 	$cql = stripslashes($cql);
 

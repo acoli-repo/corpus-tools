@@ -268,6 +268,7 @@
 		"Mutual Information" => "Mutual Information",
 		"Corpus Distribution" => "Corpus Distribution",
 		"Group" => "Group",
+		"WPM" => "WPM",
 		"Group query" => "Group query",
 		"Words per million" => "Words per million",
 		"Corpus occurrences" => "Corpus occurrences",

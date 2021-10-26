@@ -207,17 +207,17 @@
 				
 	};
 
-	function getq ($qid) {
+	function getq ($qid, $full=0) {
 		global $qlist, $glqs; 
 		if ( $qlist ) {
-			$qrc = current($qlist->xpath("//query[@id=\"$qid\"]/q"));
-			if ( $qrc ) return $qrc[0];
+			$qrc = current($qlist->xpath("//query[@id=\"$qid\"]"));
+		} else if ( $glqs ) {
+			$qrc = current($glqs->xpath("//query[@id=\"$qid\"]"));
 		};
-		if ( $glqs ) {
-			$qrc = current($glqs->xpath("//query[@id=\"$qid\"]/q"));
-			if ( $qrc ) return $qrc[0];
+		if ( $qrc ) {
+			if ( $full ) return $qrc[0];
+			else return $qrc[0]->q;
 		};
-
 	};
 
 	function getqlist ($type) {
