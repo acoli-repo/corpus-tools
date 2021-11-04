@@ -64,6 +64,8 @@ $parser->keep_blanks(1);
 
 if ( !$filename ) { print "No filename provided"; exit; };
 
+if ( !-w $filename && !$test ) { print "Not allow to write to $filename"; exit; };
+
 if ( $settingsfile && -e $settingsfile ) { $settings = $parser->load_xml(location => $settingsfile); };
 if ( $settings ) {
 	if ( $verbose ) { print "Inheritance from $settingsfile"; };
@@ -459,6 +461,10 @@ sub genericline ( $line ) {
 		if ( $debug ) { print "Token: $line"; };
 		@vals = split("\t", $line ); $word = $vals[$wrdf];
 		$orgword = @toks[0]->textContent;
+		while ( $orgword eq "" ) { 
+			print " - Skipping empty token : ".$orgtoks[0]->toString;
+			shift(@toks);  shift(@orgtoks); 
+		}; 
 		if ( $orgword eq $word ) {
 			$regtok = shift(@toks); 
 			$tok = shift(@orgtoks); 
@@ -564,6 +570,11 @@ sub conlluline ( $line ) {
 		if ( $debug ) { print "Token: $line"; };
 		( $ord, $word, $lemma, $upos, $xpos, $feats, $head, $deprel, $deps, $misc ) = split("\t", $line ); 
 		$orgword = @toks[0]->textContent;
+		while ( $orgword eq "" ) { 
+			print " - Skipping empty token : ".$orgtoks[0]->toString;
+			shift(@toks);  shift(@orgtoks); 
+			$orgword = @toks[0]->textContent;
+		}; 
 		if ( $mtok && $ord <= $to ) {
 			if ( $debug ) { print "Part of mtok: ".$mtok->getAttribute("id"); };
 			$dtok = $xml->createElement("dtok");
