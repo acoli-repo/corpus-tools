@@ -215,6 +215,7 @@
 		"Shortest match" => "Shortest match",
 		"Create query" => "Create query",
 		"define search options" => "define search options",
+		"Module" => "Module",
 		"Query Language" => "Query Language",
 		"Date" => "Date",
 		"run this query" => "run this query",

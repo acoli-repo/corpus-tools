@@ -561,8 +561,11 @@ if ( !$doc ) {
 	}; 
 
 # Add a revisionDesc to indicate the file was tokenized
-$revnode = makenode($doc, "/TEI/teiHeader/revisionDesc/change[\@who=\"xmltokenize\"]");
+$revs = makenode($doc, "/TEI/teiHeader/revisionDesc");
+$revnode = XML::LibXML::Element->new( "change" );
+$revs->addChild($revnode);
 $when = strftime "%Y-%m-%d", localtime;
+$revnode->setAttribute("who", "xmltokenize");
 $revnode->setAttribute("when", $when);
 if ( $sentsplit == 2 ) {
 	$revnode->appendText("split into sentences using xmltokenize.pl");

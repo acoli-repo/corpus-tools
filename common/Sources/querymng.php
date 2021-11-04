@@ -8,6 +8,8 @@
 	if ( file_exists($qfn) ) $qlist = simplexml_load_file($qfn);
 	if ( file_exists("Resources/queries.xml") ) $glqs= simplexml_load_file("Resources/queries.xml");
 
+	$qls = array ( "cqp" => 'CQL', "psdx" => "XPath", "dicsearch" => "SQL", "pmltq" => "PML-TQ", "grew" => "Grew-match" );
+
 	if ( $act == "save" ) {
 	
 		if ( !$userid ) fatal("You can only store queries when logged in.");
@@ -91,9 +93,11 @@
 		$timestamp = substr($id, 0, -5);
 		$date = date('Y-m-;d h:i:s', hexdec($timestamp));  // Thu, 05 Sep 2013 15:55:04 -0400
 		
-		$qaction = $qrec['ql'];
+		$qaction = $qrec['ql'].'';
+		
 		$maintext .= "<h1>{%Query}</h1>
-			<p>{%Query Language}: {$qrec['ql']}</p>
+			<p>{%Module}: {$qrec['ql']}</p>
+			<p>{%Query Language}: {$qls[$qaction]}</p>
 			<p>{%Date}: $date</p>
 			<table >
 			<tr><th>{%Name}<td>$qname
@@ -112,8 +116,10 @@
 		$qname = $qrec['name'];
 		$qq = $qrec->q;
 		$qdesc = $qrec->desc;
+		$qaction = $qrec['ql'].'';
 		$maintext .= "<h1>{%Edit Query}</h1>
-			<p>{%Query Language}: {$qrec['ql']}</p>
+			<p>{%Module}: {$qrec['ql']}</p>
+			<p>{%Query Language}: {$qls[$qaction]}</p>
 			<form action='index.php?action=$action&act=modify&id=$id' method=post>
 			<table >
 			<tr><th>{%Name}<td><input size=80 name=name value=\"$qname\">
@@ -135,7 +141,7 @@
 		if ( $_GET['type'] ) {
 			$ql = $qls[$_GET['type']] or $ql = $_GET['type'];
 			$qlq = "[@ql=\"$ql\"]";
-			$maintext .= "<p>{%Query Language}: <b>$ql</b></p><hr>";
+			$maintext .= "<p>{%Query Language}: <b>{$qls[$ql]} ($ql)</b></p><hr>";
 		};
 		if ( $qlist ) $qres = $qlist->xpath("//query$qlq");
 		if ( $qres && count($qres)>0 ) {
@@ -145,7 +151,9 @@
 			foreach ( $qres as $qq ) {
 				$qname = $qq['name'] or $qname = "<i>unnamed</i>";
 				$qaction = $qq['ql'];
-				if ( !$ql ) $qlr = "<td><a href='index.php?action=$action&type={$qq['ql']}'>{$qq['ql']}</a>";
+				$qlt = $qaction.'';
+				if ( $qls[$qlt] ) $qlt = "{$qls[$qlt]} ($qlt)"; 
+				if ( !$ql ) $qlr = "<td><a href='index.php?action=$action&type={$qq['ql']}'>$qlt</a>";
 				$maintext .= "<tr><td>
 					<a href='index.php?action=$action&act=edit&id={$qq['id']}'>edit</a>
 					<a href='index.php?action=$qaction&qid={$qq['id']}'>run</a>
@@ -162,8 +170,10 @@
 			$maintext .= "<table id=rollovertable><tr><td><th>{%Name}$qlh<th>{%Query}<th>{%Description}";
 			foreach ( $qres as $qq ) {
 				$qname = $qq['name'] or $qname = "<i>unnamed</i>";
-				$qaction = $qq['ql'];
-				if ( !$ql ) $qlr = "<td><a href='index.php?action=$action&type={$qq['ql']}'>{$qq['ql']}</a>";
+				$qaction = $qq['ql']; 
+				$qlt = $qaction.'';
+				if ( $qls[$qlt] ) $qlt = "{$qls[$qlt]} ($qlt)"; 
+				if ( !$ql ) $qlr = "<td><a href='index.php?action=$action&type={$qq['ql']}'>$qlt</a>";
 				$maintext .= "<tr><td>
 					<a href='index.php?action=$action&act=view&global=1&id={$qq['id']}'>details</a>
 					<a href='index.php?action=$qaction&qid={$qq['id']}'>run</a>
@@ -193,10 +203,12 @@
 				$qq = $qrec['query']; $ql = $qrec['ql'];
 				$qqt = urlencode($qq); $cnt++;
 				$qaction = $ql;
+				$qlt = $qaction.'';
+				if ( $qls[$qlt] ) $qlt = "{$qls[$qlt]} ($qlt)"; 
 				$maintext .= "<tr><td>
 					<div style='display: none' id='q-$cnt'>$qq</div> <a onclick=\"setq($cnt, '$ql');\">store</a>
 					<a href='index.php?action=$qaction&query=$qqt'>run</a>
-					<td>$ql<td>$qq<td style='color: #bbbbbb; background-color: white;'><i>".date("Y-m-d h:i:s", $id)."</i>";
+					<td>$qlt<td>$qq<td style='color: #bbbbbb; background-color: white;'><i>".date("Y-m-d h:i:s", $id)."</i>";
 			};
 			$maintext .= "</table><hr>";
 		};

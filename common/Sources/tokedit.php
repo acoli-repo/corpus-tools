@@ -188,8 +188,13 @@
 		$xmlword = str_replace("'", "&#039;", $xmlword); // Protect quotes
 		$maintext .= "<tr><td>pform<td>Transcription (Inner XML)<td><input size=60 name=word id='word' value='$xmlword'>";
 
+		$tokclone = simplexml_load_string($token->asXML());
+		$leftatts = $tokclone->attributes();
+		unset($leftatts['id']);
+
 		// Show all the defined forms and make them editable
 		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			unset($leftatts[$key]);
 			$atv = $token[$key]; 
 			$val = $item['display'];
 			if ( $key != "pform" && !$item['noedit'] ) { // the raw XML is not an attribute, and some attribute are set to be non-editable
@@ -198,9 +203,12 @@
 			};
 		};
 		
+		
 		$maintext .= "<tr><td colspan=10><hr>";
 		// Show all the defined tags
 		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+		
+			unset($leftatts[$key]);
 		
 			// Reinterpret some depricated settings values
 			if ( $item['item'] == "eselect" ) { $item['input'] = "select"; $item['add'] = 1; }; 
@@ -630,7 +638,14 @@
 			<div id='simtoks'></div>
 		
 		";
-		
+
+		if ( $leftatts ) {
+			$maintext .= "<hr><h3>Undefined attributes</h3><table>";
+			foreach ( $leftatts as $key => $val ) {
+				$maintext .= "<tr><th>$key<td>$val";
+			};
+			$maintext .= "</table>";
+		};	
 
 		
 		# In case this is part of an <mtok>, show that as well
