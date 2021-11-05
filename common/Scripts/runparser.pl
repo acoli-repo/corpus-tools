@@ -189,8 +189,8 @@ if ( $parserformat eq 'wpl' ) {
 } elsif ( $parserformat && $parserformat ne 'conllu' ) {
 	$flds = $parserformat;
 } else {
-	# By default, assume CoNLL-U
-	$flds = "ord,form,lemma,upos,xpos,feats,head,deprel,deps"; #,misc
+	# By default, assume CoNLL-U - with @ohead to calculate @head afterwards
+	$flds = "ord,form,lemma,upos,xpos,feats,ohead,deprel,deps"; #,misc
 };
 @flds = split(",", $flds); for ( $i=0; $i<scalar @flds; $i++ ) { 
 	if ( $flds[$i] eq 'form' ) { $wrdf = $i; }; 
