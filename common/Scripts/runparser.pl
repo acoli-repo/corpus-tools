@@ -571,7 +571,7 @@ sub conlluline ( $line ) {
 		( $ord, $word, $lemma, $upos, $xpos, $feats, $head, $deprel, $deps, $misc ) = split("\t", $line ); 
 		$orgword = @toks[0]->textContent;
 		while ( $orgword eq "" ) { 
-			print " - Skipping empty token : ".$orgtoks[0]->toString;
+			if ( $debug ) { print " - Skipping empty token : ".$orgtoks[0]->toString; };
 			shift(@toks);  shift(@orgtoks); 
 			$orgword = @toks[0]->textContent;
 		}; 

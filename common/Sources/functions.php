@@ -431,7 +431,7 @@
 	function namespacemake ( $text ) {
 		
 		# prefix HTML element in XML with xml namespace
-		foreach ( array ( "head", "opener", "address", "div", "option", "image" ) as $tagname ) {
+		foreach ( array ( "head", "opener", "address", "div", "option", "image", "title" ) as $tagname ) {
 			$text = preg_replace( "/<$tagname([ >])/i", "<tei_$tagname$1", $text );
 			$text = preg_replace( "/<\/$tagname>/i", "</tei_$tagname>", $text );
 		};
