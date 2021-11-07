@@ -16,7 +16,9 @@ function addtoken() {
         var parse = /(.*)\[(.*)\]/g.exec(name);                     
         if ( parse == null ) continue;
         if ( flds[i].nodeName == "INPUT" ) {
-			var matchtype = document.querySelector('[name="matches['+parse[2]+']"]').value;
+			var matchtype;
+			var tmp = document.querySelector('[name="matches['+parse[2]+']"]');
+			if ( tmp ) { matchtype = tmp.value; };
 			if ( matchtype == 'contains' ) {
 				val = '.*' + val + '.*';
 			} else if ( matchtype == 'startswith' ) {
