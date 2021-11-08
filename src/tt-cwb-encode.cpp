@@ -217,6 +217,7 @@ void treatnode ( pugi::xpath_node node ) {
 	node.node().print(oss);
 	std::string xmltxt = oss.str();
 	int xmlpos2 = xmlpos1 + xmltxt.length();
+	if ( debug > 4 ) { cout << " - writing range: " << xmlos1 << " - " << xmlpos2 << endl; };
 	write_network_number(xmlpos1, files["xidx"]["rng"]);
 	write_network_number(xmlpos2, files["xidx"]["rng"]);
 
@@ -923,7 +924,7 @@ int main(int argc, char *argv[])
 
 	// Throw an exception if we did not manage to create corpus.lexicon
 	if ( files["word"]["corpus"] == NULL ) {
-		cout << "Fatal error: failed to created files, check cqp folder exists and is writable" << endl;
+		cout << "Fatal error: failed to create CQP files, check cqp folder exists and is writable" << endl;
 		return -1;
 	};
 

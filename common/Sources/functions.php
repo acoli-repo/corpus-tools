@@ -966,5 +966,20 @@
 			
 	};
 	
+	function array2xml($array, $root = 'root') {
+		$xml = simplexml_load_string("<$root/>");
+		$dom = dom_import_simplexml($xml);
+		foreach ( $array as $key => $val ) {
+			if ( is_array($val) ) {
+				$child = array2xml($val, $key);
+				$domc = dom_import_simplexml($child);
+				$domi = $dom->ownerDocument->importNode($domc, TRUE);
+				$dom->appendChild($domi);
+			} else {
+				$xml[$key] = $val;
+			};
+		};
+		return $xml;
+	};	
 	
 ?>

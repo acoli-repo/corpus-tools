@@ -1,5 +1,12 @@
 use XML::LibXML;
 use POSIX qw(strftime);
+use Getopt::Long;
+
+GetOptions ( ## Command line options
+		'debug' => \$debug, # debugging mode
+		'test' => \$test, # tokenize to string, do not change the database
+		'setfile=s' => \$setfile, # alternative settings file
+		);
 
 $scriptname = $0;
 
@@ -35,6 +42,10 @@ print FILE 'command:
 /bin/rm -Rf cqp/*';
 `/bin/rm -Rf cqp/*`;
 
+if ( $setfile ) {
+	$setfile = " --settings='$setfile'"; 
+};
+
 if ( $sub ) {
 
 	print "Dealing with subcorpora in $search";	
@@ -48,7 +59,7 @@ if ( $sub ) {
 		
 		print FILE '----------------------';
 		print FILE '(1) Encoding subcorpus $fn';
-		$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder --folder='$sf' --corpusfolder='cqp/$fn' --corpus='$subcorpus'";
+		$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder --folder='$sf' --corpusfolder='cqp/$fn' --corpus='$subcorpus' $setfile";
 		print FILE "command:
 		$cmd";
 		`$cmd`;
@@ -62,7 +73,7 @@ if ( $sub ) {
 		if ( $sub eq 'both' ) {
 			print FILE '----------------------';
 			print FILE '(1) Encoding full corpus$';
-			$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder --corpusfolder='cqp/full' --corpus='$cqpcorpus'";
+			$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder --corpusfolder='cqp/full' --corpus='$cqpcorpus'  $setfile";
 			print FILE "command:
 			$cmd";
 			`$cmd`;
@@ -70,8 +81,8 @@ if ( $sub ) {
 			print FILE '----------------------';
 			print FILE '(2) Creating subcorpus $fn';
 			print FILE "command:
-			/usr/local/bin/cwb-makeall  -r $regfolder $cqpcorpus";
-			`/usr/local/bin/cwb-makeall  -r $regfolder $cqpcorpus`;
+			/usr/local/bin/cwb-makeall -r $regfolder $cqpcorpus";
+			`/usr/local/bin/cwb-makeall -r $regfolder $cqpcorpus`;
 		};
 
 	};
@@ -80,15 +91,18 @@ if ( $sub ) {
 
 	print FILE '----------------------';
 	print FILE '(1) Encoding the corpus';
+	$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder  $setfile";
 	print FILE "command:
-	/usr/local/bin/tt-cwb-encode -r $regfolder";
-	`/usr/local/bin/tt-cwb-encode -r $regfolder`;
+	$cmd ";
+	`$cmd`;
 
 	print FILE '----------------------';
 	print FILE '(2) Creating the corpus';
+	$cmd = "/usr/local/bin/cwb-makeall  -r $regfolder $cqpcorpus";
 	print FILE "command:
-	/usr/local/bin/cwb-makeall  -r $regfolder $cqpcorpus";
-	`/usr/local/bin/cwb-makeall  -r $regfolder $cqpcorpus`;
+	$cmd
+	";
+	`$cmd`;
 
 };
 

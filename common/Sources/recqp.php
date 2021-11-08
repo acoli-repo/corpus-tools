@@ -79,7 +79,38 @@
 			
 	} else if ( ( file_exists("Scripts/recqp.pl") || file_exists("$sharedfolder/Scripts/recqp.pl") || file_exists("$ttroot/common/Scripts/recqp.pl") ) && !$_GET['check'] && !$_GET['force'] ) {
 
-
+		if ( $sharedsettings['cqp'] ) {
+			print_r($sharedsettings['cqp']);
+			$merged = new SimpleXMLElement("<ttsettings/>");
+			$cqp = $merged->addChild("cqp");
+			$patts = $cqp->addChild("pattributes");
+			foreach ( $settings['cqp'] as $key => $val ) {
+				if ( !is_array($val) ) { $cqp[$key] = $val; };
+			};
+			foreach ( $settings['cqp']['pattributes'] as $key => $val ) {
+				$item = $patts->addChild("item");
+				foreach ( $val as $key2 => $val2 ) {
+					$item[$key2] = $val2;
+				};
+			};
+			$satts = $cqp->addChild("sattributes");
+			foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
+				$item = $satts->addChild("item");
+				foreach ( $val as $key2 => $val2 ) {
+					if ( is_array($val2) ) {
+						$item2 = $item->addChild("item");				
+						foreach ( $val2 as $key3 => $val3 ) {
+							$item2[$key3] = $val3;
+						};
+					} else {
+						$item[$key2] = $val2;
+					};
+				};
+			};
+			file_put_contents("tmp/cqpsettings.xml", $merged->asXML());
+			$setfile = " --setfile=tmp/cqpsettings.xml";
+		};
+		
 		if ( ( file_exists("cqp/word.corpus")	&& !is_writable("cqp/word.corpus") ) || !is_writable("cqp") ) 
 			fatal("The permissions on the CQP files prevent the system from writing them");		
 
@@ -99,7 +130,8 @@
 				</script>";
 				
 		# Start the perl script as a background process
-		exec("perl $scriptname > /dev/null &");
+		$cmd = "perl $scriptname $setfile > /dev/null &";
+		exec($cmd);
 
 	} else if ( ( $_GET['check'] || $recentfile ) && file_exists("tmp/recqp.log")  && !$_GET['force'] ) {
 		
