@@ -80,7 +80,6 @@
 	} else if ( ( file_exists("Scripts/recqp.pl") || file_exists("$sharedfolder/Scripts/recqp.pl") || file_exists("$ttroot/common/Scripts/recqp.pl") ) && !$_GET['check'] && !$_GET['force'] ) {
 
 		if ( $sharedsettings['cqp'] ) {
-			print_r($sharedsettings['cqp']);
 			$merged = new SimpleXMLElement("<ttsettings/>");
 			$cqp = $merged->addChild("cqp");
 			$patts = $cqp->addChild("pattributes");
