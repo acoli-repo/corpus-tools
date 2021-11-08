@@ -90,29 +90,9 @@ function showtokinfo(evt, element, poselm) {
     	if ( textvalue == "null" || typeof(textvalue) == "undefined" ) { 
     		textvalue = element.innerText; 
     	};
-    	tablerows = '<tr><th colspan=2><b>' + textvalue + '</b></th></tr>';
-    	for ( ia=0; ia<attributelist.length; ia++ ) {
-    		var att = attributelist[ia];
-			var attname = attributenames[att];
-			if ( !attname ) { attname = att; };
-			var attdef = false;
-			if ( formdef[att] ) attdef = formdef[att];
-			else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] ) attdef = tagdef[att];
-    		if ( element.getAttribute(att) && attdef && !attdef['noshow'] && ( !attdef['admin'] || username ) ) {
-    			shownrows = 1;
-    			var rowval = element.getAttribute(att);
-    			var atttype = '';
-    			if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['type'] ) atttype = formdef[att]['type'];
-    			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['type'] ) atttype = tagdef[att]['type'];
-    			if ( atttype == 'pos' ) { rowval = treatpos(element, att, 'full'); }
-	    			else if ( atttype == 'udfeats' ) { rowval = treatfeats(element, att, 'full'); }
-	    			else if ( atttype == 'ref' ) { rowval = treatref(element, att, 'full'); }
-					else if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['options'] && formdef[att]['options'][rowval] ) { rowval = formdef[att]['options'][rowval]['display'] + ' (' + rowval + ')'; }
-					else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['options'] && tagdef[att]['options'][rowval] ) { rowval = tagdef[att]['options'][rowval]['display'] + ' (' + rowval + ')';; }; 
-	    		tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + 
-	    			rowval + '</td></tr>';
-	    	};
-    	}; 
+     	tablerows = '<tr><th colspan=2><b>' + textvalue + '</b></th></tr>';
+     	shownrows = 1;
+		tablerows += infotable(element);
     	tokinfo.innerHTML = '<table width=\'100%\'>' + tablerows + '</table>';
     	
     	// now look for dtoks
@@ -125,16 +105,7 @@ function showtokinfo(evt, element, poselm) {
     			done[child.getAttribute('id')] = 1;
 				if ( child.getAttribute('form') != '' && child.getAttribute('form') != null ) { tablerows = '<tr><th colspan=2>' + child.getAttribute('form') + '</th></tr>'; }
 				else { tablerows = ''; };
-				for ( j=0; j<attributelist.length; j++ ) {
-					var att2 = attributelist[j];
-					var attname = attributenames[att2];
-					if ( !attname ) { attname = att2; };
-					if (child.getAttribute(att2)) {
-						var rowval = child.getAttribute(att2);
-		    			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att2] && tagdef[att2]['type'] == 'pos' ) { rowval = treatpos(child, att2, 'full'); }; 
-						tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + rowval + '</td></tr>';
-					};
-				}; 
+				tablerows += infotable(child);
 				tokinfo.innerHTML += '<hr><table width=\'100%\'>' + tablerows + '</table>';
     		}; 
 		};
@@ -147,20 +118,10 @@ function showtokinfo(evt, element, poselm) {
 			var form = parent.getAttribute('form');
 			if ( !form ) { form = parent.innerText; };
 			tablerows = '<tr><th colspan=2>' + form + '</th></tr>';
-			for ( j=0; j<attributelist.length; j++ ) {
-				var att2 = attributelist[j];
-				var attname = attributenames[att2];
-				if ( !attname ) { attname = att2; };
-				if ( parent.getAttribute(att2) ) {
-					var rowval = parent.getAttribute(att2);
-					if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att2] && tagdef[att2]['type'] == 'pos' ) { rowval = treatpos(parent, att2, 'full'); };
-					tablerows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + rowval + '</td></tr>';
-				};
-			}; 
+			tablerows += infotable(parent);
 			tokinfo.innerHTML += '<hr><table width=\'100%\'>' + tablerows + '</table>';
 		};
 
-		    	   	
 		if ( shownrows )  { tokinfo.style.display = 'block'; };
 		var foffset = offset(showelement);
 		if ( typeof(poselm) == "object" ) {
@@ -172,6 +133,33 @@ function showtokinfo(evt, element, poselm) {
     };
  
 } 
+
+function infotable (elmnode) {
+	var inforows = '';
+	for ( ia=0; ia<attributelist.length; ia++ ) {
+		var att = attributelist[ia];
+		var attname = attributenames[att];
+		if ( !attname ) { attname = att; };
+		var attdef = false;
+		if ( formdef[att] ) attdef = formdef[att];
+		else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] ) attdef = tagdef[att];
+		if ( elmnode.getAttribute(att) && attdef && !attdef['noshow'] && ( !attdef['admin'] || username ) ) {
+			shownrows = 1;
+			var rowval = elmnode.getAttribute(att);
+			var atttype = '';
+			if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['type'] ) atttype = formdef[att]['type'];
+			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['type'] ) atttype = tagdef[att]['type'];
+			if ( atttype == 'pos' ) { rowval = treatpos(elmnode, att, 'full'); }
+				else if ( atttype == 'udfeats' ) { rowval = treatfeats(elmnode, att, 'full'); }
+				else if ( atttype == 'ref' ) { rowval = treatref(elmnode, att, 'full'); }
+				else if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['options'] && formdef[att]['options'][rowval] ) { rowval = formdef[att]['options'][rowval]['display'] + ' (' + rowval + ')'; }
+				else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['options'] && tagdef[att]['options'][rowval] ) { rowval = tagdef[att]['options'][rowval]['display'] + ' (' + rowval + ')';; }; 
+			inforows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + 
+				rowval + '</td></tr>';
+		};
+	}; 
+	return inforows;
+};
 
 function offset(elem) {
 	if(!elem) elem = this;
