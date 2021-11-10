@@ -110,11 +110,11 @@
 								  <td><select name=vals[$col:$uf]><option value=''>[{%select}]</option>$uvlist</select>";
 				};
 				$udflist .= "</table>";
-				$wordsearchtxt .= "<tr id='udval'><th span=\"row\"$tstyle>{%$colname}
+				$wordsearchtxt .= "<tr id='udv$col'><th span=\"row\"$tstyle>{%$colname}
 									<input type=hidden name=\"matches[$col]\" value='contains'>
-						      <td>			<a onclick=\"document.getElementById('udframe').style.visibility='visible'; document.getElementById('vals[$col]').value=''; document.getElementById('udvals').style.display='none';\">{%expand}</a>		
+						      <td>			<a onclick=\"document.getElementById('udf$col').style.visibility='visible'; document.getElementById('vals[$col]').value=''; document.getElementById('udv$col').style.display='none';\">{%expand}</a>		
 						      <td><input name=vals[$col] id='vals[$col]' size=40 $chareqfn>
-								<tr id='udframe' style='visibility: collapse;'>
+								<tr id='udf$col' style='visibility: collapse;'>
 								<th span=\"row\"$tstyle>{%$colname}
 								<td colspan=2>$udflist</div>
 						      	";
