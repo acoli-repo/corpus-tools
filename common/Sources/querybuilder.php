@@ -112,8 +112,8 @@
 				$udflist .= "</table>";
 				$wordsearchtxt .= "<tr id='udval'><th span=\"row\"$tstyle>{%$colname}
 									<input type=hidden name=\"matches[$col]\" value='contains'>
-						      <td>			<a onclick=\"document.getElementById('udframe').style.visibility='visible'; document.getElementById('udval').style.visibility='collapse';\">{%expand}</a>		
-						      <td><input name=vals[$col] size=40 $chareqfn>
+						      <td>			<a onclick=\"document.getElementById('udframe').style.visibility='visible'; document.getElementById('vals[$col]').value=''; document.getElementById('udvals').style.display='none';\">{%expand}</a>		
+						      <td><input name=vals[$col] id='vals[$col]' size=40 $chareqfn>
 								<tr id='udframe' style='visibility: collapse;'>
 								<th span=\"row\"$tstyle>{%$colname}
 								<td colspan=2>$udflist</div>
