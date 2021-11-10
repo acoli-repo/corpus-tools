@@ -14,7 +14,7 @@
 	};
 
 	# Determine which form to search on by default 
-	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
+	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "form";
 	if ( !in_array($wordfld, $cqpcols) )  array_unshift($cqpcols, $wordfld ); # We need the wordfld as a search option
 				
 		$querytext .= "<h2 style='text-align: left; margin-bottom: 20px;'>{%Query Builder}</h2>
@@ -90,6 +90,34 @@
 					$optlist .= "<option value=\"$letters.*\">$name</option>";
 				};
 				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name=vals[$col]><option value=''>[{%select}]</option>$optlist</select>";
+			} else if ( $coldef['type'] == "udfeats" ) {
+				## Split udfeats out into lists of selections
+				$tmp = file_get_contents("$corpusfolder/$col.lexicon"); unset($optarr); $optarr = array();
+				foreach ( explode ( "\0", $tmp ) as $kva ) { 
+					foreach ( explode ( '|', $kva ) as $kvi ) {
+						list ( $uf, $uv ) = explode ("=", $kvi);
+						$udfl[$uf][$uv] = 1;
+					};
+				};
+				$udflist = "<table>";
+				ksort($udfl);
+				foreach ( $udfl as $uf => $uv ) { 
+					$uvlist = "";
+					ksort($uv);
+					foreach ( $uv as $uvv => $tmp2 ) $uvlist .= "<option value='$uvv'>$uvv</option>";
+					if ( $uf && $uf != '_' && $uvlist ) $udflist .= "<tr><th span=\"row\"$tstyle>{%$uf}
+								  <input type=hidden name=\"matches[$col:$uf]\" value='udfeats'>		
+								  <td><select name=vals[$col:$uf]><option value=''>[{%select}]</option>$uvlist</select>";
+				};
+				$udflist .= "</table>";
+				$wordsearchtxt .= "<tr id='udval'><th span=\"row\"$tstyle>{%$colname}
+									<input type=hidden name=\"matches[$col]\" value='contains'>
+						      <td>			<a onclick=\"document.getElementById('udframe').style.visibility='visible'; document.getElementById('udval').style.visibility='collapse';\">{%expand}</a>		
+						      <td><input name=vals[$col] size=40 $chareqfn>
+								<tr id='udframe' style='visibility: collapse;'>
+								<th span=\"row\"$tstyle>{%$colname}
+								<td colspan=2>$udflist</div>
+						      	";
 			} else if ( $coldef['type'] == "pos" ) {
 				if( !$tagbuilder && file_exists("Resources/tagset.xml") ) {
 					$tagbuilder = "
@@ -134,6 +162,7 @@
 						</script>";
 				};
 				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}
+					<input type=hidden name=\"matches[$col]\" value='matches'>
 					<td style='text-align: center;'><a onClick=\"tagbuilder('val-$col');\">{%tag builder}</a>
 					<td><input name=vals[$col] id='val-$col' size=40>";
 			} else if ( substr($coldef['type'], -6) == "select" ) {
@@ -505,10 +534,6 @@
 						code.onkeydown = function(e) {
 							if ( e.key == 'Enter'  && !e.shiftKey ) {
 								e.preventDefault();
-// 								frm = document.getElementById('cqp');
-// 								if ( checksearch(frm) ) {
-// 									frm.submit(); // preventDefault does not work, so this will go bad
-// 								};
 							};
 						}
 						code.onmouseover = 
@@ -526,6 +551,7 @@
 							 	if ( cqlerr == '' ) 
 									document.getElementById('cqlconsole').innerHTML = ''; 
 							};
+						$morejs
 					</script>
 				";
 		} else {

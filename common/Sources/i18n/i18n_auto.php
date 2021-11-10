@@ -193,6 +193,7 @@
 		"Select a file from the list below or" => "Select a file from the list below or",
 		"Query Builder" => "Query Builder",
 		"Text Search" => "Text Search",
+		"expand" => "expand",
 		"Tag Builder" => "Tag Builder",
 		"any" => "any",
 		"Main POS" => "Main POS",
