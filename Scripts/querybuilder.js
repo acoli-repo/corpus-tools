@@ -41,7 +41,7 @@ function addtoken() {
 						pattname = tmp[1];
 						var udfeat = tmp[2];
 						if ( typeof(udsep) == 'undefined' ) var udsep = '[|]';
-						val = '(.*'+udsep+')?' + udfeat + '=' + val + '(.*'+udsep+')?';
+						val = '(.*'+udsep+')?' + udfeat + '=' + val + '('+udsep+'.*)?';
 					};    
 				};
 	        };
@@ -378,7 +378,7 @@ function updatequery( nodirect = false ) {
 						pattname = tmp[1];
 						var udfeat = tmp[2];
 						if ( typeof(udsep) == 'undefined' ) var udsep = '[|]';
-						val = '(.*'+udsep+')?' + udfeat + '=' + val + '(.*'+udsep+')?';
+						val = '(.*'+udsep+')?' + udfeat + '=' + val + '('+udsep+'.*)?';
 					};    
 				};
 	        };
