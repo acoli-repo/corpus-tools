@@ -7,43 +7,46 @@ var warnings = '';
 function addtoken() {
 
 	// Build the actual CQL query
-	var toksep = ''; var glsep = ''; var tokq = ''; var glq = '';
+	var toksep = ''; var glsep = ''; var tokq = ''; var glq = ''; var globaltype = '';
     var flds = document.getElementById('querybuilder').elements;   
     for(i = 0; i < flds.length; i++) {                    
         var name = flds[i].getAttribute('name');  
         var val = flds[i].value; 
         if ( val == '' ) continue;
-        var parse = /(.*)\[(.*)\]/g.exec(name);                     
+        var parse = /(.*?)\[(.*)\]/g.exec(name);                     
         if ( parse == null ) continue;
         var pattname = parse[2];
-        var udfv = '';
-        if ( matchtype == 'udfeats' ) {
-	        var tmp = /(.*):(.*)/g.exec(name);       
-	        if ( tmp != null ) {
-	        	pattname = tmp[1];
-	        	var udfeat = tmp[2];
-	        	udfv = udfeat + '=';
-	        };    
-        };
-        if ( flds[i].nodeName == "INPUT" ) {
-			var matchtype;
-			var tmp = document.querySelector('[name="matches['+parse[2]+']"]');
-			if ( tmp ) { matchtype = tmp.value; };
-			if ( matchtype == 'contains' ) {
-				val = '.*' + val + '.*';
-			} else if ( matchtype == 'startswith' ) {
-				val = val + '.*';
-			} else if ( matchtype == 'endsin' ) {
-				val = '.*' + val;
-			} else if ( matchtype == 'udfeats' ) {
-				val = '.*' + udfv + val + '.*';
-			};
-		};
+        var udfeat = '';
         if ( parse[1] == 'vals' ) {
+			var tmp = document.querySelector('[name="matches['+parse[2]+']"]');
+			var matchtype;
+			if ( tmp ) matchtype = tmp.value; else matchtype = '';
+	        if ( flds[i].nodeName == "INPUT" ) {
+				if ( matchtype == 'contains' ) {
+					val = '.*' + val + '.*';
+				} else if ( matchtype == 'startswith' ) {
+					val = val + '.*';
+				} else if ( matchtype == 'endsin' ) {
+					val = '.*' + val;
+				};
+	        } else if ( flds[i].nodeName == "SELECT" ) {
+				if ( typeof(pattname) != 'undefined' && typeof(pattname[parse[2]]) != 'undefined' 
+								&& pattname[parse[2]].values == 'multi' ) {
+					if ( typeof(mvsep) == 'undefined' ) var mvsep = ',';
+					val = '(.*'+mvsep+')?' + val + '('+mvsep+'.*)?';
+				};
+				if ( matchtype == 'udfeats' ) {
+					var tmp = /(.*):(.*)/g.exec(pattname);       
+					if ( tmp != null ) {
+						pattname = tmp[1];
+						var udfeat = tmp[2];
+						val = '.*' + udfeat + '=' + val + '.*';
+					};    
+				};
+	        };
         	tokq += toksep + pattname + ' = "' + val + '"';
         	toksep = ' & ';
-        	flds[i].value = '';
-        };
+ 		};
     }	
     
     if ( tokq != '' ) {
