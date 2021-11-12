@@ -53,23 +53,7 @@ function setbut (id) {
 
 function exporttxt () {
 	var mtxt = document.getElementById("mtxt");
-	var textToWrite;
-	if ( typeof(nospace) != "undefined" && nospace == 2 ) {
-		// if the corpus has no spaces, and join="right", add spaces
-		var tmp = mtxt.cloneNode(true); var tmp2;
-		var toks = tmp.getElementsByTagName("tok");
-		for ( var a = 0; a<toks.length; a++ ) {
-			var tok = toks[a];
-			tmp2 = tok.getAttribute('join');
-			if ( !tmp2 || tmp2 != 'right' ) {
-				var spacenode = document.createTextNode(" ");
-				tok.appendChild(spacenode);
-			};
-		};
-		textToWrite = tmp.innerText;
-	} else {
-		textToWrite = mtxt.innerText;
-	};
+	var textToWrite = mtxt.innerText;
 	if ( !textToWrite ) { textToWrite = getPlainText(mtxt); };
 	var textFileAsBlob = new Blob([textToWrite], {encoding:"UTF-8",type:'text/plain;charset=UTF-8'});
 	var fileNameToSaveAs = 'plaintext.txt';
@@ -94,6 +78,23 @@ function exporttxt () {
 	}
 
 	downloadLink.click();
+};
+
+function setspaces() {
+		console.log('adding spaces');
+	if ( typeof(nospace) != "undefined" && nospace == 2 ) {
+		// if the corpus has no spaces, and join="right", add spaces
+		var toks = mtxt.getElementsByTagName("tok");
+		for ( var a = 0; a<toks.length; a++ ) {
+			var tok = toks[a];
+			tmp2 = tok.getAttribute('join');
+			if ( !tmp2 || tmp2 != 'right' ) {
+				var spacenode = document.createTextNode(" ");
+				tok.parentNode.insertBefore(spacenode, tok.nextSibling);
+			};
+		};
+		console.log(mtxt);
+	};
 };
 
 destroyClickedElement = function(event) {

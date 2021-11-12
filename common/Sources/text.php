@@ -553,7 +553,7 @@
 	};
 
 	if ( $ttxml->nospace ) { 
-		$postjsactions .= " var nospace = $ttxml->nospace;";
+		$postjsactions .= " var nospace = $ttxml->nospace; setspaces(); ";
 	};
 
 	$maintext .= "
