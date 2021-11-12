@@ -552,6 +552,10 @@
 		$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
 	};
 
+	if ( $ttxml->nospace ) { 
+		$postjsactions .= " var nospace = $ttxml->nospace;";
+	};
+
 	$maintext .= "
 		<div id='tokinfo'></div>
 		$pagenav
@@ -587,8 +591,12 @@
 					element.scrollIntoView(alignWithTop); 
 				};
 			};
-			document.getElementById('jsoptions').style.display = 'block';
-			document.getElementById('nojs').style.display = 'none';
+			if ( document.getElementById('jsoptions') ) {
+				document.getElementById('jsoptions').style.display = 'block';
+			};
+			if ( document.getElementById('nojs') ) {
+				document.getElementById('nojs').style.display = 'none';
+			};
 		</script>
 		";
 

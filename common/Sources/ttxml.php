@@ -14,6 +14,7 @@ class TTXML
 	public $audiourl; # The URL for the first AUDIO node
 	public $video = array(); # An array with the video file(s) in this XML
 	public $videourl; # The URL for the first AUDIO node
+	public $nospace; # Not space-sensitive
 	
 	var $xmlfolder;
 	var $rawtext;
@@ -70,8 +71,13 @@ class TTXML
 		};
 			
 		libxml_use_internal_errors(true);
-		if ( $settings['xmlfile']['nospace'] || preg_match("/<text[^>]+xml:space=\"remove\"/", $rawtext) ) {
+		if ( $settings['xmlfile']['nospace'] || preg_match("/<text[^>]+xml:space=\"remove\"/", $this->rawtext) ) {
 			$this->xml = simplexml_load_string($this->rawtext, null, LIBXML_NOBLANKS);
+			if ( preg_match("/join=\"right\"/", $this->rawtext) ) {
+				$this->nospace = 2;
+			} else {
+				$this->nospace = 1;
+			};
 		} else {
 			$this->xml = simplexml_load_string($this->rawtext);
 		};
