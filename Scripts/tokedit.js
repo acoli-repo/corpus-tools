@@ -101,8 +101,17 @@ destroyClickedElement = function(event) {
     document.body.removeChild(event.target);
 };
 
+const d = new Date();
+var inittime = d.getTime();
+function getms() {
+	const d = new Date();
+	var nowtime = d.getTime();
+	return nowtime-inittime;
+};
+
 function formify () {
 	// This is basically the "init" function
+	var pc = 0;
 	
 	// If we did not specify the attributelist, build it from formdef
 	if ( typeof(attributelist) == "undefined" || attributelist.length == 0 ) {
@@ -143,6 +152,7 @@ function formify () {
 		};
 		
 		// Create internal element for rendering, numbering, and breaks
+		// This becomes very slow with complex (?) files
 		var lbrend = document.createElement("span"); // LB rendering (hyphen)
 		it.appendChild(lbrend);
 		var lbnum = document.createElement("span"); // LB number (empty)
@@ -164,6 +174,7 @@ function formify () {
 			orgtoks[tokid] = tok.innerHTML;
 		};
 	};
+	console.log(getms() + 'ms');
 
 	var toks = mtxt.getElementsByTagName("mtok");
 	for ( var a = 0; a<toks.length; a++ ) {
@@ -651,7 +662,8 @@ function setForm ( type ) {
 			
 	var toks = document.getElementsByTagName("tok");
 	tokarr = Array.prototype.slice.call(toks);
-	tokintv = setInterval(function(){ settokform(type); }, 1);	
+	if ( typeof(intmax) == "undefined" ) { var intmax = 1000; };
+	tokintv = setInterval(function(){ settokform(type, intmax); }, 1);	
 	
 	// This is a little hack to allow for :before and :after on <del> elements that can disappear when they get empty
 	// TODO: is there a better way? is this only needed for <del>?
@@ -678,77 +690,79 @@ function setForm ( type ) {
 	};
 };
 
-function settokform(type) {
-	if ( !tokarr.length ) { clearInterval(tokintv); return; };
-	// Do tokens one at a time to avoid the browser from halting
-	var tok = tokarr.shift();		
-	if ( typeof(tok) != 'object' ) { return; };
-	if ( showlist == "" ) { tok.className = ''; };
-	var tokid = tok.getAttribute('id');
-	// Lookup the XML version of this node
-	var tokxml = orgtoks[tokid];
-	if ( tokxml == undefined ) { 
-		// We cannot find the orgtok - leave tok in place
-		tokxml = '';
-		console.log('Error: no orgtok found for '+tokid);
-	} else {
-		tok.innerHTML = tokxml;
-	};
-	// if ( showcol ) { tok.style['color'] = '#000000'; };
-	tok.style['color'] = '';
-	opre = "";  opost = "";
-	var patt = new RegExp("<[pcl]b[^>]*>.*?</[pcl]b>", "g");
-	while ( ( match = patt.exec(tokxml) ) != null ) {
-		opre += match;
-	}
-	patt = new RegExp("<dtok[^>]*></dtok>", "g");
-	while ( ( match = patt.exec(tokxml) ) != null ) {
-		opre += match;
-	}
-	if ( type != "" && type != "pform" ) { // pform is the innerHTML
+function settokform(type, max=100) {
+	for ( var ii=0; ii<max; ii++ ) {
+		if ( !tokarr.length ) { clearInterval(tokintv); return; };
+		// Do tokens one at a time to avoid the browser from halting
+		var tok = tokarr.shift();		
+		if ( typeof(tok) != 'object' ) { return; };
+		if ( showlist == "" ) { tok.className = ''; };
+		var tokid = tok.getAttribute('id');
+		// Lookup the XML version of this node
+		var tokxml = orgtoks[tokid];
+		if ( tokxml == undefined ) { 
+			// We cannot find the orgtok - leave tok in place
+			tokxml = '';
+			console.log('Error: no orgtok found for '+tokid);
+		} else {
+			tok.innerHTML = tokxml;
+		};
+		// if ( showcol ) { tok.style['color'] = '#000000'; };
+		tok.style['color'] = '';
+		opre = "";  opost = "";
+		var patt = new RegExp("<[pcl]b[^>]*>.*?</[pcl]b>", "g");
+		while ( ( match = patt.exec(tokxml) ) != null ) {
+			opre += match;
+		}
+		patt = new RegExp("<dtok[^>]*></dtok>", "g");
+		while ( ( match = patt.exec(tokxml) ) != null ) {
+			opre += match;
+		}
+		if ( type != "" && type != "pform" ) { // pform is the innerHTML
 
-		var thisform = forminherit(tok,type);
-		if ( thisform == '--' ) { thisform = "<ee/>"; };
-		if ( thisform.search(/<[pcl]b/) > -1 ) {
-			tok.innerHTML = thisform; // In calculated forms, the breaks might still be inside a non-pform
-		} else if ( thisform != '' ) {
-			// If we cannot find the form (inheritance error?) just do not touch the token
-			tok.innerHTML = opre +  thisform + opost;
-		};						
-	};
-	// If there are any labels to show, do so
-	if ( labels.length && tok.innerHTML != '' ) {
-		tok.className = 'floatblock';
-		for ( var ab = 0; ab<labels.length; ab++ ) {
-			label = labels[ab];
-			var ltxt = tok.getAttribute(label); 
-			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[label]['type'] == 'pos' ) { ltxt = treatpos(tok, label, 'main'); }; 
-			// Add dtoks to the view
-			var children = tok.childNodes;
-			var done = []; var sep = ""; var dtxt = "";
-			for ( i=0; i<children.length; i++ ) {
-				var child = children[i];
-				if ( child.tagName == "DTOK" && !done[child.getAttribute('id')] ) {
-					if ( child.getAttribute(label) != null ) { 
-						var labtxt;
-						if ( tagdef && tagdef[label]['type'] == 'pos' ) { labtxt = treatpos(child, label, 'main'); } else { labtxt = child.getAttribute(label); };
-						dtxt += sep + labtxt; sep = "+"; 
-						done[child.getAttribute('id')] = 1;
+			var thisform = forminherit(tok,type);
+			if ( thisform == '--' ) { thisform = "<ee/>"; };
+			if ( thisform.search(/<[pcl]b/) > -1 ) {
+				tok.innerHTML = thisform; // In calculated forms, the breaks might still be inside a non-pform
+			} else if ( thisform != '' ) {
+				// If we cannot find the form (inheritance error?) just do not touch the token
+				tok.innerHTML = opre +  thisform + opost;
+			};						
+		};
+		// If there are any labels to show, do so
+		if ( labels.length && tok.innerHTML != '' ) {
+			tok.className = 'floatblock';
+			for ( var ab = 0; ab<labels.length; ab++ ) {
+				label = labels[ab];
+				var ltxt = tok.getAttribute(label); 
+				if ( typeof(tagdef) != "undefined" && tagdef && tagdef[label]['type'] == 'pos' ) { ltxt = treatpos(tok, label, 'main'); }; 
+				// Add dtoks to the view
+				var children = tok.childNodes;
+				var done = []; var sep = ""; var dtxt = "";
+				for ( i=0; i<children.length; i++ ) {
+					var child = children[i];
+					if ( child.tagName == "DTOK" && !done[child.getAttribute('id')] ) {
+						if ( child.getAttribute(label) != null ) { 
+							var labtxt;
+							if ( tagdef && tagdef[label]['type'] == 'pos' ) { labtxt = treatpos(child, label, 'main'); } else { labtxt = child.getAttribute(label); };
+							dtxt += sep + labtxt; sep = "+"; 
+							done[child.getAttribute('id')] = 1;
+						};
 					};
 				};
+				if ( ltxt != null && ltxt != "" && dtxt != "" && dtxt != null ) { ltxt += ":" + dtxt; };
+				if ( ( ltxt == null || ltxt == "" ) && dtxt != "" && dtxt != null ) { ltxt = dtxt; };
+				if ( pattcolors[label] ) { 
+					lcol = pattcolors[label]; 
+				} else { lcol = "#999999"; };
+				if ( but = document.getElementById('tbt-'+label) ) {
+					ltit = " title=\""+but.textContent+"\"";
+				} else { ltit = ""; };
+				if ( ltxt != "" && ltxt != null ) { tok.innerHTML += "<div style='color: "+lcol+"'"+ltit+">" + ltxt + '</div>'; };
 			};
-			if ( ltxt != null && ltxt != "" && dtxt != "" && dtxt != null ) { ltxt += ":" + dtxt; };
-			if ( ( ltxt == null || ltxt == "" ) && dtxt != "" && dtxt != null ) { ltxt = dtxt; };
-			if ( pattcolors[label] ) { 
-				lcol = pattcolors[label]; 
-			} else { lcol = "#999999"; };
-			if ( but = document.getElementById('tbt-'+label) ) {
-				ltit = " title=\""+but.textContent+"\"";
-			} else { ltit = ""; };
-			if ( ltxt != "" && ltxt != null ) { tok.innerHTML += "<div style='color: "+lcol+"'"+ltit+">" + ltxt + '</div>'; };
+		} else {
+			tok.className = '';
 		};
-	} else {
-		tok.className = '';
 	};
 };
 
