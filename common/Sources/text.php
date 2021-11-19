@@ -552,9 +552,9 @@
 		$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
 	};
 
-	if ( $ttxml->nospace ) { 
-		$postjsactions .= " var nospace = $ttxml->nospace; setspaces(); ";
-	};
+// 	if ( $ttxml->nospace ) { 
+// 		$postjsactions .= " var nospace = $ttxml->nospace; setspaces(); ";
+// 	};
 
 	$maintext .= "
 		<div id='tokinfo'></div>

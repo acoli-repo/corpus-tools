@@ -328,6 +328,7 @@ class TTXML
 			$xmltxt = $this->page();
 		} else {
 			# Not restricted - just display the whole XML
+			if ( !$mtxtelement ) $mtxtelement = "//text";
 			$result = $this->xml->xpath($mtxtelement);
 			if ($result) {
 				if ( $result[0]->getName() == "text" && $result[0]['title'] ) unset($result[0]['title']);
@@ -339,6 +340,12 @@ class TTXML
 						
 		# Protect empty elements
 		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
+		
+		# Add spaces in case of @join type spacing
+		if  ( $this->nospace == 2 ) {
+			$xmltxt = str_replace( "</tok>", "</tok><njs> </njs>", $xmltxt );
+			$xmltxt = preg_replace( "/(join=\"right\"((?!<tok).)+<\/tok>)<njs> <\/njs>/", "\\1", $xmltxt );
+		};
 		
 		return $xmltxt;
 	}
