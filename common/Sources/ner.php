@@ -43,7 +43,7 @@
 			
 				foreach ( $nodelist as $node ) {
 					$nerid = $node[$val['nerid']];
-					$name = $node->asXML() or $name = $nerid;
+					$name = makexml($node) or $name = $nerid;
 					if ( $settings['xmlfile']['nospace'] == "2" ) $name = $name = preg_replace("/<\/tok>/", " ", $name);
 					$name = preg_replace("/<[^>]+>/", "", $name);
 					$idnames[$nerid.""][$name.""]++;
@@ -118,14 +118,14 @@
 		<input type=submit value=\"Save\">
 		<button onClick=\"window.open('index.php?action=file&cid=$fileid', '_self');\">Cancel</button></form>
 		<!-- <a href='index.php?action=file&cid=$fileid'>Cancel</a> -->
-		<hr><div id=mtxt>".$txtxml->asXML()."</div>
+		<hr><div id=mtxt>".makexml($txtxml)."</div>
 		<script language=Javascript>
 			var telm = document.getElementById('$nerid');
 			telm.style.backgroundColor = '#ffffaa';
 		</script>
 		";
 
-		$correspid = $elm['corresp']; $elmtext = preg_replace("/<[^>]+>/", "", $elm->asXML());
+		$correspid = $elm['corresp']; $elmtext = preg_replace("/<[^>]+>/", "", makexml($elm));
 		if ( $correspid ) {
 			$nerid = $correspid; if ( strpos($nerid, '#') ) $nerid = substr($nerid, strpos($nerid, '#')+1);
 			$nertype = $nerdef['key'];
@@ -286,7 +286,7 @@
 
 		$result = $ttxml->xml->xpath($mtxtelement); 
 		$txtxml = $result[0]; 
-		$maintext .= "<hr><div id=mtxt>".$txtxml->asXML()."</div>";
+		$maintext .= "<hr><div id=mtxt>".makexml($txtxml)."</div>";
 
 	} else if ( $_GET['cid'] && $act == "addner" ) {
 
@@ -324,7 +324,6 @@
 		if ( $nerxml ) {
 			$nernode = current($nerxml->xpath(".//*[@id=\"$nerid\"]"));
 			if ( $nernode ) {
-				# print $nernode->asXML();
 				$snippettxt = "<table>";
 				$tmp = $nernode->getName();
 				foreach ( $nerlist as $key => $val ) {
@@ -339,7 +338,7 @@
 				if ( $type) $snippettxt .= "<tr><th>{%$type}:<td style='font-weight: bold;'>$name</th></tr>";
 				$snippetelm = $settings['xmlfile']['ner']['snippet'] or $snippetelm = "label";
 				$snippetxml = current($nernode->xpath(".//$snippetelm"));
-				if ( $snippetxml ) $snippettxt .= "<tr><td colspan=2>".$snippetxml->asXML()."</td></tr>";
+				if ( $snippetxml ) $snippettxt .= "<tr><td colspan=2>".makexml($snippetxml)."</td></tr>";
 				$snippettxt .= "</table>";
 			} else {
 				print "<!-- Node $nerid not found -->";
@@ -441,12 +440,11 @@
 	
 		if ( $nernode ) {
 			$descflds = $nerlist[$type]['descflds'] or $descflds = array ("note", "desc", "head", "label");
-			# $maintext .= "<div>".htmlentitieS($nernode->asXML())."</div>";
 			$maintext .= "<table>";
 			foreach ( $nernode->children() as $childnode ) {
 				$nodename = $childnode->getName();
 				if ( in_array( $nodename, $descflds ) ) {
-					$maintext .= "<tr><td colspan=2>".$childnode->asXML();
+					$maintext .= "<tr><td colspan=2>".makexml($childnode);
 				} else if ( trim($childnode) != "" && $nodename != $nameelm ) {
 					$maintext .= "<tr><th>{%$nodename}<td>$childnode";
 				};
@@ -473,7 +471,7 @@
 				$idxp = "//*[@id=\"".substr($nerid,1)."\" or @xml:id=\"".substr($nerid,1)."\"]";
 				$idnode = $xml->xpath($idxp);
 				$idtxt = ""; $sep = "";
-				if ( $idnode ) $maintext .= $idnode[0]->asXML();
+				if ( $idnode ) $maintext .= makexml($idnode[0]);
 			};
 		};
 	

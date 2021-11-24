@@ -95,7 +95,7 @@
 		$maintext .= "<h1>Edit Sentence Metadata</h1>";
 		$sent =	current($ttxml->xml->xpath("//s[@id='$sid']"));
 
-		$maintext .= "<div id=mtxt>".$sent->asXML()."</div>
+		$maintext .= "<div id=mtxt>".makexml($sent)."</div>
 		<hr>
 		<form action='index.php?action=$action&cid=$ttxml->fileid&sid=$sid&act=changesent' method=post>
 		<table>";
@@ -271,8 +271,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 		};
 
 		
-		$xmltxt = $sent->asXML();
-		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
+		$xmltxt = makexml($sent);
 
 		if ( $username ) { 
 			if ( $act == "edit" ) {
@@ -592,7 +591,7 @@ $maintext .= "
 				};
 			
 				$maintext .= "<tr>$stattd<td><a href='index.php?action=$action&cid={$ttxml->fileid}&sid={$sent['id']}'>{$sent['id']}
-					<td>".$sent->asXML();
+					<td>".makexml($sent);
 			
 			};
 			$maintext .= "</table>

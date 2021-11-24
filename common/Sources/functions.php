@@ -982,4 +982,20 @@
 		return $xml;
 	};	
 	
+	// Make asXML with some special treatment
+	function makexml ($node, $style = "") {
+		global $nospace, $ttxml;
+		$xmltxt = $node->asXML();
+		
+		# Protect empty elements
+		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
+		
+		# Deal with @join type spacing
+		if  ( $ttxml->nospace == 2 || $nospace == 2 || $style == "nospace" ) {
+			$xmltxt = str_replace( "</tok>", "</tok><njs> </njs>", $xmltxt );
+			$xmltxt = preg_replace( "/(join=\"right\"((?!<tok).)+<\/tok>)<njs> <\/njs>/", "\\1", $xmltxt );
+		};
+		return $xmltxt;
+	};
+	
 ?>

@@ -33,7 +33,7 @@
 		$sentname = $sentatts[$stf]['display'] or $sentname = "Sentence";
 		
 		$maintext .= "<h1>Edit {$sentname} $sentid</h1>
-			<div>Full text: <div id=mtxt style='inlinde-block;'>".$sent->asXML()."</div></div>
+			<div>Full text: <div id=mtxt style='inlinde-block;'>".makexml($sent)."</div></div>
 			
 			<p>
 			<form action='index.php?action=toksave' method=post name=tagform id=tagform>

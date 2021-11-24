@@ -78,7 +78,7 @@
 				$linenr = $lb['n'] or $linenr = "[$nr]";
 
 				if ( $lb->getName() == "l" ) {
-					$linetxt = $lb->asXML();
+					$linetxt = makexml($lb);
 					$linetxt = preg_replace("/<lb .*/smi", "", $linetxt);
 				} else {
 					$linetxt = ""; $lineimg = "";

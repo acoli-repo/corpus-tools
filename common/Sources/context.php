@@ -18,7 +18,7 @@
 		$ttxml = new TTXML();
 		$xp = "//text//{$context}[.//tok[@id=\"$tid\"] | .//dtok[@id=\"$tid\"]]";
 		$node = current($ttxml->xml->xpath($xp));
-		$resxml = $node->asXML();
+		$resxml = makexml($node);
 	
 	} else if ( $settings['context']['method'] == "xpath"  ) {
 

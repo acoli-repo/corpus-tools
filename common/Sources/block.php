@@ -42,7 +42,7 @@
 	$sentnr = 1; $ewd = 25; $strt = 0; $perpage = $_GET['perpage'] or $perpage = 100;
 	$rescnt = count($result);
 	foreach ( $result as $sent ) {
-		$stxt = $sent->asXML(); 
+		$stxt = makexml($sent); 
 		
 		if ( $_GET['jmp'] && !$jumped && $sent['id'] != $_GET['jmp'] ) { $strt++; continue; };
 		if ( $strt < $_GET['start'] && !$jumped  ) { $strt++; continue; };
