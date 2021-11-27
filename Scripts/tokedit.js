@@ -174,7 +174,6 @@ function formify () {
 			orgtoks[tokid] = tok.innerHTML;
 		};
 	};
-	console.log(getms() + 'ms');
 
 	var toks = mtxt.getElementsByTagName("mtok");
 	for ( var a = 0; a<toks.length; a++ ) {
@@ -606,6 +605,8 @@ function setbd (bd) {
 
 var tokarr; var tokintv;
 function setForm ( type ) {
+	clearInterval(tokintv); // Stop any ongoing setForm interval
+	
 	if ( type != "" ) { setbut('but-'+type); };
 	document.cookie = 'showform='+type;
 	showform = type;
@@ -691,9 +692,9 @@ function setForm ( type ) {
 };
 
 function settokform(type, max=100) {
+	// Do tokens by batches at a time to avoid the browser from halting
 	for ( var ii=0; ii<max; ii++ ) {
-		if ( !tokarr.length ) { clearInterval(tokintv); return; };
-		// Do tokens one at a time to avoid the browser from halting
+		if ( !tokarr.length ) { clearInterval(tokintv); return; }; // Halt when all tokens have been done
 		var tok = tokarr.shift();		
 		if ( typeof(tok) != 'object' ) { return; };
 		if ( showlist == "" ) { tok.className = ''; };
