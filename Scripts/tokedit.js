@@ -314,9 +314,9 @@ function formify () {
 			pb.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.getAttribute('id'), '_top'); };
 
 		// Create internal element for rendering, numbering, and breaks
-		var pbhl = document.createElement("span"); // LB line
+		var pbhl = document.createElement("span"); // PB line
 		pb.appendChild(pbhl);
-		var pbnum = document.createElement("span"); // LB number (empty)
+		var pbnum = document.createElement("span"); // PB number (empty)
 		pbnum.setAttribute('title', 'page number');
 		pb.appendChild(pbnum);
 
@@ -685,16 +685,19 @@ function setForm ( type ) {
 		};
 	};	
 	
-	// The inserted breaks do not have visuals - so rerun 
-	if ( ( interpret || showtag['interpret'] ) || showee  || showtag['ee'] ) { // showee and interpret are deprecated
-		setview();
-	};
 };
 
 function settokform(type, max=100) {
 	// Do tokens by batches at a time to avoid the browser from halting
 	for ( var ii=0; ii<max; ii++ ) {
-		if ( !tokarr.length ) { clearInterval(tokintv); return; }; // Halt when all tokens have been done
+		if ( !tokarr.length ) { 
+			clearInterval(tokintv); 
+			// The inserted breaks do not have visuals - so rerun 
+			if ( ( interpret || showtag['interpret'] ) || showee  || showtag['ee'] ) { // showee and interpret are deprecated
+				setview();
+			};
+			return; 
+		}; // Halt when all tokens have been done
 		var tok = tokarr.shift();		
 		if ( typeof(tok) != 'object' ) { return; };
 		if ( showlist == "" ) { tok.className = ''; };
@@ -719,6 +722,7 @@ function settokform(type, max=100) {
 		while ( ( match = patt.exec(tokxml) ) != null ) {
 			opre += match;
 		}
+		
 		if ( type != "" && type != "pform" ) { // pform is the innerHTML
 
 			var thisform = forminherit(tok,type);
