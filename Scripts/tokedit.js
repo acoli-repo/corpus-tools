@@ -150,15 +150,6 @@ function formify () {
 		if ( it.innerText != '' && it.innerText != undefined ) { 
 			it.setAttribute('rend', it.innerText);
 		};
-		
-		// Create internal element for rendering, numbering, and breaks
-		// This becomes very slow with complex (?) files
-		var lbrend = document.createElement("span"); // LB rendering (hyphen)
-		it.appendChild(lbrend);
-		var lbnum = document.createElement("span"); // LB number (empty)
-		it.appendChild(lbnum);
-		var lbhl = document.createElement("span"); // LB line
-		it.appendChild(lbhl);
 	};
 	
 	var toks = mtxt.getElementsByTagName("tok");
@@ -533,13 +524,11 @@ function setview () {
 		var it = its[a];
 
 		if ( typeof(it) != 'object' ) { continue; }; // For just in case
-
+		
+		var lbhtml = ''; var lbrend = '';
 		// Handle the rendering element (innerHTML of the <lb/> or the @rend)
-		var lbrend = it.childNodes[0]; if ( typeof(lbrend) == "undefined" ) { var lbrend = document.createElement("span"); it.appendChild(lbrend); };
 		if ( showform == 'pform' && it.getAttribute('rend') != "none" && it.getAttribute('rend') != null ) {
-			lbrend.innerHTML = it.getAttribute('rend');
-		} else {
-			lbrend.innerHTML = '';
+			lbrend += it.getAttribute('rend');
 		};
 
 		if ( it.getAttribute('n') && it.getAttribute('n') != "false" ) { 
@@ -552,37 +541,34 @@ function setview () {
 		};
 		
 		// Handle the linebreak child
-		var lbhl = it.childNodes[1]; if ( typeof(lbhl) == "undefined" ) { var lbhl = document.createElement("span");  it.appendChild(lbhl); };
+		var lbhl = '';
 		if ( ( interpret || showtag['interpret'] ) ) { // interpret is deprecated
-			lbhl.innerHTML = '<br>';
+			lbhl = '<br>';
 		} else if ( lid != '' && ( showee || showtag['lb'] || showtag['ee'] ) ) { // showee is deprecated
-			lbhl.innerHTML = '<span style="color: #4444ff; font-size: 14px;">['+lid+']</span>';
+			lbhl = '<span style="color: #4444ff; font-size: 14px;">['+lid+']</span>';
 		} else if ( showee || showtag['lb']  || showtag['ee'] ) { // showee is deprecated
-			lbhl.innerHTML = '<span style="color: #4444ff; font-size: 14px;">|</span>';
+			lbhl = '<span style="color: #4444ff; font-size: 14px;">|</span>';
 		} else {
-			lbhl.innerHTML = ''; lbrend.innerHTML = '';
+			lbrend = '';
 		};
 		
 		 // Handle the number child
-		var lbnum = it.childNodes[2];if ( typeof(lbnum) == "undefined" ) { var lbnum = document.createElement("span");  it.appendChild(lbnum); };
+		var lbnum = '';
 		if ( showee || showtag['lb']  || showtag['ee'] ) { // showee is deprecated
 			if ( ( interpret || showtag['interpret'] ) ) { // interpret is deprecated
 				if ( lid == '' ) { 
 					lid = '-'; 
 				};
-				lbnum.innerHTML = '<div style="display: inline-block; color: #4444ff; font-size: 12px; width: 30px;">'+lid+'</div> ';
-			} else {
-				lbnum.innerHTML = '';
+				lbnum = '<div style="display: inline-block; color: #4444ff; font-size: 12px; width: 30px;">'+lid+'</div> ';
 			};
 			
 			// Make the line element clickable
 			if ( it.getAttribute('id') && username != '' ) {
-				lbnum.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.parentNode.getAttribute('id'), '_top'); };
-				lbhl.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.parentNode.getAttribute('id'), '_top'); };
+				it.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+this.parentNode.getAttribute('id'), '_top'); };
 			};
-		} else {
-			lbnum.innerHTML = '';
 		};
+			
+		it.innerHTML = lbrend + lbhl + lbnum;
 	};
 
 };
