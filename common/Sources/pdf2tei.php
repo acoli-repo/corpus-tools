@@ -126,7 +126,7 @@
 		$pagtype = $_POST['pagtype'];
 		# Run the pdf2tei.pl script in the background
 		if ( $pagtype ) {
-			$cmd = "perl $ttroot/common/Scripts/pdf2tei.pl --parse={$_POST['postprocess']} --retok --pagtype='$pagtype' --offset=$offset --input=$fileid.pdf > /dev/null &";
+			$cmd = "perl $ttroot/common/Scripts/pdf2tei.pl --parse={$_POST['postprocess']} --logfile=$logfile --retok --pagtype='$pagtype' --offset=$offset --input=$fileid.pdf > /dev/null &";
 			fwrite($logfile, "Running post-command:\n$cmd\n");
 			fclose($logfile);
 

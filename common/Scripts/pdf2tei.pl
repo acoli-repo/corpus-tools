@@ -18,6 +18,7 @@ $wrkpath = Cwd::cwd(); # print "PATH: $wrkpath\n";
             'getimg=s' => \$gs, # retreat an XML from HTML
             'useimg' => \$useimg, # Use already converted image files 
             'pagtype=s' => \$pagtype, # retreat an XML from HTML
+            'logfile=s' => \$logfile, # which logfile to write progress to
             'offset=i' => \$offset, # How many initial pages to skip
             );
 
@@ -27,7 +28,10 @@ if ( !$input ) {
 
 if ( !defined($offset) ) { $offset = 1; };
 
-if ( -e "$wrkpath/tmp/$filename.create.log" && !$debug ) {
+if ( -e $logfile && !$debug ) {
+	open LOG, ">>$logfile";
+	select LOG;
+} elsif ( -e "$wrkpath/tmp/$filename.create.log" && !$debug ) {
 	open LOG, ">>$wrkpath/tmp/$filename.create.log";
 	select LOG;
 	print "---------";
