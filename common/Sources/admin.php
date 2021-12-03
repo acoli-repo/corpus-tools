@@ -120,6 +120,8 @@
 			# Default Context view needs to exist
 			if ( !preg_match("/^\d+$/", $tmp) ) $maintext .= "<p class=wrong>Your default CQP context is set to $tmp, but there is no such level defined in the CQP settings</p>";
 		};
+		
+		$maintext .= "<p class='csscheck wrong'>If this paragraph is visible, the teitok.css style file is not linked properly in the template</p>";
 			
 	} else if ( $act == "checksettings" ) {
 	
@@ -242,7 +244,6 @@
 				$maintext .= "<li><a href='index.php?action=sharedadmin'>server-wide settings</a>";
 				$issharedproject = 1;
 		};
-
 		
 		$maintext .= "</ul>
 		

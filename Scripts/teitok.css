@@ -195,3 +195,5 @@ span[status=checked] { color: green; }
 span[status=none] { color: #cccccc; }
 span[status=auto] { color: orange; }
 span[status=wrong] { color: red; }
+
+.csscheck { display: none; }
