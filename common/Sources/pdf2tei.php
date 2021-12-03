@@ -13,8 +13,9 @@
 		
 		$fileid = $_POST['xmlid'];
 		$fileid = preg_replace("/\.xml$/", "", $fileid);
-
-		$logfile = fopen("tmp/$fileid.create.log", 'w') or die('Cannot create log file');
+	
+		$logname = "tmp/$fileid.create.log";
+		$logfile = fopen($logname, 'w') or die('Cannot create log file');
 		fwrite($logfile, "Creating a file $fileid.xml\n");
 		
 		# Handle the PDF document
@@ -126,7 +127,7 @@
 		$pagtype = $_POST['pagtype'];
 		# Run the pdf2tei.pl script in the background
 		if ( $pagtype ) {
-			$cmd = "perl $ttroot/common/Scripts/pdf2tei.pl --parse={$_POST['postprocess']} --logfile=$logfile --retok --pagtype='$pagtype' --offset=$offset --input=$fileid.pdf > /dev/null &";
+			$cmd = "perl $ttroot/common/Scripts/pdf2tei.pl --parse={$_POST['postprocess']} --logfile='$logname' --retok --pagtype='$pagtype' --offset=$offset --input=$fileid.pdf > /dev/null &";
 			fwrite($logfile, "Running post-command:\n$cmd\n");
 			fclose($logfile);
 
