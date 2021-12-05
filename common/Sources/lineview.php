@@ -145,7 +145,7 @@
 				};
 			};
 
-			$maintext .= "<img src='$ttxml->facsimg' style='display: none;' id='facsimg'/>";
+			$maintext .= "<img style='display: none;' id='facsimg'/>";
 			$maintext .= "
 				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
 				<table id=mtxt style='width: 100%;'>";
@@ -198,7 +198,8 @@
 
 									};
 								};
-								window.onload = resizelb();
+								facsimg.src='$ttxml->facsimg';
+								facsimg.onload=resizelb;
 							</script>
 							<script language=Javascript src='$jsurl/tokedit.js'></script>
 							<script language=Javascript src='$jsurl/tokview.js'></script>
