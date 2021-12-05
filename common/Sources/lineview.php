@@ -65,7 +65,7 @@
 				<input type=hidden name=pid value=\"{$pid}\">
 				<table id=mtxt>";
 	
-			if (  $debug ) {
+			if ( $debug ) {
 				$maintext .= "<p>Page selection: $pbxpath";
 				$maintext .= "<p>Line selection: $lbxpath";
 			};
@@ -155,6 +155,7 @@
 			preg_match_all("/$lb/", $editxml, $matches, PREG_OFFSET_CAPTURE);
 			foreach ( $matches[0] as $i => $tmp ) {
 				$cpos = $tmp[1]; $npos = $matches[0][$i+1][1];
+				if ( !$npos ) { $npos = strlen($editxml); };
 				$linetxt = substr($editxml, $cpos, $npos-$cpos);
 
 				if ( preg_match("/^[^>]+id=\"([^\"]+)\"/", $linetxt, $matches2 ) ) { $lineid = $matches2[1]; } else $lineid = "";
@@ -170,7 +171,7 @@
 
 				} else $lineimg = "";
 				$maintext .= "\n<tr><th title=\"$lineid\">$linenr<td>$lineimg<div style='padding: 3px; margin-top: 5px; background-color: #eeeeee; $morestyle'>$linetxt</div>";
-			}; 
+			};  
 
 			if ( $highl ) $hltok = "highlight('$highl', true);";
 			
@@ -178,23 +179,26 @@
 							<script language=Javascript>
 								var facsimg = document.getElementById('facsimg');
 								var linedivs = document.getElementsByClassName('linediv');
-								for ( var i=0; i<linedivs.length; i++ ) {
-									var linediv = linedivs[i];
-									var bbox = linediv.getAttribute('bbox').split(' ');
-									// Never scale more than 50% up
-									var imgscale  = Math.min(1.2, linediv.offsetWidth/(bbox[2]-bbox[0]));
+								function resizelb ( ) {
+									for ( var i=0; i<linedivs.length; i++ ) {
+										var linediv = linedivs[i];
+										var bbox = linediv.getAttribute('bbox').split(' ');
+										// Never scale more than 50% up
+										var imgscale  = Math.min(1.2, linediv.offsetWidth/(bbox[2]-bbox[0]));
 
-									var biw = facsimg.naturalWidth*imgscale;
-									var bih = biw*(facsimg.naturalHeight/facsimg.naturalWidth);
-									var bix = bbox[0]*imgscale;
-									var biy = bbox[1]*imgscale;
+										var biw = facsimg.naturalWidth*imgscale;
+										var bih = biw*(facsimg.naturalHeight/facsimg.naturalWidth);
+										var bix = bbox[0]*imgscale;
+										var biy = bbox[1]*imgscale;
 
-									linediv.style.width = (bbox[2]-bbox[0])*imgscale + 'px'; // We might have made the div too wide
-									linediv.style.height = (bbox[3]-bbox[1])*imgscale + 'px';
-									linediv.style['background-size'] = biw+'px '+bih+'px';
-									linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';
+										linediv.style.width = (bbox[2]-bbox[0])*imgscale + 'px'; // We might have made the div too wide
+										linediv.style.height = (bbox[3]-bbox[1])*imgscale + 'px';
+										linediv.style['background-size'] = biw+'px '+bih+'px';
+										linediv.style['background-position'] = '-'+bix+'px -'+biy+'px';
 
+									};
 								};
+								window.onload = resizelb();
 							</script>
 							<script language=Javascript src='$jsurl/tokedit.js'></script>
 							<script language=Javascript src='$jsurl/tokview.js'></script>
