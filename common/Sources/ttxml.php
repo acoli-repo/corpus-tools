@@ -15,6 +15,7 @@ class TTXML
 	public $video = array(); # An array with the video file(s) in this XML
 	public $videourl; # The URL for the first AUDIO node
 	public $nospace; # Not space-sensitive
+	public $warning = array(); # Warnings about the text
 	
 	var $xmlfolder;
 	var $rawtext;
@@ -68,6 +69,19 @@ class TTXML
 
 		if ( strstr($options, "keepns") == false ) {
 			$this->rawtext = namespacemake($this->rawtext);
+		};
+		
+		# Check if there are no non-TEITOK things in the XML
+		if (
+			strpos($this->rawtext, 'facs="#') !== false
+			||
+			strpos($this->rawtext, 'start="#') !== false
+		) {
+			array_push($this->warning, "The XML does not conform to TEITOK standards. Consider converting it.");
+		};
+		if ( $username && !is_writable("$xmlfolder/$fileid") ) {
+			$warning = "Due to filepermissions, this file cannot be modified by TEITOK - please contact the administrator of the server.";
+			array_push($this->warning, $warning);
 		};
 			
 		libxml_use_internal_errors(true);
@@ -342,6 +356,7 @@ class TTXML
 		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
 		
 		# Add spaces in case of @join type spacing
+		# TODO: regexp is not the safest for this
 		if  ( $this->nospace == 2 ) {
 			$xmltxt = str_replace( "</tok>", "</tok><njs> </njs>", $xmltxt );
 			$xmltxt = preg_replace( "/(join=\"right\"((?!<tok).)+<\/tok>)<njs> <\/njs>/", "\\1", $xmltxt );

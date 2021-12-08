@@ -24,7 +24,11 @@
 		} else $menu .= "<div stle='margin-top: 0px; margin-bottom: 20px;'>$langstxt</div>";	
 	};
 
-	if ( $settings['menu']['name'] ) $menu .= "<p class='title'>{%{$settings['menu']['name']}}</p>";
+	if ( $settings['menu']['name'] ) {
+		if ( $settings['menu']['name'] == "[title]" )
+			$menu .= "<p class='title'>{%{$settings['defaults']['title']['display']}}</p>";
+		else $menu .= "<p class='title'>{%{$settings['menu']['name']}}</p>";
+	};
 
 	if ( $settings['menu']['title'] == "none" ) $nomentit = 1; # Do nothing
 	else if ( $settings['menu']['title'] ) {
@@ -32,7 +36,7 @@
 		if ( $menutitle == "[title]" ) $menutitle = $settings['defaults']['title']['display'];
 		$menutitle = "{%$menutitle}";
 		if ( $settings['menu']['link'] ) $menutitle = "<a href='{$settings['menu']['link']}'>$menutitle</a>";
-		$menu .= "<p class='header'>$menutitle</p>";
+		if ( $settings['menu']['title'] != "[none]" ) $menu .= "<p class='header'>$menutitle</p>";
 	} else $menu .= "<p>{%Main Menu}</p>";
 	
     $menu .= "<ul style='text-align: left'>";

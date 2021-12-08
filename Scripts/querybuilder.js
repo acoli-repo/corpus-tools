@@ -62,6 +62,10 @@ function addtoken() {
 
 };
 
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
 function showcql() {
 
 	if ( cqpid == '' ) cqpid = defid;
@@ -388,6 +392,9 @@ function updatequery( nodirect = false ) {
 			var matchtype = '';
 			if ( document.querySelector('[name="matches['+parse[2]+']"]') ) { matchtype = document.querySelector('[name="matches['+parse[2]+']"]').value; };
 			var tmp = /(.*)\]\[/g.exec(parse[2]);  
+			if ( flds[i].nodeName == 'SELECT' ) {
+				val = escapeRegExp(val);
+			};
 			if ( tmp && tmp[1] ) {
  				parse[2] = tmp[1];
  				val = getSelectValues(flds[i]).join('|');

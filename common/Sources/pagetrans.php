@@ -81,7 +81,19 @@
 
 		print "Changes have been saved
 			<script language=Javascript>top.location='index.php?action=$action&cid=$ttxml->fileid$pagejump';</script>"; exit;
+
+	} else if ( $act == "index" ) {
 	
+		$maintext .= "<h2>Page Index</h2><ul>";
+	
+		foreach ( $ttxml->xml->xpath("//text/page") as $pag) {	
+			$pageid = $pag['id'];
+			$pagenr = $pag['n'] or $pagenr = "[$pageid]";
+			$maintext .= "<li><a href='index.php?action=$action&cid=$ttxml->fileid&page=$pageid'>$pagenr</a>";
+			$pid++;
+		};
+		$maintext .= "</ul><p><a href='index.php?action=$action&cid=$ttxml->fileid&act=insert&pageid=$pageid'>add page</a>";
+
 	} else if ( $act == "convert" && $ttxml->fileid ) {
 	
 		if ( $ttxml->xml->xpath("//text/page[not(@empty) and not(@status=\"2\")]") ) {	

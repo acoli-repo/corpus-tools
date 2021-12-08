@@ -342,7 +342,8 @@ function formify () {
 			imgelm.appendChild(imghl);
 			imgelm.setAttribute('class', 'imgdiv'); // The highlight bar
 			
-			var rlimg = document.createElement("img");
+			// var rlimg = document.createElement("img");
+			var rlimg = new Image();
 			imgelm.appendChild(rlimg);
 
 			var pbcopy = pb.getAttribute('copy');
@@ -357,6 +358,18 @@ function formify () {
 				imgdesc.style['color'] = 'grey';
 			};
 			
+			rlimg.onerror = function(evt) {
+				if ( username ) {
+					var fn = this.getAttribute('src').replace(/.*?Facsimile\//, '');
+					if ( fn.substr(0,4) != 'http' ) { 
+						var url = 'index.php?action=upload&act=fill&type=facs&name='+fn+'&cid='+tid;
+						var addimg = document.createElement("div");
+						addimg.innerHTML = '<i style="font-size: smaller; color: red;" class=adminpart title="'+fn+'">Missing facs, click to add</i>';
+						this.parentNode.onclick = function() { window.open(url, 'img'); };
+						this.parentNode.appendChild(addimg);
+					};
+				};
+			};
 			imgelm.setAttribute('src', imgsrc);
 			rlimg.src = imgsrc;
 
@@ -1047,7 +1060,7 @@ function diffcalc ( fform, form ) {
 		// Step 1 - match all the letter on the end
 		var beginning = ""; var end = ""; var middle = "";
 		// Skip over abbreviation marks in form
-		if ( form.substr(-1,1) == "Ìƒ" && form.substr(-1,1) != fform.substr(-1,1) ) { 
+		if ( form.substr(-1,1) == "ÿ" && form.substr(-1,1) != fform.substr(-1,1) ) { 
 			form = form.substr(0,form.length-1);
 		};
 		while ( form.substr(-1,1) == fform.substr(-1,1) ) {
@@ -1056,7 +1069,7 @@ function diffcalc ( fform, form ) {
 			fform = fform.substr(0,fform.length-1);
 			
 			// Skip over abbreviation marks in form
-			if ( form.substr(-1,1) == "Ìƒ" && form.substr(-1,1) != fform.substr(-1,1) ) { 
+			if ( form.substr(-1,1) == "ÿ" && form.substr(-1,1) != fform.substr(-1,1) ) { 
 				form = form.substr(0,form.length-1);
 			};
 			
@@ -1069,7 +1082,7 @@ function diffcalc ( fform, form ) {
 			fform = fform.substr(1);
 
 			// Skip over abbreviation marks in form
-			if ( form.substr(0,1) == "Ìƒ" && form.substr(0,1) != fform.substr(0,1) ) { 
+			if ( form.substr(0,1) == "ÿ" && form.substr(0,1) != fform.substr(0,1) ) { 
 				form = form.substr(1);
 			};
 		};

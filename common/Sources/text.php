@@ -99,12 +99,6 @@
 
 	if ( $username ) $txtid = $fileid; else $txtid = $xmlid;
 	$maintext .= "<h2>$txtid</h2><h1>$title</h1>";
-
-
-	if ( $username && !is_writable("$xmlfolder/$fileid") ) {
-		$warnings .= "<p style='background-color: #ffaaaa; padding: 5px;; font-weight: bold;'>Due to filepermissions, this file cannot be
-			modified by TEITOK - please contact the administrator of the server.</p>";
-	};
 	
 	# Warn on <page> type temp files
 	if ( $xml->xpath("//page") ) {
@@ -112,6 +106,9 @@
 			but a temporary file for <a href='index.php?action=pagetrans&id=$xmlid'>page-by-page transcription</a>. Best use the appropriate function for that.</p>";
 	};
 	
+	if ( $username ) {
+		foreach ( $ttxml->warning as $msg ) { $warnings .= "<p style='background-color: #ffaaaa; padding: 5px;; font-weight: bold;'>$msg</p>"; };
+	};
 	$maintext .= $warnings;
 
 	$maintext .= $ttxml->tableheader();

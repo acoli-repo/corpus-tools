@@ -39,6 +39,15 @@
 		} else  $target_file = $target_folder."/".basename($_FILES["upfile"]["name"]);
 		$uploadOk = 1;
 		$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+		$target_file = preg_replace("/^[.\/]+/", "", $target_file); # Protect against going outside dedicated folder
+
+		# For subfolders, make the folder
+		if ( strpos('/', $_POST["filename"]) !== null ) {
+			$fullfolder = preg_replace("/\/[^\/]+$/", '/', $target_file);
+			if ( !is_dir($fullfolder) ) {
+				mkdir($fullfolder, 0777, true);
+			};
+		};
 
 		if ( isset($_POST["submit"]) && $_POST['submit'] != "Save" ) {
 			$dropzone = true;
@@ -174,6 +183,36 @@
 		passthru($cmd);
 		exit;
 
+	} else if ( $act == "fill" && $typedef['display'] && $_GET['name'] ) {
+	
+		$filename = $_GET['name'];
+	
+		$maintext .= "<h1>Add Named File</h1>
+			<p>File type: {$typedef['display']}
+			<p>Filename: $filename
+			";
+		if ( $_GET['cid'] ) {
+			$cid = $_GET['cid'];
+			$maintext .= "
+				<p>For XML: <a href='index.php?action=file&cid=$cid' target=xml>$cid</a>";
+		}
+
+		$goon = $_GET['goon'] or
+			$goon = "index.php?action=$action&type=$type&act=list";
+
+		$accept = preg_replace("/.*\./", '.', $filename);
+		$maintext .= "
+			<p><form action='index.php?action=upload&act=save' method=post enctype=\"multipart/form-data\">
+			<input type=hidden name=type value='$type'>
+			<p>Upload file:
+				<input type=file name=upfile accept=\"$accept\">
+				<input name=filename type=hidden value=\"$filename\">
+				<input name=type type=hidden value=\"$type\">
+				<input name=goon type=hidden value=\"$goon\">
+				<input type=submit value=Save name=submit>
+			</form> ";				
+		
+
 	} else if ( $act == "list" && $typedef['display'] ) {
 
 		if ( $typedef['admin'] ) check_login("admin"); 
@@ -287,7 +326,10 @@
 				if ( $typedef['subfolders'] ) {
 					if ( !$dirlist ) $dirlist .= "<h3>Subfolders</h3>";
 					$dirlist .= "<p><a href='index.php?action=$action&act=list&type=$type&subfolder=$sf/$fn'>$fn</a>";
-				} else $maintext .= "<tr><td><td style='color: grey'>$ffn";
+				} else {
+					$maintext .= "<tr><td><td style='color: grey'>$ffn";
+					$warnings = "<p class=warning>There are subfolders, while the settings do not allow for those. You should flatten the folder, or change the settings.";
+				};
 			} else if ( in_array($acar, ".$ext") ) {
 				$maintext .= "<tr><td><td style='color: grey'>$ffn (no allowed: $ext - ".join(",", $acar).")";
 			} else {
@@ -304,7 +346,7 @@
 			<tr><td><td><td style='border-top: 1px solid #999999; color: #666666'>$cnt files<td align=right style='border-top: 1px solid #999999; color: #666666'>".human_filesize($totsize);	
 		else $maintext .= "<p><i>No files</i>";
 		$maintext .= "</table>$dirlist";
-		$maintext .= "<hr><p><a href='index.php?action=$action'>select a different file type</a>";
+		$maintext .= "<hr><p><a href='index.php?action=$action'>select a different file type</a>$warnings";
 		if ( $typedef['subfolders'] ) {
 			$maintext .= " &bull; <a href='index.php?action=$action&act=newfolder&type=$type&subfolder=$sf'>create folder</a>";
 			if ( $sf ) { 
@@ -312,6 +354,7 @@
 				$maintext .= " &bull; <a href='index.php?action=$action&act=list&type=$type&subfolder=$nsf'>leave subfolder</a>";
 			};
 		};
+		
 
 	} else {
 
