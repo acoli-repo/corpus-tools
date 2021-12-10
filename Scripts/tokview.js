@@ -136,6 +136,11 @@ function showtokinfo(evt, element, poselm) {
 
 function infotable (elmnode) {
 	var inforows = '';
+	if ( !attributelist.length ) {
+		var fsa = Object.keys(formdef);
+		var tsa = Object.keys(tagdef);
+		attributelist = fsa.concat(tsa)
+	};
 	for ( ia=0; ia<attributelist.length; ia++ ) {
 		var att = attributelist[ia];
 		var attname = attributenames[att];
