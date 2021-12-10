@@ -551,7 +551,8 @@
 		$arraylines = array();
 		$sort = $_GET['sort'] or $sort = $defaultsort;
 		$totnum = count($result);
-		$result = array_slice($result,0,$maxnum);
+		$start = $_GET['start'] or $start = 0;
+		$result = array_slice($result,$start,$maxnum);
 		foreach ( $result as $record ) { 
 				
 			if ( $record['deactivated'] ) continue;
@@ -623,7 +624,13 @@
 			$val = $fldrec."";
 			$maintext .= "<th><a href='index.php?action=$action&sort=$key' class='black'>{%$val}</a>";
 		}; $num = count($arraylines);
-		if ( $totnum > $num ) $showing = " - {%showing} 1-$maxnum";
+		if ( $totnum > $num ) {
+			$end = min($totnum, $maxnum+$start);
+			$prev = max(0,$start-$maxnum);
+			$showing = " - {%showing} ".($start+1)."-$end - ";
+			if ( $start > 0  ) $showing .= " <a href='index.php?action=$action&start=$prev'>{%previous}</a> ";
+			if ( $totnum > $end  ) $showing .= " <a href='index.php?action=$action&start=$end'>{%next}</a> ";
+		};
 		$maintext .= join("\n", $arraylines)."</table><hr><p>$totnum {%results} $showing
 				- <i style='color: #aaaaaa'>{%click on a value to reduce selection}</i> 
 				- <i style='color: #aaaaaa'>{%click on a column to sort}</i>

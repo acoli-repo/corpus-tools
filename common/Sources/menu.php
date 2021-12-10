@@ -27,6 +27,8 @@
 	if ( $settings['menu']['name'] ) {
 		if ( $settings['menu']['name'] == "[title]" )
 			$menu .= "<p class='title'>{%{$settings['defaults']['title']['display']}}</p>";
+		else if ( $settings['menu']['name'] == "[short]" )
+			$menu .= "<p class='title'>{%{$settings['defaults']['title']['short']}}</p>";
 		else $menu .= "<p class='title'>{%{$settings['menu']['name']}}</p>";
 	};
 
