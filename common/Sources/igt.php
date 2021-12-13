@@ -79,7 +79,7 @@
 		";
 	$maintext .= "<style>.floatbox { float: left; margin-right: 10px; }</style>";
 	
-	foreach ( $ttxml->xml->xpath("//$selm") as $sent ) {
+	foreach ( $ttxml->xml->xpath("//$sentelm") as $sent ) {
 		$morphed = 0; 
 		if ( $sent->xpath(".//$morphelm") ) { $morphed = 1; };
 		if ( $morphann ) { $morphed = 1; };
