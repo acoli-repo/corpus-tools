@@ -6,8 +6,21 @@
 	require ("$ttroot/common/Sources/ttxml.php");
 	
 	$ttxml = new TTXML();
-	$cid = $ttxml->fileid;
+	$cid = $ttxml->xmlid;
 	
+	$morphelm = $_GET['melm'] or $morphelm = $_POST['melm'] or $morphelm = "m";
+	$layername = $settings['annotations'][$morphelm]['display'];
+	$sentelm = $_GET['selm'] or $sentelm = $settings['annotations'][$morphelm]['selm'] or $sentelm = "s";
+
+
+	$wordlvl = $settings['annotations'][$morphelm]['word']['display'] or $wordlvl = "Word";
+	$morphann = current($ttxml->xml->xpath("//spanGrp[@type=\"$morphelm\"]"));
+	$annfile = "Annotations/{$morphelm}_$cid.xml"; 
+	if ( !$morphann && file_exists($annfile) ) {
+		$morphann = simplexml_load_file($annfile);
+	};
+
+	$maintext .= "<h2>$layername</h2>"; 
 	$maintext .= "<h1>".$ttxml->title()."</h1>"; 
 
 	# Display the teiHeader data as a table
@@ -66,13 +79,15 @@
 		";
 	$maintext .= "<style>.floatbox { float: left; margin-right: 10px; }</style>";
 	
-	foreach ( $ttxml->xml->xpath("//s") as $sent ) {
-		$morphed = 0; if ( $sent->xpath(".//m") ) { $morphed = 1; };
+	foreach ( $ttxml->xml->xpath("//$selm") as $sent ) {
+		$morphed = 0; 
+		if ( $sent->xpath(".//$morphelm") ) { $morphed = 1; };
+		if ( $morphann ) { $morphed = 1; };
 		$maintext .= "<table id=$sid><tr><td style='border-right: 1px solid #bbaabb;' valign=top>";
-		$maintext .= "<div class='floatbox' id='$sid' style='padding-right: 5px;'>Word";
+		$maintext .= "<div class='floatbox' id='$sid' style='padding-right: 5px;'>{%$wordlvl}";
 		if ( $morphed ) {
 			$maintext .= "<hr><table style='margin: 0;'>";
-			foreach ( $settings['annotations']['m'] as $item ) {
+			foreach ( $settings['annotations'][$morphelm] as $item ) {
 				if (is_array($item)) $maintext .= "<tr><td style='color:{$item['color']};'>".$item['display'];
 			};
 			$maintext .= "</table>";
@@ -80,13 +95,16 @@
 		$maintext .= "</div><td style='padding-left: 5px;' valign=top>";		
 		
 		foreach ( $sent->xpath(".//tok") as $tok ) {
+			$tokid = $tok['id'];
 			$maintext .= "<div class=floatbox id='$sid' style='text-align: center;'>".$tok->asXML();
 			if ( $morphed ) {
 				$maintext .= "<hr><table style='margin: 0;'>";
-				foreach ( $settings['annotations']['m'] as $item ) {
-					if ( !is_array($item) ) continue;
+				foreach ( $settings['annotations'][$morphelm] as $item ) {
 					$maintext .= "<tr>";
-					foreach ( $tok->xpath(".//m") as $morph ) {
+					$morphs = $tok->xpath(".//$morphelm");
+					if ( !$morphs ) { $morphs = $morphann->xpath(".//span[@corresp=\"#$tokid\"]"); };
+					foreach ( $morphs as $morph ) {
+						if (!is_array($item)) continue;
 						$txt = $morph[$item['key']]; if ( $txt == '' ) { $txt = "&nbsp;"; };
 						$maintext .= "<td align=center title='{$item['display']}'  style='color: {$item['color']};'>$txt</td>";
 					};
@@ -96,10 +114,10 @@
 			$maintext .= "</div>";		
 		};
 		foreach ( $settings['xmlfile']['sattributes']['s'] as $item ) {
-			if ( !is_array($item) ) continue;
-	 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>{$item['short']}</td><td style='padding-left: 5px; color: {$item['color']}'> ".$sent[$item['key']]."</td>";
+			if ( is_array($item) ) 
+		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>{$item['short']}</td><td style='padding-left: 5px; color: {$item['color']}'> ".$sent[$item['key']]."</td>";
 		};
-		$maintext .= "</div><hr>";
+		$maintext .= "</div></table><hr>";
 	};
 	$maintext .= "</table></div><hr>
 				<script language=Javascript>			

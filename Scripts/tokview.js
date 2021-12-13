@@ -137,9 +137,14 @@ function showtokinfo(evt, element, poselm) {
 function infotable (elmnode) {
 	var inforows = '';
 	if ( !attributelist.length ) {
-		var fsa = Object.keys(formdef);
-		var tsa = Object.keys(tagdef);
-		attributelist = fsa.concat(tsa)
+		if ( formdef ) {
+			var fsa = Object.keys(formdef);
+			attributelist = attributelist.concat(fsa);
+		};
+		if ( tagdef ) {
+			var fsa = Object.keys(tagdef);
+			attributelist = attributelist.concat(fsa);
+		};
 	};
 	for ( ia=0; ia<attributelist.length; ia++ ) {
 		var att = attributelist[ia];
