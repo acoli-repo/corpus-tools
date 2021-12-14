@@ -343,7 +343,10 @@ function treatref ( tok, label, type ) {
     var tmp = document.evaluate(xpath, mtxt, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); 
 	if ( tmp ) {
 		var refnode = tmp.snapshotItem(0);
-		tagexpl = refnode.innerHTML + ' ('+tag+')'
+		if ( refnode ) {
+			// the refnode should always exist, but draw even if wrong
+			tagexpl = refnode.innerHTML + ' ('+tag+')';
+		};
 	};
 	return tagexpl;
 };

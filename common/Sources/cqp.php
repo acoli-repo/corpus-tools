@@ -267,11 +267,13 @@
 
 		if ( strstr($cqpapp, "tt-cqp") !== false  ) {
 			// tt-cqp specific options
+			$usettcqp = 1;
 			$extannfile = $_POST['extann'] or $extannfile = "Users/ann_{$user['short']}.xml";
 			if ( file_exists($extannfile) ) {
 				$cqp->exec("load $extannfile my"); // Load the external annotation file
 			};
 		} else {
+			$usettcqp = 0;
 			$cqp->exec($cqpcorpus); // Select the corpus
 			if ( $_POST['strategy'] && !$fileonly ) {
 				$cmd = "set MatchingStrategy {$_POST['strategy']}";
@@ -832,7 +834,8 @@
 			};
 			if ( !$freqlist['text_id'] ) $freqopts .= "<option value=\"text_id\">{%Text}</option>";
 			$freqopts .= "<option value=\"custom\">Custom distribution</option>";
-			$maintext .= "<p>{%Collocation by}:
+			
+			if ( $usettcqp ) $maintext .= "<p>{%Collocation by}:
 				<input type=hidden name=mode value=''>
 				<select name='fld'>
 				<option value=''>[{%select}]</option>
