@@ -1,5 +1,7 @@
 <?php
 
+	check_login();
+
 	$udpipelangs = explode(",", "afr,grc,ara,hye,eus,bel,bul,cat,zho,och,cop,hrv,ces,dan,nld,eng,est,fin,fre,glg,deu,got,ell,heb,hin,hun,ind,gle,ita,jpn,kaz,kor,lat,lav,lit,mlt,mar,pcm,sme,nor,ocs,fro,fas,pol,por,rom,rus,san,gla,srp,slk,slv,spa,swe,tam,tel,tur,ukr,urd,uig,vie,cym,wol");
 
 	if ( $_GET['cid'] ) {
