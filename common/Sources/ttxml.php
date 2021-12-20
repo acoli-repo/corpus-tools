@@ -731,7 +731,7 @@ class TTXML
 		 
 		if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $pageid = $matches[1]; };
 		if ( preg_match("/$pbatt=\"(.*?)\"/", $tmp, $matches ) ) { $folionr = $matches[1]; };
-		if ( preg_match("/facs=\"(.*?)\"/", $tmp, $matches ) ) {
+		if ( preg_match("/facs=\"(?!#)(.*?)\"/", $tmp, $matches ) ) {
 			$img = $matches[1];
 			if ( !preg_match("/^(http|\/)/", $img) ) $img = "Facsimile/$img";
 		};

@@ -256,6 +256,8 @@
 					$maintext .= "<p>".count($forestlist)." matching (sub)trees";
 					foreach ( $forestlist as $forest ) {
 						$sentid = $forest['sentid'] or $sentid = $forest['Location'];
+						if ( !$sentid ) next; # Jump over unlinked sentecnes
+						
 						$fileid = $forest['File'];
 						$nodeid = $forest->eTree[0]['id'];
 						if ( $treestyle != "xmltext" ) {
@@ -802,7 +804,7 @@
 					};
 				};
 
- 				$maintext .= "<tr><td><a href='index.php?action=$action&cid=$cid&treeid=$forestid'>{!%sentence}&nbsp;{$sentid}</a>
+ 				$maintext .= "<tr><td><a href='index.php?action=$action&cid=$cid&treeid=$forestid'>{%!sentence}&nbsp;{$sentid}</a>
  								<td>$sentence";
  			};
 			$maintext .= "</table></div><hr><a href='index.php?action=$action'>{%more files}</a> &bull; &bull; <a href='index.php?action=file&cid=$cid&jmp=$sentid'>{%to text mode}</a> <a href='index.php?action=$action&act=xpath&cid=$cid'>{%Search in document}</a>";
