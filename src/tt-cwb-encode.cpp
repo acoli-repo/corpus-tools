@@ -217,7 +217,7 @@ void treatnode ( pugi::xpath_node node ) {
 	node.node().print(oss);
 	std::string xmltxt = oss.str();
 	int xmlpos2 = xmlpos1 + xmltxt.length();
-	if ( debug > 4 ) { cout << " - writing range: " << xmlos1 << " - " << xmlpos2 << endl; };
+	if ( debug > 4 ) { cout << " - writing range: " << xmlpos1 << " - " << xmlpos2 << endl; };
 	write_network_number(xmlpos1, files["xidx"]["rng"]);
 	write_network_number(xmlpos2, files["xidx"]["rng"]);
 
@@ -388,9 +388,11 @@ void treatfile ( string filename ) {
 				string external = formfld.attribute("external").value();
 				string xpath = formfld.attribute("xpath").value();
 				if ( xpath != "" ) {
+					// Hard-coded XPath for range value
 					pugi::xpath_node_set xres;
 					pugi::xpath_node xresi;
 					if ( external != "" ) {
+						// XPath to be evaluated wrt "external" node
 						string exfile = "";
 						if ( external.find("#") == string::npos && external.substr(0,1) != "/" && external.substr(0,1) != "." ) { external = "#" + external; }; // For "incorrect" IDs
 						if ( debug > 2 ) { cout << "External XML lookup: " << external << endl; };
@@ -453,6 +455,7 @@ void treatfile ( string filename ) {
 						if ( xresi.attribute() ) {
 							formival = xresi.attribute().value();
 						} else if ( formfld.attribute("xml") ) {
+							// take the XML content as value
 							string xmltype = formfld.attribute("xml").value();
 							std::ostringstream oss;
 							xresi.node().print(oss);
@@ -462,6 +465,11 @@ void treatfile ( string filename ) {
 								// Flatten the content
 								formival = oss.str();
 								formival = preg_replace(formival, "<[^>]+>", "");
+								if ( xmltype == "normalize" ) {
+									formival = preg_replace(formival, "\\s+", " ");
+									formival = preg_replace(formival, "^\\s+", "");
+									formival = preg_replace(formival, "\\s+$", "");
+								};
 							};
 						} else {
 							formival = xresi.node().child_value();
