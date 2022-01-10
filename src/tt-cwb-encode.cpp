@@ -554,7 +554,7 @@ void treatfile ( string filename ) {
 						string extid = ""; pugi::xpath_node extval;
 						if ( external != "" ) {
 							// TODO: this is only external to the NODE, not a lookup from an external XML file
-							// so with an "external", we should split xpath on tmp = # an lookup tmp[1] potentially in Resources/tmp[0]
+							// so with an "external", we should split xpath on tmp = # and lookup tmp[1] potentially in Resources/tmp[0]
 							extval = it->node().select_node(external.c_str());
 							if ( extval != NULL && extval.attribute() != NULL && extval.attribute().value() != NULL ) { extid = extval.attribute().value(); };
 						};
@@ -575,7 +575,7 @@ void treatfile ( string filename ) {
 							vector<string> vtmp = split(extid, "#");
 							string exfile = "";
 							if ( vtmp.size() == 1 ) {
-								extid = vtmp[1];
+								extid = vtmp[0];
 							} else {
 								exfile = vtmp[0];
 								extid = vtmp[1];
@@ -595,8 +595,8 @@ void treatfile ( string filename ) {
 								};
 							};
 							pugi::xpath_node xext;
-							string extxpath = "//*[@id='"+extid+"']";
-							if ( debug > 4 ) { cout << " - External lookup: " << external << " = " << exfile << " / " << extid << " = " << extxpath << endl; };
+							string extxpath = "//*[@id='"+extid+"' or @xml:id='"+extid+"']";
+							if ( debug > 4 ) { cout << " - Compiling external lookup: " << external << " = " << exfile << " / " << extid << " = " << extxpath << endl; };
 							if ( exfile != "" && externals[exfile] != NULL ) {
 								xext = externals[exfile]->select_node(extxpath.c_str());
 							} else {
