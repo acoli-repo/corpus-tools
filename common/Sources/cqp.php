@@ -537,11 +537,10 @@
 				$resxml = preg_replace("/<tok [^<>]+>[^<>]+\n?$/", "", $resxml); # Half-words at the end (to prevent broken HTML tags - alternatively: &#[^;]+$)
 
 				# Replace block-type elements by vertical bars
-				$resxml = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l|lg|div) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<\\2>'>|</span> ", $resxml);
-				$resxml = preg_replace ( "/(<\/?(doc)>\s*|<(doc) [^>]*>\s*)+/", " <span style='color: #995555; font-weight: bold;' title='<\\2>'>|</span> ", $resxml);
-				$resxml = preg_replace ( "/(<(lb|br)[^>]*\/>\s*)+/", " <span style='color: #aaffaa' title='<p>'>|</span> ", $resxml);
-				$resxml = preg_replace ( "/(<sb[^>]*\/>\s*)+/", " <span style='color: #aaffaa' title='<p>'>|</span> ", $resxml); # non-standard section break
-				$resxml = preg_replace ( "/(<pb[^>]*\/>\s*)+/", " <span style='color: #ffaaaa' title='<p>'>|</span> ", $resxml);
+				$resxml = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l|lg|div) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='\\1'>|</span> ", $resxml);
+				$resxml = preg_replace ( "/(<\/?(doc)>\s*|<(doc) [^>]*>\s*)+/", " <span style='color: #995555; font-weight: bold;' title='\\1'>|</span> ", $resxml);
+				$resxml = preg_replace ( "/(<(lb|br|cb|sb)[^>]*>)\s*/", " <span style='color: #aaffaa' title='\\1!'>|</span> ", $resxml);
+				$resxml = preg_replace ( "/(<pb[^>]*>\s*)+/", " <span style='color: #ffaaaa' title='\\1'>|</span> ", $resxml);
 				$resxml = preg_replace ( "/(<\/?(table|cell|row)(?=[ >])[^>]*>\s*)+/", " ", $resxml);
 
 				# Remove notes and app

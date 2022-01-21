@@ -63,7 +63,6 @@
 			define('SMARTY_DIR', '/usr/local/lib/smarty/libs/');
 	};
 	if ( !file_exists(SMARTY_DIR . 'Smarty.class.php') ) {
-		// $smartypath = str_replace("Smarty.class.php", "", file_locate('Smarty.class.php')); //too slow so throw an error anyway
 		if ( $username ) {
 			print "Smarty engine not installed or not found. Please install Smarty or indicate where it can be found - assuming ".SMARTY_DIR; exit; // fatal() puts this into a loop
 		} else print "This site is currently down due to technical problems";
@@ -118,7 +117,7 @@
 	};
 	
 	// Determine the main XML content 
-	$mtxtelement = $settings['xmlfile']['xpath'];
+	$mtxtelement = $settings['xmlfile']['xpath'] or $mtxtelement = "//text";
 	
 	// Determine the locale
 	$langloc = $settings['languages']['option'][$lang]['locale'];

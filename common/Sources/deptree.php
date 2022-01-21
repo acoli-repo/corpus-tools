@@ -589,8 +589,9 @@ $maintext .= "
 					$sttxt = $stlist[$st]['display']; if ( !$sttxt ) $sttxt = $st;
 					$stattd = "<td><span status='$st' title='status: $sttxt' style='font-size: 10px'>&#9638;</span>";
 				};
-			
-				$maintext .= "<tr>$stattd<td><a href='index.php?action=$action&cid={$ttxml->fileid}&sid={$sent['id']}'>{$sent['id']}
+				
+				$sid = $sent['id'];
+				$maintext .= "<tr>$stattd<td><a href='index.php?action=$action&cid={$ttxml->fileid}&sid=$sid'>$sid
 					<td>".makexml($sent);
 			
 			};

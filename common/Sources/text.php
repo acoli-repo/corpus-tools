@@ -115,7 +115,7 @@
 
 	$editxml = $ttxml->asXML(); # This got lost somehow
 
-	if ( strstr($ttxml->xml->asXML(), '</tok>' ) ) $tokcheck = 1; // check whether this file is tokenized
+	if ( strpos($ttxml->xml->asXML(), '</tok>' ) !== false ) $tokcheck = 1; // check whether this file is tokenized
 
 	$pageid = $_GET['pageid'];
 	$pagenav = $ttxml->pagenav;

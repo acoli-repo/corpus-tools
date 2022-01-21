@@ -429,9 +429,12 @@
 	};
 
 	function namespacemake ( $text ) {
-		
+		global $settings;
+		if ( $settings['xmlfile']['protect'] ) $protects = explode(",", $settings['xmlfile']['protect']);
+		else $protects = array ( "head", "opener", "address", "div", "option", "image" );
 		# prefix HTML element in XML with xml namespace
-		foreach ( array ( "head", "opener", "address", "div", "option", "image" ) as $tagname ) {
+		foreach ( $protects as $tagname ) {
+			if ( !$tagname ) continue;
 			$text = preg_replace( "/<$tagname([ >])/i", "<tei_$tagname$1", $text );
 			$text = preg_replace( "/<\/$tagname>/i", "</tei_$tagname>", $text );
 		};
@@ -982,7 +985,6 @@
 		return $xml;
 	};	
 	
-	// Make asXML with some special treatment
 	function makexml ($node, $style = "") {
 		global $nospace, $ttxml;
 		$xmltxt = $node->asXML();

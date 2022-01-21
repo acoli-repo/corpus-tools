@@ -19,6 +19,7 @@ GetOptions (
             'filename=s' => \$filename,
             'settings=s' => \$settingsfile,
             'model=s' => \$model,
+            'langxpath=s' => \$langxpath,
             'mode=s' => \$mode,
             'url=s' => \$url,
             'form=s' => \$form,
@@ -120,6 +121,7 @@ if ( !$model ) {
 			if ( !$prest || $xml->findnodes($prest) )  {
 				if ( $debug ) { print "Selected parameter settings: ".$param->toString; };
 				$tmp2 = $param->getAttribute('params') or $tmp2 = $param->getAttribute('model');
+				if ( !$model ) { $model = $param->getAttribute('model'); };
 				if ( !$formtags ) { $formtags = $param->getAttribute('taglist') or $formtags = $param->getAttribute('formtags'); };
 				if ( !$url ) { $url = $param->getAttribute('url') or $url = $param->getAttribute('cmd'); };
 				if ( !$null ) { $null = $param->getAttribute('null'); };
@@ -136,7 +138,12 @@ if ( $formtags && $formtags ne 'all' ) {
 };
 if ( !$model ) { 
 	# Use the TEI language
-	$tmp = $xml->findnodes("//langUsage/language/\@ident");
+	if ( !$langxpath && $param ) { 
+		$langxpath = $param->getAttribute("langxpath");
+	};
+	if ( !$langxpath ) { $langxpath = "//langUsage/language/\@ident"; };
+	if ( $debug > 2 ) { print "Using for language detection: $langxpath"; };
+	$tmp = $xml->findnodes($langxpath);
 	if ( $tmp ) { 
 		$model = $tmp->item(0)->value; 
 		if ( $debug ) { print "Detected language: $model"; };
@@ -301,7 +308,7 @@ sub runudpipe ( $raw, $model ) {
 	($raw, $model) = @_;
 
 	if ( !$url ) { $url = "http://lindat.mff.cuni.cz/services/udpipe/api/process"; };
-	if ( $debug ) { print " - Running parser from $url/$model"; };
+	if ( $debug ) { print " - Running parser from $url + $model"; };
 	
 	if ( $url !~ /^http/ ) {
 	
@@ -465,10 +472,24 @@ sub genericline ( $line ) {
 			print " - Skipping empty token : ".$orgtoks[0]->toString;
 			shift(@toks);  shift(@orgtoks); 
 		}; 
+		if ( $debug > 1 ) {
+			print "Attempting to matching: (org) $orgword (word) $word (wordleft) $wordleft";
+		}; 
 		if ( $orgword eq $word ) {
 			$regtok = shift(@toks); 
 			$tok = shift(@orgtoks); 
 			addline($tok, $line);
+			if ( $debug ) { print $tok->toString; };
+		} elsif ( $wordleft && $tok && $wordleft eq $word ) {
+			# This to deal with model that do not properly indicate ranges
+			$wordleft = substr($wordleft,length($word));
+			if ( $debug ) { print "follow-up match: $orgword <= $word ($wordleft)\n$line"; };
+			$dtok = $xml->createElement("dtok");
+			$tok->appendChild($dtok);
+			addline($dtok, $line);
+			$did = $tok->getAttribute("id").".".$dc++;
+			$dtok->setAttribute("id", $did);
+			$dtok->setAttribute("form", $word);
 			if ( $debug ) { print $tok->toString; };
 		} elsif ( substr($word,0,length($orgword)) eq $orgword ) {
 			# This is for merged tokens (Mr.)
@@ -513,7 +534,9 @@ sub genericline ( $line ) {
 				if ( !$nomerge ) { $tok2->parentNode->removeChild($tok2); };
 				if ( $debug ) { print $tok->toString; };
 			} else {
-				print "Oops - merging leads to non-matching words: $orgword != $word"; exit;
+				print "Oops - merging leads to non-matching words: $orgword != $word"; 
+				print "Next few words: ".join(", ", $orgtoks[0..3]);
+				exit;
 			};
 		} elsif ( !$mtok && substr($orgword,0,length($word)) eq $word ) {
 			# This to deal with model that do not properly indicate ranges for fused words
@@ -525,17 +548,6 @@ sub genericline ( $line ) {
 			$tok->appendChild($dtok);
 			addline($dtok, $line);
 			$did = $tok->getAttribute("id").".1"; $dc=2;
-			$dtok->setAttribute("id", $did);
-			$dtok->setAttribute("form", $word);
-			if ( $debug ) { print $tok->toString; };
-		} elsif ( $wordleft && $tok && $wordleft eq $word ) {
-			# This to deal with model that do not properly indicate ranges
-			$wordleft = substr($wordleft,length($word));
-			if ( $debug ) { print "follow-up match: $orgword <= $word ($wordleft)\n$line"; };
-			$dtok = $xml->createElement("dtok");
-			$tok->appendChild($dtok);
-			addline($dtok, $line);
-			$did = $tok->getAttribute("id").".".$dc++;
 			$dtok->setAttribute("id", $did);
 			$dtok->setAttribute("form", $word);
 			if ( $debug ) { print $tok->toString; };
@@ -575,6 +587,9 @@ sub conlluline ( $line ) {
 			shift(@toks);  shift(@orgtoks); 
 			$orgword = @toks[0]->textContent;
 		}; 
+		if ( $debug > 1 ) {
+			print "Attempting to matching: (org) $orgword (word) $word (wordleft) $wordleft";
+		}; 
 		if ( $mtok && $ord <= $to ) {
 			if ( $debug ) { print "Part of mtok: ".$mtok->getAttribute("id"); };
 			$dtok = $xml->createElement("dtok");
@@ -588,6 +603,17 @@ sub conlluline ( $line ) {
 			$regtok = shift(@toks); 
 			$tok = shift(@orgtoks); 
 			addline($tok, $line);
+			if ( $debug ) { print $tok->toString; };
+		} elsif ( $wordleft && $tok && substr($wordleft,0,length($word)) eq $word ) {
+			# This to deal with model that do not properly indicate ranges
+			$wordleft = substr($wordleft,length($word));
+			if ( $debug ) { print "follow-up match: $orgword <= $word ($wordleft)\n$line"; };
+			$dtok = $xml->createElement("dtok");
+			$tok->appendChild($dtok);
+			addline($dtok, $line);
+			$did = $tok->getAttribute("id").".".$dc++;
+			$dtok->setAttribute("id", $did);
+			$dtok->setAttribute("form", $word);
 			if ( $debug ) { print $tok->toString; };
 		} elsif ( substr($word,0,length($orgword)) eq $orgword ) {
 			# This is for merged tokens (Mr.)
@@ -623,7 +649,9 @@ sub conlluline ( $line ) {
 				if ( !$nomerge ) { $tok2->parentNode->removeChild($tok2); };
 				if ( $debug ) { print $tok->toString; };
 			} else {
-				print "Oops - merging leads to non-matching words: $orgword != $word"; exit;
+				print "Oops - merging leads to non-matching words: $orgword != $word"; 
+				print "Next few words: ".join(", ", @orgtoks[0..3]);
+				exit;
 			};
 		} elsif ( substr($orgword,0,length($word)) eq $word ) {
 			# This to deal with model that do not properly indicate ranges
@@ -635,17 +663,6 @@ sub conlluline ( $line ) {
 			$tok->appendChild($dtok);
 			addline($dtok, $line);
 			$did = $tok->getAttribute("id").".1"; $dc=2;
-			$dtok->setAttribute("id", $did);
-			$dtok->setAttribute("form", $word);
-			if ( $debug ) { print $tok->toString; };
-		} elsif ( $wordleft && $tok && substr($wordleft,0,length($word)) eq $word ) {
-			# This to deal with model that do not properly indicate ranges
-			$wordleft = substr($wordleft,length($word));
-			if ( $debug ) { print "follow-up match: $orgword <= $word ($wordleft)\n$line"; };
-			$dtok = $xml->createElement("dtok");
-			$tok->appendChild($dtok);
-			addline($dtok, $line);
-			$did = $tok->getAttribute("id").".".$dc++;
 			$dtok->setAttribute("id", $did);
 			$dtok->setAttribute("form", $word);
 			if ( $debug ) { print $tok->toString; };
