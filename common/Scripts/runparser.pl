@@ -105,7 +105,7 @@ if ( !$xml->findnodes("//tok") ) {
 	print "Please tokenize first"; exit;
 };
 
-if ( $xml->findnodes("//tok[\@ord]") && !$force ) {
+if ( $xml->findnodes("//tok[\@lemma]") && !$force ) {
 	print "Already parsed"; exit;
 };
 
@@ -132,6 +132,10 @@ if ( !$model ) {
 		};
 	};		
 }; 
+foreach $parseropts ( $settings->findnodes("//parser") ) {
+	if ( !$ptype ) { $ptype = $parseropts->getAttribute("par"); };
+	if ( !$langxpath ) { $langxpath = $parseropts->getAttribute("langxpath"); };
+};
 if ( $formtags && $formtags ne 'all' ) { 
 	foreach $tmp3 ( split(",", $formtags ) ) { $dotag{$tmp3} = 1; };  
 	if ( $verbose && %dotag ) { print " - only loading tags: $formtags"; };
@@ -173,21 +177,28 @@ if ( !$form ) {
 # Default to form
 if ( !$form ) { $form = "form"; };
 if ( !$ptype ) { 
+};
+if ( !$ptype ) { 
 	if ( $xml->findnodes("//p") && !$xml->findnodes("//tok[not(ancestor::p)]")) { 
 		# when all tokens are subsumed under <p>, use that
 		$ptype = "p"; 
+		if ( $debug ) { print "Detected paragraphs - using that for segmentation"; };
 	} else {
 		$tmp = $xml->findnodes("//text/*");
 		if ( $tmp ) {
 			$nn = $tmp->item(0)->getName();
 			if ( $xml->findnodes("//$nn") && !$xml->findnodes("//tok[not(ancestor::$nn)]")) { 
 				$ptype = $nn;
+				if ( $debug ) { print "Using first level below text for segmentation: $nn"; };
 			};
 		};
 	};
 };
 # Default to text
-if ( !$ptype ) { $ptype = "text"; };
+if ( !$ptype ) { 
+	$ptype = "text"; 
+	if ( $debug ) { print "No segmenations options detected"; };
+};
 
 if ( $parserformat eq 'wpl' ) {
 	$flds = "form,pos,lemma";
@@ -213,7 +224,7 @@ if ( $verbose ) { print "Segmenting by $ptype - parsing using model '$model' on 
 if ( $verbose && $dosent ) { print "Adding sentences from parser"; };
 
 $scnt = 1; $pcnt = 1;
-foreach $par ( $xml->findnodes("//$ptype") ) {
+foreach $par ( $xml->findnodes("//text//$ptype") ) {
 
 	$id = $par->getAttribute('id') or $id = $pcnt++;
 	if ( $verbose ) { print " - $ptype $id"; };
@@ -231,6 +242,9 @@ foreach $par ( $xml->findnodes("//$ptype") ) {
 	};
 	@toks = $regpar->findnodes(".//tok"); 
 	@orgtoks = $par->findnodes(".//tok"); 
+	if ( $debug > 1 ) { 
+		print "Treating: ".$par->toString;
+	};
 	$text = $regpar->textContent;
 	if ( $debug ) { print $text; };
 	$parsed = runudpipe($text, $model);
@@ -473,7 +487,7 @@ sub genericline ( $line ) {
 			shift(@toks);  shift(@orgtoks); 
 		}; 
 		if ( $debug > 1 ) {
-			print "Attempting to matching: (org) $orgword (word) $word (wordleft) $wordleft";
+			print "Attempting to match: (org) $orgword (word) $word (wordleft) $wordleft";
 		}; 
 		if ( $orgword eq $word ) {
 			$regtok = shift(@toks); 
@@ -530,8 +544,8 @@ sub genericline ( $line ) {
 							$tok->addChild($child);
 						};
 					};
+					if ( !$nomerge ) { $tok2->parentNode->removeChild($tok2); }; # Remove the now empty token
 				};
-				if ( !$nomerge ) { $tok2->parentNode->removeChild($tok2); };
 				if ( $debug ) { print $tok->toString; };
 			} else {
 				print "Oops - merging leads to non-matching words: $orgword != $word"; 
@@ -566,12 +580,14 @@ sub conlluline ( $line ) {
 		if ( $debug ) { print "Sentence: $line"; };
 		if ( $dosent ) {
 			$beftok = @orgtoks[0];
-			$news = $xml->createElement("s");
-			$news->setAttribute("id", "s-".$scnt);
-			$news->setAttribute("org", $sid);
-			$beftok->parentNode->insertBefore($news, $beftok);
-			if ( $debug ) {
-				print "Added s: ".$news->toString;
+			if ( $beftok ) {
+				$news = $xml->createElement("s");
+				$news->setAttribute("id", "s-".$scnt);
+				$news->setAttribute("org", $sid);
+				$beftok->parentNode->insertBefore($news, $beftok);
+				if ( $debug ) {
+					print "Added s: ".$news->toString;
+				};
 			};
 		};
 		$scnt++;
@@ -581,6 +597,7 @@ sub conlluline ( $line ) {
 		# Token line
 		if ( $debug ) { print "Token: $line"; };
 		( $ord, $word, $lemma, $upos, $xpos, $feats, $head, $deprel, $deps, $misc ) = split("\t", $line ); 
+		if ( !@toks[0] ) { print "Oops - No tokens!"; print Dumper(@toks); exit; };
 		$orgword = @toks[0]->textContent;
 		while ( $orgword eq "" ) { 
 			if ( $debug ) { print " - Skipping empty token : ".$orgtoks[0]->toString; };
@@ -615,6 +632,30 @@ sub conlluline ( $line ) {
 			$dtok->setAttribute("id", $did);
 			$dtok->setAttribute("form", $word);
 			if ( $debug ) { print $tok->toString; };
+		} elsif ( $wordleft && $tok && $wordleft.$orgword eq $word ) {
+			# This is strange matches : n'isto... => n' + isto... vs n'isto + ...
+			if ( $debug ) { print "follow-up merged match: $wordleft + $orgword = $word\n$line"; };
+			$wordleft = "";
+				for ( $i=0; $i<$nt; $i++ ) {
+					$regtok2 = shift(@toks); 
+					$tok2 = shift(@orgtoks); 
+					if ( $tok->nextSibling() != $tok2 ) { $merged = 0; };
+					if ( $nomerge ) {
+						$tok2->setAttribute("mwe", "1");
+					} else {
+						foreach $child ( $tok2->childNodes() ) {
+							$tok->addChild($child);
+						};
+					};
+				};
+				if ( !$nomerge ) { $tok2->parentNode->removeChild($tok2); };
+			$dtok = $xml->createElement("dtok");
+			$tok->appendChild($dtok);
+			addline($dtok, $line);
+			$did = $tok->getAttribute("id").".".$dc++;
+			$dtok->setAttribute("id", $did);
+			$dtok->setAttribute("form", $word);
+			if ( $debug ) { print $tok->toString; };
 		} elsif ( substr($word,0,length($orgword)) eq $orgword ) {
 			# This is for merged tokens (Mr.)
 			# check if the next few tokens complete the word
@@ -634,6 +675,32 @@ sub conlluline ( $line ) {
 				if ( $debug ) { print "merged match: $orgword == $word ($nt)"; };
 				addline($tok, $line);
 				$merged = 1;
+				for ( $i=0; $i<$nt; $i++ ) {
+					$regtok2 = shift(@toks); 
+					$tok2 = shift(@orgtoks); 
+					if ( $tok->nextSibling() != $tok2 ) { $merged = 0; };
+					if ( $nomerge ) {
+						$tok2->setAttribute("mwe", "1");
+					} else {
+						foreach $child ( $tok2->childNodes() ) {
+							$tok->addChild($child);
+						};
+					};
+				};
+				if ( !$nomerge ) { $tok2->parentNode->removeChild($tok2); };
+				if ( $debug ) { print $tok->toString; };
+			} elsif ( substr($orgword,0,length($word)) eq $word ) {
+				# For mixed cases: - + D'isto => -D' + isto 
+				$wordleft = substr($orgword,length($word));
+				if ( $debug ) { print "follow-up merged match: $orgword <= $word ($wordleft)\n$line"; };
+				$regtok = shift(@toks); 
+				$tok = shift(@orgtoks); 
+				$dtok = $xml->createElement("dtok");
+				$tok->appendChild($dtok);
+				addline($dtok, $line);
+				$did = $tok->getAttribute("id").".1"; $dc=2;
+				$dtok->setAttribute("id", $did);
+				$dtok->setAttribute("form", $word);
 				for ( $i=0; $i<$nt; $i++ ) {
 					$regtok2 = shift(@toks); 
 					$tok2 = shift(@orgtoks); 
