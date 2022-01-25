@@ -73,14 +73,14 @@
 		$switch = "<a href='index.php?action=rawedit&cid=$fileid'>switch to only text element</a>";
 	} else {
 		$result = $xml->xpath($mtxtelement); 
-		$txtxml = $result[0]; $sep = ""
+		$txtxml = $result[0]; $sep = "";
 		if ( !$txtxml ) {
 			$mtxtelement = "//text";
 			$result = $xml->xpath($mtxtelement); 
 			$txtxml = $result[0]; 
 		};
-		if ( $txtxml ) $editxml = {
-			$txtxml->asXML();
+		if ( $txtxml ) {
+			$editxml = $txtxml->asXML();
 			$switch = "<a href='index.php?action=rawedit&cid=$fileid&full=1'>switch to full XML including header</a>";
 			$sep = "&bull;";
 		} else $editxml = $file; # Default to full XML if the mtxtelm is missing

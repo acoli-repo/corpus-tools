@@ -305,8 +305,10 @@ if ( $debug || $test ) { print $parsed; };
 
 if ( $xml->findnodes("//tok[not(ancestor::s)]")  ) {
 	print "Warning: tok outside of s"; 
-	foreach $tok ( $xml->findnodes("//tok[not(ancestor::s)]") ) {
-		print $tok->toString;
+	if ( $verbose ) {
+		foreach $tok ( $xml->findnodes("//tok[not(ancestor::s)]") ) {
+			print $tok->toString;
+		};
 	};
 };
 
