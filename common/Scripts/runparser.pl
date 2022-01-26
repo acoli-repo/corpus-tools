@@ -197,7 +197,7 @@ if ( !$ptype ) {
 # Default to text
 if ( !$ptype ) { 
 	$ptype = "text"; 
-	if ( $debug ) { print "No segmenations options detected"; };
+	if ( $debug ) { print "No segmenations options detected - defaulting to text"; };
 };
 
 if ( $parserformat eq 'wpl' ) {
@@ -223,11 +223,15 @@ if ( $verbose ) { print "Parser output format: $parserformat"; };
 if ( $verbose ) { print "Segmenting by $ptype - parsing using model '$model' on form '$form'"; };
 if ( $verbose && $dosent ) { print "Adding sentences from parser"; };
 
+if ( $ptype eq 'text' ) { $textxpath = "//text"; } else { $textxpath = "//text//$ptype"; };
+if ( $debug > 2 ) { print "Text xpath: $textxpath"; };
+
 $scnt = 1; $pcnt = 1;
-foreach $par ( $xml->findnodes("//text//$ptype") ) {
+foreach $par ( $xml->findnodes($textxpath) ) {
 
 	$id = $par->getAttribute('id') or $id = $pcnt++;
-	if ( $verbose ) { print " - $ptype $id"; };
+	if ( $verbose ) { print " - Treating $ptype $id"; };
+	if ( $debug > 2 ) { print $par->toString; };
 
 	$from = $to = 0;
 	undef($mtok);

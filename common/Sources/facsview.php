@@ -115,6 +115,7 @@
 		var gtoks = document.getElementsByTagName('gtok');
 		for (i = 0; i < gtoks.length; i++) {
 			gtok = gtoks[i]; 
+			// Copy all the attributs from the <tok>
 			if ( !gtok ) { continue; };
 			placeelm(gtok);
 		};
