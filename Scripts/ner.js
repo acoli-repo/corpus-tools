@@ -72,60 +72,58 @@ if ( typeof(hlbar) != "undefined" && typeof(facsdiv) != "undefined" ) {
 };
 
 function showinfo(showelement) {
-if ( !tokinfo ) { return -1; };
-var nertype = nerlist[showelement.nodeName.toLowerCase()];
+	if ( !tokinfo ) { return -1; };
+	var nertype = nerlist[showelement.nodeName.toLowerCase()];
 
-nername = showelement.nodeName; 
-if ( nertype && nertype['display'] ) nername =  nertype['display'];
-if ( typeof(lemmafld) == 'undefined'  ) var lemmafld = 'form';
-var nervalue = showelement.getAttribute(lemmafld);
-if ( !nervalue ) nervalue = showelement.innerHTML;
-infoHTML = '<table><tr><th>' + nername + '</th><td><b>'+ nervalue +'</b></td></tr>';
-var subtypef = 'type';
-if ( nertype.subtypes && nertype.subtypes.fld ) subtypef = nertype.subtypes.fld;
-var subtyped = 'type';
-if ( nertype.subtypes && nertype.subtypes.display ) subtyped = nertype.subtypes.display;
-if ( showelement.getAttribute(subtypef) ) {
-	var typetext = showelement.getAttribute(subtypef) + '';
-	typetext = typetext.split(':').pop(); // Kill the namespace if there is any
-	if ( typeof(attnames) != 'undefined' && attnames[typetext] ) { typetext = 	attnames[typetext]; }
-	else 
-	  if ( nertype.subtypes && nertype.subtypes[typetext] && nertype.subtypes[typetext]['display'] ) { typetext = nertype.subtypes[typetext]['display']; }
-	else 
-	  if ( document.getElementById('tagset') ) { typetext = treattag(showelement, subtypef, 'full'); }
-	infoHTML += '<tr><th>' + subtyped + '</th><td>'+ typetext +'</td></tr>';
-};
-
-tokinfo.style.display = 'block';
-var foffset = offset(showelement);
-tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
-tokinfo.style.top = ( foffset.top + showelement.offsetHeight + 4 ) + 'px';
-
-infoHTML += '</table>';
-
-tokinfo.innerHTML = infoHTML;
-
-var idfld = 'corresp';
-if ( nertype ) idfld =  nertype['nerid'];
-var nerid = showelement.getAttribute(idfld)
-if ( nerid ) {
-	if ( nerdata[nerid] ) {
-	  tokinfo.innerHTML = nerdata[nerid];
-	} else {
-		// start Ajax to replace info by full data
-		  var xhttp = new XMLHttpRequest();
-		  xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-			 nerdata[nerid] = this.responseText;
-			 tokinfo.innerHTML = this.responseText;
-			}
-		  };
-		  xhttp.open('GET', 'index.php?action=ner&act=snippet&nerid='+encodeURIComponent(nerid), true);
-		  xhttp.send();
+	nername = showelement.nodeName; 
+	if ( nertype && nertype['display'] ) nername =  nertype['display'];
+	if ( typeof(lemmafld) == 'undefined'  ) var lemmafld = 'form';
+	var nervalue = showelement.getAttribute(lemmafld);
+	if ( !nervalue ) nervalue = showelement.innerHTML;
+	infoHTML = '<table><tr><th>' + nername + '</th><td><b>'+ nervalue +'</b></td></tr>';
+	var subtypef = 'type';
+	if ( nertype.subtypes && nertype.subtypes.fld ) subtypef = nertype.subtypes.fld;
+	var subtyped = 'type';
+	if ( nertype.subtypes && nertype.subtypes.display ) subtyped = nertype.subtypes.display;
+	if ( showelement.getAttribute(subtypef) ) {
+		var typetext = showelement.getAttribute(subtypef) + '';
+		typetext = typetext.split(':').pop(); // Kill the namespace if there is any
+		if ( typeof(attnames) != 'undefined' && attnames[typetext] ) { typetext = 	attnames[typetext]; }
+		else 
+		  if ( nertype.subtypes && nertype.subtypes[typetext] && nertype.subtypes[typetext]['display'] ) { typetext = nertype.subtypes[typetext]['display']; }
+		else 
+		  if ( document.getElementById('tagset') ) { typetext = treattag(showelement, subtypef, 'full'); }
+		infoHTML += '<tr><th>' + subtyped + '</th><td>'+ typetext +'</td></tr>';
 	};
-};
 
+	tokinfo.style.display = 'block';
+	var foffset = offset(showelement);
+	tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
+	tokinfo.style.top = ( foffset.top + showelement.offsetHeight + 4 ) + 'px';
 
+	infoHTML += '</table>';
+
+	tokinfo.innerHTML = infoHTML;
+
+	var idfld = 'corresp';
+	if ( nertype ) idfld =  nertype['nerid'];
+	var nerid = showelement.getAttribute(idfld)
+	if ( nerid ) {
+		if ( nerdata[nerid] ) {
+		  tokinfo.innerHTML = nerdata[nerid];
+		} else {
+			// start Ajax to replace info by full data
+			  var xhttp = new XMLHttpRequest();
+			  xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+				 nerdata[nerid] = this.responseText;
+				 tokinfo.innerHTML = this.responseText;
+				}
+			  };
+			  xhttp.open('GET', 'index.php?action=ner&act=snippet&nerid='+encodeURIComponent(nerid), true);
+			  xhttp.send();
+		};
+	};
 };
 
 function offset(elem) {

@@ -9,6 +9,7 @@ var testloop = window.setInterval(function() {
     document.body.removeChild(el);
   }
   el.onerror=function(e) {	
+  	console.log(e);
   	if ( sessiontest ) {
   		alert('You seem to have been logged out from TEITOK - copy any relevant material you might be loosing, and renew your session in another window');
     	clearInterval(testloop);
