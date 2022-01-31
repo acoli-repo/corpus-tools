@@ -252,7 +252,7 @@
 		};
 		
 		foreach ( $toshow as $fn ) {
-			if ( !is_dir($fn) ) {
+			if ( is_dir($fn) ) {
 				$folderlist .= "<p><a href='index.php?action=$action&subfolder=$fn&act=$act&type=$type'>$fn</a>";
 			};
 			if ( !is_file($fn) ) continue;
