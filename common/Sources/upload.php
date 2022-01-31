@@ -253,7 +253,7 @@
 		
 		foreach ( $toshow as $fn ) {
 			if ( is_dir($fn) ) {
-				$foldername = preg_replace("/^{$typedef['folder']}/", '', $fn);
+				$foldername = preg_replace("/^{$typedef['folder']}\/*/", '', $fn);
 				$folderlist .= "<p><a href='index.php?action=$action&subfolder=$foldername&act=$act&type=$type'>$foldername</a>";
 			};
 			if ( !is_file($fn) ) continue;
