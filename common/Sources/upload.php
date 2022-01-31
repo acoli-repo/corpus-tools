@@ -264,6 +264,10 @@
 			$maintext .= "<hr style='clear:both;'><h3>Subfolders</h3>$folderlist";
 		};
 		$maintext .= "<hr style='clear:both;'><p><a href='index.php?action=$action&act=list&type=$type'>back to upload</a>";
+		if ( $sf ) {
+			$upfolder = preg_replace("/\/[^\/]+$/", "", $sf);
+			$maintext .= " &bull; <a href='index.php?action=$action&act=$act&type=$type&folder=$upfolder'>next</a>";
+		};
 
 	} else if ( $act == "list" && $typedef['display'] ) {
 
