@@ -212,6 +212,50 @@
 				<input type=submit value=Save name=submit>
 			</form> ";				
 		
+	} else if ( $act == "browse" ) {
+	
+		$maintext .= "<h1>Stored Images</h1>
+				<h2>{$typedef['display']}</h2>
+				<style>
+					.imgbox { float: left; margin: 5px; }
+				</style>
+				";
+
+		# First - read all the files
+		if ( $typedef['subfolders'] ) {
+			$sf = str_replace(".", "", $_GET['subfolder']);
+			$sf = preg_replace("/^\//", "", $sf);
+			$glob = "{$typedef['folder']}/$sf/*";
+			$files = glob($glob);
+			if ( $sf ) $maintext .= "<h3>Subfolder: $sf</h3>";
+		} else {
+			$glob = "{$typedef['folder']}/*";
+			$files = glob($glob, GLOB_BRACE);
+		};
+
+		$perpage = $_GET['perpage'] or $perpage = $typedef['perpage'] or $perpage = 50;
+		$height = $typedef['height'] or $height = 100;
+		$start = $_GET['start'] or $start = 0;
+		$toshow = array_slice($files, $start, $perpage);
+		$total = count($files);
+		
+		if ( $total > $perpage) {
+			$end = min($total, $start + $perpage);
+			$maintext .= "<p>Showing ".($start+1)." - $end of $total &bull; ";
+			if ( $start > 0 ) {
+				$prev = max(0,$start-$perpage); 
+				$maintext .= " <a href='index.php?action=$action&act=$act&type=$type&perpage=$perpage&start=$prev'>previous</a>";
+			};
+			if ( $end < $total ) {
+				$maintext .= " <a href='index.php?action=$action&act=$act&type=$type&perpage=$perpage&start=$end'>next</a>";
+			};
+		};
+		
+		foreach ( $toshow as $fn ) {
+			$size = "height=\"{$height}px\"";
+			$maintext .= "<div class='imgbox' title='$fn'><a href='$fn' target=preview><img src='$fn' $size></a></div>";
+		};
+		$maintext .= "<hr style='clear:both;'><p><a href='index.php?action=$action&act=list&type=$type'>back to upload</a>";
 
 	} else if ( $act == "list" && $typedef['display'] ) {
 
@@ -313,8 +357,9 @@
 
 
 		$maintext .= "<hr>
-				<h2>Stored Files</h2>
-				<table cellpadding='5px'>
+				<h2>Stored Files</h2>";
+		if ( $typedef['type'] == "image" ) { $maintext .= "<p><a href='index.php?action=$action&act=browse&type=$type'>browse images</a>"; };
+		$maintext .= "<table cellpadding='5px'>
 				";
 
 		foreach ( $files as $line ) {
