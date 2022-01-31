@@ -253,8 +253,8 @@
 		
 		foreach ( $toshow as $fn ) {
 			if ( is_dir($fn) ) {
-				$foldername = str_replace($typedef['folder'].'/', '', $fn);
-				$folderlist .= "<p><a href='index.php?action=$action&subfolder=$fn&act=$act&type=$type'>$foldername</a>";
+				$foldername = preg_replace("/^{$typedef['folder']}/", '', $fn);
+				$folderlist .= "<p><a href='index.php?action=$action&subfolder=$foldername&act=$act&type=$type'>$foldername</a>";
 			};
 			if ( !is_file($fn) ) continue;
 			$size = "height=\"{$height}px\"";
