@@ -252,6 +252,7 @@
 		};
 		
 		foreach ( $toshow as $fn ) {
+			if ( !is_file($fn) ) continue;
 			$size = "height=\"{$height}px\"";
 			$maintext .= "<div class='imgbox' title='$fn'><a href='$fn' target=preview><img src='$fn' $size></a></div>";
 		};
