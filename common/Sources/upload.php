@@ -265,7 +265,7 @@
 		};
 		$maintext .= "<hr style='clear:both;'><p><a href='index.php?action=$action&act=list&type=$type'>back to upload</a>";
 		if ( $sf ) {
-			$upfolder = preg_replace("/\/[^\/]+$/", "", $sf);
+			$upfolder = preg_replace("/\/?[^\/]+$/", "", $sf);
 			$maintext .= " &bull; <a href='index.php?action=$action&act=$act&type=$type&folder=$upfolder'>to parent folder</a>";
 		};
 
