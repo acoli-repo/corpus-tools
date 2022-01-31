@@ -252,9 +252,15 @@
 		};
 		
 		foreach ( $toshow as $fn ) {
+			if ( !is_dir($fn) ) {
+				$folderlist .= "<p><a href='index.php?action=$action&subfolder=$fn&act=$act&type=$type'>$fn</a>";
+			};
 			if ( !is_file($fn) ) continue;
 			$size = "height=\"{$height}px\"";
 			$maintext .= "<div class='imgbox' title='$fn'><a href='$fn' target=preview><img src='$fn' $size></a></div>";
+		};
+		if ( $folderlist ) {
+			$maintext .= "<hr style='clear:both;'><h3>Subfolders</h3>$folderlist";
 		};
 		$maintext .= "<hr style='clear:both;'><p><a href='index.php?action=$action&act=list&type=$type'>back to upload</a>";
 
