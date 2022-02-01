@@ -190,15 +190,18 @@
 		
 		if ( $_POST['rawxml'] ) {
 			$newxml = $_POST['rawxml'];
-			replacenode($nerrec, $newxml);
 		} else {
+			$etype = $nerrec->getName();
+			$newrec = simplexml_load_string($nerrec->asXML());
 			foreach ( $_POST['xp'] as $key => $val ) {
 				print "<p>$key => $val";
-				$nerxp = "./$key";
-				$xnode = xpathnode($nerrec, $nerxp);
+				$nerxp = "/$etype/$key";
+				$xnode = xpathnode($newrec, $nerxp);
 				$xnode[0] = $val;
 			};
+			$newxml = $newrec->asXML();
 		};
+		replacenode($nerrec, $newxml);
 
 		# First - make a once-a-day backup
 		$date = date("Ymd"); 
@@ -260,9 +263,10 @@
 		$maintext .= "<hr>
 		<input type=submit value=\"Save\">
 		<a href=\"index.php?action=file&cid=$fileid\">cancel</a>";
+		$corresp = preg_replace("/.*#/", "", $elm['corresp']);
 		if ( $elm['corresp'] ) $maintext .= "
 			&bull;
-			<a href=\"index.php?action=$action&nerid={$elm['corresp']}\">view record</a>";
+			<a href=\"index.php?action=$action&nerid=$corresp\">view record</a>";
 		$maintext .= "</form>
 		<!-- <a href='index.php?action=file&cid=$fileid'>Cancel</a> -->
 		<hr><div id=mtxt>".makexml($txtxml)."</div>
@@ -567,31 +571,56 @@
 	} else if ( $_GET['nerid'] ) {
 	
 		$nerid = preg_replace("/.*#/", "", $_GET['nerid']);
-		$type = strtolower($_GET['type']);
-		$subtype = $_GET['subtype'];
 		if ( $nerxml ) {
 			$nernode = current($nerxml->xpath(".//*[@id=\"$nerid\"]"));
-			if ( $nernode ) {
-				$nameelm = $nerlist[$type]['elm'] or $nameelm = "name";
-				$name = current($nernode->xpath(".//$nameelm"))."";
-			};
+		};
+
+		$type = strtolower($_GET['type']);
+		if ( !$type && $nernode ) $type = $nernode->getName();
+		$nerdef = $nerlist[$type]; if ( !$nerdef ) foreach ( $nerlist as $key => $val ) {
+			if ( $val['node'] == $type ) $nerdef = $val;
+		};
+
+		$subtype = $_GET['subtype'];
+
+		if ( $nernode ) {
+			$nameelm = $nerlist[$type]['elm'] or $nameelm = "name";
+			$name = current($nernode->xpath(".//$nameelm"))."";
 		};
 		if ( !$name && $_GET['name'] ) $name = "<i>".$_GET['name']."</i>";
+		if ( !$name ) $name = $nerdef['display'];
 		if ( !$name ) $name = $nerid;
 	
 		if ( !$nernode ) {
 			fatal("No such record: $nerid");
 		};
+
 	
 		$maintext .= "<h2>{%$nertitle}</h2><h1>$name</h1>
-		<p>Type of $neritemname: <b>{$nerlist[$type]['display']}</b>";
+		<p>Type of $neritemname: <b>{$nerdef['display']}</b>";
 	
 		$subtypefld = $nerlist[$type]['subtypes']['fld'] or $subtypefld = "type";
 		$subdisplay = $nerlist[$type]['subtypes'][$subtype]['display'] or $subdisplay = $subvalue;
 		if ( $subdisplay ) $maintext .= "<p>Subtype: <b>$subdisplay</b>";
 	
-		if ( $nernode ) {
-			$descflds = $nerlist[$type]['descflds'] or $descflds = array ("note", "desc", "head", "label");
+		$descflds = $nerdef['descflds'] or $descflds = array ("note", "desc", "head", "label");
+		if ( $nerdef['options'] && $nernode ) {
+			$maintext .= "<table>";
+			foreach ( $nerdef['options'] as $key => $val ) {
+				$fxp = "./".$val['xpath'];
+				$fval = current($nernode->xpath($fxp));
+				if ( $fval ) {
+					$nodename = $fval->getName();
+					$fdisp = $val['display'] or $fdisp = $key;
+					if ( in_array( $nodename, $descflds ) ) {
+						$maintext .= "<tr><td colspan=2>".makexml($childnode);
+					} else if ( trim($fval) != "" && !$val['noshow']  ) {
+						$maintext .= "<tr><th>{$fdisp}<td>$fval";
+					};
+				};
+			};
+			$maintext .= "</table>";
+		} else if ( $nernode ) {
 			$maintext .= "<table>";
 			foreach ( $nernode->children() as $childnode ) {
 				$nodename = $childnode->getName();
@@ -641,13 +670,13 @@
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
 		
-		$nodetype = $nerlist[$type]['elm'];
-		$nodeatt = $nerlist[$type]['cqp'];
+		$nodetype = $nerdef['elm'];
+		$nodeatt = $nerdef['cqp'];
 
-
-		$cql = "Matches = <$nodeatt> []+ </$nodeatt> :: match.{$nodeatt}_nerid=\"{$_GET['nerid']}\"";
+		$cql = "Matches = <$nodeatt> []+ </$nodeatt> :: match.{$nodeatt}_nerid=\".*#?{$_GET['nerid']}\"";
 		$cqp->exec($cql); 
-		$results = $cqp->exec("tabulate Matches match, matchend, match text_id, match id");
+		$size = max(0, $cqp->exec("size Matches"));
+		if ( $size ) $results = $cqp->exec("tabulate Matches match, matchend, match text_id, match id");
 
 		$xidxcmd = findapp("tt-cwb-xidx");
 
@@ -665,8 +694,8 @@
 			$cmd = "$xidxcmd --filename='$fileid' --cqp='$cqpfolder' $expand $leftpos $rightpos";
 			$resxml = shell_exec($cmd);
 			
-			if ( $csize ) {
-				$resxml = preg_replace("/ ({$nerlist[$type]['nerid']}=\"([^\"]*#)?$neridtxt\")/", " \1 hl=\"1\"", $resxml);
+			if ( $csize ) { 
+				$resxml = preg_replace("/ ({$nerdef['nerid']}=\"([^\"]*#)?$neridtxt\")/", " \1 hl=\"1\"", $resxml);
 				# Replace block-type elements by vertical bars
 				$resxml = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l|lg|div) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='<\\2>'>|</span> ", $resxml);
 				$resxml = preg_replace ( "/(<\/?(doc)>\s*|<(doc) [^>]*>\s*)+/", " <span style='color: #995555; font-weight: bold;' title='<\\2>'>|</span> ", $resxml);
