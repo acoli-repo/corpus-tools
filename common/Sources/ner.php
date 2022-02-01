@@ -259,7 +259,11 @@
 
 		$maintext .= "<hr>
 		<input type=submit value=\"Save\">
-		<button onClick=\"window.open('index.php?action=file&cid=$fileid', '_self');\">Cancel</button></form>
+		<a href=\"index.php?action=file&cid=$fileid\">cancel</a>";
+		if ( $elm['corresp'] ) $maintext .= "
+			&bull;
+			<a href=\"index.php?action=$action&nerid={$elm['corresp']}\">view record</a>";
+		$maintext .= "</form>
 		<!-- <a href='index.php?action=file&cid=$fileid'>Cancel</a> -->
 		<hr><div id=mtxt>".makexml($txtxml)."</div>
 		<script language=Javascript>
@@ -574,6 +578,10 @@
 		};
 		if ( !$name && $_GET['name'] ) $name = "<i>".$_GET['name']."</i>";
 		if ( !$name ) $name = $nerid;
+	
+		if ( !$nernode ) {
+			fatal("No such record: $nerid");
+		};
 	
 		$maintext .= "<h2>{%$nertitle}</h2><h1>$name</h1>
 		<p>Type of $neritemname: <b>{$nerlist[$type]['display']}</b>";
