@@ -661,7 +661,6 @@
 		};
 	
 		# Lookup all occurrences
-		$maintext .= "<h2 style='margin-top: 20px;'>{%Occurrences}</h2>";
 		include ("$ttroot/common/Sources/cwcqp.php");
 		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
@@ -676,17 +675,19 @@
 		$cql = "Matches = <$nodeatt> []+ </$nodeatt> :: match.{$nodeatt}_nerid=\".*#?{$_GET['nerid']}\"";
 		$cqp->exec($cql); 
 		$size = max(0, $cqp->exec("size Matches"));
-		if ( $size ) $results = $cqp->exec("tabulate Matches match, matchend, match text_id, match id");
+		if ( $size ) {
+			$maintext .= "<h2 style='margin-top: 20px;'>{%Occurrences}</h2>";
+			$results = $cqp->exec("tabulate Matches match, matchend, match text_id, match id");
+			$xidxcmd = findapp("tt-cwb-xidx");
 
-		$xidxcmd = findapp("tt-cwb-xidx");
+			$csize = $settings['xmlfile']['ner']['context'] or $csize = 0;
+			if ( $csize) {
+				$expand = "--context=$csize";			
+			};
 
-		$csize = $settings['xmlfile']['ner']['context'] or $csize = 0;
-		if ( $csize) {
-			$expand = "--context=$csize";			
+			$neridtxt = str_replace("/", "\/", preg_quote($nerid));			
 		};
-
-		$neridtxt = str_replace("/", "\/", preg_quote($nerid));
-			
+		
 		$maintext .= "<div id=mtxt><table>";
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $leftpos, $rightpos, $fileid, $tokid ) = explode("\t", $resline);
