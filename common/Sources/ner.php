@@ -604,7 +604,7 @@
 			$maintext .= "</table>";
 			$links = $nernode->xpath(".//linkGrp/link");
 			if ( $links ) {
-				$maintext .= "<h2>{%External links}</h2><table>";
+				$maintext .= "<p><h2>{%External links}</h2><table>";
 				foreach ( $links as $key => $val ) {
 					if ( substr($val['target'],0,4) == "http" ) $maintext .= "<tr><th>{%{$val['type']}}<td><a href='{$val['target']}' target=info>{%{$val['target']}}</a>";
 				};
