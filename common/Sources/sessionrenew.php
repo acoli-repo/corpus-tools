@@ -7,7 +7,7 @@
 		echo base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=');
 	} else {
 		// logged out - throw an error
-		header("HTTP/1.0 404 Not Found");
+		header("HTTP/1.0 403 Forbidden");
 	};
 	exit;
 
