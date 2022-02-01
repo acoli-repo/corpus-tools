@@ -139,6 +139,7 @@
 			};
 		};
 		
+		if ( $_POST['next'] ) $nextaction = $_POST['next'];
 		if ( !$nextaction ) { // Somehow we need to decide what the best action after saving is...
 			if ( $settings['defaults']['popup'] ) $nextaction = "tokview";
 			else $nextaction = "file";

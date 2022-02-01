@@ -12,9 +12,9 @@
 	$nerlist = $settings['xmlfile']['ner']['tags'] 
 		or 
 		$nerlist = array(
-			"placename" => array ( "display" => "Place Name", "cqp" => "place", "elm" => "placeName", "nerid" => "ref" ), 
-			"persname" => array ( "display" => "Person Name", "cqp" => "person", "elm" => "persName", "nerid" => "ref" ), 
-			"name" => array ( "display" => "Name", "cqp" => "name", "elm" => "name", "nerid" => "ref" ),
+			"placename" => array ( "display" => "Place Name", "cqp" => "place", "node" => "place", "elm" => "placeName", "nerid" => "ref" ), 
+			"persname" => array ( "display" => "Person Name", "cqp" => "person", "node" => "person", "elm" => "persName", "nerid" => "ref" ), 
+			"orgname" => array ( "display" => "Organization Name", "cqp" => "org", "node" => "org", "elm" => "orgName", "nerid" => "ref" ),
 			"term" => array ( "display" => "Term", "cqp" => "term", "elm" => "term", "nerid" => "ref" ),
 			);
 	$nerjson = array2json($nerlist);
@@ -74,6 +74,146 @@
 		$maintext .= "</table>
 				<hr> <a href='index.php?action=$action&cid={$ttxml->fileid}'>{%back}</a>";
 
+	} else if ( $act == "neredit" ) {
+
+		check_login(); 
+		
+		$nerid = $_GET['nerid'];
+		$maintext .= "<h1>Edit NER Record $nerid</h1>";
+
+		if ( !$nerxml ) { fatal("Failed to load NER file $nerfile"); exit; };
+
+		$nerrec = current($nerxml->xpath("//*[@id=\"$nerid\"]"));
+		if ( !$nerrec ) {
+			if ( $_GET['create'] ) {
+				$maintext .= "<p><i>New record</i></p>";
+				$etype = $_GET['type'];
+				$nerdef = $nerlist[$etype] or $nerdef = $nerlist[strtolower($etype)];
+				$nerelm = $nerdef['node'] or $nerelm = $etype;
+				if ( !$etype ) fatal ("No NER type given");
+				$nerrec = simplexml_load_string("<$nerelm id=\"$nerid\">\n</$nerelm>");
+				$type .= "&create=1";
+			} else {
+				fatal("No such NER record: $nerid");
+			};
+		} else {
+			$etype = $nerrec->getName()."";
+		};
+		foreach ( $settings['xmlfile']['ner']['tags'] as $tmp ) {
+			if ( $tmp['elm']."" == $etype || $tmp['node']."" == $etype ) $nerdef = $tmp;
+		};
+
+		$maintext .= "
+			<p>Record type: <b>{$nerdef['display']}</b>
+			";
+
+		if ( $nerdef['options'] && !$_GET['raw'] ) {
+		
+			$maintext .= "
+			<form action=\"index.php?action=$action&act=nersave&cid=$fileid$type\" id=frm name=frm method=post>
+			<input type=hidden name=nerid value='$nerid'>
+			<table>";
+			foreach ( $nerdef['options'] as $key => $val ) {
+				$fldname = $val['display'];
+				$nerxp = $val['xpath'];
+				$fldval = current($nerrec->xpath($nerxp));
+				$maintext .= "<tr><th>$fldname<td><input name=xp[$nerxp] value='$fldval' size=80>";
+			};
+			$maintext .= "</table>
+			<p><input type=submit value=Save> &bull; <a href='index.php?action=$action&act=$act&raw=1&cid=$fileid&nerid=$nerid$type'>edit raw XML</a> &bull; <a href='index.php?action=$action&ner=$nerid'>cancel</a>
+			</form>";
+			
+		} else {
+			$domxml = dom_import_simplexml($nerrec);
+			$editxml = $domxml->ownerDocument->saveXML($domxml);
+			
+			$maintext .= "
+			<div id=\"editor\" style='width: 100%; height: 400px;'>".htmlentities($editxml)."</div>
+	
+			<form action=\"index.php?action=$action&act=nersave&cid=$fileid$type\" id=frm name=frm method=post>
+			<input type=hidden name=nerid value='$nerid'>
+			<input type=hidden name=etype value='$etype'>
+			<textarea style='display:none' name=rawxml></textarea>
+			<p><input type=button value=Save onClick=\"return runsubmit();\"> $switch
+			</form>
+		
+			<script src=\"$aceurl\" type=\"text/javascript\" charset=\"utf-8\"></script>
+			<script>
+				var editor = ace.edit(\"editor\");
+				editor.setTheme(\"ace/theme/chrome\");
+				editor.getSession().setMode(\"ace/mode/xml\");
+
+				function runsubmit ( ) {
+					var rawxml = editor.getSession().getValue();
+					var oParser = new DOMParser();
+					var oDOM = oParser.parseFromString(rawxml, 'text/xml');
+					if ( oDOM.documentElement.nodeName == 'parsererror' ) {
+						alert('Invalid XML - please revise before saving.'); 
+						return -1; 							
+					} else {
+						document.frm.rawxml.value = rawxml;
+						document.frm.submit();
+					};						
+				};
+			</script>
+		";
+		};
+		// Add a session logout tester
+		$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";	
+
+	} else if ( $act == "nersave" ) {
+
+		check_login(); 
+		
+		$nerid = $_POST['nerid'];
+		if ( !$nerid ) fatal("No NER id provided");
+		
+		print "<p>Saving NER record $nerid";
+
+		if ( !$nerxml ) { fatal("Failed to load NER file $nerfile"); exit; };
+
+		$nerrec = current($nerxml->xpath("//*[@id=\"$nerid\"]"));
+		if ( !$nerrec ) {
+			if ( $_GET['create'] ) {
+				print "<p>FULL: ".showxml($nerxml);
+				$etype = $_POST['etype'];
+				$nerdef = $nerlist[$etype] or $nerdef = $nerlist[strtolower($etype)];
+				$nerelm = $nerdef['node'] or $nerelm = $etype;
+				print "<p><i>New record</i></p>";
+				$parxp = $nerdef['section'] or $parxp = "list".ucfirst($nerelm);
+				$prnt = xpathnode($nerxml, "/settingsDesc/$parxp");
+				$nerrec = $prnt->addChild($nerelm, "");
+			} else {
+				fatal("No such NER record: $nerid");
+			};
+		};
+		
+		if ( $_POST['rawxml'] ) {
+			$newxml = $_POST['rawxml'];
+			replacenode($nerrec, $newxml);
+		} else {
+			foreach ( $_POST['xp'] as $key => $val ) {
+				print "<p>$key => $val";
+				$nerxp = "./$key";
+				$xnode = xpathnode($nerrec, $nerxp);
+				$xnode[0] = $val;
+			};
+		};
+
+		# First - make a once-a-day backup
+		$date = date("Ymd"); 
+		$buname = preg_replace ( "/\.xml/", "-$date.xml", $nerfile );
+		$buname = preg_replace ( "/.*\//", "", $buname );
+		if ( !file_exists("backups/$buname") ) {
+			copy ( $nerfile, "backups/$buname");
+		};
+		# Now, make a safe XML text out of this and save it to file
+		file_put_contents($nerfile, $nerxml->asXML());
+		print "<p>Your changes have been saved - reloading
+			<script>top.location='index.php?action=$action&nerid=$nerid';</script>
+			";
+		exit;
+
 	} else if ( $_GET['cid'] && $act == "edit" ) {
 
 		check_login(); 
@@ -93,6 +233,8 @@
 		foreach ( $settings['xmlfile']['ner']['tags'] as $tmp ) if ( $tmp['elm'] == $etype ) $nerdef = $tmp;
 		$sattdef = $settings['xmlfile']['sattributes'][$etype];
 		
+		if ( !$sattdef && $nerxml ) $sattdef = array ( "corresp" => array ("display" => "NER id") );
+		
 		$maintext .= "<h2>Edit Named Entity</h2>
 			<h1>".$ttxml->title()."</h1>
 			<h2>Entity type ($nerid): ".$etype." = {$sattdef['display']}</h2>
@@ -100,6 +242,7 @@
 			<form action='index.php?action=toksave' method=post name=tagform id=tagform>
 			<input type=hidden name=cid value='$fileid'>
 			<input type=hidden name=tid value='$nerid'>
+			<input type=hidden name=next value='ner'>
 			<table>";
 
 		foreach ( $sattdef as $key => $item ) {
@@ -134,9 +277,10 @@
 			if ( $nerxml ) {
 				$nerrec = current($nerxml->xpath("//*[@id=\"$nerid\"]"));
 				if ( $nerrec ) {
-					$maintext .= "<p><pre>".htmlentities($nerrec->asXML())."</pre>";
+					$maintext .= "<p><pre>".htmlentities($nerrec->asXML())."</pre>
+					<p><a href='index.php?action=$action&act=neredit&nerid=$nerid'>edit NER record</a>";
 				} else {
-					$maintext .= "<i>No such NER element: $nerid</i>";
+					$maintext .= "<p><i>No such NER element: $nerid</i> (<a href='index.php?action=$action&act=neredit&nerid=$nerid&create=1&&type=$etype'>create</a>)";
 				};
 			} else {
 				$maintext .= "<i>Failed to load: $nerfile</i>";
@@ -299,10 +443,10 @@
 		$xmlid = $ttxml->xmlid;
 		$xml = $ttxml->xml;
 		
-		if ( !is_writable("xmlfiles/".$ttxml->filename) ) fatal("Not writable: $ttxml->filename");
+		if ( !is_writable("xmlfiles/".$ttxml->fileid) ) fatal("Not writable: $ttxml->fileid");
 	
 		$nertype = $_POST['type'] or $nertype = "name";
-		$nerdef = $settings['xmlfile']['ner']['tags'][$nertype];
+		$nerdef = $nerlist[$nertype] or $nerdef = $nerlist[strtolower($nertype)];
 		$nerelm = $nerdef['elm'] or $nerelm = "name";
 
 		$newner = addparentnode($ttxml->xml, $_POST['toklist'], $nerelm);
@@ -311,7 +455,7 @@
 		while ( $ttxml->xml->xpath("//*[@id=\"ner-$cnt\"]") ) { $cnt++; };
 		$newner->setAttribute("id", "ner-$cnt");
 		
-		saveMyXML($ttxml->xml->asXML(), $ttxml->filename);
+		saveMyXML($ttxml->xml->asXML(), $ttxml->fileid	);
 		$nexturl = "index.php?action=$action&act=edit&cid=$fileid&nerid=".$newner->getAttribute("id");
 		print "<hr><p>Your NER has been inserted - reloading to <a href='$nexturl'>the edit page</a>";
 		print "<script langauge=Javasript>top.location='$nexturl';</script>";		
@@ -473,6 +617,10 @@
 				$idtxt = ""; $sep = "";
 				if ( $idnode ) $maintext .= makexml($idnode[0]);
 			};
+		};
+	
+		if ( $username ) {
+			$maintext .= "<hr><p><a href='index.php?action=$action&act=neredit&nerid=$nerid'>edit NER record</a>   &bull; <a href='index.php?action=$action'>back to list</a>";
 		};
 	
 		# Lookup all occurrences
