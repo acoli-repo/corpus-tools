@@ -288,7 +288,7 @@
 					$maintext .= "<p><pre>".htmlentities($nerrec->asXML())."</pre>
 					<p><a href='index.php?action=$action&act=neredit&nerid=$nerid'>edit NER record</a>";
 				} else {
-					$maintext .= "<p><i>No such NER element: $nerid</i> (<a href='index.php?action=$action&act=neredit&nerid=$nerid&create=1&&type=$etype'>create</a>)";
+					$maintext .= "<p><i>No such NER element: $nerid</i> (<a href='index.php?action=$action&act=neredit&nerid=$nerid&create=1&type=$etype'>create</a>)";
 				};
 			} else {
 				$maintext .= "<i>Failed to load: $nerfile</i>";
@@ -737,7 +737,8 @@
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $nerid, $form, $cnt ) = explode("\t", $resline);
 			if ( $form == '' || $form == '_') $form = $nerid;
-			$rowhash[$form] = "<tr key='$name'><td><a href='index.php?action=$action&nerid=".urlencode($nerid)."&type=$type&name=$form$'>$form</a></tr>";
+			if ( $form == '' || $form == '_') continue;
+			$rowhash[$form] = "<tr key='$name'><td><a href='index.php?action=$action&nerid=".urlencode($nerid)."&type=$type&name=$form'>$form</a></tr>";
 		};
 		ksort($rowhash);
 		$maintext .= "<table>".join("\n", array_values($rowhash))."</table>";
