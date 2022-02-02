@@ -240,7 +240,7 @@
 
 	# Add the TEITOK footer
 	if ( !$noteitokmessage ) {
-		$menu .=  "<hr style='opacity: 0.5; margin-top: 40px;'><p style='opacity: 0.5; font-size: smaller;'><span onClick=\"window.open('http://www.teitok.org/index.php', 'teitok');\">Powered by <TEI:TOK></span><br><span onClick=\"window.open('http://www.teitok.org/index.php?action=credits', 'teitok');\">Maarten Janssen, 2014-</a></p>";
+		$menu .=  "<hr style='opacity: 0.5; margin-top: 40px;'><p style='opacity: 0.5; font-size: smaller;'><span onClick=\"window.open('http://www.teitok.org/index.php', 'teitok');\">Powered by &lt;TEI:TOK&gt;</span><br><span onClick=\"window.open('http://www.teitok.org/index.php?action=credits', 'teitok');\">Maarten Janssen, 2014-</a></p>";
 	};
 	
 	// Load smarty content
