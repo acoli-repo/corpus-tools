@@ -267,10 +267,11 @@
 		if ( $elm['corresp'] ) $maintext .= "
 			&bull;
 			<a href=\"index.php?action=$action&nerid=$corresp\">view record</a>
-			&bull;
-			<a href=\"index.php?action=$action&act=delete&nerid=$nerid&cid=$ttxml->fileid\">remove NER</a>
 			";
-		$maintext .= "</form>
+		$maintext .= "
+				&bull;
+			<a href=\"index.php?action=$action&act=delete&nerid=$nerid&cid=$ttxml->fileid\">remove NER</a>
+		</form>
 		<!-- <a href='index.php?action=file&cid=$fileid'>Cancel</a> -->
 		<hr><div id=mtxt>".makexml($txtxml)."</div>
 		<script language=Javascript>
