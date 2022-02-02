@@ -266,7 +266,10 @@
 		$corresp = preg_replace("/.*#/", "", $elm['corresp']);
 		if ( $elm['corresp'] ) $maintext .= "
 			&bull;
-			<a href=\"index.php?action=$action&nerid=$corresp\">view record</a>";
+			<a href=\"index.php?action=$action&nerid=$corresp\">view record</a>
+			&bull;
+			<a href=\"index.php?action=$action&act=delete&nerid=$nerid&cid=$ttxml->fileid\">remove NER</a>
+			";
 		$maintext .= "</form>
 		<!-- <a href='index.php?action=file&cid=$fileid'>Cancel</a> -->
 		<hr><div id=mtxt>".makexml($txtxml)."</div>
@@ -319,6 +322,47 @@
 				";
 		};
 
+
+	} else if ( $act == "remove" ) {
+	
+		check_login();
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		
+		$nerid = $_POST['nerid'];
+		if ( !$nerid ) fatal("No NER given");
+		print "<p>Removing NER $nerid</p>";
+
+		$nerrec = current($ttxml->xml->xpath("//*[@id=\"$nerid\"]"));	
+		if ( !$nerrec ) fatal("No such NER: $nerid");
+
+		delparentnode($ttxml->xml, $nerid);
+
+		$ttxml->save();
+		print "<p>NER removed - reloading
+			<script>top.location='index.php?action=$action&cid=$ttxml->fileid';</script>";
+		exit;
+
+	} else if ( $act == "delete" ) {
+	
+		check_login();
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		
+		$nerid = $_GET['nerid'];
+		if ( !$nerid ) fatal("No NER given");
+		$maintext .= "<h1>Delete NER $nerid</h1>";
+
+		$nerrec = current($ttxml->xml->xpath("//*[@id=\"$nerid\"]"));
+		if ( !$nerrec ) fatal("No such NER: $nerid");
+
+		$maintext .= "<h2>Annotation to be removed</h2><p>".$nerrec->getName()." here:<br>".showxml($nerrec);
+		
+		$maintext .= "<hr><form action='index.php?action=$action&act=remove&cid=$ttxml->fileid' method=post>
+			<input type=hidden name=nerid value='$nerid'>
+			<input type=submit value='Remove'> <a href='index.php?action=$action&cid=$ttxml->fileid'>cancel</a>
+			</form>";
+
 	} else if ( $_GET['cid'] && $act == "multiadd" ) {
 
 		require("$ttroot/common/Sources/ttxml.php");
@@ -342,6 +386,7 @@
 		print "<hr><p>Your NERs have been inserted - reloading to renumber page";
 		print "<script langauge=Javasript>top.location='$nexturl';</script>";		
 		exit;
+
 
 	} else if ( $_GET['cid'] && $act == "detect" ) {
 
@@ -709,6 +754,7 @@
 			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlid=".urlencode($_GET['nerid'])."'>$context</a><td>$resxml";
 		};
 		$maintext .= "</table></div>";
+		
 
 	} else if ( $_GET['type'] ) {
 
@@ -784,7 +830,7 @@
 		$dom = dom_import_simplexml($xml)->ownerDocument;
 		$xpath = new DOMXpath($dom);
 
-		# Attermpt to add an element around the indicated tokens
+		# Attempt to add an element around the indicated tokens
 		$idlist = explode(";", preg_replace("/;+$/", "", $toklist));
 		$first = $idlist[0]; $last = end($idlist);
 		
@@ -804,6 +850,28 @@
 		}; 
 		
 		return $newner;
+
+	};
+
+	function delparentnode( $xml, $parentid ) {
+
+		$prnt = current($xml->xpath("//*[@id=\"$parentid\"]"));
+		if ( !$prnt ) return -1;
+	
+		$dom = dom_import_simplexml($xml);
+		$pd = dom_import_simplexml($prnt);
+		print "<p>Moving childnodes out of parent $parentid";
+				
+		print showxml($prnt);
+		$childs = $pd->childNodes;
+		foreach ( $childs as $child  ) {
+			print "<p>".htmlentities($dom->ownerDocument->saveXML($child));
+			$newchild = $dom->ownerDocument->importNode($child->cloneNode(true),true);
+			$pd->parentNode->insertBefore($newchild, $pd);
+		}; 
+		$pd->parentNode->removeChild($pd);
+		
+		return;
 
 	};
 
