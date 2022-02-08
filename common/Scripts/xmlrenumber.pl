@@ -100,28 +100,36 @@ use XML::LibXML;
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//mtok")) {
 		$cnt++;
-		$ttnode->setAttribute('id', "m-$cnt");
+		if ( !$ttnode->getAttribute('id') || $force ) {
+			$ttnode->setAttribute('id', "m-$cnt");
+		};
 	}; 
 	
 	# Number the paragraphs
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//div")) {
 		$cnt++;
-		$ttnode->setAttribute('id', "div-$cnt");
+		if ( !$ttnode->getAttribute('id') || $force ) {
+			$ttnode->setAttribute('id', "div-$cnt");
+		};
 	}; 
 	
 	# Number the sentences
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//s | $mtxtelem//l")) {
 		$cnt++;
-		$ttnode->setAttribute('id', "s-$cnt");
+		if ( !$ttnode->getAttribute('id') || $force ) {
+			$ttnode->setAttribute('id', "s-$cnt");
+		};
 	}; 
-	
+		
 	# Number the utterances
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//u")) {
 		$cnt++;
-		$ttnode->setAttribute('id', "u-$cnt");
+		if ( !$ttnode->getAttribute('id') || $force ) {
+			$ttnode->setAttribute('id', "u-$cnt");
+		};
 	}; 
 	
 	# Number the breaks and other empty elements
@@ -157,7 +165,7 @@ use XML::LibXML;
 	
 	# Number the named entities
 	$cnt = 1;
-	foreach $nerelm ( split(",", "term,placeName,personName,orgName") ) {
+	foreach $nerelm ( split(",", "term,placeName,persName,orgName,name,ner,ne") ) {
 		foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//$nerelm")) {
 			while ( $tmpdoc->findnodes("$mtxtelem//$nerelm\[\@id=\"ner-$cnt\"\]") ) { $cnt++; };
 			if ( !$ttnode->getAttribute('id') )  { $ttnode->setAttribute('id', "ner-$cnt"); };

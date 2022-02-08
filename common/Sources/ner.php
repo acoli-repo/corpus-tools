@@ -18,8 +18,25 @@
 			"term" => array ( "display" => "Term", "cqp" => "term", "elm" => "term", "nerid" => "ref" ),
 			);
 	$nerjson = array2json($nerlist);
+	
+	$nn2rn = array (
+		"person" => "persName",
+		"org" => "orgName",
+		"place" => "placeName",
+	);
+	$nn2sn = array (
+		"person" => "listPerson",
+		"org" => "listOrg",
+		"place" => "listPlace",
+	);
+	$rn2nn = array (
+		"persName" => "person",
+		"orgName" => "org",
+		"placeName" => "place",
+	);
 
 	$nerfile = $settings['xmlfile']['ner']['nerfile'] or $nerfile = "ner.xml";
+	$nerbase = $nerfile;
 	if ( strpos($nerfile, "/") == false ) $nerfile = "Resources/$nerfile";
 	if ( file_exists($nerfile) ) $nerxml = simplexml_load_file($nerfile); 
 
@@ -67,7 +84,7 @@
 				$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
 				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
 				$maintext .= "<tr key='$name' class='$trc'><td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a>
-					<td>$idtxt
+					<td><a href='index.php?action=ner&nerid=".urlencode($nerid)."' target=ner>$idtxt</a>
 					<td style='opacity: 0.5; text-align: right; padding-left: 10px;' title='{%Occurrences}'>{$idcnt[$nerid]}";
 			};
 		};
@@ -78,7 +95,9 @@
 
 		check_login(); 
 		
-		$nerid = $_GET['nerid'];
+		list ( $nerfl, $nerid ) = explode("#", $_GET['nerid']);
+		if ( !$nerid ) $nerid = $nerfl;
+		
 		$maintext .= "<h1>Edit NER Record $nerid</h1>";
 
 		if ( !$nerxml ) { fatal("Failed to load NER file $nerfile"); exit; };
@@ -120,7 +139,8 @@
 				$maintext .= "<tr><th>$fldname<td><input name=xp[$nerxp] value='$fldval' size=80>";
 			};
 			$maintext .= "</table>
-			<p><input type=submit value=Save> &bull; <a href='index.php?action=$action&act=$act&raw=1&cid=$fileid&nerid=$nerid$type'>edit raw XML</a> &bull; <a href='index.php?action=$action&ner=$nerid'>cancel</a>
+			<p><input type=submit value=Save> &bull; <a href='index.php?action=$action&act=$act&raw=1&cid=$fileid&nerid=$nerid$type'>edit raw XML</a> 
+				&bull; <a href='index.php?action=$action&ner=$nerid'>cancel</a>
 			</form>";
 			
 		} else {
@@ -180,7 +200,7 @@
 				$nerdef = $nerlist[$etype] or $nerdef = $nerlist[strtolower($etype)];
 				$nerelm = $nerdef['node'] or $nerelm = $etype;
 				print "<p><i>New record</i></p>";
-				$parxp = $nerdef['section'] or $parxp = "list".ucfirst($nerelm);
+				$parxp = $nerdef['section'] or $parxp = $nn2sn[$nerelm];
 				$prnt = xpathnode($nerxml, "/settingsDesc/$parxp");
 				$nerrec = $prnt->addChild($nerelm, "");
 			} else {
@@ -268,9 +288,19 @@
 			&bull;
 			<a href=\"index.php?action=$action&nerid=$corresp\">view record</a>
 			";
+		else $maintext .= "
+			&bull;
+			<a href=\"index.php?action=$action&act=lookup&cid=$ttxml->fileid&nerid=$nerid\">lookup entity</a>
+			";
+
+			
+		
 		$maintext .= "
 				&bull;
 			<a href=\"index.php?action=$action&act=delete&nerid=$nerid&cid=$ttxml->fileid\">remove NER</a>
+		";
+		
+		$maintext .= "
 		</form>
 		<!-- <a href='index.php?action=file&cid=$fileid'>Cancel</a> -->
 		<hr><div id=mtxt>".makexml($txtxml)."</div>
@@ -389,6 +419,128 @@
 		exit;
 
 
+	} else if ( $_GET['cid'] && $_GET['nerid'] && $act == "lookup" ) {
+
+		check_login(); 
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		
+		$nerid = $_GET['nerid'];
+		$nernode = current($ttxml->xml->xpath("//*[@id=\"$nerid\"]"));
+		$form = $nernode['form'] or $form = trim(preg_replace("/<[^<>]+>/", "", $nernode->asXML()));
+		$lemma = $nernode['lemma']; 
+		if ( !$lemma ) {
+			$clone = simplexml_load_string($nernode->asXML());
+			foreach ( $clone->xpath("//tok") as $tok ) {
+				if ( $tok['lemma'] ) $tok[0] = $tok['lemma'];
+			};
+			$lemma = trim(preg_replace("/<[^<>]+>/", "", $clone->asXML()));	
+		};
+		$type = $nernode->getName().'';
+		$nerdef = $nerlist[$type];
+		$nodetype = $nerdef['node'] or $nodetype = $rn2nn[$type] or $nodetype = $type;
+		$namenode = $nerdef['elm'] or $nodetype = $rn2nn[$type] or $nodetype = $type;
+		
+		$nertype = $nerlist[$type]['elm'];
+		if ( !$nertype  ) $nertype = $rn2nn[$type];
+		$xp = "//{$nodetype}[{$namenode}[.=\"$lemma\"]]";
+	
+		$maintext .= "<h1>NER Lookup</h1>
+			<p>NER: $lemma ($nerid - $type - $form)
+			<p>Checking if record exists
+			";
+		
+		$nerrec = current($nerxml->xpath($xp));
+		if ( $nerrec ) {
+			$nerrecid = $nerrec['id'];
+			$maintext .= showxml($nerrec);
+			$nernode['corresp'] = "$nerbase#".$nerrecid;
+			# Save the XML
+			$ttxml->save();
+			print "<p>Change saved - reloading
+				<script>top.location = 'index.php?action=$action&act=neredit&nerid=$nerrecid';</script>";
+			exit;
+		} else  if ( $_GET['wid'] ) {
+			$wid = $_GET['wid'];
+			$cmd = "perl $ttroot/common/Scripts/wikilookup.pl --recid='$wid' --type=$type";
+			$maintext .= "<p>Lookup up in Wikidata $cmd";
+			$newrec = shell_exec($cmd);
+			$nerdata = simplexml_load_string($newrec);
+			$maintext .= showxml($nerdata);
+		} else {
+			$qq = ";name=$lemma";
+			if ( $_POST['q'] ) {
+				$qq = "";
+				foreach ( $_POST['q'] as $key => $val ) {
+					$qq .= ";$key=$val";
+				};
+			};
+			$cmd = "perl $ttroot/common/Scripts/wikilookup.pl --query='type=$nertype;$qq'";
+			$maintext .= "<p>Lookup up in Wikidata $cmd";
+			$newrec = shell_exec($cmd);
+			$nerdata = simplexml_load_string($newrec);
+			# $maintext .= showxml($nerdata);
+		};
+
+		if ( $nerdata ) {
+			if ( $nerdata->getName() == "sparql" ) {
+				# Disambiguate
+				if ( $type == "person" || $type == "persName" || $type == "persname" ) $morefld .= "<p>Birth year: <input name=q[birth] size=10></p>";
+				if ( count($nerdata->xpath("//result")) > 1 ) $maintext .= "<p>Multiple matches - choose from the list below, or specify manually";
+				else $maintext .= "<p>No matches - specify manually (or create NER record manually)";
+				$maintext .= "<form action='index.php?action=$action&act=lookup&cid=$ttxml->fileid&nerid=$nerid' method=post>
+					<p>Full name: <input name=q[name] size=80 value=\"$lemma\">
+					$morefld
+					<input type=submit value=Submit>
+					</form></p><table>";
+				foreach ( $nerdata->xpath("//result") as $ritem ) {
+					$itemid = str_replace("http://www.wikidata.org/entity/", "", current($ritem->xpath(".//uri")));
+					$label = current($ritem->xpath(".//binding[@name='itemLabel']//literal"));
+					$desc = current($ritem->xpath(".//binding[@name='itemDescription']//literal"));
+					$maintext .= "<tr><td><a href='index.php?action=$action&act=lookup&wid=$itemid&cid=$ttxml->fileid&nerid=$nerid&type=$type'>$itemid</a>
+						<td>$label
+						<td>$desc
+						<td><a href='http://www.wikidata.org/wiki/$itemid' target=wikidata>wikidata</a>
+						</tr>
+						";
+				};
+				$maintext .= "<table>";
+			} else {
+				# New record
+				$secname = $nerdef['section'] or $secname = "list".ucfirst($nertype);
+				$maintext .= "<p>Adding to section : $secname";
+				$section = current($nerxml->xpath("//$secname"));
+				if ( !$section ) {
+					$root = current($nerxml->xpath("/settingsDesc"));
+					$section = $root->addChild($secname."", "");
+				};
+				$newc = $section->addChild($nertype, "");
+				replacenode($newc, $newrec);
+				
+				$maintext .= "<p>Updating NER : $nerid";
+				$nerrecid = $nerdata['id'];
+				$nernode['corresp'] = "$nerbase#".$nerrecid;
+				$maintext .= showxml($nernode);
+				
+				# Save the XML
+				$ttxml->save();
+				
+				# Save the ner.xml
+				$date = date("Ymd"); 
+				$buname = preg_replace ( "/\.xml/", "-$date.xml", $nerfile );
+				$buname = preg_replace ( "/.*\//", "", $buname );
+				if ( !file_exists("backups/$buname") ) {
+					copy ( $nerfile, "backups/$buname");
+				};
+				# Now, make a safe XML text out of this and save it to file
+				file_put_contents($nerfile, $nerxml->asXML());
+				
+				print "<p>Change saved - reloading
+					<script>top.location = 'index.php?action=$action&act=neredit&nerid=$nerrecid';</script>";
+				exit;
+			};
+		};
+
 	} else if ( $_GET['cid'] && $act == "detect" ) {
 
 		check_login(); 
@@ -417,6 +569,7 @@
 		};
 
 		# Auto-detect possible NER
+		# TODO: use UD tags (alternatively)
 		$nerlist = getcqpner();
 		$maintext .= "
 			<form action='index.php?action=$action&cid=$ttxml->fileid&act=multiadd' method=post>
@@ -503,7 +656,7 @@
 		$nerdef = $nerlist[$nertype] or $nerdef = $nerlist[strtolower($nertype)];
 		$nerelm = $nerdef['elm'] or $nerelm = "name";
 
-		$newner = addparentnode($ttxml->xml, $_POST['toklist'], $nerelm);
+		$newner = addparentnode($ttxml->xml, $_POST['toklist'], $nertype);
 
 		$cnt=1;
 		while ( $ttxml->xml->xpath("//*[@id=\"ner-$cnt\"]") ) { $cnt++; };
@@ -569,7 +722,7 @@
 				foreach ( $settings['xmlfile']['ner']['tags'] as $key => $tag ) {
 					$optlist .= "<option value='$key'>{$tag['display']}</option>";
 				};
-			} else $optlist = "<option value='term'>term</option><option value='placeName'>placeName</option><option value='personName'>personName</option><option value='orgName'>orgName</option>";
+			} else $optlist = "<option value='term'>term</option><option value='placeName'>placeName</option><option value='persName'>persName</option><option value='orgName'>orgName</option>";
 			$maintext .= "<div id='addner' style='float: right; width: 200px; display: none; border: 1px solid #aaaaaa;'>
 				<form action='index.php?action=$action&act=addner&cid=$ttxml->fileid' method=post>
 				<input id='toklist' name='toklist' type=hidden>
@@ -641,9 +794,13 @@
 			fatal("No such record: $nerid");
 		};
 
-	
+		$nername = $nerdef['display'] or $nername = $type;
 		$maintext .= "<h2>{%$nertitle}</h2><h1>$name</h1>
-		<p>Type of $neritemname: <b>{$nerdef['display']}</b>";
+		<p>Type of $neritemname: <b>$nername</b>";
+		
+		$snippetelm = $settings['xmlfile']['ner']['snippet'] or $snippetelm = "label";
+		$snippetxml = current($nernode->xpath(".//$snippetelm"));
+		if ( $snippetxml ) $maintext .= "<div style='padding: 10px; border: 1px solid #aaaaaa;'>".$snippetxml->asXML()."</div>";
 	
 		$subtypefld = $nerlist[$type]['subtypes']['fld'] or $subtypefld = "type";
 		$subdisplay = $nerlist[$type]['subtypes'][$subtype]['display'] or $subdisplay = $subvalue;
@@ -651,7 +808,7 @@
 	
 		$descflds = $nerdef['descflds'] or $descflds = array ("note", "desc", "head", "label");
 		if ( $nerdef['options'] && $nernode ) {
-			$maintext .= "<table>";
+			$maintext .= "<p><table>";
 			foreach ( $nerdef['options'] as $key => $val ) {
 				$fxp = "./".$val['xpath'];
 				$fval = current($nernode->xpath($fxp));
