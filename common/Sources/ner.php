@@ -35,6 +35,18 @@
 		"placeName" => "place",
 	);
 
+	// Load the tagset 
+	if ( $settings['xmlfile']['ner']['tagset'] != "none" ) {
+		$tagsetfile = $settings['xmlfile']['ner']['tagset'] or $tagsetfile = "tagset-ner.xml";
+		require ( "$ttroot/common/Sources/tttags.php" );
+		$tttags = new TTTAGS($tagsetfile, false);
+		if ( $tttags->tagset['positions'] ) {
+			$tmp = $tttags->xml->asXML();
+			$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);
+			$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
+		};
+	};
+
 	$nerfile = $settings['xmlfile']['ner']['nerfile'] or $nerfile = "ner.xml";
 	$nerbase = $nerfile;
 	if ( strpos($nerfile, "/") == false ) $nerfile = "Resources/$nerfile";
@@ -200,7 +212,7 @@
 				$nerdef = $nerlist[$etype] or $nerdef = $nerlist[strtolower($etype)];
 				$nerelm = $nerdef['node'] or $nerelm = $etype;
 				print "<p><i>New record</i></p>";
-				$parxp = $nerdef['section'] or $parxp = $nn2sn[$nerelm];
+				$parxp = $nerdef['section'] or $parxp = $nn2sn[$nerelm] or $parxp = "list";
 				$prnt = xpathnode($nerxml, "/settingsDesc/$parxp");
 				$nerrec = $prnt->addChild($nerelm, "");
 			} else {
@@ -247,20 +259,35 @@
 		$xmlid = $ttxml->xmlid;
 		$xml = $ttxml->xml;
 
+
 		$nerid = $_GET['nerid'] or $nerid = $_GET['id'];
 		$result = $xml->xpath("//*[@id='$nerid']"); 
 		$elm = $result[0]; # print_r($token); exit;
 		if ( !$elm ) fatal("No such element: $nerid");
-		$etype = $elm->getName();
+		$nodetype = $elm->getName();
+		if ( $tttags && $elm['type'] ) {
+			$tmp = substr($elm['type'], 0, 1);
+			$rectype = $tttags->tagset['positions'][$tmp]['tei'];
+			if ( $rectype ) {
+				$etype = $nn2rn[$rectype];
+				$ename = $tttags->tagset['positions'][$tmp]['display']." ($nodetype + type = {$elm['type']})";
+				$moredef['type'] = array ( 'display' => "Type");
+			};
+		};
+		if ( !$etype ) {
+			$etype = $nodetype;
+		};
 		
 		foreach ( $settings['xmlfile']['ner']['tags'] as $tmp ) if ( $tmp['elm'] == $etype ) $nerdef = $tmp;
 		$sattdef = $settings['xmlfile']['sattributes'][$etype];
+
+		if ( !$ename ) $ename = $sattdef['display'];
 		
 		if ( !$sattdef && $nerxml ) $sattdef = array ( "corresp" => array ("display" => "NER id") );
 		
 		$maintext .= "<h2>Edit Named Entity</h2>
 			<h1>".$ttxml->title()."</h1>
-			<h2>Entity type ($nerid): ".$etype." = {$sattdef['display']}</h2>
+			<h2>Entity type ($nerid): ".$etype." = $ename</h2>
 			
 			<form action='index.php?action=toksave' method=post name=tagform id=tagform>
 			<input type=hidden name=cid value='$fileid'>
@@ -268,11 +295,16 @@
 			<input type=hidden name=next value='ner'>
 			<table>";
 
-		foreach ( $sattdef as $key => $item ) {
-			if ( !is_array($item) ) continue;
-			$itemtxt = $item['display'];
-			$atv = $elm[$key]; 
-			$maintext .= "<tr><th>$key<td>$itemtxt<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
+		$defrecs = array ( $sattdef, $nerdef['options'], $moredef );
+		foreach ( $defrecs as $defrec ) {
+			foreach ( $defrec as $key => $item ) {
+				if ( !is_array($item) ) continue;
+				if ( $done[$key] ) continue;
+				$itemtxt = $item['display'];
+				$atv = $elm[$key]; 
+				$maintext .= "<tr><th>$key<td>$itemtxt<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
+				$done[$key] = 1;
+			};
 		};
 
 		$result = $xml->xpath($mtxtelement); 
@@ -282,7 +314,7 @@
 
 		$maintext .= "<hr>
 		<input type=submit value=\"Save\">
-		<a href=\"index.php?action=file&cid=$fileid\">cancel</a>";
+		<a href=\"index.php?action=$action&cid=$fileid\">cancel</a>";
 		$corresp = preg_replace("/.*#/", "", $elm['corresp']);
 		if ( $elm['corresp'] ) $maintext .= "
 			&bull;
@@ -292,8 +324,6 @@
 			&bull;
 			<a href=\"index.php?action=$action&act=lookup&cid=$ttxml->fileid&nerid=$nerid\">lookup entity</a>
 			";
-
-			
 		
 		$maintext .= "
 				&bull;
@@ -427,6 +457,8 @@
 		
 		$nerid = $_GET['nerid'];
 		$nernode = current($ttxml->xml->xpath("//*[@id=\"$nerid\"]"));
+		$nernodetype = $nernode->getName().'';
+
 		$form = $nernode['form'] or $form = trim(preg_replace("/<[^<>]+>/", "", $nernode->asXML()));
 		$lemma = $nernode['lemma']; 
 		if ( !$lemma ) {
@@ -436,12 +468,20 @@
 			};
 			$lemma = trim(preg_replace("/<[^<>]+>/", "", $clone->asXML()));	
 		};
-		$type = $nernode->getName().'';
+		if ( $tttags && $nernode['type'] ) {
+			$tmp = substr($nernode['type'], 0, 1);
+			$type = $tttags->tagset['positions'][$tmp]['tei'];
+			if ( $type ) {
+				$nodetype = $nn2rn[$type];
+				$nertype = $type;
+			};
+		} 
+		if ( !$type ) $type = $nernodetype;
 		$nerdef = $nerlist[$type];
-		$nodetype = $nerdef['node'] or $nodetype = $rn2nn[$type] or $nodetype = $type;
+		if ( !$nodetype ) $nodetype = $nerdef['node'] or $nodetype = $rn2nn[$type] or $nodetype = $type;
 		$namenode = $nerdef['elm'] or $nodetype = $rn2nn[$type] or $nodetype = $type;
 		
-		$nertype = $nerlist[$type]['elm'];
+		if ( !$nertype ) $nertype = $nerlist[$type]['elm'];
 		if ( !$nertype  ) $nertype = $rn2nn[$type];
 		$xp = "//{$nodetype}[{$namenode}[.=\"$lemma\"]]";
 	
@@ -456,10 +496,7 @@
 			$maintext .= showxml($nerrec);
 			$nernode['corresp'] = "$nerbase#".$nerrecid;
 			# Save the XML
-			$ttxml->save();
-			print "<p>Change saved - reloading
-				<script>top.location = 'index.php?action=$action&act=neredit&nerid=$nerrecid';</script>";
-			exit;
+			$gotosave = 1;
 		} else  if ( $_GET['wid'] ) {
 			$wid = $_GET['wid'];
 			$cmd = "perl $ttroot/common/Scripts/wikilookup.pl --recid='$wid' --type=$type";
@@ -475,7 +512,7 @@
 					$qq .= ";$key=$val";
 				};
 			};
-			$cmd = "perl $ttroot/common/Scripts/wikilookup.pl --query='type=$nertype;$qq'";
+			$cmd = "perl $ttroot/common/Scripts/wikilookup.pl --query='type=$nertype$qq'";
 			$maintext .= "<p>Lookup up in Wikidata $cmd";
 			$newrec = shell_exec($cmd);
 			$nerdata = simplexml_load_string($newrec);
@@ -507,40 +544,70 @@
 				$maintext .= "<table>";
 			} else {
 				# New record
-				$secname = $nerdef['section'] or $secname = "list".ucfirst($nertype);
-				$maintext .= "<p>Adding to section : $secname";
-				$section = current($nerxml->xpath("//$secname"));
-				if ( !$section ) {
-					$root = current($nerxml->xpath("/settingsDesc"));
-					$section = $root->addChild($secname."", "");
-				};
-				$newc = $section->addChild($nertype, "");
-				replacenode($newc, $newrec);
 				
-				$maintext .= "<p>Updating NER : $nerid";
 				$nerrecid = $nerdata['id'];
 				$nernode['corresp'] = "$nerbase#".$nerrecid;
+				print  "<p>Updating NER : $nerid => {$nernode['corresp']}";
 				$maintext .= showxml($nernode);
 				
 				# Save the XML
-				$ttxml->save();
+				$gotosave = 1;
 				
-				# Save the ner.xml
-				$date = date("Ymd"); 
-				$buname = preg_replace ( "/\.xml/", "-$date.xml", $nerfile );
-				$buname = preg_replace ( "/.*\//", "", $buname );
-				if ( !file_exists("backups/$buname") ) {
-					copy ( $nerfile, "backups/$buname");
+				$have = $nerxml->xpath("//*[@id=\"$nerid\"]");
+				if ( $have ) {
+					print "<p>Node exists: $nerid";
+				} else {
+					# Add to ner.xml
+					$newelm = $nerdata->getName();
+					$secname = $nn2sn[$newelm] or $secname = "list";
+					print "<p>Adding to section : $secname";
+					$section = current($nerxml->xpath("//$secname"));
+					if ( !$section ) {
+						$root = current($nerxml->xpath("/settingsDesc"));
+						$section = $root->addChild($secname."", "");
+					};
+					$newc = $section->addChild($nertype, "");
+					replacenode($newc, $newrec);
+
+					# Save the ner.xml
+					$date = date("Ymd"); 
+					$buname = preg_replace ( "/\.xml/", "-$date.xml", $nerfile );
+					$buname = preg_replace ( "/.*\//", "", $buname );
+					if ( !file_exists("backups/$buname") ) {
+						copy ( $nerfile, "backups/$buname");
+					};
+					# Now, make a safe XML text out of this and save it to file
+					file_put_contents($nerfile, $nerxml->asXML());
 				};
-				# Now, make a safe XML text out of this and save it to file
-				file_put_contents($nerfile, $nerxml->asXML());
-				
-				print "<p>Change saved - reloading
-					<script>top.location = 'index.php?action=$action&act=neredit&nerid=$nerrecid';</script>";
-				exit;
+								
 			};
 		};
-
+		
+		if ( $gotosave ) {
+			# Check if there are more occurrences of the same NER
+			$xp = "$mtxtelement//{$nernodetype}[not(@corresp)]";
+			print "<p>Checking if there are more occurrences";
+			print "<p>".$xp;
+			foreach ( $ttxml->xml->xpath($xp) as $morenode ) {
+				$morelemma = $morenode['lemma']; 
+				if ( !$morelemma ) {
+					$clone = simplexml_load_string($morenode->asXML());
+					foreach ( $clone->xpath("//tok") as $tok ) {
+						if ( $tok['lemma'] ) $tok[0] = $tok['lemma'];
+					};
+					$morelemma = trim(preg_replace("/<[^<>]+>/", "", $clone->asXML()));	
+				};
+				if ( $morelemma == $lemma ) {
+					print "<p>Match! {$morenode['id']} = $morelemma";
+					$morenode['corresp'] = $nernode['corresp'];
+				};
+			};
+			$ttxml->save();
+			print "<p>Change saved - reloading
+				<script>top.location = 'index.php?action=$action&cid=$ttxml->fileid&act=edit&nerid=$nerid';</script>";
+			exit;
+		};
+		
 	} else if ( $_GET['cid'] && $act == "detect" ) {
 
 		check_login(); 
@@ -740,18 +807,6 @@
 		$maintext .= "<hr>".$ttxml->viewswitch();
 		$maintext .= " &bull; <a href='index.php?action=$action&act=list&cid=$ttxml->fileid'>{%List names}</a>";
 		if ( $username ) $maintext .= " &bull; <a href='index.php?action=$action&act=detect&cid=$ttxml->fileid' class=adminpart>{%Auto-detect names}</a>";
-
-		// Load the tagset 
-		if ( $settings['xmlfile']['ner']['tagset'] != "none" ) {
-			$tagsetfile = $settings['xmlfile']['ner']['tagset'] or $tagsetfile = "tagset-ner.xml";
-			require ( "$ttroot/common/Sources/tttags.php" );
-			$tttags = new TTTAGS($tagsetfile, false);
-			if ( $tttags->tagset['positions'] ) {
-				$tmp = $tttags->xml->asXML();
-				$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);
-				$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
-			};
-		};
 				
 		$maintext .= "
 			<style>
