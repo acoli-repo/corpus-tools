@@ -2,6 +2,9 @@ var mtxt = document.getElementById('mtxt');
 var nerdata = {};
 var seq = []; var selstring = '';
 
+var colorlist = ['#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999']
+var setcolor = [];
+
 var tokinfo = document.getElementById('tokinfo');
 if ( !tokinfo ) {
 	var tokinfo = document.createElement("div"); 
@@ -21,15 +24,26 @@ for ( var i=0; i<Object.keys(nerlist).length; i++) {
 	var tagelm = nerlist[tmp]['elm'];
 	if ( !tagelm ) { tagelm = tmp; };
 	var its = mtxt.getElementsByTagName(tagelm);
-	nercolor = nerlist[tmp]['color']; if ( !nercolor ) { nercolor = 'green'; };
+	nercolor = nerlist[tmp]['color']; 
+	if ( !nercolor ) { // Choose a color for this class
+		if ( !setcolor[tmp] ) { setcolor[tmp] = colorlist.shift() }; 
+		nercolor = setcolor[tmp];
+	};
+	if ( !nercolor ) { nercolor = 'green'; };
 	for ( var a = 0; a<its.length; a++ ) {
 		var it = its[a];	
 		var itcolor = nercolor;
 		if ( nerlist[tmp]['subtypes'] ) {
-			var subt = it.getAttribute(nerlist[tmp]['subtypes']['fld']);
+			var subfld = nerlist[tmp]['subtypes']['fld']; if ( !subfld ) { subfld = 'type'; };
+			var subt = it.getAttribute(subfld);
 			if ( nerlist[tmp]['subtypes'][subt] && nerlist[tmp]['subtypes'][subt]['color'] ) {
 				itcolor = nerlist[tmp]['subtypes'][subt]['color'];
 			};
+		} else if ( nerlist[tmp]['subcolors']  ) {
+			var subfld = nerlist[tmp]['subcolors']; if ( !subfld ) { subfld = 'type'; };
+			var subt = it.getAttribute(subfld);
+			if ( !setcolor[tmp+subt] ) { setcolor[tmp+subt] = colorlist.shift() }; 
+			itcolor = setcolor[tmp+subt]; 
 		};
 		it.style.color = itcolor;
 		// it.style['font-weight'] = 'bold';
