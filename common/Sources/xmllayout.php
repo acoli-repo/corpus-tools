@@ -114,6 +114,7 @@
 		foreach ( $teilist as $key => $tag ) {
 			$optlist .= "<option value='$key'>$key: {$tag['display']}</option>";
 			if ( $key != "p" ) $unstyle .= "\n#prv $key { all: unset; }";
+			if ( in_array($key, $protects) ) $unstyle .= "\n#prv tei_$key { all: unset; }";
 		};
 		$maintext .= "<div id='addner' style='position: absolute; right: 10px; top: 20px; width: 500px; display: none; border: 1px solid #aaaaaa;'>
 		<form action='index.php?action=$action&act=addann&cid=$ttxml->fileid' method=post>
