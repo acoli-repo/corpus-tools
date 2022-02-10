@@ -235,7 +235,6 @@
 			};
 		
 			function togglestyles( onoff ) {
-				console.log(onoff);
 				if ( onoff || prv.getAttribute('id') == 'prv' ) {
 					prv.setAttribute('id', 'mtxt');
 				} else {
@@ -254,9 +253,11 @@
 				element = evt.toElement; 
 				if ( !element ) { element = evt.target; };
 				
+				if ( seq[0] ) { return; };
+				
 				var tag = element.nodeName;
 				var elid = element.getAttribute('id');
-				if ( tag != 'TOK' && prv.contains(element) ) { 
+				if ( tag != 'TOK' && tag != 'TEXT' && prv.contains(element) ) { 
 					var attrs = element.attributes;
 					nn = element.nodeName.toLowerCase().replace('tei_', '');
 
@@ -311,7 +312,8 @@
 		
 			function makespan(event) { 
 				var toks = document.getElementsByTagName('tok');
-
+				selstring = '';
+				
 				if (window.getSelection) {
 					sel = window.getSelection();
 				} else if (document.selection && document.selection.type != 'Control') {
@@ -343,8 +345,10 @@
 				// Reset the selection
 				for ( var a = 0; a<seq.length; a++ ) {
 					var tok = seq[a];
-					tok.style['background-color'] = null;
-					tok.style.backgroundColor= null; 
+					if ( tok ) {
+						tok.style['background-color'] = null;
+						tok.style.backgroundColor= null; 
+					};
 				};
 				seq = []; 
 
@@ -358,7 +362,7 @@
 					};
 				};
 				window.getSelection().removeAllRanges();
-	
+		
 				color = '#88ffff';  selstring = '';  idlist = ''; 
 				for ( var a = 0; a<seq.length; a++ ) {
 					var tok = seq[a];
@@ -371,6 +375,7 @@
 	
 				document.getElementById('toklist').value = idlist;
 				document.getElementById('addner').style.display = 'block';
+				document.getElementById('elminfo').style.display = 'none';
 				document.getElementById('nerspan').innerHTML = selstring;
 	
 			};
