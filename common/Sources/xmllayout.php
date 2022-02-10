@@ -13,6 +13,8 @@
 	$tagxml = simplexml_load_string(file_get_contents($tmp));
 	$teilist = xmlflatten($tagxml);
 	
+	if ( $settings['defaults']['largexml'] || count($ttxml->xml->xpath("//tok")) > 500 ) { $largexml = 1; };
+	
 	if ( $act == "addann" ) {
 
 		check_login(); 		
@@ -68,7 +70,7 @@
 				</form>";
 		 };
 	
-	} else if ( $act == "index" || ( !$_GET['elmid'] && $settings['defaults']['largexml'] )  ) {
+	} else if ( $act == "index" || ( !$_GET['elmid'] && $largexml )  ) {
 	
 		$maintext .= "<h2>XML Layout Index</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();		
