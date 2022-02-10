@@ -215,9 +215,11 @@
 						atts = '';
 				        for(var i = 0; i <attrs.length; i++) {
 				        	if ( attrs[i].name == 'id' ) { continue; }
-							if ( attrs[i].value ) { atts += '@' + attrs[i].name + '=\"' + attrs[i].value + '\"'; };
+				        	var attval = attrs[i].value;
+				        	if ( attval.length > 15 ) { attval = attval.substr(0,13) + '...'; };
+							if ( attval ) { atts += '@' + attrs[i].name + '=\"' + attval + '\"'; };
 						}
-						if ( atts ) { nn += '[' + atts + ']'; };
+						if ( atts ) { nn += '<span style=\"color: #aaaaaa; font-size: smaller;\">[' + atts + ']</span>'; };
 					};
 					if ( focusnode.getAttribute('id') == 'prv' || focusnode.getAttribute('id') == 'mtxt' ) { break; };
 					xpath = nn + ' > ' + xpath;
