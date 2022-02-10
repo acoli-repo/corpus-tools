@@ -137,11 +137,17 @@
 		</style>";
 
 	
-		$maintext .= "<hr><div id='xpath' style='height: 20px;'></div><hr><p>Show tags:</p>";
+		$maintext .= "<hr><div id='xpath' style='height: 20px;'></div><hr>
+			<p>
+				<input type='checkbox' name='styleshow' onChange='togglestyles(this.checked);' value='1'> Show document styles
+				<input type='checkbox' name='attshow' onChange='attshow = this.checked;' value='1'> Show node attributes
+			<p>Select tags to display inline:</p>";
 		foreach ( $taglist as $key => $val ) {
 			$color = array_shift($colorlist);
 			$keyname = str_replace("tei_", "", $key);
-			$maintext .= " <span id=\"span$key\"><a   style='color: $color;' onClick=\"toggle('$key')\">&lt;$keyname&gt;</a></span> ";
+			$maintext .= " 
+				<span id=\"span$key\"><a   style='color: $color;' onClick=\"toggle('$key')\">&lt;$keyname&gt;</a></span> 
+				";
 			if ( in_array($key, $empties) || $teilist[$key]['empty'] ) $maintext .= "<style id=\"class$key\" media=\"max-width: 1px;\">
 						#prv $key { color: $color; }
 						#prv $key::before { content: '<$keyname/>'; color: #bbbbbb; font-size: smaller; }
@@ -163,6 +169,7 @@
 			var seq = []; var selstring = '';
 			var prv = document.getElementById('prv');
 			var xp = document.getElementById('xpath');
+			var attshow;
 			function toggle(elm) {
 				var sp = document.getElementById('span'+elm);
 				var cls = document.getElementById('class'+elm);
@@ -175,10 +182,23 @@
 				}; 
 			};
 		
+			function togglestyles( onoff ) {
+				console.log(onoff);
+				if ( onoff || prv.getAttribute('id') == 'prv' ) {
+					prv.setAttribute('id', 'mtxt');
+				} else {
+					prv.setAttribute('id', 'prv');
+				};
+			};
+		
 			function mouseEvent(evt) { 
 				element = evt.toElement; 
 				if ( !element ) { element = evt.target; };
 	
+				showxpath(element);
+			};
+			
+			function showxpath(element) {
 				nn = element.nodeName.toLowerCase().replace('tei_', '');
 				var xpath = nn;
 				if ( !prv.contains(element) ) {
@@ -188,13 +208,22 @@
 				var focusnode = element;
 				while ( focusnode ) {
 					focusnode = focusnode.parentNode;
+					if ( !focusnode ) { break; };
 					nn = focusnode.nodeName.toLowerCase().replace('tei_', '');
-					if ( focusnode.getAttribute('id') == 'prv' ) { break; };
+					var attrs = focusnode.attributes;
+					if ( attshow && attrs ) { 
+						atts = '';
+				        for(var i = 0; i <attrs.length; i++) {
+				        	if ( attrs[i].name == 'id' ) { continue; }
+							if ( attrs[i].value ) { atts += '@' + attrs[i].name + '=\"' + attrs[i].value + '\"'; };
+						}
+						if ( atts ) { nn += '[' + atts + ']'; };
+					};
+					if ( focusnode.getAttribute('id') == 'prv' || focusnode.getAttribute('id') == 'mtxt' ) { break; };
 					xpath = nn + ' > ' + xpath;
 				}; 
 			
 				xp.innerHTML = xpath;
-	
 			};
 		
 			function makespan(event) { 
