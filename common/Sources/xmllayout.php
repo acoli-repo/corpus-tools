@@ -13,16 +13,13 @@
 	$tagxml = simplexml_load_string(file_get_contents($tmp));
 	$teilist = xmlflatten($tagxml);
 	
-
 	if ( $act == "addann" ) {
 
-		check_login(); 
-		print "Checking";
-		
+		check_login(); 		
 		if ( !is_writable("xmlfiles/".$ttxml->fileid) ) fatal("Not writable: $ttxml->fileid");
 	
 		$nertype = $_POST['type']; if ( !$nertype ) fatal("No nodename indicated");
-		print "Adding $nertype around ".$_POST['toklist'];
+		print "<p>Adding $nertype around ".$_POST['toklist'];
 
 		$newner = addparentnode($ttxml->xml, $_POST['toklist'], $nertype);
 		
@@ -31,6 +28,36 @@
 		print "<hr><p>Your annotation has been inserted - reloading to <a href='$nexturl'>the edit page</a>";
 		print "<script langauge=Javasript>top.location='$nexturl';</script>";		
 		exit;
+	
+	} else if ( $act == "index" || ( !$_GET['elmid'] && $settings['defaults']['largexml'] )  ) {
+	
+		$maintext .= "<h2>XML Layout Index</h2><h1>".$ttxml->title()."</h1>";
+		$maintext .= $ttxml->tableheader();		
+		
+		$maintext .= "<p>Select a part of the XML to edit<hr>";
+		
+		if ( $_GET['selid'] ) { 
+			$id= $_GET['selid'];
+			$root = current($ttxml->xml->xpath("//$mtxtelement//*[@id=\"$id\"]"));
+			$focusxml = $root;
+			$nodepath = $focusxml->getName()."<span style='color: #aaaaaa'>[@id=\"".$focusxml['id']."\"]</span>";
+			while ( $focusxml ) {
+				$focusxml = current($focusxml->xpath('parent::*'));
+				$focusname = str_replace("tei_", "", $focusxml->getName());
+				if ( $focusxml['id'] ) $focusname .= "[@id=<a href='index.php?action=$action&act=index&id=$ttxml->fileid&selid={$focusxml['id']}'>{$focusxml['id']}</a>]";
+				else if ( $focusname == "text" ) $focusname = "<a href='index.php?action=$action&act=index&id=$ttxml->fileid'>$focusname</a>";
+				$nodepath = "$focusname > $nodepath";
+				if ( $focusxml->getName() == "text" ) { break; };
+			};
+		} else {
+			$root = current($ttxml->xml->xpath("//$mtxtelement"));
+			$nodepath = $root->getName();
+		};
+		$maintext .= "<p>$nodepath";
+		foreach ( $root->children() as $child ) {
+			$maintext .= "<p> - ".$child->getName();
+			if ( $child['id'] ) $maintext .= "[@id=<a href='index.php?action=$action&act=index&id=$ttxml->fileid&selid={$child['id']}'>".$child['id']."</a>] - <a href='index.php?action=$action&id=$ttxml->fileid&elmid={$child['id']}'>select</a>";
+		};
 	
 	} else if ( $act == "taglist" ) {
 	
@@ -47,22 +74,46 @@
 		if ( $username ) {
 			$mode = "Editor";
 			$editmode = "onmouseup='makespan(event);'";
+			if ( !$ttxml->xml->xpath("//tok") ) fatal("text not tokenized yet");
 		} else {
 			$mode = "Viewer";
 		};
 	
-		$maintext .= "<h2>{%XML Layout $mode}</h2><h1>".$ttxml->title()."</h1>";
+		$maintext .= "<h2>XML Layout $mode</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();		
 		
-		$maintext .= "<div id=prv $editmode>".$ttxml->asXML()."</div>";
+		if ( $_GET['elmid'] ) {
+			$id = $_GET['elmid'];
+			$editxml = current($ttxml->xml->xpath("//*[@id=\"$id\"]"));
+			if ( $editxml ) {
+				$focusxml = $editxml;
+				$nodepath = $focusxml->getName()."<span style='color: #aaaaaa'>[@id=\"".$focusxml['id']."\"]</span>";
+				while ( $focusxml ) {
+					$focusxml = current($focusxml->xpath('parent::*'));
+					$focusname = str_replace("tei_", "", $focusxml->getName());
+					if ( $focusxml['id'] ) $focusname = "<a href='index.php?action=$action&id=$ttxml->fileid&elmid={$focusxml['id']}'>$focusname</a>";
+					$nodepath = "$focusname > $nodepath";
+					if ( $focusxml->getName() == "text" ) { break; };
+				};
+				$maintext .= "<p>Editing: $nodepath</p><hr>";
+			};
+		};
+		if ( !$editxml ) { $editxml = current($ttxml->xml->xpath("//$mtxtelement")); };
+		
+		if ( !$editxml ) fatal("Failed to get edit element {$_GET['elmid']}");
+		
+		$protects = array ( "head", "opener", "address", "div", "option", "image", "a" );
+		$edittxt = $editxml->asXML();
+		$maintext .= "<div id=prv $editmode>$edittxt</div>";
 
-		foreach ( $ttxml->xml->xpath("$mtxtelement//*") as $node ) {
+		foreach ( $editxml->xpath(".//*") as $node ) {
 			$nn = $node->getName()."";
 			$taglist[$nn] = 1;
 		};
 	
 		foreach ( $teilist as $key => $tag ) {
 			$optlist .= "<option value='$key'>$key: {$tag['display']}</option>";
+			if ( $key != "p" ) $unstyle .= "\n#prv $key { all: unset; }";
 		};
 		$maintext .= "<div id='addner' style='position: absolute; right: 10px; top: 20px; width: 500px; display: none; border: 1px solid #aaaaaa;'>
 		<form action='index.php?action=$action&act=addann&cid=$ttxml->fileid' method=post>
@@ -75,7 +126,14 @@
 			<a onClick=\"document.getElementById('addner').style.display='none';\">Cancel</a>
 		</table>
 		</form></div>
-		";
+		<style>
+			#prv h1 { all: unset; }
+			#prv h2 { all: unset; }
+			#prv a { all: unset; }
+			#prv b { all: unset; }
+			#prv s { all: unset; }
+			$unstyle
+		</style>";
 
 	
 		$maintext .= "<hr><div id='xpath' style='height: 20px;'></div><hr><p>Show tags:</p>";
