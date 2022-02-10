@@ -282,6 +282,13 @@ if ( $recid ) {
 		
 			addnode($data, "//entity/labels/label[\@language=\"$lang\"]/\@value", "orgName", $rec, "Name");
 
+			$country = proplookup("P17", $data);
+			if ( $country ) {
+				$tmp = XML::LibXML::Element->new( "country" );
+				$tmp->appendChild($rec->createTextNode($country));
+				$rec->firstChild->appendChild($tmp);
+			};
+
 			$refs = "\n<link type=\"wikidata\" target=\"https://www.wikidata.org/wiki/$recid\"/>";
 			foreach $ref ( $data->findnodes("//references//datavalue") ) {
 				$rv = $ref->getAttribute('value'); $rt = "";
@@ -304,7 +311,7 @@ if ( $recid ) {
 		if ( $tmp ) {
 			$desc = $tmp->item(0)->getAttribute('value');
 			if ( $debug ) { print "Description: $desc"; };
-			$newc = XML::LibXML::Element->new( "note" );
+			$newc = XML::LibXML::Element->new( "desc" );
 			$newc->appendChild($rec->createTextNode($desc));
 			$rec->firstChild->appendChild($newc);
 		}; 

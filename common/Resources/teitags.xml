@@ -7,7 +7,7 @@
 		<item key="hand" display="who added the text"/>
 	</atts>
 </item> 
-<item key="cb" display="column beginning">
+<item key="cb" display="column beginning" empty="1">
 	<atts>
 		<item key="n" display="column number"/>
 	</atts>
@@ -40,6 +40,11 @@
 		<item key="rend" display="rendering"/>
 	</atts>
 </item>
+<item key="head" display="heading">
+	<atts>
+		<item key="place" display="placement"/>
+	</atts>
+</item>
 <item key="kinesic" display="non-vocalic (spoken)">
 </item>
 <item key="l" display="line (in a verse)">
@@ -49,7 +54,7 @@
 		<item key="rhyme" display="rhyme scheme"/>
 	</atts>
 </item>
-<item key="lb" display="line beginning">
+<item key="lb" display="line beginning" empty="1">
 	<atts>
 		<item key="n" display="line number"/>
 	</atts>
@@ -72,13 +77,13 @@
 </item>
 <item key="p" display="paragraph">
 </item>
-<item key="pause" display="pause (spoken)">
+<item key="pause" display="pause (spoken)" empty="1">
 	<atts>
 		<item key="dur" display="duration"/>
 		<item key="type" display="type of pause"/>
 	</atts>
 </item>
-<item key="pb" display="page beginning">
+<item key="pb" display="page beginning" empty="1">
 	<atts>
 		<item key="n" display="page number"/>
 		<item key="facs" display="facsimile image"/>
@@ -96,7 +101,7 @@
 </item>
 <item key="seg" display="arbitrary segment">
 </item>
-<item key="space" display="significant space">
+<item key="space" display="significant space" empty="1">
 	<atts>
 		<item key="dim" display="horizontal/vertical"/>
 		<item key="quantity" display="amount of space"/>

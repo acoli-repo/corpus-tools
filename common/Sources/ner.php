@@ -262,15 +262,26 @@
 
 		$nerid = $_GET['nerid'] or $nerid = $_GET['id'];
 		$result = $xml->xpath("//*[@id='$nerid']"); 
-		$elm = $result[0]; # print_r($token); exit;
-		if ( !$elm ) fatal("No such element: $nerid");
-		$nodetype = $elm->getName();
-		if ( $tttags && $elm['type'] ) {
-			$tmp = substr($elm['type'], 0, 1);
+		$nernode = $result[0]; # print_r($token); exit;
+		if ( !$nernode ) fatal("No such element: $nerid");
+
+		$form = $nernode['form'] or $form = trim(preg_replace("/<[^<>]+>/", "", $nernode->asXML()));
+		$lemma = $nernode['lemma']; 
+		if ( !$lemma ) {
+			$clone = simplexml_load_string($nernode->asXML());
+			foreach ( $clone->xpath("//tok") as $tok ) {
+				if ( $tok['lemma'] ) $tok[0] = $tok['lemma'];
+			};
+			$lemma = trim(preg_replace("/<[^<>]+>/", "", $clone->asXML()));	
+		};
+
+		$nodetype = $nernode->getName();
+		if ( $tttags && $nernode['type'] ) {
+			$tmp = substr($nernode['type'], 0, 1);
 			$rectype = $tttags->tagset['positions'][$tmp]['tei'];
 			if ( $rectype ) {
 				$etype = $nn2rn[$rectype];
-				$ename = $tttags->tagset['positions'][$tmp]['display']." ($nodetype + type = {$elm['type']})";
+				$ename = $tttags->tagset['positions'][$tmp]['display']." ($nodetype + type = {$nernode['type']})";
 				$moredef['type'] = array ( 'display' => "Type");
 			};
 		};
@@ -285,9 +296,11 @@
 		
 		if ( !$sattdef && $nerxml ) $sattdef = array ( "corresp" => array ("display" => "NER id") );
 		
-		$maintext .= "<h2>Edit Named Entity</h2>
-			<h1>".$ttxml->title()."</h1>
-			<h2>Entity type ($nerid): ".$etype." = $ename</h2>
+		$maintext .= "
+			<h2>".$ttxml->title()."</h2>
+			<h1>Edit Named Entity</h1>
+			<h2>$form ($lemma)</h2>
+			<div style='margin-bottom: 15px;'><b>Entity type ($nerid): ".$etype." = $ename</b></div>
 			
 			<form action='index.php?action=toksave' method=post name=tagform id=tagform>
 			<input type=hidden name=cid value='$fileid'>
@@ -301,7 +314,7 @@
 				if ( !is_array($item) ) continue;
 				if ( $done[$key] ) continue;
 				$itemtxt = $item['display'];
-				$atv = $elm[$key]; 
+				$atv = $nernode[$key]; 
 				$maintext .= "<tr><th>$key<td>$itemtxt<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
 				$done[$key] = 1;
 			};
@@ -315,8 +328,8 @@
 		$maintext .= "<hr>
 		<input type=submit value=\"Save\">
 		<a href=\"index.php?action=$action&cid=$fileid\">cancel</a>";
-		$corresp = preg_replace("/.*#/", "", $elm['corresp']);
-		if ( $elm['corresp'] ) $maintext .= "
+		$corresp = preg_replace("/.*#/", "", $nernode['corresp']);
+		if ( $nernode['corresp'] ) $maintext .= "
 			&bull;
 			<a href=\"index.php?action=$action&nerid=$corresp\">view record</a>
 			";
@@ -340,7 +353,7 @@
 		</script>
 		";
 
-		$correspid = $elm['corresp']; $elmtext = preg_replace("/<[^>]+>/", "", makexml($elm));
+		$correspid = $nernode['corresp']; $elmtext = preg_replace("/<[^>]+>/", "", makexml($nernode));
 		if ( $correspid ) {
 			$nerid = $correspid; if ( strpos($nerid, '#') ) $nerid = substr($nerid, strpos($nerid, '#')+1);
 			$nertype = $nerdef['key'];
@@ -500,7 +513,7 @@
 		} else  if ( $_GET['wid'] ) {
 			$wid = $_GET['wid'];
 			$cmd = "perl $ttroot/common/Scripts/wikilookup.pl --recid='$wid' --type=$type";
-			$maintext .= "<p>Lookup up in Wikidata $cmd";
+			if ( $debug ) $maintext .= "<p>Lookup up in Wikidata $cmd";
 			$newrec = shell_exec($cmd);
 			$nerdata = simplexml_load_string($newrec);
 			$maintext .= showxml($nerdata);
@@ -513,7 +526,7 @@
 				};
 			};
 			$cmd = "perl $ttroot/common/Scripts/wikilookup.pl --query='type=$nertype$qq'";
-			$maintext .= "<p>Lookup up in Wikidata $cmd";
+			if ( $debug ) $maintext .= "<p>Lookup up in Wikidata $cmd";
 			$newrec = shell_exec($cmd);
 			$nerdata = simplexml_load_string($newrec);
 			# $maintext .= showxml($nerdata);
