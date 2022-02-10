@@ -211,7 +211,7 @@
 					if ( !focusnode ) { break; };
 					nn = focusnode.nodeName.toLowerCase().replace('tei_', '');
 					var attrs = focusnode.attributes;
-					if ( attshow && attrs ) { 
+					if ( attshow && attrs && nn != 'text' ) { 
 						atts = '';
 				        for(var i = 0; i <attrs.length; i++) {
 				        	if ( attrs[i].name == 'id' ) { continue; }
