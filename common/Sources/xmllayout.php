@@ -149,7 +149,7 @@
 		
 		$protects = array ( "head", "opener", "address", "div", "option", "image", "a" );
 		$edittxt = $editxml->asXML();
-		$maintext .= "<div class='dospans' id=prv $editmode>$edittxt</div>";
+		$maintext .= "<div id=dospans><div id=prv $editmode>$edittxt</div></div>";
 	
 		foreach ( $teilist as $key => $tag ) {
 			$optlist .= "<option value='$key'>$key: {$tag['display']}</option>";
@@ -205,9 +205,9 @@
 					</style>
 				";
 			else $maintext .= "<style id=\"class$key\" media=\"max-width: 1px;\">
-						.dospans $key { color: $color; }
-						.dospans $key::before { content: '<$keyname>'; color: #bbbbbb; font-size: smaller; }
-						.dospans $key::after { content: '</$keyname>'; color: #bbbbbb; font-size: smaller; }
+						#dospans $key { color: $color; }
+						#dospans $key::before { content: '<$keyname>'; color: #bbbbbb; font-size: smaller; }
+						#dospans $key::after { content: '</$keyname>'; color: #bbbbbb; font-size: smaller; }
 					</style>
 				";
 		};
@@ -218,7 +218,11 @@
 				of an in-line shown tag to remove it</p>";
 		};
 
-		$maintext .= "<hr><a href='index.php?action=text&cid=$ttxml->fileid'>Text View</a>";
+		$maintext .= "<hr>
+			<a href='index.php?action=text&cid=$ttxml->fileid'>Text View</a>
+			&bull;
+			<a href='index.php?action=rawedit&cid=$ttxml->fileid'>Edit raw XML</a>
+			";
 	
 		$maintext .= "
 			<style>span[on] { text-decoration: underline; text-decoration-color: red; text-decoration-thickness: 2px; }</style>
