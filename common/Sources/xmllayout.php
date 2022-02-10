@@ -28,6 +28,43 @@
 		print "<hr><p>Your annotation has been inserted - reloading to <a href='$nexturl'>the edit page</a>";
 		print "<script langauge=Javasript>top.location='$nexturl';</script>";		
 		exit;
+
+	} else if ( $act == "remove" && $_POST['remid'] ) {
+	
+		check_login();
+
+		$remid = $_POST['remid'];
+		
+		if ( !$remid ) fatal("No Element given");
+		print "<p>Removing Annotation $remid</p>";
+
+		$nerrec = current($ttxml->xml->xpath("//*[@id=\"$remid\"]"));	
+		if ( !$nerrec ) fatal("No such node: $remid");
+
+		delparentnode($ttxml->xml, $remid);
+
+		$ttxml->save();
+		print "<p>NER removed - reloading
+			<script>top.location='index.php?action=$action&cid=$ttxml->fileid';</script>";
+		exit;
+
+	} else if ( $act == "delete" && $_POST['remid'] ) {
+	
+		check_login();
+		
+		$remid = $_POST['remid'];
+		if ( !$remid ) fatal("No annotation given");
+		$maintext .= "<h1>Delete Annotation $remid</h1>";
+
+		$nerrec = current($ttxml->xml->xpath("//*[@id=\"$remid\"]"));
+		if ( !$nerrec ) fatal("No such annotation: $remid");
+
+		$maintext .= "<h2>Annotation to be removed</h2><p>".$nerrec->getName()." here:<br>".showxml($nerrec);
+		
+		$maintext .= "<hr><form action='index.php?action=$action&act=remove&cid=$ttxml->fileid' method=post>
+			<input type=hidden name=remid value='$remid'>
+			<input type=submit value='Remove'> <a href='index.php?action=$action&cid=$ttxml->fileid'>cancel</a>
+			</form>";
 	
 	} else if ( $act == "index" || ( !$_GET['elmid'] && $settings['defaults']['largexml'] )  ) {
 	
@@ -116,7 +153,8 @@
 			if ( $key != "p" ) $unstyle .= "\n#prv $key { all: unset; }";
 			if ( in_array($key, $protects) ) $unstyle .= "\n#prv tei_$key { all: unset; }";
 		};
-		$maintext .= "<div id='addner' style='position: absolute; right: 10px; top: 20px; width: 500px; display: none; border: 1px solid #aaaaaa;'>
+		$maintext .= "
+		<div id='addner' style='position: absolute; right: 10px; top: 20px; width: 500px; display: none; border: 1px solid #aaaaaa;'>
 		<form action='index.php?action=$action&act=addann&cid=$ttxml->fileid' method=post>
 		<input id='toklist' name='toklist' type=hidden>
 		<table width='100%' style=' background-color: white;'>
@@ -127,6 +165,15 @@
 			<a onClick=\"document.getElementById('addner').style.display='none';\">Cancel</a>
 		</table>
 		</form></div>
+		<div id='elminfo' style='position: absolute; right: 10px; top: 20px; padding: 5px; width: 500px; display: none; border: 1px solid #aaaaaa; background-color: white;'>
+			<div id='infotxt'></div>
+			<p><form action='index.php?action=$action&id=$ttxml->fileid&act=delete' method=post id='remfld' style='display: none;'>
+			<input type=hidden name=remid id='remid' value=''>
+			<input type=submit value='Remove annotation'>
+			<input type=button value='Close' onClick=\"document.getElementById('elminfo').style.display = 'none';\">
+			</form>
+		</div>
+
 		<style>
 			#prv h1 { all: unset; }
 			#prv h2 { all: unset; }
@@ -141,7 +188,7 @@
 			<p>
 				<input type='checkbox' name='styleshow' onChange='togglestyles(this.checked);' value='1'> Show document styles
 				<input type='checkbox' name='attshow' onChange='attshow = this.checked;' value='1'> Show node attributes
-			<p>Select tags to display inline:</p>";
+			<p>Select tags to display inline:</p><div style='padding: 10px; border: 1px solid #888888'>";
 		foreach ( $taglist as $key => $val ) {
 			$color = array_shift($colorlist);
 			$keyname = str_replace("tei_", "", $key);
@@ -160,11 +207,16 @@
 					</style>
 				";
 		};
+		$maintext .= "</div>";
+		
+
+		$maintext .= "<hr><a href='index.php?action=text&cid=$ttxml->fileid'>Text View</a>";
 	
 		$maintext .= "
 			<style>span[on] { text-decoration: underline; text-decoration-color: red; text-decoration-thickness: 2px; }</style>
 			<script>
 			document.onmouseover = mouseEvent; 
+			document.onclick = clickEvent; 
 
 			var seq = []; var selstring = '';
 			var prv = document.getElementById('prv');
@@ -197,7 +249,34 @@
 	
 				showxpath(element);
 			};
-			
+
+			function clickEvent(evt) { 
+				element = evt.toElement; 
+				if ( !element ) { element = evt.target; };
+				
+				var tag = element.nodeName;
+				var elid = element.getAttribute('id');
+				if ( tag != 'TOK' && prv.contains(element) ) { 
+					var attrs = element.attributes;
+					var infotxt = '<table style=\"width: 100%;\"><tr><th colspan=2>Annotation Info</th></tr><tr><th>Element</th><td>' + tag + '</td></tr>';
+					if ( attrs ) { 
+				        for(var i = 0; i <attrs.length; i++) {
+							infotxt += '<tr><th>' + attrs[i].name + '</th><td>' + attrs[i].value + '</td></tr>';
+						};
+					};
+					infotxt += '</table>'; 
+					if ( element.getAttribute('id') ) {
+						document.getElementById('remid').value = element.getAttribute('id');
+						document.getElementById('remfld').style.display = 'block';
+					} else {
+						document.getElementById('remfld').style.display = 'none';
+					}
+					document.getElementById('infotxt').innerHTML = infotxt;
+					document.getElementById('addner').style.display = 'none';
+					document.getElementById('elminfo').style.display = 'block';
+				};
+			};
+						
 			function showxpath(element) {
 				nn = element.nodeName.toLowerCase().replace('tei_', '');
 				var xpath = nn;
@@ -321,6 +400,28 @@
 		}; 
 		
 		return $newner;
+
+	};
+
+	function delparentnode( $xml, $parentid ) {
+
+		$prnt = current($xml->xpath("//*[@id=\"$parentid\"]"));
+		if ( !$prnt ) return -1;
+	
+		$dom = dom_import_simplexml($xml);
+		$pd = dom_import_simplexml($prnt);
+		print "<p>Moving childnodes out of parent $parentid";
+				
+		print showxml($prnt);
+		$childs = $pd->childNodes;
+		foreach ( $childs as $child  ) {
+			print "<p>".htmlentities($dom->ownerDocument->saveXML($child));
+			$newchild = $dom->ownerDocument->importNode($child->cloneNode(true),true);
+			$pd->parentNode->insertBefore($newchild, $pd);
+		}; 
+		$pd->parentNode->removeChild($pd);
+		
+		return;
 
 	};
 	
