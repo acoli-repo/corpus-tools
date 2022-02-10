@@ -24,47 +24,49 @@
 		$newner = addparentnode($ttxml->xml, $_POST['toklist'], $nertype);
 		
 		saveMyXML($ttxml->xml->asXML(), $ttxml->fileid	);
-		$nexturl = "index.php?action=$action&cid=$ttxml->fileid";
+		$nexturl = "index.php?action=$action&cid=$ttxml->fileid&elmid={$_GET['elmid']}";
 		print "<hr><p>Your annotation has been inserted - reloading to <a href='$nexturl'>the edit page</a>";
 		print "<script langauge=Javasript>top.location='$nexturl';</script>";		
 		exit;
 
-	} else if ( $act == "remove" && $_POST['remid'] ) {
-	
-		check_login();
 
-		$remid = $_POST['remid'];
-		
-		if ( !$remid ) fatal("No Element given");
-		print "<p>Removing Annotation $remid</p>";
-
-		$nerrec = current($ttxml->xml->xpath("//*[@id=\"$remid\"]"));	
-		if ( !$nerrec ) fatal("No such node: $remid");
-
-		delparentnode($ttxml->xml, $remid);
-
-		$ttxml->save();
-		print "<p>NER removed - reloading
-			<script>top.location='index.php?action=$action&cid=$ttxml->fileid';</script>";
-		exit;
-
-	} else if ( $act == "delete" && $_POST['remid'] ) {
+	} else if ( ( $act == "delete" || $act == "remove" ) && ( $_POST['remid'] || $_POST['remnr'] ) ) {
 	
 		check_login();
 		
 		$remid = $_POST['remid'];
-		if ( !$remid ) fatal("No annotation given");
+		$remnr = $_POST['remnr'];
+		if ( !$remid && !$remnr	 ) fatal("No annotation given");
 		$maintext .= "<h1>Delete Annotation $remid</h1>";
+		if ( $remid ) {
+			$remrec = current($ttxml->xml->xpath("//*[@id=\"$remid\"]"));
+		} else {
+			if ( $_GET['elmid'] ) {
+				$id = $_GET['elmid'];
+				$editxml = current($ttxml->xml->xpath("//*[@id=\"$id\"]"));
+			};
+			if ( !$editxml ) { $editxml = current($ttxml->xml->xpath("//$mtxtelement")); };
+			$nodelist = $editxml->xpath(".//*");
+			$remrec = $nodelist[$remnr];
+		};
+		if ( !$remrec ) fatal("No such annotation: $remid $remnr");
 
-		$nerrec = current($ttxml->xml->xpath("//*[@id=\"$remid\"]"));
-		if ( !$nerrec ) fatal("No such annotation: $remid");
+		 if ( $act == "remove" ) {
+			delparentnode($ttxml->xml, $remrec);
 
-		$maintext .= "<h2>Annotation to be removed</h2><p>".$nerrec->getName()." here:<br>".showxml($nerrec);
+			$ttxml->save();
+			print "<p>NER removed - reloading
+				<script>top.location='index.php?action=$action&cid=$ttxml->fileid&elmid={$_GET['elmid']}';</script>";
+			exit;
+		 } else {
+			$maintext .= "<h2>Annotation to be removed</h2><p>".$remrec->getName()." here:<br>".showxml($remrec);
 		
-		$maintext .= "<hr><form action='index.php?action=$action&act=remove&cid=$ttxml->fileid' method=post>
-			<input type=hidden name=remid value='$remid'>
-			<input type=submit value='Remove'> <a href='index.php?action=$action&cid=$ttxml->fileid'>cancel</a>
-			</form>";
+			$maintext .= "<hr><form action='index.php?action=$action&act=remove&cid=$ttxml->fileid&elmid={$_GET['elmid']}' method=post>
+				<input type=hidden name=remid value='$remid'>
+				<input type=hidden name=remnr value='$remnr'>
+				<input type=submit value='Remove'> <a href='index.php?action=$action&cid=$ttxml->fileid'>cancel</a>
+				</form>";
+		 };
 	
 	} else if ( $act == "index" || ( !$_GET['elmid'] && $settings['defaults']['largexml'] )  ) {
 	
@@ -138,15 +140,16 @@
 		if ( !$editxml ) { $editxml = current($ttxml->xml->xpath("//$mtxtelement")); };
 		
 		if ( !$editxml ) fatal("Failed to get edit element {$_GET['elmid']}");
+
+		foreach ( $editxml->xpath(".//*") as $i => $node ) {
+			$nn = $node->getName().""; $node['snr'] = $i;
+			if ( $nn == "a" ) $node['href'] = "javascript:void(0)";
+			$taglist[$nn] = 1;
+		};
 		
 		$protects = array ( "head", "opener", "address", "div", "option", "image", "a" );
 		$edittxt = $editxml->asXML();
 		$maintext .= "<div id=prv $editmode>$edittxt</div>";
-
-		foreach ( $editxml->xpath(".//*") as $node ) {
-			$nn = $node->getName()."";
-			$taglist[$nn] = 1;
-		};
 	
 		foreach ( $teilist as $key => $tag ) {
 			$optlist .= "<option value='$key'>$key: {$tag['display']}</option>";
@@ -155,7 +158,7 @@
 		};
 		$maintext .= "
 		<div id='addner' style='position: absolute; right: 10px; top: 20px; width: 500px; display: none; border: 1px solid #aaaaaa;'>
-		<form action='index.php?action=$action&act=addann&cid=$ttxml->fileid' method=post>
+		<form action='index.php?action=$action&act=addann&cid=$ttxml->fileid&elmid={$_GET['elmid']}' method=post>
 		<input id='toklist' name='toklist' type=hidden>
 		<table width='100%' style=' background-color: white;'>
 			<tr><th colspan=2>Add Annotation
@@ -167,8 +170,9 @@
 		</form></div>
 		<div id='elminfo' style='position: absolute; right: 10px; top: 20px; padding: 5px; width: 500px; display: none; border: 1px solid #aaaaaa; background-color: white;'>
 			<div id='infotxt'></div>
-			<p><form action='index.php?action=$action&id=$ttxml->fileid&act=delete' method=post id='remfld' style='display: none;'>
+			<p><form action='index.php?action=$action&id=$ttxml->fileid&act=delete&elmid={$_GET['elmid']}' method=post id='remfld' style='display: none;'>
 			<input type=hidden name=remid id='remid' value=''>
+			<input type=hidden name=remnr id='remnr' value=''>
 			<input type=submit value='Remove annotation'>
 			<input type=button value='Close' onClick=\"document.getElementById('elminfo').style.display = 'none';\">
 			</form>
@@ -209,6 +213,10 @@
 		};
 		$maintext .= "</div>";
 		
+		if ( $username ) { 
+			$maintext .= "<hr><p>Drag the cursor across one or more words to make a selection to annotate; click on the tag 
+				of an in-line shown tag to remove it</p>";
+		};
 
 		$maintext .= "<hr><a href='index.php?action=text&cid=$ttxml->fileid'>Text View</a>";
 	
@@ -264,7 +272,7 @@
 					var infotxt = '<table style=\"width: 100%;\"><tr><th colspan=2>Annotation Info</th></tr><tr><th>Element</th><td>' + nn + '</td></tr>';
 					if ( attrs ) { 
 				        for(var i = 0; i <attrs.length; i++) {
-							infotxt += '<tr><th>' + attrs[i].name + '</th><td>' + attrs[i].value + '</td></tr>';
+							if (attrs[i].name != 'snr' ) infotxt += '<tr><th>' + attrs[i].name + '</th><td>' + attrs[i].value + '</td></tr>';
 						};
 					};
 					infotxt += '</table>'; 
@@ -272,7 +280,8 @@
 						document.getElementById('remid').value = element.getAttribute('id');
 						document.getElementById('remfld').style.display = 'block';
 					} else {
-						document.getElementById('remfld').style.display = 'none';
+						document.getElementById('remnr').value = element.getAttribute('snr');
+						document.getElementById('remfld').style.display = 'block';
 					}
 					document.getElementById('infotxt').innerHTML = infotxt;
 					document.getElementById('addner').style.display = 'none';
@@ -296,7 +305,7 @@
 					if ( attshow && attrs && nn != 'text' ) { 
 						atts = '';
 				        for(var i = 0; i <attrs.length; i++) {
-				        	if ( attrs[i].name == 'id' ) { continue; }
+				        	if ( attrs[i].name == 'id' || attrs[i].name == 'snr' ) { continue; }
 				        	var attval = attrs[i].value;
 				        	if ( attval.length > 15 ) { attval = attval.substr(0,13) + '...'; };
 							if ( attval ) { atts += '@' + attrs[i].name + '=\"' + attval + '\"'; };
@@ -410,9 +419,8 @@
 
 	};
 
-	function delparentnode( $xml, $parentid ) {
+	function delparentnode( $xml, $prnt ) {
 
-		$prnt = current($xml->xpath("//*[@id=\"$parentid\"]"));
 		if ( !$prnt ) return -1;
 	
 		$dom = dom_import_simplexml($xml);
