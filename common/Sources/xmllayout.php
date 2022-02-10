@@ -149,7 +149,7 @@
 		
 		$protects = array ( "head", "opener", "address", "div", "option", "image", "a" );
 		$edittxt = $editxml->asXML();
-		$maintext .= "<div id=prv $editmode>$edittxt</div>";
+		$maintext .= "<div class='dospans' id=prv $editmode>$edittxt</div>";
 	
 		foreach ( $teilist as $key => $tag ) {
 			$optlist .= "<option value='$key'>$key: {$tag['display']}</option>";
@@ -205,9 +205,9 @@
 					</style>
 				";
 			else $maintext .= "<style id=\"class$key\" media=\"max-width: 1px;\">
-						#prv $key { color: $color; }
-						#prv $key::before { content: '<$keyname>'; color: #bbbbbb; font-size: smaller; }
-						#prv $key::after { content: '</$keyname>'; color: #bbbbbb; font-size: smaller; }
+						.dospans $key { color: $color; }
+						.dospans $key::before { content: '<$keyname>'; color: #bbbbbb; font-size: smaller; }
+						.dospans $key::after { content: '</$keyname>'; color: #bbbbbb; font-size: smaller; }
 					</style>
 				";
 		};
