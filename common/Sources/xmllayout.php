@@ -157,7 +157,7 @@
 			if ( in_array($key, $protects) ) $unstyle .= "\n#prv tei_$key { all: unset; }";
 		};
 		$maintext .= "
-		<div id='addner' style='position: absolute; right: 10px; top: 20px; width: 500px; display: none; border: 1px solid #aaaaaa;'>
+		<div id='addner' style='position: fixed; right: 10px; top: 20px; width: 500px; display: none; border: 1px solid #aaaaaa;'>
 		<form action='index.php?action=$action&act=addann&cid=$ttxml->fileid&elmid={$_GET['elmid']}' method=post>
 		<input id='toklist' name='toklist' type=hidden>
 		<table width='100%' style=' background-color: white;'>
@@ -168,7 +168,7 @@
 			<a onClick=\"document.getElementById('addner').style.display='none';\">Cancel</a>
 		</table>
 		</form></div>
-		<div id='elminfo' style='position: absolute; right: 10px; top: 20px; padding: 5px; width: 500px; display: none; border: 1px solid #aaaaaa; background-color: white;'>
+		<div id='elminfo' style='position: fixed; right: 10px; top: 20px; padding: 5px; width: 500px; display: none; border: 1px solid #aaaaaa; background-color: white;'>
 			<div id='infotxt'></div>
 			<p><form action='index.php?action=$action&id=$ttxml->fileid&act=delete&elmid={$_GET['elmid']}' method=post id='remfld' style='display: none;'>
 			<input type=hidden name=remid id='remid' value=''>
