@@ -258,7 +258,9 @@
 				var elid = element.getAttribute('id');
 				if ( tag != 'TOK' && prv.contains(element) ) { 
 					var attrs = element.attributes;
-					var infotxt = '<table style=\"width: 100%;\"><tr><th colspan=2>Annotation Info</th></tr><tr><th>Element</th><td>' + tag + '</td></tr>';
+					nn = element.nodeName.toLowerCase().replace('tei_', '');
+
+					var infotxt = '<table style=\"width: 100%;\"><tr><th colspan=2>Annotation Info</th></tr><tr><th>Element</th><td>' + nn + '</td></tr>';
 					if ( attrs ) { 
 				        for(var i = 0; i <attrs.length; i++) {
 							infotxt += '<tr><th>' + attrs[i].name + '</th><td>' + attrs[i].value + '</td></tr>';
