@@ -228,6 +228,7 @@
 			if ( in_array($key, $protects) ) $unstyle .= "\n#prv tei_$key { all: unset; }";
 		};
 		$maintext .= "
+		<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; padding: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 3;'></div>
 		<div id='addner' style='position: fixed; right: 10px; top: 20px; width: 500px; display: none; border: 1px solid #aaaaaa;'>
 		<form action='index.php?action=$action&act=addann&cid=$ttxml->fileid&elmid={$_GET['elmid']}' method=post>
 		<input id='toklist' name='toklist' type=hidden>
@@ -236,7 +237,7 @@
 			<tr><th>Span<td id='nerspan'>
 			<tr><th>Tag<td><select name=type>$optlist</select> <input type=checkbox name=before value=\"1\"> Before (empty)
 			<tr><td colspan=2><input type=submit value='Create'>
-			<a onClick=\"document.getElementById('addner').style.display='none';\">Cancel</a>
+			<a onClick=\"canceladdann();\">Cancel</a>
 		</table>
 		</form></div>
 		<div id='elminfo' style='position: fixed; right: 10px; top: 20px; padding: 5px; width: 500px; display: none; border: 1px solid #aaaaaa; background-color: white;'>
@@ -260,11 +261,11 @@
 			$unstyle
 		</style>";
 
-	
+
+		// 				<input type='checkbox' name='attshow' onChange='attshow = this.checked;' value='1'> Show node attributes
 		$maintext .= "<hr><div id='xpath' style='height: 20px;'></div><hr>
 			<p>
 				<input type='checkbox' name='styleshow' onChange='togglestyles(this.checked);' value='1'> Show document styles
-				<input type='checkbox' name='attshow' onChange='attshow = this.checked;' value='1'> Show node attributes
 			<p>Select tags to display inline:</p><div style='padding: 10px; border: 1px solid #888888'>";
 		foreach ( $taglist as $key => $val ) {
 			$color = array_shift($colorlist);
@@ -301,175 +302,7 @@
 	
 		$maintext .= "
 			<style>span[on] { text-decoration: underline; text-decoration-color: red; text-decoration-thickness: 2px; }</style>
-			<script>
-			document.onmouseover = mouseEvent; 
-			document.onclick = clickEvent; 
-
-			var seq = []; var selstring = '';
-			var prv = document.getElementById('prv');
-			var xp = document.getElementById('xpath');
-			var attshow;
-			function toggle(elm) {
-				var sp = document.getElementById('span'+elm);
-				var cls = document.getElementById('class'+elm);
-				if ( sp.getAttribute('on') ) {
-					sp.removeAttribute('on');
-					cls.setAttribute('media', 'max-width: 1px');
-				} else {
-					sp.setAttribute('on', '1');
-					cls.removeAttribute('media');
-				}; 
-			};
-		
-			function togglestyles( onoff ) {
-				if ( onoff || prv.getAttribute('id') == 'prv' ) {
-					prv.setAttribute('id', 'mtxt');
-				} else {
-					prv.setAttribute('id', 'prv');
-				};
-			};
-		
-			function mouseEvent(evt) { 
-				element = evt.toElement; 
-				if ( !element ) { element = evt.target; };
-	
-				showxpath(element);
-			};
-
-			function clickEvent(evt) { 
-				element = evt.toElement; 
-				if ( !element ) { element = evt.target; };
-				console.log('clicked');
-				console.log(element);
-				
-				if ( seq[0] ) { return; };
-				
-				var tag = element.nodeName;
-				var elid = element.getAttribute('id');
-				if ( tag != 'TOK' && tag != 'TEXT' && prv.contains(element) ) { 
-					var attrs = element.attributes;
-					nn = element.nodeName.toLowerCase().replace('tei_', '');
-
-					var infotxt = '<table style=\"width: 100%;\"><tr><th colspan=2>Annotation Info</th></tr><tr><th>Element</th><td>' + nn + '</td></tr>';
-					if ( attrs ) { 
-				        for(var i = 0; i <attrs.length; i++) {
-							if ( attrs[i].name.substr(0,4) != 'pnv#' ) infotxt += '<tr><th>' + attrs[i].name + '</th><td>' + attrs[i].value + '</td></tr>';
-						};
-					};
-					infotxt += '</table>'; 
-					if ( element.getAttribute('id') ) {
-						document.getElementById('remid').value = element.getAttribute('id');
-						document.getElementById('remfld').style.display = 'block';
-					} else {
-						document.getElementById('remnr').value = element.getAttribute('pnv#nr');
-						document.getElementById('remfld').style.display = 'block';
-					}
-					document.getElementById('infotxt').innerHTML = infotxt;
-					document.getElementById('addner').style.display = 'none';
-					document.getElementById('elminfo').style.display = 'block';
-				};
-			};
-						
-			function showxpath(element) {
-				nn = element.nodeName.toLowerCase().replace('tei_', '');
-				var xpath = nn;
-				if ( !prv.contains(element) ) {
-					xp.innerHTML = '';
-					return;
-				};
-				var focusnode = element;
-				while ( focusnode ) {
-					focusnode = focusnode.parentNode;
-					if ( !focusnode ) { break; };
-					nn = focusnode.nodeName.toLowerCase().replace('tei_', '');
-					var attrs = focusnode.attributes;
-					if ( attshow && attrs && nn != 'text' ) { 
-						atts = '';
-				        for(var i = 0; i <attrs.length; i++) {
-				        	if ( attrs[i].name == 'id' || attrs[i].name.substr(0,4) == 'pnv#' ) { continue; }
-				        	var attval = attrs[i].value;
-				        	if ( attval.length > 15 ) { attval = attval.substr(0,13) + '...'; };
-							if ( attval ) { atts += '@' + attrs[i].name + '=\"' + attval + '\"'; };
-						}
-						if ( atts ) { nn += '<span style=\"color: #aaaaaa; font-size: smaller;\">[' + atts + ']</span>'; };
-					};
-					if ( focusnode.getAttribute('id') == 'prv' || focusnode.getAttribute('id') == 'mtxt' ) { break; };
-					xpath = nn + ' > ' + xpath;
-				}; 
-			
-				xp.innerHTML = xpath;
-			};
-		
-			function makespan(event) { 
-				var toks = document.getElementsByTagName('tok');
-				selstring = '';
-				
-				if (window.getSelection) {
-					sel = window.getSelection();
-				} else if (document.selection && document.selection.type != 'Control') {
-					sel = document.selection.createRange();
-				}
-	
-				var node1 = sel.anchorNode; 
-				if ( !node1 || sel.anchorOffset == 0) { 
-					for ( var a = 0; a<seq.length; a++ ) {
-						var tok = seq[a];
-						tok.style['background-color'] = null;
-						tok.style.backgroundColor= null; 
-					};
-					seq = []; selstring = '';
-					return -1;
-				};
-				var noden = sel.focusNode;
-				var order = 0;
-				if ( node1.compareDocumentPosition(noden) == 2 ) {
-					// switch if selection is inverse
-					var tmp = node1;
-					node1 = noden;
-					noden = tmp;
-				};
-
-				while ( node1 && node1.nodeName != 'TOK' && node1.nodeName != 'tok'  ) { node1 = node1.parentNode; };
-				while ( noden && noden.nodeName != 'TOK' && noden.nodeName != 'tok'  ) { noden = noden.parentNode; };
-
-				// Reset the selection
-				for ( var a = 0; a<seq.length; a++ ) {
-					var tok = seq[a];
-					if ( tok ) {
-						tok.style['background-color'] = null;
-						tok.style.backgroundColor= null; 
-					};
-				};
-				seq = []; 
-
-				var nodei = node1;
-
-				seq.push(node1); 
-				while ( nodei != noden && nodei ) {
-					nodei = nodei.nextSibling;
-					if ( nodei && ( nodei.nodeName == 'TOK' || nodei.nodeName == 'tok' )  ) { 
-						seq.push(nodei);			
-					};
-				};
-				window.getSelection().removeAllRanges();
-		
-				color = '#88ffff';  selstring = '';  idlist = ''; 
-				for ( var a = 0; a<seq.length; a++ ) {
-					var tok = seq[a];
-					if ( tok == null ) continue;
-					tok.style['background-color'] = color;
-					tok.style.backgroundColor= color; 
-					selstring += tok.innerHTML + ' ';
-					idlist += tok.getAttribute('id') + ';';
-				};
-	
-				document.getElementById('toklist').value = idlist;
-				document.getElementById('addner').style.display = 'block';
-				document.getElementById('elminfo').style.display = 'none';
-				document.getElementById('nerspan').innerHTML = selstring;
-	
-			};
-		</script>";
+			<script src='$jsurl/xmllayout.js'></script>";
 	};
 
 	function addparentnode( $xml, $toklist, $parent ) {
