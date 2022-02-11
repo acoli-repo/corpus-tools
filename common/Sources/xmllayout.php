@@ -5,9 +5,13 @@
 	$ttxml = new TTXML();
 
  	$colorlist = array ( '#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999' );
-	$empties = array ('pb', 'lb', 'cb', 'milestone');
+	$empties = array ('pb', 'lb', 'cb', 'milestone', 'dtok');
 
-	$globalatts = array ( "corresp" => "reference", "id" => "identifier", );
+	$globalatts = array ( 
+		"corresp" => "reference", 
+		"id" => "identifier", 
+		"bbox" => "bounding box", 
+		);
 
 	if ( file_exists("Resources/teitags.xml") )  $tmp = "Resources/teitags.xml";
 	else if ( file_exists("$sharedfolder/Resources/teitags.xml") )  $tmp = "$sharedfolder/Resources/teitags.xml";
@@ -145,6 +149,7 @@
 		
 		$maintext .= "<p>Select a part of the XML to edit<hr>";
 		
+		$basexp = "$mtxtelement";
 		if ( $_GET['selid'] ) { 
 			$id= $_GET['selid'];
 			$root = current($ttxml->xml->xpath("//$mtxtelement//*[@id=\"$id\"]"));
@@ -158,23 +163,38 @@
 				$nodepath = "$focusname > $nodepath";
 				if ( $focusxml->getName() == "text" ) { break; };
 			};
-		} else {
+		} else if ( $_GET['xpath'] ) {
+			$basexp = $_GET['xpath'];
+			$root = current($ttxml->xml->xpath($basexp));
+			if ( !$root ) fatal("Node not found $basexp");
+			$nodepath = $root->getName();
+		};
+		if ( !$root ) {
 			$root = current($ttxml->xml->xpath("//$mtxtelement"));
 			$nodepath = $root->getName();
 		};
 		$maintext .= "<p>$nodepath";
 		foreach ( $root->children() as $child ) {
-			$maintext .= "<p> - ".$child->getName();
+			$nn = $child->getName()."";
+			$cnt[$nn]++;
+			$maintext .= "<p> - $nn";
+			$ncnt = $cnt[$nn];
+			$xp = $basexp."/{$nn}[$ncnt]";
 			if ( $child['id'] ) $maintext .= "[@id=<a href='index.php?action=$action&act=index&id=$ttxml->fileid&selid={$child['id']}'>".$child['id']."</a>] - <a href='index.php?action=$action&id=$ttxml->fileid&elmid={$child['id']}'>select</a>";
+			else $maintext .= "[<a href='index.php?action=$action&act=index&id=$ttxml->fileid&xpath=$xp'>{$ncnt}</a>] - <a href='index.php?action=$action&id=$ttxml->fileid&xpath=$xp'>select</a>";
 		};
 	
 	} else if ( $act == "taglist" ) {
 	
 		$maintext .= "<h1>TEI Tag List</h1>
-			<p>Below is the list of tags defined for this project
-			<table><pre>";
+			<p>Below is the list of tags defined for this project (or by default in TEITOK)
+			<table id=rollovertable><tr><th>Tag<th>Description<th>Attributes";
 		foreach ( $teilist as $key => $tag ) {
-			$maintext .= "<tr><th>$key<td>{$tag['display']}</tr>";
+			$maintext .= "<tr><th>$key<td>{$tag['display']}<td><table>";
+			foreach ( $tag['atts'] as $key2 => $tag2 ) {
+				$maintext .= "<tr><th>key2<td>{$tag2['display']}";
+			};
+			$maintext .= "</table></td></tr>";
 		};
 		$maintext .= "</table>";
 				
@@ -206,6 +226,9 @@
 				};
 				$maintext .= "<p>Editing: $nodepath</p><hr>";
 			};
+		} else if ( $_GET['xpath'] ) {
+			$basexp = $_GET['xpath'];
+			$editxml = current($ttxml->xml->xpath($basexp));
 		};
 		if ( !$editxml ) { $editxml = current($ttxml->xml->xpath("//$mtxtelement")); };
 		
@@ -262,12 +285,13 @@
 			$unstyle
 		</style>";
 
+		if ( $username ) $alltags = " (<a href='index.php?action=$action&act=taglist&id=$ttxml->fileid'>view all tags</a>)";
 
 		// 				<input type='checkbox' name='attshow' onChange='attshow = this.checked;' value='1'> Show node attributes
 		$maintext .= "<hr><div id='xpath' style='height: 20px;'></div><hr>
 			<p>
 				<input type='checkbox' name='styleshow' onChange='togglestyles(this.checked);' value='1'> Show document styles
-			<p>Select tags to display inline:</p><div style='padding: 10px; border: 1px solid #888888'>";
+			<p>Select tags to display inline $alltags:</p><div style='padding: 10px; border: 1px solid #888888'>";
 		foreach ( $taglist as $key => $val ) {
 			$color = array_shift($colorlist);
 			$keyname = str_replace("tei_", "", $key);
