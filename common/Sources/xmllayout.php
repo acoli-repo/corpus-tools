@@ -255,7 +255,7 @@
 		foreach ( $teilist as $key => $tag ) {
 			$tagnames[strtolower($key)] = $tag['display'];
 			$optlist .= "<option value='$key'>$key: {$tag['display']}</option>";
-			if ( $key != "p" ) $unstyle .= "\n#prv $key { all: unset; }";
+			$unstyle .= "\n#prv $key { all: unset; }";
 			if ( in_array($key, $protects) ) $unstyle .= "\n#prv tei_$key { all: unset; }";
 		};
 		$maintext .= "
@@ -290,6 +290,7 @@
 			#prv b { all: unset; }
 			#prv s { all: unset; }
 			$unstyle
+			#prv p, #prv div, #prv head { display: block; padding-bottom: 10px; }
 		</style>";
 
 		if ( $username ) $alltags = " (<a href='index.php?action=$action&act=taglist&id=$ttxml->fileid'>view all tags</a>)";
