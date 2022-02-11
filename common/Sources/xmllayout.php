@@ -23,9 +23,21 @@
 		if ( !is_writable("xmlfiles/".$ttxml->fileid) ) fatal("Not writable: $ttxml->fileid");
 	
 		$nertype = $_POST['type']; if ( !$nertype ) fatal("No nodename indicated");
-		print "<p>Adding $nertype around ".$_POST['toklist'];
-
-		$newner = addparentnode($ttxml->xml, $_POST['toklist'], $nertype);
+		
+		if ( $_POST['before'] ) {
+			print "<p>Adding $nertype before ".$_POST['toklist'];
+			$idlist = explode(";", preg_replace("/;+$/", "", $_POST['toklist']));
+			$newner = simplexml_load_string("<$nertype/>");
+			$target = current($ttxml->xml->xpath("//*[@id=\"{$idlist[0]}\"]"));
+			if ( !$target ) fatal("Element not found: {$idlist[0]}");
+			$target_dom = dom_import_simplexml($target);
+			$insert = $target_dom->ownerDocument->importNode(dom_import_simplexml($newner), true);
+			$target_dom->parentNode->insertBefore($insert, $target_dom);
+		} else {
+			print "<p>Adding $nertype around ".$_POST['toklist'];
+			$newner = addparentnode($ttxml->xml, $_POST['toklist'], $nertype);
+		};
+		
 		
 		saveMyXML($ttxml->xml->asXML(), $ttxml->fileid	);
 		$nexturl = "index.php?action=$action&cid=$ttxml->fileid&elmid={$_GET['elmid']}";
@@ -199,14 +211,15 @@
 		
 		if ( !$editxml ) fatal("Failed to get edit element {$_GET['elmid']}");
 
+		# Check all nodes
 		foreach ( $editxml->xpath(".//*") as $i => $node ) {
-			$nn = $node->getName().""; $node['snr'] = $i;
+			$nn = $node->getName().""; $node['pnv#nr'] = $i;
 			if ( $nn == "a" ) $node['href'] = "javascript:void(0)";
 			$taglist[$nn] = 1;
 		};
 		
 		$protects = array ( "head", "opener", "address", "div", "option", "image", "a" );
-		$edittxt = $editxml->asXML();
+		$edittxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml->asXML() );
 		$maintext .= "<div id=dospans><div id=prv $editmode>$edittxt</div></div>";
 	
 		foreach ( $teilist as $key => $tag ) {
@@ -221,7 +234,7 @@
 		<table width='100%' style=' background-color: white;'>
 			<tr><th colspan=2>Add Annotation
 			<tr><th>Span<td id='nerspan'>
-			<tr><th>Tag<td><select name=type>$optlist</select>
+			<tr><th>Tag<td><select name=type>$optlist</select> <input type=checkbox name=before value=\"1\"> Before (empty)
 			<tr><td colspan=2><input type=submit value='Create'>
 			<a onClick=\"document.getElementById('addner').style.display='none';\">Cancel</a>
 		</table>
@@ -279,8 +292,10 @@
 		};
 
 		$maintext .= "<hr>
-			<a href='index.php?action=text&cid=$ttxml->fileid'>Text View</a>
-			&bull;
+			<a href='index.php?action=text&cid=$ttxml->fileid'>Text View</a>";
+
+			
+		if ( $username ) $maintext .= " &bull;
 			<a href='index.php?action=rawedit&cid=$ttxml->fileid'>Edit raw XML</a>
 			";
 	
@@ -338,7 +353,7 @@
 					var infotxt = '<table style=\"width: 100%;\"><tr><th colspan=2>Annotation Info</th></tr><tr><th>Element</th><td>' + nn + '</td></tr>';
 					if ( attrs ) { 
 				        for(var i = 0; i <attrs.length; i++) {
-							if (attrs[i].name != 'snr' ) infotxt += '<tr><th>' + attrs[i].name + '</th><td>' + attrs[i].value + '</td></tr>';
+							if ( attrs[i].name.substr(0,4) != 'pnv#' ) infotxt += '<tr><th>' + attrs[i].name + '</th><td>' + attrs[i].value + '</td></tr>';
 						};
 					};
 					infotxt += '</table>'; 
@@ -346,7 +361,7 @@
 						document.getElementById('remid').value = element.getAttribute('id');
 						document.getElementById('remfld').style.display = 'block';
 					} else {
-						document.getElementById('remnr').value = element.getAttribute('snr');
+						document.getElementById('remnr').value = element.getAttribute('pnv#nr');
 						document.getElementById('remfld').style.display = 'block';
 					}
 					document.getElementById('infotxt').innerHTML = infotxt;
@@ -371,7 +386,7 @@
 					if ( attshow && attrs && nn != 'text' ) { 
 						atts = '';
 				        for(var i = 0; i <attrs.length; i++) {
-				        	if ( attrs[i].name == 'id' || attrs[i].name == 'snr' ) { continue; }
+				        	if ( attrs[i].name == 'id' || attrs[i].name.substr(0,4) == 'pnv#' ) { continue; }
 				        	var attval = attrs[i].value;
 				        	if ( attval.length > 15 ) { attval = attval.substr(0,13) + '...'; };
 							if ( attval ) { atts += '@' + attrs[i].name + '=\"' + attval + '\"'; };

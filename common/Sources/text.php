@@ -696,6 +696,7 @@
 			if ( $_GET['pageid'] ) $pnr = "&pageid=".$_GET['pageid'];
 			else if ( $_GET['page'] ) $pnr = "&page=".$_GET['page'];
 			$maintext .= "<li><a href='index.php?action=verticalize&act=define&cid=$fileid$pnr'>View verticalized version of this text</a>";
+			$maintext .= "<li><a href='index.php?action=xmllayout&cid=$fileid'>Edit XML Layout</a>";
 		};
 		
 		if (is_array($filesources)) 
