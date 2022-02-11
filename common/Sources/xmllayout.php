@@ -223,6 +223,7 @@
 		$maintext .= "<div id=dospans><div id=prv $editmode>$edittxt</div></div>";
 	
 		foreach ( $teilist as $key => $tag ) {
+			$tagnames[strtolower($key)] = $tag['display'];
 			$optlist .= "<option value='$key'>$key: {$tag['display']}</option>";
 			if ( $key != "p" ) $unstyle .= "\n#prv $key { all: unset; }";
 			if ( in_array($key, $protects) ) $unstyle .= "\n#prv tei_$key { all: unset; }";
@@ -270,8 +271,11 @@
 		foreach ( $taglist as $key => $val ) {
 			$color = array_shift($colorlist);
 			$keyname = str_replace("tei_", "", $key);
+			if ( $done[strtolower($keyname)] ) continue;
+			$done[strtolower($keyname)] = 1;
+			$ktit = $tagnames[strtolower($keyname)];
 			$maintext .= " 
-				<span id=\"span$key\"><a   style='color: $color;' onClick=\"toggle('$key')\">&lt;$keyname&gt;</a></span> 
+				<span id=\"span$key\" title='$ktit'><a  style='color: $color;' onClick=\"toggle('$key')\">&lt;$keyname&gt;</a></span> 
 				";
 			if ( in_array($key, $empties) || $teilist[$key]['empty'] ) $maintext .= "<style id=\"class$key\" media=\"max-width: 1px;\">
 						#prv $key { color: $color; }

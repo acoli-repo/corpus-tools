@@ -325,9 +325,10 @@
 					<p>{%Context size}: <select name=context>$cntopts1</select>  {%words}
 				</div>
 				<p>{%Sort on}: <select name=sort>
-					<option value='word'>{%Word}</option>
-					<option value='word on matchend[1]..matchend[5]'>{%Right context}</option>
-					<option value='word on match[-1]..match[-5]'>{%Left context}</option>
+					<option value='form %c' selected>{%Form} ({%Case insensitive})</option>
+					<option value='form'>{%Form}</option>
+					<option value='form on matchend[1]..matchend[5]'>{%Right context}</option>
+					<option value='form on match[-1]..match[-5]'>{%Left context}</option>
 					<option value=''>{%Corpus order}</option>
 				</select> 
 				<p id='cqp-search'>{%Matching strategy}: <select name=strategy>
