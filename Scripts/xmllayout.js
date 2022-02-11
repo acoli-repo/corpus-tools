@@ -39,8 +39,6 @@ function mouseEvent(evt) {
 function clickEvent(evt) { 
 	element = evt.toElement; 
 	if ( !element ) { element = evt.target; };
-	console.log('clicked');
-	console.log(element);
 	
 	if ( seq[0] ) { return; };
 	
@@ -111,11 +109,12 @@ function showxpath(element) {
 	xinfo = xinfo + '</table>';
 
 	xp.innerHTML = xpath;
-		tokinfo.innerHTML = xinfo;
-		tokinfo.style.display = 'block';
-		var foffset = offset(element);
-		tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
-		tokinfo.style.top = ( foffset.top + element.offsetHeight + 4 ) + 'px';
+	
+	tokinfo.innerHTML = xinfo;
+	tokinfo.style.display = 'block';
+	var foffset = offset(element);
+	tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
+	tokinfo.style.top = ( foffset.top + element.offsetHeight + 4 ) + 'px';
 };
 
 function makespan(event) { 
