@@ -290,7 +290,7 @@
 			#prv b { all: unset; }
 			#prv s { all: unset; }
 			$unstyle
-			#prv p, #prv div, #prv head { display: block; padding-bottom: 10px; }
+			#prv:p, #prv:div, #prv:head { display: block; padding-bottom: 10px; }
 		</style>";
 
 		if ( $username ) $alltags = " (<a href='index.php?action=$action&act=taglist&id=$ttxml->fileid'>view all tags</a>)";
