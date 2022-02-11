@@ -166,12 +166,19 @@
 		} else if ( $_GET['xpath'] ) {
 			$basexp = $_GET['xpath'];
 			$root = current($ttxml->xml->xpath($basexp));
+			print "Nr of Children: ".count($root->children()); exit;
 			if ( !$root ) fatal("Node not found $basexp");
 			$nodepath = $root->getName();
 		};
 		if ( !$root ) {
 			$root = current($ttxml->xml->xpath("//$mtxtelement"));
 			$nodepath = $root->getName();
+			while ( count($root->children()) == 1 ) {
+				$cn = current($root->children())->getName()."";
+				$nodepath .= " > $cn";
+				$basexp .= "/{$cn}[1]";
+				$root = current($ttxml->xml->xpath($basexp));
+			};
 		};
 		$maintext .= "<p>$nodepath";
 		foreach ( $root->children() as $child ) {
