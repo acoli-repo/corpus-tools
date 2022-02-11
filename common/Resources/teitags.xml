@@ -28,7 +28,7 @@
 </item>
 <item key="fw" display="running head">
 </item>
-<item key="gap" display="untranscribed text">
+<item key="gap" display="untranscribed text" empty="1">
 	<atts>
 		<item key="reason" display="reason why text not transcribed"/>
 		<item key="agent" display="cause of damage"/>
@@ -82,6 +82,10 @@
 		<item key="dur" display="duration"/>
 		<item key="type" display="type of pause"/>
 	</atts>
+</item>
+<item key="persName" display="person name">
+</item>
+<item key="placeName" display="place name">
 </item>
 <item key="pb" display="page beginning" empty="1">
 	<atts>

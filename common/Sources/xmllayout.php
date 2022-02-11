@@ -7,6 +7,8 @@
  	$colorlist = array ( '#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999' );
 	$empties = array ('pb', 'lb', 'cb', 'milestone');
 
+	$globalatts = array ( "corresp" => "reference", "id" => "identifier", );
+
 	if ( file_exists("Resources/teitags.xml") )  $tmp = "Resources/teitags.xml";
 	else if ( file_exists("$sharedfolder/Resources/teitags.xml") )  $tmp = "$sharedfolder/Resources/teitags.xml";
 	else $tmp = "$ttroot/common/Resources/teitags.xml";
@@ -32,14 +34,14 @@
 		exit;
 
 
-	} else if ( ( $act == "delete" || $act == "remove" ) && ( $_POST['remid'] || $_POST['remnr'] ) ) {
+	} else if ( $_POST['remid'] || $_POST['remnr'] ) {
 	
 		check_login();
 		
 		$remid = $_POST['remid'];
 		$remnr = $_POST['remnr'];
 		if ( !$remid && !$remnr	 ) fatal("No annotation given");
-		$maintext .= "<h1>Delete Annotation $remid</h1>";
+		$maintext .= "<h2>XML Layout Editor</h2>";
 		if ( $remid ) {
 			$remrec = current($ttxml->xml->xpath("//*[@id=\"$remid\"]"));
 		} else {
@@ -53,15 +55,69 @@
 		};
 		if ( !$remrec ) fatal("No such annotation: $remid $remnr");
 
-		 if ( $act == "remove" ) {
+		 if ( $_POST['action'] == "edit" ) {
+		 
+			$maintext .= "<h1>Edit Annotation</h1>
+				<form action='index.php?action=$action&cid=$ttxml->fileid&elmid={$_GET['elmid']}' method=post>
+				<input type=hidden name=action value='save'>
+				<input type=hidden name=remid value='$remid'>
+				<input type=hidden name=remnr value='$remnr'>
+				<table>";
+			
+			$nn = $remrec->getName()."";
+			$maintext .= "<tr><td><th>Node<td>&lt;$nn&gt;";
+		 	if ( $teilist[$nn]['display'] ) $maintext .= "<tr><td><th>Description (TEI)<td>{$teilist[$nn]['display']}";
+
+			foreach ( $settings['xmlfile']['sattributes'][$nn] as $key => $val ) {
+				if ( !is_array($val) ) continue;
+				$an = $val['display'];
+				if ( $val['values'] ) {
+					$edt = "<select name=atts[$key]><option>[select]</option></select>";
+				} else $edt = "<input name=atts[$key] value=\"{$remrec[$key]}\" size=80>";
+				$maintext .= "<tr><td style='font-size: smaller; color: #dd9999;'>@$key<th>$an<td>$edt";
+				$done[$key] = 1;
+			};
+			foreach ( $teilist[$nn]['atts'] as $key => $val ) {
+				$an = $val['display'];
+				if ( $val['values'] ) {
+					$edt = "<select name=atts[$key]><option>[select]</option></select>";
+				} else $edt = "<input name=atts[$key] value=\"{$remrec[$key]}\" size=80>";
+				$maintext .= "<tr><td style='font-size: smaller; color: #99dd99;'>@$key<th>$an<td>$edt";
+				$done[$key] = 1;
+			};
+			foreach ( $remrec->attributes() as $key => $att ) {
+				if ( $done[$key] ) continue;
+				$an = ucfirst($globalatts[$key]);
+				$maintext .= "<tr><td style='font-size: smaller; color: #dd9999;'>@$key<th>$an<td>$att";
+				$done[$key] = 1;
+			};
+			$maintext .= "</table>
+				<p><input type=submit value=Save> <a href='index.php?action=$action&cid=$ttxml->fileid&elmid={$_GET['elmid']}'>cancel</a>
+				</form>";
+		 
+		 } else if ( $_POST['action'] == "save" ) {
+		 
+		 	print "<p>Changing attributes";
+		 	foreach ( $_POST['atts'] as $key => $val ) {
+		 		if ( !$val ) unset($remrec[$key]);
+		 		else $remrec[$key] = $val;
+		 	};
+		 	# print showxml($remrec); exit;
+			$ttxml->save();
+			print "<p>Annotation modified - reloading
+				<script>top.location='index.php?action=$action&cid=$ttxml->fileid&elmid={$_GET['elmid']}';</script>";
+			exit;
+		 
+		 } else if ( $act == "remove" ) {
+		 
 			delparentnode($ttxml->xml, $remrec);
 
 			$ttxml->save();
-			print "<p>NER removed - reloading
+			print "<p>Annotation removed - reloading
 				<script>top.location='index.php?action=$action&cid=$ttxml->fileid&elmid={$_GET['elmid']}';</script>";
 			exit;
 		 } else {
-			$maintext .= "<h2>Annotation to be removed</h2><p>".$remrec->getName()." here:<br>".showxml($remrec);
+			$maintext .= "<h1>Removing Annotation</h1><p>Annotation to be removed ($remid$remnr)".$remrec->getName()." here:<br><div style='border: 1px; solid #aaaaaa;'>".$remrec->asXML()."</div><hr>Raw XML:".showxml($remrec);
 		
 			$maintext .= "<hr><form action='index.php?action=$action&act=remove&cid=$ttxml->fileid&elmid={$_GET['elmid']}' method=post>
 				<input type=hidden name=remid value='$remid'>
@@ -175,8 +231,10 @@
 			<p><form action='index.php?action=$action&id=$ttxml->fileid&act=delete&elmid={$_GET['elmid']}' method=post id='remfld' style='display: none;'>
 			<input type=hidden name=remid id='remid' value=''>
 			<input type=hidden name=remnr id='remnr' value=''>
+			<input type=hidden name=action id='remaction' value=''>
 			<input type=submit value='Remove annotation'>
 			<input type=button value='Close' onClick=\"document.getElementById('elminfo').style.display = 'none';\">
+			<input type=button value='Edit' onClick=\"document.getElementById('remaction').value='edit'; document.getElementById('remfld').submit();\">
 			</form>
 		</div>
 
@@ -266,6 +324,8 @@
 			function clickEvent(evt) { 
 				element = evt.toElement; 
 				if ( !element ) { element = evt.target; };
+				console.log('clicked');
+				console.log(element);
 				
 				if ( seq[0] ) { return; };
 				
@@ -336,7 +396,7 @@
 				}
 	
 				var node1 = sel.anchorNode; 
-				if ( !node1 ) { 
+				if ( !node1 || sel.anchorOffset == 0) { 
 					for ( var a = 0; a<seq.length; a++ ) {
 						var tok = seq[a];
 						tok.style['background-color'] = null;
