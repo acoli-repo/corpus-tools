@@ -464,7 +464,7 @@
 	};
 
 	function getattlist($nn, $remrec = null) {
-		global $globalatts, $settings;
+		global $globalatts, $settings, $teilist;
 		if ( $remrec ) foreach ( $remrec->attributes() as $key => $att ) {
 			$an = ucfirst($globalatts[$key]);
 			$maintext .= "<tr><td style='font-size: smaller; color: #dd9999;'>@$key<th>$an<td>$att";
