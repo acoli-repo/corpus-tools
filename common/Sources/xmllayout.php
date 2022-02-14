@@ -94,7 +94,11 @@
 			foreach ( $attlist as $key => $val ) {
 				$an = $val['display'];
 				if ( $val['values'] ) {
-					$edt = "<select name=atts[$key]><option>[select]</option></select>";
+					foreach ( $val['values'] as $key2 => $val2 ) {
+						$disp = $val2['display'] or $disp = $key2;
+						$options .= "<option value=\"$key2\">$disp</option>";
+					};
+					$edt = "<select name=atts[$key]><option>[select]</option>$options</select>";
 				} else $edt = "<input name=atts[$key] value=\"{$remrec[$key]}\" size=80>";
 				$maintext .= "<tr><td style='font-size: smaller; color: #99dd99;'>@$key<th>$an<td>$edt";
 			};
@@ -174,7 +178,14 @@
 		if ( $att ) {
 			$val = $attlist[$att];
 			$an = $val['display'];
-			$maintext .= "<th>$an";				
+			$maintext .= "<th>$an";	
+			if ( $val['values'] ) {
+				$options = "<option value=\"\">[select]</option>";
+				foreach ( $val['values'] as $key2 => $val2 ) {
+					$disp = $val2['display'] or $disp = $key2;
+					$options .= "<option value=\"$key2\">$disp</option>";
+				};
+			};			
 		} else foreach ( $attlist as $key => $val ) {
 			$an = $val['display'];
 			if  ( $key == "id" )
@@ -184,7 +195,7 @@
 				$maintext .= "<th><a href='index.php?action=$action&act=elm&id=$ttxml->fileid&att=$key&elm=$nn'>$an</a>";
 			};
 		};
-			
+	
 		foreach ( $ttxml->xml->xpath($xpath) as $node ) {
 			$cnt++;
 			if ( $node['id'] ) $idfld = "<a href='index.php?action=$action&act=edit&cid=$ttxml->fileid&editid={$node['id']}'>{$node['id']}</a>";
@@ -194,7 +205,8 @@
 			if ( $_GET['att'] ) {
 				$key = $_GET['att'];
 				$val = $node[$key];
-				$maintext .= "<td><input size=60 name=vals[$cnt] value=\"$val\">";				
+				if ( $options ) $maintext .= "<td><select name=vals[$cnt]>$options</select>";	
+				else $maintext .= "<td><input size=60 name=vals[$cnt] value=\"$val\">";				
 			} else foreach ( $attlist as $key => $val ) {
 				$maintext .= "<td>{$node[$key]}";
 			};
