@@ -51,7 +51,7 @@ function clickEvent(evt) {
 		var infotxt = '<table style=\"width: 100%;\"><tr><th colspan=2>Annotation Info</th></tr><tr><th>Element</th><td>' + nn + '</td></tr>';
 		if ( attrs ) { 
 			for(var i = 0; i <attrs.length; i++) {
-				if ( attrs[i].name.substr(0,4) != 'pnv#' ) infotxt += '<tr><th>' + attrs[i].name + '</th><td>' + attrs[i].value + '</td></tr>';
+				if ( attrs[i].name.substr(0,4) != 'pnv#' && attrs[i].name != 'style' ) infotxt += '<tr><th>' + attrs[i].name + '</th><td>' + attrs[i].value + '</td></tr>';
 			};
 		};
 		infotxt += '</table>'; 

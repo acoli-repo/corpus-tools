@@ -3,7 +3,22 @@
 </item>
 <item key="add" display="added later">
 	<atts>
-		<item key="place" display="where the text was added"/>
+		<item key="place" display="where the text was added">
+			<values>	
+				<item key="top" display="at the top of the page"/>
+				<item key="bottom" display="at the foot of the page"/>
+				<item key="margin" display="in the margin (left, right, or both)"/>
+				<item key="opposite" display="on the opposite, i.e. facing, page"/>
+				<item key="overleaf" display="on the other side of the leaf"/>
+				<item key="above" display="above the line"/>
+				<item key="right" display="to the right, e.g. to the right of a vertical line of text, or to the right of a figure"/>
+				<item key="below" display="below the line"/>
+				<item key="left" display="to the left, e.g. to the left of a vertical line of text, or to the left of a figure"/>
+				<item key="end" display="at the end of e.g. chapter or volume."/>
+				<item key="inline" display="within the body of the text."/>
+				<item key="inspace" display="in a predefined space, for example left by an earlier scribe."/>
+			</values>
+		</item>
 		<item key="hand" display="who added the text"/>
 	</atts>
 </item> 
@@ -14,7 +29,14 @@
 </item>
 <item key="del" display="deleted by author">
 	<atts>
-		<item key="rend" display="way of deleting"/>
+		<item key="rend" display="way of deleting">
+			<values>	
+				<item key="overstrike" display="letters striked out"/>
+				<item key="overtyped" display="typed over"/>
+				<item key="overwritten" display="written over"/>
+				<item key="strikethrough" display="striked through"/>
+			</values>	
+		</item>
 	</atts>
 </item>
 <item key="desc" display="desciption of parent elm">
@@ -75,6 +97,8 @@
 </item>
 <item key="note" display="explanatory note">
 </item>
+<item key="orgName" display="organization name">
+</item>
 <item key="p" display="paragraph">
 </item>
 <item key="pause" display="pause (spoken)" empty="1">
@@ -94,7 +118,11 @@
 		<item key="rend" display="image cut-out"/>
 	</atts>
 </item>
-<item key="q" display="quotation">
+<item key="q" display="quoted">
+</item>
+<item key="quote" display="quotation">
+</item>
+<item key="ref" display="reference">
 </item>
 <item key="s" display="sentence">
 	<atts>

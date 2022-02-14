@@ -15,7 +15,12 @@
 			"placename" => array ( "display" => "Place Name", "cqp" => "place", "node" => "place", "elm" => "placeName", "nerid" => "ref" ), 
 			"persname" => array ( "display" => "Person Name", "cqp" => "person", "node" => "person", "elm" => "persName", "nerid" => "ref" ), 
 			"orgname" => array ( "display" => "Organization Name", "cqp" => "org", "node" => "org", "elm" => "orgName", "nerid" => "ref" ),
-			"term" => array ( "display" => "Term", "cqp" => "term", "elm" => "term", "nerid" => "ref" ),
+			// "term" => array ( "display" => "Term", "cqp" => "term", "elm" => "term", "nerid" => "ref" ),
+			// "name" => array ( "display" => "Name", "cqp" => "name", "elm" => "name", "nerid" => "ref" ),
+			// "time" => array ( "display" => "Time", "cqp" => "time", "elm" => "time", "nerid" => "none" ),
+			// "num" => array ( "display" => "Number", "cqp" => "num", "elm" => "num", "nerid" => "none" ),
+			// "date" => array ( "display" => "Date", "cqp" => "date", "elm" => "date", "nerid" => "none" ),
+			// "unit" => array ( "display" => "Unit", "cqp" => "unit", "elm" => "unit", "nerid" => "none" ),
 			);
 	$nerjson = array2json($nerlist);
 	

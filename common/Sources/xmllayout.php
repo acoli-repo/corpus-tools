@@ -1,6 +1,6 @@
 <?php
 
-	# check_login();
+	check_login();
 	require("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML();
 
@@ -21,9 +21,17 @@
 	
 	if ( $settings['defaults']['largexml'] || count($ttxml->xml->xpath("//tok")) > 500 ) { $largexml = 1; };
 	
-	if ( $act == "addann" ) {
+	if ( $_GET['editid'] ) { $_POST['remid'] = $_GET['editid']; $_POST['action'] = "edit"; };
+	
+	if ( !$ttxml->xml->xpath("//tok") ) {
+		
+		$maintext .= "<h1>XML Layout Editor</h1>
+			<p>This function relies on tokenization - and this text has not been tokenized yet. 
+				Click <a href='index.php?action=tokenize&cid=$ttxml->fileid'>here</a> to tokenize.";
+		
+		
+	} else if ( $act == "addann" ) {
 
-		check_login(); 		
 		if ( !is_writable("xmlfiles/".$ttxml->fileid) ) fatal("Not writable: $ttxml->fileid");
 	
 		$nertype = $_POST['type']; if ( !$nertype ) fatal("No nodename indicated");
@@ -42,7 +50,6 @@
 			$newner = addparentnode($ttxml->xml, $_POST['toklist'], $nertype);
 		};
 		
-		
 		saveMyXML($ttxml->xml->asXML(), $ttxml->fileid	);
 		$nexturl = "index.php?action=$action&cid=$ttxml->fileid&elmid={$_GET['elmid']}";
 		print "<hr><p>Your annotation has been inserted - reloading to <a href='$nexturl'>the edit page</a>";
@@ -52,7 +59,6 @@
 
 	} else if ( $_POST['remid'] || $_POST['remnr'] ) {
 	
-		check_login();
 		
 		$remid = $_POST['remid'];
 		$remnr = $_POST['remnr'];
@@ -84,31 +90,19 @@
 			$maintext .= "<tr><td><th>Node<td>&lt;$nn&gt;";
 		 	if ( $teilist[$nn]['display'] ) $maintext .= "<tr><td><th>Description (TEI)<td>{$teilist[$nn]['display']}";
 
-			foreach ( $settings['xmlfile']['sattributes'][$nn] as $key => $val ) {
-				if ( !is_array($val) ) continue;
-				$an = $val['display'];
-				if ( $val['values'] ) {
-					$edt = "<select name=atts[$key]><option>[select]</option></select>";
-				} else $edt = "<input name=atts[$key] value=\"{$remrec[$key]}\" size=80>";
-				$maintext .= "<tr><td style='font-size: smaller; color: #dd9999;'>@$key<th>$an<td>$edt";
-				$done[$key] = 1;
-			};
-			foreach ( $teilist[$nn]['atts'] as $key => $val ) {
+			$attlist = getattlist($nn);
+			foreach ( $attlist as $key => $val ) {
 				$an = $val['display'];
 				if ( $val['values'] ) {
 					$edt = "<select name=atts[$key]><option>[select]</option></select>";
 				} else $edt = "<input name=atts[$key] value=\"{$remrec[$key]}\" size=80>";
 				$maintext .= "<tr><td style='font-size: smaller; color: #99dd99;'>@$key<th>$an<td>$edt";
-				$done[$key] = 1;
-			};
-			foreach ( $remrec->attributes() as $key => $att ) {
-				if ( $done[$key] ) continue;
-				$an = ucfirst($globalatts[$key]);
-				$maintext .= "<tr><td style='font-size: smaller; color: #dd9999;'>@$key<th>$an<td>$att";
-				$done[$key] = 1;
 			};
 			$maintext .= "</table>
-				<p><input type=submit value=Save> <a href='index.php?action=$action&cid=$ttxml->fileid&elmid={$_GET['elmid']}'>cancel</a>
+				<p><input type=submit value=Save> 
+					<a href='index.php?action=$action&cid=$ttxml->fileid&elmid={$_GET['elmid']}'>cancel</a>
+					&bull;
+					<a href='index.php?action=$action&cid=$ttxml->fileid&act=elm&elm=$nn'>list all &lt;$nn&gt;</a>
 				</form>";
 		 
 		 } else if ( $_POST['action'] == "save" ) {
@@ -142,6 +136,88 @@
 				</form>";
 		 };
 	
+	} else if ( $act == "elm" && $_POST['vals']  ) {
+	
+		$nn = $_POST['elm'];
+		$xpl = "$mtxtelement//$nn";		
+		$att = $_POST['att'];
+		print "<p>Changing $att in $nn";
+		
+		foreach ( $ttxml->xml->xpath($xpl) as $node ) {
+			$cnt++;
+			if ( $node[$att] || $_POST['vals'][$cnt] ) $node[$att] = $_POST['vals'][$cnt];
+			print "<p>$cnt: ".$_POST['vals'][$cnt];
+		};
+		$ttxml->save();
+		print "<p>Annotations modified - reloading
+			<script>top.location='index.php?action=$action&cid=$ttxml->fileid&act=elm&elm=$nn';</script>";
+		exit;
+	
+	} else if ( $act == "elm"  ) {
+	
+		$nn = $_GET['elm'];
+		$att = $_GET['att'];
+		$xpath = "//$mtxtelement//$nn";
+
+		$nname = $settings['xmlfile']['sattributes'][$nn]['display'];
+		if ( $nname ) $tmp = " ($nname)";
+
+		$maintext .= "<h2>XML Layout Editor</h2><h1>Edit Element: $nn$tmp</h1>".$ttxml->tableheader();
+		if ( $_GET['att'] ) $maintext .= "<form action='index.php?action=$action&act=elm&id=$ttxml->fileid' method=post>
+			<input type=hidden name=cid value=\"$ttxml->fileid\">
+			<input type=hidden name=elm value=\"$nn\">
+			<input type=hidden name=att value=\"$att\">
+			";
+		$maintext .= "<table id=mtxt><tr><td><td>";
+
+		$attlist = getattlist($nn);
+		if ( $att ) {
+			$val = $attlist[$att];
+			$an = $val['display'];
+			$maintext .= "<th>$an";				
+		} else foreach ( $attlist as $key => $val ) {
+			$an = $val['display'];
+			if  ( $key == "id" )
+				$maintext .= "<th>$an";
+			else {
+				$attdef = 1;
+				$maintext .= "<th><a href='index.php?action=$action&act=elm&id=$ttxml->fileid&att=$key&elm=$nn'>$an</a>";
+			};
+		};
+			
+		foreach ( $ttxml->xml->xpath($xpath) as $node ) {
+			$cnt++;
+			if ( $node['id'] ) $idfld = "<a href='index.php?action=$action&act=edit&cid=$ttxml->fileid&editid={$node['id']}'>{$node['id']}</a>";
+				else $idfld = "[$cnt]";
+			$maintext .= "<tr><td>$cnt
+				<th>$idfld";
+			if ( $_GET['att'] ) {
+				$key = $_GET['att'];
+				$val = $node[$key];
+				$maintext .= "<td><input size=60 name=vals[$cnt] value=\"$val\">";				
+			} else foreach ( $attlist as $key => $val ) {
+				$maintext .= "<td>{$node[$key]}";
+			};
+			$maintext .= "<td><div>".$node->asXML()."</div>";
+		};
+		$maintext .= "</table>";
+		if ( $_GET['att'] ) $maintext .= "<p><input type=submit value=Save>
+			<a href='index.php?action=$action&act=elm&id=$ttxml->fileid&elm=$nn'>cancel</a>
+			</form> ";
+			
+		if ( $attdef ) $maintext .= "<hr><p>Click on a column to edit a specific attribute for all &lt;$nn&gt;";	
+			
+		$maintext .= "<hr><p>Switch:";
+
+		# Check all nodes
+		foreach ( $ttxml->xml->xpath("//$mtxtelement//*") as $i => $node ) {
+			$nn = $node->getName().""; $nntxt = str_replace("tei_", "", $nn);
+			if ( !$done[$nn] ) $maintext .= " <a href='index.php?action=$action&act=elm&id=$ttxml->fileid&elm=$nn'>&lt;$nntxt&gt;</a>";
+			$done[$nn] = 1;
+		};
+		$maintext .= "<hr><p><a href='index.php?action=$action&id=$ttxml->fileid'>back to layout edit</a>";
+	
+
 	} else if ( $act == "index" || ( !$_GET['elmid'] && $largexml )  ) {
 	
 		$maintext .= "<h2>XML Layout Index</h2><h1>".$ttxml->title()."</h1>";
@@ -199,7 +275,7 @@
 		foreach ( $teilist as $key => $tag ) {
 			$maintext .= "<tr><th>$key<td>{$tag['display']}<td><table>";
 			foreach ( $tag['atts'] as $key2 => $tag2 ) {
-				$maintext .= "<tr><th>key2<td>{$tag2['display']}";
+				$maintext .= "<tr><th>$key2<td>{$tag2['display']}";
 			};
 			$maintext .= "</table></td></tr>";
 		};
@@ -207,15 +283,9 @@
 				
 	} else {
 
-		if ( $username ) {
-			$mode = "Editor";
-			$editmode = "onmouseup='makespan(event);'";
-			if ( !$ttxml->xml->xpath("//tok") ) fatal("text not tokenized yet");
-		} else {
-			$mode = "Viewer";
-		};
+		$editmode = "onmouseup='makespan(event);'";
 	
-		$maintext .= "<h2>XML Layout $mode</h2><h1>".$ttxml->title()."</h1>";
+		$maintext .= "<h2>XML Layout Editor</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();		
 		
 		if ( $_GET['elmid'] ) {
@@ -338,6 +408,9 @@
 	
 		$maintext .= "
 			<style>span[on] { text-decoration: underline; text-decoration-color: red; text-decoration-thickness: 2px; }</style>
+			<script>
+				var username = '$username';
+			</script>
 			<script src='$jsurl/xmllayout.js'></script>";
 	};
 
@@ -388,6 +461,23 @@
 		
 		return;
 
+	};
+
+	function getattlist($nn, $remrec = null) {
+		global $globalatts, $settings;
+		if ( $remrec ) foreach ( $remrec->attributes() as $key => $att ) {
+			$an = ucfirst($globalatts[$key]);
+			$maintext .= "<tr><td style='font-size: smaller; color: #dd9999;'>@$key<th>$an<td>$att";
+			$attlist[$key] = array('display' => $an);
+		};
+		foreach ( $teilist[$nn]['atts'] as $key => $val ) {
+			$attlist[$key] = $val;
+		};
+		foreach ( $settings['xmlfile']['sattributes'][$nn] as $key => $val ) {
+			if ( !is_array($val) ) continue;
+			$attlist[$key] = $val;
+		};
+		return $attlist;
 	};
 	
 ?>
