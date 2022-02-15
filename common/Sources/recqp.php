@@ -79,7 +79,7 @@
 			
 	} else if ( ( file_exists("Scripts/recqp.pl") || file_exists("$sharedfolder/Scripts/recqp.pl") || file_exists("$ttroot/common/Scripts/recqp.pl") ) && !$_GET['check'] && !$_GET['force'] ) {
 
-		if ( $sharedsettings['cqp'] ) {
+		if ( $sharedsettings['cqp'] && !$settings['cqp']['noshare'] ) {
 			$merged = new SimpleXMLElement("<ttsettings/>");
 			$cqp = $merged->addChild("cqp");
 			$patts = $cqp->addChild("pattributes");
@@ -112,14 +112,14 @@
 			foreach ( $settings['xmlfile'] as $key => $val ) {
 				if ( !is_array($val) ) { $xmlf[$key] = $val; };
 			};
-			$forms = $xmlf->addChild("forms");
+			$forms = $patts->addChild("forms");
 			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $val ) {
 				$item = $forms->addChild("item");
 				foreach ( $val as $key2 => $val2 ) {
 					$item[$key2] = $val2;
 				};
 			};
-			$tags = $xmlf->addChild("tags");
+			$tags = $patts->addChild("tags");
 			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $val ) {
 				$item = $tags->addChild("item");
 				foreach ( $val as $key2 => $val2 ) {
