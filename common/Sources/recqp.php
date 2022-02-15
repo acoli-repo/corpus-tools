@@ -106,6 +106,40 @@
 					};
 				};
 			};
+			# We need to also copy the xmlfile for the inheritance
+			$xmlf = $merged->addChild("xmlfile");
+			$patts = $xmlf->addChild("pattributes");
+			foreach ( $settings['xmlfile'] as $key => $val ) {
+				if ( !is_array($val) ) { $xmlf[$key] = $val; };
+			};
+			$forms = $xmlf->addChild("forms");
+			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $val ) {
+				$item = $forms->addChild("item");
+				foreach ( $val as $key2 => $val2 ) {
+					$item[$key2] = $val2;
+				};
+			};
+			$tags = $xmlf->addChild("tags");
+			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $val ) {
+				$item = $tags->addChild("item");
+				foreach ( $val as $key2 => $val2 ) {
+					$item[$key2] = $val2;
+				};
+			};
+			$satts = $xmlf->addChild("sattributes");
+			foreach ( $settings['xmlfile']['sattributes'] as $key => $val ) {
+				$item = $satts->addChild("item");
+				foreach ( $val as $key2 => $val2 ) {
+					if ( is_array($val2) ) {
+						$item2 = $item->addChild("item");				
+						foreach ( $val2 as $key3 => $val3 ) {
+							$item2[$key3] = $val3;
+						};
+					} else {
+						$item[$key2] = $val2;
+					};
+				};
+			};
 			file_put_contents("tmp/cqpsettings.xml", $merged->asXML());
 			$setfile = " --setfile=tmp/cqpsettings.xml";
 		};
