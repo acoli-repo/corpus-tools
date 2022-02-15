@@ -20,7 +20,7 @@
 	$teilist = xmlflatten($tagxml);
 	
 	# See if and when we need to 
-	if ( $settings['xmlfiles']['divs'] == "always" ) { 
+	if ( $settings['xmlfile']['divs'] == "always" ) { 
 		$largexml = 1; 
 	} else if ( $settings['xmlfile']['divs'] == "never"  ) { 
 		$largexml = 0;
