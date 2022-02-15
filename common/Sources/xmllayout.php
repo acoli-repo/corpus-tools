@@ -19,7 +19,22 @@
 	$tagxml = simplexml_load_string(file_get_contents($tmp));
 	$teilist = xmlflatten($tagxml);
 	
-	if ( $settings['defaults']['largexml'] || count($ttxml->xml->xpath("//tok")) > 500 ) { $largexml = 1; };
+	# See if and when we need to 
+	if ( $settings['xmlfiles']['divs'] == "always" ) { 
+		$largexml = 1; 
+	} else if ( $settings['xmlfile']['divs'] == "never"  ) { 
+		$largexml = 0;
+	} else {
+		$xp = $settings['xmlfile']['divs']; 
+		if ( substr($xp,0,1) == "/" ) {
+			if ( $ttxml->xml->xpath($xp) ) $largexml = 1;
+		} else {
+			if ( $xp ) $largelim = $xp + 0; 
+			else if ( $_GET['lim'] ) $largelim = $_GET['lim'] + 0; 
+			else $largelim = 500;
+			if ( count($ttxml->xml->xpath("//tok")) > $largelim ) $largexml = 1;
+		};
+	};
 	
 	if ( $_GET['editid'] ) { $_POST['remid'] = $_GET['editid']; $_POST['action'] = "edit"; };
 	
@@ -257,7 +272,7 @@
 			<hr><a href='index.php?action=$action&id=$ttxml->fileid'>back to layout</a>";
 
 
-	} else if ( $act == "index" || ( !$_GET['elmid'] && $largexml && !$_GET['full'] && !$settings['xmlfile']['nodivs'] )  ) {
+	} else if ( $act == "index" || ( !$_GET['elmid'] && $largexml && !$_GET['full'] )  ) {
 	
 		$maintext .= "<h2>XML Layout Index</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();		
