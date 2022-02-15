@@ -280,18 +280,25 @@
 		};
 	
 	} else if ( $act == "taglist" ) {
+
+		foreach ( $ttxml->xml->xpath("//$mtxtelement//*") as $i => $node ) {
+			$nn = $node->getName().""; $nntxt = str_replace("tei_", "", $nn);
+			$have[$nn] = $nntxt;
+		};
 	
 		$maintext .= "<h1>TEI Tag List</h1>
 			<p>Below is the list of tags defined for this project (or by default in TEITOK)
 			<table id=rollovertable><tr><th>Tag<th>Description<th>Attributes";
 		foreach ( $teilist as $key => $tag ) {
+			if ( $have[$key] ) $key = "<a href='index.php?action=$action&act=elm&elm=$key&id=$ttxml->fileid'>$key</a>";
 			$maintext .= "<tr><th>$key<td>{$tag['display']}<td><table>";
 			foreach ( $tag['atts'] as $key2 => $tag2 ) {
 				$maintext .= "<tr><th>$key2<td>{$tag2['display']}";
 			};
 			$maintext .= "</table></td></tr>";
 		};
-		$maintext .= "</table>";
+		$maintext .= "</table>
+			<hr><a href='index.php?action=$action&id=$ttxml->fileid'>back to layout</a>";
 				
 	} else {
 

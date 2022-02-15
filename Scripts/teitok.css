@@ -62,6 +62,15 @@ anon::after { content: ']'; }
 /* New style for gaps - instead of JS treatment */
 #mtxt gap::before { content: '[...]'; }
 
+/* Default styles for TEI */
+#mtxt hi[rend=italic] { font-style: italic; }
+#mtxt hi[rend=bold] { font-weight: bold; }
+#mtxt hi[rend=underlined] { text-decoration: underlined; }
+#mtxt tei_head { display: block; font-size:  140%; }
+#mtxt tei_head[n=2] { display: block; font-size: 120%; }
+#mtxt tei_head[n=3] { display: block; font-size: 110%; }
+#mtxt tei_head[n=4] { display: block; font-size: 100%; }
+
 /* Style for the token boxes when showing tags */
 .floatblock {
 	display: inline-block;

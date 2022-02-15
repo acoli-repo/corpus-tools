@@ -113,7 +113,18 @@
 		} else if ( $_POST['body'] == "html" ) {
 			$text = $_POST['html'];
 			$text = preg_replace("/\n\r?[\n\r]+/", "</p>\n\n<p>", $text);
-			# TODO: convert shorthand
+			
+			# Convert some HTML codes
+			$text = preg_replace("/<h(\d)([ >])/", "<head n=\"\\1\"\\2", $text);
+			$text = preg_replace("/<\/h(\d)>/", "</head>", $text);
+			$text = preg_replace("/<i([ >])/", "<hi rend=\"italic\"\\1", $text);
+			$text = preg_replace("/<\/i>/", "</hi>", $text);
+			$text = preg_replace("/<b([ >])/", "<hi rend=\"bold\"\\1", $text);
+			$text = preg_replace("/<\/b>/", "</hi>", $text);
+			$text = preg_replace("/<a([ >])/", "<ref\\1", $text);
+			$text = preg_replace("/<\/a>/", "</ref>", $text);
+			$text = preg_replace("/ href=/", " target=", $text);
+			
 			$newtext = "<text xml:space=\"preserve\">\n$text\n</text>";
 		};
 
@@ -151,7 +162,6 @@
 			$element = $xpath->query("//text")->item(0);
 			$element->parentNode->replaceChild($newelement, $element); 
 		};			
-				
 		
 		# Now add a revision statement
 		$dom = dom_import_simplexml($xml)->ownerDocument; #->ownerDocument		

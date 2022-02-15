@@ -59,7 +59,14 @@
 </item>
 <item key="hi" display="highlighted text">
 	<atts>
-		<item key="rend" display="rendering"/>
+		<item key="rend" display="rendering">
+			<values>	
+				<item key="italic" display="italic"/>
+				<item key="bold" display="bold"/>
+				<item key="underlined" display="underlined"/>
+				<item key="smallcaps" display="smallcaps"/>
+			</values>	
+		</item>
 	</atts>
 </item>
 <item key="head" display="heading">
