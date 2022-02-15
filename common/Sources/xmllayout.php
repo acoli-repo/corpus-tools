@@ -257,7 +257,7 @@
 			<hr><a href='index.php?action=$action&id=$ttxml->fileid'>back to layout</a>";
 
 
-	} else if ( $act == "index" || ( !$_GET['elmid'] && $largexml )  ) {
+	} else if ( $act == "index" || ( !$_GET['elmid'] && $largexml && !$_GET['full'] && !$settings['xmlfile']['nodivs'] )  ) {
 	
 		$maintext .= "<h2>XML Layout Index</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();		
