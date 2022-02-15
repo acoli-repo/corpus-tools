@@ -73,6 +73,7 @@
 		foreach ( $cqpcols as $col ) {
 			$colname = pattname($col); 
 			$coldef = $settings['cqp']['pattributes'][$col];
+
 			$jsnames .= "pattname['$col'] = { 'values': '{$coldef['values']}', 'display': '{%$colname}'}; ";
 			if ( !$colname ) $colname = "[$col]";
 			$tstyle = ""; 
@@ -219,12 +220,14 @@
 		// name the sattributes
 		foreach ( $settings['cqp']['sattributes'] as $lvl ) {
 			foreach ( $lvl as $xid => $xatt ) {
+				if ( $xatt['admin'] && !$username ) continue;
 				if ( !$xatt['display'] || !$xatt['key'] || !is_array($xatt) ) continue;
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";
 			};
 		};
 		foreach ( $settings['cqp']['annotations'] as $lvl ) {
 			foreach ( $lvl as $xatt ) {
+				if ( $xatt['admin'] && !$username ) continue;
 				if ( !$xatt['display'] || !$xatt['key'] || !is_array($xatt) ) continue;
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";
 			};
@@ -350,6 +353,10 @@
 			if ( !$xatts['display'] ) continue;
 			$querytext .= "$hr<h3>{%{$xatts['display']}}</h3><table  class=qbt >"; $hr = "<hr>";
 			foreach ( $xatts as $key => $item ) {
+				$atp = "";
+				if ( $item['admin'] )
+					if ( $username) $atp = " class=\"adminpart\"";
+					else continue;
 				$xkey = "{$xatts['key']}_$key";
 				$val = $item['long']."" or $val = $item['display']."";
 				if ( $item['type'] == "group" ) { 
@@ -357,10 +364,10 @@
 				} else {
 					if ( $item['nosearch'] || $val == "" ) $a = 1; # Ignore this in search 
 					else if ( $item['type'] == "range" ) 
-						$querytext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
+						$querytext .= "<tr><th span='row' $atp>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
 					else if ( $item['type'] == "date" ) 
 						## TODO: this is not really a nice solution
-						$querytext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='' placeholder='YYYY-MM-DD' size=40>";
+						$querytext .= "<tr><th span='row' $atp>{%$val}<td><input name=atts[$xkey] value='' placeholder='YYYY-MM-DD' size=40>";
 					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
 						# Read this index file
 						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
@@ -399,9 +406,9 @@
 							$multiselect = ""; $msarr = "";
 							$mstext = "select";
 						};
-						$querytext .= "<tr><th span='row'>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>[{%$mstext}]</option>$optlist</select>";
+						$querytext .= "<tr><th span='row' $atp>{%$val}<td><select name=atts[$xkey]$msarr $multiselect><option value=''>[{%$mstext}]</option>$optlist</select>";
 					} else 
-						$querytext .= "<tr><th span='row'>{%$val}<td><input name=atts[$xkey] value='{$presets[$xkey]}' size=40>";
+						$querytext .= "<tr><th span='row' $atp>{%$val}<td><input name=atts[$xkey] value='{$presets[$xkey]}' size=40>";
 						if ( $item['type'] == "long" ) $querytext .= "<input type='hidden' name=matches[$xkey] value='contains'>";
 				};
 			};

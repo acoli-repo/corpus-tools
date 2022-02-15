@@ -8,6 +8,7 @@ var tokinfo = document.getElementById('tokinfo');
 var attshow;
 var hlnode;
 var addmode;
+
 function toggle(elm) {
 	var sp = document.getElementById('span'+elm);
 	var cls = document.getElementById('class'+elm);
@@ -40,6 +41,8 @@ function clickEvent(evt) {
 	element = evt.toElement; 
 	if ( !element ) { element = evt.target; };
 	
+	console.log(pseudo(element,evt));
+		
 	if ( seq[0] ) { return; };
 	
 	var tag = element.nodeName;
@@ -226,3 +229,10 @@ function offset(elem) {
 	
 	return { left: x, top: y };
 }    
+
+function pseudo(elem, evt) {
+	 // Not working
+	if ( evt.clientX < offset(prv).left + element.offsetLeft ) { return true; };
+	if ( evt.clientX > offset(prv).left + element.offsetLeft + element.offsetWidth ) { return true; };
+	return false;
+};

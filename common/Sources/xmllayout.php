@@ -168,7 +168,7 @@
 		$nxml = current($tagxml->xpath("//item[@key=\"$nn\"]"));
 
 		$maintext .= "<h2>XML Layout Editor</h2><h1>Edit Element: $nn$ntit</h1>".$ttxml->tableheader();
-		if ( $nxml->desc ) $maintext .= "<div style='padding:4px; margin: 4px; border: 1px solid #bbbbbb;'><span style='color: #aaaaaa;'>&lt;$nn&gt;:</span> {$nxml->desc}</div>";
+		if ( $nxml->desc ) $maintext .= "<div style='padding:4px; margin: 4px; border: 1px solid #bbbbbb;'><a href='https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-$nn.html' target=tei style='color: #aaaaaa;'>&lt;$nn&gt;:</a> {$nxml->desc}</div>";
 		if ( $_GET['att'] ) $maintext .= "<form action='index.php?action=$action&act=elm&id=$ttxml->fileid' method=post>
 			<input type=hidden name=cid value=\"$ttxml->fileid\">
 			<input type=hidden name=elm value=\"$nn\">

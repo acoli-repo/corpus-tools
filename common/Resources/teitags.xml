@@ -88,7 +88,7 @@
 		<item key="place" display="placement"/>
 	</atts>
 </item>
-<item key="kinesic" display="non-vocalic (spoken)">
+<item key="kinesic" display="non-vocalic" module="spoken">
 	<desc>(kinesic) marks any communicative phenomenon, not necessarily vocalized, for example a gesture, frown, etc.</desc>
 </item>
 <item key="l" display="verse line">
@@ -132,7 +132,7 @@
 <item key="p" display="paragraph">
 	<desc>(paragraph) marks paragraphs in prose.</desc>
 </item>
-<item key="pause" display="pause (spoken)" empty="1">
+<item key="pause" display="pause" module="spoken" empty="1">
 	<desc>(pause) marks a pause either between or within utterances.</desc>
 	<atts>
 		<item key="dur" display="duration"/>
@@ -209,7 +209,7 @@
 		<item key="form" display="written form"/>
 	</atts>
 </item>
-<item key="u" display="utterance (spoken)">
+<item key="u" display="utterance" module="spoken">
 	<desc>(utterance) contains a stretch of speech usually preceded and followed by silence or by a change of speaker.</desc>
 	<atts>
 		<item key="who" display="speaker ID"/>
@@ -227,7 +227,7 @@
 <item key="unit" display="unit">
 	<desc>contains a symbol, a word or a phrase referring to a unit of measurement in any kind of formal or informal system.</desc>
 </item>
-<item key="vocal" display="non-word (spoken)">
+<item key="vocal" display="non-word" module="spoken">
 	<desc>(vocal) marks any vocalized but not necessarily lexical phenomenon, for example voiced pauses, non-lexical backchannels, etc.</desc>
 </item>
 </tags>
