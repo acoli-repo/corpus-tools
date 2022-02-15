@@ -165,20 +165,25 @@
 
 		$nname = $settings['xmlfile']['sattributes'][$nn]['display'];
 		if ( $nname ) $ntit = " ($nname)";
+		$nxml = current($tagxml->xpath("//item[@key=\"$nn\"]"));
 
 		$maintext .= "<h2>XML Layout Editor</h2><h1>Edit Element: $nn$ntit</h1>".$ttxml->tableheader();
+		if ( $nxml->desc ) $maintext .= "<div style='padding:4px; margin: 4px; border: 1px solid #bbbbbb;'><span style='color: #aaaaaa;'>&lt;$nn&gt;:</span> {$nxml->desc}</div>";
 		if ( $_GET['att'] ) $maintext .= "<form action='index.php?action=$action&act=elm&id=$ttxml->fileid' method=post>
 			<input type=hidden name=cid value=\"$ttxml->fileid\">
 			<input type=hidden name=elm value=\"$nn\">
 			<input type=hidden name=att value=\"$att\">
 			";
-		$maintext .= "<table id=mtxt><tr><td><td>";
-
+			
 		$attlist = getattlist($nn);
+		if ( $att ) $maintext .= "<div style='padding:4px; margin: 4px; border: 1px solid #bbbbbb;'><span style='color: #aaaaaa;'>@$att:</span> {$attlist[$att]['display']}</div>";
+
+		$maintext .= "<hr><table id=mtxt><tr><td><td>";
+
 		if ( $att ) {
 			$val = $attlist[$att];
 			$an = $val['display'];
-			$maintext .= "<th>$an";	
+			$maintext .= "<th>$att";	
 			if ( $val['values'] ) {
 				$options = "<option value=\"\">[select]</option>";
 				foreach ( $val['values'] as $key2 => $val2 ) {
@@ -189,10 +194,10 @@
 		} else foreach ( $attlist as $key => $val ) {
 			$an = $val['display'];
 			if  ( $key == "id" )
-				$maintext .= "<th>$an";
+				$maintext .= "<th title=\"$an\">$key";	
 			else {
 				$attdef = 1;
-				$maintext .= "<th><a href='index.php?action=$action&act=elm&id=$ttxml->fileid&att=$key&elm=$nn'>$an</a>";
+				$maintext .= "<th title=\"$an\"><a href='index.php?action=$action&act=elm&id=$ttxml->fileid&att=$key&elm=$nn'>$key</a>";	
 			};
 		};
 	
