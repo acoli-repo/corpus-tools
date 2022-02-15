@@ -164,9 +164,9 @@
 		$xpath = "//$mtxtelement//$nn";
 
 		$nname = $settings['xmlfile']['sattributes'][$nn]['display'];
-		if ( $nname ) $tmp = " ($nname)";
+		if ( $nname ) $ntit = " ($nname)";
 
-		$maintext .= "<h2>XML Layout Editor</h2><h1>Edit Element: $nn$tmp</h1>".$ttxml->tableheader();
+		$maintext .= "<h2>XML Layout Editor</h2><h1>Edit Element: $nn$ntit</h1>".$ttxml->tableheader();
 		if ( $_GET['att'] ) $maintext .= "<form action='index.php?action=$action&act=elm&id=$ttxml->fileid' method=post>
 			<input type=hidden name=cid value=\"$ttxml->fileid\">
 			<input type=hidden name=elm value=\"$nn\">
