@@ -33,7 +33,7 @@
 <item key="date" display="date">
 	<desc>(date) contains a date in any format.</desc>
 </item>
-<item key="del" display="deleted by author">
+<item key="del" display="deletion">
 	<desc>(deletion) contains a letter, word, or passage deleted, marked as deleted, or otherwise indicated as superfluous or spurious in the copy text by an author, scribe, or a previous annotator or corrector.</desc>
 	<atts>
 		<item key="rend" display="way of deleting">

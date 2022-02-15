@@ -1,4 +1,4 @@
-<?php	
+ <?php	
 	check_login();
 	check_folder("cqp");
 	check_folder("tmp");
@@ -142,6 +142,8 @@
 			};
 			file_put_contents("tmp/cqpsettings.xml", $merged->asXML());
 			$setfile = " --setfile=tmp/cqpsettings.xml";
+			$combtxt = "<p>The settings used for this regeneration combine local and global settings,
+					and are based on a compiled settings file tmp/cqpsettings.xml</p>";
 		};
 		
 		if ( ( file_exists("cqp/word.corpus")	&& !is_writable("cqp/word.corpus") ) || !is_writable("cqp") ) 
@@ -153,6 +155,8 @@
 		$maintext .= "
 			<p>Currently, the CQP Corpus called {$settings['cqp']['corpus']} is regenerated based on the current
 				content of the XML files in ({$settings['cqp']['searchfolder']}).
+			
+			$combtxt
 			
 			<p>Depending on the size of the corpus, this process can take quite a while and will run in the background.
 				To show the progess, this page will reload
@@ -178,6 +182,12 @@
 			<p>Click <a href='index.php?action=cqp'>here</a> to continute to the CQP search
 			
 				<hr><pre>$logtxt</pre>";
+		
+		if ( strpos($logtxt, "tmp/cqpsettings.xml") != null && file_exists("tmp/cqpsettings.xml") ) {
+			$comb = simplexml_load_file("tmp/cqpsettings.xml");
+			$maintext .= "<hr><p>The regeneration was done based on a combination of local and shared setings<p>";
+			if ( $user['permissions'] == "admin" ) $maintext .= showxml($comb);
+		};
 
 	} else if ( $_GET['check'] ) {
 		

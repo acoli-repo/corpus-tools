@@ -258,17 +258,28 @@
 		};
 	
 		$maintext .= "<h1>TEI Tag List</h1>
-			<p>Below is the list of tags defined for this project (or by default in TEITOK)
-			<table id=rollovertable><tr><th>Tag<th>Description<th>Attributes";
+			<p>Below is the list of tags defined for this project (or by default in TEITOK). Tags occurring in the
+				current document are clickable to see the list of all occurrences.
+			<table id=rollovertable><tr><th>Tag<th>Name<th>Attributes<th>Description";
 		foreach ( $teilist as $key => $tag ) {
+			$nxml = current($tagxml->xpath("//item[@key=\"$key\"]"));
 			if ( $have[$key] ) $key = "<a href='index.php?action=$action&act=elm&elm=$key&id=$ttxml->fileid'>$key</a>";
-			$maintext .= "<tr><th>$key<td>{$tag['display']}<td><table>";
+			$tagdesc = 	$nxml->desc;
+			$maintext .= "<tr><th>$key
+				<td>{$tag['display']}
+				<td>
+				<table>";
 			foreach ( $tag['atts'] as $key2 => $tag2 ) {
 				$maintext .= "<tr><th>$key2<td>{$tag2['display']}";
 			};
-			$maintext .= "</table></td></tr>";
+			$maintext .= "</table>
+			</td>
+			<td>$tagdesc
+			</tr>";
 		};
 		$maintext .= "</table>
+			
+
 			<hr><a href='index.php?action=$action&id=$ttxml->fileid'>back to layout</a>";
 
 
