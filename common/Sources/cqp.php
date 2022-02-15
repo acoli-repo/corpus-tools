@@ -410,7 +410,7 @@
 				$maintext .= " &bull; {%!showing} $start - $end";
 			};
 			if ( $start > 0 ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$before'; document.resubmit.submit();\">{%previous}</a>";
-			if ( $end < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$end'; document.resubmit.submit();\">{%next}</a>";
+			if ( $end < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='".($end+1)."'; document.resubmit.submit();\">{%next}</a>";
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
 				<table><tr><th>ID$moreth";
 			foreach ( $resarr as $line ) {
@@ -468,7 +468,7 @@
 				$maintext .= " &bull; {%!showing} $start - $end";
 			};
 			if ( $start > 0 ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$before'; document.resubmit.submit();\">{%previous}</a>";
-			if ( $end < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$end'; document.resubmit.submit();\">{%next}</a>";
+			if ( $end < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='".($end+1)."'; document.resubmit.submit();\">{%next}</a>";
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>";
 
 			$maxmatchlength = 0;
