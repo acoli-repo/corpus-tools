@@ -4,11 +4,21 @@
 
 	$udpipelangs = explode(",", "afr,grc,ara,hye,eus,bel,bul,cat,zho,och,cop,hrv,ces,dan,nld,eng,est,fin,fre,glg,deu,got,ell,heb,hin,hun,ind,gle,ita,jpn,kaz,kor,lat,lav,lit,mlt,mar,pcm,sme,nor,ocs,fro,fas,pol,por,rom,rus,san,gla,srp,slk,slv,spa,swe,tam,tel,tur,ukr,urd,uig,vie,cym,wol");
 
-	if ( $_GET['cid'] ) {
+	if ( $_GET['cid'] || $_GET['id'] ) {
 		
 		require ("$ttroot/common/Sources/ttxml.php");
-	
 		$ttxml = new TTXML();
+
+		$maintext .= "<h1>Running NLP Tagger/Parser</h1>";
+		
+		if ( !$settings['parser']['notokenize'] && strpos($ttxml->rawtext, "</tok>") === false ) {
+			$perlapp = findapp("perl");
+			$cmd = "$perlapp $ttroot/common/Scripts/xmltokenize.pl --mtxtelm=$mtxtelm --filename='xmlfiles/$ttxml->filename' ";
+			$maintext .= "<h2>Tokenizing</h2>";
+			$result = shell_exec("$cmd");
+			$maintext .= "<pre>".htmlentities($result)."</pre>";
+			$maintext .= "<hr><h2>Parsing</h2>";
+		};
 		
 		if ( $_GET['pid'] ) {
 			$prm = $settings['parser']['parameters'][$_GET['pid']];
@@ -30,14 +40,14 @@
 			};
 		};
 		
-		$cmd = "/usr/bin/perl $ttroot/common/Scripts/runparser.pl --model={$prm['model']} xmlfiles/$ttxml->filename";
+		$cmd = "/usr/bin/perl $ttroot/common/Scripts/runparser.pl --verbose --model={$prm['model']} xmlfiles/$ttxml->filename";
 		
-		$maintext .= "<h1>Running NLP Tagger/Parser</h1>
 			
-			<pre>".print_r($prm, 1)."\n$cmd</pre>";
+		# $maintext .= "<pre>$cmd</pre>";
 			
 		$result = shell_exec("$cmd");
 		$maintext .= "<pre>".htmlentities($result)."</pre>";
+		$maintext .= "<hr><p><a href='index.php?action=file&cid=$ttxml->fileid'>back to text</a>";
 				
 	} else {
 	

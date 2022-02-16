@@ -33,7 +33,7 @@
 <item key="date" display="date">
 	<desc>(date) contains a date in any format.</desc>
 </item>
-<item key="del" display="deletion">
+<item key="del" display="deleted by author">
 	<desc>(deletion) contains a letter, word, or passage deleted, marked as deleted, or otherwise indicated as superfluous or spurious in the copy text by an author, scribe, or a previous annotator or corrector.</desc>
 	<atts>
 		<item key="rend" display="way of deleting">
@@ -46,7 +46,7 @@
 		</item>
 	</atts>
 </item>
-<item key="desc" display="desciption of parent elm">
+<item key="desc" display="description of parent elm">
 	<desc>(description) contains a short description of the purpose, function, or use of its parent element, or when the parent is a documentation element, describes or defines the object being documented.</desc>
 </item>
 <item key="div" display="text division">
@@ -122,6 +122,10 @@
 </item>
 <item key="name" display="proper name">
 	<desc>(name, proper noun) contains a proper noun or noun phrase.</desc>
+	<atts>
+		<item key="type" display="type of name"/>
+		<item key="ana" display="named entity tag"/>
+	</atts>
 </item>
 <item key="note" display="explanatory note">
 	<desc>(note) contains a note or annotation.</desc>
@@ -186,6 +190,9 @@
 </item>
 <item key="span" display="annotation span">
 	<desc>associates an interpretative annotation directly with a span of text.</desc>
+</item>
+<item key="stage" display="stage direction">
+	<desc>(stage direction) contains any kind of stage direction within a dramatic text or fragment.</desc>
 </item>
 <item key="supplied" display="estimated content">
 	<desc>(supplied) signifies text supplied by the transcriber or editor for any reason; for example because the original cannot be read due to physical damage, or because of an obvious omission by the author or scribe.</desc>

@@ -247,7 +247,12 @@
 			if ( !$done[$nn] ) $maintext .= " <a href='index.php?action=$action&act=elm&id=$ttxml->fileid&elm=$nn'>&lt;$nntxt&gt;</a>";
 			$done[$nn] = 1;
 		};
-		$maintext .= "<hr><p><a href='index.php?action=$action&id=$ttxml->fileid'>back to layout edit</a>";
+		$maintext .= "<hr>
+			<p>
+			<a href='index.php?action=$action&id=$ttxml->fileid'>back to layout edit</a>
+			&bull;
+			<a href='index.php?action=$action&id=$ttxml->fileid&act=taglist'>list all tags</a>
+			";
 	
 	
 	} else if ( $act == "taglist" ) {

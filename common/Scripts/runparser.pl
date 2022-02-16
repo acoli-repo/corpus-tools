@@ -93,6 +93,7 @@ if ( $killsent ) {
 
 if ( $raw !~ /<\/s>/ ) { 
 	$dosent = 1; 
+	if ( $debug ) { print "Set to add sentences"; };
 };
 
 eval {
@@ -264,7 +265,17 @@ foreach $par ( $xml->findnodes($textxpath) ) {
 
 if ( $dosent ) {
 	# Move all the tok inside the <s>
-	foreach $s ( $xml->findnodes("//s") ) {
+	@ss =  $xml->findnodes("//s");
+	for ( $i = 0; $i < scalar @ss; $i++ ) {
+		$s = $ss[$i]; $ns = $ss[$i+1];
+		if ( $ns && $s->parentNode != $ns->parentNode ) {
+			if ( $debug ) { print "Not under the same node ".$s->getAttribute('id'). " and ".$ns->getAttribute('id'). " - trying to remedy"; };
+			# Find the first common ancestor
+			@a = $s->findnodes("ancestor::*");
+			@b = $ns->findnodes("ancestor::*");
+			foreach $an ( @a ) { print $an->toString; };
+			exit;
+		}; 
 		if ( $debug ) {
 			print "Moving tokens inside ".$s->getAttribute("id");
 		};
@@ -305,7 +316,7 @@ $revnode->appendText("parsed using $parsername");
 $parsed = $xml->toString;
 $parsed =~ s/(\s+)<\/s>/<\/s>\1/gsm;
 
-if ( $debug || $test ) { print $parsed; };
+if ( $debug || $test ) { print $parsed; exit; };
 
 if ( $xml->findnodes("//tok[not(ancestor::s)]")  ) {
 	print "Warning: tok outside of s"; 
@@ -580,13 +591,17 @@ sub genericline ( $line ) {
 
 sub conlluline ( $line ) {
 	$line = @_[0];
-	if ( $line =~ /^# sent_id = (\d+)/ ) {
+	if ( $line =~ /^# sent_id = (.+)/ ) {
 		# Sentence
 		$sid = $1;
 		if ( $debug ) { print "Sentence: $line"; };
 		if ( $dosent ) {
 			$beftok = @orgtoks[0];
 			if ( $beftok ) {
+				# Move up if the parent is not <p>
+				if ( $beftok->parentNode->nodeName ne $ptype ) { 
+					if ( $debug ) { print "Sentence $sid will not contain all tokens since ".$beftok->getAttribute('id')." is not directly under $ptype"; };
+				};
 				$news = $xml->createElement("s");
 				$news->setAttribute("id", "s-".$scnt);
 				$news->setAttribute("org", $sid);
@@ -594,6 +609,8 @@ sub conlluline ( $line ) {
 				if ( $debug ) {
 					print "Added s: ".$news->toString;
 				};
+			} else {
+				if ( $debug ) { print "Sentence $sid will remain empty since it does not correspond to a token."; };
 			};
 		};
 		$scnt++;
@@ -603,7 +620,7 @@ sub conlluline ( $line ) {
 		# Token line
 		if ( $debug ) { print "Token: $line"; };
 		( $ord, $word, $lemma, $upos, $xpos, $feats, $head, $deprel, $deps, $misc ) = split("\t", $line ); 
-		if ( !@toks[0] ) { print "Oops - No tokens!"; print Dumper(@toks); exit; };
+		if ( !@toks[0] ) { print "Oops - No tokens left!"; print Dumper(@toks); exit; };
 		$orgword = @toks[0]->textContent;
 		while ( $orgword eq "" ) { 
 			if ( $debug ) { print " - Skipping empty token : ".$orgtoks[0]->toString; };
