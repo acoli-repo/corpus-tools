@@ -9,10 +9,10 @@
 		require ("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
 
+		$perlapp = findapp("perl");
 		$maintext .= "<h1>Running NLP Tagger/Parser</h1>";
 		
 		if ( !$settings['parser']['notokenize'] && strpos($ttxml->rawtext, "</tok>") === false ) {
-			$perlapp = findapp("perl");
 			$cmd = "$perlapp $ttroot/common/Scripts/xmltokenize.pl --mtxtelm=$mtxtelm --filename='xmlfiles/$ttxml->filename' ";
 			$maintext .= "<h2>Tokenizing</h2>";
 			$result = shell_exec("$cmd");
@@ -40,10 +40,12 @@
 			};
 		};
 		
-		$cmd = "/usr/bin/perl $ttroot/common/Scripts/runparser.pl --verbose --model={$prm['model']} xmlfiles/$ttxml->filename";
-		
+		if ( !$settings['parser']['nosegment'] ) $morecmd = " --killsent";
+		if ( $settings['parser']['textpath'] ) $morecmd .= " --xpath='{$settings['parser']['textpath']}'"; 
+
+		$cmd = "$perlapp $ttroot/common/Scripts/runparser.pl --verbose --model={$prm['model']} --filename=xmlfiles/$ttxml->filename $morecmd";
 			
-		# $maintext .= "<pre>$cmd</pre>";
+		$maintext .= "<pre>$cmd</pre>";
 			
 		$result = shell_exec("$cmd");
 		$maintext .= "<pre>".htmlentities($result)."</pre>";

@@ -699,6 +699,21 @@
 			$maintext .= "<li><a href='index.php?action=xmllayout&cid=$fileid'>Edit XML Layout</a>";
 		};
 		
+		# Check if we can run the parser
+		if ( $settings['parser'] ) {
+			if ( $settings['parser']['xprest'] ) {
+				if ( $ttxml->xml->xpath($settings['parser']['xprest']) ) {
+					$doparser = 1;
+					$parsername = $settings['parser']['name'];
+				};
+			};
+		} else {
+		};
+		if ( $doparser ) {
+			if ( !$parsername ) $parsername = "parser";
+			$maintext .= "<li><a href='index.php?action=parser&cid=$fileid'>Run $parsername</a>";
+		};
+		
 		if (is_array($filesources)) 
 		foreach ( $filesources as $key => $val ) {
 			$link = str_replace("[fn]", $fileid, $val[0]);

@@ -21,6 +21,15 @@ function toggle(elm) {
 	}; 
 };
 
+function toggle2(elm, onoff) {
+	var cls = document.getElementById('hl'+elm);
+	if ( onoff == 0 ) {
+		cls.setAttribute('media', 'max-width: 1px');
+	} else {
+		cls.removeAttribute('media');
+	}; 
+};
+
 function togglestyles( onoff ) {
 	if ( onoff || prv.getAttribute('id') == 'prv' ) {
 		prv.setAttribute('id', 'mtxt');

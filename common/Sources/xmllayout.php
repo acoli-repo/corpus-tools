@@ -427,23 +427,27 @@
 				<input type='checkbox' name='styleshow' onChange='togglestyles(this.checked);' value='1'> Show document styles
 			<p>Select tags to display inline $alltags:</p><div style='padding: 10px; border: 1px solid #888888'>";
 		foreach ( $taglist as $key => $val ) {
-			$color = array_shift($colorlist);
+			$color = array_shift($colorlist); $hlcolor = makehl($color);
 			$keyname = str_replace("tei_", "", $key);
 			if ( $done[strtolower($keyname)] ) continue;
 			$done[strtolower($keyname)] = 1;
 			$ktit = $tagnames[strtolower($keyname)];
 			$maintext .= " 
-				<span id=\"span$key\" title='$ktit'><a  style='color: $color;' onClick=\"toggle('$key')\">&lt;$keyname&gt;</a></span> 
+				<span id=\"span$key\" onmouseover=\"toggle2('$key', 1)\" onmouseout=\"toggle2('$key', 0)\" title='$ktit'><a  style='color: $color;' onClick=\"toggle('$key')\">&lt;$keyname&gt;</a></span> 
 				";
 			if ( in_array($key, $empties) || $teilist[$key]['empty'] ) $maintext .= "<style id=\"class$key\" media=\"max-width: 1px;\">
 						#prv $key { color: $color; }
 						#prv $key::before { content: '<$keyname/>'; color: #bbbbbb; font-size: smaller; }
 					</style>
 				";
-			else $maintext .= "<style id=\"class$key\" media=\"max-width: 1px;\">
+			else $maintext .= "
+					<style id=\"class$key\" media=\"max-width: 1px;\">
 						#dospans $key { color: $color; }
 						#dospans $key::before { content: '<$keyname>'; color: #bbbbbb; font-size: smaller; }
 						#dospans $key::after { content: '</$keyname>'; color: #bbbbbb; font-size: smaller; }
+					</style>
+					<style id=\"hl$key\" media=\"max-width: 1px;\">
+						#dospans $key { background-color: $hlcolor; }
 					</style>
 				";
 		};
@@ -535,5 +539,15 @@
 		};
 		return $attlist;
 	};
+	
+	function makehl( $color ) {
+		if ( preg_match("/#(..)(..)(..)/", $color, $matches) ) {
+			$r = hexdec($matches[1]);
+			$g = hexdec($matches[2]);
+			$b = hexdec($matches[3]);
+			return "rgba($r,$g,$b,0.2)";
+		};
+		return $color;
+	}
 	
 ?>

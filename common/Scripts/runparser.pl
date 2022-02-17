@@ -25,6 +25,7 @@ GetOptions (
             'form=s' => \$form,
             'output=s' => \$outfile,
             'par=s' => \$ptype,
+            'xpath=s' => \$textxpath,
             'parser=s' => \$parsername,
             'format=s' => \$parserformat,
             'taglist=s' => \$formtags,
@@ -54,6 +55,7 @@ Options:
 	--filename=fn	input filename
 	--output=fn	output outfile (=input when empty)
 	--par=par	XML node to use as text segmentation (default: p)
+	--xpath=textxpath	XPath to use for text segmentation (default: //text//p)
 ";
 	exit;
 };
@@ -178,8 +180,6 @@ if ( !$form ) {
 # Default to form
 if ( !$form ) { $form = "form"; };
 if ( !$ptype ) { 
-};
-if ( !$ptype ) { 
 	if ( $xml->findnodes("//p") && !$xml->findnodes("//tok[not(ancestor::p)]")) { 
 		# when all tokens are subsumed under <p>, use that
 		$ptype = "p"; 
@@ -224,7 +224,9 @@ if ( $verbose ) { print "Parser output format: $parserformat"; };
 if ( $verbose ) { print "Segmenting by $ptype - parsing using model '$model' on form '$form'"; };
 if ( $verbose && $dosent ) { print "Adding sentences from parser"; };
 
-if ( $ptype eq 'text' ) { $textxpath = "//text"; } else { $textxpath = "//text//$ptype"; };
+if ( !$textxpath ) {
+	if ( $ptype eq 'text' ) { $textxpath = "//text"; } else { $textxpath = "//text//$ptype"; };
+};
 if ( $debug > 2 ) { print "Text xpath: $textxpath"; };
 
 $scnt = 1; $pcnt = 1;
@@ -268,14 +270,9 @@ if ( $dosent ) {
 	@ss =  $xml->findnodes("//s");
 	for ( $i = 0; $i < scalar @ss; $i++ ) {
 		$s = $ss[$i]; $ns = $ss[$i+1];
-		if ( $ns && $s->parentNode != $ns->parentNode ) {
-			if ( $debug ) { print "Not under the same node ".$s->getAttribute('id'). " and ".$ns->getAttribute('id'). " - trying to remedy"; };
-			# Find the first common ancestor
-			@a = $s->findnodes("ancestor::*");
-			@b = $ns->findnodes("ancestor::*");
-			foreach $an ( @a ) { print $an->toString; };
-			exit;
-		}; 
+# 		if ( $ns && $s->parentNode != $ns->parentNode ) {
+# 			if ( $debug ) { print "Not under the same node ".$s->getAttribute('id'). " and ".$ns->getAttribute('id'). ""; };
+# 		}; 
 		if ( $debug ) {
 			print "Moving tokens inside ".$s->getAttribute("id");
 		};
@@ -284,6 +281,7 @@ if ( $dosent ) {
 			if ( $debug > 2 ) { print "Moving ".$next->toString; };
 			$s->appendChild($next);
 		};
+		if ( $debug > 2 ) { print "Result: ".$s->toString; };
 	};
 };
 
@@ -596,10 +594,22 @@ sub conlluline ( $line ) {
 		$sid = $1;
 		if ( $debug ) { print "Sentence: $line"; };
 		if ( $dosent ) {
-			$beftok = @orgtoks[0];
+			$beftok = @orgtoks[0]; $checktok = $beftok;
 			if ( $beftok ) {
-				# Move up if the parent is not <p>
-				if ( $beftok->parentNode->nodeName ne $ptype ) { 
+				# Move up if the parent is not a paragraph or higher
+				print "Beftok: ".$beftok->parentNode->nodeName;
+				while ( $beftok->parentNode->nodeName ne $ptype &&  $beftok->parentNode->nodeName !~ /^p|u|head|tei_head|div|text$/ && !$notthis ) {
+					@inthis = $beftok->parentNode->findnodes(".//tok");
+					if ( $debug > 1 ) { print "Sentence not directly under par  - trying to move up"; }; 
+					if ( $inthis[0] && $checktok && $inthis[0]->getAttribute('id') ne $checktok->getAttribute('id') ) {	
+						if ( $debug > 1 ) { print "Not the first token in ".$beftok->parentNode->nodeName." : ".$inthis[0]->getAttribute('id')." =/= ".$checktok->getAttribute('id'); }; 
+						$notthis = 1;
+					} else {
+						$beftok = $beftok->parentNode;
+						if ( $debug > 1 ) { print "Moved up to ".$beftok->nodeName; }; 
+					};
+				};
+				if ( $beftok->parentNode->nodeName ne $ptype &&  $beftok->parentNode->nodeName !~ /^p|u|head|tei_head|div$/ ) { 
 					if ( $debug ) { print "Sentence $sid will not contain all tokens since ".$beftok->getAttribute('id')." is not directly under $ptype"; };
 				};
 				$news = $xml->createElement("s");
@@ -608,6 +618,10 @@ sub conlluline ( $line ) {
 				$beftok->parentNode->insertBefore($news, $beftok);
 				if ( $debug ) {
 					print "Added s: ".$news->toString;
+				};
+				if ( $debug > 2 ) {
+					print " - Before: ".$beftok->toString;
+					# print $beftok->parentNode->toString;
 				};
 			} else {
 				if ( $debug ) { print "Sentence $sid will remain empty since it does not correspond to a token."; };
