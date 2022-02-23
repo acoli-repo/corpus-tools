@@ -91,6 +91,8 @@
 	# Protect XML from &
 	$fullxml = preg_replace("/&(?![a-z]+;)/", "&amp;", $fullxml);
 
+			$elmid = $context['id'];
+			if ( $elmid ) $elmedit = "<a href='index.php?action=xmllayout&cid=$fileid&elmid=$elmid'>XML layout</a> &bull;";
 			$maintext .= "<h1>Context Edit</h1>
 			
 				<table>
@@ -102,7 +104,7 @@
 				<p>Edit the partial XML below, the way it will look is shown in the preview below. 
 					While there are errors in the XML, a warning will show, more info about the error can
 					be obtained by hovering the mouse over the warning. Click on the word in the preview to 
-					find it in the raw XML.
+					find it in the raw XML. To add or remove XML annotations, you can also use the XML Layout editor.
 				<hr>
 				<style>
 					#warn parsererror { display:none; }
@@ -113,6 +115,7 @@
 					<textarea name='newxml' id='newxml' style='width: 100%; height: 150px;' oninput='updatemtxt();'>".$fullxml."</textarea>
 					<input type=submit value=Save> 
 					<a href='index.php?action=tokedit&cid=$fileid&tid=$tokid'>cancel</a> &bull;
+					$elmedit
 					<a href='index.php?action=contextedit&cid=$fileid&tid=$tokid&levels=$ml'>more context</a>
 				</form>
 				<div id='warn' style='color: #992000; font-weight: bold; height: 30px; text-align: center; padding-top: 10px;'></div>
