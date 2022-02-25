@@ -81,6 +81,7 @@ if ( $settings ) {
 	$settings = $parser->load_xml(string => "<ttsettings/>");
 };
 
+binmode(SDTOUT, ":utf8");
 
 open FILE, $filename;
 binmode(FILE, ":utf8");
@@ -597,7 +598,7 @@ sub conlluline ( $line ) {
 			$beftok = @orgtoks[0]; $checktok = $beftok;
 			if ( $beftok ) {
 				# Move up if the parent is not a paragraph or higher
-				print "Beftok: ".$beftok->parentNode->nodeName;
+				if ( $debug > 3 ) { print "Beftok: ".$beftok->parentNode->nodeName; };
 				while ( $beftok->parentNode->nodeName ne $ptype &&  $beftok->parentNode->nodeName !~ /^p|u|head|tei_head|div|text$/ && !$notthis ) {
 					@inthis = $beftok->parentNode->findnodes(".//tok");
 					if ( $debug > 1 ) { print "Sentence not directly under par  - trying to move up"; }; 

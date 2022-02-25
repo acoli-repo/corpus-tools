@@ -64,7 +64,7 @@
 					header("HTTP/1.0 422 File already exists"); ## Throw an error to let Dropzone know it went wrong
 					print '{"error": "file already exists"}';
 				};
-			} if ( move_uploaded_file($_FILES["upfile"]["tmp_name"], $target_file) ) {
+			} else if ( move_uploaded_file($_FILES["upfile"]["tmp_name"], $target_file) ) {
 				if ( !$dropzone ) {
 					echo "<p>The file ". basename( $_FILES["upfile"]["name"]). " has been uploaded.";
 					if ( $_POST['goon'] ) {

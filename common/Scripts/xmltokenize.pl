@@ -18,7 +18,8 @@ $scriptname = $0;
             'force' => \$force, # tag even if already tagged
             'test' => \$test, # tokenize to string, do not change the database
             'keepns' => \$keepns, # do not kill the xmlns
-            'nobu' => \$nobu, # do not kill the xmlns
+            'nobu' => \$nobu, # do not create a backup
+            'noinner' => \$noinner, # Do not keep inner-token punctuation marks
             'linebreaks' => \$linebreaks, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
             'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
@@ -214,11 +215,30 @@ if ( $sentsplit != 2 ) {
 		};
 
 		# Split off the punctuation marks
-		while ( $line =~ /(?<!<tokk>)(\p{isPunct}<\/tok>)/ ) {
-			$line =~ s/(?<!<tokk>)(\p{isPunct}<\/tok>)/<\/tok><tokk>\1/g;
-		};
-		while ( $line =~ /(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
-			$line =~ s/(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tokk>/g;
+		if ( $noinner ) {
+			@todo = ();
+			while ( $line =~ /(<tok[^<>]*>)(.*?)(<\/tok>)/g ) {
+				$tokp = $&;
+				push(@todo, $tokp);
+			};
+			foreach $tokp ( @todo ) {
+				if ( $tokp =~ /(<tok[^<>]*>)(.*?)(<\/tok>)/ ) {
+					$p1 = $1; $p2 = $3; $ii = $2;
+					$ii =~ s/(\p{isPunct})/<\/tok><tokk>\1<\/tok><tokk>/g;
+					$new = $p1.$ii.$p2;
+					$new =~ s/<tokk><\/tok>//g;
+					if ( $new ne $tokp ) {
+						$line =~ s/\Q$tokp\E/$new/g;
+					};
+				};
+			};
+		} else {
+			while ( $line =~ /(?<!<tokk>)(\p{isPunct}<\/tok>)/ ) {
+				$line =~ s/(?<!<tokk>)(\p{isPunct}<\/tok>)/<\/tok><tokk>\1/g;
+			};
+			while ( $line =~ /(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
+				$line =~ s/(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tokk>/g;
+			};
 		};
 		if ( $debug ) {
 			print "IP|| $line\n";
