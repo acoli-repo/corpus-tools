@@ -224,7 +224,7 @@ if ( $sentsplit != 2 ) {
 			foreach $tokp ( @todo ) {
 				if ( $tokp =~ /(<tok[^<>]*>)(.*?)(<\/tok>)/ ) {
 					$p1 = $1; $p2 = $3; $ii = $2;
-					$ii =~ s/(\p{isPunct})/<\/tok><tokk>\1<\/tok><tokk>/g;
+					$ii =~ s/(\p{isPunct}|xx[GL]Txx)/<\/tok><tokk>\1<\/tok><tokk>/g;
 					$new = $p1.$ii.$p2;
 					$new =~ s/<tokk><\/tok>//g;
 					if ( $new ne $tokp ) {
