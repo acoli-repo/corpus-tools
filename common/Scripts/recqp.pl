@@ -5,7 +5,7 @@ use Getopt::Long;
 GetOptions ( ## Command line options
 		'debug' => \$debug, # debugging mode
 		'test' => \$test, # tokenize to string, do not change the database
-		'sub' => \$subc, # set which subcorpus to compile
+		'sub=s' => \$subc, # set which subcorpus to compile
 		'setfile=s' => \$setfile, # alternative settings file
 		);
 
