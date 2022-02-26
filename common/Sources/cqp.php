@@ -519,7 +519,7 @@
 				$m1 = $idlist[0];  $m1x = $m1;
 				$m2 = end($idlist);   $m2x = $m2;
 
-				$cmd = "$xidxcmd --filename='$fileid' --cqp='$outfolder' $expand $leftpos $rightpos";
+				$cmd = "$xidxcmd --filename='$fileid' --cqp='$cqpfolder' $expand $leftpos $rightpos";
 				$resxml = shell_exec($cmd);
 				if ( $debug ) $maintext .= "<pre>$cmd\n".htmlentities($xidxres)."</pre>";
 
