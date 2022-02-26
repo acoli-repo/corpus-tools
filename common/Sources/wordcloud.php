@@ -22,6 +22,7 @@
 		$cqpfolder = "cqp/$subcorpus";
 		$corpusname = $_SESSION['corpusname'] or $corpusname = "Subcorpus $subcorpus";
 		$subcorprow = "<tr><th>Corpus<td>$corpusname";
+		if ( $username ) $subcorprow .= "<tr><th>CQP<td>$cqpcorpus<br>$cqpfolder";
 		$corpusfolder = $cqpfolder;
 	} else {
 		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
@@ -46,17 +47,17 @@
 
 		$cql = $_GET['cql'];
 		if ( !$cql && $textid ) {
-			$cql = "[$rest] :: match.text_id=\"xmlfiles/$textid\"";
 			$textrest = " :: match.text_id=\"xmlfiles/$textid\"";
+			$cql = "[$rest] $textrest";
 		};
 		$cql = "Matches = $cql";
-		$cqp->exec($cql); // Select the corpus
+		$cqp->exec($cql); // Select the words
 		
 		if ( strstr($pos, "@") !== false ) $match = "target";
 		else $match = "match";
 		
 		$cql3 = "group Matches $match $titfld";
-		$result = $cqp->exec($cql3); $sep = ""; // Select the corpus
+		$result = $cqp->exec($cql3); $sep = ""; // Group the results
 		foreach ( explode("\n", $result) as $line ) {
 			list ( $doc, $size ) = explode ( "\t", $line);
 			$doc = preg_replace("/.*\//", "", $doc); 
