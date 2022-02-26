@@ -35,6 +35,7 @@
 	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 
 	# Calculate the word counts
+	$textid = $_POST['id'] or $textid = $_POST['cid'];
 	if ( file_exists("$cqpfolder/text_id.idx") ) {
 		# Default: CQP for this text ID
 		include ("$ttroot/common/Sources/cwcqp.php");
@@ -43,7 +44,6 @@
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
 
-		$textid = $_POST['id'] or $textid = $_POST['cid'];
 		$cql = $_GET['cql'];
 		if ( !$cql && $textid ) {
 			$cql = "[$rest] :: match.text_id=\"xmlfiles/$textid\"";
