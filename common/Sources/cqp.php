@@ -21,16 +21,17 @@
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	if ( $settings['cqp']['subcorpora'] ) {
 		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'];
 		if ( !$subcorpus ) {
 			fatal("No subcorpus selected");
 		};
 		$_SESSION['subc'] = $subcorpus;
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']."-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
+		$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = "cqp/$subcorpus";
 	} else {
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = $settings['cqp']['cqpfolder'];
 	};
 
