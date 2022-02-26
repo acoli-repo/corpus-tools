@@ -29,8 +29,18 @@
 	# Determine which form to search on by default
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 
-	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
-
+	if ( $setting['cqp']['subcorpora'] ) {
+		$registryfolder = $_SESSION['registry'] or $registryfolder = $_GET['registry'];
+		if ( !$registryfolder ) {
+			if ( $_GET['subc'] ) {
+				$registryfolder = "cqp/{$_GET['subc']}";
+				$_SESSION['registry'] = $registryfolder;
+			} else {
+				fatal("no subcorpus selected");
+			};
+		};
+	} else $registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+	
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$cqpfolder = $settings['cqp']['searchfolder'];
 
