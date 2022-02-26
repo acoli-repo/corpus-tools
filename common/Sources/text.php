@@ -459,7 +459,7 @@
 			
 		};
 	} else if ( $ssouser ) {
-		$maintext .= "<div class=adminpart>Click on a token in the text to edit its attributes";
+		$maintext .= "<div class=adminpart>Click on a token in the text to edit its attributes</div>";
 	};
 
 	$atthl = $_POST['atthl'] or $atthl = $_GET['atthl'];
