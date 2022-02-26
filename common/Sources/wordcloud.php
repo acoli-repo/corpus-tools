@@ -34,7 +34,7 @@
 	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 
 	# Calculate the word counts
-	if ( file_exists("cqp/text_id.idx") ) {
+	if ( file_exists("$corpusfolder/text_id.idx") ) {
 		# Default: CQP for this text ID
 		include ("$ttroot/common/Sources/cwcqp.php");
 	
@@ -61,7 +61,6 @@
 			$doc = preg_replace("/.*\//", "", $doc); 
 			if ( $doc ) { $doclist .= "$sep<a href='index.php?action=file&cid=$doc'>$doc</a>"; $sep = "<br>"; };
 		};
-		if ( !$doclist ) { $doclist = "<i>$textid</i>"; };
 		$cql2 = $_GET['cql2'] or $cql2 = "group Matches match $showform";
 		$result = $cqp->exec($cql2); // Select the corpus
 		$cnt = 0;
@@ -73,6 +72,7 @@
 			if ( $cnt++ > $max ) break;
 		};
 	};	
+	if ( !$doclist ) { $doclist = "<i>$textid</i>"; };
 	
 	foreach ( $settings['cqp']['pattributes'] as $key => $pat ) {
 		$pattname = pattname($key);
