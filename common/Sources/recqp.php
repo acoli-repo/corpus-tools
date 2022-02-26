@@ -21,7 +21,8 @@
 		if ( !$tmp ) fatal("Regenerating the CQP index relies on tt-cwb-encode, which is not installed on your server - $tmp");
 	};
 	
-	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
+	$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
 	$registryfile = $registryfolder.strtolower($cqpcorpus);
 	
 	if ( file_exists($registryfile) ) {

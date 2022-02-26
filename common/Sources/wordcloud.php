@@ -12,6 +12,7 @@
 	$max = $_POST['max'] or $max = 250;
 	$titfld = $settings['defaults']['wordcloud']['title'] or $titfld = $settings['cqp']['title'] or $titfld = "text_id";
 
+	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	if ( $settings['cqp']['subcorpora'] ) {
 		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'];
 		if ( !$subcorpus ) {
