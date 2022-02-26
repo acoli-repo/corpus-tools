@@ -22,7 +22,7 @@
 		$cqpfolder = "cqp/$subcorpus";
 		$corpusname = $_SESSION['corpusname'] or $corpusname = "Subcorpus $subcorpus";
 		$subcorprow = "<tr><th>Corpus<td>$corpusname";
-		
+		$corpusfolder = $cqpfolder;
 	} else {
 		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = $settings['cqp']['cqpfolder'];
@@ -31,6 +31,7 @@
 	if ( file_exists("tmp/recqp.pid") ) {
 		fatal ( "Wordcloud is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
 	};	
+	if  ( !$cqpfolder ) $cqpfolder = "cqp";
 	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 
 	# Calculate the word counts
