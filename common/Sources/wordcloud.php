@@ -61,6 +61,7 @@
 			$doc = preg_replace("/.*\//", "", $doc); 
 			if ( $doc ) { $doclist .= "$sep<a href='index.php?action=file&cid=$doc'>$doc</a>"; $sep = "<br>"; };
 		};
+		if ( !$doclist ) { $doclist = "<i>$textid</i>"; };
 		$cql2 = $_GET['cql2'] or $cql2 = "group Matches match $showform";
 		$result = $cqp->exec($cql2); // Select the corpus
 		$cnt = 0;
