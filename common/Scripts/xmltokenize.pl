@@ -453,7 +453,6 @@ if ( $sentsplit != 2 ) {
 				push(@todo, $tokp);
 			};
 			foreach $tokp ( @todo ) {
-				print decode_entities($tokp);
 				if ( decode_entities($tokp) =~ /<tok[^>]*>.*?(\p{isPunct}).*?<\/tok>/ ) { 
 					$xtok = $parser->load_xml(string => $tokp); 
 					foreach $tn ( $xtok->findnodes("//*/text()") ) {
