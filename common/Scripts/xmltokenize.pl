@@ -76,6 +76,12 @@ if ( !$keepns ) {
 	$rawxml =~ s/ xmlns=/ xmlnsoff=/g;
 };
 
+# To avoid problems - put a new line after each </s></p>
+if ( !$nonl ) {
+	$rawxml =~ s/(<\/(p)>)(?!\n)/\1\n/g;
+	$rawxml =~ s/(?!\n)(<\/(p)[ >]>)/\n\1/g;
+};
+
 # We cannot have an XML tag span a line, so join them back on a single line
 # $rawxwl =~ s/<([^>]+)[\n\r]([^>]+)>/<\1 \2>/g;
 
