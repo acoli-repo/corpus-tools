@@ -60,7 +60,7 @@ if ( $sub ) {
 		print "Creating $fn";	
 
 		$subcorpus = "$cqpcorpus-$fn";
-		`mkdir cqp/$fn`;
+		`mkdir -p cqp/$fn`;
 		
 		print FILE '----------------------';
 		print FILE '(1) Encoding subcorpus $fn';

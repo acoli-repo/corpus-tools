@@ -12,6 +12,26 @@
 	$max = $_POST['max'] or $max = 250;
 	$titfld = $settings['defaults']['wordcloud']['title'] or $titfld = $settings['cqp']['title'] or $titfld = "text_id";
 
+	if ( $settings['cqp']['subcorpora'] ) {
+		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'];
+		if ( !$subcorpus ) {
+			fatal("No subcorpus selected");
+		};
+		$_SESSION['subc'] = $subcorpus;
+		$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = "cqp/$subcorpus";
+		$corpusname = $_SESSION['corpusname'] or $corpusname = "Subcorpus $subcorpus";
+		$subcorpustit = "<h2>$corpusname</h2>";
+	} else {
+		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = $settings['cqp']['cqpfolder'];
+	};
+	// Do not allow searches while the corpus is being rebuilt...
+	if ( file_exists("tmp/recqp.pid") ) {
+		fatal ( "Wordcloud is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
+	};	
+	if  ( !$corpusfolder ) $corpusfolder = "cqp";
+
 	# Calculate the word counts
 	if ( 1==2 ) {
 	} else if ( file_exists("cqp/text_id.idx") ) {
