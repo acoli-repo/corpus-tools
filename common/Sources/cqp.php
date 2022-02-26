@@ -24,6 +24,8 @@
 		$_SESSION['subc'] = $subcorpus;
 		$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = "cqp/$subcorpus";
+		$corpusname = $_SESSION['corpusname'] or $corpusname = "Subcorpus $subcorpus";
+		$subcorpustit = "<h2>$corpusname</h2>";
 	} else {
 		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = $settings['cqp']['cqpfolder'];
