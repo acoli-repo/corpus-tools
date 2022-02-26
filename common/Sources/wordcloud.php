@@ -33,11 +33,9 @@
 	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 
 	# Calculate the word counts
-	if ( 1==2 ) {
-	} else if ( file_exists("cqp/text_id.idx") ) {
+	if ( file_exists("cqp/text_id.idx") ) {
 		# Default: CQP for this text ID
 		include ("$ttroot/common/Sources/cwcqp.php");
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
