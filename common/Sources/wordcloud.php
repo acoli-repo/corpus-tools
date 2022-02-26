@@ -34,7 +34,7 @@
 	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 
 	# Calculate the word counts
-	if ( file_exists("$corpusfolder/text_id.idx") ) {
+	if ( file_exists("$cqpfolder/text_id.idx") ) {
 		# Default: CQP for this text ID
 		include ("$ttroot/common/Sources/cwcqp.php");
 	
