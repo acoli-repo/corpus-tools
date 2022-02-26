@@ -584,61 +584,63 @@
 		
 		
 		# Allow adding/deleting tokens 
-		$maintext .= "
-		<hr>
-			$warning
-		<!-- <a href=''>join to previous token</a> &bull;  -->
-			insert tok after:
-			<a href='index.php?action=retok&dir=after&cid=$fileid&tid=$tokid&pos=left'>attached</a> /
-			<a href='index.php?action=retok&dir=after&cid=$fileid&tid=$tokid'>separate</a>
-		&bull; before:
-			<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&pos=right'>attached</a> /
-			<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid'>separate</a>
-		&bull;
-			insert elm before:
-			<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=par'>paragraph</a> ;
-			<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=lb'>linebreak</a>";
+		if ( $username ) {
+			$maintext .= "
+			<hr>
+				$warning
+			<!-- <a href=''>join to previous token</a> &bull;  -->
+				insert tok after:
+				<a href='index.php?action=retok&dir=after&cid=$fileid&tid=$tokid&pos=left'>attached</a> /
+				<a href='index.php?action=retok&dir=after&cid=$fileid&tid=$tokid'>separate</a>
+			&bull; before:
+				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&pos=right'>attached</a> /
+				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid'>separate</a>
+			&bull;
+				insert elm before:
+				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=par'>paragraph</a> ;
+				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=lb'>linebreak</a>";
 		
-		if ( $dtk ) {
-			$maintext .= " &bull;
-  				add: <a href='index.php?action=retok&node=dtok&cnt=1&cid=$fileid&tid=$tokid'>dtok</a>";
-  		} else {
-			$maintext .= " &bull;
-  				split in dtoks: <a href='index.php?action=retok&node=dtok&cnt=2&cid=$fileid&tid=$tokid'>2</a> ;
-  					<a href='index.php?action=retok&node=dtok&cnt=3&cid=$fileid&tid=$tokid'>3</a>";
-  		};
+			if ( $dtk ) {
+				$maintext .= " &bull;
+					add: <a href='index.php?action=retok&node=dtok&cnt=1&cid=$fileid&tid=$tokid'>dtok</a>";
+			} else {
+				$maintext .= " &bull;
+					split in dtoks: <a href='index.php?action=retok&node=dtok&cnt=2&cid=$fileid&tid=$tokid'>2</a> ;
+						<a href='index.php?action=retok&node=dtok&cnt=3&cid=$fileid&tid=$tokid'>3</a>";
+			};
 
-		$maintext .= "<br><a href='index.php?action=contextedit&cid=$fileid&tid=$tokid'>edit</a> context XML";
+			$maintext .= "<br><a href='index.php?action=contextedit&cid=$fileid&tid=$tokid'>edit</a> context XML";
 
-		# Lookup word to the left (adepted to large files)
-		#	$tmp = $token->xpath('preceding-sibling::tok');
-		$tokpar = current($token->xpath(".."));
-		if ( $tokpar ) {
-			$tmp = $tokpar->asXML(); 
-			$tokpos = strpos($tmp, "id=\"$tokid\"");
-			$tmp2 = rstrpos($tmp, "<tok ", $tokpos);
-			$pbef = rstrpos($tmp, "<tok ", $tmp2-1);
-			$tmp2 = substr($tmp, $pbef, 30);
-			if ( preg_match("/id=\"([^\"]+)\"/", $tmp2, $matches ) ) $previd = $matches[1];
-		};
-		if ( $previd ) { 		
-			$maintext .= "&bull; <a href='index.php?action=mergetoks&cid=$fileid&tid1=$previd&tid2=$tokid'>merge</a> left to $previd";
-		};
+			# Lookup word to the left (adepted to large files)
+			#	$tmp = $token->xpath('preceding-sibling::tok');
+			$tokpar = current($token->xpath(".."));
+			if ( $tokpar ) {
+				$tmp = $tokpar->asXML(); 
+				$tokpos = strpos($tmp, "id=\"$tokid\"");
+				$tmp2 = rstrpos($tmp, "<tok ", $tokpos);
+				$pbef = rstrpos($tmp, "<tok ", $tmp2-1);
+				$tmp2 = substr($tmp, $pbef, 30);
+				if ( preg_match("/id=\"([^\"]+)\"/", $tmp2, $matches ) ) $previd = $matches[1];
+			};
+			if ( $previd ) { 		
+				$maintext .= "&bull; <a href='index.php?action=mergetoks&cid=$fileid&tid1=$previd&tid2=$tokid'>merge</a> left to $previd";
+			};
 
 		
-		$mtok = current($token->xpath('ancestor::mtok'));
-		if ( !$mtok && $previd ) {
-			$maintext .= " &bull; create mtok left: <a href='index.php?action=makemtok&cid=$fileid&tid=$tokid&num=1'>1</a> ; <a href='index.php?action=makemtok&cid=$fileid&tid=$tokid&num=2'>2</a>";
-		};
+			$mtok = current($token->xpath('ancestor::mtok'));
+			if ( !$mtok && $previd ) {
+				$maintext .= " &bull; create mtok left: <a href='index.php?action=makemtok&cid=$fileid&tid=$tokid&num=1'>1</a> ; <a href='index.php?action=makemtok&cid=$fileid&tid=$tokid&num=2'>2</a>";
+			};
 
-		# Similar tokens only works on tokens that are displayed here - which no longer works if we clip 
-		$maintext .= "<br>
-			<script language=Javascript src='$jsurl/simtoks.js'></script>
-			<span onClick=\"simtoks('$tokid');\">treat similar tokens</span>
-			<div id='simtoks'></div>
+			# Similar tokens only works on tokens that are displayed here - which no longer works if we clip 
+			$maintext .= "<br>
+				<script language=Javascript src='$jsurl/simtoks.js'></script>
+				<span onClick=\"simtoks('$tokid');\">treat similar tokens</span>
+				<div id='simtoks'></div>
 		
-		";
-
+			";
+		};
+		
 		if ( $leftatts ) {
 			$maintext .= "<hr><h3>Undefined attributes</h3><table>";
 			foreach ( $leftatts as $key => $val ) {
