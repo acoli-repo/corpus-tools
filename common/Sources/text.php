@@ -12,6 +12,11 @@
 		fatal ( "No XML file selected." );  
 	};
 	
+	# See if we are allowed special permissions on this file
+	if ( ( $username || $userid ) && file_exists("Sources/useredit.php") ) {
+		require("Sources/useredit.php");
+	};
+	
 	# Determine the file date
 	$tmp = filemtime("$xmlfolder/$fileid");
 	$fdate = strftime("%d %h %Y", $tmp);
@@ -626,8 +631,7 @@
 	
 	// TODO: do a viewswitch in ttxml
 	$maintext .= $ttxml->viewswitch(false);
-	
-	
+		
 	if ( $username ) {
 		$maintext .= "<hr><div class=adminpart><h3>Admin options</h3>";
 		
