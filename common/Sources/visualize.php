@@ -223,9 +223,22 @@
 
 					include ("$ttroot/common/Sources/cwcqp.php");
 					$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
-					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-					$cqpfolder = $settings['cqp']['searchfolder'];
-					if  ( !$corpusfolder ) $corpusfolder = "cqp";
+					$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
+					if ( $settings['cqp']['subcorpora'] ) {
+						$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'];
+						if ( !$subcorpus ) {
+							fatal("No subcorpus selected");
+						};
+						$_SESSION['subc'] = $subcorpus;
+						$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
+						$cqpfolder = "cqp/$subcorpus";
+						$corpusname = $_SESSION['corpusname'] or $corpusname = "Subcorpus $subcorpus";
+						$subcorpustit = "<h2>$corpusname</h2>";
+					} else {
+						$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
+						$cqpfolder = $settings['cqp']['cqpfolder'];
+					};
+
 					# Check whether the registry file exists
 					if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
 						# For backward compatibility, always check the central registry
