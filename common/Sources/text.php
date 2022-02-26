@@ -13,7 +13,7 @@
 	};
 	
 	# See if we are allowed special permissions on this file
-	if ( ( $username || $userid ) && file_exists("Sources/useredit.php") ) {
+	if ( !$username && $userid && file_exists("Sources/useredit.php") ) {
 		require("Sources/useredit.php");
 	};
 	
@@ -102,7 +102,7 @@
  		};
 	};
 
-	if ( $username ) $txtid = $fileid; else $txtid = $xmlid;
+	if ( $username || $ssouser ) $txtid = $fileid; else $txtid = $xmlid;
 	$maintext .= "<h2>$txtid</h2><h1>$title</h1>";
 	
 	# Warn on <page> type temp files
@@ -458,6 +458,8 @@
 			};
 			
 		};
+	} else if ( $ssouser ) {
+		$maintext .= "<div class=adminpart>Click on a token in the text to edit its attributes";
 	};
 
 	$atthl = $_POST['atthl'] or $atthl = $_GET['atthl'];
@@ -558,6 +560,7 @@
 // 		$postjsactions .= " var nospace = $ttxml->nospace; setspaces(); ";
 // 	};
 
+	$edituser = $username.$ssouser; # Allow SSO users to click edit
 	$maintext .= "
 		<div id='tokinfo'></div>
 		$pagenav
@@ -567,7 +570,7 @@
 		<script language=Javascript src='$jsurl/tokedit.js'></script>
 		<script language=Javascript src='$jsurl/tokview.js'></script>
 		<script>
-			var username = '$username';
+			var username = '$edituser';
 			var lang = '$lang';
 			$settingsdefs;
 			var transl = $jsontrans;
@@ -730,6 +733,8 @@
 			$maintext .= "<li><a href='index.php?action=neotag&act=tag&pid=auto&cid=xmlfiles/$fileid'>(Pre)tag this text with POS (and lemma)</a>";
 		};
 		$maintext .= "</ul></div>";
+	} else if ( $ssouser ) {
+		$maintext .= "<hr>$ssooptions";
 	};
 
 
