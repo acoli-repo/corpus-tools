@@ -5,17 +5,11 @@
 	// Settings for the corpus are read from settings.xml
 	// (c) Maarten Janssen, 2015-2016
 
-	// Do not allow searches while the corpus is being rebuilt...
-	if ( file_exists("tmp/recqp.pid") ) {
-		fatal ( "Search is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
-	};
-
 	$fileview = $settings['defaults']['fileview'] or $fileview = "file";
 
 	if ( $act == "advanced" || $settings['defaults']['qb'] == "direct" ) $showdirect = true;
 
 	include ("$ttroot/common/Sources/cwcqp.php");
-
 
 	# Determine which form to search on by default
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
@@ -33,6 +27,10 @@
 	} else {
 		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = $settings['cqp']['cqpfolder'];
+	};
+	// Do not allow searches while the corpus is being rebuilt...
+	if ( file_exists("tmp/recqp.pid") ) {
+		fatal ( "Search is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
 	};
 
 	// This version of CQP relies on XIDX - check whether program and file exist

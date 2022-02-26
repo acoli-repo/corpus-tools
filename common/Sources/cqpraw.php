@@ -43,7 +43,7 @@
 		};
 	};
 	if ( !file_exists($registryfolder.'/'.strtolower($cqpcorpus)) ) {
-		fatal ( "Corpus $cqpcorpus has no registry file" );
+		fatal ( "Corpus $cqpcorpus is not ready for raw search" );
 	};
 	
 		
