@@ -56,7 +56,7 @@ if ( $sub ) {
 	while ( <$search/*> ) {
 		$sf = $_; ( $fn = $sf ) =~ s/.*\///;
 		
-		if ( $subc && $fn ne $subc ) { continue; };
+		if ( $subc && $fn ne $subc ) { next; };
 		print "Creating $fn";	
 
 		$subcorpus = "$cqpcorpus-$fn";
