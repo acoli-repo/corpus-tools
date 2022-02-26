@@ -5,7 +5,14 @@
 	// Check if we are logged in
 	$publicactions = "user,admin";
 	function check_login ( $checktype = "user" ) {
-		global $user, $username, $settings, $action, $publicactions;
+		global $user, $username, $userid, $settings, $action, $publicactions;
+
+		# See if we are allowed special permissions on this file
+		if ( !$username && $userid && file_exists("Sources/useredit.php") ) {
+			require("Sources/useredit.php");
+			if ( $allowme ) return;
+		};
+
 		if ( $settings['permissions']['groups'] ) $grouprec = $settings['permissions']['groups'][$user['group'].""];
 				
 		if ( $user['permissions'] == "admin" ) return; # Always allow admin

@@ -734,7 +734,7 @@
 		};
 		$maintext .= "</ul></div>";
 	} else if ( $ssouser ) {
-		$maintext .= "<hr>$ssooptions";
+		$maintext .= "$ssooptions";
 	};
 
 
