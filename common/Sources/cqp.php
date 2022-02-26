@@ -49,7 +49,8 @@
 		$registryfolder = "/usr/local/share/cwb/registry/";
 	};
 	if ( !file_exists($registryfolder.'/'.strtolower($cqpcorpus)) && !file_exists("cqp/".strtolower($cqpcorpus)) ) {
-		fatal ( "Corpus $cqpcorpus has no registry file" );
+		if ( $username ) fatal ( "Corpus $cqpcorpus has no registry file" );
+		else fatal ( "This corpus is not yet ready for searching" );
 	};
 
 	# Old sattributes did not have <text> inside
