@@ -5,6 +5,8 @@
 		header('Content-Type: text/plain');
 		if ( $username != "" ) {
 			print "logged in";
+		} else if ( $userid != "" ) {
+			print "sso logged in";
 		} else {
 			print "logged out";
 		};

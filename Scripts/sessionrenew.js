@@ -19,6 +19,8 @@ var testloop = window.setInterval(function() {
 			sessiontest = false;
 	      } else if ( stat == "logged in" ) {
 			// console.log('ok');
+	      } else if ( stat == "sso logged in" ) {
+			// console.log('ok');
 	      } else {
 			console.log('?? ' + stat);
 	      };
