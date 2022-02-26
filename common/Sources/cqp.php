@@ -16,31 +16,30 @@
 
 	include ("$ttroot/common/Sources/cwcqp.php");
 
-	$outfolder = $settings['cqp']['cqpfolder'] or $outfolder = "cqp";
-
-	// This version of CQP relies on XIDX - check whether program and file exist
-	$xidxcmd = findapp('tt-cwb-xidx');
-	if ( !$xidxcmd || !file_exists("$outfolder/xidx.rng") ) {
-		print "<p>This CQP version works only with XIDX
-			<script language=Javascript>top.location='index.php?action=cqpraw';</script>
-		";
-	};
 
 	# Determine which form to search on by default
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
-	if ( $setting['cqp']['subcorpora'] ) {
+	if ( $settings['cqp']['subcorpora'] ) {
 		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'];
 		if ( !$subcorpus ) {
 			fatal("No subcorpus selected");
 		};
 		$_SESSION['subc'] = $subcorpus;
 		$cqpcorpus = strtoupper($settings['cqp']['corpus']."-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = "cqp/$subcorpus";
 	} else {
-	
 		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['searchfolder'];
+		$cqpfolder = $settings['cqp']['cqpfolder'];
+	};
+
+	// This version of CQP relies on XIDX - check whether program and file exist
+	$xidxcmd = findapp('tt-cwb-xidx');
+	if ( !$xidxcmd || ( !file_exists("$cqpfolder/xidx.rng") && file_exists("$cqpfolder/word.corpus") ) ) {
+		print "<p>This CQP version works only with XIDX
+			<script language=Javascript>top.location='index.php?action=cqpraw';</script>
+		";
 	};
 	
 	if  ( !$corpusfolder ) $corpusfolder = "cqp";
