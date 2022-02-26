@@ -34,14 +34,16 @@ if ( $settings->findnodes("//cqp/\@searchfolder") ) {
 
 open FILE, ">tmp/recqp.pid";$\ = "\n";
 
+if ( $sub ) { $scf = "$sub/"; };
+
 $starttime = time(); 
 print FILE 'Regeneration started on '.localtime();
 print FILE 'Process id: '.$$;
 print FILE "CQP Corpus: $cqpcorpus";
 print FILE 'Removing the old files';
 print FILE 'command:
-/bin/rm -Rf cqp/*';
-`/bin/rm -Rf cqp/*`;
+/bin/rm -Rf cqp$scf/*';
+`/bin/rm -Rf cqp$scf/*`;
 
 if ( $setfile ) {
 	$setfile = " --settings='$setfile'"; 
