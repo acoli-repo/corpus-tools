@@ -5,6 +5,7 @@ use Getopt::Long;
 GetOptions ( ## Command line options
 		'debug' => \$debug, # debugging mode
 		'test' => \$test, # tokenize to string, do not change the database
+		'sub' => \$subc, # set which subcorpus to compile
 		'setfile=s' => \$setfile, # alternative settings file
 		);
 
@@ -52,6 +53,8 @@ if ( $sub ) {
 
 	while ( <$search/*> ) {
 		$sf = $_; ( $fn = $sf ) =~ s/.*\///;
+		
+		if ( $subc && $fn ne $subc ) { continue; };
 		print "Creating $fn";	
 
 		$subcorpus = "$cqpcorpus-$fn";
