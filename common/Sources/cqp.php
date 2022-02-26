@@ -29,21 +29,20 @@
 	# Determine which form to search on by default
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 
+	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
 	if ( $setting['cqp']['subcorpora'] ) {
-		$registryfolder = $_SESSION['registry'] or $registryfolder = $_GET['registry'];
-		if ( !$registryfolder ) {
-			if ( $_GET['subc'] ) {
-				$registryfolder = "cqp/{$_GET['subc']}";
-				$_SESSION['registry'] = $registryfolder;
-			} else {
-				fatal("no subcorpus selected");
-			};
+		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'];
+		if ( !$subcorpus ) {
+			fatal("No subcorpus selected");
 		};
-	} else $registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+		$_SESSION['subc'] = $subcorpus;
+		$cqpcorpus = strtoupper($settings['cqp']['corpus']."-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
+	} else {
 	
-	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-	$cqpfolder = $settings['cqp']['searchfolder'];
-
+		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = $settings['cqp']['searchfolder'];
+	};
+	
 	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 
 	# Check whether the registry file exists
