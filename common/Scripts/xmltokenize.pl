@@ -221,24 +221,7 @@ if ( $sentsplit != 2 ) {
 		};
 
 		# Split off the punctuation marks
-		if ( $noinner ) {
-			@todo = ();
-			while ( $line =~ /(<tok[^<>]*>)(.*?)(<\/tok>)/g ) {
-				$tokp = $&;
-				push(@todo, $tokp);
-			};
-			foreach $tokp ( @todo ) {
-				if ( $tokp =~ /(<tok[^<>]*>)(.*?)(<\/tok>)/ ) {
-					$p1 = $1; $p2 = $3; $ii = $2;
-					$ii =~ s/(\p{isPunct}|xx[GL]Txx)/<\/tok><tokk>\1<\/tok><tokk>/g;
-					$new = $p1.$ii.$p2;
-					$new =~ s/<tokk><\/tok>//g;
-					if ( $new ne $tokp ) {
-						$line =~ s/\Q$tokp\E/$new/g;
-					};
-				};
-			};
-		} else {
+		if ( !$noinner ) {
 			while ( $line =~ /(?<!<tokk>)(\p{isPunct}<\/tok>)/ ) {
 				$line =~ s/(?<!<tokk>)(\p{isPunct}<\/tok>)/<\/tok><tokk>\1/g;
 			};
@@ -447,7 +430,7 @@ if ( $sentsplit != 2 ) {
 			};
 
 			if ( $debug ) {
-				$mo = "";  
+				$mo = "";   $mo1 = ""; $mo2 = "";
 				if ( $a ne ""  ) { $mo1 = "($a)"; };
 				if ( $b ne "" ) { $mo2 = "($b)"; };
 				print "TKK | $mo1 $m $mo2";
@@ -462,12 +445,38 @@ if ( $sentsplit != 2 ) {
 		# This has to be done multiple time in principle since there might be multiple
 		$line =~ s/(<tok[^>]*>)(<([a-z0-9]+) [^>]*>)((.(?!<\/\3>))*.)<\/\3><\/tok>/\2\1\4<\/tok><\/\3>/gi;
 
-		# Split off the punctuation marks again (in case we moved out end tags)
-		while ( $line =~ /(?<!<tok>)(\p{isPunct}<\/tok>)/ ) {
-			$line =~ s/(?<!<tok>)(\p{isPunct}<\/tok>)/<\/tok><tok>\1/g;
-		};
-		while ( $line =~ /(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
-			$line =~ s/(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tok>/g;
+		if ( $noinner ) {
+			# Split off the punctuation marks now (splitting tokens)
+			@todo = ();
+			while ( $line =~ /(<tok[^<>]*>)(.*?)(<\/tok>)/g ) {
+				$tokp = $&;
+				push(@todo, $tokp);
+			};
+			foreach $tokp ( @todo ) {
+				print decode_entities($tokp);
+				if ( decode_entities($tokp) =~ /<tok[^>]*>.*?(\p{isPunct}).*?<\/tok>/ ) { 
+					$xtok = $parser->load_xml(string => $tokp); 
+					foreach $tn ( $xtok->findnodes("//*/text()") ) {
+						print "#text: $tn";
+						$tv = decode_entities($tn); $tv =~ s/(\p{isPunct})/xxTBxx\1xxTBxx/g;
+						$tn->setData($tv); 
+					};
+					$newtok = $xtok->toString;
+					$newtok =~ s/<\?.*?\?>\n?//g;
+					$newtok =~ s/xxTBxx/<\/tok><tok>/g;
+					$newtok =~ s/<tok><\/tok>//g;
+					if ( $debug ) { print " -- Split: $newtok"; };
+					$line =~ s/\Q$tokp\E/$newtok/;
+				};
+			};
+		} else {
+			# Split off the punctuation marks again (in case we moved out end tags)
+			while ( $line =~ /(?<!<tok>)(\p{isPunct}<\/tok>)/ ) {
+				$line =~ s/(?<!<tok>)(\p{isPunct}<\/tok>)/<\/tok><tok>\1/g;
+			};
+			while ( $line =~ /(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
+				$line =~ s/(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tok>/g;
+			};
 		};
 
 		# Unprotect all MWE and other space-crossing or punctuation-including tokens
