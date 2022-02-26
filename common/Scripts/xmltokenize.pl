@@ -456,7 +456,6 @@ if ( $sentsplit != 2 ) {
 				if ( decode_entities($tokp) =~ /<tok[^>]*>.*?(\p{isPunct}).*?<\/tok>/ ) { 
 					$xtok = $parser->load_xml(string => $tokp); 
 					foreach $tn ( $xtok->findnodes("//*/text()") ) {
-						print "#text: $tn";
 						$tv = decode_entities($tn); $tv =~ s/(\p{isPunct})/xxTBxx\1xxTBxx/g;
 						$tn->setData($tv); 
 					};
