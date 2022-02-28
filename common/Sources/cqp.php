@@ -28,13 +28,14 @@
 		$subcorpustit = "<h2>$corpusname</h2>";
 	} else {
 		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['cqpfolder'];
+		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
 	};
 	// Do not allow searches while the corpus is being rebuilt...
 	if ( file_exists("tmp/recqp.pid") ) {
 		fatal ( "Search is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
 	};
-
+	# print "Folder: $cqpfolder - reg: $registryfolder - corpus: $cqpcorpus"; exit;
+	
 	// This version of CQP relies on XIDX - check whether program and file exist
 	$xidxcmd = findapp('tt-cwb-xidx');
 	if ( !$xidxcmd || ( !file_exists("$cqpfolder/xidx.rng") && file_exists("$cqpfolder/word.corpus") ) ) {
