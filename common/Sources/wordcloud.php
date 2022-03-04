@@ -150,7 +150,7 @@
 		.font('$font')
 		.words(list)
 		.onwordclick(function(d, i) {
-		  window.location = 'index.php?action=cqp&cql=[$showform=\"' + d.text+ '\"] $textrest\"';
+		  window.location = 'index.php?action=cqp&cql=[$showform=\"' + d.text+ '\"] $textrest';
 		})    
 		.start();
 	};
