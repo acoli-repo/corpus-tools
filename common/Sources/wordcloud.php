@@ -51,7 +51,7 @@
 			$textrest = " :: match.text_id=\"xmlfiles/$textid\"";
 			$cql = "[$rest] $textrest";
 		} else if ( !$cql ) {
-			$cql = "[]";
+			$cql = "[$rest]";
 		};
 		$cql = "Matches = $cql";
 		$cqp->exec($cql); // Select the words
@@ -97,6 +97,7 @@
 	if ( $username ) $rawcql = "<tr><th>{%CQL Query}:<td>$cql<tr><th>{%Grouping Query}:<td>$cql2";
 	
 	$fwquery = "&rest={$_GET['rest']}";
+	$restt = str_replace('"', "&quot;", $_GET['rest']);
 	
 	$maintext .= "
 	<h2>$title</h2>
@@ -114,7 +115,7 @@
 		<table>
 		<tr><td>{%Text}:<td><select name='show'>$textoptions</select>
 		<tr><td>{%Count}:<td><select name='max'><option value=50>50</option><option value=100>100</option><option value=250 selected>250</option><option value=500>500</option></select>
-		<tr><td>{%Restriction}:<td><input size=40 value=\"{$_GET['rest']}\"></select>		
+		<tr><td>{%Restriction}:<td><input size=40 value=\"$restt\"></select>		
 		</table>
 		<p><input type=submit value=\"{%Redraw}\"> <a href='https://github.com/wvengen/d3-wordcloud' target='_new' style='color: #aaaaaa;'>https://github.com/wvengen/d3-wordcloud</a>
 		<td valign=top>
