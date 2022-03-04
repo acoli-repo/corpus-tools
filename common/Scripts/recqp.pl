@@ -11,10 +11,19 @@ GetOptions ( ## Command line options
 
 $scriptname = $0;
 
+open FILE, ">tmp/recqp.pid";$\ = "\n";
+
+if ( $setfile ) {
+	$setopt = " --settings='$setfile'"; 
+	print FILE "Using shared $setfile";
+} else {
+	$setfile = "Resources/settings.xml";
+};
+
 # Read the parameter set
 my $settings = XML::LibXML->load_xml(
-	location => "Resources/settings.xml",
-); if ( !$settings ) { print FILE "Not able to parse settings.xml"; exit; };
+	location => $setfile,
+); if ( !$settings ) { print FILE "Not able to parse $setfile"; exit; };
 
 if ( $settings->findnodes("//cqp/\@corpus") ) {
 	$cqpcorpus = $settings->findnodes("//cqp/\@corpus")->item(0)->value."";
@@ -32,7 +41,6 @@ if ( $settings->findnodes("//cqp/\@searchfolder") ) {
 	$search = $settings->findnodes("//cqp/\@searchfolder")->item(0)->value."";
 } else { $search = "xmlfiles"; };
 
-open FILE, ">tmp/recqp.pid";$\ = "\n";
 
 if ( $sub ) { $scf = "$sub/"; };
 
@@ -45,9 +53,6 @@ print FILE 'command:
 /bin/rm -Rf cqp$scf/*';
 `/bin/rm -Rf cqp$scf/*`;
 
-if ( $setfile ) {
-	$setfile = " --settings='$setfile'"; 
-};
 
 if ( $sub ) {
 

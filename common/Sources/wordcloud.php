@@ -50,6 +50,8 @@
 		if ( !$cql && $textid ) {
 			$textrest = " :: match.text_id=\"xmlfiles/$textid\"";
 			$cql = "[$rest] $textrest";
+		} else if ( !$cql ) {
+			$cql = "[]";
 		};
 		$cql = "Matches = $cql";
 		$cqp->exec($cql); // Select the words
@@ -59,10 +61,14 @@
 		
 		$cql3 = "group Matches $match $titfld";
 		$result = $cqp->exec($cql3); $sep = ""; // Group the results
-		foreach ( explode("\n", $result) as $line ) {
-			list ( $doc, $size ) = explode ( "\t", $line);
-			$doc = preg_replace("/.*\//", "", $doc); 
-			if ( $doc ) { $doclist .= "$sep<a href='index.php?action=file&cid=$doc'>$doc</a>"; $sep = "<br>"; };
+		if ( count(explode("\n", $result)) > 10 ) {
+			$doclist = "<i>many</i>"; 
+		} else {
+			foreach ( explode("\n", $result) as $line ) {
+				list ( $doc, $size ) = explode ( "\t", $line);
+				$doc = preg_replace("/.*\//", "", $doc); 
+				if ( $doc ) { $doclist .= "$sep<a href='index.php?action=file&cid=$doc'>$doc</a>"; $sep = "<br>"; };
+			};
 		};
 		$cql2 = $_GET['cql2'] or $cql2 = "group Matches match $showform";
 		$result = $cqp->exec($cql2); // Select the corpus
@@ -75,7 +81,12 @@
 			if ( $cnt++ > $max ) break;
 		};
 	};	
-	if ( !$doclist ) { $doclist = "<i>$textid</i>"; };
+	if ( !$doclist ) { 
+		if ( $textid )
+			$doclist = "<i>$textid</i>"; 
+		else 
+			$doclist = "<i>all</i>"; 
+	};
 	
 	foreach ( $settings['cqp']['pattributes'] as $key => $pat ) {
 		$pattname = pattname($key);

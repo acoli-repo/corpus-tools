@@ -155,7 +155,7 @@
 		else $scriptname = "$ttroot/common/Scripts/recqp.pl";	
 		$maintext .= "
 			<p>Currently, the CQP Corpus called {$settings['cqp']['corpus']} is regenerated based on the current
-				content of the XML files in ({$settings['cqp']['searchfolder']}).
+				content of the XML files in ($cqpfolder).
 			
 			$combtxt
 			
@@ -315,7 +315,6 @@
 		$script .= "\n`mv tmp/recqp.pid tmp/recqp.log`;";
 
 		$script .= "\nclose FILE;";
-
 		
 		file_put_contents("Scripts/recqp.pl", $script);
 
