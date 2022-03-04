@@ -61,13 +61,15 @@
 		
 		$cql3 = "group Matches $match $titfld";
 		$result = $cqp->exec($cql3); $sep = ""; // Group the results
-		if ( count(explode("\n", $result)) > 10 ) {
-			$doclist = "<i>many</i>"; 
-		} else {
-			foreach ( explode("\n", $result) as $line ) {
-				list ( $doc, $size ) = explode ( "\t", $line);
-				$doc = preg_replace("/.*\//", "", $doc); 
-				if ( $doc ) { $doclist .= "$sep<a href='index.php?action=file&cid=$doc'>$doc</a>"; $sep = "<br>"; };
+		if ( $textrest ) {
+			if ( count(explode("\n", $result)) > 10 ) {
+				$doclist = "<i>many</i>"; 
+			} else {
+				foreach ( explode("\n", $result) as $line ) {
+					list ( $doc, $size ) = explode ( "\t", $line);
+					$doc = preg_replace("/.*\//", "", $doc); 
+					if ( $doc ) { $doclist .= "$sep<a href='index.php?action=file&cid=$doc'>$doc</a>"; $sep = "<br>"; };
+				};
 			};
 		};
 		$cql2 = $_GET['cql2'] or $cql2 = "group Matches match $showform";
