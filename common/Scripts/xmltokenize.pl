@@ -20,6 +20,7 @@ $scriptname = $0;
             'keepns' => \$keepns, # do not kill the xmlns
             'nobu' => \$nobu, # do not create a backup
             'noinner' => \$noinner, # Do not keep inner-token punctuation marks
+            'inner' => \$inner, # ... except for these
             'linebreaks' => \$linebreaks, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
             'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
@@ -452,11 +453,14 @@ if ( $sentsplit != 2 ) {
 				$tokp = $&;
 				push(@todo, $tokp);
 			};
+			if ( $inner ) {
+				$noth = "(?![$inner])";
+			};
 			foreach $tokp ( @todo ) {
 				if ( decode_entities($tokp) =~ /<tok[^>]*>.*?(\p{isPunct}).*?<\/tok>/ ) { 
 					$xtok = $parser->load_xml(string => $tokp); 
 					foreach $tn ( $xtok->findnodes("//*/text()") ) {
-						$tv = decode_entities($tn); $tv =~ s/(\p{isPunct})/xxTBxx\1xxTBxx/g;
+						$tv = decode_entities($tn); $tv =~ s/$noth(\p{isPunct})/xxTBxx\1xxTBxx/g;
 						$tn->setData($tv); 
 					};
 					$newtok = $xtok->toString;
@@ -572,13 +576,15 @@ eval {
 	$doc = $parser->load_xml(string => $xmlfile);
 };
 if ( !$doc ) { 
-	print "XML got messed up - saved to /tmp/wrong.xml\n"; 
-	open FILE, ">/tmp/wrong.xml";
+	if ( -w "tmp" ) $wrongxml = "tmp/wrong.xml";
+	else  $wrongxml = "/tmp/wrong.xml";
+	print "XML got messed up - saved to $wrongxml\n"; 
+	open FILE, ">$wrongxml";
 	binmode ( FILE, ":utf8" );
 	print FILE $xmlfile;
 	close FILE;
 	
-	$err = `xmlwf /tmp/wrong.xml`;
+	$err = `xmlwf $wrongxml`;
 	if ( $err =~ /^(.*?):(\d+):(\d+):/ ) {
 		$line = $2; $char = $3;
 		print "First XML Error: $err";
