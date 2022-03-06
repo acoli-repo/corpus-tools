@@ -2,6 +2,7 @@ use Encode qw(decode encode);
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use HTML::Entities;
 use XML::LibXML;
+use utf8;
 use Getopt::Long;
 use POSIX qw(strftime);
 use Cwd 'abs_path';
@@ -20,7 +21,7 @@ $scriptname = $0;
             'keepns' => \$keepns, # do not kill the xmlns
             'nobu' => \$nobu, # do not create a backup
             'noinner' => \$noinner, # Do not keep inner-token punctuation marks
-            'inner' => \$inner, # ... except for these
+            'inner=s' => \$inner, # ... except for these
             'linebreaks' => \$linebreaks, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
             'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
@@ -222,13 +223,11 @@ if ( $sentsplit != 2 ) {
 		};
 
 		# Split off the punctuation marks
-		if ( !$noinner ) {
-			while ( $line =~ /(?<!<tokk>)(\p{isPunct}<\/tok>)/ ) {
-				$line =~ s/(?<!<tokk>)(\p{isPunct}<\/tok>)/<\/tok><tokk>\1/g;
-			};
-			while ( $line =~ /(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
-				$line =~ s/(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tokk>/g;
-			};
+		while ( $line =~ /(?<!<tokk>)(\p{isPunct}<\/tok>)/ ) {
+			$line =~ s/(?<!<tokk>)(\p{isPunct}<\/tok>)/<\/tok><tokk>\1/g;
+		};
+		while ( $line =~ /(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
+			$line =~ s/(<tokk[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tokk>/g;
 		};
 		if ( $debug ) {
 			print "IP|| $line\n";
@@ -446,7 +445,7 @@ if ( $sentsplit != 2 ) {
 		# This has to be done multiple time in principle since there might be multiple
 		$line =~ s/(<tok[^>]*>)(<([a-z0-9]+) [^>]*>)((.(?!<\/\3>))*.)<\/\3><\/tok>/\2\1\4<\/tok><\/\3>/gi;
 
-		if ( $noinner ) {
+		if ( $noinner || $inner ) {
 			# Split off the punctuation marks now (splitting tokens)
 			@todo = ();
 			while ( $line =~ /(<tok[^<>]*>)(.*?)(<\/tok>)/g ) {
@@ -454,31 +453,36 @@ if ( $sentsplit != 2 ) {
 				push(@todo, $tokp);
 			};
 			if ( $inner ) {
-				$noth = "(?![$inner])";
+				if ( $inner eq 'eng' ) {
+					$inner = "’'-";
+				};
+				$noth = "|[$inner]";
 			};
 			foreach $tokp ( @todo ) {
 				if ( decode_entities($tokp) =~ /<tok[^>]*>.*?(\p{isPunct}).*?<\/tok>/ ) { 
 					$xtok = $parser->load_xml(string => $tokp); 
 					foreach $tn ( $xtok->findnodes("//*/text()") ) {
-						$tv = decode_entities($tn); $tv =~ s/$noth(\p{isPunct})/xxTBxx\1xxTBxx/g;
+						$tv = decode_entities($tn); 
+						$tv =~ s/(?!&[^;]+;$noth)(\p{isPunct})/xxTBxx\1xxTBxx/g;
 						$tn->setData($tv); 
 					};
-					$newtok = $xtok->toString;
+					$newtok = decode_entities($xtok->toString);
 					$newtok =~ s/<\?.*?\?>\n?//g;
 					$newtok =~ s/xxTBxx/<\/tok><tok>/g;
 					$newtok =~ s/<tok><\/tok>//g;
-					if ( $debug ) { print " -- Split: $newtok"; };
-					$line =~ s/\Q$tokp\E/$newtok/;
+					if ( decode_entities($tokp) ne $newtok ) { 
+						if ( $debug ) { print " -- Split: $tokp => $newtok"; };
+						$line =~ s/\Q$tokp\E/$newtok/;
+					};
 				};
 			};
-		} else {
-			# Split off the punctuation marks again (in case we moved out end tags)
-			while ( $line =~ /(?<!<tok>)(\p{isPunct}<\/tok>)/ ) {
-				$line =~ s/(?<!<tok>)(\p{isPunct}<\/tok>)/<\/tok><tok>\1/g;
-			};
-			while ( $line =~ /(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
-				$line =~ s/(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tok>/g;
-			};
+		};
+		# Split off the punctuation marks again (in case we moved out end tags)
+		while ( $line =~ /(?<!<tok>)(\p{isPunct}<\/tok>)/ ) {
+			$line =~ s/(?<!<tok>)(\p{isPunct}<\/tok>)/<\/tok><tok>\1/g;
+		};
+		while ( $line =~ /(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/ ) {
+			$line =~ s/(<tok[^>]*>)(\p{isPunct})(?!<\/tok>)/\1\2<\/tok><tok>/g;
 		};
 
 		# Unprotect all MWE and other space-crossing or punctuation-including tokens
@@ -567,7 +571,6 @@ if ( $sentsplit ) {
 
 };
 
-
 $xmlfile = $head.$teitext.$foot;
 
 # Now - check if this turned into valid XML
@@ -575,6 +578,7 @@ $parser = XML::LibXML->new(); $doc = "";
 eval {
 	$doc = $parser->load_xml(string => $xmlfile);
 };
+
 if ( !$doc ) { 
 	if ( -w "tmp" ) { 
 		$wrongxml = "tmp/wrong.xml";
@@ -604,17 +608,20 @@ if ( !$doc ) {
 
 # Add a revisionDesc to indicate the file was tokenized
 $revs = makenode($doc, "/TEI/teiHeader/revisionDesc");
-$revnode = XML::LibXML::Element->new( "change" );
-$revs->addChild($revnode);
-$when = strftime "%Y-%m-%d", localtime;
-$revnode->setAttribute("who", "xmltokenize");
-$revnode->setAttribute("when", $when);
-if ( $sentsplit == 2 ) {
-	$revnode->appendText("split into sentences using xmltokenize.pl");
-} elsif ( $sentsplit == 1 ) {
-	$revnode->appendText("tokenized and split into sentences using xmltokenize.pl");
-} else {
-	$revnode->appendText("tokenized using xmltokenize.pl");
+if ( $revs ) {
+	$revnode = XML::LibXML::Element->new( "change" );
+	$revs->addChild($revnode);
+	$when = strftime "%Y-%m-%d", localtime;
+	$revnode->setAttribute("who", "xmltokenize");
+	$revnode->setAttribute("when", $when);
+
+	if ( $sentsplit == 2 ) {
+		$revnode->appendText("split into sentences using xmltokenize.pl");
+	} elsif ( $sentsplit == 1 ) {
+		$revnode->appendText("tokenized and split into sentences using xmltokenize.pl");
+	} else {
+		$revnode->appendText("tokenized using xmltokenize.pl");
+	};
 };
 
 $xmlfile = $doc->toString;
@@ -649,7 +656,7 @@ if ( $test ) {
 
 sub makenode ( $xml, $xquery ) {
 	my ( $xml, $xquery ) = @_;
-	@tmp = $xml->findnodes($xquery); 
+	if ( !$xquery ) { return; };
 	if ( scalar @tmp ) { 
 		$node = shift(@tmp);
 		if ( $debug ) { print "Node exists: $xquery"; };
@@ -676,7 +683,7 @@ sub makenode ( $xml, $xquery ) {
 			};
 
 			if ( $debug ) { print "Creating node: $xquery ($thisname)"; };
-			$parnode->addChild($newchild);
+			if ( $parnode ) { $parnode->addChild($newchild); };
 			
 		} else {
 			print "Failed to find or create node: $xquery";
