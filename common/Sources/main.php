@@ -5,6 +5,7 @@
 
 	# Lower error reporting
 	error_reporting(E_ERROR | E_PARSE);
+	session_start();
 
 	if ( $ttroot == "" ) $ttroot = "..";
 
@@ -22,7 +23,6 @@
 		$hprot = "http";
 		ini_set("session.cookie_secure", 0); // TEITOK typically does not work on HTTPS, so SESSION vars have to be allow on HTTP
 	};
-	session_start();
 
 	
 	# Determine the folder to set a folder-specific user cookie
