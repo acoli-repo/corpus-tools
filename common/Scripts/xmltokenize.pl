@@ -576,8 +576,11 @@ eval {
 	$doc = $parser->load_xml(string => $xmlfile);
 };
 if ( !$doc ) { 
-	if ( -w "tmp" ) $wrongxml = "tmp/wrong.xml";
-	else  $wrongxml = "/tmp/wrong.xml";
+	if ( -w "tmp" ) { 
+		$wrongxml = "tmp/wrong.xml";
+	} else {
+		$wrongxml = "/tmp/wrong.xml";
+	};
 	print "XML got messed up - saved to $wrongxml\n"; 
 	open FILE, ">$wrongxml";
 	binmode ( FILE, ":utf8" );
