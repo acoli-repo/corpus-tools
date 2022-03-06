@@ -1071,8 +1071,8 @@
 		# And we need to copy the base for the URL
 		if ( $settings['defaults']['base']['url'] ) {
 			$deff = $merged->addChild("default");
-			$basef = $deff->addChild("base");
-			$basef->setAttribute("url", $settings['defaults']['base']['url']);
+			$basef[ = $deff->addChild(]"base");
+			$basef["url"] = $settings['defaults']['base']['url'];
 		};
 		
 		return $merged;
