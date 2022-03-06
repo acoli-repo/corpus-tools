@@ -81,70 +81,13 @@
 	} else if ( ( file_exists("Scripts/recqp.pl") || file_exists("$sharedfolder/Scripts/recqp.pl") || file_exists("$ttroot/common/Scripts/recqp.pl") ) && !$_GET['check'] && !$_GET['force'] ) {
 
 		if ( $sharedsettings['cqp'] && !$settings['cqp']['noshare'] ) {
-			$merged = new SimpleXMLElement("<ttsettings/>");
-			$cqp = $merged->addChild("cqp");
-			$patts = $cqp->addChild("pattributes");
-			foreach ( $settings['cqp'] as $key => $val ) {
-				if ( !is_array($val) ) { $cqp[$key] = $val; };
+			$merged = makesettings($settings);
+			if ( $merged ) {
+				file_put_contents("tmp/cqpsettings.xml", $merged->asXML());
+				$setfile = " --setfile=tmp/cqpsettings.xml";
+				$combtxt = "<p>The settings used for this regeneration combine local and global settings,
+						and are based on a compiled settings file tmp/cqpsettings.xml</p>";
 			};
-			foreach ( $settings['cqp']['pattributes'] as $key => $val ) {
-				$item = $patts->addChild("item");
-				foreach ( $val as $key2 => $val2 ) {
-					$item[$key2] = $val2;
-				};
-			};
-			$satts = $cqp->addChild("sattributes");
-			foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
-				$item = $satts->addChild("item");
-				foreach ( $val as $key2 => $val2 ) {
-					if ( is_array($val2) ) {
-						$item2 = $item->addChild("item");				
-						foreach ( $val2 as $key3 => $val3 ) {
-							$item2[$key3] = $val3;
-						};
-					} else {
-						$item[$key2] = $val2;
-					};
-				};
-			};
-			# We need to also copy the xmlfile for the inheritance
-			$xmlf = $merged->addChild("xmlfile");
-			$patts = $xmlf->addChild("pattributes");
-			foreach ( $settings['xmlfile'] as $key => $val ) {
-				if ( !is_array($val) ) { $xmlf[$key] = $val; };
-			};
-			$forms = $patts->addChild("forms");
-			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $val ) {
-				$item = $forms->addChild("item");
-				foreach ( $val as $key2 => $val2 ) {
-					$item[$key2] = $val2;
-				};
-			};
-			$tags = $patts->addChild("tags");
-			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $val ) {
-				$item = $tags->addChild("item");
-				foreach ( $val as $key2 => $val2 ) {
-					$item[$key2] = $val2;
-				};
-			};
-			$satts = $xmlf->addChild("sattributes");
-			foreach ( $settings['xmlfile']['sattributes'] as $key => $val ) {
-				$item = $satts->addChild("item");
-				foreach ( $val as $key2 => $val2 ) {
-					if ( is_array($val2) ) {
-						$item2 = $item->addChild("item");				
-						foreach ( $val2 as $key3 => $val3 ) {
-							$item2[$key3] = $val3;
-						};
-					} else {
-						$item[$key2] = $val2;
-					};
-				};
-			};
-			file_put_contents("tmp/cqpsettings.xml", $merged->asXML());
-			$setfile = " --setfile=tmp/cqpsettings.xml";
-			$combtxt = "<p>The settings used for this regeneration combine local and global settings,
-					and are based on a compiled settings file tmp/cqpsettings.xml</p>";
 		};
 		
 		if ( ( file_exists("cqp/word.corpus")	&& !is_writable("cqp/word.corpus") ) || !is_writable("cqp") ) 
