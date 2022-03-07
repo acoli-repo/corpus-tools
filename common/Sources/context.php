@@ -46,7 +46,12 @@
 		if ( $settings['context']['nopos'] ) { $pos = $leftpos = $rightpos = ""; }; # Ignore POS if indexes might differ
 
 		$fileid = "xmlfiles/$cid.xml"; 
-		$outfolder = "cqp"; 
+		$outfolder = "cqp";
+		if ( $settings['cqp']['subcorpora'] && preg_match("/(^[^\/]+)\//", $cid, $matches) ) {
+			$subfolder = $matches[1];
+			$outfolder .= "/$subfolder";
+			$subcorpus = "-$subfolder";
+		};
 		$xidxcmd = findapp("tt-cwb-xidx");
 	
 		# If we do not have a left/right position 
@@ -54,7 +59,7 @@
 			if ( $tid ) {
 				# lookup the position in CQP
 				include ("$ttroot/common/Sources/cwcqp.php");
-				$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+				$cqpcorpus = strtoupper($settings['cqp']['corpus'].$subcorpus); # a CQP corpus name ALWAYS is in all-caps
 				$cqp = new CQP();
 				$cqp->exec($cqpcorpus); // Select the corpus
 				$cqp->exec("set PrettyPrint off");
