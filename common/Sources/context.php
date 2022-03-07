@@ -110,7 +110,7 @@
 
 	if ( $debug ) $cmdt = $cmd;
 
-	$resxml = preg_replace("/.*<\/teiHeader>/gsmi", "", $resxml);
+	$resxml = preg_replace("/.*<\/teiHeader>/", "", $resxml);
 
 	$resxml = preg_replace("/ (id=\"$tid\")/", " \\1 highlight=\"1\"", $resxml );
 
