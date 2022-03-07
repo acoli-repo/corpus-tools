@@ -133,7 +133,7 @@ $tagtxt =~ s/\s*\|~\s*((<[pl]b[^>]*>\s*?)*)\s*/\1/gsmi;
 $tagtxt =~ s/&amp;/xxAMPxx/g;
 $tagtxt =~ s/&lt;/xxLTxx/g;
 $tagtxt =~ s/&gt;/xxGTxx/g;
-$tagtxt = decode_entities($tagtxt);
+# $tagtxt = decode_entities($tagtxt);
 # Protect HTML Entities so that they do not get split
 # TODO: This should not exist anymore, right?
 #$tagtxt =~ s/(&[^ \n\r&]+;)/xx\1xx/g;
@@ -447,8 +447,9 @@ if ( $sentsplit != 2 ) {
 
 		if ( $noinner || $inner ) {
 			# Split off the punctuation marks now (splitting tokens)
+			$tryline = $line;
 			@todo = ();
-			while ( $line =~ /(<tok[^<>]*>)(.*?)(<\/tok>)/g ) {
+			while ( $tryline =~ /(<tok[^<>]*>)(.*?)(<\/tok>)/g ) {
 				$tokp = $&;
 				push(@todo, $tokp);
 			};
@@ -472,10 +473,14 @@ if ( $sentsplit != 2 ) {
 					$newtok =~ s/<tok><\/tok>//g;
 					if ( decode_entities($tokp) ne $newtok ) { 
 						if ( $debug ) { print " -- Split: $tokp => $newtok"; };
-						$line =~ s/\Q$tokp\E/$newtok/;
+						$tryline =~ s/\Q$tokp\E/$newtok/;
 					};
 				};
 			};
+			# Check that we still have valid XML before using the line
+			eval { $tryxml = $parser->load_xml(string => $tryline); };
+			if ( $tryxml ) { $line = $tryline; }
+			elsif ( $debug ) { print "-- Inner splitting leading to incorrect XML: $tryline"; };
 		};
 		# Split off the punctuation marks again (in case we moved out end tags)
 		while ( $line =~ /(?<!<tok>)(\p{isPunct}<\/tok>)/ ) {
