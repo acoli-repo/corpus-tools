@@ -91,7 +91,7 @@
 			$tid = chop($cqp->exec("tabulate Matches match id"));
 		};	
 	
-		if ( $hls ) $hlstyle = "<style>tok[highlight] { background-color: #ffee77; }</style>";
+		if ( $hls ) $hlstyle = "<style>tok[hl] { background-color: #ffee77; } tok[hl=\"2\"] { background-color: #ffcccc; }</style>";
 
 		$cmd = "$xidxcmd --filename='$fileid' --cqp='$outfolder' $expand $leftpos $rightpos";
 		$resxml = shell_exec($cmd);
