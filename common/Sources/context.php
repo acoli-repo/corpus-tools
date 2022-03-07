@@ -112,7 +112,12 @@
 
 	$resxml = preg_replace("/.*<\/teiHeader>/", "", $resxml);
 
-	$resxml = preg_replace("/ (id=\"$tid\")/", " \\1 highlight=\"1\"", $resxml );
+// 	$resxml = preg_replace("/ (id=\"$tid\")/", " \\1 highlight=\"1\"", $resxml );
+	$resxml = str_replace(" id=\"$tid\"", " hl=\"1\" id=\"$tid\"", $resxml);
+	if ( preg_match("/d-(.*)-\d+/", $tid, $matches) ) {
+		$tdid = "w-".$matches[1];
+		$resxml = str_replace(" id=\"$tdid\"", " hl=\"2\" id=\"$tdid\"", $resxml);
+	};
 
 	$headtext = $settings['context']['link'] or $headtext = "View TEITOK document";
 	if ( $withheader ) {
