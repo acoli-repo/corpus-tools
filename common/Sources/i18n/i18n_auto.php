@@ -209,6 +209,7 @@
 		"words" => "words",
 		"Sort on" => "Sort on",
 		"Form" => "Form",
+		"Case and diacritic insensitive" => "Case and diacritic insensitive",
 		"Case insensitive" => "Case insensitive",
 		"Right context" => "Right context",
 		"Left context" => "Left context",
