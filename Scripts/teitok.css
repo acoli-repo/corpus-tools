@@ -102,6 +102,7 @@ anon::after { content: ']'; }
 .header { font-weight: bold; }
 
 *[hl] { background-color: #ffee99;  }
+tok[hl="2"] { background-color: #ffcccc; }
 
 /* Style for thumbnail blocks */
 .thumbnail {
