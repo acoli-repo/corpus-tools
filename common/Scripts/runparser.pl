@@ -251,7 +251,7 @@ foreach $par ( $xml->findnodes($textxpath) ) {
 	};
 	@toks = $regpar->findnodes(".//tok"); 
 	@orgtoks = $par->findnodes(".//tok"); 
-	if ( $debug > 1 ) { 
+	if ( $debug > 3 ) { 
 		print "Treating: ".$par->toString;
 	};
 	$text = $regpar->textContent;
