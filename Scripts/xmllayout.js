@@ -214,6 +214,11 @@ function makespan(event) {
 		selstring += tok.innerHTML + ' ';
 		idlist += tok.getAttribute('id') + ';';
 	};
+	
+	if ( selstring.length > 150 ) {
+		var sz = Math.min(selstring.length/2, 70);
+		selstring = selstring.substr(0,sz) + ' <span style="color: blue">...</span> ' + selstring.substr(selstring.length-sz);
+	};
 
 	addmode = 1;
 	document.getElementById('toklist').value = idlist;
