@@ -418,9 +418,9 @@
 		
 		# Now do "within" regions
 		foreach ( $regwith as $key => $val ) {
-			$regwithtext .= "<option value='$key'>$val</option>";
+			$regwithtext .= "<option value='$key'>{%$val}</option>";
 		};
-		if ( $regwithtext ) $querytext .= "<hr><p>Search within: <select name='within' id='within'><option value='text'>Text</option>$regwithtext</select>";
+		if ( $regwithtext ) $querytext .= "<hr><p>{%Search within}: <select name='within' id='within'><option value='text'>{%Text}</option>$regwithtext</select>";
 
 		# Deal with any stand-off annotation attributes (errors, etc.)
 		if ( is_array ( $settings['cqp']['annotations']))

@@ -216,6 +216,7 @@
 		"Corpus order" => "Corpus order",
 		"Longest match" => "Longest match",
 		"Shortest match" => "Shortest match",
+		"Search within" => "Search within",
 		"Create query" => "Create query",
 		"define search options" => "define search options",
 		"Module" => "Module",
