@@ -50,7 +50,7 @@ function clickEvent(evt) {
 	element = evt.toElement; 
 	if ( !element ) { element = evt.target; };
 	
-	console.log(pseudo(element,evt));
+	// console.log(pseudo(element,evt));
 		
 	if ( seq[0] ) { return; };
 	
@@ -129,7 +129,9 @@ function showxpath(element) {
 	tokinfo.style.top = ( foffset.top + element.offsetHeight + 4 ) + 'px';
 };
 
+var node1; var noden;
 function makespan(event) { 
+
 	var toks = document.getElementsByTagName('tok');
 	selstring = '';
 	
@@ -139,28 +141,43 @@ function makespan(event) {
 		sel = document.selection.createRange();
 	}
 
-	var node1 = sel.anchorNode; 
-	if ( !node1 || sel.anchorOffset == 0) { 
-		for ( var a = 0; a<seq.length; a++ ) {
-			var tok = seq[a];
-			tok.style['background-color'] = null;
-			tok.style.backgroundColor= null; 
+	if ( event.shiftKey && node1 ) {
+		var newnode = sel.anchorNode; 
+		while ( newnode && newnode.nodeName != 'TOK' && newnode.nodeName != 'tok'  ) { newnode = newnode.parentNode; };
+		var order = node1.compareDocumentPosition(newnode);
+		if ( order == 2 ) {
+			node1 = newnode;
+		} else if ( order == 4 ) {
+			noden = newnode;
 		};
-		seq = []; selstring = '';
-		return -1;
+	} else {
+		node1 = sel.anchorNode; 
+		if ( !node1 || sel.anchorOffset == 0) { 
+			for ( var a = 0; a<seq.length; a++ ) {
+				var tok = seq[a];
+				tok.style['background-color'] = null;
+				tok.style.backgroundColor= null; 
+			};
+			seq = []; selstring = '';
+			return -1;
+		};
+		noden = sel.focusNode;
+		var order = 0;
+		if ( node1.compareDocumentPosition(noden) == 2 ) {
+			// switch if selection is inverse
+			var tmp = node1;
+			node1 = noden;
+			noden = tmp;
+		};
+		while ( node1 && node1.nodeName != 'TOK' && node1.nodeName != 'tok'  ) { node1 = node1.parentNode; };
+		while ( noden && noden.nodeName != 'TOK' && noden.nodeName != 'tok'  ) { noden = noden.parentNode; };
 	};
-	var noden = sel.focusNode;
-	var order = 0;
-	if ( node1.compareDocumentPosition(noden) == 2 ) {
-		// switch if selection is inverse
-		var tmp = node1;
-		node1 = noden;
-		noden = tmp;
+	if ( node1.parentNode != noden.parentNode ) {
+		while ( node1.parentNode.compareDocumentPosition(noden) != 20 && node1.nodeName != 'TEXT' && node1.nodeName != 'text' ) {
+			node1 = node1.parentNode;
+		};
 	};
-
-	while ( node1 && node1.nodeName != 'TOK' && node1.nodeName != 'tok'  ) { node1 = node1.parentNode; };
-	while ( noden && noden.nodeName != 'TOK' && noden.nodeName != 'tok'  ) { noden = noden.parentNode; };
-
+	
 	// Reset the selection
 	for ( var a = 0; a<seq.length; a++ ) {
 		var tok = seq[a];
@@ -171,14 +188,20 @@ function makespan(event) {
 	};
 	seq = []; 
 
-	var nodei = node1;
-
-	seq.push(node1); 
-	while ( nodei != noden && nodei ) {
-		nodei = nodei.nextSibling;
-		if ( nodei && ( nodei.nodeName == 'TOK' || nodei.nodeName == 'tok' )  ) { 
-			seq.push(nodei);			
+	var nodei = node1;  
+	while ( nodei  &&  ( nodei.compareDocumentPosition(noden) == 4 || nodei.compareDocumentPosition(noden) == 20 || nodei == noden ) ) { // nodei != noden && 
+		if ( nodei && nodei.nodeType == 1 ) { //  && ( nodei.nodeName == 'TOK' || nodei.nodeName == 'tok' ) 
+			if ( ( nodei.nodeName == 'TOK' || nodei.nodeName == 'tok' )  ) {
+				seq.push(nodei);			
+			} else {
+				var intoks = nodei.getElementsByTagName('tok');
+				for ( var a = 0; a<intoks.length; a++ ) {
+					toki = intoks[a];
+					seq.push(toki);			
+				};
+			};
 		};
+		nodei = nodei.nextSibling;
 	};
 	window.getSelection().removeAllRanges();
 

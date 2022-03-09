@@ -2,7 +2,7 @@
 
 	check_login();
 	require("$ttroot/common/Sources/ttxml.php");
-	$ttxml = new TTXML();
+	$ttxml = new TTXML($_GET['cid'], false, 'keepns');
 
  	$colorlist = array ( '#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999', '#990000', '#009900', '#000099', '#999900', '#990099', '#009999' );
 	$empties = array ('pb', 'lb', 'cb', 'milestone', 'dtok');
@@ -454,8 +454,10 @@
 		$maintext .= "</div>";
 		
 		if ( $username ) { 
-			$maintext .= "<hr><p>Drag the cursor across one or more words to make a selection to annotate; click on the tag 
-				of an in-line shown tag to remove it</p>";
+			$maintext .= "<hr><p>Drag the cursor across one or more words to make a selection to annotate; 
+				shift-click to extend the selected; the selection will get automatically 
+				extended to the smallest annotatable non-crossing selection;
+				click on the tag of an in-line shown tag to remove it</p>";
 		};
 
 		$maintext .= "<hr>
@@ -486,18 +488,42 @@
 		$tmp = $xpath->query("//tok[@id=\"$first\"]");
 		if ( !$tmp ) return -1; // fatal ("Token not found: $first");
 		$el1 = $tmp->item(0);
+		$path1 = $el1->getNodePath();
+		$tmp = $xpath->query("//tok[@id=\"$last\"]");
+		if ( !$tmp ) return -1; // fatal ("Token not found: $last");
+		$el2 = $tmp->item(0);
+		$path2 = $el2->getNodePath();
+
+		$tmp1 = explode("/", $path1); $tmp2 = explode("/", $path2);
+		$i=0; while ( $i < count($tmp1) && $tmp1[$i] == $tmp2[$i] ) {
+			print "<p>{$tmp1[$i]} == {$tmp2[$i]}";
+			$i++;
+		};
+		
+		$n1xp = join("/", array_slice($tmp1, 0, $i+1));
+		$tmp = $xpath->query($n1xp);
+		$n1node = $tmp->item(0);
+		$n2xp = join("/", array_slice($tmp2, 0, $i+1));
+		$tmp = $xpath->query($n2xp);
+		$n2node = $tmp->item(0);
 		
 		$newner = $dom->createElement($parent);
 		
-		$el1->parentNode->insertBefore($newner, $el1); $nextnode = $newner;
+		$n1node->parentNode->insertBefore($newner, $n1node); $nextnode = $newner;
 		if ( $debug ) { print "<p>Created: ".htmlentities($dom->saveXML($nextnode)); };
 		while ( $nextnode  ) {
-			$nextnode = $newner->nextSibling;
+			$nextnode = $newner->nextSibling; 
+			if ( !$nextnode ) { 
+				if ( $debug ) { print "<p>Oops - no next"; };
+				break; 
+			};
 			if ( $debug ) { print "<p>Adding: ".htmlentities($dom->saveXML($nextnode)); };
 			$tmp = $newner->appendChild($nextnode);
-			if ( $nextnode->nodeType == 1 && $nextnode->getAttribute('id') == $last ) break;
-		}; 
-		
+			if ( $nextnode->isSameNode($n2node) ) {
+				break;
+			};
+		};
+
 		return $newner;
 
 	};
