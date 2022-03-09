@@ -29,6 +29,7 @@ GetOptions (
             'parser=s' => \$parsername,
             'format=s' => \$parserformat,
             'taglist=s' => \$formtags,
+            'keeplines' => \$keeplines, # Do not remove linebreaks
             'resp=s' => \$resp,
             'args=s' => \$args,
             'null=s' => \$null,
@@ -254,7 +255,8 @@ foreach $par ( $xml->findnodes($textxpath) ) {
 		print "Treating: ".$par->toString;
 	};
 	$text = $regpar->textContent;
-	if ( $debug ) { print $text; };
+	if ( !$keeplines ) { $text =~ s/\n/ /g;  $text =~ s/ +/ /g; };
+	if ( $debug ) { print "TEXT:". $text; };
 	$parsed = runudpipe($text, $model);
 	foreach $line ( split("\n", $parsed ) ) {
 		if ( $debug > 2 ) { print $line; };
