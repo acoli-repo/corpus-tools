@@ -315,8 +315,9 @@
 					$grtxt = $grnames;
 				} else if ( !$grtxt ) $grtxt = $grquery;
 
+				$cqllink = urlencode($cql);
 				$maintext .= "<table>
-								<tr><th>{%Search Query}:<td>$cqltxt</tr>
+								<tr><th>{%Search Query}:<td><a style='color: black;' href='index.php?action=cqp&cql=$cqllink'>$cqltxt</a></tr>
 								<tr><th>{%Group query}:<td>$grtxt</tr>
 							</table>";
 

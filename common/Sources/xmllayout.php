@@ -419,7 +419,7 @@
 			#prv p, #prv tei_div, #prv tei_head { display: block; padding-bottom: 10px; }
 		</style>";
 
-		if ( $username ) $alltags = " (<a href='index.php?action=$action&act=taglist&id=$ttxml->fileid'>view all tags</a>)";
+		if ( $username ) $alltags = " - <span class=adminpart><a href='index.php?action=$action&act=taglist&id=$ttxml->fileid'>view all recommended tags</a></span>";
 
 		// 				<input type='checkbox' name='attshow' onChange='attshow = this.checked;' value='1'> Show node attributes
 		$maintext .= "<hr><div id='xpath' style='height: 20px;'></div><hr>
@@ -457,7 +457,7 @@
 			$maintext .= "<hr><p>Drag the cursor across one or more words to make a selection to annotate; 
 				shift-click to extend the selected; the selection will get automatically 
 				extended to the smallest annotatable non-crossing selection;
-				click on the tag of an in-line shown tag to remove it</p>";
+				click on the tag of an in-line shown tag to remove it (<a href='http://www.teitok.org/index.php?action=help&id=xmllayout' target=teitok>more</a>)</p>";
 		};
 
 		$maintext .= "<hr>

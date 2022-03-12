@@ -611,6 +611,16 @@ if ( !$doc ) {
 		$ttnode->setAttribute('form', "--");
 	}; 
 
+
+	if ( $sentsplit == 2 ) {
+		$actiontxt = "split into sentences";
+	} elsif ( $sentsplit == 1 ) {
+		$actiontxt = "tokenized and split into sentences";
+	} else {
+		$actiontxt = "tokenized";
+	};
+
+
 # Add a revisionDesc to indicate the file was tokenized
 $revs = makenode($doc, "/TEI/teiHeader/revisionDesc");
 if ( $revs ) {
@@ -619,14 +629,7 @@ if ( $revs ) {
 	$when = strftime "%Y-%m-%d", localtime;
 	$revnode->setAttribute("who", "xmltokenize");
 	$revnode->setAttribute("when", $when);
-
-	if ( $sentsplit == 2 ) {
-		$revnode->appendText("split into sentences using xmltokenize.pl");
-	} elsif ( $sentsplit == 1 ) {
-		$revnode->appendText("tokenized and split into sentences using xmltokenize.pl");
-	} else {
-		$revnode->appendText("tokenized using xmltokenize.pl");
-	};
+	$revnode->appendText("$actiontxt using xmltokenize.pl");
 };
 
 $xmlfile = $doc->toString;
@@ -652,7 +655,7 @@ if ( $test ) {
 
 	( $renum = $scriptname ) =~ s/xmltokenize/xmlrenumber/;
 
-	print "$filename has been tokenized - renumbering tokens now";
+	print "$filename has been $actiontxt - renumbering tokens now";
 	# Finally, run the renumber command over the same file
 	$cmd = "/usr/bin/perl $renum --filename=$fullfilename";
 	# print $cmd;
