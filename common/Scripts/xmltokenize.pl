@@ -551,7 +551,7 @@ if ( $sentsplit ) {
 	# Now - add </s><s> after every sentence-final token
 	# TODO: this should be done one at a time to fallback only where needed
 	$teitext =~ s/(<tok [^>]+>[.?!]<\/tok>)(\s*)/\1<\/s>\2<s>/g; 
-	if ( $debug ) { print $teitext; };
+	if ( $debug ) { print "BEFSPLIT: ".$teitext; };
 	
 	# In case the splitting messed up the XML, undo
 	$parser = XML::LibXML->new(); $tmp = "";
