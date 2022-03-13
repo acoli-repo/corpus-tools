@@ -530,6 +530,9 @@ if ( $sentsplit ) {
 		$teitext =~ s/(<\/p>)/<\/s>\1/g;
 		$teitext =~ s/(<head(?=[ >])[^>]*>)/\1<s>/g;
 		$teitext =~ s/(<\/head>)/<\/s>\1/g;
+	} elsif ( $teitext =~ /<\/tei_div>/ ) { # There should be no tei_div in the XML
+		$teitext =~ s/(<tei_div(?=[ >])[^>]*>)/\1<s>/g;
+		$teitext =~ s/(<\/tei_div>)/<\/s>\1/g;
 	} elsif ( $teitext =~ /<\/div>/ ) {
 		$teitext =~ s/(<div(?=[ >])[^>]*>)/\1<s>/g;
 		$teitext =~ s/(<\/div>)/<\/s>\1/g;
@@ -559,23 +562,27 @@ if ( $sentsplit ) {
 		$tmp = $parser->load_xml(string => $teitext);
 	};
 	if ( !$tmp ) {
-		print "Splitting within paragraphs failed - reverting: $@";
+		check_folder("tmp");
+		print "Splitting within paragraphs failed - reverting";
+		open FILE, ">tmp/wrongsent.xml";
+		print FILE $teitext;
+		close FILE;
+		if ( $debug ) { print $@; };
 		$teitext = $presplit; 
 	};
 	
 	# Finally, remove empty sentences
 	$teitext =~ s/<s><\/s>//g;
 	
-} else {
-
-	# Put the notes back
-	while ( $teitext =~ /<ntn n="(\d+)"\/>/ ) {
-		$notenr = $1; $notetxt = $notes[$notenr]; 
-		$notecode = $&;
-		$teitext =~ s/\Q$notecode\E/$notetxt/;
-	};
-
 };
+
+# Put the notes back
+while ( $teitext =~ /<ntn n="(\d+)"\/>/ ) {
+	$notenr = $1; $notetxt = $notes[$notenr]; 
+	$notecode = $&;
+	$teitext =~ s/\Q$notecode\E/$notetxt/;
+};
+
 
 $xmlfile = $head.$teitext.$foot;
 
