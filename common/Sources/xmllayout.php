@@ -94,8 +94,12 @@
 
 		 if ( $_POST['action'] == "edit" ) {
 		 
+		 	$tmp = current($ttxml->xml->xpath("//*[@id=\"$remid\"]"));
+		 	$contxt = $remrec->asXML();
 			$maintext .= "<h1>Edit Annotation</h1>
-				<form action='index.php?action=$action&cid=$ttxml->fileid&elmid={$_GET['elmid']}' method=post>
+			
+				<div>$contxt</div>
+				<form action='index.php?action=$action&cid=$ttxml->fileid&elmid=$elmid' method=post>
 				<input type=hidden name=action value='save'>
 				<input type=hidden name=remid value='$remid'>
 				<input type=hidden name=remnr value='$remnr'>
