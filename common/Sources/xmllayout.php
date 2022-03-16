@@ -98,7 +98,7 @@
 		 	$contxt = $remrec->asXML();
 			$maintext .= "<h1>Edit Annotation</h1>
 			
-				<div>$contxt</div>
+				<div>$contxt</div><hr>
 				<form action='index.php?action=$action&cid=$ttxml->fileid&elmid=$elmid' method=post>
 				<input type=hidden name=action value='save'>
 				<input type=hidden name=remid value='$remid'>
