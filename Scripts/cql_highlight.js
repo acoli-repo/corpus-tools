@@ -233,8 +233,8 @@ window.HLPARSER = /*
         peg$c89 = peg$classExpectation(["\""], true, false),
         peg$c90 = function(Regex_elm) { return {elm:'Regex', val:Regex_elm } },
         peg$c91 = peg$otherExpectation("whitespace (optional)"),
-        peg$c92 = /^[ s\xA0\t\n\r]/,
-        peg$c93 = peg$classExpectation([" ", "s", "\xA0", "\t", "\n", "\r"], false, false),
+        peg$c92 = /^[ \xA0\t\n\r]/,
+        peg$c93 = peg$classExpectation([" ", "\xA0", "\t", "\n", "\r"], false, false),
 
         peg$currPos          = 0,
         peg$savedPos         = 0,
