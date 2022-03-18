@@ -24,18 +24,51 @@ class CQP
 	var $prcs;
 	var $pipes;
 	var $version;
+	var $registryfolder;
+	var $name;
+	var $corpus;
+	var $folder;
+	var $wordfld;
+	var $logfile;
 	
 	## PHPCQP object constructor
-    function CQP($registryfolder = "", $cqpapp = "/usr/local/bin/cqp") {
+    function CQP($registryfolder = "", $cqpapp = "/usr/local/bin/cqp", $cqpcorpus = "") {
     	global $settings; global $cqpcorpus;
+  
+  		# Determine the corpus name
+		if ( !$cqpcorpus ) {
+			$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
+			if ( $settings['cqp']['subcorpora'] ) {
+				$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'];
+				if ( !$subcorpus ) {
+					fatal("No subcorpus selected");
+				};
+				$_SESSION['subc'] = $subcorpus;
+				$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
+				$cqpfolder = "cqp/$subcorpus";
+				$corpusname = $_SESSION['corpusname'] or $corpusname = "Subcorpus $subcorpus";
+				$subcorpustit = "<h2>$corpusname</h2>";
+			} else {
+				$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
+				$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+			};
+		};
+		$this->name = $corpusname;
+		$this->corpus = $cqpcorpus;
+		$this->folder = $corpusfolder;
+  	
+    	# Determine the registry folder
     	if ( $registryfolder == "" ) { 
 			$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
     	};
+    	$this->registryfolder = $registryfolder;
 		if ( $cqpcorpus == "" ) $cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 		if ( !file_exists($registryfolder."/".strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
 			# For backward compatibility, always check the central registry
 			$registryfolder = "/usr/local/share/cwb/registry/";
 		};
+		
+		$this->wordfld = $settings['cqp']['wordfld'] or $this->wordfld = "word";
 
         $this->active = true;
 
@@ -68,6 +101,15 @@ class CQP
 
     }
 
+	public function setcorpus() {
+		$this->exec($this->corpus); // Select the corpus
+		$this->exec("set PrettyPrint off");
+	}
+
+	public function setlog($fn = "tmp/cqp.log") {
+		$this->logfile = $fn;
+	}
+
     public function exec($cmd) {
     	global $settings;
     	
@@ -84,12 +126,15 @@ class CQP
 			} while ( !strstr($line, "-::-EOL-::-") );
 			$data = preg_replace ("/-::-EOL-::-/", "", $data); 
 
-			if ( $settings['defaults']['cwblog'] ) # Write a CWB log file if so asked
-			if ( $fh = fopen($settings['defaults']['cwblog']['file'], 'a') ) { 
-					fwrite($fh, $cmd);
-					fclose ( $fh );
-			} else print "<!-- error opening log file -->";
-			
+			if ( $settings['defaults']['cwblog'] || $this->logfile ) {
+				# Write a CWB log file if so asked
+				if ( !$this->logfile ) $this->logfile = $settings['defaults']['cwblog']['file'];
+				if ( $fh = fopen($this->logfile, 'a') ) { 
+						fwrite($fh, $cmd);
+						fclose ( $fh );
+				} else print "<!-- error opening log file -->";
+			};
+						
 			return $data;
 		} else { 
 			print "<p>Error: CQP Pipe not open"; exit;
