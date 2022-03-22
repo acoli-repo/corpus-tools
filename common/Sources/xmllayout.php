@@ -30,9 +30,10 @@
 			if ( $ttxml->xml->xpath($xp) ) $largexml = 1;
 		} else {
 			if ( $xp ) $largelim = $xp + 0; 
+			else if ( $_GET['lim'] == "none" ) $nolarge = 1; 
 			else if ( $_GET['lim'] ) $largelim = $_GET['lim'] + 0; 
-			else $largelim = 500;
-			if ( count($ttxml->xml->xpath("//tok")) > $largelim ) $largexml = 1;
+			else $largelim = 50;
+			if ( count($ttxml->xml->xpath("//tok")) > $largelim && !$nolarge ) $largexml = 1;
 		};
 	};
 	
@@ -292,12 +293,12 @@
 			<hr><a href='index.php?action=$action&id=$ttxml->fileid'>back to layout</a>";
 
 
-	} else if ( $act == "index" || ( !$_GET['elmid'] && $largexml && !$_GET['full'] )  ) {
+	} else if ( $act == "index" || ( !$_GET['elmid'] && !$_GET['xpath'] && $largexml && !$_GET['full'] )  ) {
 	
 		$maintext .= "<h2>XML Layout Index</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();		
 		
-		$maintext .= "<p>Select a part of the XML to edit<hr>";
+		$maintext .= "<p>Select a part of the XML to edit - <a href='index.php?action=$action&full=1&cid=$ttxml->xmlid'>show all</a><hr>";
 		
 		$basexp = "$mtxtelement";
 		if ( $_GET['selid'] ) { 
@@ -316,7 +317,7 @@
 		} else if ( $_GET['xpath'] ) {
 			$basexp = $_GET['xpath'];
 			$root = current($ttxml->xml->xpath($basexp));
-			print "Nr of Children: ".count($root->children()); exit;
+			# print "Nr of Children: ".count($root->children()); exit;
 			if ( !$root ) fatal("Node not found $basexp");
 			$nodepath = $root->getName();
 		};
@@ -330,7 +331,7 @@
 				$root = current($ttxml->xml->xpath($basexp));
 			};
 		};
-		$maintext .= "<p>$nodepath";
+		if ( $nodepath ) $maintext .= "<p>Selection: $nodepath</p>";
 		foreach ( $root->children() as $child ) {
 			$nn = $child->getName()."";
 			$cnt[$nn]++;
@@ -353,11 +354,12 @@
 			$editxml = current($ttxml->xml->xpath("//*[@id=\"$id\"]"));
 			if ( $editxml ) {
 				$focusxml = $editxml;
-				$nodepath = $focusxml->getName()."<span style='color: #aaaaaa'>[@id=\"".$focusxml['id']."\"]</span>";
+				$nodepath = str_replace("tei_", "", $focusxml->getName())."<span style='color: #aaaaaa'>[@id=\"".$focusxml['id']."\"]</span>";
 				while ( $focusxml ) {
 					$focusxml = current($focusxml->xpath('parent::*'));
 					$focusname = str_replace("tei_", "", $focusxml->getName());
 					if ( $focusxml['id'] ) $focusname = "<a href='index.php?action=$action&id=$ttxml->fileid&elmid={$focusxml['id']}'>$focusname</a>";
+					else if ( $focusname == "text" ) $focusname = "<a href='index.php?action=$action&act=index&id=$ttxml->fileid'>$focusname</a>";
 					$nodepath = "$focusname > $nodepath";
 					if ( $focusxml->getName() == "text" ) { break; };
 				};
@@ -366,6 +368,17 @@
 		} else if ( $_GET['xpath'] ) {
 			$basexp = $_GET['xpath'];
 			$editxml = current($ttxml->xml->xpath($basexp));
+			$focusxml = $editxml;
+			$nodepath = str_replace("tei_", "", $focusxml->getName())."<span style='color: #aaaaaa'>[@id=\"".$focusxml['id']."\"]</span>";
+			while ( $focusxml ) {
+				$focusxml = current($focusxml->xpath('parent::*'));
+				$focusname = str_replace("tei_", "", $focusxml->getName());
+				if ( $focusxml['id'] ) $focusname .= "[@id=<a href='index.php?action=$action&act=index&id=$ttxml->fileid&selid={$focusxml['id']}'>{$focusxml['id']}</a>]";
+				else if ( $focusname == "text" ) $focusname = "<a href='index.php?action=$action&act=index&id=$ttxml->fileid'>$focusname</a>";
+				$nodepath = "$focusname > $nodepath";
+				if ( $focusxml->getName() == "text" ) { break; };
+			};
+			if ( $nodepath ) $maintext .= "<p>Selection!: $nodepath</p><hr>";
 		};
 		if ( !$editxml ) { $editxml = current($ttxml->xml->xpath("//$mtxtelement")); };
 		
