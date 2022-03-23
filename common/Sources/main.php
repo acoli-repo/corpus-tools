@@ -94,6 +94,7 @@
 	else  setcookie("lang", "");
 	
 	# Determine the base URL and the root folder
+	if ( !$baseurl )
 	if ( $settings['defaults']['base']['url'] ) {
 		$baseurl = str_replace('{$corpusfolder}', $foldername, $settings['defaults']['base']['url']);
 	} else {
