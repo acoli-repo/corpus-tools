@@ -134,10 +134,11 @@ $tagtxt =~ s/&amp;/xxAMPxx/g;
 $tagtxt =~ s/&lt;/xxLTxx/g;
 $tagtxt =~ s/&gt;/xxGTxx/g;
 # $tagtxt = decode_entities($tagtxt);
+
 # Protect HTML Entities so that they do not get split
 # TODO: This should not exist anymore, right?
-#$tagtxt =~ s/(&[^ \n\r&]+;)/xx\1xx/g;
-#$tagtxt =~ s/&(?![^ \n\r&;]+;)/xx&amp;xx/g;
+$tagtxt =~ s/(&[^ \n\r&]+;)/xx\1xx/g;
+$tagtxt =~ s/&(?![^ \n\r&;]+;)/xx&amp;xx/g;
 
 # <note> elements should not get tokenized
 # And neither should <desc> or <gap>
