@@ -86,6 +86,9 @@
 		} else $editxml = $file; # Default to full XML if the mtxtelm is missing
 	}; $switch .= " $sep <a href='index.php?action=file&cid=$fileid&full=1'>back to view mode</a>";
 
+	# Toggle softwrap
+	# $switch .= " <a style='text-: right;' onclick='softwrap();'>softwrap</a><script>editor.setOption(\"wrap\", true)</script>";
+
 	$editxml = preg_replace( "/<text([^>]*)\/>/", "<text\\1>\n</text>", $editxml );
 
 	if ( $_GET['view'] != "wysiwyg" ) $editxml = htmlentities($editxml, ENT_COMPAT, 'UTF-8');

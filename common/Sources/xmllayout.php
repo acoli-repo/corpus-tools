@@ -32,7 +32,7 @@
 			if ( $xp ) $largelim = $xp + 0; 
 			else if ( $_GET['lim'] == "none" ) $nolarge = 1; 
 			else if ( $_GET['lim'] ) $largelim = $_GET['lim'] + 0; 
-			else $largelim = 50;
+			else $largelim = 1000;
 			if ( count($ttxml->xml->xpath("//tok")) > $largelim && !$nolarge ) $largexml = 1;
 		};
 	};
