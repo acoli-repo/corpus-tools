@@ -105,8 +105,10 @@
 			$leftoffset = ($bb[0]-5)*$imgscale;
 				
 			// Add the data of the line
-			$bboxpart = "<div style='float: right; width: {$divwidth}px; height: {$divheight}px; overflow: hidden; margin: 3px;'>
+			$bboxpart = "<div style='float: right;'><div style=' width: {$divwidth}px; height: {$divheight}px; overflow: hidden; margin: 3px;'>
 				<img style='width: {$setwidth}px; height: {$setheight}px; margin-top: -{$topoffset}px; margin-left: -{$leftoffset}px;' src='$imgsrc'/>
+				</div>
+				<p style='text-align: center; margin-top: -2px;'><a href='index.php?action=elmedit&tid=$tokid&cid=$fileid'>edit</a><p>			
 				</div>";
  		};
 

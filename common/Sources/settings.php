@@ -61,7 +61,7 @@
 	if ( $tinymceurl == "local" ) $tinymceurl = "$jsurl/tinymce/tinymce.min.js";
 
 	# ACE code editor (XML)
-	$aceurl = $settings['defaults']['src']['ace'] or $aceurl = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.8/ace.js";
+	$aceurl = $settings['defaults']['src']['ace'] or $aceurl = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js";
 	if ( $aceurl == "local" ) $aceurl = "$jsurl/ace/ace.js";
 
 	$bindir = $settings['defaults']['base']['bin'] or $bindir = "/usr/local/bin";

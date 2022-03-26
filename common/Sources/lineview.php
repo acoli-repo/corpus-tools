@@ -153,12 +153,14 @@
 			# Display all the <lb> and/or <l> in this page
 			if ( $onlylb ) $lb = "<lb "; else $lb = "<lb? ";
 			preg_match_all("/$lb/", $editxml, $matches, PREG_OFFSET_CAPTURE);
+			$linecnt = 1;
 			foreach ( $matches[0] as $i => $tmp ) {
 				$cpos = $tmp[1]; $npos = $matches[0][$i+1][1];
 				if ( !$npos ) { $npos = strlen($editxml); };
 				$linetxt = substr($editxml, $cpos, $npos-$cpos);
 
 				if ( preg_match("/^[^>]+id=\"([^\"]+)\"/", $linetxt, $matches2 ) ) { $lineid = $matches2[1]; } else $lineid = "";
+				if ( preg_match("/^[^>]+n=\"([^\"]+)\"/", $linetxt, $matches2 ) ) { $linenr = $matches2[1]; } else $linenr = "[".$linecnt++."]";
 				
 				if ( preg_match("/^[^>]+bbox=\"([^\"]+)\"/", $linetxt, $matches2 ) ) {
 					$bbox = $matches2[1];
@@ -170,6 +172,7 @@
 					";
 
 				} else $lineimg = "";
+				if ( $username ) $linenr .= "<br><a href='index.php?action=elmedit&tid=$lineid&cid=$ttxml->fileid' class=adminpart>edit</a>";
 				$maintext .= "\n<tr><th title=\"$lineid\">$linenr<td>$lineimg<div style='padding: 3px; margin-top: 5px; background-color: #eeeeee; $morestyle'>$linetxt</div>";
 			};  
 

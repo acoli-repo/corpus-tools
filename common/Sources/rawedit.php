@@ -87,7 +87,16 @@
 	}; $switch .= " $sep <a href='index.php?action=file&cid=$fileid&full=1'>back to view mode</a>";
 
 	# Toggle softwrap
-	# $switch .= " <a style='text-: right;' onclick='softwrap();'>softwrap</a><script>editor.setOption(\"wrap\", true)</script>";
+	$switch .= " &bull; <a style='text-: right;' onclick='softwrap();'>toggle soft wrap</a>
+		<script>
+			function softwrap() { 
+				var wrap = editor.getOption('wrap');
+				var setwrap = true;
+				if ( wrap == 'free' ) { setwrap = false; };
+				editor.setOption('wrap', setwrap) 
+				editor.setWrapBehavioursEnabled(true); 
+			}
+		</script>";
 
 	$editxml = preg_replace( "/<text([^>]*)\/>/", "<text\\1>\n</text>", $editxml );
 
