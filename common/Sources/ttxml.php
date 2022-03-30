@@ -338,7 +338,7 @@ class TTXML
 			$this->pagenav = "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
 		} else if ( !$whole && ( $settings['xmlfile']['paged']['type'] == "xp" ) ) {
 			$xmltxt = $this->xppage();
-		} else if ( !$whole && ( $settings['xmlfile']['paged'] || is_array($settings['xmlfile']['paged']) || ( $_GET['pbtype'] || $settings['xmlfile']['paged']['element'] ) ) ) {
+		} else if ( !$whole && ( $_GET['paged'] ||  $settings['xmlfile']['paged'] || is_array($settings['xmlfile']['paged']) || ( $_GET['pbtype'] || $settings['xmlfile']['paged']['element'] ) ) ) {
 			$xmltxt = $this->page();
 		} else {
 			# Not restricted - just display the whole XML
@@ -580,7 +580,7 @@ class TTXML
 		return $context;
 	}
 	
-	function page ( $pagid = "" ) {
+	function page ( $pagid = "", $opts = "" ) {
 		global $action; global $settings; global $pbtype;
 		
 		# $editxml = $this->rawtext; # We might have white-trimmed the XML
@@ -592,14 +592,18 @@ class TTXML
 		// Determine what element to use
 		# if ( $settings['xmlfile']['paged'] == 2) $me = "you";
 		
-		if ( $_GET['action'] == "appalign" ) $pbtmp = $_GET['pbtype'] or $pbtmp = $settings['appid']['baseview'];
+		if ( $opts['pbtype'] || $opts['elm'] ) $pbtmp = $opts['pbtype'] or $pbtmp = $opts['elm'];
+		else if ( $_GET['action'] == "appalign" ) $pbtmp = $_GET['pbtype'] or $pbtmp = $settings['appid']['baseview'];
 		else if ( $_GET['pbtype'] ) $pbtmp = $_GET['pbtype'];
 		else if ( is_array($settings['xmlfile']['paged']) ) $pbtmp = $settings['xmlfile']['paged']['element'];
 		else $pbtmp = "pb";
 		
 		// Determine kind of page to cut out
 		$pbatt = "n";
-		if ( $action == "pagetrans" ) { // Page
+		if ( $opts['elm'] ) { // Explicit element
+			$pbelm = $opts['elm'];
+			$titelm = $opts['elmname'] or $titelm = $pbelm;
+		} else if ( $action == "pagetrans" ) { // Page
 			$pbelm = "page";
 			$titelm = "Page";
 		} else if ( $pbtmp == "pb" ) { // Page
@@ -634,20 +638,19 @@ class TTXML
 			$pbelm = "milestone";
 			$pbsel = "&pbtype={$pbtmp}";
 		};
-
+	
 		if ( !$pagid ) $pagid = $_GET['pageid'];
 		if ( !$tid ) $tid = $_GET['tid'] or $tid = $_GET['jmp'];
 		$tid = preg_replace("/ .*/", "", $tid);
+		$appid = $_GET['appid'];
 
-		if ( $pagid ) {
-			$pb = "<$pbelm id=\"$pagid\"";
-			$pidx = strpos($editxml, $pb);
-		} else if ( $_GET['appid'] ) {
-			$tokidx = strpos($editxml, " appid=\"{$_GET['appid']}\"");
+		$selid = $pagid or $selid = $tid;
+		if ( $selid ) {
+			$tokidx = strpos($editxml, " id=\"$selid\"");
 			$pb = "<$pbelm";
 			$pidx = rstrpos($editxml, $pb, $tokidx);
-		} else if ( $tid ) {
-			$tokidx = strpos($editxml, " id=\"$tid\"");
+		} else if ( $_GET['appid'] ) {
+			$tokidx = strpos($editxml, " appid=\"{$_GET['appid']}\"");
 			$pb = "<$pbelm";
 			$pidx = rstrpos($editxml, $pb, $tokidx);
 		} else {
@@ -661,6 +664,7 @@ class TTXML
 				$tmp = substr($editxml, $pidx, strpos($editxml, ">", $pidx)-$pidx+1);
 			};
 		};
+
 		
 		if ( !$pidx || $pidx == -1 ) { 
 			# When @n is not the first attribute, we cannot use strpos - try regexp instead (slower)
@@ -849,7 +853,7 @@ class TTXML
 		};
 		if ( !$settings['views'] && $this->xml->xpath("//tok[@bbox]") ) {
 			$lvltxt = $settings['views']['facsview']['display'] or $lvltxt = "Facsimile";
-			$viewopts['facsview'] = "{$lvltxt} view";
+			$viewopts['facsview'] = "{$lvltxt}";
 		};
 		
 		if ( $initial."" == "select" ) {

@@ -345,7 +345,7 @@
 		if ( file_exists("/usr/bin/$appname") ) return "/usr/bin/$appname"; // For Fedora
 		if ( file_exists("/usr/local/bin/$appname") ) return "/usr/local/bin/$appname"; // As backup
 	
-		return false;
+		return $appname;
 	};
 
 	function check_folder($foldername, $filename = "") {

@@ -104,7 +104,7 @@
 			$imgsrc = $pb['facs'];
 			if ( substr($imgsrc,0,4) != "http" ) $imgsrc = "Facsimile/$imgsrc";
 			$divheight = 80;
-			$maintext .= "<hr>Edit bounding box:
+			$maintext .= "<hr>Edit bounding box (by dragging the corners):
 				<div bbox='{$elm['bbox']}' onMouseUp='posbox();' class='resize' id='elmdiv' tid='{$elm['id']}' style='width: 100%; height: {$divheight}px; background-image: url(\"$imgsrc\"); background-size: cover;'></div>
 				";
 
