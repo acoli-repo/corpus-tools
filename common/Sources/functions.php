@@ -336,11 +336,11 @@
 	};
 
 	function findapp ( $appname ) {
-		global $bindir;
+		global $bindir; global $settings;
 		
 		if ( $settings['bin'][$appname] ) return $settings['bin'][$appname];
 		
-		if ( file_exists("$bindir/$appname") ) return "$bindir/$appname";
+		if ( $bindir && file_exists("$bindir/$appname") ) return "$bindir/$appname";
 
 		if ( file_exists("/usr/bin/$appname") ) return "/usr/bin/$appname"; // For Fedora
 		if ( file_exists("/usr/local/bin/$appname") ) return "/usr/local/bin/$appname"; // As backup
