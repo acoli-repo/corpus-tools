@@ -393,7 +393,7 @@
 		
 		$protects = array ( "head", "opener", "address", "div", "option", "image", "a" );
 		$edittxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml->asXML() );
-		$maintext .= "<div id=dospans><div id=prv $editmode>$edittxt</div></div>";
+		$maintext .= "<div id=dospans><noblk id=prv $editmode>$edittxt</noblk></div>";
 	
 		foreach ( $teilist as $key => $tag ) {
 			$tagnames[strtolower($key)] = $tag['display'];

@@ -73,8 +73,9 @@
 		foreach ( $cqpcols as $col ) {
 			$colname = pattname($col); 
 			$coldef = $settings['cqp']['pattributes'][$col];
-
-			$jsnames .= "pattname['$col'] = { 'values': '{$coldef['values']}', 'display': '{%$colname}'}; ";
+			$morec = ""; if ( $coldef['multisep'] ) $morec .= ", 'multisep': '{$coldef['multisep']}'";
+	
+			$jsnames .= "pattname['$col'] = { 'values': '{$coldef['values']}', 'display': '{%$colname}' $morec }; ";
 			if ( !$colname ) $colname = "[$col]";
 			$tstyle = ""; 
 			if ( $coldef['admin'] == "1" ) {
@@ -222,7 +223,8 @@
 			foreach ( $lvl as $xid => $xatt ) {
 				if ( $xatt['admin'] && !$username ) continue;
 				if ( !$xatt['display'] || !$xatt['key'] || !is_array($xatt) ) continue;
-				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";
+				$morec = ""; if ( $xatt['multisep'] ) $morec .= ", 'multisep': '{$xatt['multisep']}'";
+				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}' $morec}; ";
 			};
 		};
 		foreach ( $settings['cqp']['annotations'] as $lvl ) {

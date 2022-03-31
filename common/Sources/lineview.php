@@ -234,7 +234,7 @@
 
 			if ( $username ) 
 				$maintext .= " &bull;
-					<a href='index.php?action=regionedit&cid={$ttxml->fileid}&pageid={$curr['id']}' class=adminpart>Edit lines</a>
+					<a href='index.php?action=lineedit&cid={$ttxml->fileid}&pageid={$curr['id']}' class=adminpart>Transcribe lines</a>
 					"; // Used to be $action&act=edit, but regionedit is nicer
 		
 		};

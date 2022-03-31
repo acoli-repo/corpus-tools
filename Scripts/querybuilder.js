@@ -13,9 +13,9 @@ function addtoken() {
         var name = flds[i].getAttribute('name');  
         var val = flds[i].value; 
         if ( val == '' ) continue;
-        var parse = /(.*?)\[(.*)\]/g.exec(name);                     
+        var parse = /(.*?)\[(.*?)\]/g.exec(name);                     
         if ( parse == null ) continue;
-        var pattname = parse[2];
+        var pattn = parse[2].replace('][', '');
         var udfeat = '';
         if ( parse[1] == 'vals' ) {
 			var tmp = document.querySelector('[name="matches['+parse[2]+']"]');
@@ -36,16 +36,16 @@ function addtoken() {
 					val = '(.*'+mvsep+')?' + val + '('+mvsep+'.*)?';
 				};
 				if ( matchtype == 'udfeats' ) {
-					var tmp = /(.*):(.*)/g.exec(pattname);       
+					var tmp = /(.*):(.*)/g.exec(pattn);       
 					if ( tmp != null ) {
-						pattname = tmp[1];
+						pattn = tmp[1];
 						var udfeat = tmp[2];
 						if ( typeof(udsep) == 'undefined' ) var udsep = '[|]';
 						val = '(.*'+udsep+')?' + udfeat + '=' + val + '('+udsep+'.*)?';
 					};    
 				};
 	        };
-        	tokq += toksep + pattname + ' = "' + val + '"';
+        	tokq += toksep + pattn + ' = "' + val + '"';
         	toksep = ' & ';
 
         	flds[i].value = '';
@@ -356,7 +356,7 @@ function updatequery( nodirect = false ) {
         if ( val == '' ) continue;
         var parse = /(.*?)\[(.*)\]/g.exec(name);                     
         if ( parse == null ) continue;
-        var pattname = parse[2];
+        var pattn = parse[2].replace('][', '');
         var udfeat = '';
         if ( parse[1] == 'vals' ) {
 			var tmp = document.querySelector('[name="matches['+parse[2]+']"]');
@@ -371,8 +371,8 @@ function updatequery( nodirect = false ) {
 					val = '.*' + val;
 				};
 	        } else if ( flds[i].nodeName == "SELECT" ) {
-				if ( typeof(pattname) != 'undefined' && typeof(pattname[parse[2]]) != 'undefined' 
-								&& pattname[parse[2]].values == 'multi' ) {
+				if ( typeof(pattname) != 'undefined' && typeof(pattname[pattn]) != 'undefined' 
+								&& pattname[pattn].values == 'multi' ) {
 					if ( typeof(mvsep) == 'undefined' ) var mvsep = ',';
 					val = '(.*'+mvsep+')?' + val + '('+mvsep+'.*)?';
 				};
@@ -404,10 +404,13 @@ function updatequery( nodirect = false ) {
 				val = val + '.*';
 			} else if ( matchtype == 'endsin' ) {
 				val = '.*' + val;
-			} else if ( typeof(pattname) != 'undefined' && typeof(pattname[parse[2]]) != 'undefined' 
-							&& pattname[parse[2]].values == 'multi' ) {
+			};
+			if ( typeof(pattname) != 'undefined' && typeof(pattname[pattn]) != 'undefined' 
+							&& pattname[pattn].values == 'multi' ) {
+				if ( typeof(mvsep) == 'undefined' ) var mvsep = pattname[pattn].multisep;
 				if ( typeof(mvsep) == 'undefined' ) var mvsep = ',';
-				val = '(.*'+mvsep+')?' + val + '('+mvsep+'.*)?';
+				if ( mvsep == '|' ) mvsep = '[|]';
+				val = '(.*'+mvsep+')?(' + val + ')('+mvsep+'.*)?';
 			};
         	var tmp = /^(.*?)_(.*)$/.exec(parse[2]);
         	var gltype = tmp[1]; var glatt = tmp[2];
