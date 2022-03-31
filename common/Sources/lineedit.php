@@ -59,8 +59,10 @@
 							   $dom->parentNode->insertBefore($tok, $next);
 							};
 					   };
-					   $tok = $dom->ownerDocument->createElement('tok', $word);
-					   $dom->parentNode->insertBefore($tok, $next);
+					   if ( $word ) {
+						   $tok = $dom->ownerDocument->createElement('tok', $word);
+						   $dom->parentNode->insertBefore($tok, $next);
+					   };
 					   for ( $i=0; $i<mb_strlen($postp); $i++ ) {
 					   	   $punct = mb_substr($prep,$i,1);
 					   	   if ( $punct ) {
@@ -88,7 +90,7 @@
 		$maintext .= "<p>Select page:";
 		
 		foreach ( $ttxml->xml->xpath("//pb") as $pb ) {
-			$maintext .= "<p><a href='index.php?action=$action&cid=$ttxml->fileid&pagid={$pb['id']}'>{$pb['id']}</a> ".htmlentities($pb->asXML());
+			$maintext .= "<p><a href='index.php?action=$action&cid=$ttxml->fileid&pbid={$pb['id']}'>{$pb['id']}</a> ".htmlentities($pb->asXML());
 		};	
 
 	} else if ( $act == "linesel" ) {
@@ -96,13 +98,13 @@
 		$maintext .= "<p>Select line:";
 		
 		foreach ( $ttxml->xml->xpath("//lb") as $lb ) {
-			$maintext .= "<p><a href='index.php?action=$action&cid=$ttxml->fileid&pagid={$_GET['pagid']}&lineid={$lb['id']}'>{$lb['id']}</a> ".htmlentities($lb->asXML());
+			$maintext .= "<p><a href='index.php?action=$action&cid=$ttxml->fileid&pbid={$_GET['pbid']}&lbid={$lb['id']}'>{$lb['id']}</a> ".htmlentities($lb->asXML());
 		};	
 
 	} else {
 
-		$pbid = $_GET['pagid'];
-		# $lbid = $_GET['lineid'];
+		$pbid = $_GET['pbid'];
+		# $lbid = $_GET['lbid'];
 		
 		foreach ( $ttxml->xml->xpath("//pb") as $i => $pbx ) { 
 			$pbi = $pbx['id'];
@@ -117,7 +119,7 @@
 		preg_match_all("/<lb[^<>]+id=\"([^\"]+)\"/", $pagexml, $lbs);
 		foreach ( $lbs[1] as $i => $lbi ) { 
 			$sel = ""; 
-			if ( $lbi == $_GET['lineid'] ) {
+			if ( $lbi == $_GET['lbid'] ) {
 				$sel = "selected";
 				$lbid = $lbi;
 			};
@@ -150,8 +152,8 @@
 				<form id=lineform action='index.php'>
 				<input type=hidden name=action value='$action'>
 				<input type=hidden name=cid value='$ttxml->fileid'>
-				<select id=pagsel onChange='this.parentNode.lineid.value = null; this.parentNode.submit();' name=pagid>$pblist</select>
-				<br/><select id=linesel onChange='this.parentNode.submit();' name=lineid>$lblist</select>
+				<select id=pagsel onChange='this.parentNode.lbid.value = null; this.parentNode.submit();' name=pbid>$pblist</select>
+				<br/><select id=linesel onChange='this.parentNode.submit();' name=lbid>$lblist</select>
 				</form>
 				<a href='index.php?action=elmedit&cid=$ttxml->fileid&tid=$lbid'>edit</a>
 			</tr>
