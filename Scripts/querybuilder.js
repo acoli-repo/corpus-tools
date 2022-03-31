@@ -386,7 +386,7 @@ function updatequery( nodirect = false ) {
 					};    
 				};
 	        };
-        	tokq += toksep + pattname + ' = "' + val + '"';
+        	tokq += toksep + pattn + ' = "' + val + '"';
         	toksep = ' & ';
         } else if ( parse[1] == 'atts' ) {
 			var matchtype = '';
