@@ -232,7 +232,7 @@
 			<hr><p>";
 			$maintext .= $ttxml->viewswitch();
 
-			if ( $username ) 
+			if ( $username && $ttxml->xml->xpath("//lb[@bbox]") ) 
 				$maintext .= " &bull;
 					<a href='index.php?action=lineedit&cid={$ttxml->fileid}&pbid={$curr['id']}' class=adminpart>Transcribe lines</a>
 					"; // Used to be $action&act=edit, but regionedit is nicer
