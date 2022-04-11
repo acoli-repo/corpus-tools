@@ -246,6 +246,81 @@
 				img.src = '$jsurl/load_img.gif';
 			</script>";
 
+	} else if ( $act == "usercopy" ) {
+
+		$guessroot = $settings['defaults']['apacheroot'] or $guessroot = preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']);
+		if ( $_POST['from'] ) {
+			list ( $ff, $email ) = explode(":", $_POST['from']);
+			$tf = $_POST['to'];
+			$ffile = "$guessroot/$ff/Resources/userlist.xml";
+			$tfile = "$guessroot/$tf/Resources/userlist.xml";
+			if ( $tf == "" || !is_dir("$guessroot/$tf") ) fatal("Not a proper project folder: $tf");
+			$flist = simplexml_load_file($ffile);
+			if ( !$flist ) fatal("Failed to read userlist of $ff");
+			if ( file_exists($tfile) )
+				$tlist = simplexml_load_file($tfile);
+			else 
+				$tlist = simplexml_load_string("<userlist/>");
+			$fromrec = current($flist->xpath("//user[@email=\"$email\"]"));
+			print showxml($fromrec);
+			if ( !$fromrec ) fatal("No such user to copy: $email ($ff)");
+			$torec = current($tlist->xpath("//user[@email=\"$email\"]"));
+			if ( $torec ) fatal("User already exists: $email ($tf)");
+			$toroot = current($tlist->xpath("/userlist"));
+			if ( $torec ) fatal("Incorrect userlist ($tf)");
+			$tmp = dom_import_simplexml($toroot);
+			$tmp2 = dom_import_simplexml($fromrec);
+			$tmp2  = $tmp->ownerDocument->importNode($tmp2, TRUE);
+			$tmp->appendchild($tmp2);
+			# Make a backup
+			$date = date("Ymd"); 
+			$buname = preg_replace ( "/\.xml/", "-$date.xml", $filename );
+			$buname = preg_replace ( "/.*\//", "", $buname );
+			if ( !file_exists("backups") ) { mkdir("backups"); };
+			if ( !file_exists("backups/$buname") ) {
+				copy ( "$tofile", "backups/$buname");
+			};
+			file_put_contents($tfile, $tlist->asXML());
+ 			print "<p>Record copied for $email to $tfile - reloading";
+ 			print "<script>top.location='index.php?action=$action'</script>";
+			exit;
+		} else {
+			$maintext .= "<h1>Copy User</h1>
+				<p>Copy user priviledges from one project to another</p>
+				";
+		
+			$tmp = scandir($guessroot);
+			$rootbase = str_replace($_SERVER['DOCUMENT_ROOT'], "", $guessroot);
+			foreach ( $tmp as $fl ) {
+				if ( is_dir("$guessroot/$fl") && substr($fl, 0, 1) != "." && file_exists("$guessroot/$fl/Resources/settings.xml") ) {
+					$xtmp = simplexml_load_file("$guessroot/$fl/Resources/settings.xml");
+					$tmp3 = current($xtmp->xpath("//defaults/title"));
+					$prtit = $tmp3['display'];
+					if ( $prtit != "" ) {	
+						$propts .= "<option value='$fl'>$prtit</option>";
+						$xtmp2 = simplexml_load_file("$guessroot/$fl/Resources/userlist.xml");
+						if ( $xtmp2 )
+						foreach ( $xtmp2->xpath("//user") as $urec ) {
+							if ( !$done[$urec['email'].""] || $_GET['all'] )
+								$userlist["$fl:".$urec['email']] = $urec." ({$prtit})";
+							$done[$urec['email'].""] = 1;
+						};
+					};
+				};
+			};		
+			asort($userlist);
+			foreach ( $userlist as $key => $val ) $uopts .= "<option value='$key'>$val</a>";
+			
+			$maintext .= "
+				<form action='index.php?action=$action&act=$act' method=post>
+				<table>
+				<tr><th>Choose user:<td><select name=from>$uopts</select>
+				<tr><th>Copy to: <td><select name=to>$propts</select>
+				</table>
+				<p><input type=submit value=Copy>
+				</form>";
+		};
+
 				
 	} else {
 		$maintext .= "<h1>Server-Wide Administration</h1>
