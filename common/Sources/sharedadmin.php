@@ -294,6 +294,7 @@
 			foreach ( $tmp as $fl ) {
 				if ( is_dir("$guessroot/$fl") && substr($fl, 0, 1) != "." && file_exists("$guessroot/$fl/Resources/settings.xml") ) {
 					$xtmp = simplexml_load_file("$guessroot/$fl/Resources/settings.xml");
+					if ( !$xtmp ) continue;
 					$tmp3 = current($xtmp->xpath("//defaults/title"));
 					$prtit = $tmp3['display'];
 					if ( $prtit != "" ) {	
@@ -329,6 +330,7 @@
 			
 		$maintext .= "<li><a href='index.php?action=$action&act=configcheck'>Check server configuration</a>";
 		$maintext .= "<li><a href='index.php?action=$action&act=list'>List local projects</a>";
+		$maintext .= "<li><a href='index.php?action=$action&act=usercopy'>Copy user data</a>";
 		$maintext .= "<li><a href='index.php?action=$action&act=newproject'>Create new project</a>";
 
 		# Display the TEITOK version
