@@ -1034,6 +1034,12 @@
 				};
 			};
 		};
+		foreach ( $settings['cqp']['annotations'] as $key => $val ) {
+			$item = $patts->addChild("item");
+			foreach ( $val as $key2 => $val2 ) {
+				$item[$key2] = $val2;
+			};
+		};
 		# We need to also copy the xmlfile for the inheritance
 		$xmlf = $merged->addChild("xmlfile");
 		$patts = $xmlf->addChild("pattributes");
