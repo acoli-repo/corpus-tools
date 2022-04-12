@@ -1034,8 +1034,9 @@
 				};
 			};
 		};
+		$anns = $cqp->addChild("annotations");
 		foreach ( $settings['cqp']['annotations'] as $key => $val ) {
-			$item = $patts->addChild("item");
+			$item = $anns->addChild("item");
 			foreach ( $val as $key2 => $val2 ) {
 				$item[$key2] = $val2;
 			};
