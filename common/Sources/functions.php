@@ -1038,7 +1038,14 @@
 		foreach ( $settings['cqp']['annotations'] as $key => $val ) {
 			$item = $anns->addChild("item");
 			foreach ( $val as $key2 => $val2 ) {
-				$item[$key2] = $val2;
+				if ( is_array($val2) ) {
+					$item2 = $item->addChild("item");				
+					foreach ( $val2 as $key3 => $val3 ) {
+						$item2[$key3] = $val3;
+					};
+				} else {
+					$item[$key2] = $val2;
+				};
 			};
 		};
 		# We need to also copy the xmlfile for the inheritance
