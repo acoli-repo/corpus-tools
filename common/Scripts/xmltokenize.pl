@@ -563,7 +563,7 @@ if ( $sentsplit ) {
 		$tmp = $parser->load_xml(string => $teitext);
 	};
 	if ( !$tmp ) {
-		check_folder("tmp");
+		`mkdir -p tmp`
 		print "Splitting within paragraphs failed - reverting";
 		open FILE, ">tmp/wrongsent.xml";
 		print FILE $teitext;

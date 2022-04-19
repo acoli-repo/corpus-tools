@@ -18,7 +18,6 @@ for ( var a = 0; a<segs.length; a++ ) {
 	};
 };
 
-
 var toks = mtxt.getElementsByTagName("tok");
 for ( var a = 0; a<toks.length; a++ ) {
 	var tok = toks[a];
@@ -138,6 +137,9 @@ function markback ( tokid ) {
 			// scrollParentToChild(document.getElementById('annotations'), seg); // Too jumpy
 			seg.style['background-color'] = seg.getAttribute('markupcolor');
 			seg.style.backgroundColor= seg.getAttribute('markupcolor'); 
+			
+			var segid = seg.getAttribute('annid');
+			console.log(reldefs[segid]);
 			
 			newrow = '<table width=100%><tr><th colspan=2><b>' + seg.getElementsByTagName("ann").item(0).innerHTML + '</b></th></tr>';
 			for ( var ak in interp ) {

@@ -26,9 +26,9 @@
 			$cleaned = preg_replace("/<\/tok>(\s+)/", " </tok>", $cleaned);
 		};
 
+		$maintext .= "<h2 title=\"$filename\">".$ttxml->title()."</h2>"; 
 		$maintext .= "<h1>{%{$settings['annotations'][$annotation]['display']}}</h1>";
 
-		$maintext .= "<h2 title=\"$filename\">".$ttxml->title()."</h2>"; 
 	};
 	
 	if ( $annotation && $user['permissions'] == "admin" && !file_exists("Annotations/{$annotation}_def.xml") ) { 
@@ -520,27 +520,51 @@
 			foreach ( $result as $segment ) {
 				$sid = $segment['id'];
 				$tokenlist = str_replace("#", "", $segment['corresp']);
-				$rotitle = ""; $rodata = "";
-				foreach ( $tagset as $key => $val ) {
-					$rodata .= " $key=\"{$segment[$key]}\"";
+				if ( $tokenlist ) {
+					$rotitle = ""; $rodata = "";
+					foreach ( $tagset as $key => $val ) {
+						$rodata .= " $key=\"{$segment[$key]}\"";
+					};
+					$segmenttxt = $segment."";
+					if ( $segment['idx'] ) {
+						# A substring - mark it up
+						list ( $pa, $pb ) = explode("-", $segment['idx']);
+						if ( !$pb ) $pb = $pa;
+						$pre = mb_substr($segment, 0, $pa-1);
+						$middle = mb_substr($segment, $pa-1, $pb-$pa+1);
+						$post = mb_substr($segment, $pb);
+						$segmenttxt = "<span style='opacity: 0.2; font-weight: normal;'>".$pre."</span>".$middle."<span style='opacity: 0.2; font-weight: normal'>".$post."</span>";
+					};
+					$markupcolor = $markcolor[$segment[$markfeat].""]; 
+					$rodata .= " markupcolor=\"$markupcolor\"";
+					$newrow = "<tr onMouseOver=\"markout(this, 1)\" onMouseOut=\"unmarkout();\" $rodata class=\"segment\" annid='$sid' toklist='$tokenlist'>";
+					$newrow .= "<td><a href='index.php?action=$action&annotation=$annotation&act=redit&sid=$sid&cid=$fileid'\" style=\"text-decoration: none;\"><span style=\"color: $markupcolor; font-size: large;\">&blacksquare;</span> <ann>".$segmenttxt."</ann></a>";
+					$newrow .= "</tr>"; array_push($sortrows, $newrow);
+				} else if ( $segment['source'] ) {
+					# This is a relation - 
+					# $reldefs .= " { 'source': '{$segment['source']}', 'target': '{$segment['target']}' } ";
+					$src = substr($segment['source'], 1);
+					$trg = substr($segment['target'], 1);
+					if ( !$rellist[$src] ) $rellist[$src] = array();
+					array_push($rellist[$src], $segment);
 				};
-				$segmenttxt = $segment."";
-				if ( $segment['idx'] ) {
-					# A substring - mark it up
-					list ( $pa, $pb ) = explode("-", $segment['idx']);
-					if ( !$pb ) $pb = $pa;
-					$pre = mb_substr($segment, 0, $pa-1);
-					$middle = mb_substr($segment, $pa-1, $pb-$pa+1);
-					$post = mb_substr($segment, $pb);
-					$segmenttxt = "<span style='opacity: 0.2; font-weight: normal;'>".$pre."</span>".$middle."<span style='opacity: 0.2; font-weight: normal'>".$post."</span>";
-				};
-				$markupcolor = $markcolor[$segment[$markfeat].""]; 
-				$rodata .= " markupcolor=\"$markupcolor\"";
-				$newrow = "<tr onMouseOver=\"markout(this, 1)\" onMouseOut=\"unmarkout();\" $rodata class=\"segment\" toklist='$tokenlist'>";
-				$newrow .= "<td><a href='index.php?action=$action&annotation=$annotation&act=redit&sid=$sid&cid=$fileid'\" style=\"text-decoration: none;\"><span style=\"color: $markupcolor; font-size: large;\">&blacksquare;</span> <ann>".$segmenttxt."</ann></a>";
-				$newrow .= "</tr>"; array_push($sortrows, $newrow);
 			};
 			natsort($sortrows); $annotations .= "<table >".join("\n", $sortrows)."</table>";
+			if ( $rellist ) {
+				foreach ( $rellist as $src => $trgs ) {
+					$trgdefs = "";
+					foreach ( $trgs as $trg ) {
+						$trgdef = "";
+						foreach ( $trg->attributes() as $att ) {
+							$key = $att->getName();
+							$trgdef .= " '$key': '$att', ";
+						};
+						$trgdefs .= " { $trgdef }, ";
+					};
+					$reldefs .= "\n\t'$src': [ $trgdefs ]";
+				};
+				$annotations .= "\n<script>var reldefs = { $reldefs }</script>";
+			};
 		};
 		if ( $username ) {
 			$annotations .= "<hr><p><a href='index.php?action=$action&annotation=$annotation&cid={$_GET['cid']}&act=list'>{%show as list}</a>
