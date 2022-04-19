@@ -1,3 +1,5 @@
+document.onkeyup = keyb; 
+
 var toks = document.getElementsByTagName("text");
 var selected = null;
 var sentxml;
@@ -24,6 +26,53 @@ if ( typeof(labelstxt) != "undefined" ) {
 	sentxml = makeXML(document.getElementById('mtxt').innerHTML);
 	var senttxt = new XMLSerializer().serializeToString(sentxml);
 	document.getElementById('sentxml').value = senttxt;
+	};
+};
+
+function keyb(evt) {
+	if ( selected ) {
+		var thisid = selected.getAttribute('tokid');
+		var prntid = selected.getAttribute('head');
+		var prnt = document.getElementById('node-'+prntid);
+		if ( evt.key == "ArrowUp" ) {
+			selected.setAttribute('fill',  ''); 
+			prnt.setAttribute('fill',  '#ff00ff'); 
+			selected = prnt;
+		};
+		if ( evt.key == "ArrowDown" ) {
+		  var chldrn = document.evaluate('//tok[@head="'+thisid+'"]', document, null, XPathResult.ANY_TYPE, null );
+		  var firstchild = chldrn.iterateNext();
+		  if ( firstchild ) {
+	  	    var chld = document.getElementById('node-'+firstchild.getAttribute('id'));
+			selected.setAttribute('fill',  ''); 
+			chld.setAttribute('fill',  '#ff00ff'); 
+			selected = chld;
+		  };
+		};
+		if ( evt.key == "ArrowRight" || evt.key == "ArrowLeft" ) {
+		  var sblings = document.evaluate('//tok[@head="'+prntid+'"]', document, null, XPathResult.ANY_TYPE, null );
+		  var sbling = sblings.iterateNext();
+		  var lastsb = sbling;
+		  var sblid = sbling.getAttribute('id');
+		  var lastid = '';
+		  while ( sbling && sblid && thisid != sblid ) {
+		  	lastid = sblid;
+		  	sbling = sblings.iterateNext();
+		  	sblid = sbling.getAttribute('id');
+		  };
+		  if ( evt.key == "ArrowRight" ) {
+		  	sbling = sblings.iterateNext();
+		  	sblid = sbling.getAttribute('id');
+		  } else if ( evt.key == "ArrowLeft" ) {
+		  	sblid = lastid;
+		  };		  
+		  var sbl = document.getElementById('node-'+sblid);
+		  if ( sbl ) {
+			selected.setAttribute('fill',  ''); 
+			sbl.setAttribute('fill',  '#ff00ff'); 
+			selected = sbl;
+		  };
+		};
 	};
 };
 
@@ -113,13 +162,14 @@ function toksel (event) {
 
 function relink ( clicked ) {
 	
-		if ( selected != null ) {
-			if ( selected.getAttribute('type') == 'label' ) {
-				selected.setAttribute('fill',  '#ff8866'); 
-			} else {
-				selected.setAttribute('fill',  ''); 
-			};
+	console.log(selected);
+	if ( selected != null ) {
+		if ( selected.getAttribute('type') == 'label' ) {
+			selected.setAttribute('fill',  '#ff8866'); 
+		} else {
+			selected.setAttribute('fill',  ''); 
 		};
+	};
 	
 	if ( selected == null || selected.getAttribute('type') != 'tok' ) {
 		
@@ -132,6 +182,10 @@ function relink ( clicked ) {
 		var changenode = sentxml.getElementById(selected.getAttribute('tokid'));
 		if ( selected.getAttribute('tokid')+'' == clicked.getAttribute('tokid')+'' ) { 
 			document.getElementById('linktxt').innerText = "Self-headedness not allowed";
+			console.log('opening');console.log(cid);
+			if ( typeof(cid) != 'undefined' ) {
+				window.open('index.php?action=tokedit&cid='+cid+'&tid='+selected.getAttribute('tokid'), 'edit');
+			};
 			selected = null;
 			return; 
 		};

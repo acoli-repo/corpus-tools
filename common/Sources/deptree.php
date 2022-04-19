@@ -354,6 +354,7 @@ $maintext .= "
 		document.getElementById('svgdiv').style.height = document.querySelector('svg').getAttribute('height') + 'px';
 		var localhl = 1; // use a local highlight function
 		var orgtoks = new Object();
+		var cid = '$ttxml->fileid';
 		var username = '$username';
 		$tokedit
 		formify(); setForm('$formfld');
@@ -625,7 +626,7 @@ $maintext .= "
 			if ( $text == "" ) $text = "`";
 			if ( strtoupper($tok['deprel']) != "PUNCT" || $puctnsh == "with" ) {
 				if ( $jmp != '' && $jmp == $tok['id'] ) { $highl = " font-weight='bold' fill='#aa2200' "; } else { $highl = ""; };
-				$svgtxt .= "\n\t<text text-anchor='middle' tokid=\"{$tok['id']}\" font-size=\"12pt\" type=\"tok\" head=\"{$tok['head']}\" deprel=\"{$tok['deprel']}\" $onclick $highl>$text</text> ";
+				$svgtxt .= "\n\t<text text-anchor='middle' id=\"node-{$tok['id']}\" tokid=\"{$tok['id']}\" font-size=\"12pt\" type=\"tok\" head=\"{$tok['head']}\" deprel=\"{$tok['deprel']}\" $onclick $highl>$text</text> ";
 			};
 			array_push($tokar, $tok);
 		};
