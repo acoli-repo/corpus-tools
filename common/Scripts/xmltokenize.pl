@@ -20,6 +20,7 @@ $scriptname = $0;
             'test' => \$test, # tokenize to string, do not change the database
             'keepns' => \$keepns, # do not kill the xmlns
             'nobu' => \$nobu, # do not create a backup
+            'breaks' => \$addbreaks, # add breaks before every sentence
             'noinner' => \$noinner, # Do not keep inner-token punctuation marks
             'inner=s' => \$inner, # ... except for these
             'linebreaks' => \$linebreaks, # tokenize to string, do not change the database
@@ -523,60 +524,30 @@ if ( $sentsplit != 2 ) {
 } else {
 	$teitext = $tagtxt;
 };
- 
+
 if ( $sentsplit ) {
 	# Now - split into sentences; 
-	
-	# Start by making a <s> inside each <p> or <head>, fallback to <div>, or else just the outer xml (<text>) 
-	if ( $teitext =~ /<\/(p|head)>/ ) {
-		$teitext =~ s/(<p(?=[ >])[^>]*>)/\1<s>/g;
-		$teitext =~ s/(<\/p>)/<\/s>\1/g;
-		$teitext =~ s/(<head(?=[ >])[^>]*>)/\1<s>/g;
-		$teitext =~ s/(<\/head>)/<\/s>\1/g;
-	} elsif ( $teitext =~ /<\/tei_div>/ ) { # There should be no tei_div in the XML
-		$teitext =~ s/(<tei_div(?=[ >])[^>]*>)/\1<s>/g;
-		$teitext =~ s/(<\/tei_div>)/<\/s>\1/g;
-	} elsif ( $teitext =~ /<\/div>/ ) {
-		$teitext =~ s/(<div(?=[ >])[^>]*>)/\1<s>/g;
-		$teitext =~ s/(<\/div>)/<\/s>\1/g;
-	} else {
-		# Add a sentence start at the beginning of the mtxt
-		$teitext =~ s/^(<[^>]+>)/\1<s>/;
-		$teitext =~ s/(<\/[^>]+>)$/<\/s>\1/;
-	};
+	if ( $addbreaks ) { $lb = "\n"; };
 
-	# Put the notes back
-	while ( $teitext =~ /<ntn n="(\d+)"\/>/ ) {
-		$notenr = $1; $notetxt = $notes[$notenr]; 
-		$notecode = $&;
-		$teitext =~ s/\Q$notecode\E/$notetxt/;
-	};
+	# Start by making a <s> inside each <p> or <head>, fallback to <div>, or else just the outer xml (<text>) 
+	$teitext =~ s/(<(p|tei_div|div|head)(?=[ >])[^<>]*>)/\1$lb<s\/>/g;
 	
-	$presplit = $teitext; 
-	
-	# Now - add </s><s> after every sentence-final token
-	# TODO: this should be done one at a time to fallback only where needed
-	$teitext =~ s/(<tok[^>]*>[.?!]<\/tok>)(\s*)/\1<\/s>\2<s>/g; 
-	if ( $debug ) { print "AFTSPLIT: ".$teitext; };
+	$teitext =~ s/(<tok[^>]*>[.?!]<\/tok>)(\s*)/\1\2$lb<s\/>/g; 
+
+	# Remove quotation marks into the sentence
+	$teitext =~ s/($lb<s\/>)(<tok[^>]*>["']<\/tok>)/\2\1/g; 
+
+	# Remove <s/> before more breaks - ?! etc.
+	$teitext =~ s/$lb<s\/>(<tok[^>]*>[.?!]<\/tok>)/\1/g; 
+
+	$teitext =~ s/<s\/>(<\/(p|tei_div|div|head))/\1/g; 
 	
 	# In case the splitting messed up the XML, undo
 	$parser = XML::LibXML->new(); $tmp = "";
 	eval {
 		$tmp = $parser->load_xml(string => $teitext);
 	};
-	if ( !$tmp ) {
-		`mkdir -p tmp`;
-		print "Splitting within paragraphs failed - reverting";
-		open FILE, ">tmp/wrongsent.xml";
-		print FILE $teitext;
-		close FILE;
-		if ( $debug ) { print $@; };
-		$teitext = $presplit; 
-	};
-	
-	# Finally, remove empty sentences
-	$teitext =~ s/<s><\/s>//g;
-	
+		
 };
 
 # Put the notes back
@@ -588,6 +559,7 @@ while ( $teitext =~ /<ntn n="(\d+)"\/>/ ) {
 
 
 $xmlfile = $head.$teitext.$foot;
+
 
 # Now - check if this turned into valid XML
 $parser = XML::LibXML->new(); $doc = "";
@@ -617,6 +589,26 @@ if ( !$doc ) {
 	exit; 
 };
 
+# Now move the tokens inside the sentences
+if ( $sentsplit ) {
+	foreach $sent ( $doc->findnodes("//text//s" ) ) {
+
+		$ptype = $sent->parentNode->nodeName;
+		while ( !$sent->nextSibling() && $type ne "p" && $type ne "head" && $type ne "div" ) {
+			# Move out if the <s/> ended up at the end of a node
+			$sent->parentNode->parentNode->insertAfter($sent, $sent->parentNode);
+			$ptype = $sent->parentNode->nodeName;
+		};
+
+		while ( $sib = $sent->nextSibling() ) {
+			if ( $sib->nodeType == 1 && ( $sib->nodeName eq 's' || $sib->findnodes(".//s") ) ) { 
+				last; 
+			};
+			$sent->addChild($sib);
+		};
+	};
+};
+
 # One last thing we need to do is treat <tok> inside <del>
 	foreach $ttnode ($doc->findnodes("//del//tok")) {
 		$ttnode->setAttribute('form', "--");
@@ -644,6 +636,11 @@ if ( $revs ) {
 };
 
 $xmlfile = $doc->toString;
+
+if ( $sentsplit ) {
+	$xmlfile =~ s/(<s(?=[ >])[^<>]*>)(\s+)/\2\1/gsmi;
+	$xmlfile =~ s/(\s+)(<\/s>)/\2\1/gsmi;
+};
 
 if ( $test ) { 
 	print  $xmlfile;
