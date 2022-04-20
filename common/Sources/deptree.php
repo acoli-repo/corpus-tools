@@ -354,6 +354,7 @@ $maintext .= "
 	<script language=Javascript>
 		document.getElementById('svgdiv').style.height = document.querySelector('svg').getAttribute('height') + 'px';
 		var localhl = 1; // use a local highlight function
+		var nofacs = 1; var noimg = 1; // do not show facsimile images
 		var orgtoks = new Object();
 		var cid = '$ttxml->fileid';
 		var username = '$username';
