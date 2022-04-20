@@ -31,29 +31,36 @@ if ( typeof(labelstxt) != "undefined" ) {
 
 function keyb(evt) {
 	if ( selected ) {
+		var newsel = '';
 		var thisid = selected.getAttribute('tokid');
 		var prntid = selected.getAttribute('head');
 		var prnt = document.getElementById('node-'+prntid);
+		if ( evt.key == "Enter" ) {
+			window.open('index.php?action=tokedit&cid='+cid+'&tid='+selected.getAttribute('tokid'), 'edit');
+		};
 		if ( evt.key == "ArrowUp" ) {
-			selected.setAttribute('fill',  ''); 
-			prnt.setAttribute('fill',  '#ff00ff'); 
-			selected = prnt;
+			newsel = prnt;
 		};
 		if ( evt.key == "ArrowDown" ) {
 		  var chldrn = document.evaluate('//tok[@head="'+thisid+'"]', document, null, XPathResult.ANY_TYPE, null );
 		  var firstchild = chldrn.iterateNext();
 		  if ( firstchild ) {
 	  	    var chld = document.getElementById('node-'+firstchild.getAttribute('id'));
-			selected.setAttribute('fill',  ''); 
-			chld.setAttribute('fill',  '#ff00ff'); 
-			selected = chld;
+	  	    if ( !chld ) {
+		  	    firstchild = chldrn.iterateNext();
+		  	    chld = document.getElementById('node-'+firstchild.getAttribute('id'))
+	  	    };
+	  	    if ( chld ) {
+				newsel = chld;
+			};
 		  };
 		};
 		if ( evt.key == "ArrowRight" || evt.key == "ArrowLeft" ) {
 		  var sblings = document.evaluate('//tok[@head="'+prntid+'"]', document, null, XPathResult.ANY_TYPE, null );
 		  var sbling = sblings.iterateNext();
 		  var lastsb = sbling;
-		  var sblid = sbling.getAttribute('id');
+		  var sblid = '';
+		  if ( sbling ) { sblid = sbling.getAttribute('id'); };
 		  var lastid = '';
 		  while ( sbling && sblid && thisid != sblid ) {
 		  	lastid = sblid;
@@ -62,16 +69,24 @@ function keyb(evt) {
 		  };
 		  if ( evt.key == "ArrowRight" ) {
 		  	sbling = sblings.iterateNext();
-		  	sblid = sbling.getAttribute('id');
+			if ( sbling ) { sblid = sbling.getAttribute('id'); };
 		  } else if ( evt.key == "ArrowLeft" ) {
 		  	sblid = lastid;
 		  };		  
 		  var sbl = document.getElementById('node-'+sblid);
 		  if ( sbl ) {
-			selected.setAttribute('fill',  ''); 
-			sbl.setAttribute('fill',  '#ff00ff'); 
-			selected = sbl;
+			newsel = sbl;
 		  };
+		};
+		if ( newsel ) {
+			var newid = newsel.getAttribute('tokid');
+			var tok = document.getElementById(newid);
+			selected.setAttribute('fill',  ''); 
+			newsel.setAttribute('fill',  '#ff00ff'); 
+			selected = newsel;
+			showtokinfo(newsel, tok, newsel);
+			unhighlight();
+			highlight(newid, '#ffff00'); 
 		};
 	};
 };
@@ -162,7 +177,6 @@ function toksel (event) {
 
 function relink ( clicked ) {
 	
-	console.log(selected);
 	if ( selected != null ) {
 		if ( selected.getAttribute('type') == 'label' ) {
 			selected.setAttribute('fill',  '#ff8866'); 
