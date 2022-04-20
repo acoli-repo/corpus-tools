@@ -122,23 +122,25 @@ if ( $linebreaks ) {
 	$tagtxt =~ s/\n(?!<p>|\n|<\/text>)/\n<lb\/>/g; # This places <lb/> before tags that should not have one...
 };
 
-# There are some element that should never be inside a word - such as paragraphs. So add whitespace inside those to prevent errors
-$tagtxt =~ s/(<\/(p|div)>)(<(p|div))(?=[ >])/\1\n\3/g;
+if ( $sentsplit != 2 ) {
+	# There are some element that should never be inside a word - such as paragraphs. So add whitespace inside those to prevent errors
+	$tagtxt =~ s/(<\/(p|div)>)(<(p|div))(?=[ >])/\1\n\3/g;
 
-# Deal with |~ encode line endings (from with page-by-page files)
-$tagtxt =~ s/\s*\|~\s*((<[pl]b[^>]*>\s*?)*)\s*/\1/gsmi;
+	# Deal with |~ encode line endings (from with page-by-page files)
+	$tagtxt =~ s/\s*\|~\s*((<[pl]b[^>]*>\s*?)*)\s*/\1/gsmi;
 
-# Do some preprocessing
-# decode will mess up encoded <> so htmlencode them
-$tagtxt =~ s/&amp;/xxAMPxx/g;
-$tagtxt =~ s/&lt;/xxLTxx/g;
-$tagtxt =~ s/&gt;/xxGTxx/g;
-# $tagtxt = decode_entities($tagtxt);
+	# Do some preprocessing
+	# decode will mess up encoded <> so htmlencode them
+	$tagtxt =~ s/&amp;/xxAMPxx/g;
+	$tagtxt =~ s/&lt;/xxLTxx/g;
+	$tagtxt =~ s/&gt;/xxGTxx/g;
+	# $tagtxt = decode_entities($tagtxt);
 
-# Protect HTML Entities so that they do not get split
-# TODO: This should not exist anymore, right?
-$tagtxt =~ s/(&[^ \n\r&]+;)/xx\1xx/g;
-$tagtxt =~ s/&(?![^ \n\r&;]+;)/xx&amp;xx/g;
+	# Protect HTML Entities so that they do not get split
+	# TODO: This should not exist anymore, right?
+	$tagtxt =~ s/(&[^ \n\r&]+;)/xx\1xx/g;
+	$tagtxt =~ s/&(?![^ \n\r&;]+;)/xx&amp;xx/g;
+};
 
 # <note> elements should not get tokenized
 # And neither should <desc> or <gap>
