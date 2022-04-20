@@ -1004,6 +1004,7 @@
 			$xmltxt = str_replace( "</tok>", "</tok><njs> </njs>", $xmltxt );
 			$xmltxt = preg_replace( "/(join=\"right\"((?!<tok).)+<\/tok>)<njs> <\/njs>/", "\\1", $xmltxt );
 		};
+		# $xmltxt = str_replace( "&nbsp;", "&#xA0;", $xmltxt );
 		return $xmltxt;
 	};
 

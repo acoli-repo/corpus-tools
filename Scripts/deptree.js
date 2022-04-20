@@ -21,11 +21,13 @@ for ( var a = 0; a<toks.length; a++ ) {
 
 if ( typeof(labelstxt) != "undefined" ) {
 	if ( labelstxt != '' ) {
-	document.getElementById('linktxt').innerText = "Edit mode: Select a node in the tree to attach it to a new head - or select a label to change it";
-
-	sentxml = makeXML(document.getElementById('mtxt').innerHTML);
-	var senttxt = new XMLSerializer().serializeToString(sentxml);
-	document.getElementById('sentxml').value = senttxt;
+		document.getElementById('linktxt').innerText = "Edit mode: Select a node in the tree to attach it to a new head - or select a label to change it";
+		sentxml = makeXML(document.getElementById('sentxml').value)
+		if ( !document.getElementById('sentxml').value ) {
+			sentxml = makeXML(document.getElementById('mtxt').innerHTML);
+			var senttxt = new XMLSerializer().serializeToString(sentxml);
+			document.getElementById('sentxml').value = senttxt;
+		};
 	};
 };
 
@@ -194,22 +196,27 @@ function relink ( clicked ) {
 				
 	} else {
 		
-		var changenode = sentxml.getElementById(selected.getAttribute('tokid'));
+		var selid = selected.getAttribute('tokid');
+		if ( !sentxml ) { sentxml = makeXML(document.getElementById('mtxt').innerHTML); };
+		var changenode = sentxml.getElementById(selid);
 		if ( selected.getAttribute('tokid')+'' == clicked.getAttribute('tokid')+'' ) { 
 			document.getElementById('linktxt').innerText = "Self-headedness not allowed";
-			console.log('opening');console.log(cid);
 			if ( typeof(cid) != 'undefined' ) {
 				window.open('index.php?action=tokedit&cid='+cid+'&tid='+selected.getAttribute('tokid'), 'edit');
 			};
 			selected = null;
 			return; 
 		};
-		changenode.setAttribute('head', clicked.getAttribute('tokid'));
-		senttxt = new XMLSerializer().serializeToString(sentxml);
-		document.getElementById('sentxml').value = senttxt;
-		scriptedexit = true;
-		document.sentform.submit();
-		
+		if ( changenode ) {
+			changenode.setAttribute('head', clicked.getAttribute('tokid'));
+			senttxt = new XMLSerializer().serializeToString(sentxml);
+			document.getElementById('sentxml').value = senttxt;
+			scriptedexit = true;
+			document.sentform.submit();
+		} else {
+			console.log('oops - ' + selected.getAttribute('tokid'));
+			console.log(changenode);
+		};		
 	};
 	
 };

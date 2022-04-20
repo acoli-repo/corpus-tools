@@ -22,7 +22,7 @@
 	
 	$maintext .= "<h1>Dependency Tree</h1>"; 
 
-	$treeview = $_SESSION['treeview'] or $treeview = $_GET['view'] or $treeview = "tree";
+	$treeview = $_GET['view'] or $treeview = $_SESSION['treeview'] or $treeview = "tree";
 	$_SESSION['treeview'] = $treeview;
 
 	require ("$ttroot/common/Sources/ttxml.php");
@@ -303,9 +303,10 @@ window.addEventListener(\"beforeunload\", function (e) {
 			$maintext .= "
 			<script language=\"Javascript\">var labelstxt = 'Select a dependency label from the popout list <div class=\"popoutlist\">$labelstxt</div>';</script>
 			";
+			$editxml = $sent->asXML();
 		};
 		
-	
+		
 		$maintext .= "\n
 <div id=svgdiv>
 $graph
@@ -328,7 +329,7 @@ $graph
 }
 </style>
 <form action='' method=post id=sentform name=sentform style='display: none;'>
-<textarea id=sentxml name=sent></textarea> <input type=submit>
+<textarea id=sentxml name=sent>$editxml</textarea> <input type=submit>
 <input type=hidden name=action value='edit'>
 </form>
 <script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
