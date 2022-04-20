@@ -87,6 +87,7 @@ function keyb(evt) {
 			showtokinfo(newsel, tok, newsel);
 			unhighlight();
 			highlight(newid, '#ffff00'); 
+			document.getElementById('linktxt').innerText = "Select a new head for the selected node (" + newsel.getAttribute('tokid') + " = " + newsel.innerHTML +  ")";
 		};
 	};
 };
