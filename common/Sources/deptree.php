@@ -312,6 +312,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 $graph
 </div>
 <style>
+#svgtree { transform-origin: 0 0; }
 .toktext { 
     text-decoration: underline;
     -moz-text-decoration-color: #992000; 
@@ -620,7 +621,7 @@ $maintext .= "
 
 		# Read the tokens
 		$i = 0;
-		$svgtxt .= "<svg version=\"1.1\" style='z-index: 2; position: absolute;' width=\"100%\" height=\"500\">"; # xmlns=\"http://www.w3.org/2000/svg\" 
+		$svgtxt .= "<svg id='svgtree' version=\"1.1\" style='z-index: 2; position: absolute;' width=\"100%\" height=\"500\">"; # xmlns=\"http://www.w3.org/2000/svg\" 
 		$tokar = array();
 		foreach ( $node->xpath($toksel) as $tok ) {
 			$text = forminherit($tok, $tokform, false);
@@ -877,7 +878,7 @@ $maintext .= "
 		$width = $xpos + 50;
 		$height = $maxheight;
 				
-		$graph = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"$width\" height=\"$height\">
+		$graph = "<svg id='svgtree' xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"$width\" height=\"$height\">
 	<defs>
 		<marker id=\"arrow\" markerWidth=\"10\" markerHeight=\"8\" refx=\"0\" refy=\"3\" orient=\"auto\" markerUnits=\"strokeWidth\">
 			<path d=\"M0,0 L0,6 L9,3 z\" fill=\"#000\" />
