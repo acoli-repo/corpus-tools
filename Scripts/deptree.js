@@ -44,14 +44,17 @@ const getTransformParameters = (element) => {
     y = parseInt(transform.slice(transform.indexOf("translateY") + 11));
   return { scale, x, y };
 };
-
 const getTransformString = (scale, x, y) =>
   "scale(" + scale + ") " + "translateX(" + x + "%) translateY(" + y + "%)";
-
-function zoomsvg (dScale=1.1) {
+function zoomsvg (dScale=0.1) {
 	var svgtree = document.getElementById('svgtree');
 	const { scale, x, y } = getTransformParameters(svgtree);
-	svgtree.style.transform = getTransformString(scale + dScale, x, y);
+	var newscale = scale + dScale;
+	svgtree.style.transform = getTransformString(newscale, x, y);
+	var svgdiv = document.getElementById('svgdiv');
+	var baseheight = svgtree.height.baseVal.value;
+	console.log(baseheight*newscale);
+	svgdiv.style.height = baseheight*newscale + 'px';
 };
 
 function keyb(evt) {
