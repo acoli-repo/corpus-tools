@@ -68,11 +68,16 @@ function keyb(evt) {
 		if ( evt.key == "Enter" ) {
 			window.open('index.php?action=tokedit&cid='+cid+'&tid='+selected.getAttribute('tokid'), 'edit');
 		};
+		if ( evt.key == "Escape" ) {
+			selected.setAttribute('fill',  ''); 
+			selected = null;
+			unhighlight();
+		};
 		if ( evt.key == "ArrowUp" ) {
 			newsel = prnt;
 		};
 		if ( evt.key == "ArrowDown" ) {
-		  var chldrn = document.evaluate('//tok[@head="'+thisid+'"]', document, null, XPathResult.ANY_TYPE, null );
+		  var chldrn = document.evaluate('//tok[@head="'+thisid+'"] | //dtok[@head="'+thisid+'"]', document, null, XPathResult.ANY_TYPE, null );
 		  var firstchild = chldrn.iterateNext();
 		  if ( firstchild ) {
 	  	    var chld = document.getElementById('node-'+firstchild.getAttribute('id'));
@@ -86,7 +91,7 @@ function keyb(evt) {
 		  };
 		};
 		if ( evt.key == "ArrowRight" || evt.key == "ArrowLeft" ) {
-		  var sblings = document.evaluate('//tok[@head="'+prntid+'"]', document, null, XPathResult.ANY_TYPE, null );
+		  var sblings = document.evaluate('//tok[@head="'+prntid+'"] | //dtok[@head="'+prntid+'"]', document, null, XPathResult.ANY_TYPE, null );
 		  var sbling = sblings.iterateNext();
 		  var lastsb = sbling;
 		  var sblid = '';
