@@ -13,7 +13,8 @@
 	$stlist = $settings['xmlfile']['sattributes']['s']['status']['options'];
 	if ( !$stlist )	$stlist = array ( 
 		"auto" => array("display" => "automatically assigned"),
-		"checked" => array("display" => "manually verified"),
+		"corrected" => array("display" => "manually corrected"),
+		"checked" => array("display" => "manually verified", "color" => "green"),
 		"wrong" => array("display" => "wrong - to correct"),
 		);
 
@@ -63,11 +64,16 @@
 			if ( $tok['head']."" != $newtok['head']."" ) {
 				print "<p>$tokid: {$tok['head']} => {$newtok['head']}</p>";
 				$tok['head'] = $newtok['head'];
+				$somedone = 1;
 			};
 			if ( $tok['deprel']."" != $newtok['deprel']."" ) {
 				print "<p>$tokid: {$tok['deprel']} => {$newtok['deprel']}</p>";
 				$tok['deprel'] = $newtok['deprel'];
+				$somedone = 1;
 			};
+		};
+		if ( $somedone && ( $sent['status'] == "" || $sent['status'] == "none" ) ) {
+			$sent['status'] = "corrected";
 		};
 		$ttxml->save();
 		print "<script>top.location='index.php?action=$action&act=edit&sid=$sid&cid=$ttxml->fileid';</script>";
@@ -590,8 +596,9 @@ $maintext .= "
 			
 				if ( $username && $settings['xmlfile']['sattributes']['s']['status'] ) {
 					$st = $sent['status']."" or $st = "none";
+					$stcol = ""; if ( $stlist[$st]['color'] ) $stcol = " color: {$stlist[$st]['color']};";
 					$sttxt = $stlist[$st]['display']; if ( !$sttxt ) $sttxt = $st;
-					$stattd = "<td><span status='$st' title='status: $sttxt' style='font-size: 10px'>&#9638;</span>";
+					$stattd = "<td><span status='$st' title='status: $sttxt' style='font-size: 10px; $stcol'>&#9638;</span>";
 				};
 				
 				$sid = $sent['id'];
