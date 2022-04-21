@@ -3,6 +3,7 @@ use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use HTML::Entities;
 use XML::LibXML;
 use utf8;
+use Data::Dumper;
 use Getopt::Long;
 use POSIX qw(strftime);
 use Cwd 'abs_path';
@@ -614,21 +615,38 @@ if ( $sentsplit ) {
 			$sent->addChild($sib);
 		};
 	};
+
+	foreach $sent ( $doc->findnodes("//text//s[not(.//tok)]" ) ) {
+		# Check whether empty nodes are not redundant (with the next tok under an s)
+		$tmp = $sent->findnodes("./following::tok");
+		if ( $tmp ) {
+			$nexttok = $tmp->item(0);
+			$tmp = $nexttok->findnodes("./ancestor::s");
+			if ( $tmp ) {
+				# Next token is under a <s> - redundant
+				$sent->parentNode->removeChild($sent);
+			} else {
+				# Empty tok next - leave be
+			};
+		} else {
+		};
+	};
+	
 };
 
 # One last thing we need to do is treat <tok> inside <del>
-	foreach $ttnode ($doc->findnodes("//del//tok")) {
-		$ttnode->setAttribute('form', "--");
-	}; 
+foreach $ttnode ($doc->findnodes("//del//tok")) {
+	$ttnode->setAttribute('form', "--");
+}; 
 
 
-	if ( $sentsplit == 2 ) {
-		$actiontxt = "split into sentences";
-	} elsif ( $sentsplit == 1 ) {
-		$actiontxt = "tokenized and split into sentences";
-	} else {
-		$actiontxt = "tokenized";
-	};
+if ( $sentsplit == 2 ) {
+	$actiontxt = "split into sentences";
+} elsif ( $sentsplit == 1 ) {
+	$actiontxt = "tokenized and split into sentences";
+} else {
+	$actiontxt = "tokenized";
+};
 
 
 # Add a revisionDesc to indicate the file was tokenized
