@@ -23,6 +23,7 @@ $scriptname = $0;
             'breaks' => \$addbreaks, # add breaks before every sentence
             'noinner' => \$noinner, # Do not keep inner-token punctuation marks
             'inner=s' => \$inner, # ... except for these
+            'pelms=s' => \$pelms, # ... except for these
             'linebreaks' => \$linebreaks, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
             'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
@@ -36,6 +37,12 @@ if ( $debug ) { print "Tokenizing $mtxtelm"; };
 
 if ( $filename eq '' ) {
 	$filename = shift;
+};
+
+$pelms = "$pelms,div,head,p";
+foreach $pelm ( split(",", $pelms) ) {
+	$pnts{$pelm} = 1;
+	$ptreg = $pelms; $ptreg =~ s/^,|,$//g;  $ptreg =~ s/,+/\|/g; 
 };
 
 if ( $filename eq '' ) {
@@ -125,7 +132,7 @@ if ( $linebreaks ) {
 
 if ( $sentsplit != 2 ) {
 	# There are some element that should never be inside a word - such as paragraphs. So add whitespace inside those to prevent errors
-	$tagtxt =~ s/(<\/(p|div)>)(<(p|div))(?=[ >])/\1\n\3/g;
+	$tagtxt =~ s/(<\/($ptreg)>)(<($ptreg))(?=[ >])/\1\n\3/g;
 
 	# Deal with |~ encode line endings (from with page-by-page files)
 	$tagtxt =~ s/\s*\|~\s*((<[pl]b[^>]*>\s*?)*)\s*/\1/gsmi;
@@ -530,7 +537,7 @@ if ( $sentsplit ) {
 	if ( $addbreaks ) { $lb = "\n"; };
 
 	# Start by making a <s> inside each <p> or <head>, fallback to <div>, or else just the outer xml (<text>) 
-	$teitext =~ s/(<(p|tei_div|div|head)(?=[ >])[^<>]*>)/\1$lb<s\/>/g;
+	$teitext =~ s/(<($ptreg)(?=[ >])[^<>]*>)/\1$lb<s\/>/g;
 	
 	$teitext =~ s/(<tok[^>]*>[.?!]<\/tok>)(\s*)/\1\2$lb<s\/>/g; 
 
@@ -540,7 +547,7 @@ if ( $sentsplit ) {
 	# Remove <s/> before more breaks - ?! etc.
 	$teitext =~ s/$lb<s\/>(<tok[^>]*>[.?!]<\/tok>)/\1/g; 
 
-	$teitext =~ s/<s\/>(<\/(p|tei_div|div|head))/\1/g; 
+	$teitext =~ s/<s\/>(<\/($ptreg))/\1/g; 
 	
 	# In case the splitting messed up the XML, undo
 	$parser = XML::LibXML->new(); $tmp = "";
@@ -594,7 +601,7 @@ if ( $sentsplit ) {
 	foreach $sent ( $doc->findnodes("//text//s" ) ) {
 
 		$ptype = $sent->parentNode->nodeName;
-		while ( !$sent->nextSibling() && $type ne "p" && $type ne "head" && $type ne "div" ) {
+		while ( !$sent->nextSibling() && !$pnts{$type} ) {
 			# Move out if the <s/> ended up at the end of a node
 			$sent->parentNode->parentNode->insertAfter($sent, $sent->parentNode);
 			$ptype = $sent->parentNode->nodeName;
