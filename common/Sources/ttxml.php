@@ -325,6 +325,16 @@ class TTXML
 		return $tableheader;
 	}
 	
+	function mfoliotxt($folioname, $elm) {
+		if ( substr($folioname,0,1) == "@" ) {
+			$attname = substr($folioname,1);
+			$attval = $elm[$attname];
+			if ( $attval ) return $attval;
+			else return "";
+		};
+		return $folioname;
+	}
+	
 	function asXML( $whole = false ) {
 		global $mtxtelement; global $settings; global $username;
 		
@@ -438,7 +448,7 @@ class TTXML
 			if ( $npag1 == $npag2 ) $bnum = $bnum2; else $bnum = "$bnum1 - $bnum2";
 			$tmp = min(count($befpag)-1, $bp+$max); $idxpag = $befpag[$tmp]; $bid = $idxpag['id'];
 			if ( $bnav ) $bnav .= " &bull; ";
-			$bnav .= "<a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a> <";
+			$bnav .= "<a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>".$this->mfoliotxt($folioname, $npag1)." $bnum</a> <";
 			$hasnav = 1;
 		};
 		if ( $aftpag[$ap] ) {
@@ -448,11 +458,11 @@ class TTXML
 			$bnum2 = $this->elm2id($npag2);
 			if ( $npag1 == $npag2 ) $bnum = $bnum2; else $bnum = "$bnum2 - $bnum1";
 			$tmp = min(count($aftpag)-1, $ap+$max); $idxpag = $aftpag[$tmp]; $bid = $idxpag['id'];
-			$nnav = "> <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>$folioname $bnum</a>";
+			$nnav = "> <a href='index.php?action=$action&cid=$this->xmlid&pageid=$bid'>".$this->mfoliotxt($folioname, $npag1)." $bnum</a>";
 			$hasnav = 1;
 		};
 
-		$foliotxt = "$folioname $num";
+		$foliotxt = $this->mfoliotxt($folioname, $page)." ".$num;
 
 		if ( $page['appid'] && file_exists("Resources/toc.xml") ) {
 			$tocxml = simplexml_load_file("Resources/toc.xml");
