@@ -86,12 +86,13 @@
 	} else if ( $act == "list" ) {
 	
 		$maintext .= "<h1>Local Project List</h1><table>";
-		$guessroot = $settings['defaults']['apacheroot'] or $guessroot = preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']);
+		$guessroot = $settings['defaults']['apacheroot'] or $guessroot = $settings['defaults']['base']['apacheroot'] or $guessroot = preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']);
 		
 		$tmp = scandir($guessroot);
-		$rootbase = str_replace($_SERVER['DOCUMENT_ROOT'], "", $guessroot);
+		$rootbase = $settings['defaults']['base']['httproot'] or $rootbase = str_replace($_SERVER['DOCUMENT_ROOT'], "", $guessroot);
+		$maintext .= "<p>$guessroot - $rootbase</p>";
 		foreach ( $tmp as $fl ) {
-			if ( is_dir("$guessroot/$fl") && substr($fl, 0, 1) != "." && file_exists("$guessroot/$fl/Resources/settings.xml") ) {
+			if ( is_dir("$guessroot/$fl") && substr($fl, 0, 1) != "." && !is_link("$guessroot/$fl") && file_exists("$guessroot/$fl/Resources/settings.xml") ) {
 				$xtmp = simplexml_load_file("$guessroot/$fl/Resources/settings.xml");
 				$prtit = current($xtmp->xpath("//defaults/title"));
 				if ( $prtit['display'] ) $maintext .= "<tr><td><a href='$rootbase/$fl/index.php'>$fl</a><td>{$prtit['display']}";

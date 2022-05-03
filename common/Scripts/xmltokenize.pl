@@ -25,6 +25,7 @@ $scriptname = $0;
             'noinner' => \$noinner, # Do not keep inner-token punctuation marks
             'inner=s' => \$inner, # ... except for these
             'pelms=s' => \$pelms, # ... except for these
+            'notok=s' => \$notoks, # ... except for these
             'linebreaks' => \$linebreaks, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
             'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
@@ -45,6 +46,11 @@ foreach $pelm ( split(",", $pelms) ) {
 	$pnts{$pelm} = 1;
 	$ptreg = $pelms; $ptreg =~ s/^,|,$//g;  $ptreg =~ s/,+/\|/g; 
 };
+
+$notoktype = "note|desc|gap|pb|fw|rdg";
+if ( $notoks ) {
+	$notoktype = $notoks; $notoktype =~ s/^,|,$//g;  $notoktype =~ s/,+/\|/g; 
+}; print $notoktype;
 
 if ( $filename eq '' ) {
 	print " -- usage: xmltokenize.pl --filename=[fn]"; exit;
@@ -156,7 +162,7 @@ if ( $sentsplit != 2 ) {
 # Take them out and put them back later
 # TODO: this goes wrong with nested notes (which apt. are allowed in TEI)
 $notecnt = 0;
-while ( $tagtxt =~ /<(note|desc|gap|pb|fw|rdg)[^>]*(?<!\/)>.*?<\/\1>/gsmi )  {
+while ( $tagtxt =~ /<($notoktype)[^>]*(?<!\/)>.*?<\/\1>/gsmi )  {
 	$notetxt = $&; $leftc = $`;
 	$notes[$notecnt] = $notetxt; $newtxt = substr($leftc, -50).'#'.$notetxt;
 	if ( $oldtxt eq $newtxt ) { 
