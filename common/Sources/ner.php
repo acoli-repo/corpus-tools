@@ -77,7 +77,7 @@
 			
 				foreach ( $nodelist as $node ) {
 					$nerid = $node[$val['nerid']];
-					if ( !$nerid ) { $nerid = $node['id']; $idtxt = "<ee/>"; };
+					if ( !$nerid ) { $nerid = $node['lemma'] or $nerid = $node.""; }; # use form if no ID is present
 					$name = makexml($node);
 					if ( $settings['xmlfile']['nospace'] == "2" ) $name = $name = preg_replace("/<\/tok>/", " ", $name);
 					$name = preg_replace("/<[^>]+>/", "", $name);
@@ -98,7 +98,8 @@
 						$idtxt = $sep."<a href='{$linknode['target']}'>$idname</a>"; 
 						$sep = "<br/>";
 					};
-				} else $idtxt = "<i style='opacity: 0'>$nerid</i>";
+				} else if ( $username ) $idtxt = "<i style='opacity: 0.5'>$nerid</i>";
+				else $idtxt = "<i style='opacity: 0'>$nerid</i>";
 				$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
 				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
 				$maintext .= "<tr key='$name' class='$trc'><td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a>
