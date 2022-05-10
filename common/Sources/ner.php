@@ -85,8 +85,10 @@
 					$idcnt[$nerid.""]++;
 				};
 			};	
+			asort($idcnt);
 			foreach ( $idnames as $nerid => $val ) {
-				$name = join("<br/>", array_keys($val));
+				$vallist = array_keys($val); natsort($vallist);
+				$name = join("<br/>", $vallist);
 				if ( substr($nerid, 0, 4) == "http") $idtxt = "<a href='$nerid'>$nerid</a>";
 				else if ( substr($nerid, 0, 1) == "#" ) {
 					$idxp = "//*[@id=\"".substr($ref,1)."\" or @xml:id=\"".substr($nerid,1)."\"]";
@@ -102,7 +104,9 @@
 				else $idtxt = "<i style='opacity: 0'>$nerid</i>";
 				$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
 				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
-				$maintext .= "<tr key='$name' class='$trc'><td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a>
+				$nametxt = "<td>".$name; 
+				if ( $node[$val['nerid']] ) $nametxt = "<td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a>";
+				$maintext .= "<tr key='$name' class='$trc'>$nametxt 
 					<td><a href='index.php?action=ner&nerid=".urlencode($nerid)."' target=ner>$idtxt</a>
 					<td style='opacity: 0.5; text-align: right; padding-left: 10px;' title='{%Occurrences}'>{$idcnt[$nerid]}";
 			};
