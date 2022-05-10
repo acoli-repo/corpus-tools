@@ -74,6 +74,7 @@
 		// rsearch('myfldr', 'this**file')
 		$dir = new RecursiveDirectoryIterator($folder);
 		$ite = new RecursiveIteratorIterator($dir);
+		if ( !$ite ) return array();
 		$files = new RegexIterator($ite, $pattern, RegexIterator::GET_MATCH);
 		$fileList = array();
 		foreach($files as $file) {
@@ -998,13 +999,13 @@
 		
 		# Protect empty elements
 		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
+		# $xmltxt = str_replace( "&nbsp;", "&#xA0;", $xmltxt );
 		
 		# Deal with @join type spacing
 		if  ( $ttxml->nospace == 2 || $nospace == 2 || $style == "nospace" ) {
 			$xmltxt = str_replace( "</tok>", "</tok><njs> </njs>", $xmltxt );
 			$xmltxt = preg_replace( "/(join=\"right\"((?!<tok).)+<\/tok>)<njs> <\/njs>/", "\\1", $xmltxt );
 		};
-		# $xmltxt = str_replace( "&nbsp;", "&#xA0;", $xmltxt );
 		return $xmltxt;
 	};
 
