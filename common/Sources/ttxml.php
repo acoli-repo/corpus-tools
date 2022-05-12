@@ -89,6 +89,8 @@ class TTXML
 			$this->xml = simplexml_load_string($this->rawtext, null, LIBXML_NOBLANKS);
 			if ( preg_match("/join=\"right\"/", $this->rawtext) ) {
 				$this->nospace = 2;
+			} else if ( preg_match("/join=\"left\"/", $this->rawtext) ) {
+				$this->nospace = 3;
 			} else {
 				$this->nospace = 1;
 			};
@@ -370,6 +372,9 @@ class TTXML
 		if  ( $this->nospace == 2 ) {
 			$xmltxt = str_replace( "</tok>", "</tok><njs> </njs>", $xmltxt );
 			$xmltxt = preg_replace( "/(join=\"right\"((?!<tok).)+<\/tok>)<njs> <\/njs>/", "\\1", $xmltxt );
+		} elseif  ( $this->nospace == 3 ) {
+ 			$xmltxt = str_replace( "<tok ", "<njs> </njs><tok ", $xmltxt );
+ 			$xmltxt = preg_replace( "/<njs> <\/njs>(<tok(.(?!<\/tok))+join=\"left\")/", "\\1", $xmltxt );
 		};
 		
 		return $xmltxt;

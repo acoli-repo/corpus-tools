@@ -1005,6 +1005,9 @@
 		if  ( $ttxml->nospace == 2 || $nospace == 2 || $style == "nospace" ) {
 			$xmltxt = str_replace( "</tok>", "</tok><njs> </njs>", $xmltxt );
 			$xmltxt = preg_replace( "/(join=\"right\"((?!<tok).)+<\/tok>)<njs> <\/njs>/", "\\1", $xmltxt );
+		} else if  ( $ttxml->nospace == 2 || $nospace == 2 || $style == "nospace" ) {
+ 			$xmltxt = str_replace( "<tok ", "<njs> </njs><tok ", $xmltxt );
+ 			$xmltxt = preg_replace( "/<njs> <\/njs>(<tok(.(?!<\/tok))+join=\"left\")/", "\\1", $xmltxt );
 		};
 		return $xmltxt;
 	};
