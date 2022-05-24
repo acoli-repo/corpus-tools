@@ -280,7 +280,7 @@ function drawGraph(type='table') {
 		// Make an array for jStat
 		var myVect = []; 
 		for ( var i=1; i<json.length; i++ ) {
-			var val = json[i][cntcol];
+			var val = json[i][cntcol -1];
 			myVect.push(val);
 		};
 		jObj = jStat( myVect );
