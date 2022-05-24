@@ -206,7 +206,7 @@
 				$moredirect = "&query=".urlencode($_POST['query']);
 
 				$grquery = $_POST['query'] or $grquery = $_GET['query'] or $grquery = "group Matches match.word";
-				if ( $ttcqp && !$usecwb  ) {
+				if ( $ttcqp && !$usecwb && 1==2   ) { # Not using TT-CQP anymore
 				
 					// Use tt-cqp by default
 
@@ -259,7 +259,7 @@
 					$cqpquery = "Matches = $cql";
 					$cqp->exec($cqpquery);
 					$totcnt = $cqp->exec("size Matches");
-					$results = $cqp->exec($grquery);
+					$cqpresults = $cqp->exec($grquery);
 					
 					if ( !$settings['cqp']['nowpm'] ) {
 						# Determine what to use as reference query
@@ -302,7 +302,7 @@
 					if ( $refquery ) {
 						$label = "Group"; # {%Group}
 						$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'wpm', 'label':'{%WPM}', 'type':'number'}, {'id':'perc', 'label':'{%Percent}', 'type':'number'}], ";
-						foreach ( explode("\n", $results) as $line ) {
+						foreach ( explode("\n", $cqpresults) as $line ) {
 							list ( $grp, $cnt ) = explode ( "\t", $line );
 							$wpm = 0; 
 							if ( $allcnt[$grp] ) $relcnt = $cnt/$allcnt[$grp];
@@ -316,7 +316,7 @@
 					} else {
 						$label = "Group"; # {%Group}
 						$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'perc', 'label':'{%Percent}', 'type':'number'}], ";
-						foreach ( explode("\n", $results) as $line ) {
+						foreach ( explode("\n", $cqpresults) as $line ) {
 							list ( $grp, $cnt ) = explode ( "\t", $line );
 							$grp = str_replace("'", "\\'", $grp); # Protect '
 							$perc = sprintf("%0.2f", ($cnt/$totcnt)*100);
