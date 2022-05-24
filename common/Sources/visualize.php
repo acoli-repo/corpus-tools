@@ -284,7 +284,7 @@
 										list ( $grp, $cnt ) = explode ( "\t", $line );
 										$allcnt[$grp] = $cnt;
 									};
-									$refrow .= "<tr><th>Reference size<td title='$refquery'>".$refcnt;
+									$refrow .= "<tr><th>{%Reference size} ({%total})<td title='$refquery'>".$refcnt;
 								} else {
 									# Nothing to compare to
 								};
@@ -293,7 +293,7 @@
 								$cqp->exec("All = $refquery");
 								$tmp = "size All";
 								$allcnt['All'] = $cqp->exec($tmp);
-								$refrow .= "<tr><th>Reference size<td title='$refquery'>".$allcnt['All'];
+								$refrow .= "<tr><th>{%Reference size}<td title='$refquery'>".$allcnt['All'];
 							};
 						};
 					};
@@ -357,7 +357,7 @@
 				$maintext .= "<table>
 								<tr><th>{%Search Query}<td><a style='color: black;' href='index.php?action=cqp&cql=$cqllink'>$cqltxt</a></tr>
 								<tr><th>{%Group query}<td>$grtxt</tr>
-								<tr><th>Total:<td>$totcnt</tr>
+								<tr><th>{%Total}<td>$totcnt</tr>
 								$refrow
 							</table>";
 

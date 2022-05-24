@@ -114,6 +114,7 @@ function drawGraph(type='table') {
 	} else if ( type != "table" && type != "totals"  ) { 
 		// Merge cells unless we have a table
 		input = []; 
+		fldnum = fldnum-1; // Kill the percentage column
 		for ( var i=0; i<json.length; i++ ) {
 			var row = json[i];
 			if ( row[0]['id'] ) {
