@@ -79,6 +79,7 @@
 			};
 
 			$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "[]";
+			$cql = preg_replace("/[\n\r]/", " ", $cql);
 
 			if ( preg_match("/ *\[([^\]]+)\](?: *within .*)?$/", $cql, $matches) || preg_match("/ *\[([^\]]+)\] *:: *(.*?)(?: *within .*)?$/", $cql, $matches) ) {
 				$pmatch = $matches[1]; $smatch = $matches[2];
@@ -249,7 +250,7 @@
 						fatal ( "Corpus $cqpcorpus has no registry file" );
 					};
 
-					// Turn the grquery back
+					// Turn the grquery back into normal CQL
 					$grquery = preg_replace("/([^ ]+)\.([^ ]+)/", "\\1 \\2", $grquery);
 
 					$cqp = new CQP();
@@ -257,32 +258,69 @@
 					$cqp->exec("set PrettyPrint off");
 					$cqpquery = "Matches = $cql";
 					$cqp->exec($cqpquery);
-					$cqpquery = "All = []";
-					$cqp->exec($cqpquery);
+					$totcnt = $cqp->exec("size Matches");
 					$results = $cqp->exec($grquery);
 					
 					if ( !$settings['cqp']['nowpm'] ) {
-						$resall = $cqp->exec(str_replace("Matches", "All", $grquery));
-						foreach ( explode("\n", $resall) as $line ) {
-							list ( $grp, $cnt ) = explode ( "\t", $line );
-							$allcnt[$grp] = $cnt;
+						# Determine what to use as reference query
+						if ( preg_match("/(.+?) (:: .+)/", $cql, $matches) ) {
+							$qp['local'] = $matches[1]; $qp['global'] = $matches[2];
+						} else {
+							$qp['local'] = $cql;
 						};
+											
+						if ( preg_match("/group Matches ([^ ]+)[. ](.+)/", $grquery, $matches) ) {
+							$qp['pos'] = $matches[1]; $qp['att'] = $matches[2];
+							if ( preg_match("/(.+?)_+(.+)/", $qp['att'], $matches) ) {
+								if ( $qp['global'] ) {
+									$refquery = "[] {$qp['global']}";
+									$qp['satt'] = $matches[1]; $qp['attname'] = $matches[2];
+									$refgr = "group All {$qp['pos']} {$qp['att']}";
+									$cqp->exec("All = $refquery");
+									$tmp = "size All";
+									$refcnt = $cqp->exec($tmp);
+									$resall = $cqp->exec($refgr);
+									foreach ( explode("\n", $resall) as $line ) {
+										list ( $grp, $cnt ) = explode ( "\t", $line );
+										$allcnt[$grp] = $cnt;
+									};
+									$refrow .= "<tr><th>Reference size<td title='$refquery'>".$refcnt;
+								} else {
+									# Nothing to compare to
+								};
+							} else {
+								$refquery = "[] {$qp['global']}";
+								$cqp->exec("All = $refquery");
+								$tmp = "size All";
+								$allcnt['All'] = $cqp->exec($tmp);
+								$refrow .= "<tr><th>Reference size<td title='$refquery'>".$allcnt['All'];
+							};
+						};
+					};
+					
+					
+					if ( $refquery ) {
 						$label = "Group"; # {%Group}
-						$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'wpm', 'label':'{%WPM}', 'type':'number'}], ";
+						$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'wpm', 'label':'{%WPM}', 'type':'number'}, {'id':'perc', 'label':'{%Percent}', 'type':'number'}], ";
 						foreach ( explode("\n", $results) as $line ) {
 							list ( $grp, $cnt ) = explode ( "\t", $line );
+							$wpm = 0; 
+							if ( $allcnt[$grp] ) $relcnt = $cnt/$allcnt[$grp];
+								else if ( $allcnt['All'] ) $relcnt = $cnt/$allcnt['All'];
+							if ( $relcnt ) $wpm = sprintf("%0.2f", ($relcnt)*1000000);
 							$grp = str_replace("'", "\\'", $grp); # Protect '
-							$wpm = 0; if ( $allcnt[$grp] ) $wpm = sprintf("%0.2f", ($cnt/$allcnt[$grp])*10000000);
-							if ( $grp && $cnt ) $json .= "['$grp', $cnt, $wpm], ";
+							$perc = sprintf("%0.2f", ($cnt/$totcnt)*100);
+							if ( $grp && $cnt ) $json .= "['$grp', $cnt, $wpm, $perc], ";
 						};
 						$json .= "]";
 					} else {
 						$label = "Group"; # {%Group}
-						$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}], ";
+						$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'perc', 'label':'{%Percent}', 'type':'number'}], ";
 						foreach ( explode("\n", $results) as $line ) {
 							list ( $grp, $cnt ) = explode ( "\t", $line );
 							$grp = str_replace("'", "\\'", $grp); # Protect '
-							if ( $grp && $cnt ) $json .= "['$grp', $cnt], ";
+							$perc = sprintf("%0.2f", ($cnt/$totcnt)*100);
+							if ( $grp && $cnt ) $json .= "['$grp', $cnt, $perc], ";
 						};
 						$json .= "]";
 					}
@@ -317,8 +355,10 @@
 
 				$cqllink = urlencode($cql);
 				$maintext .= "<table>
-								<tr><th>{%Search Query}:<td><a style='color: black;' href='index.php?action=cqp&cql=$cqllink'>$cqltxt</a></tr>
-								<tr><th>{%Group query}:<td>$grtxt</tr>
+								<tr><th>{%Search Query}<td><a style='color: black;' href='index.php?action=cqp&cql=$cqllink'>$cqltxt</a></tr>
+								<tr><th>{%Group query}<td>$grtxt</tr>
+								<tr><th>Total:<td>$totcnt</tr>
+								$refrow
 							</table>";
 
 				$wpmdesc = "{%Words per million}"; $wpmtxt = "WPM";

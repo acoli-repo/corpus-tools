@@ -87,6 +87,8 @@ class TTXML
 		libxml_use_internal_errors(true);
 		if ( $settings['xmlfile']['nospace'] || preg_match("/<text[^>]+xml:space=\"remove\"/", $this->rawtext) ) {
 			$this->xml = simplexml_load_string($this->rawtext, null, LIBXML_NOBLANKS);
+			$this->nospace = $settings['xmlfile']['nospace'];
+			if ( $this->nospace ) 
 			if ( preg_match("/join=\"right\"/", $this->rawtext) ) {
 				$this->nospace = 2;
 			} else if ( preg_match("/join=\"left\"/", $this->rawtext) ) {
