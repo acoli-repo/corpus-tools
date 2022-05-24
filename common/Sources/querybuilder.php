@@ -77,7 +77,7 @@
 	
 			$jsnames .= "pattname['$col'] = { 'values': '{$coldef['values']}', 'display': '{%$colname}' $morec }; ";
 			if ( !$colname ) $colname = "[$col]";
-			$tstyle = ""; 
+			$tstyle = "title=\"$col\" "; 
 			if ( $coldef['admin'] == "1" ) {
 				$tstyle = " class=adminpart";
 				if ( !$username ) { continue; };
@@ -356,11 +356,11 @@
 			if ( !$xatts['display'] ) continue;
 			$querytext .= "$hr<h3>{%{$xatts['display']}}</h3><table  class=qbt >"; $hr = "<hr>";
 			foreach ( $xatts as $key => $item ) {
-				$atp = "";
 				if ( $item['admin'] )
 					if ( $username) $atp = " class=\"adminpart\"";
 					else continue;
 				$xkey = "{$xatts['key']}_$key";
+				$atp .= " title=\"$xkey\" ";
 				$val = $item['long']."" or $val = $item['display']."";
 				if ( $item['type'] == "group" ) { 
 					$querytext .= "<tr><td>&nbsp;<tr><td colspan=2 style='text-align: center; color: #992000; font-size: 10pt; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa;'>{%$val}";
