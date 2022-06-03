@@ -13,15 +13,13 @@
 		
 	if ( $fileid ) { 
 	
-		if ( !file_exists("$xmlfolder/$fileid") ) { 
-			print "No such XML File: $xmlfolder/$fileid"; 
-			exit;
-		};
+		require ("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
 		
 		$file = file_get_contents("$xmlfolder/$fileid"); 
 		$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 
-		$result = $xml->xpath("//*[@id='$tokid']"); 
+		$result = $ttxml->xml->xpath("//*[@id='$tokid']"); 
 		$elm = $result[0]; # print_r($token); exit;
 
 		if ( !$elm ) fatal("No such element: $tokid");
@@ -40,15 +38,17 @@
 
 		if ( $settings['xmlfile']['sattributes'][$etype] ) {
 			foreach ( $settings['xmlfile']['sattributes'][$etype] as $key => $item ) {
+				if ( $key == "implicit" ) $implicit[$etype] = 1;
 				if ( !is_array($item) ) continue;
 				$itemtxt = $item['display'];
 				$atv = $elm[$key]; 
 				$maintext .= "<tr><th>$key<td>$itemtxt<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
 			};
 		} else {
+			$implicit['lb'] = 1;
 			$elmatts = Array ( 
 			"pb" => Array ( "n" => "Page number", "facs" => "Facsimile image", "admin" => "Admin-only image"  ),
-			"lb" => Array ( "n" => "True linebreak",  ),
+			"lb" => Array ( "n" => "Line number",  ),
 			"deco" => Array ( "decoRef" => "decoration ID",  ),
 			"gap" => Array ( "extent" => "Gap size", "reason" => "Gap reason",  ),
 			);
@@ -68,16 +68,31 @@
 			if ( $elm['bbox'] ) $maintext .= "<input type=hidden name=atts[bbox] id='fbbox' value='{$elm['bbox']}'>";
 		};
 
-		$result = $xml->xpath($mtxtelement); 
-		$txtxml = $result[0]; 
+		# $txtxml = $ttxml->page(); 
+		$txtxml = $ttxml->context($elm['id']); 
 
 		$maintext .= "</table>";
+		
+		if ( $implicit[$etype] ) {
+			$lbxml = $elm->asXML(); $linexml = htmlentities($lbxml);
+			$linetxt = ""; 
+			$linepos = strpos($ttxml->rawtext, $lbxml);
+			$nextlb = strpos($ttxml->rawtext, "<lb", $linepos+1);
+			$nextpb = strpos($ttxml->rawtext, "<pb", $linepos+1);
+			$lineend = min($nextlb, $nextpb) or $lineend = $nextlb or $lineend = $nextpb;
+			if ( !$lineend ) $lineend = strpos($ttxml->rawtext, "</text", $linepos+1);
+			$linetxt = substr($ttxml->rawtext, $linepos, $lineend-$linepos);
+			$linetxt = preg_replace("/<s [^>]+>/smi", "", $linetxt);
+
+			$maintext .= "<hr><h3>Implicit content of empty element</h3> <div id=mtxt>$linetxt</div>";
+		};
 
 		$maintext .= "<hr>
 		<input type=submit value=\"Save\">
 		<button onClick=\"window.open('index.php?action=file&cid=$fileid', '_self');\">Cancel</button></form>
+		$implicitcontext
 		<!-- <a href='index.php?action=file&cid=$fileid'>Cancel</a> -->
-		<hr><div id=mtxt>".$txtxml->asXML()."</div>
+		<hr><div id=mtxt>".$txtxml."</div>
 		<script language=Javascript>
 			var telm = document.getElementById('$tokid');
 			if ( telm.innerText ) {
@@ -92,8 +107,7 @@
 				 sp1.style['font-size'] = '11pt';
 				telm.insertBefore(sp1, telm.firstChild);
 			};
-		</script>
-		";
+		</script>";
 
 
 		if ( $elm['bbox']  ) {

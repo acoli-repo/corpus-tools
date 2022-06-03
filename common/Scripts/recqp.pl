@@ -49,8 +49,8 @@ print FILE 'Regeneration started on '.localtime();
 print FILE 'Process id: '.$$;
 print FILE "CQP Corpus: $cqpcorpus";
 print FILE 'Removing the old files';
-print FILE 'command:
-/bin/rm -Rf cqp$scf/*';
+print FILE "command:
+/bin/rm -Rf cqp$scf/*";
 `/bin/rm -Rf cqp$scf/*`;
 
 
