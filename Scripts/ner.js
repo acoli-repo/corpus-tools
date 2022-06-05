@@ -96,9 +96,9 @@ function showinfo(showelement) {
 	if ( !nervalue ) nervalue = showelement.innerHTML;
 	infoHTML = '<table><tr><th>' + nername + '</th><td><b>'+ nervalue +'</b></td></tr>';
 	var subtypef = 'type';
-	if ( nertype.subtypes && nertype.subtypes.fld ) subtypef = nertype.subtypes.fld;
+	if ( nertype && nertype.subtypes && nertype.subtypes.fld ) subtypef = nertype.subtypes.fld;
 	var subtyped = 'type';
-	if ( nertype.subtypes && nertype.subtypes.display ) subtyped = nertype.subtypes.display;
+	if ( nertype && nertype.subtypes && nertype.subtypes.display ) subtyped = nertype.subtypes.display;
 	if ( showelement.getAttribute(subtypef) ) {
 		var typetext = showelement.getAttribute(subtypef) + '';
 		typetext = typetext.split(':').pop(); // Kill the namespace if there is any

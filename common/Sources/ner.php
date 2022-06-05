@@ -782,6 +782,9 @@
 				$snippetxml = current($nernode->xpath(".//$snippetelm"));
 				if ( $snippetxml ) $snippettxt .= "<tr><td colspan=2>".makexml($snippetxml)."</td></tr>";
 				$snippettxt .= "</table>";
+				if ( $snippettxt == "<table></table>" && $username ) $snippettxt = "<i>No display data or snippet elm ($snippetelm) in $nerid</i>"; 
+			} else if ( $username ) {
+				$snippettxt = "<i>Missing NER record: $nerid</i>";
 			} else {
 				print "<!-- Node $nerid not found -->";
 			};
@@ -791,7 +794,7 @@
 	
 		if ( $snippettxt && $snippettxt != "<table></table>" ) print i18n($snippettxt);
 		else if ( $_GET['debug'] ) print "No info: $nerid ".$nernode->asXML();
-		else header("HTTP/1.0 500 Internal Server Error");
+		else header("HTTP/1.0 404 Not Found");
 		exit;
 
 	} else if ( $_GET['cid'] && !$_GET['nerid'] ) {
