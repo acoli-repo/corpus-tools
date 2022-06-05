@@ -782,7 +782,10 @@
 				$snippetxml = current($nernode->xpath(".//$snippetelm"));
 				if ( $snippetxml ) $snippettxt .= "<tr><td colspan=2>".makexml($snippetxml)."</td></tr>";
 				$snippettxt .= "</table>";
-				if ( $snippettxt == "<table></table>" && $username ) $snippettxt = "<i>No display data or snippet elm ($snippetelm) in $nerid</i>"; 
+				if ( $snippettxt == "<table></table>" && $username ) {
+					$snippettxt = "<i>No display data or snippet elm ($snippetelm) in <a href='index.php?action=$action&act=edit&id=$nerid'>$nerid</i>"; 
+					if ( $_GET['debug'] ) $snippettxt .= showxml($nernode);
+				};
 			} else if ( $username ) {
 				$snippettxt = "<i>Missing NER record: $nerid</i>";
 			} else {
