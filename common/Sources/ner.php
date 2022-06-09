@@ -768,6 +768,7 @@
 			if ( $nernode ) {
 				$snippettxt = "<table>";
 				$tmp = $nernode->getName();
+				
 				foreach ( $nerlist as $key => $val ) {
 					$valelm = $val['indexelm'] or $valelm = $val['elm'];
 					$tmp = $nernode->xpath(".//$valelm");
@@ -778,6 +779,19 @@
 					};
 				};
 				if ( $type) $snippettxt .= "<tr><th>{%$type}:<td style='font-weight: bold;'>$name</th></tr>";
+
+				# This does not work - think of how to do that properly...
+// 				$taglist = $nerlist[$valelm.'']['options'];
+// 				foreach ( $taglist as $key => $val ) {
+// 					print $key;
+// 					$vx = $val['xpath'];
+// 					$tmp = $nernode->xpath(".//$vx");
+// 					if ( $tmp ) {
+// 						$vn = $val['display'];
+// 						if ( $vn ) $snippettxt .= "<tr><th>{%$vn}:<td style='font-weight: bold;'>$tmp</th></tr>";
+// 					};
+// 				};
+				
 				$snippetelm = $settings['xmlfile']['ner']['snippet'] or $snippetelm = "label";
 				$snippetxml = current($nernode->xpath(".//$snippetelm"));
 				if ( $snippetxml ) $snippettxt .= "<tr><td colspan=2>".makexml($snippetxml)."</td></tr>";
@@ -999,14 +1013,15 @@
 		$maintext .= "</table></div>";
 		
 
-	} else if ( $_GET['type'] ) {
+	} else if ( $_GET['type'] || count($nerlist) == 1 ) {
 
-		$type = strtolower($_GET['type']);
+		$type = strtolower($_GET['type']) or $type = shift($nerlist);
 		$subtypefld = $nerlist[$type]['subtypes']['fld'] or $subtypefld = "type";
 
 		# List of types of NER we have
 		$nername = $nerlist[$type]['display'];
 		$neratt = $nerlist[$type]['cqp'];
+		$form = $nerlist['form'] or $nerform = "form";
 		$maintext .= "<h2>{%$nertitle}</h2><h1>{%$nername}</h1>";
 
 		include ("$ttroot/common/Sources/cwcqp.php");
@@ -1020,7 +1035,7 @@
 		$cql = "Matches = <$neratt> []"; 
 		$cqp->exec($cql); 
 		
-		$cql = "group Matches match {$neratt}_form by match {$neratt}_nerid";
+		$cql = "group Matches match {$neratt}_{$nerform} by match {$neratt}_nerid";
 		$results = $cqp->exec($cql); 
 		
 		foreach ( explode("\n", $results) as $resline ) {
