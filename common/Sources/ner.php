@@ -1021,7 +1021,7 @@
 		# List of types of NER we have
 		$nername = $nerlist[$type]['display'];
 		$neratt = $nerlist[$type]['cqp'];
-		$form = $nerlist['form'] or $nerform = "form";
+		$formform = $settings['xmlfile']['ner']['form'] or $nerform = "form";
 		$maintext .= "<h2>{%$nertitle}</h2><h1>{%$nername}</h1>";
 
 		include ("$ttroot/common/Sources/cwcqp.php");
