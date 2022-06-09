@@ -1015,13 +1015,13 @@
 
 	} else if ( $_GET['type'] || count($nerlist) == 1 ) {
 
-		$type = strtolower($_GET['type']) or $type = shift($nerlist);
+		$type = strtolower($_GET['type']) or $type = current(array_keys($nerlist));
 		$subtypefld = $nerlist[$type]['subtypes']['fld'] or $subtypefld = "type";
 
 		# List of types of NER we have
 		$nername = $nerlist[$type]['display'];
 		$neratt = $nerlist[$type]['cqp'];
-		$formform = $settings['xmlfile']['ner']['form'] or $nerform = "form";
+		$nerform = $settings['xmlfile']['ner']['form'] or $nerform = "form";
 		$maintext .= "<h2>{%$nertitle}</h2><h1>{%$nername}</h1>";
 
 		include ("$ttroot/common/Sources/cwcqp.php");
