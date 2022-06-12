@@ -422,6 +422,7 @@
 			<table>";
 
 		foreach ( $settings['files'] as $key => $val ) {
+			if ( !is_array($val) ) continue; // do not do attributes
 			if ( !$nodef || is_dir($val['folder']) ) {
 				if ( !$val['admin'] || $user['permissions'] == "admin" ) $maintext .= "<tr><td><a href='index.php?action=$action&act=list&type=$key'>{$val['display']}</a><td>{$val['description']}";
 			};
