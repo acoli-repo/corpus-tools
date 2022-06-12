@@ -547,6 +547,8 @@
 				$resxml = preg_replace("/^[^<>]+>/", "", $resxml); # A bit the beginnin of a tag
 				$resxml = preg_replace("/<tok [^<>]+>[^<>]+\n?$/", "", $resxml); # Half-words at the end (to prevent broken HTML tags - alternatively: &#[^;]+$)
 
+				$rawxml = $resxml;
+
 				# Replace block-type elements by vertical bars
 				$resxml = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l|lg|div) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='\\1'>|</span> ", $resxml);
 				$resxml = preg_replace ( "/(<\/?(doc)>\s*|<(doc) [^>]*>\s*)+/", " <span style='color: #995555; font-weight: bold;' title='\\1'>|</span> ", $resxml);
@@ -604,9 +606,24 @@
 					};
 				};
 				
+				if ( $showstyle == "context" && $showsubstyle && $settings['cqp']['sattributes'][$showsubstyle]['contextatts'] ) {
+					$cdata = "";
+					$catts = explode(",", $settings['cqp']['sattributes'][$showsubstyle]['contextatts']);
+					foreach ( $catts as $catt ) {
+						$color = $settings['cqp']['sattributes'][$showsubstyle][$catt]['color'] or
+							$color = $settings['xmlfile']['sattributes'][$showsubstyle][$catt]['color'];
+						if ( preg_match("/<$showsubstyle [^<>]+$catt=\"([^\"]+)\"/", $rawxml, $matches ) ) {
+							$cval = $matches[1];
+							$cdata .= "<div style='color: $color' att=$catt>$cval</div>";
+						};
+					};
+					
+				};
+				
 				if ( !$noprint ) $editxml .= "\n<tr id=\"r-$i\" tid=\"$fileid\"><td><a href='index.php?action=$fileview&amp;cid=$fileid&amp;jmp=$match' id=\"$fileid:$match\" style='font-size: 10pt; padding-right: 5px;' cid='$fileid' onmouseover=\"showdocinfo(this)\" target=view>{%context}</a></td>
 					$audiobut
-					<td $resstyle>$resxml</td>$metainfo</tr>";
+					<td $resstyle>$resxml$cdata</td>$metainfo</tr>";
+				
 
 
 			};
@@ -753,6 +770,7 @@
 		$cqlu = str_replace("'", "&#039;", $cqlu);
 		$maintext .= "\n<hr>\n\n<p><form action='index.php?action=download' id=cqlform name=cqlform method=post>
 			<input type=hidden name=cql value='$cqlu' $chareqfn></form>";
+			
 		if ( $username && !$fileonly && ( $user['permissions'] == "admin" || $settings['defaults']['cqpedit'] == 1 ) ) {
 
  			if ( $minmatchlength > 1 && !$targetmatch ) {
