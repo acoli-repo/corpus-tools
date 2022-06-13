@@ -40,37 +40,66 @@
 		
 		} else if ( $sentid == "multi" ) {
 		
+				
+			$doatt = $_GET['doatt'];			
+			if ( $doatt ) {
+				$dodef = $sentatts[$stype][$doatt];
+				$doatts = array ( $doatt => $dodef );
+				$drest = " - editing element <span style='font-style:italic' title='$doatt'>{$dodef['display']}</span> (<a href='".modurl("doatt", "")."'>reset</a>)";
+				if ( $_GET['show'] == "all" ) {
+					$xrest = "<p>Click <a href='".modurl("show", $doatt)."'>here</a> to show only <span title='$stype' style='font-style:italic'>$sentname</span> 
+						without <span style='font-style:italic' title='$doatt'>{$dodef['display']}</span> 
+						";
+				} else {
+					$srest = "[not(@$doatt) or @$doatt=\"\"]";
+					$xrest = "<p>Showing only <span title='$stype' style='font-style:italic'>$sentname</span> 
+						without <span style='font-style:italic' title='$doatt'>{$dodef['display']}</span> 
+						- <a href='".modurl("show", "all")."'>show all</a>";
+				};
+			} else {
+				$doatts = $sentatts[$stype];
+				$xrest = "<p>Click on a column title to edit only one of the attributes";
+			};
+			
 			$maintext .= "<h1>Multi-element edit</h1>
-				<p>Element type: $sentname
+				<p>Element type: $sentname $drest
 			
 				<p>
 				<form action='index.php?action=$action&act=save' method=post name=tagform id=tagform>
 				<input type=hidden name=cid value='$fileid'>
 				<table id=rollovertable><tr><th>$sentname
 				";
-				
-			$results = $xml->xpath("//$stype"); 
-			
-			if ( $_GET['doatt'] ) {
-				$doatt = $_GET['doatt'];
-				$doatts = array ( $doatt => $sentatts[$stype][$doatt] );
-			} else $doatts = $sentatts[$stype];
+						
+			# Show the title bar
 			foreach ( $doatts as $key2 => $val2 ) {
 				if ( !is_array($val2) ) continue;
-				$maintext .= "<th>{$val2['display']}</th>";
+				if ( $doatt ) $maintext .= "<th>ID</th><th>{$val2['display']}</th>";
+				else  $maintext .= "<th><a href='".modurl("doatt", $key2)."'>{$val2['display']}</a></th>";
 			};
+			$results = $xml->xpath("//$stype$srest"); 
 
 			$start = $_GET['start'] or $start = 0;
 			$pp = $_GET['perpage'] or $pp = 100;
 			$tot = count($results); $end = $start + $pp;
 			if ( $tot > $pp ) {
 				$slice = array_slice($results, $start, $pp);
-				$maintext .= "<p>showing ".($start+1)." - $end of $tot";
-			} else $slice = $results;
+				$maintext .= "<p>Showing ".($start+1)." - $end of $tot";
+				if ( $start > 0 ) {
+					$jt = max(0,$start-$pp);
+					$maintext .= " &bull; <a href='".modurl("start", $jt)."'>previous</a>";
+				};
+				if ( $end < $tot ) {
+					$jt = $end;
+					$maintext .= " &bull; <a href='".modurl("start", $jt)."'>next</a>";
+				};
+			} else {
+				$slice = $results;
+			};
+			$maintext .= $xrest;
 			
 			foreach ( $slice as $sent ) {
-				$maintext .= "<tr><td id=mtxt>".makexml($sent);
 				$sid = $sent['id'];
+				$maintext .= "<tr><td><a href='index.php?action=file&cid=$ttxml->fileid&jmp=$sid'>$sid<td id=mtxt>".makexml($sent);
 				foreach ( $doatts as $key2 => $val2 ) {
 					if ( !is_array($val2) ) continue;
 					$atv = $sent[$key2]; 
@@ -112,7 +141,8 @@
 
 			$maintext .= "</table>
 				<p><input type=submit value=Save>
-				</form>";
+				</form>
+				<hr><p>Click <a href='index.php?action=$action&cid=$ttxml->fileid&sid=multi'>here</a> to edit multiple sentences";
 		};
 		
 	} else {

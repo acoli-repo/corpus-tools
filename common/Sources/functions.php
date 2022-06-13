@@ -1097,4 +1097,29 @@
 		return $merged;
 	};
 	
+	function modurl ( $attlist, $vallist ) {
+		# Change some values in the current URL
+		$baseurl = $_SERVER['REQUEST_URI'];
+		$newget = $_GET;
+		$newurl = preg_replace("/.*\//", "", $_SERVER['SCRIPT_NAME']) or $newurl = "index.php";
+		if ( is_array($attlist) ) {
+			foreach ( $attlist as $key => $val ) {
+				print "<p>Settings $key to $val";
+				$newget[$key] = $val;
+			};
+		} else {
+			$attar = explode(",", $attlist);
+			$valar = explode(",", $vallist);
+			foreach ( $attar as $key => $val ) {
+				$newget[$val] = $valar[$key];			
+			};
+		};
+		$sep = "?";
+		foreach ( $newget as $key => $val ) {
+			$newurl .= $sep.$key."=".urlencode($val);
+			$sep = "&";
+		};
+		return $newurl;
+	};
+	
 ?>

@@ -228,7 +228,7 @@
 				";
 			
 
-	$maintext .= "<hr><p>".$ttxml->viewswitch();
+	$maintext .= "<hr><p><a href='index.php?action=sentedit&cid=$ttxml->fileid&elm=$stype&sid=multi'>Edit as list</a> &bull; ".$ttxml->viewswitch();
 	
 
 ?>
