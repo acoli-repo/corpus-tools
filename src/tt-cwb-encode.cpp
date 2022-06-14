@@ -601,9 +601,13 @@ void treatfile ( string filename ) {
 							if ( exfile != "" ) {
 								exfile = "Resources/" + exfile;
 								if ( exfile.length() > 4 && exfile.substr(exfile.length()-4) == ".xml" && externals.find(exfile) == externals.end()  ) {
-									if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << vtmp[1] << endl; };
+									if ( verbose ) { cout << "Loading external XML file (for values): " << exfile << " < " << vtmp[1] << endl; };
 									externals[exfile] = new pugi::xml_document();
-									externals[exfile]->load_file(exfile.c_str());
+									if ( externals[exfile]->load_file(exfile.c_str()) ) {
+										// Correctly loaded external 
+									} else {
+										if ( verbose ) { cout << "Failed to load! " << exfile << endl; };
+									};
 								};
 							};
 							pugi::xpath_node xext;
