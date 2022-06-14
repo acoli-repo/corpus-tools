@@ -24,7 +24,7 @@ pugi::xml_node cqpsettings;
 pugi::xml_node cqpstats;
 vector<string> formTags;
 
-    pugi::xml_document doc;
+pugi::xml_document doc; // the current XML document being encoded
 
 string wordfld; // field to use for the "word" attribute
 string lemmafld;
@@ -33,8 +33,6 @@ string corpusfolder;
 string registryfolder;
 
 int tokcnt = 0;
-
-vector<string> tagHist;
 
 map<string, map<string, int> > lexitems; // .lexicon ids
 map<string, map<int, int> > lexcnt; // .lexicon counts (on ids)
@@ -405,16 +403,20 @@ void treatfile ( string filename ) {
 						  	exfile = exval[0];
 						};
 						if ( exfile != "" ) {
-							if ( exfile.substr(exfile.length()-4) == ".xml" && externals[exfile] == NULL ) {
-								exfile = "Resources/" + exfile;
-								if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << tmp << endl; };
+							exfile = "Resources/" + exfile;
+							if ( exfile.substr(exfile.length()-4) == ".xml" && externals.find(exfile) == externals.end() ) {
+								if ( verbose ) { cout << "Loading external XML file (for lookup): " << exfile << " < " << tmp << endl; };
 								externals[exfile] = new pugi::xml_document();
-								externals[exfile]->load_file(exfile.c_str());
+								if ( externals[exfile]->load_file(exfile.c_str()) ) {
+									// Correctly loaded external 
+								} else {
+									if ( verbose ) { cout << "Failed to load! " << exfile << endl; };
+								};
 							};
 							if ( exfile.substr(exfile.length()-4) != ".xml" && debug > 0 ) {
 								cout << "Invalid external lookup: " << tmp << endl;
 							};
-							if ( exfile != "" && externals[exfile] != NULL ) {
+							if ( exfile != "" && externals.find(exfile) != externals.end()  ) {
 								if ( exval.size() > 1 ) {
 									string idlookup = "//*[@id=\""+exval[1]+"\"]";
 									if ( debug > 1 ) { cout << "ID lookup: " << idlookup << endl; };
@@ -498,8 +500,18 @@ void treatfile ( string filename ) {
 				string tmpxpath;
 
 				string toka; string tokb;
-				if ( it->node().attribute("empty") != NULL ) {
+				string toklistatt = "";
+				if ( taglevel.attribute("toklist") != NULL ) { toklistatt = taglevel.attribute("toklist").value(); }
+				if ( toklistatt == "implicit" ) {
 					// TODO: for empty nodes like <pb/> - go from the first token after to the first token before the next....
+				} else if ( toklistatt != "" ) {
+					// For empty node that have a @corresp="#w-3 #w-7" type of content
+					string wlist = it->node().attribute(toklistatt.c_str()).value();
+					toka = wlist.substr(1,wlist.find(" ")-1);
+					tokb = wlist.substr(wlist.find_last_of("#")+1);
+					if ( debug > 4 ) { 
+						cout << " Explicit token list: " << toka << " - " << tokb << endl;
+					};
 
 				} else {
 
@@ -587,8 +599,8 @@ void treatfile ( string filename ) {
 							extid = replace_all(extid, "\n", " " );
 			
 							if ( exfile != "" ) {
-								if ( exfile.length() > 4 && exfile.substr(exfile.length()-4) == ".xml" && externals[exfile] == NULL ) {
-									exfile = "Resources/" + exfile;
+								exfile = "Resources/" + exfile;
+								if ( exfile.length() > 4 && exfile.substr(exfile.length()-4) == ".xml" && externals.find(exfile) == externals.end()  ) {
 									if ( verbose ) { cout << "Loading external XML file: " << exfile << " < " << vtmp[1] << endl; };
 									externals[exfile] = new pugi::xml_document();
 									externals[exfile]->load_file(exfile.c_str());
@@ -597,7 +609,7 @@ void treatfile ( string filename ) {
 							pugi::xpath_node xext;
 							string extxpath = "//*[@id='"+extid+"' or @xml:id='"+extid+"']";
 							if ( debug > 4 ) { cout << " - Compiling external lookup: " << external << " = " << exfile << " / " << extid << " = " << extxpath << endl; };
-							if ( exfile != "" && externals[exfile] != NULL ) {
+							if ( exfile != "" && externals.find(exfile) != externals.end()  ) {
 								xext = externals[exfile]->select_node(extxpath.c_str());
 							} else {
 								xext = doc.select_node(extxpath.c_str());
@@ -672,6 +684,8 @@ void treatfile ( string filename ) {
 		// TODO: This does not work
 		// cout << "Memory used in lexitems: " << sizeof(lexitems) + lexitems.size() * (sizeof(decltype(lexitems)::key_type) + sizeof(decltype(lexitems)::mapped_type)) << endl;
 	};
+	
+	doc.reset(); // clear the variable to prevent potential memory leakage
 
 };
 
@@ -695,6 +709,8 @@ int treatdir (string dirname) {
 
 	const char *path = dirname.c_str();
 
+
+	// If there is an index.txt in the folder, read only the files specified there
     struct stat st;
 	ifstream idxfile;
 	idxfile.open(dirname + "/index.txt");
@@ -806,8 +822,7 @@ int main(int argc, char *argv[])
     	if ( verbose ) { cout << "- Using settings from " << settingsfile << endl;   };
     };
 
-
-
+	// Check the definition for the CQP corpus in the settings
 	pugi::xml_node parameters = xmlsettings.select_node("/ttsettings/cqp").node();
 	if ( parameters == NULL ) {
 		cout << "- No parameters for CQP found" << endl;

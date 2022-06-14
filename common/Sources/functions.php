@@ -993,9 +993,26 @@
 		return $xml;
 	};	
 	
-	function makexml ($node, $style = "") {
-		global $nospace, $ttxml;
+	function makexml ($node, $opts = array()) {
+		global $nospace, $ttxml, $settings;
 		$xmltxt = $node->asXML();
+		
+		# For implicit content nodes, add the content
+		$nn = $node->getName();
+		$corresp = $opts['corresp'] or $corresp = $settings['cqp']['sattributes'][$nn]['toklist'];
+		if (  $node[$corresp] || ( !$node->children && $node['corresp'] ) ) {
+			$toklist = explode(" ", $node[$corresp]);
+			$tok1 = substr($toklist[0],1); 
+			$tok2 = substr(end($toklist),1);
+			$raw = $ttxml->raw; if ( $raw == "" ) { 
+				$tmp = current($node->xpath("./ancestor::text"));
+				$raw = $tmp->asXML(); 
+			};
+			$p1 = strpos($raw, " id=\"$tok1\""); $p1 = rstrpos($raw, "<tok", $p1);
+			$p2 = strpos($raw, " id=\"$tok2\""); $p2 = rstrpos($raw, "</tok>", $p2)+6;
+			$impl = substr($raw,$p1,$p2-$p1);
+			$xmltxt .= $impl;
+		};
 		
 		# Protect empty elements
 		$xmltxt = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $xmltxt );
