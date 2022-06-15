@@ -405,7 +405,7 @@ void treatfile ( string filename ) {
 						if ( exfile != "" ) {
 							exfile = "Resources/" + exfile;
 							if ( exfile.substr(exfile.length()-4) == ".xml" && externals.find(exfile) == externals.end() ) {
-								if ( verbose ) { cout << "Loading external XML file (for lookup): " << exfile << " < " << tmp << endl; };
+								if ( verbose ) { cout << "Loading external XML file (for text): " << exfile << " < " << tmp << endl; };
 								externals[exfile] = new pugi::xml_document();
 								if ( externals[exfile]->load_file(exfile.c_str()) ) {
 									// Correctly loaded external 
@@ -601,7 +601,7 @@ void treatfile ( string filename ) {
 							if ( exfile != "" ) {
 								exfile = "Resources/" + exfile;
 								if ( exfile.length() > 4 && exfile.substr(exfile.length()-4) == ".xml" && externals.find(exfile) == externals.end()  ) {
-									if ( verbose ) { cout << "Loading external XML file (for values): " << exfile << " < " << vtmp[1] << endl; };
+									if ( verbose ) { cout << "Loading external XML file (for sattributes): " << exfile << " < " << vtmp[1] << endl; };
 									externals[exfile] = new pugi::xml_document();
 									if ( externals[exfile]->load_file(exfile.c_str()) ) {
 										// Correctly loaded external 
@@ -1008,6 +1008,7 @@ int main(int argc, char *argv[])
 		// open the external XML file
 		string fullfilename = "Annotations/"+filename;
 
+		// TODO: This should be made to work 
 		externals[tagname] = new pugi::xml_document();
 		if ( 1 == 2 ) { // filename != ""
 			try {
