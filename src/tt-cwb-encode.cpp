@@ -24,8 +24,6 @@ pugi::xml_node cqpsettings;
 pugi::xml_node cqpstats;
 vector<string> formTags;
 
-pugi::xml_document doc; // the current XML document being encoded
-
 string wordfld; // field to use for the "word" attribute
 string lemmafld;
 string filename;
@@ -226,6 +224,7 @@ void treatnode ( pugi::xpath_node node ) {
 };
 
 void treatfile ( string filename ) {
+	pugi::xml_document doc; // the current XML document being encoded
 
 	if ( filename.find(".xml") == -1 ) {
         if ( debug > 0 ) { cout << "  Skipping non-XML file: " << filename << endl; };

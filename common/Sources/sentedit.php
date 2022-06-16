@@ -67,7 +67,7 @@
 				<p>
 				<form action='index.php?action=$action&act=save' method=post name=tagform id=tagform>
 				<input type=hidden name=cid value='$fileid'>
-				<table id=rollovertable><tr><td>ID<th>$sentname
+				<table id=rollovertable><tr><th>ID<th>$sentname
 				";
 						
 			# Show the title bar
