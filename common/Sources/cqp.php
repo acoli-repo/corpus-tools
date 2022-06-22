@@ -325,7 +325,7 @@
 		if ( $audioelm ) {
 			$maintext .= "<script language='Javascript'>var playimg1 = '$playimg';</script>";
 			$maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>";
-			$maintext .= "<div style='display: none;'><audio id=\"track\" src=\"http://alfclul.clul.ul.pt/teitok/site/Audio/mini.wav\" controls ontimeupdate=\"checkstop();\"></audio></div>";
+			$maintext .= "<div style='display: none;'><audio id=\"track\" src=\"data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA\" controls ontimeupdate=\"checkstop();\"></audio></div>";
 		};
 
 
@@ -534,7 +534,7 @@
 					if ( preg_match("/end=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1]; else $stp = 0;
 					if ( $settings['defaults']['playbutton'] ) $playimg = $settings['defaults']['playbutton'];
 					else  if ( file_exists("Images/playbutton.gif") ) $playimg = "Images/playbutton.gif";
-					else $playimg = "http://alfclul.clul.ul.pt/teitok/site/Images/playbutton.gif";
+					else $playimg = "$hprot://www.teitok.org/Images/playbutton.gif";
 					$audiobut = "<td><img src=\"$playimg\" width=\"14\" height=\"14\" style=\"margin-right: 5px;\" onClick=\"playpart('$audiofile', $strt, $stp, this );\"></img></td>";
 				};
 
