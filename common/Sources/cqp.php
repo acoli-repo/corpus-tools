@@ -322,13 +322,6 @@
 		if ( $showdirect ) $maintext .= "\n<!-- auto visualize -->\n<script language=Javascript>showcql('cqlfld'); var direct = 1;</script>";
 
 
-		if ( $audioelm ) {
-			$maintext .= "<script language='Javascript'>var playimg1 = '$playimg';</script>";
-			$maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>";
-			$maintext .= "<div style='display: none;'><audio id=\"track\" src=\"data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA\" controls ontimeupdate=\"checkstop();\"></audio></div>";
-		};
-
-
 		$precql = stripslashes($_POST['precql']);
 		if ( !$precql ) $precql = stripslashes($_GET['precql']);
 		if ( $precql ) {
@@ -529,13 +522,24 @@
 				$m1 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m1 );
 				$m2 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m2 );
 
+				# Prefix with Audio if needed
+				if ( $audiofile && substr($audiofile,0,4) != "http" && !file_exists($audiofile) ) {
+					if ( file_exists("Audio/$audiofile") ) $audiofile = "Audio/$audiofile";
+				};
+
 				if ( $audioelm && $audiofile ) {
 					if ( preg_match("/start=\"([^\"]*)\"/", $resxml, $matches ) ) $strt = $matches[1]; else $strt = 0;
 					if ( preg_match("/end=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1]; else $stp = 0;
+					// Determine where the playbutton is hosted
 					if ( $settings['defaults']['playbutton'] ) $playimg = $settings['defaults']['playbutton'];
+					else  if ( file_exists("$sharedfolder/Images/playbutton.gif") ) $playimg = "$sharedurl/Images/playbutton.gif";
 					else  if ( file_exists("Images/playbutton.gif") ) $playimg = "Images/playbutton.gif";
 					else $playimg = "$hprot://www.teitok.org/Images/playbutton.gif";
 					$audiobut = "<td><img src=\"$playimg\" width=\"14\" height=\"14\" style=\"margin-right: 5px;\" onClick=\"playpart('$audiofile', $strt, $stp, this );\"></img></td>";
+
+					$maintext .= "<script language='Javascript'>var playimg1 = '$playimg';</script>";
+					$maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>";
+					$maintext .= "<div style='display: none;'><audio id=\"track\" src=\"data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA\" controls ontimeupdate=\"checkstop();\"></audio></div>";
 				};
 
 				# Now, clean the resulting XML in various ways to make it display better
