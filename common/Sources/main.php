@@ -14,7 +14,7 @@
 	// Load the settings.xml file (via PHP)
 	include("$ttroot/common/Sources/settings.php");
 	
-	if ( !$htprot )  if ( isSecure() || $settings['defaults']['base']['protocol'] == "https" ) {
+	if ( !$hprot )  if ( isSecure() || $settings['defaults']['base']['protocol'] == "https" ) {
 		# TODO : should this not specify HTTPS?
 		header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page! 
 		$hprot = "https";
