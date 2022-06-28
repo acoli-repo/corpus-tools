@@ -99,7 +99,8 @@
 				};
 				if ( $markbuttons ) $annotations = "$marktit$markbuttons<hr>";
 			};
-			$moreactions .= "interp['{$tmp['key']}'] = '{%{$tmp['long']}}'; ";
+			$intdisp = $tmp['long'] or $intdisp = $tmp['display'];
+			$moreactions .= "interp['{$tmp['key']}'] = '{%$intdisp}'; ";
 		};
 		$moreactions .= "var markfeat = '$markfeat'; ";
 	};
