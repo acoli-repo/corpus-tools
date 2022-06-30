@@ -75,6 +75,12 @@
 			# Show the title bar
 			foreach ( $doatts as $key2 => $val2 ) {
 				if ( !is_array($val2) ) continue;
+				if ( $sentatts[$stype][$key2]['options'] ) {
+					$attopts[$key2] = "<option value=\"\" disabled>[select]</option>";
+					foreach ( $sentatts[$stype][$key2]['options'] as $key3 => $val3 ) {
+						$attopts[$key2] .= "<option value='$key3'>{$val3['display']}</option>";
+					};
+				};
 				if ( $doatt ) $maintext .= "<th>ID</th><th>{$val2['display']}</th>";
 				else  $maintext .= "<th><a href='".modurl("doatt", $key2)."'>{$val2['display']}</a></th>";
 			};
@@ -106,11 +112,17 @@
 					if ( !is_array($val2) ) continue;
 					$atv = $sent[$key2]; 
 					$width = $val2['size'] or $width = 35;
-					$maintext .= "<td><input size='$width' name=matts[$sid][$key2] value='$atv'>";
+					if ( $attopts[$key2] ) {
+						$maintext .= "<td><select name=matts[$sid][$key2] id=\"atts[$sid][$key2]\" value=\"$atv\">{$attopts[$key2]}</select>";
+						$moreaction .= "document.getElementById('atts[$sid][$key2]').value = '$atv';";
+					} else {
+						$maintext .= "<td><input size='$width' name=matts[$sid][$key2] value='$atv'>";
+					};
 				};
 			};
 			$maintext .= "</table><p><input type='submit' value='Save'> <a href='index.php?action=file&cid=$fileid'>cancel</a>
-				</form>";
+				</form>
+				<script language=Javascript>$moreaction</script>";
 			
 		} else {
 		
