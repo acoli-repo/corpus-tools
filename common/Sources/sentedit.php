@@ -42,6 +42,7 @@
 		
 				
 			$doatt = $_GET['doatt'];			
+			$sxp = $_GET['sxp'];
 			if ( $doatt ) {
 				$dodef = $sentatts[$stype][$doatt];
 				$doatts = array ( $doatt => $dodef );
@@ -60,6 +61,7 @@
 				$doatts = $sentatts[$stype];
 				$xrest = "<p>Click on a column title to edit only one of the attributes";
 			};
+			if ( !$sxp ) $sxp = "//$stype$srest";
 			
 			$maintext .= "<h1>Multi-element edit</h1>
 				<p>Element type: $sentname $drest
@@ -76,7 +78,7 @@
 				if ( $doatt ) $maintext .= "<th>ID</th><th>{$val2['display']}</th>";
 				else  $maintext .= "<th><a href='".modurl("doatt", $key2)."'>{$val2['display']}</a></th>";
 			};
-			$results = $xml->xpath("//$stype$srest"); 
+			$results = $xml->xpath($sxp); 
 
 			$start = $_GET['start'] or $start = 0;
 			$pp = $_GET['perpage'] or $pp = 100;
