@@ -78,24 +78,37 @@
 			} else {
 				$annotationrows .= "<tr><th>{$tmp['display']}<td><input name=news[$i][{$tmp['key']}] style='width: 100%'/>";
 			};
-			if ( $tmp['colored'] ) {
-				if ( $tmp['display'] ) {
+			if ( $tmp['colored'] > 0) {
+				if ( $tmp['display'] || $tmp['long'] ) {
 					$marktit = $tmp['long'] or $marktit = $tmp['display'];
 					$marktit = "<h3>$marktit</h3>";
 				};
-				foreach ( $tmp->children() as $tmp2 ) {
-					$color = $tmp2['color']."";
-					# Check if this one exists
-					if ( !$anxml->xpath("//span[@{$tmp['key']}=\"{$tmp2['value']}\"]") ) { continue; };
-					if ( $color == "" ) $color = array_shift($colorlist);
-					$markfeat = $tmp['key'].""; 
-					$markcolor[$tmp2["value"].""] = $color; 
-					$spantit = ""; 
-					if ( $tmp2['display'] ) {
-						$spantit = "title=\"{%{$tmp2['display']}}\"";
-						$moreactions .= "codetrans['{$tmp2['value']}'] = '{%{$tmp2['display']}}'; ";
+				if ( $tmp->xpath("./option") ) {
+					foreach ( $tmp->children() as $tmp2 ) {
+						$color = $tmp2['color']."";
+						# Check if this one exists
+						if ( !$anxml->xpath("//span[@{$tmp['key']}=\"{$tmp2['value']}\"]") ) { continue; };
+						if ( $color == "" ) $color = array_shift($colorlist);
+						$markfeat = $tmp['key'].""; 
+						$markcolor[$tmp2["value"].""] = $color; 
+						$spantit = ""; 
+						if ( $tmp2['display'] ) {
+							$spantit = "title=\"{%{$tmp2['display']}}\"";
+							$moreactions .= "codetrans['{$tmp2['value']}'] = '{%{$tmp2['display']}}'; ";
+						};
+						$markbuttons .= "<span $spantit style=\"border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '{$tmp2['value']}');\">{$tmp2['value']}</span> ";
 					};
-					$markbuttons .= "<span $spantit style=\"border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '{$tmp2['value']}');\">{$tmp2['value']}</span> ";
+				} else {
+					# Take the existing values if no values were pre-defined
+					foreach ( $anxml->xpath("//span") as $span ) {
+						$markfeat = $tmp['key']."";
+						$markval = $span[$markfeat].""; 
+						if ( !$markcolor[$markval] ) {
+							$color = array_shift($colorlist);
+							$markcolor[$markfeat] = $color;
+							$markbuttons .= "<span $spantit style=\"border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '$markval');\">$markval</span> ";
+						};
+					};
 				};
 				if ( $markbuttons ) $annotations = "$marktit$markbuttons<hr>";
 			};
