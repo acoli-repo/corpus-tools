@@ -105,7 +105,7 @@
 						$markval = $span[$markfeat].""; 
 						if ( !$markcolor[$markval] ) {
 							$color = array_shift($colorlist);
-							$markcolor[$markfeat] = $color;
+							$markcolor[$markval] = $color;
 							$markbuttons .= "<span $spantit style=\"border: 1px solid black; padding: 2px; line-height: 35px; background-color: $color;\" onmouseover=\"markall('$markfeat', '{$tmp2['value']}');\" onmouseout=\"unmarkall('$markfeat', '$markval');\">$markval</span> ";
 						};
 					};
