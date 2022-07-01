@@ -69,7 +69,7 @@
 				<p>
 				<form action='index.php?action=$action&act=save' method=post name=tagform id=tagform>
 				<input type=hidden name=cid value='$fileid'>
-				<table id=rollovertable><tr><th>ID<th>$sentname
+				<table id=rollovertable>\n<tr><th>ID<th>$sentname
 				";
 						
 			# Show the title bar
@@ -107,7 +107,16 @@
 			
 			foreach ( $slice as $sent ) {
 				$sid = $sent['id'];
-				$maintext .= "<tr><td><a href='index.php?action=file&cid=$ttxml->fileid&jmp=$sid'>$sid<td id=mtxt>".makexml($sent);
+				if ( !$sid ) {
+					$fattxt = "Not all elements you are attempting to edit have an @id, making it impossible to edit them in this module. ";
+					if ( $xml->xpath("//tok") ) {
+						$fattxt .= "This should get resolved by renumbering the document.";
+					} else {
+						$fattxt .= "The document also has not been tokenized - you can choose to renumber before tokenization, or tokenize the document (which will also renumber).";
+					};
+					fatal($fattxt);
+				};
+				$maintext .= "\n<tr><td><a href='index.php?action=file&cid=$ttxml->fileid&jmp=$sid'>$sid<td id=mtxt>".makexml($sent);
 				foreach ( $doatts as $key2 => $val2 ) {
 					if ( !is_array($val2) ) continue;
 					$atv = $sent[$key2]; 
