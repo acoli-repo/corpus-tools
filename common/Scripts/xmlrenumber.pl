@@ -105,11 +105,17 @@ use XML::LibXML;
 		};
 	}; 
 	
-	# Number the paragraphs
+	# In case things have ended up as tei_div - rename
+	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//tei_div")) {
+		$ttnode->setName('div');
+	}; 
+	
+	# Number the divs
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//div")) {
 		$cnt++;
 		if ( !$ttnode->getAttribute('id') || $force ) {
+			if ( $debug ) { print "Renumbering div-$cnt"; };
 			$ttnode->setAttribute('id', "div-$cnt");
 		};
 	}; 
