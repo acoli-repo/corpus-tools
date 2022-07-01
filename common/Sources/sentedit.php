@@ -23,7 +23,7 @@
 		
 			foreach ( $_POST['matts'] as $sentid => $val ) {
 				print "<p>$sentid: ";
-				$sent = current($xml->xpath("//*[@id='$sentid']"));
+				$sent = current($xml->xpath("//*[@id='$sentid' or @xml:id='$sentid']"));
 				if ( !$sent ) {
 					print "<p>Oops - $sentname not found: $sentid";
 					continue;
@@ -106,7 +106,7 @@
 			$maintext .= $xrest;
 			
 			foreach ( $slice as $sent ) {
-				$sid = $sent['id'];
+				$sid = $sent['id'] or $sid = $sent['xml:id'];
 				if ( !$sid ) {
 					$fattxt = "Not all elements you are attempting to edit have an @id, making it impossible to edit them in this module. ";
 					if ( $xml->xpath("//tok") ) {
