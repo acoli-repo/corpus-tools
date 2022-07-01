@@ -110,9 +110,12 @@
 				if ( !$sid ) {
 					$fattxt = "Not all elements you are attempting to edit have an @id, making it impossible to edit them in this module. ";
 					if ( $xml->xpath("//tok") ) {
-						$fattxt .= "This should get resolved by renumbering the document.";
+						$fattxt .= "This should get resolved by <a href='index.php?action=renumber&id=$ttxml->fileid'>renumbering</a> the document.";
 					} else {
-						$fattxt .= "The document also has not been tokenized - you can choose to renumber before tokenization, or tokenize the document (which will also renumber).";
+						$fattxt .= "The document also has not been tokenized - you can choose to <a href='index.php?action=renumber&id=$ttxml->fileid'>renumber</a> before tokenization, or <a href='index.php?action=tokenize&id=$ttxml->fileid'>tokenize</a> the document (which will also renumber).";
+					};
+					if ( $user['permissions'] == "admin" ) {
+						$fattxt .= "<hr><p>The (first) unnumbered element:<div>".htmlentities($sent->asXML())."</div>";
 					};
 					fatal($fattxt);
 				};
