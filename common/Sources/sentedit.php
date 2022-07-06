@@ -40,6 +40,7 @@
 				$sxp = urlencode($_POST['sxp']);
 				$start = $_POST['last']	;
 				$pp = $_POST['pp'];
+				$stype = $_POST['stype'];
 				print "<script>top.location='index.php?action=$action&cid=$ttxml->fileid&elm=$stype&perpage=$pp&start=$start&sid=multi&sxp=$sxp'</script>";
 			} else {
 				print "<script>top.location='index.php?action=block&cid=$ttxml->fileid&elm=$stype'</script>";
@@ -79,6 +80,7 @@
 				<input type=hidden name=cid value='$fileid'>
 				<input type=hidden name=sid value='$sentid'>
 				<input type=hidden name=sxp value='$sxp'>
+				<input type=hidden name=stype value='$stype'>
 				<table id=rollovertable>\n<tr><th>ID<th>$sentname
 				";
 						
@@ -152,7 +154,10 @@
 				<input type=hidden name=pp value='$pp'>
 				</form>
 				<script language=Javascript>$moreaction</script>";
-			
+				
+			// Add a session logout tester
+			$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
+
 		} else {
 		
 			$result = $xml->xpath("//*[@id='$sentid']"); 
