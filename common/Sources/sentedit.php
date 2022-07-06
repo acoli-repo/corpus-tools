@@ -33,9 +33,17 @@
 					$sent[$att] = $val2;
 				};
 			};
+			
 			print "<p>Changes made - saving";
 			$ttxml->save();
-			print "<script>top.location='index.php?action=block&cid=$ttxml->fileid&elm=$stype'</script>";
+			if ( $_POST['last'] ) {
+				$sxp = urlencode($_POST['sxp']);
+				$start = $_POST['last']	;
+				$pp = $_POST['pp'];
+				print "<script>top.location='index.php?action=$action&cid=$ttxml->fileid&elm=$stype&perpage=$pp&start=$start&sid=multi&sxp=$sxp'</script>";
+			} else {
+				print "<script>top.location='index.php?action=block&cid=$ttxml->fileid&elm=$stype'</script>";
+			};
 			exit;
 		
 		} else if ( $sentid == "multi" ) {
@@ -69,6 +77,8 @@
 				<p>
 				<form action='index.php?action=$action&act=save' method=post name=tagform id=tagform>
 				<input type=hidden name=cid value='$fileid'>
+				<input type=hidden name=sid value='$sentid'>
+				<input type=hidden name=sxp value='$sxp'>
 				<table id=rollovertable>\n<tr><th>ID<th>$sentname
 				";
 						
@@ -89,6 +99,11 @@
 			$start = $_GET['start'] or $start = 0;
 			$pp = $_GET['perpage'] or $pp = 100;
 			$tot = count($results); $end = $start + $pp;
+			if ( $start >= $tot ) {
+				# We are done - reload
+				print "Done; reloading<script>top.location='index.php?action=block&cid=$ttxml->fileid&elm=$stype'</script>";
+				exit;
+			};
 			if ( $tot > $pp ) {
 				$slice = array_slice($results, $start, $pp);
 				$maintext .= "<p>Showing ".($start+1)." - $end of $tot";
@@ -133,6 +148,8 @@
 				};
 			};
 			$maintext .= "</table><p><input type='submit' value='Save'> <a href='index.php?action=file&cid=$fileid'>cancel</a>
+				<input type=hidden name=last value='$end'>
+				<input type=hidden name=pp value='$pp'>
 				</form>
 				<script language=Javascript>$moreaction</script>";
 			
