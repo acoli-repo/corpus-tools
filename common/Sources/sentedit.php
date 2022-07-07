@@ -41,7 +41,8 @@
 				$start = $_POST['last']	;
 				$pp = $_POST['pp'];
 				$stype = $_POST['stype'];
-				print "<script>top.location='index.php?action=$action&cid=$ttxml->fileid&elm=$stype&perpage=$pp&start=$start&sid=multi&sxp=$sxp'</script>";
+				$doatt = $_POST['doatt'];
+				print "<script>top.location='index.php?action=$action&cid=$ttxml->fileid&elm=$stype&perpage=$pp&start=$start&sid=multi&sxp=$sxp&doatt=$doatt'</script>";
 			} else {
 				print "<script>top.location='index.php?action=block&cid=$ttxml->fileid&elm=$stype'</script>";
 			};
@@ -88,12 +89,16 @@
 			foreach ( $doatts as $key2 => $val2 ) {
 				if ( !is_array($val2) ) continue;
 				if ( $sentatts[$stype][$key2]['options'] ) {
-					$attopts[$key2] = "<option value=\"\" disabled>[select]</option>";
-					foreach ( $sentatts[$stype][$key2]['options'] as $key3 => $val3 ) {
-						$attopts[$key2] .= "<option value='$key3'>{$val3['display']}</option>";
+					if ( $sentatts[$stype][$key2]['type'] == "radio" ) {
+						$binary[$key2] = 1;
+					} else {
+						$attopts[$key2] = "<option value=\"\" disabled>[select]</option>";
+						foreach ( $sentatts[$stype][$key2]['options'] as $key3 => $val3 ) {
+							$attopts[$key2] .= "<option value='$key3'>{$val3['display']}</option>";
+						};
 					};
 				};
-				if ( $doatt ) $maintext .= "<th>ID</th><th>{$val2['display']}</th>";
+				if ( $doatt ) $maintext .= "<th>{$val2['display']}</th>";
 				else  $maintext .= "<th><a href='".modurl("doatt", $key2)."'>{$val2['display']}</a></th>";
 			};
 			$results = $xml->xpath($sxp); 
@@ -141,7 +146,13 @@
 					if ( !is_array($val2) ) continue;
 					$atv = $sent[$key2]; 
 					$width = $val2['size'] or $width = 35;
-					if ( $attopts[$key2] ) {
+					if ( $binary[$key2] ) {
+						$maintext .= "<td>";
+						foreach ( $sentatts[$stype][$key2]['options'] as $key3 => $val3 ) {
+							$seld = ""; if ( $key3 == $atv ) $seld = "checked";
+							$maintext .= "<div class=listcheck><input type=radio size='$width' name=matts[$sid][$key2] value='$key3' $seld> {$val3['display']}</div>";
+						};
+					} else if ( $attopts[$key2] ) {
 						$maintext .= "<td><select name=matts[$sid][$key2] id=\"atts[$sid][$key2]\" value=\"$atv\">{$attopts[$key2]}</select>";
 						$moreaction .= "document.getElementById('atts[$sid][$key2]').value = '$atv';";
 					} else {
@@ -152,6 +163,7 @@
 			$maintext .= "</table><p><input type='submit' value='Save'> <a href='index.php?action=file&cid=$fileid'>cancel</a>
 				<input type=hidden name=last value='$end'>
 				<input type=hidden name=pp value='$pp'>
+				<input type=hidden name=doatt value='$doatt'>
 				</form>
 				<script language=Javascript>$moreaction</script>";
 				

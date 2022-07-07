@@ -208,3 +208,4 @@ span[status=corrected] { color: blue; }
 span[status=wrong] { color: red; }
 
 .csscheck { display: none; }
+.listcheck { display: block; }
