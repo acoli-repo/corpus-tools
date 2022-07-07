@@ -74,9 +74,9 @@
 			if ( !$sxp ) $sxp = "//$stype$srest";
 			
 			$maintext .= "<h1>Multi-element edit</h1>
-				<p>Element type: $sentname $drest
+				<p>Element type: $sentname $drest";
 			
-				<p>
+			$maintable .= "<p>
 				<form action='index.php?action=$action&act=save' method=post name=tagform id=tagform>
 				<input type=hidden name=cid value='$fileid'>
 				<input type=hidden name=sid value='$sentid'>
@@ -98,8 +98,8 @@
 						};
 					};
 				};
-				if ( $doatt ) $maintext .= "<th>{$val2['display']}</th>";
-				else  $maintext .= "<th><a href='".modurl("doatt", $key2)."'>{$val2['display']}</a></th>";
+				if ( $doatt ) $maintable .= "<th>{$val2['display']}</th>";
+				else  $maintable .= "<th><a href='".modurl("doatt", $key2)."'>{$val2['display']}</a></th>";
 			};
 			$results = $xml->xpath($sxp); 
 
@@ -108,10 +108,9 @@
 			$tot = count($results); $end = $start + $pp;
 			if ( $start >= $tot ) {
 				# We are done - reload
-				print "Done; reloading<script>top.location='index.php?action=block&cid=$ttxml->fileid&elm=$stype'</script>";
-				exit;
-			};
-			if ( $tot > $pp ) {
+				$maintext .= "<hr><p><b>All elements done</b></p><hr>";
+				$slice = array();
+			} else  if ( $tot > $pp ) {
 				$slice = array_slice($results, $start, $pp);
 				$maintext .= "<p>Showing ".($start+1)." - $end of $tot";
 				if ( $start > 0 ) {
@@ -125,48 +124,50 @@
 			} else {
 				$slice = $results;
 			};
-			$maintext .= $xrest;
+			if ( count($slice) ) {
+				$maintext .= $maintable.$xrest;
 			
-			foreach ( $slice as $sent ) {
-				$sid = $sent['id'] or $sid = $sent['xml:id'];
-				if ( !$sid ) {
-					$fattxt = "Not all elements you are attempting to edit have an @id, making it impossible to edit them in this module. ";
-					if ( $xml->xpath("//tok") ) {
-						$fattxt .= "This should get resolved by <a href='index.php?action=renumber&id=$ttxml->fileid'>renumbering</a> the document.";
-					} else {
-						$fattxt .= "The document also has not been tokenized - you can choose to <a href='index.php?action=renumber&id=$ttxml->fileid'>renumber</a> before tokenization, or <a href='index.php?action=tokenize&id=$ttxml->fileid'>tokenize</a> the document (which will also renumber).";
-					};
-					if ( $user['permissions'] == "admin" ) {
-						$fattxt .= "<hr><p>The (first) unnumbered element:<div>".htmlentities($sent->asXML())."</div>";
-					};
-					fatal($fattxt);
-				};
-				$maintext .= "\n<tr><td><a href='index.php?action=file&cid=$ttxml->fileid&jmp=$sid'>$sid<td id=mtxt>".makexml($sent);
-				foreach ( $doatts as $key2 => $val2 ) {
-					if ( !is_array($val2) ) continue;
-					$atv = $sent[$key2]; 
-					$width = $val2['size'] or $width = 35;
-					if ( $binary[$key2] ) {
-						$maintext .= "<td>";
-						foreach ( $sentatts[$stype][$key2]['options'] as $key3 => $val3 ) {
-							$seld = ""; if ( $key3 == $atv ) $seld = "checked";
-							$maintext .= "<div class=listcheck><input type=radio size='$width' name=matts[$sid][$key2] value='$key3' $seld> {$val3['display']}</div>";
+				foreach ( $slice as $sent ) {
+					$sid = $sent['id'] or $sid = $sent['xml:id'];
+					if ( !$sid ) {
+						$fattxt = "Not all elements you are attempting to edit have an @id, making it impossible to edit them in this module. ";
+						if ( $xml->xpath("//tok") ) {
+							$fattxt .= "This should get resolved by <a href='index.php?action=renumber&id=$ttxml->fileid'>renumbering</a> the document.";
+						} else {
+							$fattxt .= "The document also has not been tokenized - you can choose to <a href='index.php?action=renumber&id=$ttxml->fileid'>renumber</a> before tokenization, or <a href='index.php?action=tokenize&id=$ttxml->fileid'>tokenize</a> the document (which will also renumber).";
 						};
-					} else if ( $attopts[$key2] ) {
-						$maintext .= "<td><select name=matts[$sid][$key2] id=\"atts[$sid][$key2]\" value=\"$atv\">{$attopts[$key2]}</select>";
-						$moreaction .= "document.getElementById('atts[$sid][$key2]').value = '$atv';";
-					} else {
-						$maintext .= "<td><input size='$width' name=matts[$sid][$key2] value='$atv'>";
+						if ( $user['permissions'] == "admin" ) {
+							$fattxt .= "<hr><p>The (first) unnumbered element:<div>".htmlentities($sent->asXML())."</div>";
+						};
+						fatal($fattxt);
+					};
+					$maintext .= "\n<tr><td><a href='index.php?action=file&cid=$ttxml->fileid&jmp=$sid'>$sid<td id=mtxt>".makexml($sent);
+					foreach ( $doatts as $key2 => $val2 ) {
+						if ( !is_array($val2) ) continue;
+						$atv = $sent[$key2]; 
+						$width = $val2['size'] or $width = 35;
+						if ( $binary[$key2] ) {
+							$maintext .= "<td>";
+							foreach ( $sentatts[$stype][$key2]['options'] as $key3 => $val3 ) {
+								$seld = ""; if ( $key3 == $atv ) $seld = "checked";
+								$maintext .= "<div class=listcheck><input type=radio size='$width' name=matts[$sid][$key2] value='$key3' $seld> {$val3['display']}</div>";
+							};
+						} else if ( $attopts[$key2] ) {
+							$maintext .= "<td><select name=matts[$sid][$key2] id=\"atts[$sid][$key2]\" value=\"$atv\">{$attopts[$key2]}</select>";
+							$moreaction .= "document.getElementById('atts[$sid][$key2]').value = '$atv';";
+						} else {
+							$maintext .= "<td><input size='$width' name=matts[$sid][$key2] value='$atv'>";
+						};
 					};
 				};
+				$maintext .= "</table><p><input type='submit' value='Save'> <a href='index.php?action=file&cid=$fileid'>cancel</a>
+					<input type=hidden name=last value='$end'>
+					<input type=hidden name=pp value='$pp'>
+					<input type=hidden name=doatt value='$doatt'>
+					</form>
+					<script language=Javascript>$moreaction</script>";
 			};
-			$maintext .= "</table><p><input type='submit' value='Save'> <a href='index.php?action=file&cid=$fileid'>cancel</a>
-				<input type=hidden name=last value='$end'>
-				<input type=hidden name=pp value='$pp'>
-				<input type=hidden name=doatt value='$doatt'>
-				</form>
-				<script language=Javascript>$moreaction</script>";
-				
+			
 			// Add a session logout tester
 			$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
 
