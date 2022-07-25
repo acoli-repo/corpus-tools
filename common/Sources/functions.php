@@ -1138,5 +1138,32 @@
 		};
 		return $newurl;
 	};
+
+	function sentbyid($text, $eid) {
+		# Use an explicit list of sentence IDs 
+		global $settings;
+		$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
+		$cqpcorpus = strtoupper($cqpcorpus);
+
+		if ( !file_exists("cqp/slist.csv") ) {
+			$cql = "Matches = <s> []+ </s>; tabulate Matches match text_id, match s_id, match, matchend;";
+			$cmd = "echo '$cql' | cqp -c -r cqp -D $cqpcorpus > cqp/slist.csv";
+			shell_exec($cmd);
+		};
+		
+		$cmd = "grep '$text\t$eid\t' cqp/slist.csv";
+		$poss = shell_exec($cmd);
+		
+		list ( $fileid, $elementid, $leftpos, $rightpos ) = explode("\t", $poss);
+		if ( !$rightpos ) {
+			return "";
+		};
+		
+		$xidxcmd = findapp('tt-cwb-xidx'); $cqpfolder = "cpq";
+		$cmd = "$xidxcmd --filename='$fileid' $expand $leftpos $rightpos";
+		$result = shell_exec($cmd);
+	
+		return $result;
+	};
 	
 ?>

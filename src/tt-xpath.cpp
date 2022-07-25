@@ -32,6 +32,8 @@ pugi::xml_document xmlsettings;
 
 string xprest;
 string xpquery;
+string cluster = "";
+map<string,int > clustVals;
 string filepat = "";
 int perpage = 100;
 int start;
@@ -128,24 +130,48 @@ void treatfile ( string filename ) {
 				*myout << "<doc name=\"" << filename << "\" rescnt=\"" << xres.size() << "\""; 
 				*myout << "/>" << endl;
 			};
-		} else 
-		for (pugi::xpath_node_set::const_iterator it = xres.begin(); it != xres.end(); ++it) {
-			pugi::xpath_node node = *it;
-			sofar = sofar + 1;
-	        if ( debug > 0 ) { cout << "  Result nr: " << sofar << " / " << perpage << endl; };
-	        node.node().append_attribute("resnr") = to_string(sofar).c_str();
-	        node.node().append_attribute("fileid") = fileid.c_str();
-			if ( sofar > start ) { 
-				node.node().print(*myout);
+		} else if ( cluster != "" ) { 
+			for (pugi::xpath_node_set::const_iterator it = xres.begin(); it != xres.end(); ++it) {
+				pugi::xpath_node node = *it;
+				string attval = node.node().attribute(cluster.c_str()).value();
+				if ( debug ) { cout << cluster << " = " << attval << endl; };
+				clustVals[attval]++;
 			};
-			if ( perpage > 0 && sofar > perpage-1 ) {
-				break;
+		} else {
+			for (pugi::xpath_node_set::const_iterator it = xres.begin(); it != xres.end(); ++it) {
+				pugi::xpath_node node = *it;
+				sofar = sofar + 1;
+				if ( debug > 0 ) { cout << "  Result nr: " << sofar << " / " << perpage << endl; };
+				node.node().append_attribute("resnr") = to_string(sofar).c_str();
+				node.node().append_attribute("fileid") = fileid.c_str();
+				if ( sofar > start ) { 
+					node.node().print(*myout);
+				};
+				if ( perpage > 0 && sofar > perpage-1 ) {
+					break;
+				}
 			};
 		};
 	};
 
 };
 
+std::string ReplaceAll(std::string str, const std::string& from, const std::string& to) {
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+    }
+    return str;
+}
+
+string attprotect ( string att ) {
+	att = ReplaceAll(att, "&", "&amp;");
+	att = ReplaceAll(att, "'", "&#039;");
+	att = ReplaceAll(att, "<", "&lt;");
+	att = ReplaceAll(att, ">", "&gt;");
+	return att;
+}
 
 int treatdir (string dirname) {
     struct dirent *entry;
@@ -252,9 +278,13 @@ int main(int argc, char *argv[])
 		cout << "Options:" << endl;
 		cout << "  --debug=[n]    debug level" << endl;
 		cout << "  --verbose	  verbose output" << endl;
-		cout << "  --settings=[s] name of the settings file" << endl;
-		cout << "  --log=[s]	  write log to file [s]" << endl;
-		cout << "  --extension=[s]	  which file extension to allow for the XML files" << endl;
+		cout << "  --group	 	  count results per file" << endl;
+		cout << "  --cluster=[s]  count results by attribute" << endl;
+		cout << "  --max=[i]	  max number of results	" << endl;
+		cout << "  --filename=[s] while file to search in" << endl;
+		cout << "  --folder=[s]	  while folder to search in" << endl;
+		cout << "  --xprest=[s]   only run on files matching this" << endl;
+		cout << "  --xpquery=[s]  the XPath query to run" << endl;
 		return -1; 
 	};
 	
@@ -275,6 +305,7 @@ int main(int argc, char *argv[])
 	if ( clsettings.attribute("xprest") != NULL ) { xprest = clsettings.attribute("xprest").value(); }
 	if ( clsettings.attribute("filename") != NULL ) { filepat = clsettings.attribute("filename").value(); }
 	if ( clsettings.attribute("xpquery") != NULL ) { xpquery = clsettings.attribute("xpquery").value(); }
+	if ( clsettings.attribute("cluster") != NULL ) { cluster = clsettings.attribute("cluster").value(); }
 	if ( clsettings.attribute("max") != NULL ) { perpage = atoi(clsettings.attribute("max").value()); };
 	if ( clsettings.attribute("start") != NULL ) { start = atoi(clsettings.attribute("start").value()); } else { start = 0; };
 
@@ -312,9 +343,11 @@ int main(int argc, char *argv[])
 		cout << "Query: " << xpquery << endl;
 	};
 
+	string moreout =  " query='" + attprotect(xpquery) + "'";
+	if ( cluster != "" ) { moreout += " cluster='" + attprotect(cluster) + "'"; };
 
 	sofar = 0;
-	*myout << "<results start='" << start << "' max='" << perpage << "'>" << endl;
+	*myout << "<results" << moreout << " start='" << start << "' max='" << perpage << "'>" << endl;
 
 	// This does not listen to the command line at the moment, should be reverted back to clsettings
 	string dofolders;
@@ -330,19 +363,19 @@ int main(int argc, char *argv[])
 		vector<string> tokens = split(dofolders, sep); 
 		for( vector<string>::iterator it2 = tokens.begin(); it2 != tokens.end(); it2++ ) {
 			string fldr = *it2;	
-			if ( debug ) {
+			if ( verbose ) {
 				cout << "  - Analyzing files from: " << fldr << endl;    	
 			};
 			treatdir ( fldr );
 		}
 	} else if ( filepat != "" ) {
-		if ( debug ) {
+		if ( verbose ) {
 			cout << "  - Analyzing file: " << filepat << endl;    	
 		};
 		treatfile(filepat);
-	} else {
-		if ( verbose ) cout << "- Default training folder: ./xmlfiles" << endl;
-		treatdir ( "xmlfiles" ); 
+	} else {	
+		cout << "Error: no file or folder specified" << endl;    	
+		return -1; 
 	};
 
 	*myout << "</results>" << endl;

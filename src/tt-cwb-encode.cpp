@@ -503,7 +503,7 @@ void treatfile ( string filename ) {
 				if ( taglevel.attribute("toklist") != NULL ) { toklistatt = taglevel.attribute("toklist").value(); }
 				if ( toklistatt == "implicit" ) {
 					// TODO: for empty nodes like <pb/> - go from the first token after to the first token before the next....
-				} else if ( toklistatt != "" ) {
+				} else if ( toklistatt != "" && it->node().attribute(toklistatt.c_str()) ) {
 					// For empty node that have a @corresp="#w-3 #w-7" type of content
 					string wlist = it->node().attribute(toklistatt.c_str()).value();
 					toka = wlist.substr(1,wlist.find(" ")-1);
@@ -511,7 +511,6 @@ void treatfile ( string filename ) {
 					if ( debug > 4 ) { 
 						cout << " Explicit token list: " << toka << " - " << tokb << endl;
 					};
-
 				} else {
 
 					if ( taglvl == "tok[dtok]" ) {
@@ -789,9 +788,9 @@ int main(int argc, char *argv[])
 	};
 
 	// Some things we want as accessible variables
-	if ( cqpsettings.attribute("debug") != NULL ) { debug = atoi(cqpsettings.attribute("debug").value()); };
 	if ( cqpsettings.attribute("test") != NULL ) { test = true; verbose = true; };
 	if ( cqpsettings.attribute("verbose") != NULL ) { verbose = true; };
+	if ( cqpsettings.attribute("debug") != NULL ) { debug = atoi(cqpsettings.attribute("debug").value()); verbose = true; };
 
 	if ( cqpsettings.attribute("version") != NULL ) {
 		cout << "tt-cwb-encode version 1.0" << endl;
@@ -957,6 +956,7 @@ int main(int argc, char *argv[])
 	// go through the sattributes on all levels
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("sattributes").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
 		string tagname = taglevel.attribute("key").value();
+		if ( tagname == "" ) { continue; };
 			if ( debug > 0  ) { cout << "Creating files level: " << tagname << endl; };
 		registry << endl << "## Structural attributes on <" << tagname << ">" << endl;
 		registry << "STRUCTURE " << tagname << endl;

@@ -224,7 +224,7 @@ function highlightbb (elm, hln=0) {
 				mtch = document.evaluate("ancestor-or-self::tok/preceding::lb", elm, null, XPathResult.ANY_TYPE, null);
 			};
 			var tmpe;
-			if ( mtch != null ) { tmpe = mtch.iterateNext(); };
+			if ( mtch != null && typeof obj[mtch.iterator] === 'function' ) { tmpe = mtch.iterateNext(); };
 			while ( tmpe != null )  { elm = tmpe; tmpe = mtch.iterateNext(); };		
 		};		
 	}; 
@@ -310,7 +310,7 @@ function showdocinfo(showelement) {
 function treatfeats ( tok, label, type ) {
 	var tag = tok.getAttribute(label);
 	var tagexpl = '';
-	if ( !tag ) { return ''; };
+	if ( !tag || tag == '_') { return ''; };
 	var tagset = document.getElementById('tagset');
 	if ( tagset ) {
 		var sep = '';

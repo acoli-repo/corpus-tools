@@ -3,17 +3,21 @@ use XML::LibXML;
  
  GetOptions ( ## Command line options
             'debug' => \$debug, # debugging mode
+            'verbose' => \$verbose, # debugging mode
             'override' => \$override, # do no renumber existing IDs
             'test' => \$test, # tokenize to string, do not change the database
             'filename=s' => \$filename, # language of input
             'mtxtelem=s' => \$mtxtelem, # language of input
             'xx=s' => \$xx, # custom items to number
             'thisdir=s' => \$thisdir, # determine where we are running from
+            'emptyatt=s' => \$emptyatt, # attribute to use for empty sentences
             );
 
 	if ( $filename eq '' ) { $filename = shift; };
 	if ( $filename eq '' ) { print "No filename indicated"; exit; };
 	if ( !-e $filename  ) { print "$filename does not exist"; exit; };
+
+	if ( $debug ) { $verbose = 1; };
 
 	$parser = XML::LibXML->new(); $doc = ""; 
 	eval {
@@ -66,28 +70,27 @@ use XML::LibXML;
 	};
 	
 	if ( $debug ) { print "Finding toks : //tok\n"; };
-	foreach $ttnode ($tmpdoc->findnodes("//tok")) {
-		# print "\nID: ".$ttnode->getAttribute('id'); 
+	foreach $ttnode ( $tmpdoc->findnodes("$mtxtelem//tok") ) {
 		if ( $ttnode->getAttribute('id') eq '' || $override ) {	
-			# print "Renumbering to w-$cnt";
+			if ( $debug ) { print "\nRenumbering to w-$cnt"; };
 			$ttnode->setAttribute('id', "w-$cnt");
 			$cnt++;
 		};
 		$dcnt = 0; $tokid = $ttnode->getAttribute("id"); $tokid =~ s/w-//;
 		if ( $debug ) { print "\n- $cnt\t".$ttnode->textContent; };
-		foreach $ddnode ( $ttnode->findnodes("dtok") ) {
+		foreach $ddnode ( $ttnode->findnodes("./dtok") ) {
 			$dcnt++;
 			if ( $debug ) { print "\n  - $dcnt\t".$ddnode->getAttribute('form'); };
 			$ddnode->setAttribute('id', "d-$tokid-$dcnt");
 		};
 		$dcnt = 0;
-		foreach $ddnode ( $ttnode->findnodes("m") ) {
+		foreach $mnode ( $ttnode->findnodes("./m") ) {
 			$dcnt++;
-			if ( $debug ) { print "\n  - $dcnt\t".$ddnode->getAttribute('form'); };
-			$ddnode->setAttribute('id', "dm-$tokid-$dcnt");
+			if ( $debug ) { print "\n  - $dcnt\t".$mnode->getAttribute('form'); };
+			$mnode->setAttribute('id', "m-$tokid-$dcnt");
 		};
 	}; 
-	# warn " - number of tokens: $cnt\n";
+	if ( $verbose ) { print "\n - number of tokens: $cnt\n"; };
 
 	# Number the paragraphs
 	$cnt = 0;
@@ -110,6 +113,7 @@ use XML::LibXML;
 		$ttnode->setName('div');
 	}; 
 	
+	
 	# Number the divs
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//div")) {
@@ -128,6 +132,30 @@ use XML::LibXML;
 			$ttnode->setAttribute('id', "s-$cnt");
 		};
 	}; 
+
+	# In case we have empty, unnumbered sentences
+	if ( !$emptyatt ) { $emptyatt = "sameAs"; };
+	if ( $tmpdoc->findnodes("//s[not(.//tok) and not(\@$emptyatt)]") ) {
+		if ( $verbose ) { print "Adding tokens explicitly to sentences"; };
+		foreach $tok ( $tmpdoc->findnodes("$mtxtelem//tok" ) ) {
+			$tokid = $tok->getAttribute("id");
+			$tmp = $tok->findnodes("./ancestor::s");
+			if ( $tmp ) { 
+				$sid = $tmp->item(0)->getAttribute("id");
+				if ( 1==1 ) { print "$tokid => $sid"; };
+				$s2tok{$sid} .= "#$tokid ";
+			} else {
+				print $tmp->item(0)->toString;
+				print "\nNo sent found for $tokid: ".$tok->parentNode->toString;
+			};
+		};
+
+		foreach $snt ( $tmpdoc->findnodes("$mtxtelem//s" ) ) {
+			$sid = $snt->getAttribute("id");
+			$stoks = $s2tok{$sid}; $stoks =~ s/ +$//;
+			if ( $stoks ) { $snt->setAttribute($emptyatt, $stoks); };
+		};
+	};
 		
 	# Number the utterances
 	$cnt = 0;

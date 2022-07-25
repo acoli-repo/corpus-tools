@@ -17,6 +17,7 @@ $scriptname = $0;
 
  GetOptions ( ## Command line options
             'debug' => \$debug, # debugging mode
+            'verbose' => \$verbose, # debugging mode
             'force' => \$force, # tag even if already tagged
             'test' => \$test, # tokenize to string, do not change the database
             'keepns' => \$keepns, # do not kill the xmlns
@@ -30,12 +31,14 @@ $scriptname = $0;
             'filename=s' => \$filename, # language of input
             'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
             'sent=i' => \$sentsplit, # split into sentences (1=yes, 2=only)
+            'emptys' => \$emptys, # keep sentences as empty elements with this at
+            'emptyatt' => \$emptyatt, # empty sentence attribute
             );
 
 $\ = "\n"; $, = "\t";
 
 if ( $mtxtelm eq '' ) { $mtxtelm = 'text'; };
-if ( $debug ) { print "Tokenizing $mtxtelm"; };
+if ( $debug ) { $verbose = 1; print "Tokenizing $mtxtelm"; };
 
 if ( $filename eq '' ) {
 	$filename = shift;
@@ -50,7 +53,7 @@ foreach $pelm ( split(",", $pelms) ) {
 $notoktype = "note|desc|gap|pb|fw|rdg";
 if ( $notoks ) {
 	$notoktype = $notoks; $notoktype =~ s/^,|,$//g;  $notoktype =~ s/,+/\|/g; 
-}; print $notoktype;
+}; 
 
 if ( $filename eq '' ) {
 	print " -- usage: xmltokenize.pl --filename=[fn]"; exit;
@@ -603,8 +606,10 @@ if ( !$doc ) {
 	exit; 
 };
 
-# Now move the tokens inside the sentences
-if ( $sentsplit ) {
+# Move tokens into sentences
+if ( $sentsplit && !$emptys ) {
+
+	# Move the tokens inside the sentences
 	foreach $sent ( $doc->findnodes("//text//s" ) ) {
 
 		$ptype = $sent->parentNode->nodeName;
