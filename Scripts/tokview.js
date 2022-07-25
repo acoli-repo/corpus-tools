@@ -226,7 +226,7 @@ function highlightbb (elm, hln=0) {
 				mtch = document.evaluate("ancestor-or-self::tok/preceding::lb", elm, null, XPathResult.ANY_TYPE, null);
 			};
 			var tmpe;
-			if ( mtch != null && typeof obj[mtch.iterator] === 'function' ) { tmpe = mtch.iterateNext(); };
+			if ( mtch != null && typeof mtch[Symbol.iterator] === 'function' ) { tmpe = mtch.iterateNext(); };
 			while ( tmpe != null )  { elm = tmpe; tmpe = mtch.iterateNext(); };		
 		};		
 	}; 
