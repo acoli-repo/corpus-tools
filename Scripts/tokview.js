@@ -163,9 +163,11 @@ function infotable (elmnode) {
 				else if ( atttype == 'udfeats' ) { rowval = treatfeats(elmnode, att, 'full'); }
 				else if ( atttype == 'ref' ) { rowval = treatref(elmnode, att, 'full'); }
 				else if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['options'] && formdef[att]['options'][rowval] ) { rowval = formdef[att]['options'][rowval]['display'] + ' (' + rowval + ')'; }
-				else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['options'] && tagdef[att]['options'][rowval] ) { rowval = tagdef[att]['options'][rowval]['display'] + ' (' + rowval + ')';; }; 
-			inforows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + 
-				rowval + '</td></tr>';
+				else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['options'] && tagdef[att]['options'][rowval] ) { rowval = tagdef[att]['options'][rowval]['display'] + ' (' + rowval + ')'; 
+			}; 
+			if ( rowval ) {
+				inforows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + rowval + '</td></tr>';
+			};
 		};
 	}; 
 	return inforows;
