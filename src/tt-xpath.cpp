@@ -356,9 +356,26 @@ int main(int argc, char *argv[])
 	else {
 		dofolders = xmlsettings.select_node("//cqp/@searchfolder").attribute().value();
 	};
+	string docfile;
+	if ( clsettings.attribute("files") != NULL ) { docfile = clsettings.attribute("files").value(); }
 
 
-	if ( dofolders != "" ) {
+	if ( docfile != "" ) {
+		if ( verbose ) {
+			cout << "  - Analyzing files from list: " << docfile << endl;    	
+		};
+		ifstream dfile(docfile);
+		if (dfile.is_open()) {
+			string tfile;
+			while (getline(dfile, tfile)) {
+				if ( debug > 1 ) {
+					cout << "  - Analyzing file: " << tfile << endl;    	
+				};
+				treatfile(tfile);
+			}
+			dfile.close();
+		}
+	} else if ( dofolders != "" ) {
 		if ( verbose ) cout << "- Indexing folder(s): " << dofolders << endl;
 		vector<string> tokens = split(dofolders, sep); 
 		for( vector<string>::iterator it2 = tokens.begin(); it2 != tokens.end(); it2++ ) {
