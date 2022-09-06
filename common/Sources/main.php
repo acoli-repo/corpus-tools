@@ -51,7 +51,7 @@
 
 	// Determine the location of the Smarty scripts
 	if ( getenv('SMARTY_DIR') != "" && !defined('SMARTY_DIR') && file_exists(getenv('SMARTY_DIR').'Smarty.class.php') ) define('SMARTY_DIR', getenv('SMARTY_DIR'));
-	if ( !defined(SMARTY_DIR) ) {
+	if ( !defined('SMARTY_DIR') ) {
 		# Look for Smarty in some standard locations if not defined in a non-standard location
 		if ( file_exists('/usr/local/share/smarty/Smarty.class.php') ) 
 			define('SMARTY_DIR', '/usr/local/share/smarty/');
@@ -107,7 +107,7 @@
 	$rooturl = str_replace("{project}", $foldername, $baseurl);
 	$rooturl = str_replace("{lang}", $lang, $rooturl);
 	if ( $settings['defaults']['base']['meta'] ) {
-		$moresmarty{'baseurl'} = $rooturl;
+		$moresmarty['baseurl'] = $rooturl;
 	}; 
 
 	// Determine where to get the Javascript files from
@@ -253,7 +253,7 @@
 
 	// if more smarty variables were defined, load them
 	foreach ( $moresmarty as $key => $val ) {
-		if ( $seti18n{$key} ) $val = i18n($val); 
+		if ( $seti18n[$key] ) $val = i18n($val); 
 		$smarty->assign($key, $val);	
 	};
 	
