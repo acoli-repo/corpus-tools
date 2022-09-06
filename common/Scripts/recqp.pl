@@ -76,9 +76,18 @@ if ( $sub ) {
 
 		print FILE '----------------------';
 		print FILE '(2) Creating subcorpus $fn';
+		if ( -e "/usr/local/bin/cwb-makeall" ) {
+			$cwbmakeall = "/usr/local/bin/cwb-makeall";
+		} elsif ( -e "/usr/bin/cwb-makeall" ) {
+			$cwbmakeall = "/usr/bin/cwb-makeall";
+		} else {
+			$cwbmakeall = "/usr/local/bin/cwb-makeall";
+			print FILE "cwb-makeall not installed - this step will fail";		
+		};	
+		$cmd = "$cwbmakeall  -r $regfolder $subcorpus";
 		print FILE "command:
-		/usr/local/bin/cwb-makeall  -r $regfolder $subcorpus";
-		`/usr/local/bin/cwb-makeall  -r $regfolder $subcorpus`;
+		$cmd";
+		`$cmd`;
 
 		if ( $sub eq 'both' ) {
 			print FILE '----------------------';
