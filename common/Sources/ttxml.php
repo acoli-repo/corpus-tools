@@ -610,7 +610,7 @@ class TTXML
 		// Determine what element to use
 		# if ( $settings['xmlfile']['paged'] == 2) $me = "you";
 		
-		if ( is_array($opts) && $opts['pbtype'] || $opts['elm'] ) $pbtmp = $opts['pbtype'] or $pbtmp = $opts['elm'];
+		if ( is_array($opts) && ( $opts['pbtype'] || $opts['elm'] ) ) $pbtmp = $opts['pbtype'] or $pbtmp = $opts['elm'];
 		else if ( $_GET['action'] == "appalign" ) $pbtmp = $_GET['pbtype'] or $pbtmp = $settings['appid']['baseview'];
 		else if ( $_GET['pbtype'] ) $pbtmp = $_GET['pbtype'];
 		else if ( is_array($settings['xmlfile']['paged']) ) $pbtmp = $settings['xmlfile']['paged']['element'];
