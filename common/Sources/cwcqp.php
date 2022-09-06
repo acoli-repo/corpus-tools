@@ -31,13 +31,13 @@ class CQP
 	var $wordfld;
 	var $logfile;
 
-	# Old style constuctor = should become redundant
+	# Old style constuctor = should be/become redundant
     function CQP($registryfolder = "", $cqpapp = "", $cqpcorpus = "") {    
-		$this->_construct($registryfolder, $cqpapp, $cqpcorpus);
+		$this->__construct($registryfolder, $cqpapp, $cqpcorpus);
 	}
 	
 	## PHPCQP object constructor
-	public function _construct($registryfolder = "", $cqpapp = "", $cqpcorpus = "") {    
+	public function __construct($registryfolder = "", $cqpapp = "", $cqpcorpus = "") {    
     	global $settings; global $cqpcorpus; global $username;
 	
     	if ( !$cqpapp ) $cqpapp = findapp('cqp');
