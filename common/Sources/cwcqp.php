@@ -111,7 +111,7 @@ class CQP
 	}
 
     public function exec($cmd) {
-    	global $settings;
+    	global $settings, $username;
     	
     	$cmd = str_replace("\0", " ", $cmd);
     	$cmd = preg_replace("/[\n\r]/", " ", $cmd); # Keep commands on a single line
@@ -132,12 +132,14 @@ class CQP
 				if ( $fh = fopen($this->logfile, 'a') ) { 
 						fwrite($fh, $cmd);
 						fclose ( $fh );
-				} else print "<!-- error opening log file -->";
+				} else if ( $username ) print "<!-- error opening log file -->";
 			};
 						
 			return $data;
+		} else if ( $username ) { 
+			fatal("Unable to open CWB pipe");
 		} else { 
-			print "<p>Error: CQP Pipe not open"; exit;
+			fatal("A fatal error occurred with the corpus - please try again later");
 		};
     		
 	}
