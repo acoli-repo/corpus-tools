@@ -602,7 +602,8 @@ class TTXML
 		
 		# $editxml = $this->rawtext; # We might have white-trimmed the XML
 		$editxml = $this->xml->asXML();
-		$page = current($this->xml->xpath($xp)); 
+		$tmp = $this->xml->xpath($xp);
+		if ( $tmp ) $page = current($tmp); 
 
 		# Return the xml for a page (or other element) of the text
 		
