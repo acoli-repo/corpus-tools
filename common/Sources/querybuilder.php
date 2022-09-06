@@ -357,7 +357,7 @@
 			if ( !$xatts['display'] ) continue;
 			$querytext .= "$hr<h3>{%{$xatts['display']}}</h3><table  class=qbt >"; $hr = "<hr>";
 			foreach ( $xatts as $key => $item ) {
-				if ( !is_array($item ) continue;
+				if ( !is_array($item) ) continue;
 				if ( $item['admin'] )
 					if ( $username) $atp = " class=\"adminpart\"";
 					else continue;
