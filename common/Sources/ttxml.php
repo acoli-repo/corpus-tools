@@ -770,9 +770,9 @@ class TTXML
 		if ( $titelm ) $foliotxt = $titelm;
 		else if ( $settings['xmlfile']['paged']['display'] ) $foliotxt = $settings['xmlfile']['paged']['display'];
 		else if ( $pbelm == "pb" ) $foliotxt = "Folio";
-		if ( $settings['xmlfile']['paged']['i18n'] ) $foliotxt = "{%$foliotxt}";
+		if ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['i18n'] ) $foliotxt = "{%$foliotxt}";
 
-		if ( $page && $settings['xmlfile']['paged']['header'] ) {
+		if ( $page && is_array($settings['xmlfile']['paged']) &&  $settings['xmlfile']['paged']['header'] ) {
 			$pageinfo = "<center><table>";
 			foreach ( $settings['xmlfile']['paged']['header'] as $kk => $vv ) {
 				$vval = $page[$kk];
