@@ -598,9 +598,11 @@
 				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&pos=right'>attached</a> /
 				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid'>separate</a>
 			&bull;
-				insert elm before:
-				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=par'>paragraph</a> ;
-				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=lb'>linebreak</a>";
+				insert elm:
+				<!-- <a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=par'>paragraph</a> ; -->
+				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=note'>note</a> ;
+				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=lb'>linebreak</a>
+				";
 		
 			if ( $dtk ) {
 				$maintext .= " &bull;

@@ -7,6 +7,7 @@
 
 	$fileid = $_POST['cid'] or $fileid = $_GET['cid'];
 	$tokid = $_POST['tid'] or $tokid = $_GET['tid'];
+	$nextid = $tokid;	
 		
 	if ( $fileid && $tokid ) { 
 	
@@ -17,12 +18,12 @@
 		
 		$file = file_get_contents("$xmlfolder/$fileid"); 
 		
-		# In which direction to place the node
-		$nodedir = $_GET['dir'];
+		# In which direction to place the node - TODO: add those defaults?
+		$nodedir = $_GET['dir']; # or $nodedir = "before";
 		# Where to place the node
-		$nodepos = $_GET['pos'];
+		$nodepos = $_GET['pos']; # or $nodepos = "left";
 		# What node to place
-		$nodetype = $_GET['node'];
+		$nodetype = $_GET['node']; # or $nodetype = "tok";
 		
 		if ( $nodetype == "par" ) {
 			$newnode = "<sb/>";
@@ -33,6 +34,14 @@
 		} else if ( $nodetype == "lb" ) {
 			$newnode = "<lb/>";
 			$nodepos = "left";
+		} else if ( $nodetype == "s" ) {
+			$newnode = "<s/>";
+			$nodepos = "left";
+		} else if ( $nodetype == "note" ) {
+			$newnode = "<note id=\"torenew\"/>";
+			$nodedir = "after";
+			$nodepos = "left";
+			$goto = urlencode("index.php?action=elmedit&cid=$fileid&tid=newid");
 		} else {
 			## By default, insert a token with no written form
 			$newnode = "<tok><ee/></tok>";
@@ -118,9 +127,11 @@
 			};
 		};
 					
+		if ( $goto ) $newurl = "&nexturl=$goto";
+		$nexturl = "index.php?action=renumber&cid=$fileid&tid=$nextid&dir=$nodedir$newurl";
+					
 		saveMyXML($file, $fileid);
 				
-		$nexturl = "index.php?action=renumber&cid=$fileid&tid=$tokid&dir=$nodedir";
 		$maintext .= "<hr><p>Your tok has been inserted - reloading to <a href='$nexturl'>the edit page</a>";
 		$maintext .= "<script langauge=Javasript>top.location='$nexturl';</script>";		
 	

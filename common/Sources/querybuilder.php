@@ -221,7 +221,8 @@
 		// name the sattributes
 		foreach ( $settings['cqp']['sattributes'] as $lvl ) {
 			foreach ( $lvl as $xid => $xatt ) {
-				if ( $xatt['admin'] && !$username ) continue;
+				if (  !is_array($xatt) ) continue; # Avoiding errors in new PHP version
+				if (  $xatt['admin'] && !$username ) continue;
 				if ( !$xatt['display'] || !$xatt['key'] || !is_array($xatt) ) continue;
 				$morec = ""; if ( $xatt['multisep'] ) $morec .= ", 'multisep': '{$xatt['multisep']}'";
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}' $morec}; ";

@@ -20,10 +20,11 @@
 		$cmd = "$perlapp $scrt/common/Scripts/xmlrenumber.pl --filename='xmlfiles/$fileid' ";
 		# print $cmd; exit;
 		$res = shell_exec($cmd);
+		preg_match("/NEWID: (.*)/", $res, $matches); $newid = $matches[1];
 		for ( $i=0; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...
 		
 		if ( $_GET['nexturl'] ) {
-			$nexturl = $_GET['nexturl'];
+			$nexturl = str_replace('newid', $newid, $_GET['nexturl']);
 		} else if ( $_GET['tid'] ) {
 			$newtid = $_GET['tid'];
 			$posdir = $_GET['dir'];

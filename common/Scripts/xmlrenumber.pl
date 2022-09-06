@@ -103,9 +103,7 @@ use XML::LibXML;
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//mtok")) {
 		$cnt++;
-		if ( !$ttnode->getAttribute('id') || $force ) {
-			$ttnode->setAttribute('id', "m-$cnt");
-		};
+		addid($ttnode, "m-$cnt")
 	}; 
 	
 	# In case things have ended up as tei_div - rename
@@ -128,9 +126,7 @@ use XML::LibXML;
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//s | $mtxtelem//l")) {
 		$cnt++;
-		if ( !$ttnode->getAttribute('id') || $force ) {
-			$ttnode->setAttribute('id', "s-$cnt");
-		};
+		addid($ttnode, "s-$cnt")
 	}; 
 
 	# In case we have empty, unnumbered sentences
@@ -178,7 +174,7 @@ use XML::LibXML;
 	if ( $debug ) { print "Finding toks : $mtxtelem//note\n"; };
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//note")) {
 		$cnt++;
-		$ttnode->setAttribute('id', "ftn-$cnt");
+		addid($ttnode, "ftn-$cnt")
 	}; 
 	
 	# Number the footnotes
@@ -186,7 +182,7 @@ use XML::LibXML;
 	if ( $debug ) { print "Finding anon : $mtxtelem//anon\n"; };
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//anon")) {
 		$cnt++;
-		$ttnode->setAttribute('id', "an-$cnt");
+		addid($ttnode, "an-$cnt")
 	}; 
 	
 	# Number the critical elements
@@ -230,4 +226,13 @@ if ( $debug ) {
 	# binmode ( FILE, ":utf8" );
 	print FILE $teitext;
 	close FILE;
+};
+
+sub addid($xnode, $newid) { 
+	( $xnode, $newid ) = @_; 
+	$oldid = $xnode->getAttribute('id');
+	if ( $oldid eq "torenew" ) { $oldid = ""; $gotoid = $newid; print "NEWID: $gotoid"; };
+	if ( !$oldid || $force ) {
+		$xnode->setAttribute('id', $newid);
+	};
 };

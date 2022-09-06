@@ -418,12 +418,12 @@ void treatfile ( string filename ) {
 							if ( exfile != "" && externals.find(exfile) != externals.end()  ) {
 								if ( exval.size() > 1 ) {
 									string idlookup = "//*[@id=\""+exval[1]+"\"]";
-									if ( debug > 1 ) { cout << "ID lookup: " << idlookup << endl; };
+									if ( debug > 1 ) { cout << "ID lookup: " << idlookup  << " in " << exfile << endl; };
 									pugi::xml_node exnode;
 									try {
 										exnode = externals[exfile]->select_node(idlookup.c_str()).node();
 									} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
-									if ( debug > 2 ) { exnode.print(cout); };
+									if ( debug > 2 && exnode ) { exnode.print(cout); };
 									if ( exnode ) {
 										xres = exnode.select_nodes(xpath.c_str());
 									};
@@ -436,12 +436,12 @@ void treatfile ( string filename ) {
 						} else if ( tmp != "" ) {
 							// this is a local "external" reference
 							string idlookup = "//*[@id=\""+exval[1]+"\"]";
-							if ( debug > 1 ) { cout << "Local ID lookup: " << idlookup << endl; };
+							if ( debug > 1 ) { cout << "Local ID lookup: " << idlookup  << " in " << exfile << endl; };
 							pugi::xml_node exnode;
 							try {
 								exnode = doc.select_node(idlookup.c_str()).node();
 							} catch(pugi::xpath_exception& e) { if ( debug > 4 ) { cout << "XPath error" << endl; };  };
-							if ( debug > 2 ) { exnode.print(cout); };
+							if ( debug > 2 && exnode ) { exnode.print(cout); };
 							if ( exnode ) {
 								xres = exnode.select_nodes(xpath.c_str());
 							};
