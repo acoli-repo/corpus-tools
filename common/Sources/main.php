@@ -72,7 +72,8 @@
 
 	// Have a uniform treatment of magic quotes
 	// set_magic_quotes_runtime(false); // turn magic quotes off (this throws an error in newer PHP versions)
-	if (get_magic_quotes_gpc()) {
+	// if ( get_magic_quotes_gpc() ) { // deprecated
+	if ( !getenv('oldquotes') ) {
 		function strip_array($var) {
 			return is_array($var)? array_map("strip_array", $var):stripslashes($var);
 		}
