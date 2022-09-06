@@ -350,7 +350,7 @@ class TTXML
 			$tokid = preg_replace("/ .*/", "", $tokid);
 			$xmltxt = $this->context($tokid);
 			$this->pagenav = "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
-		} else if ( !$whole && ( $settings['xmlfile']['paged'] && is_array($settings['xmlfile']['paged']['type']) && $settings['xmlfile']['paged']['type'] == "xp" ) ) {
+		} else if ( !$whole && ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['type'] == "xp" ) ) {
 			$xmltxt = $this->xppage();
 		} else if ( !$whole && ( $_GET['paged'] ||  $settings['xmlfile']['paged'] || is_array($settings['xmlfile']['paged']) || ( $_GET['pbtype'] || $settings['xmlfile']['paged']['element'] ) ) ) {
 			$xmltxt = $this->page();
