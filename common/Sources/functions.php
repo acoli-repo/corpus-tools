@@ -345,6 +345,9 @@
 
 		if ( file_exists("/usr/bin/$appname") ) return "/usr/bin/$appname"; // For Fedora
 		if ( file_exists("/usr/local/bin/$appname") ) return "/usr/local/bin/$appname"; // For most everythibng else
+
+		$which = shell_exec("which  $appname");
+		if ( $which ) return trim($which);
 	
 		return $appname;
 	};

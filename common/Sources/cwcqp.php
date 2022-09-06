@@ -30,12 +30,17 @@ class CQP
 	var $folder;
 	var $wordfld;
 	var $logfile;
+
+	# Old style constuctor = should become redundant
+    function CQP($registryfolder = "", $cqpapp = "", $cqpcorpus = "") {    
+		$this->_construct($registryfolder, $cqpapp, $cqpcorpus);
+	}
 	
 	## PHPCQP object constructor
-    function CQP($registryfolder = "", $cqpapp = "", $cqpcorpus = "") {
-    	if ( !$cqpapp ) $cqpapp = findapp('cqp');
-    
+	public function _construct($registryfolder = "", $cqpapp = "", $cqpcorpus = "") {    
     	global $settings; global $cqpcorpus; global $username;
+	
+    	if ( !$cqpapp ) $cqpapp = findapp('cqp');
   
   		# Determine the corpus name
 		if ( !$cqpcorpus ) {
