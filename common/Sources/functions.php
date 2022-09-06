@@ -344,7 +344,7 @@
 		if ( $bindir && file_exists("$bindir/$appname") ) return "$bindir/$appname";
 
 		if ( file_exists("/usr/bin/$appname") ) return "/usr/bin/$appname"; // For Fedora
-		if ( file_exists("/usr/local/bin/$appname") ) return "/usr/local/bin/$appname"; // As backup
+		if ( file_exists("/usr/local/bin/$appname") ) return "/usr/local/bin/$appname"; // For most everythibng else
 	
 		return $appname;
 	};

@@ -32,8 +32,10 @@ class CQP
 	var $logfile;
 	
 	## PHPCQP object constructor
-    function CQP($registryfolder = "", $cqpapp = "/usr/local/bin/cqp", $cqpcorpus = "") {
-    	global $settings; global $cqpcorpus;
+    function CQP($registryfolder = "", $cqpapp = "", $cqpcorpus = "") {
+    	if ( !$cqpapp ) $cqpapp = findapp('cqp');
+    
+    	global $settings; global $cqpcorpus; global $username;
   
   		# Determine the corpus name
 		if ( !$cqpcorpus ) {
