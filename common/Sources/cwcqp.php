@@ -84,6 +84,10 @@ class CQP
 		foreach ($this->pipes as $pipe) {
 			stream_set_blocking($pipe, false);
 		};
+
+        if ( !is_resource($this->prcs) && $username ) {
+        	fatal("Failed to open CWB - please check on the server: ".$cqpapp.' -r '.$registryfolder.' -c');
+        };
 		
 		$version = fread($this->pipes[1], 4096); # Read the version number;
 		if ( preg_match ( "/^CQP\s+(?:\w+\s+)*([0-9]+)\.([0-9]+)(?:\.b?([0-9]+))?(?:\s+(.*))?$/", $version, $matches) ) {
@@ -137,7 +141,7 @@ class CQP
 						
 			return $data;
 		} else if ( $username ) { 
-			fatal("Unable to open CWB pipe");
+			fatal("Unable to open CWB pipe - please verify the CQP installation on the server");
 		} else { 
 			fatal("A fatal error occurred with the corpus - please try again later");
 		};
