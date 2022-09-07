@@ -57,7 +57,9 @@
 	# Define where to get the JS libraries from - and in which version (if not defined in the settings)
 
 	# TinyMCE WYSIWYG editor
-	$tinymceurl = $settings['defaults']['src']['tinymce'] or $tinymceurl = "https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.6/tinymce.min.js";
+	$tinymceurl = "https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.6/tinymce.min.js";
+	if ( is_array($settings['defaults']['src']['tinymce']) ) 
+		$tinymceurl = $settings['defaults']['src']['tinymce'];
 	if ( $tinymceurl == "local" ) $tinymceurl = "$jsurl/tinymce/tinymce.min.js";
 
 	# ACE code editor (XML)
