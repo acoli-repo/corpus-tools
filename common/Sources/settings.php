@@ -58,14 +58,18 @@
 
 	# TinyMCE WYSIWYG editor
 	$tinymceurl = "https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.6/tinymce.min.js";
-	if (  is_array($settings['defaults']) &&  is_array($settings['defaults']['src']) && is_array($settings['defaults']['src']['tinymce']) ) 
+	if (  is_array($settings['defaults']) &&  is_array($settings['defaults']['src'])  ) 
 		$tinymceurl = $settings['defaults']['src']['tinymce'];
 	if ( $tinymceurl == "local" ) $tinymceurl = "$jsurl/tinymce/tinymce.min.js";
 
 	# ACE code editor (XML)
-	$aceurl = $settings['defaults']['src']['ace'] or $aceurl = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js";
+	$aceurl = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js";
+	if (  is_array($settings['defaults']) &&  is_array($settings['defaults']['src'])  ) 
+		$aceurl = $settings['defaults']['src']['ace'];
 	if ( $aceurl == "local" ) $aceurl = "$jsurl/ace/ace.js";
 
-	$bindir = $settings['defaults']['base']['bin'] or $bindir = "/usr/local/bin";
+	$bindir = "/usr/local/bin";
+	if (  is_array($settings['defaults']) &&  is_array($settings['defaults']['base'])  ) 
+		$bindir = $settings['defaults']['src']['bin'];
 	
 ?>
