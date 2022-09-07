@@ -58,7 +58,7 @@
 
 	# TinyMCE WYSIWYG editor
 	$tinymceurl = "https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.6/tinymce.min.js";
-	if (  is_array($settings['defaults'] &&  is_array($settings['defaults']['src'] && is_array($settings['defaults']['src']['tinymce']) ) 
+	if (  is_array($settings['defaults']) &&  is_array($settings['defaults']['src']) && is_array($settings['defaults']['src']['tinymce']) ) 
 		$tinymceurl = $settings['defaults']['src']['tinymce'];
 	if ( $tinymceurl == "local" ) $tinymceurl = "$jsurl/tinymce/tinymce.min.js";
 
