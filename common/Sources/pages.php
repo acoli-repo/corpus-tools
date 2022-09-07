@@ -25,9 +25,10 @@
 		$pbtype = "milestone";
 	};
 	
-	if ( $settings['xmlfile']['toc']['file'] || file_exists("Resources/toc.xml") ) {
+	if ( ( is_array($settings['xmlfile']['toc']) && $settings['xmlfile']['toc']['file'] ) || file_exists("Resources/toc.xml") ) {
 		
-		$tocfile = $settings['xmlfile']['toc']['file'] or $tocfile = "Resources/toc.xml";
+		$tocfile = "Resources/toc.xml";
+		if ( is_array($settings['xmlfile']['toc']) && $settings['xmlfile']['toc']['file'] ) $tocfile = $settings['xmlfile']['toc']['file'];
 		$tocxml = simplexml_load_file($tocfile);
 		// Read the appids in the XML
 		foreach ( $ttxml->xml->xpath("//*[@appid]") as $appnode ) $appidlist[$appnode['appid'].""] = $appnode['id']."";

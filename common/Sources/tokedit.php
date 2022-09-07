@@ -510,7 +510,7 @@
 		
 
 		// Show all the Morphemes
-		if ( $settings['annotations']['m'] ) {
+		if ( is_array($settings['annotations']) && $settings['annotations']['m'] ) {
 			$result2 = $token->xpath("m"); $dtk = 0;
 			foreach ( $result2 as $dtoken ) {
 				$did = $dtoken['id']; $dtk++; 

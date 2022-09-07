@@ -74,6 +74,7 @@
 		foreach ( $tagset as $main => $val ) {
 			// $maintext .= "<p>$main: {$val['display']}";
 			foreach ( $val as $posi => $val2 ) {
+				if ( !is_array($val2) ) continue; 
 				$postxt = $val2['display'];
 				foreach ( $val2 as $value => $val3 ) {
 					$value .= ""; $main .= ""; $posi += 0;

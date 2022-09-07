@@ -66,7 +66,7 @@
 		$defaultlang = $settings['languages']['default'] or $defaultlang = "en";
 		if ( $fflang ) {
 			$filename = "$ffid-$fflang.$ffext";
-		} else if (  preg_match("/(.*)-(.*)/") ) { 
+		} else if ( preg_match("/(.*)-(.*)/", $fflang, $matches  ) ) { 
 			$ffid = $matches[1]; 
 			$fflang = $matches[2]; 
 		} else {

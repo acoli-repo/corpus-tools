@@ -386,7 +386,7 @@
 
 	if ( $json ) {
 
-		$apikey = $settings['geomap']['apikey']; # Use our key when no other key is defined
+		if ( is_array($settings['geomap']) ) $apikey = $settings['geomap']['apikey']; # Use our key when no other key is defined
 
 		if ( ( $mainfld == "text_geo" || $fldi[0]['var'] == "geo" ) && $apikey  ) { $moregs .= "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
 
