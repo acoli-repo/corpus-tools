@@ -69,7 +69,7 @@
 	if ( $aceurl == "local" ) $aceurl = "$jsurl/ace/ace.js";
 
 	$bindir = "/usr/local/bin";
-	if (  is_array($settings['defaults']) &&  is_array($settings['defaults']['base'])  ) 
+	if (  is_array($settings['defaults']) &&  is_array($settings['defaults']['src'])  ) 
 		$bindir = $settings['defaults']['src']['bin'];
 	
 ?>
