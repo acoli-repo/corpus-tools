@@ -339,7 +339,7 @@
 	function findapp ( $appname ) {
 		global $bindir; global $settings;
 		
-		if ( $settings['bin'][$appname] ) return $settings['bin'][$appname];
+		if ( is_array($settings['bin']) && $settings['bin'][$appname] ) return $settings['bin'][$appname];
 		
 		if ( $bindir && file_exists("$bindir/$appname") ) return "$bindir/$appname";
 
