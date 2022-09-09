@@ -273,7 +273,7 @@
 			$fileonly = true;
 		};
 
-		$cqpapp = $_POST['cqpapp'] or $cqpapp = $_GET['cqpapp'] or $cqpapp = "$bindir/cqp";
+		$cqpapp = $_POST['cqpapp'] or $cqpapp = $_GET['cqpapp'] or $cqpapp = findapp("cqp");
 		$cqp = new CQP("", $cqpapp);
 
 		if ( strstr($cqpapp, "tt-cqp") !== false  ) {
@@ -420,7 +420,7 @@
 				<table><tr><th>ID$moreth";
 			foreach ( $resarr as $line ) {
 				$fatts = explode ( "\t", $line ); $fid = array_shift($fatts);
-				if ( $admin ) {
+				if ( $admin ) { # There is no $admin - redundant?
 					$fidtxt = preg_replace("/^\//", "", $fid );
 				} else {
 					$fidtxt = preg_replace("/.*\//", "", $fid );
