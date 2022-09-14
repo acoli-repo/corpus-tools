@@ -156,7 +156,11 @@
 		};
 		$maintext .= "<p>Interface languages: $othertxt";
 		
-		if ( substr($filename,-3) == ".md" ) {
+		if ( substr($filename,-3) == ".md"  || $_GET['raw'] ) {
+			
+			$acemime = "ace/mode/html";
+			if ( substr($filename,-3) == ".md" ) $acemime = "ace/mode/markdown";
+		
 			$protcontent = htmlentities($content, ENT_QUOTES, 'UTF-8');
 			$maintext .= "
 				<style>
@@ -189,7 +193,7 @@
 					converter = new showdown.Converter();
 					var editor = ace.edit(\"editor\");
 					editor.setTheme(\"ace/theme/chrome\");
-					editor.getSession().setMode(\"ace/mode/markdown\");
+					editor.getSession().setMode(\"$acemime\");
 					editor.getSession().on('change', function() {
   						update()
 					});	
@@ -257,6 +261,10 @@
 				<p><input type=submit value=Save onClick=\"changed = false;\"> <a href='index.php?action=$action&act=trash&id=$filename'>move to trash</a>
 				</form>
 				";
+				
+			$blesar = explode(",", $settings['files']['blessed'] );
+			if ( in_array("Pages", $blesar) ) $maintext .= "<hr><p><a href='{$_SERVER['REQUEST_URI']}&raw=1'>edit raw HTML</a>";
+				
 		};
 					
 
