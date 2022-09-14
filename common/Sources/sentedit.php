@@ -76,7 +76,7 @@
 			$maintext .= "<h1>Multi-element edit</h1>
 				<p>Element type: $sentname $drest";
 				
-			if ( !is_writable("xmlfiles/".$ttxml->filename) ) $maintext .= "<p class='wrong adminpart'>This file $ttxml->filename is not editable by the browser and changes will not be saved - please contact the corpus admin</p>";
+			if ( !is_writable("xmlfiles/".$ttxml->fileid) ) $maintext .= "<p class='wrong adminpart'>This file $ttxml->fileid is not editable by the browser and changes will not be saved - please contact the corpus admin</p>";
 			
 			$maintable .= "<p>
 				<form action='index.php?action=$action&act=save' method=post name=tagform id=tagform>
