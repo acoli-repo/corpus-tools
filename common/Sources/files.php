@@ -152,6 +152,12 @@
 			$subf = "$xmlfolder/";
 			$subf2 = $xmlfolder;
 		};
+		
+		if ( !is_array($fallowed) ) $fallowed = array('Trash', 'xmlfiles');
+		if ( preg_match("/^([^\/]+)/", $subf, $matches) ) {
+			$mainfldr = $matches[1];
+			if ( !in_array($mainfldr, $fallowed) ) fatal("You are not allowed to browse this folder");
+		};
 			
 		$dirfiles = scandir( $subf2 );
 		foreach ( $dirfiles as $file ) {

@@ -193,15 +193,16 @@
 		if ( $val == "" || $val == "_" ) $val = "({%none})";
 		else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
 
-		$cnt = $cqp->exec("size Matches");
+		$cnt = $cqp->exec("size Matches"); $size = $cnt;
 
 		$max = $_GET['max'] or $max = 100;
 		$start = $_GET['start'] or $start = 0;
 		$stop = $start + $max;
+		if ( $_GET['show'] ) $morel = "&show={$_GET['show']}";
 		if ( $size > $max || $start > 0 ) {
 			$next = $stop; $beg = $start + 1; $prev = max(0, $start - $max);
-			if ( $start > 0 ) $bnav .= " <a href='index.php?action=$action&class=$class&val=$oval&start=$prev'>{%previous}</a> ";
-			if ( $size > $max ) $bnav .= " <a href='index.php?action=$action&class=$class&val=$oval&start=$next'>{%next}</a> ";
+			if ( $start > 0 ) $bnav .= " <a href='index.php?action=$action&class=$class&val=$oval&start=$prev$morel'>{%previous}</a> ";
+			if ( $size > $max ) $bnav .= " <a href='index.php?action=$action&class=$class&val=$oval&start=$next$morel'>{%next}</a> ";
 			$nav = " - {%showing} $beg - $stop - $bnav";
 		};
 		
@@ -240,11 +241,13 @@
 				
 				$resarr = explode ( "\n", $results ); $scnt = count($resarr);
 				$maintext .= "<p>$path<p>$cnt {%$docname}";
-				if ( $scnt < $cnt ) {
-					$maintext .= " &bull; {%!showing} $start - $stop";
-				};
-				if ( $start > 0 ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$before'; document.resubmit.submit();\">{%previous}</a>";
-				if ( $stop < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$stop'; document.resubmit.submit();\">{%next}</a>";
+// 				if ( $scnt < $cnt ) {
+// 					$maintext .= " &bull; {%!showing} $start - $stop";
+// 				};
+// 				if ( $start > 0 ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$before'; document.resubmit.submit();\">{%previous}</a>";
+// 				if ( $stop < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$stop'; document.resubmit.submit();\">{%next}</a>";
+				$maintext .= $nav;
+
 				if ( $settings['defaults']['browser']['style'] == "facs" ) {
 					$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
 						<table id=facstable>";
