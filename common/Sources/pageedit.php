@@ -263,7 +263,7 @@
 				";
 				
 			$blesar = explode(",", $settings['files']['blessed'] );
-			if ( in_array("Pages", $blesar) ) $maintext .= "<hr><p><a href='{$_SERVER['REQUEST_URI']}&raw=1'>edit raw HTML</a>";
+			if ( in_array("Pages", $blesar) ) $maintext .= "<hr><p><a href='index.php?action=$action&id=$id&raw=1'>edit raw HTML</a>";
 				
 		};
 					
