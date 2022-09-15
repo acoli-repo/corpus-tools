@@ -209,7 +209,7 @@ use XML::LibXML;
 			if ( $debug ) { print "Finding custom element : $mtxtelem//$tmp\n"; };
 			foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//$tmp")) {
 				$cnt++;
-				$ttnode->setAttribute('id', "xx-$cnt");
+				addid($ttnode, "xx", $cnt)
 			}; 
 		};
 	};
@@ -228,8 +228,16 @@ if ( $debug ) {
 	close FILE;
 };
 
-sub addid($xnode, $newid) { 
-	( $xnode, $newid ) = @_; 
+sub addid($xnode, $newid, $newcnt) { 
+	( $xnode, $newid, $newcnt ) = @_; 
+	if ( $newcnt ) { 
+		$tmp = $newid.'-'.$newcnt;
+		while ( $tmpdoc->findnodes("//*[\@id=\"$tmp\"]") ) { 
+			$newcnt++;
+			$tmp = $newid.'-'.$newcnt;
+		};
+		$newid = $tmp;
+	}
 	$oldid = $xnode->getAttribute('id');
 	if ( $oldid eq "torenew" ) { $oldid = ""; $gotoid = $newid; print "NEWID: $gotoid"; };
 	if ( !$oldid || $force ) {

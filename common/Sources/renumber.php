@@ -15,9 +15,11 @@
 	
 	if ( $cardid )  {
 
+		if ( $_GET['xx'] ) $xxx = " --xx=".preg_replace("/[^a-zA-Z0-9]/", "", $_GET['xx']);
+
 		# Build the UNIX command that does the actual renumbering
 		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot"; };
-		$cmd = "$perlapp $scrt/common/Scripts/xmlrenumber.pl --filename='xmlfiles/$fileid' ";
+		$cmd = "$perlapp $scrt/common/Scripts/xmlrenumber.pl $xxx --filename='xmlfiles/$fileid' ";
 		# print $cmd; exit;
 		$res = shell_exec($cmd);
 		preg_match("/NEWID: (.*)/", $res, $matches); $newid = $matches[1];
