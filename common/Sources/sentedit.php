@@ -133,15 +133,16 @@
 					$sid = $sent['id'] or $sid = $sent['xml:id'];
 					if ( !$sid ) {
 						$fattxt = "Not all elements you are attempting to edit have an @id, making it impossible to edit them in this module. ";
+						$misid[$sent->getName().''] = 1;
 						if ( $xml->xpath("//tok") ) {
-							$fattxt .= "This should get resolved by <a href='index.php?action=renumber&id=$ttxml->fileid'>renumbering</a> the document.";
+							$thisurl = urlencode($_SERVER['REQUEST_URI']);
+							$fattxt .= "This should get resolved by <a href='index.php?action=renumber&id=$ttxml->fileid&nexturl=$thisurl&xxx'>renumbering</a> the document.";
 						} else {
 							$fattxt .= "The document also has not been tokenized - you can choose to <a href='index.php?action=renumber&id=$ttxml->fileid'>renumber</a> before tokenization, or <a href='index.php?action=tokenize&id=$ttxml->fileid'>tokenize</a> the document (which will also renumber).";
 						};
 						if ( $user['permissions'] == "admin" ) {
 							$fattxt .= "<hr><p>The (first) unnumbered element:<div>".htmlentities($sent->asXML())."</div>";
 						};
-						fatal($fattxt);
 					};
 					$maintext .= "\n<tr><td><a href='index.php?action=file&cid=$ttxml->fileid&jmp=$sid'>$sid<td id=mtxt>".makexml($sent);
 					foreach ( $doatts as $key2 => $val2 ) {
@@ -161,6 +162,10 @@
 							$maintext .= "<td><input size='$width' name=matts[$sid][$key2] value='$atv'>";
 						};
 					};
+				};
+				if ( $fattxt ) {
+					$fattxt = str_replace("&xxx", "&xx=".join(',', array_keys($misid)), $fattxt);
+					fatal($fattxt);
 				};
 				$maintext .= "</table><p><input type='submit' value='Save'> <a href='index.php?action=file&cid=$fileid'>cancel</a>
 					<input type=hidden name=last value='$end'>
