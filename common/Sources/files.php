@@ -50,7 +50,7 @@
 		
 		if ( file_exists("xmlfiles/$path") && substr($path,-4) == ".xml" && $where != "[Trash]" ) { fatal("File already exists"); };
 		
-		if ( preg_match("/^\[Trash\]\/([^\/]+\.xml)$/", $path, $matches )  ) {
+		if ( preg_match("/^\[Trash\]\/([^\/]+\.[^.]+)$/", $path, $matches )  ) {
 			$path = $matches[1];
 			if ( !is_dir("Trash") ) { mkdir("Trash"); };
 			if ( !is_dir("Trash") ) fatal("Trash folder could not be created, please contact admin"); 
@@ -121,15 +121,38 @@
 					$folderlist";
 			};
 			
+	} else if ( $_POST['reg'] && $username ) {
+
+		$reg = $_POST['reg'];
+		$reg = str_replace("..", "", $reg);
+	
+		// If nothing else, just list the XML files (in a given subfolder)
+		$maintext .= "<h1>{%List of XML files}</h1>
+			<p>Search query: <b>$reg</b>
+			<ul>"; $cnt = 0;
+		
+		$files = rglob("xmlfiles/*$reg*");
+		if ( count($files) == 0 ) {
+			$maintext .= "<p><i>There are no matching XML files</i></p>";		
+		}; 
+		foreach ( $files as $file ) {
+			$fn = str_replace("xmlfiles/", "", $file);
+			$editlink = "<div style='display: inline-block; padding: 4px;' class=adminpart><a href='index.php?action=$action&act=mv&id=$fn'>rename</a></div> ";
+			$maintext .= "<p>$editlink<a href='index.php?action=file&id=$fn'>$fn</a>"; 
+		};
+		$maintext .= "</ul>
+			<hr><p><a href='index.php?action=$action'>back to filelist</a>";
+			
 	} else {
+	
 		// If nothing else, just list the XML files (in a given subfolder)
 		$maintext .= "<h1>{%List of XML files}</h1>"; $cnt = 0;
 	
 		if ( $username ) 
 		$maintext .= "
 			<div class='adminpart'>
-			<form class=adminpart style='padding: 4px;' action='index.php?action=file' method=post>
-			<p>Give the ID of the XML File to open: <input name=id> <input type=submit value=Open>
+			<form class=adminpart style='padding: 4px;' action='index.php?action=files' method=post>
+			<p>Search XML files: <input name=reg> <input type=submit value=Search>
 			</form>
 			<p>Or select a file from the list below:
 			</div>
