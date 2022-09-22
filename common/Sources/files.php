@@ -4,6 +4,7 @@
 	// (c) Maarten Janssen, 2015
 
 	if ( $settings['defaults']['nofiles'] ) check_login();
+	if ( !$_POST ) $_POST = $_GET;
 
 	check_folder("xmlfiles");	
 	
