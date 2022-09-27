@@ -336,6 +336,13 @@
 		return $html;
 	};
 
+	function usettcqp() {
+		if ( !findapp("tt-cqp") ) return false;
+		if ( $_GET['cwb'] || $settings['cqp']['ttcqp'] == "0" ) return false;
+
+		return true; # This should prob. stop being the default
+	};
+
 	function findapp ( $appname ) {
 		global $bindir; global $settings;
 		

@@ -4,6 +4,8 @@
 	foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
 		if ( $username || !$item['admin'] ) array_push($cqpcols, $key); 
 	}; 
+	
+	if ( !$corpusfolder )  $corpusfolder = "cqp";
 
 	# See if we have any subcorpus (pre-set values)
 	foreach ( explode(",", $_GET['preset']) as $tmp ) {
@@ -32,8 +34,8 @@
 			$stmp = "<script language=Javascript>switchtype('st', 'word');</script>";
 		} else { $cdef = "checked"; };
 
-		if ( findapp("tt-cqp") ) {
-			// tt-cqp specific options
+		if ( usettcqp() ) {
+			// tt-cqp specific options - usage checked in functions
 			$extannfile = $_POST['extann'] or $extannfile = "Users/ann_{$user['short']}.xml";
 			if ( file_exists($extannfile) ) {
 				$extann = simplexml_load_file($extannfile);	
