@@ -76,6 +76,10 @@
 			$maintext .= "<h1>Multi-element edit</h1>
 				<p>Element type: $sentname $drest";
 				
+			if ( $sxp ) { 
+				$maintext .= "<p>Editable nodes selected by XPath: <b>$sxp</b>";
+			};
+				
 			if ( !is_writable("xmlfiles/".$ttxml->fileid) ) $maintext .= "<p class='wrong adminpart'>This file $ttxml->fileid is not editable by the browser and changes will not be saved - please contact the corpus admin</p>";
 			
 			$maintable .= "<p>

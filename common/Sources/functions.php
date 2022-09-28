@@ -226,7 +226,7 @@
 		global $i18nlang; global $sharedfolder;
 		if ( !$tolang ) $tolang = $lang;
 		
-		if ( strpos("{%", $text) == -1 ) return $text; # If there is nothing to translate - return to save time
+		if ( strpos($text, "{%") == -1 ) return $text; # If there is nothing to translate - return to save time
 		
 		if ( $i18nlang != $tolang ) { # Read the translation defs - but do so only once (or once per language)
 			if ( file_exists("Sources/i18n_$tolang.php") ) { // Local defs overrule global defs
@@ -264,7 +264,7 @@
 				$caps = 1;
 				$txtel = substr($txtel,1);
 			};
-			if ( $i18n[$txtel] != "" ) {
+			if ( isset($i18n[$txtel]) ) {
 				$to = $i18n[$txtel];
 			} else {
 				$to = $txtel; # If we have no translation, just remove the brackets

@@ -241,18 +241,19 @@
 	$menu = i18n($menu);
 
 	# Add the TEITOK footer
-	if ( !$noteitokmessage ) {
+	if ( !isset($noteitokmessage) || !$noteitokmessage ) {
 		$menu .=  "<hr style='opacity: 0.5; margin-top: 40px;'><p id=powby style='opacity: 0.5; font-size: smaller;'><span onClick=\"window.open('http://www.teitok.org/index.php', 'teitok');\">Powered by <span style='font-family: Courier;'>&lt;TEI:TOK&gt;</span></span><br><span onClick=\"window.open('http://www.teitok.org/index.php?action=credits', 'teitok');\">Maarten Janssen, 2014-</a></p>";
 	};
 	
 	// Load smarty content
-	if ( !isset($pagetitle) ) $pagetitle = $pagetitles[$action] or $pagetitle = $settings['defaults']['title']['display'];
+	if ( !isset($pagetitle) ) $pagetitle = @$pagetitles[$action] or $pagetitle = $settings['defaults']['title']['display'];
 	$smarty->assign("title", $pagetitle);
 	$smarty->assign("header", $pagetitle);
 	$smarty->assign("menu", $menu);
 	$smarty->assign("maintext", $maintext);
 
 	// if more smarty variables were defined, load them
+	if ( isset($moresmarty) )
 	foreach ( $moresmarty as $key => $val ) {
 		if ( $seti18n[$key] ) $val = i18n($val); 
 		$smarty->assign($key, $val);	

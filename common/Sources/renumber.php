@@ -23,7 +23,7 @@
 		# print $cmd; exit;
 		$res = shell_exec($cmd);
 		preg_match("/NEWID: (.*)/", $res, $matches); $newid = $matches[1];
-		for ( $i=0; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...
+		for ( $i=1; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...
 		
 		if ( $_GET['nexturl'] ) {
 			$nexturl = str_replace('newid', $newid, $_GET['nexturl']);
