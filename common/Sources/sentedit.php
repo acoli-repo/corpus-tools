@@ -16,7 +16,7 @@
 	
 		require("$ttroot/common/Sources/ttxml.php");
 		
-		$ttxml = new TTXML($fileid);
+		$ttxml = new TTXML($fileid, 1, "keepns");
 		$xml = $ttxml->xml;
 
 		if ( $act == "save" ) {
@@ -139,7 +139,7 @@
 						$fattxt = "Not all elements you are attempting to edit have an @id, making it impossible to edit them in this module. ";
 						$misid[$sent->getName().''] = 1;
 						if ( $xml->xpath("//tok") ) {
-							$thisurl = urlencode($_SERVER['REQUEST_URI']);
+							$thisurl = urlencode($_SERVER['REQUEST_URI']); # THIS DOES NOT WORK IF REQUEST_URI IS SET INCORRECTLY
 							$fattxt .= "This should get resolved by <a href='index.php?action=renumber&id=$ttxml->fileid&nexturl=$thisurl&xxx'>renumbering</a> the document.";
 						} else {
 							$fattxt .= "The document also has not been tokenized - you can choose to <a href='index.php?action=renumber&id=$ttxml->fileid&xxx'>renumber</a> before tokenization, or <a href='index.php?action=tokenize&id=$ttxml->fileid'>tokenize</a> the document (which will also renumber).";
