@@ -49,9 +49,9 @@
 			$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 		};
 
-
+		if ( !$bindir ) $bindir = "/usr/local/bin";
 		$cmd = "$bindir/tt-xpath $opts --xpquery='$qt' $qrest"; 
-		// print $cmd; exit; 
+		# print $cmd; exit; 
 		$tmp = shell_exec($cmd);
 	
 		$results = simplexml_load_string($tmp);
