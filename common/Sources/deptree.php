@@ -629,8 +629,16 @@ $maintext .= "
 		# Read the tokens
 		$i = 0;
 		$svgtxt .= "<svg id='svgtree' version=\"1.1\" style='z-index: 2; position: absolute;' width=\"100%\" height=\"500\">"; # xmlns=\"http://www.w3.org/2000/svg\" 
-		$tokar = array();
-		foreach ( $node->xpath($toksel) as $tok ) {
+		$tokar = array(); $corresp="sameAs";
+		$toklist = $node->xpath($toksel); 
+		if ( count($toklist) == 0 && $node[$corresp] ) {
+			foreach ( explode(" ", $node[$corresp]) as $tokid ) {
+				$tokid = str_replace("#", "", $tokid); 
+				$tok = current($node->xpath("//*[@id=\"$tokid\"]"));
+				if ( $tok ) array_push($toklist, $tok);
+			};
+		}; 
+		foreach ( $toklist as $tok ) {
 			$text = forminherit($tok, $tokform, false);
 			if ( $text == "--" ) continue;
 			if ( $text == "" ) $text = "`";
