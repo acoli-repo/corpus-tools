@@ -1010,7 +1010,7 @@
 		# For implicit content nodes, add the content
 		$nn = $node->getName();
 		$corresp = $opts['corresp'] or $corresp = $settings['cqp']['sattributes'][$nn]['toklist'] or $corresp="sameAs";
-		if (  $node[$corresp] || ( !$node->children && $node[$corresp] ) ) {
+		if ( $opts[$corresp] || ( !$node->children && $node[$corresp] ) ) {
 			$toklist = explode(" ", $node[$corresp]);
 			$tok1 = substr($toklist[0],1); 
 			$tok2 = substr(end($toklist),1);
@@ -1019,7 +1019,7 @@
 				$raw = $tmp->asXML(); 
 			};
 			$p1 = strpos($raw, " id=\"$tok1\""); $p1 = rstrpos($raw, "<tok", $p1);
-			$p2 = strpos($raw, " id=\"$tok2\""); $p2 = rstrpos($raw, "</tok>", $p2)+6;
+			$p2 = strpos($raw, " id=\"$tok2\""); $p2 = strpos($raw, "</tok>", $p2)+6;
 			$impl = substr($raw,$p1,$p2-$p1);
 			$xmltxt .= $impl;
 		};
