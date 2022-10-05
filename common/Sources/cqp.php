@@ -492,8 +492,8 @@
 					else $showstyle = "kwic";
 				};
 			};
-
-				if ( $showstyle == "context" && $showsubstyle != "tok"  ) {
+			
+				if ( $showstyle == "context" && $showsubstyle && $showsubstyle != "tok"  ) {
 					$expand = "--expand=$showsubstyle";
 				} else if ( $showstyle == "context" ) {
 					$context = $_POST['tokcnt'] or $context = $_GET['tokcnt'] or $context = $settings['cqp']['defaults']['context'] or $context = '30';

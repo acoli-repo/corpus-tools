@@ -706,7 +706,9 @@ function settokform(type, max=100) {
 		if ( tokxml == undefined ) { 
 			// We cannot find the orgtok - leave tok in place
 			tokxml = '';
-			console.log('Error: no orgtok found for '+tokid);
+			if ( typeof(debug) != 'undefined' ) {
+				console.log('Error: no orgtok found for '+tokid);
+			};
 		} else {
 			tok.innerHTML = tokxml;
 		};
