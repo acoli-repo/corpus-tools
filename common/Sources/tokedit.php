@@ -623,6 +623,7 @@
 				$tokpos = strpos($tmp, "id=\"$tokid\"");
 				$tmp2 = rstrpos($tmp, "<tok ", $tokpos);
 				$pbef = rstrpos($tmp, "<tok ", $tmp2-1);
+				if ( !$pbef ) $pbef = 0; # Avoid non-int error
 				$tmp2 = substr($tmp, $pbef, 30);
 				if ( preg_match("/id=\"([^\"]+)\"/", $tmp2, $matches ) ) $previd = $matches[1];
 			};
