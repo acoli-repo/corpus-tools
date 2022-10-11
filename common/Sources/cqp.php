@@ -17,7 +17,7 @@
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	if ( $settings['cqp']['subcorpora'] ) {
-		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'];
+		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'] or $subcorpus = "";
 		if ( !$subcorpus ) {
 			fatal("No subcorpus selected");
 		};

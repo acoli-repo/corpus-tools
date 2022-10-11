@@ -1155,7 +1155,10 @@
 		$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 		$cqpcorpus = strtoupper($cqpcorpus);
 
-		if ( !file_exists("cqp/slist.csv") ) {
+		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'] or $subcorpus = "";
+		if ( $subcorpus ) { $subf = "/$subcorpus"; };
+
+		if ( !file_exists("cqp$subf/slist.csv") ) {
 			$cql = "Matches = <s> []+ </s>; tabulate Matches match text_id, match s_id, match, matchend;";
 			$cmd = "echo '$cql' | cqp -c -r cqp -D $cqpcorpus > cqp/slist.csv";
 			shell_exec($cmd);
