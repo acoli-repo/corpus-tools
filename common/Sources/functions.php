@@ -1160,7 +1160,7 @@
 
 		if ( !file_exists("cqp$subf/slist.csv") ) {
 			$cql = "Matches = <s> []+ </s>; tabulate Matches match text_id, match s_id, match, matchend;";
-			$cmd = "echo '$cql' | cqp -c -r cqp -D $cqpcorpus > cqp/slist.csv";
+			$cmd = "echo '$cql' | cqp -c -r cqp -D $cqpcorpus > cqp$subf/slist.csv";
 			shell_exec($cmd);
 		};
 		
