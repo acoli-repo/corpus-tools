@@ -145,6 +145,7 @@
 		$cid = $_GET['cid'];
 		if ( !file_exists($cid) ) { fatal ( "File does not exist: $cid" ); };
 		
+		if ( !$bindir ) $bindir = "/usr/local/bin";
 		$exec = $settings['bin']['neotag'] or $exec = "$bindir/neotagxml";
 		
 		if ( $params['pid'] ) $moreopt .= " --pid='{$params['pid']}'";
