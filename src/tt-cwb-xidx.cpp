@@ -366,6 +366,7 @@ int main (int argc, char *argv[]) {
 	if ( clarg.find("to") != clarg.end() ) { avls[1] = clarg["to"];  };
 
 	if ( avls[0] == "" ) {
+		// Items given in line file
 		string input_line; vector<string> inputs; int pos1; int pos2;
 	    while(cin) {
     	    getline(cin, input_line);
