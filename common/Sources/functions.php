@@ -1154,13 +1154,18 @@
 		global $settings;
 		$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 		$cqpcorpus = strtoupper($cqpcorpus);
-
+		$cqpfolder = "cqp";
+		
 		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'] or $subcorpus = "";
-		if ( $subcorpus ) { $subf = "/$subcorpus"; };
+		if ( $subcorpus ) { 
+			$subf = "/$subcorpus"; 
+			$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
+			$cqpfolder = "cqp/$subcorpus";
+		};
 
 		if ( !file_exists("cqp$subf/slist.csv") ) {
 			$cql = "Matches = <s> []+ </s>; tabulate Matches match text_id, match s_id, match, matchend;";
-			$cmd = "echo '$cql' | cqp -c -r cqp -D $cqpcorpus > cqp$subf/slist.csv";
+			$cmd = "echo '$cql' | cqp -c -r $cqpfolder -D $cqpcorpus > cqp$subf/slist.csv";
 			shell_exec($cmd);
 		};
 		
