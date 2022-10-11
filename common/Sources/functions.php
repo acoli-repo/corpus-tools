@@ -1177,7 +1177,7 @@
 			return "";
 		};
 		
-		$xidxcmd = findapp('tt-cwb-xidx'); $cqpfolder = "cpq";
+		$xidxcmd = findapp('tt-cwb-xidx'); 
 		$cmd = "$xidxcmd --cqp='$cqpfolder' --filename='$fileid' $expand $leftpos $rightpos";
 		$result = shell_exec($cmd);
 	
