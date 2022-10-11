@@ -1169,7 +1169,7 @@
 			shell_exec($cmd);
 		};
 		
-		$cmd = "grep '$text\t$eid\t' cqp/slist.csv";
+		$cmd = "grep '$text\t$eid\t' cqp$subf/slist.csv";
 		$poss = shell_exec($cmd);
 		
 		list ( $fileid, $elementid, $leftpos, $rightpos ) = explode("\t", $poss);

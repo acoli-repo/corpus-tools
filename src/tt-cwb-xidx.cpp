@@ -267,6 +267,9 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 	xmlfile = cwb_avx_2_val("text_id", textid1);
 	// get the range
 	filename = cqpfolder + "/text_id.rng";
+
+	if ( debug > 2 ) { cout << "Corpus positions " << pos1 << " and " << pos2 << " belong to file " << filename << endl;  };
+
 	file = fopen ( filename.c_str() , "rb" );
 	int textrng0 = read_network_number(textid1*2, file);
 	int textrng1 = read_network_number(textid1*2+1, file);
@@ -361,7 +364,6 @@ int main (int argc, char *argv[]) {
 
 	if ( clarg.find("from") != clarg.end() ) { avls[0] = clarg["from"];  };
 	if ( clarg.find("to") != clarg.end() ) { avls[1] = clarg["to"];  };
-
 
 	if ( avls[0] == "" ) {
 		string input_line; vector<string> inputs; int pos1; int pos2;
