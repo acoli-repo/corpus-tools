@@ -139,7 +139,7 @@ function markback ( tokid ) {
 			seg.style.backgroundColor= seg.getAttribute('markupcolor'); 
 			
 			var segid = seg.getAttribute('annid');
-			console.log(reldefs[segid]);
+			if ( typeof(reldefs) != 'undefined' ) { console.log(reldefs[segid]); };
 			
 			newrow = '<table width=100%><tr><th colspan=2><b>' + seg.getElementsByTagName("ann").item(0).innerHTML + '</b></th></tr>';
 			for ( var ak in interp ) {
