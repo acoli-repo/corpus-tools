@@ -62,7 +62,7 @@
 	};
 	if ( $audiourl == "" ) fatal ("XML file $fileid has no media element providing a URL to the sound file");
 
-	if ( $settings['xmlfile']['paged']['element'] == "media" ) {
+	if ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['element'] == "media" ) {
 		$pagenav = $ttxml->pagenav;
 	};
 
