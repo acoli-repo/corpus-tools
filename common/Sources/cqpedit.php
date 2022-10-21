@@ -172,7 +172,10 @@
 				
 				# Now check if this is the right token
 				$orgform = $_POST['orgform'][$fid][$tokid];
-				if ( $orgform == "" || ( $token['form'] != $orgform && $token."" != $orgform ) ) {$maintext .= "<p> !! token $tokid does not seem to be the right token: $orgform expected, $token found - XML got modified?"; next;  };
+				if ( $orgform == "" || ( $token['form'] != $orgform && $token."" != $orgform ) ) {
+					$maintext .= "<p> !! token $tokid does not seem to be the right token: $orgform expected, $token found - XML got modified?"; 
+					next;  
+				};
 				if ( !$_POST['lineedit'] ) {
 					$maintext .= "<p> - modifying <a target=check href='index.php?action=file&cid=$fileid&tid=$tokid'>".$token['id']."</a> in $fileid";
 				};

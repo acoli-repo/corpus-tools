@@ -612,7 +612,7 @@
 	};
 	
 	$sep = "<hr style='clear: both; margin-top: 10px;'><p>";
-	if ( ( $settings['download']['admin'] != "1" && $settings['download']['disabled'] != "1" ) || $username ) {
+	if ( ( $settings['download']['admin'] != "1" || $username ) && $settings['download']['disabled'] != "1" ) {
 		$dltit = $settings['download']['title'] or $dltit = "Download XML";
 		$maintext .= "$sep<a href='index.php?action=getxml&cid=$fileid'>{%$dltit}</a> &bull; ";
 		$sep = "";
@@ -628,7 +628,7 @@
 	};
 	
 	if ( $audiobit ) {
-		if ( $username ) $maintext .= " &bull; <a href='index.php?action=audiomanage&cid=$fileid'>Audio management</a>";
+		if ( $username ) $maintext .= " $sep <a href='index.php?action=audiomanage&cid=$fileid'>Audio management</a>";
 		if ( !$settings['views']['wavesurfer'] ) $maintext .= " &bull; <a href='index.php?action=wavesurfer&cid=$fileid'>{%Waveform view}</a>";
 	};
 	

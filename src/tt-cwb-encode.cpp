@@ -660,9 +660,16 @@ void treatfile ( string filename ) {
 				string wlist = it->node().attribute("corresp").value();
 				string toka = wlist.substr(1,wlist.find(" ")-1);
 				string tokb = wlist.substr(wlist.find_last_of("#")+1);
-				if ( toka == "" || tokb == "" ) { continue; };
+				if ( toka == "" || tokb == "" ) { 
+					if ( verbose ) { cout << " Incorrect range: " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " to " << tokb << endl; };
+					continue; 
+				};
 				int posa = id_pos[toka]; // first "token" in the range
 				int posb = id_pos[tokb]; // last "token" in the range
+				if ( posb < posa ) { 
+					if ( verbose ) { cout << " Incorrect range: " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
+					continue;
+				}
 				if ( debug > 2 ) { cout << " Found a range " << tagname << " " << it->node().attribute("id").value() << " from " << toka << " (" << posa << ") to " << tokb << " (" << posb << ")" << endl; };
 
 				write_range(posa, posb, tagname);

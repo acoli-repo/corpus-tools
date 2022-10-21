@@ -7,8 +7,11 @@
 	if ( $settings['download']['admin'] == "1" && !$username ) 
 		{ fatal ("Download of XML files not permitted"); };
 
+	if ( $settings['download']['disabled'] == "1" ) 
+		{ fatal ("Download of XML files not permitted"); };
+
 	if ( !$settings['download']['options'] ) {
-		$downloadoptions = array ( "raw" => array ( cmd => "cat [fn]", "display" => "raw XML" ) ); 	
+		$downloadoptions = array ( "raw" => array ( "cmd" => "cat [fn]", "display" => "raw XML" ) ); 	
 	} else {
 		$downloadoptions = $settings['download']['options'];
 	};

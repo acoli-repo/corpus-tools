@@ -22,12 +22,13 @@ $scriptname = $0;
             'test' => \$test, # tokenize to string, do not change the database
             'keepns' => \$keepns, # do not kill the xmlns
             'nobu' => \$nobu, # do not create a backup
+            'nonl' => \$nonl, # do not introduce newlines
             'breaks' => \$addbreaks, # add breaks before every sentence
             'noinner' => \$noinner, # Do not keep inner-token punctuation marks
             'inner=s' => \$inner, # ... except for these
-            'pelms=s' => \$pelms, # ... except for these
-            'notok=s' => \$notoks, # ... except for these
-            'linebreaks' => \$linebreaks, # tokenize to string, do not change the database
+            'pelms=s' => \$pelms, # elements that should always block
+            'notok=s' => \$notoks, # elements that should not be tokenized (note)
+            'linebreaks' => \$linebreaks, # tokenize \n to string, do not change the XML
             'filename=s' => \$filename, # language of input
             'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
             'sent=i' => \$sentsplit, # split into sentences (1=yes, 2=only)
@@ -44,11 +45,12 @@ if ( $filename eq '' ) {
 	$filename = shift;
 };
 
-$pelms = "$pelms,div,head,p";
+$pelms = "$pelms,div,head,p"; $sep = "";
+$ptreg = $pelms; $ptreg =~ s/^,|,$//g;  $ptreg =~ s/,+/\|/g; 
 foreach $pelm ( split(",", $pelms) ) {
 	$pnts{$pelm} = 1;
-	$ptreg = $pelms; $ptreg =~ s/^,|,$//g;  $ptreg =~ s/,+/\|/g; 
-};
+	if ( $pelm) { $preg .= $sep.$pelm; $sep = "|"; };
+}; $preg = "<($preg)[ >\/]";
 
 $notoktype = "note|desc|gap|pb|fw|rdg";
 if ( $notoks ) {
@@ -96,11 +98,12 @@ if ( !$keepns ) {
 	$rawxml =~ s/ xmlns=/ xmlnsoff=/g;
 };
 
+
 # To avoid problems - put a new line after each </s></p>
-if ( !$nonl ) {
-	$rawxml =~ s/(<\/(p)>)(?!\n)/\1\n/g;
-	$rawxml =~ s/(?!\n)(<\/(p)[ >]>)/\n\1/g;
-};
+# if ( !$nonl ) {
+# 	$rawxml =~ s/(<\/(p)>)(?!\n)/\1\n/g;
+# 	$rawxml =~ s/(?!\n)(<\/(p)[ >]>)/\n\1/g;
+# };
 
 # We cannot have an XML tag span a line, so join them back on a single line
 # $rawxwl =~ s/<([^>]+)[\n\r]([^>]+)>/<\1 \2>/g;
@@ -142,7 +145,7 @@ if ( $linebreaks ) {
 
 if ( $sentsplit != 2 ) {
 	# There are some element that should never be inside a word - such as paragraphs. So add whitespace inside those to prevent errors
-	$tagtxt =~ s/(<\/($ptreg)>)(<($ptreg))(?=[ >])/\1\n\3/g;
+	# $tagtxt =~ s/(<\/($ptreg)>)(<($ptreg))(?=[ >])/\1\n\3/g;
 
 	# Deal with |~ encode line endings (from with page-by-page files)
 	$tagtxt =~ s/\s*\|~\s*((<[pl]b[^>]*>\s*?)*)\s*/\1/gsmi;
@@ -202,10 +205,17 @@ if ( $debug ) {
 	print "\n\n----------------\nBEFORE TOKENIZING\n----------------\n$tagtxt----------------\n";
 };
 
+
+# There are some element that should never berors
+if ( !$nonl ) {
+	print $preg;
+	$tagtxt =~ s/(?<![\n\r])($preg)/\n\1/g;
+};
+
 # Now actually tokenize
 # Go line by line to make it faster
 if ( $sentsplit != 2 ) {
-	foreach $line ( split ( "\n", $tagtxt ) ) {
+	foreach $line ( split ( "\0", $tagtxt ) ) {
 
 		# Protect XML tags
 		$line =~ s/<([a-zA-Z0-9]+)>/<\1%%>/g;
