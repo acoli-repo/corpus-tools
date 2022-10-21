@@ -47,7 +47,7 @@
 			};
 		};
 
-	if (  $settings['input']['replace'] ) {
+	if ( $settings['input'] && $settings['input']['replace'] ) {
 		$chareqjs .= "<p>{%Special characters}: "; $sep = "";
 		foreach ( $settings['input']['replace'] as $key => $item ) {
 			$val = $item['value'];
