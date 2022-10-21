@@ -387,7 +387,7 @@
 					$maintext .= "<tr><td><td style='color: grey'>$ffn";
 					$warnings = "<p class=warning>There are subfolders, while the settings do not allow for those. You should flatten the folder, or change the settings.";
 				};
-			} else if ( in_array($acar, ".$ext") ) {
+			} else if ( in_array(".$ext", $acar) ) {
 				$maintext .= "<tr><td><td style='color: grey'>$ffn (no allowed: $ext - ".join(",", $acar).")";
 			} else {
 				$maintext .= "<tr><td><a href='$baseurl$line' target=file>view</a>
