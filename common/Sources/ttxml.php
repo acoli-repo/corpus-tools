@@ -136,7 +136,7 @@ class TTXML
 		};
 		$mediabaseurl =  $settings['defaults']['media']['baseurl'] or $mediabaseurl =  $settings['defaults']['base']['media'] or $mediabaseurl = "Audio";
 		foreach ( $this->xml->xpath($mediaxp) as $medianode ) {
-			$mimetype = $medianode['mimeType'] or $mimetype = $medianode['mimetype'] or $mimetype = mime_content_type($medianode['url']);
+			$mimetype = $medianode['mimeType'] or $mimetype = $medianode['mimetype'] or $mimetype = mime_content_type($medianode['url']."");
 			list ( $mtype, $mform ) = explode ( '/', $mimetype );
 			if ( $mtype == "video" ) {
 				array_push($this->video, $medianode);
@@ -887,6 +887,7 @@ class TTXML
 			list ( $doaction, $dolvl ) = explode ( ":", $key );
 			if ( $action != $doaction || ($dolvl && $dolvl != $_GET['elm']) ) {
 
+			# Keep the reference to the selected element in the URL
 			$elmref = "";
 			if ( $_GET['pageid'] ) $elmref .= "&pageid={$_GET['pageid']}";
 			if ( $_GET['sid'] ) $elmref .= "&sid={$_GET['sid']}";

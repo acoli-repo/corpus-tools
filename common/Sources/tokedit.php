@@ -58,7 +58,7 @@
 	if ( $title == "" ) $title = "<i>{%Without Title}</i>";
 
 	// Allow replacing special symbols by simple ASCII sequences
-	if (  $settings['input']['replace'] ) {
+	if ( $settings['input'] && $settings['input']['replace'] ) {
 		$chareqjs .= "<p>{%Special characters}: "; $sep = "";
 		foreach ( $settings['input']['replace'] as $key => $item ) {
 			$val = $item['value'];
