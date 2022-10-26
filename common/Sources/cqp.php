@@ -124,7 +124,7 @@
 		
 			<form action='index.php?action=$action&act=$act' method=post>
 				<textarea style='width: 100%; height: 200px;' name=query>{$_POST['query']}</textarea>
-				<p><input type=submit value='Execute'>
+				<p><input type=submit value='Execute'> <input type=checkbox name=raw value=1> Render as plain text
 			</form>";
 
 		if ( $_POST['query'] ) {
@@ -136,7 +136,10 @@
 			$result = $cqp->exec($_POST['query']);
 			if ( $result == "\n" ) $result = "No result";
 		
-			$maintext .= "<hr><h2>Result</h2><pre>".htmlentities($result)."</pre>";
+			if ( $_POST['raw'] ) {
+				header('Content-Type: text/plain; charset=utf-8');
+				print $result; exit;
+			} else $maintext .= "<hr><h2>Result</h2><pre>".htmlentities($result)."</pre>";
 		};
 	
 
