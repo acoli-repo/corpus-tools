@@ -89,7 +89,9 @@ void treatfile ( string filename ) {
 	string sep;
 
     if (!doc.load_file(filename.c_str(), pugi::parse_ws_pcdata)) {
-        cout << "  Failed to load XML file " << filename << endl;
+        if ( verbose ) {
+        	cout << "  Failed to load XML file " << filename << endl;
+        };
     	return;
     };
 
@@ -368,9 +370,9 @@ int main(int argc, char *argv[])
 		if (dfile.is_open()) {
 			string tfile;
 			while (getline(dfile, tfile)) {
-				if ( debug > 1 ) {
-					cout << "  - Analyzing file: " << tfile << endl;    	
-				};
+			if ( debug > 1 ) {
+				cout << "  - Analyzing file: " << tfile << endl;    	
+			};
 				treatfile(tfile);
 			}
 			dfile.close();
