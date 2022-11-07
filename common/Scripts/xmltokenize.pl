@@ -26,8 +26,9 @@ $scriptname = $0;
             'breaks' => \$addbreaks, # add breaks before every sentence
             'noinner' => \$noinner, # Do not keep inner-token punctuation marks
             'inner=s' => \$inner, # ... except for these
-            'pelms=s' => \$pelms, # elements that should always block
+            'pelms=s' => \$pelms, # elements that should always become blocks (start new sentence)
             'notok=s' => \$notoks, # elements that should not be tokenized (note)
+            'flush=s' => \$flush, # elements that should receive a nl before
             'linebreaks' => \$linebreaks, # tokenize \n to string, do not change the XML
             'filename=s' => \$filename, # language of input
             'mtxtelm=s' => \$mtxtelm, # what to use as the text to tokenize
@@ -45,7 +46,7 @@ if ( $filename eq '' ) {
 	$filename = shift;
 };
 
-$pelms = "$pelms,div,head,p"; $sep = "";
+$pelms = "$pelms,div,head,p,u,speaker"; $sep = "";
 $ptreg = $pelms; $ptreg =~ s/^,|,$//g;  $ptreg =~ s/,+/\|/g; 
 foreach $pelm ( split(",", $pelms) ) {
 	$pnts{$pelm} = 1;
@@ -56,6 +57,7 @@ $notoktype = "note|desc|gap|pb|fw|rdg";
 if ( $notoks ) {
 	$notoktype = $notoks; $notoktype =~ s/^,|,$//g;  $notoktype =~ s/,+/\|/g; 
 }; 
+
 
 if ( $filename eq '' ) {
 	print " -- usage: xmltokenize.pl --filename=[fn]"; exit;
@@ -128,6 +130,14 @@ else { print "No element <$mtxtelm>"; exit; };
 $lc = 0; while ( $tagtxt =~ /<([^>\n\r]*?)[\n\r]+\s*/g && $lc++ < 5) {
 	# print $tagtxt;
 	$tagtxt =~ s/<([^>\n\r]*?)[\n\r]+\s*/<\1 /g;
+};
+
+# Add newlines where asked
+if ( $flush ) {
+	foreach $pelm ( split(",", $flush) ) {
+		if ( $pelm ) { $flreg .= $sep.$pelm; $sep = "|"; };
+	}; $flreg = "(?<!\n)<($flreg)[ >\/]";
+	$tagtxt =~ s/$flreg/\n$&/g;
 };
 
 
@@ -206,9 +216,9 @@ if ( $debug ) {
 };
 
 
-# There are some element that should never berors
+# There are some element that should never be broken
 if ( !$nonl ) {
-	print $preg;
+	if ( $debug ) { print "Adding newlines to: "; $preg; };
 	$tagtxt =~ s/(?<![\n\r])($preg)/\n\1/g;
 };
 

@@ -69,7 +69,7 @@ if ( $sub ) {
 		
 		print FILE '----------------------';
 		print FILE '(1) Encoding subcorpus $fn';
-		$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder --folder='$sf' --corpusfolder='cqp/$fn' --corpus='$subcorpus' $setfile";
+		$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder --folder='$sf' --corpusfolder='cqp/$fn' --corpus='$subcorpus' $setopt";
 		print FILE "command:
 		$cmd";
 		`$cmd`;
@@ -92,7 +92,7 @@ if ( $sub ) {
 		if ( $sub eq 'both' ) {
 			print FILE '----------------------';
 			print FILE '(1) Encoding full corpus$';
-			$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder --corpusfolder='cqp/full' --corpus='$cqpcorpus'  $setfile";
+			$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder --corpusfolder='cqp/full' --corpus='$cqpcorpus'  $setopt";
 			print FILE "command:
 			$cmd";
 			`$cmd`;
@@ -110,7 +110,7 @@ if ( $sub ) {
 
 	print FILE '----------------------';
 	print FILE '(1) Encoding the corpus';
-	$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder  $setfile";
+	$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder  $setopt";
 	print FILE "command:
 	$cmd ";
 	`$cmd`;

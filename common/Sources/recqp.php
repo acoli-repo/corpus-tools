@@ -80,7 +80,9 @@
 			
 	} else if ( ( file_exists("Scripts/recqp.pl") || file_exists("$sharedfolder/Scripts/recqp.pl") || file_exists("$ttroot/common/Scripts/recqp.pl") ) && !$_GET['check'] && !$_GET['force'] ) {
 
-		if ( $sharedsettings['cqp'] && !$settings['cqp']['noshare'] ) {
+		if ( $setfile ) {
+			$setfile = " --setfile='$setfile'";
+		} else if (  $sharedsettings['cqp'] && !$settings['cqp']['noshare'] ) {
 			$merged = makesettings($settings);
 			if ( $merged ) {
 				file_put_contents("tmp/cqpsettings.xml", $merged->asXML());
@@ -89,6 +91,7 @@
 						and are based on a compiled settings file tmp/cqpsettings.xml</p>";
 			};
 		};
+		if ( !$cqpfolder ) 		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
 		
 		if ( ( file_exists("cqp/word.corpus")	&& !is_writable("cqp/word.corpus") ) || !is_writable("cqp") ) 
 			fatal("The permissions on the CQP files prevent the system from writing them");		
@@ -124,13 +127,20 @@
 		$maintext .= "<p>The generation process seems to have terminated successfully. The transcript of the process
 			can be read below. 
 			<p>Click <a href='index.php?action=cqp'>here</a> to continute to the CQP search
+			<p>Click <a href='index.php?action=recqp'>here</a> to regenerate again
 			
 				<hr><pre>$logtxt</pre>";
 		
-		if ( strpos($logtxt, "tmp/cqpsettings.xml") != null && file_exists("tmp/cqpsettings.xml") ) {
-			$comb = simplexml_load_file("tmp/cqpsettings.xml");
-			$maintext .= "<hr><p>The regeneration was done based on a combination of local and shared setings<p>";
-			if ( $user['permissions'] == "admin" ) $maintext .= showxml($comb);
+		if ( preg_match("/--settings='([^']+)'/", $logtxt, $matches) ) {
+			$sf = $matches[1]; 
+			$comb = simplexml_load_file($sf);
+			if ( $comb ) {
+				if ( $sf == "tmp/cqpsettings.xml" )
+					$maintext .= "<hr><p>The regeneration was done based on a combination of local and shared setings<p>";
+				else
+					$maintext .= "<hr><p>The regeneration was done based on custom setings<p>";
+				if ( $user['permissions'] == "admin" ) $maintext .= showxml($comb);
+			};
 		};
 
 	} else if ( $_GET['check'] ) {
