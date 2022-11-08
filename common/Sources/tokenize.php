@@ -24,7 +24,8 @@
 		if ( $settings['xmlfile']['linebreaks'] ) { $lbcmd = " --linebreaks "; };
 		if ( $_GET['s'] ) { $lbcmd .= " --s={$_GET['s']} "; }; # Sentence split
 
-		$tmp = ""; try { $tmp = $settings['defaults']['tokenizer']['sentences']; } catch (exception $e) {};
+		$tmp = ""; 
+		if (is_array($settings['defaults']['tokenizer'])) $tmp = $settings['defaults']['tokenizer']['sentences'];
 		if ( $tmp ) $lbcmd .= " --sent=1";
 
 		# Build the UNIX command
