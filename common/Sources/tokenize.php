@@ -33,7 +33,7 @@
 		$cmd = "$perlapp $scrt/common/Scripts/xmltokenize.pl --mtxtelm=$mtxtelm --filename='xmlfiles/$fileid' $lbcmd ";
 		# print $cmd; exit;
 		$res = shell_exec($cmd);
-		for ( $i=0; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...
+		for ( $i=1; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...
 		
 		if ( strpos($res, "Invalid XML") !== false ) { 
 			$maintext .= "<p>Tokenization failed - potentially due to the use of namespaces in the XML file, which are not supported by the Perl tokenization module";
