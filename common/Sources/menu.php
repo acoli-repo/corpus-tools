@@ -125,11 +125,7 @@
 				$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action={$func['key']}' $tmp>{%{$func['display']}}</a></ul>";
 			};
 		}; }; 
-		if ( !$idtype && $_SESSION['extid'][''] ) {
-			$shortuserid = $_SESSION['extid'][$idtype];
-			$userid = $shortuserid;
-			$menu .= "<hr>SSO: <a href='index.php?action=$idaction'>$shortuserid</a><hr>";
-		} else if ( !$idtype && !$settings['menu']['nologin'] ) {
+		if ( !$idtype && !$settings['menu']['nologin'] ) {
 	  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=login'><i>Login</i></a></ul>";
 		};
 	} else if ( !$settings['menu']['nologin']  ){
