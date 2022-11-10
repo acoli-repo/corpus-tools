@@ -151,7 +151,7 @@ use XML::LibXML;
 	# Number the utterances
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//u")) {
-		$ttnode->setAttribute('id', "u", ++$cnt);
+		addid($ttnode, "u", ++$cnt);
 	}; 
 	
 	# Number the breaks and other empty elements
