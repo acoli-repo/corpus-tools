@@ -61,6 +61,8 @@
 			define('SMARTY_DIR', '/usr/local/share/smarty/libs/');
 		else if ( file_exists('/usr/local/lib/smarty/libs/Smarty.class.php') ) 
 			define('SMARTY_DIR', '/usr/local/lib/smarty/libs/');
+		else 
+			define('SMARTY_DIR', '/home/git/smarty/libs/');
 	};
 	if ( !file_exists(SMARTY_DIR . 'Smarty.class.php') ) {
 		if ( $username ) {

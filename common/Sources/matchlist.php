@@ -6,21 +6,24 @@
 	$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "";
 
 	require_once ("$ttroot/common/Sources/querybuilder.php");
-	$showlist = "<p>";
+	$showlist = "<table><tr><th>Token<td>";
 	foreach ( $cqpcols as $col ) {
-		if ( in_array($col, array_keys($_POST['attlist']) ) ) $chk = "checked"; else $chk = "";
+		if ( is_array($_POST['attlist']) && in_array($col, array_keys($_POST['attlist']) ) ) $chk = "checked"; else $chk = "";
 		$showlist .= " <input type=checkbox name=attlist[$col] value='1' $chk> ".pattname($col);
 	};
 	foreach ( $settings['cqp']['sattributes'] as $lvl ) {
-		$showlist .= "<p>";
+		$levdisp = $lvl['display'] or $levdisp = $lvl['key'];
+		$row = "";
 		foreach ( $lvl as $xatt ) {
-			if ( !$xatt['display'] || !$xatt['key'] || !is_array($xatt) ) continue;
+			if ( !is_array($xatt) || !$xatt['display'] || !$xatt['key'] ) continue;
 			$display = $xatt['display'] or $display =  $xatt['key'];
 			$col = "{$lvl['key']}_{$xatt['key']}";
-			if ( in_array($col, array_keys($_POST['attlist']) ) ) $chk = "checked"; else $chk = "";
-			$showlist .= " <input type=checkbox name=attlist[$col] value='1' $chk> {%$display}";
+			if ( is_array($_POST['attlist']) && in_array($col, array_keys($_POST['attlist']) ) ) $chk = "checked"; else $chk = "";
+			$row .= " <input type=checkbox name=attlist[$col] value='1' $chk> {%$display}";
 		};
+		if ( $row ) $showlist .= "<tr><th>$levdisp<td>$row";
 	};
+	$showlist .= "</table>";
 
 
 	$maintext .= "<h1>CQP Match List</h1>
@@ -47,39 +50,43 @@
 		<div>
 		";
 
-	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-	$cqpfolder = $settings['cqp']['searchfolder'];
-
-	include ("$ttroot/common/Sources/cwcqp.php");
-
-	$cqp = new CQP();
-	$cqp->exec($cqpcorpus); // Select the corpus
-
 	if ( $cql ) {
-		$cqpquery = "Matches = $cql";
-		$cqp->exec($cqpquery);
+
+		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = $settings['cqp']['searchfolder'];
+
+		include ("$ttroot/common/Sources/cwcqp.php");
+
+		$cqp = new CQP();
+		$cqp->exec($cqpcorpus); // Select the corpus
+
+		if ( $cql ) {
+			$cqpquery = "Matches = $cql";
+			$cqp->exec($cqpquery);
 	
-		$sep = ""; foreach ( array_keys($_POST['attlist']) as $att ) {
-			$attlist .= "$sep match $att"; $sep = ", ";
-			$headerrow .= "<th>".pattname($att);
-		};
-		if ( $attlist == "" ) {
-			$attlist = "match form, match id, match text_id";
-			$headerrow = "<tr><th>Word<th>ID<th>Text ID";
-		} else $headerrow = "<tr>$headerrow";
+			$sep = ""; foreach ( array_keys($_POST['attlist']) as $att ) {
+				$attlist .= "$sep match $att"; $sep = ", ";
+				$headerrow .= "<th>".pattname($att);
+			};
+			if ( $attlist == "" ) {
+				$attlist = "match form, match id, match text_id";
+				$headerrow = "<tr><th>Word<th>ID<th>Text ID";
+			} else $headerrow = "<tr>$headerrow";
 
-		$perpage = $_GET['perpage'] or $perpage = 50; 
-		$start = $_GET['start'] or $start = 0; 
-		$end = $_GET['end'] or $end = $perpage; 
+			$perpage = $_GET['perpage'] or $perpage = 50; 
+			$start = $_GET['start'] or $start = 0; 
+			$end = $_GET['end'] or $end = $perpage; 
 
-		$cqpquery = "tabulate Matches $start $end $attlist";
-		$results = $cqp->exec($cqpquery);
+			$cqpquery = "tabulate Matches $start $end $attlist";
+			$results = $cqp->exec($cqpquery);
 		
-		$maintext .= "<p><hr><table>$headerrow";
-		foreach ( explode("\n", $results) as $result ) {
-			$maintext .= "<tr><td>".join("<td>", explode("\t", $result));
+			$maintext .= "<p><hr><table>$headerrow";
+			foreach ( explode("\n", $results) as $result ) {
+				$maintext .= "<tr><td>".join("<td>", explode("\t", $result));
+			};
+			$maintext .= "</table>";
 		};
-		$maintext .= "</table>";
+	
 	};
 	
 ?>
