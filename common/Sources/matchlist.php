@@ -25,14 +25,16 @@
 	};
 	$showlist .= "</table>";
 
-
-	$maintext .= "<h1>CQP Match List</h1>
-			$cqlfld
-
+	$myform = str_replace("</form>", "", $cqlfld)."
 			<h2>Features to show</h2>
 			$showlist
 
-			</form>
+			</form>";
+	
+
+	$maintext .= "<h1>CQP Match List</h1>
+			$myform
+
 			$chareqjs
 			$tagbuilder
 			<div style='display: none;' class='helpbox' id='cqlview'></div>
