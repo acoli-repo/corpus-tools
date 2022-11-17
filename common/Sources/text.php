@@ -706,7 +706,8 @@
 			$maintext .= "<li><a href='index.php?action=xmllayout&cid=$fileid'>Edit XML Layout</a>";
 		};
 		
-		# Check if we can run the parser
+		# Check if we can run the parser/neotag
+		# TODO: This should be changed to the NLP pipeline and/or the API
 		if ( $settings['parser'] ) {
 			if ( $settings['parser']['xprest'] ) {
 				if ( $ttxml->xml->xpath($settings['parser']['xprest']) ) {
@@ -720,6 +721,9 @@
 			if ( !$parsername ) $parsername = "parser";
 			$maintext .= "<li><a href='index.php?action=parser&cid=$fileid'>Run $parsername</a>";
 		};
+		if ( $settings['neotag'] && !strstr($editxml, "pos=") && strstr($editxml, "<tok") ) {
+			$maintext .= "<li><a href='index.php?action=neotag&act=tag&pid=auto&cid=xmlfiles/$fileid'>(Pre)tag this text with POS (and lemma)</a>";
+		};
 		
 		if (is_array($filesources)) 
 		foreach ( $filesources as $key => $val ) {
@@ -729,9 +733,6 @@
 			$maintext .= "<li><a href='$link'>$ln</a>";
 		};
 		
-		if ( $settings['neotag'] && !strstr($editxml, "pos=") && strstr($editxml, "<tok") ) {
-			$maintext .= "<li><a href='index.php?action=neotag&act=tag&pid=auto&cid=xmlfiles/$fileid'>(Pre)tag this text with POS (and lemma)</a>";
-		};
 		$maintext .= "</ul></div>";
 	} else if ( $ssouser ) {
 		$maintext .= "$ssooptions";

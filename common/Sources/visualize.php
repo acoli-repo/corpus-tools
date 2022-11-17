@@ -319,7 +319,7 @@
 						foreach ( explode("\n", $cqpresults) as $line ) {
 							list ( $grp, $cnt ) = explode ( "\t", $line );
 							$grp = str_replace("'", "\\'", $grp); # Protect '
-							$perc = sprintf("%0.2f", (int($cnt)/int($totcnt))*100);
+							$perc = sprintf("%0.2f", (intval($cnt)/intval($totcnt))*100);
 							if ( $grp && $cnt ) $json .= "['$grp', $cnt, $perc], ";
 						};
 						$json .= "]";

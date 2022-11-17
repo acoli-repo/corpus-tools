@@ -427,6 +427,7 @@
 			<hr><ul id=sortlist>";
 		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
 
+			if ( !is_array($item) ) continue;
 			if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
 			$cat = $item['display']; # $val = $item['long'] or
 

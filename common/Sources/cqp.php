@@ -858,7 +858,8 @@
 				$freqopts .= "<option value=\"$key\">{%$pattname}</option>";
 			};
 			foreach ( $settings['cqp']['sattributes'] as $lvl => $tmp ) {
-				if ( !$tmp['display'] && $val['freq'] != "yes" ) continue; # Skip non-searchable levels (unless explicitly freqable)
+				if ( !is_array($tmp) ) continue; # Skip non-items
+				if ( !$tmp['display'] && ( is_array($val) && $val['freq'] != "yes" ) ) continue; # Skip non-searchable levels (unless explicitly freqable)
 				foreach ( $tmp as $key => $val ) {
 					if ( !is_array($val) ) continue;
 					if ( ( $val['nosearch'] || $val['freq'] == "no"  || ( $att['admin'] && !$username ) ) && $val['freq'] != "yes" ) continue; # Skip non-searchable fields (unless explicitly freqable)

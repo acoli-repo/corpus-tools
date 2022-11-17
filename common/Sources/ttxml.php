@@ -730,7 +730,7 @@ class TTXML
 		$bidx = rstrpos($editxml, "<$pbelm ", $pidx-1); 
 		if ( !$bidx || $bidx == -1 ) { 
 			$bidx = strpos($editxml, "<text", 0); 
-			if ( $action == "text" || $action == "file" || $settings['xmlfile']['paged']['index'] ) $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
+			if ( $action == "text" || $action == "file" || ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['index'] ) ) $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
 		} else {
 			$tmp = substr($editxml, $bidx, 150 ); 
 			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $bpid = $matches[1]; };

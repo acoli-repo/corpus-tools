@@ -202,7 +202,7 @@
 
 		$svg = "\n<svg width=\"100%\" viewBox=\"0 0 {$imgsize[0]} {$imgsize[1]}\" xmlns=\"http://www.w3.org/2000/svg\">";
 		list ( $ulx, $uly, $lrx, $lry ) = explode(" ", $lb['bbox']);
-		$h = $lry-$uly; $w = $lrx-$ulx;
+		$h = intval($lry)-intval($uly); $w = intval($lrx)-intval($ulx);
 		if ( $lb['facs'] || $lb['corresp'] ) {
 			$facsid = $lb['corresp'] or $facsid = $lb['facs'];
 			$facsid = substr($facsid,1);
