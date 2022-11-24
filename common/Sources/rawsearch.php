@@ -6,7 +6,7 @@
 
 	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
 	$query = $_GET['query'];
-		$cqpfolder = $settings['cqp']['searchfolder'];
+	$cqpfolder = $settings['cqp']['searchfolder'];
 	
 	if ( $_GET['text'] || $_GET['prefix'] ){
 		

@@ -9,6 +9,7 @@ var tokinfo = document.getElementById('tokinfo');
 if ( !tokinfo ) {
 	var tokinfo = document.createElement("div"); 
 	tokinfo.setAttribute('id', 'tokinfo');
+	tokinfo.style.zIndex = 30000;
 	document.body.appendChild(tokinfo);
 };
 

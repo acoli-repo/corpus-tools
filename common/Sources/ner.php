@@ -4,7 +4,8 @@
 	# Maarten Janssen, 2020
 
 	$viewname = $settings['xmlfile']['ner']['title'] or $viewname = "Named Entity View";
-
+	$correspatt = $settings['xmlfile']['ner']['corresp'] or $correspatt = "corresp";
+	
 	if ( !$_GET['cid'] ) $_GET['cid']  = $_GET['id'];
 	$nertitle = $settings['xmlfile']['ner']['title'] or $nertitle = "Named Entities";
 	$neritemname = $settings['xmlfile']['ner']['item'] or $neritemname = "entity";
@@ -305,7 +306,7 @@
 
 		if ( !$ename ) $ename = $sattdef['display'];
 		
-		if ( !$sattdef && $nerxml ) $sattdef = array ( "corresp" => array ("display" => "NER id") );
+		if ( !$sattdef && $nerxml ) $sattdef = array ( $correspatt => array ("display" => "NER id") );
 		
 		$maintext .= "
 			<h2>".$ttxml->title()."</h2>
@@ -339,8 +340,8 @@
 		$maintext .= "<hr>
 		<input type=submit value=\"Save\">
 		<a href=\"index.php?action=$action&cid=$fileid\">cancel</a>";
-		$corresp = preg_replace("/.*#/", "", $nernode['corresp']);
-		if ( $nernode['corresp'] ) $maintext .= "
+		$corresp = preg_replace("/.*#/", "", $nernode[$correspatt]);
+		if ( $nernode[$correspatt] ) $maintext .= "
 			&bull;
 			<a href=\"index.php?action=$action&nerid=$corresp\">view record</a>
 			";
@@ -364,7 +365,7 @@
 		</script>
 		";
 
-		$correspid = $nernode['corresp']; $elmtext = preg_replace("/<[^>]+>/", "", makexml($nernode));
+		$correspid = $nernode[$correspatt]; $elmtext = preg_replace("/<[^>]+>/", "", makexml($nernode));
 		if ( $correspid ) {
 			$nerid = $correspid; if ( strpos($nerid, '#') ) $nerid = substr($nerid, strpos($nerid, '#')+1);
 			$nertype = $nerdef['key'];
@@ -395,7 +396,7 @@
 					if ( $nerrec ) { 
 						$nerlemma = current($nerrec->xpath(".//{$nerdef['elm']}"));
 					};
-					$linkoptions .= "<tr><td><a onclick=\"var celm = document.getElementById('tagform').elements['atts[corresp]']; if ( celm ) { celm.value = '$ref'; } else { alert('no corresp'); };\">$ref</a><td>$nertext<td>$nerlemma";
+					$linkoptions .= "<tr><td><a onclick=\"var celm = document.getElementById('tagform').elements['atts[$correspatt]']; if ( celm ) { celm.value = '$ref'; } else { alert('no corresp'); };\">$ref</a><td>$nertext<td>$nerlemma";
 				};
 			};
 			
@@ -458,9 +459,9 @@
 			$nertype = $_POST['type'][$key];
 			$nernode = $settings['xmlfile']['ner']['tags'][$nertype]['elm'];
 			$toklist = $_POST['toks'][$key];
-			print "<hr>$key: {$_POST['toks'][$key]} = $nernode  / {$_POST['corresp'][$key]}</hr>";
+			print "<hr>$key: {$_POST['toks'][$key]} = $nernode  / {$_POST[$correspatt][$key]}</hr>";
 			$newner = addparentnode($ttxml->xml, $toklist , $nernode);
-			$newner->setAttribute('corresp', $_POST['corresp'][$key]);
+			$newner->setAttribute($correspatt, $_POST[$correspatt][$key]);
 		};
 		
 		print "<hr>";
@@ -518,7 +519,7 @@
 		if ( $nerrec ) {
 			$nerrecid = $nerrec['id'];
 			$maintext .= showxml($nerrec);
-			$nernode['corresp'] = "$nerbase#".$nerrecid;
+			$nernode[$correspatt] = "$nerbase#".$nerrecid;
 			# Save the XML
 			$gotosave = 1;
 		} else  if ( $_GET['wid'] ) {
@@ -570,8 +571,8 @@
 				# New record
 				
 				$nerrecid = $nerdata['id'];
-				$nernode['corresp'] = "$nerbase#".$nerrecid;
-				print  "<p>Updating NER : $nerid => {$nernode['corresp']}";
+				$nernode[$correspatt] = "$nerbase#".$nerrecid;
+				print  "<p>Updating NER : $nerid => {$nernode[$correspatt]}";
 				$maintext .= showxml($nernode);
 				
 				# Save the XML
@@ -623,7 +624,7 @@
 				};
 				if ( $morelemma == $lemma ) {
 					print "<p>Match! {$morenode['id']} = $morelemma";
-					$morenode['corresp'] = $nernode['corresp'];
+					$morenode[$correspatt] = $nernode[$correspatt];
 				};
 			};
 			$ttxml->save();
@@ -773,7 +774,9 @@
 					$valelm = $val['indexelm'] or $valelm = $val['elm'];
 					$tmp = $nernode->xpath(".//$valelm");
 					if ( $tmp ) {
-						$name = current($tmp)."";
+						$tmp2 = current($tmp);
+						if ( $tmp2 ) $name = $tmp2->asXMl();
+						else $name = $nerid;
 						$type = $val['display'];
 						last;
 					};
@@ -887,6 +890,7 @@
 		};
 		if ( !$name && $_GET['name'] ) $name = "<i>".$_GET['name']."</i>";
 		if ( !$name ) $name = $nerdef['display'];
+		if ( !$name ) $name = $nernode->textContent;
 		if ( !$name ) $name = $nerid;
 	
 		if ( !$nernode ) {
@@ -1027,6 +1031,8 @@
 		include ("$ttroot/common/Sources/cwcqp.php");
 		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+
+		# Sanity check
 
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
