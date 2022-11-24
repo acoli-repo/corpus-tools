@@ -595,6 +595,7 @@ void treatfile ( string filename ) {
 							extid = replace_all(extid, ">", "&gt;" );
 							extid = replace_all(extid, "<", "&lt;" );
 							extid = replace_all(extid, "\n", " " );
+							extid = replace_all(extid, "'", "&quot;" ); // There is no quote escaping in XPath literals
 			
 							if ( exfile != "" ) {
 								exfile = "Resources/" + exfile;
