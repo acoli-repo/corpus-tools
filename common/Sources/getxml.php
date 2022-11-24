@@ -51,6 +51,7 @@
 			<p>{%Select download format}
 			<table>";
 			
+		$some = 0;
 		foreach ( $downloadoptions as $key => $val ) {
 			if ( $val['admin'] )
 			if ( $username ) $admp = ' class="adminpart" ';
@@ -59,10 +60,13 @@
 				if ( $val['xprest'] && $ttxml->xml->xpath($val['xprest']) ) continue;
 				if ( $val['xpcond'] && !$ttxml->xml->xpath($val['xpcond']) ) continue;
 			};
+			$some = 1;
 			$maintext .= "<tr><td><a $admp href='index.php?action=$action&type=$key&cid=$fileid'>{%{$val['display']}}</a>
 				<td>{$val['description']}";
 		};
 		$maintext .= "</table>";
+		if ( !$some ) $maintext .= "{%no download allowed}";
+
 	};
 
 ?>

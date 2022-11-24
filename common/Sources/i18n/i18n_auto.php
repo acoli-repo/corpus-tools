@@ -121,6 +121,7 @@
 		"Edit queries" => "Edit queries",
 		"fullscreen" => "fullscreen",
 		"Select download format" => "Select download format",
+		"no download allowed" => "no download allowed",
 		"contains" => "contains",
 		"Hightlighting Query" => "Hightlighting Query",
 		"Select a document" => "Select a document",
