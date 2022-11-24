@@ -374,7 +374,8 @@
 						$querytext .= "<tr><th span='row' $atp>{%$val}<td><input name=atts[$xkey:start] value='' size=10>-<input name=atts[$xkey:end] value='' size=10>";
 					else if ( $item['type'] == "date" ) 
 						## TODO: this is not really a nice solution
-						$querytext .= "<tr><th span='row' $atp>{%$val}<td><input name=atts[$xkey] value='' placeholder='YYYY-MM-DD' size=40>";
+						$querytext .= "<tr><th span='row' $atp>{%$val}<td><input name=atts[$xkey] value='' placeholder='YYYY-MM-DD' size=40>
+							<input type='hidden' name=matches[$xkey] value='startswith'>";
 					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
 						# Read this index file
 						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
