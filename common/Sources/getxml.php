@@ -52,11 +52,14 @@
 			<table>";
 			
 		foreach ( $downloadoptions as $key => $val ) {
+			if ( $val['admin'] )
+			if ( $username ) $admp = ' class="adminpart" ';
+			else continue;
 			if ( $val['xprest'] || $val['xpcond'] ) {
 				if ( $val['xprest'] && $ttxml->xml->xpath($val['xprest']) ) continue;
 				if ( $val['xpcond'] && !$ttxml->xml->xpath($val['xpcond']) ) continue;
 			};
-			$maintext .= "<tr><td><a href='index.php?action=$action&type=$key&cid=$fileid'>{%{$val['display']}}</a>
+			$maintext .= "<tr><td><a $admp href='index.php?action=$action&type=$key&cid=$fileid'>{%{$val['display']}}</a>
 				<td>{$val['description']}";
 		};
 		$maintext .= "</table>";
