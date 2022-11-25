@@ -213,8 +213,8 @@ if ( $test ) {
 
 sub addid($xnode, $newid, $newcnt) { 
 	( $xnode, $newid, $newcnt ) = @_; 
-	$oldid = $xnode->getAttribute('id');
-	if ( $newcnt && ( !$oldid || $override || $oldid eq "torenew" ) ) { 
+	$oldid = $xnode->getAttribute('id'); $toset = 0;
+	if ( $newcnt && ( !$oldid || $override || $oldid eq "torenew" || $used{$oldid} ) ) { 
 		$tmp = $newid.'-'.$newcnt;
 		# make sure IDs are unique
 		if ( !$override ) {
@@ -223,9 +223,13 @@ sub addid($xnode, $newid, $newcnt) {
 			};
 		};
 		$newid = $tmp;
-	}
+		$toset = 1;
+		$used{$newid} = 1; 
+	} else { 
+		$used{$oldid} = 1; 
+	};
 	if ( $oldid eq "torenew" ) { $oldid = ""; $gotoid = $newid; print "NEWID: $gotoid"; };
-	if ( !$oldid || $override ) {
+	if ( $toset || $override ) {
 		if ( $debug ) { print "Setting ID to $newid\n"; };
 		$xnode->setAttribute('id', $newid);
 	};
