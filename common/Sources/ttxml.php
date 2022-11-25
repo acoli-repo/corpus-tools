@@ -225,7 +225,7 @@ class TTXML
 	}
 		
 	function tableheader( $tpl = "", $showbottom = true ) {
-		global $username; global $settings;
+		global $username; global $settings; global $lang;
 		if (!$this->xml) return "";
 
 		// Determine which header to show
@@ -262,6 +262,7 @@ class TTXML
 				$xval = current($this->xml->xpath($val['xpath']));
 				if ( $xval && ( !$val['admin'] || $username ) ) {
 					if ( in_array($tpl, explode(",", $val['show'])) || ( !$val['show'] && $tpl == "long" ) ) {
+						if ( $val['lang'] && $val['lang'] != $lang ) continue;
 						if ( preg_match("/@[^\/]+$/", $val['xpath']) ) $hval = "".$xval;
 						else $hval = preg_replace( "/^<[^>]+>|<[^>]+>$/", "", $xval->asXML());
 						// Link when so asked
