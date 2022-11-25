@@ -433,7 +433,9 @@
 				foreach ( $fatts as $key => $fatt ) {
 					$attit = $atttik[$key];
 					$tmp = $settings['cqp']['sattributes']['text'][$attit]['type'];
-					if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" ) {
+					if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" ||
+						 $settings['cqp']['sattributes']['text'][$attit]['translate']
+						 ) {
 						if ( $settings['cqp']['sattributes']['text'][$attit]['values'] == "multi" ) {
 							$fatts[$key] = ""; $sep = "";
 							foreach ( explode(",", $fatt) as $fattp ) { $fatts[$key] .= "$sep{%$attit-$fattp}"; $sep = ", "; };
