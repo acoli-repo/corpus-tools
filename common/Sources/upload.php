@@ -56,8 +56,16 @@
 			print "<h1>Uploading File</h1><p>$target_file";
 		};
 		if( isset($_POST["type"]) ) {
-			if ( file_exists($target_file) ) {
-				// Do not allow overwrite files
+			if ( file_exists($target_file) && $typedef['replace'] ) {
+				# Make a backup when overwriting
+				$tmp = preg_replace("/.*\//", "", $target_file);
+				$date = date("Ymd"); 
+				$tmp =  preg_replace("/(\.[^.]+)/", "-$date\\1", $tmp);
+				$buname = "backups/$tmp";
+				copy($target_file, $buname);
+			};
+			if ( file_exists($target_file) && !$typedef['replace'] ) {
+				// Do not allow overwrite files unless explicitly allowed
 				if ( !$dropzone ) {
 					echo "<p>The file $targe_file already exists.";
 				} else {
