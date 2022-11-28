@@ -153,7 +153,7 @@ function infotable (elmnode) {
 		var attdef = false;
 		if ( formdef[att] ) attdef = formdef[att];
 		else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] ) attdef = tagdef[att];
-		if ( elmnode.getAttribute(att) && attdef && !attdef['noshow'] && ( !attdef['admin'] || username ) ) {
+		if ( elmnode.getAttribute(att) && attdef && !attdef['noshow'] && ( !attdef['admin'] || attdef['admin'] == "0" || username ) ) {
 			shownrows = 1;
 			var rowval = elmnode.getAttribute(att);
 			var atttype = '';
