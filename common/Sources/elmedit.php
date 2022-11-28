@@ -56,8 +56,8 @@
 			// Show all the defined attributes
 			foreach ( $elmatts[$etype] as $key => $val ) {
 				$atv = $elm[$key]; 
-				if ( $key == "facs" && 1==2 ) {
-					# Images not working properly - you cannot select from there
+				if ( $key == "facs" && file_exists("$sharedfolder/Sources/images.php") ) {
+					# Images not working properly - you cannot select from there (but hard-allow local use)
 					$maintext .= "<tr><th>$key<td>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>
 						<a href='index.php?action=images&act=list' target=select>(see list)</a>";
 				} else if ( $key == "admin" ) {
