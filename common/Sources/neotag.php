@@ -6,8 +6,8 @@
 		foreach ( $settings['neotag']['parameters'] as $item ) {
 			if ( $item['params'] == $paramsfile ) $params = $item;
 		};
-	} else if ( count($settings['neotag']['parameters']) == 0 ) {
-		print "<p>No neotag parameter settings - reloading to settigns
+	} else if ( !is_array($settings['neotag']) || !is_array($settings['neotag']['parameters']) || count($settings['neotag']['parameters']) == 0 ) {
+		print "<p>No neotag parameter settings - reloading to settings
 			<script language=Javascript>top.location='index.php?action=adminsettings&section=neotag&showunused=1'</script>"; exit;
 	} else if ( count($settings['neotag']['parameters']) == 1 ) {
 		$params = array_shift($settings['neotag']['parameters']);
@@ -150,6 +150,11 @@
 		
 		if ( $params['pid'] ) $moreopt .= " --pid='{$params['pid']}'";
 		if ( $params['tagsrc'] ) $moreopt .= " --tagsrc";
+
+		if ( $sharedsettings['neotag'] && !$settingsxml->xpath("//neotag") ) {
+			$shsetfile = "$sharedfolder/Resources/settings.xml";
+			$moreopt .= " --settings='$shsetfile'";
+		};
 
 		$cmd = "$exec --xmlfile=$cid --verbose $moreopt";
 

@@ -14,8 +14,6 @@
 	$filedescs = array (
 		"htmlstyles.css" => "CSS definitions for the overall site layout",
 		"xmlstyles.css" => "CSS definitions for the actual text in the XML files",
-		"teiHeader.tpl" => "Header info - short style",
-		"teiHeader-edit.tpl" => "Header info - edit version",
 		"settings.xml" => "Overall TEITOK settings",
 		"userlist.xml" => "File with user permissions",
 		"tagset.xml" => "Definition of the tagset",
@@ -24,6 +22,8 @@
 		// "verticalize.xslt" => "XSLT for creating the CQP corpus",
 		// "neotag.xslt" => "XSLT for creating verticalized input for the NeoTag POS tagger",
 		// "recqp.pl" => "(Automatically created) perl script to regenerate the CQP corpus",
+		// "teiHeader.tpl" => "Header info - short style",
+		// "teiHeader-edit.tpl" => "Header info - edit version",
 		);
 		
 	$reserved['filelist.xml'] = 1; # There is an editor for the file list
