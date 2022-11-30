@@ -550,7 +550,7 @@
 	// Load the tagset 
 	require ( "$ttroot/common/Sources/tttags.php" );
 	$tttags = new TTTAGS($tagsetfile, false);
-	if ( $tttags->tagset['positions'] || $tttags->tagset['upos'] ) {
+	if ( $tttags->tagset && ( $tttags->tagset['positions'] || $tttags->tagset['upos'] ) ) {
 		$tmp = $tttags->xml->asXML();
 		$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);
 		$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";

@@ -353,7 +353,10 @@ class TTXML
 			$this->pagenav = "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
 		} else if ( !$whole && ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['type'] == "xp" ) ) {
 			$xmltxt = $this->xppage();
-		} else if ( !$whole && ( $_GET['paged'] ||  $settings['xmlfile']['paged'] || is_array($settings['xmlfile']['paged']) || ( $_GET['pbtype'] || $settings['xmlfile']['paged']['element'] ) ) ) {
+		} else if ( !$whole && ( $_GET['paged'] 
+				|| ( is_array($settings['xmlfile']) && ( $settings['xmlfile']['paged'] || is_array($settings['xmlfile']['paged']) ) )
+				|| $_GET['pbtype'] 
+				) ) {
 			$xmltxt = $this->page();
 		} else {
 			# Not restricted - just display the whole XML

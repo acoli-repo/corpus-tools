@@ -91,14 +91,24 @@
 		$tmp = scandir($guessroot);
 		$rootbase = $settings['defaults']['base']['httproot'] or $rootbase = str_replace($_SERVER['DOCUMENT_ROOT'], "", $guessroot);
 		// $maintext .= "<p>$guessroot - $rootbase</p>";
-		foreach ( $tmp as $fl ) {
-			if ( is_dir("$guessroot/$fl") && substr($fl, 0, 1) != "." && !is_link("$guessroot/$fl") && !is_link("$guessroot/$fl/Resources") && file_exists("$guessroot/$fl/Resources/settings.xml") ) {
-				$xtmp = simplexml_load_file("$guessroot/$fl/Resources/settings.xml");
-				$prtit = current($xtmp->xpath("//defaults/title"));
-				if ( $prtit['display'] ) $maintext .= "<tr><td><a href='$rootbase/$fl/index.php'>$fl</a><td>{$prtit['display']}";
+		$cmd = "find -L $guessroot -name 'settings.xml'";
+		$tmp = shell_exec($cmd);
+		foreach ( explode("\n", $tmp) as $fl ) {
+			$xtmp = simplexml_load_file($fl);
+			if ( !$xtmp ) continue;
+			$prtit = current($xtmp->xpath("//defaults/title"));
+			$prfldt = current($xtmp->xpath("//defaults/base/@foldername"));
+			$prfld = str_replace($guessroot."/", "", $fl);
+			$prfld = str_replace("/Resources/settings.xml", "", $prfld);
+			if ( !$prfldt ) $prfldt  = $prfld;
+			if ( $prtit && $prtit['display'] ) {
+				$prs[$prfld.""] = $prtit['display'];
 			};
 		};
-		
+		natsort($prs);
+		foreach ( $prs as $prk => $prv ) {
+			$maintext .= "<tr><td><a target=teitok href='$rootbase/$prk/index.php'>$prk</a><td>$prv";
+		};
 		$maintext .= "</table>";
 	
 	} else if ( $act == "newproject" ) {
