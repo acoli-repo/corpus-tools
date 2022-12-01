@@ -107,7 +107,7 @@
 			$xquery = $headerfield['xpath'] or $xquery = $headerfield['key'];
 			
 			$desc = $headerfield['description'];
-			if ( !$desc ) $desc = current($defaults->xpath($xquery)); 
+			if ( !$desc ) $desc = getxpval($defaults, $xquery); # current($defaults->xpath($xquery)); 
 			
 			if ( $headerfield['type'] == "sep" ) {
 				$text .= "<tr><th colspan=2>{$headerfield['display']}";

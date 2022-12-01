@@ -74,6 +74,8 @@
 	
 	if ( $rows ) {
 		
+		if ( !is_array($settings['appid']) ) fatal("No definitions for apparatus");
+		
 		$ptype = $_GET['pbtype'] or $ptype = $settings['appid']['baseview'] or $ptype = "pb";
 		# Display the parts aligned by row
 		$nums = array_keys($settings['appid']['numbering']);
@@ -92,6 +94,7 @@
 				$numlist[$cid][$appid] .= "<br>".$row['n'];
 			}; 
 		};
+		if ( !is_array($appidlist) ) fatal("No appid found");
 		
 		$maintext .= "<table border=1  id=mtxt style='width: 100%; cellpadding: 5px; table-layout: fixed;'>
 			<tr><td>";

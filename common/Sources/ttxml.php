@@ -259,7 +259,7 @@ class TTXML
 					$tableheader .= "<tr><th colspan=2>{%$disp}";
 					continue;
 				};
-				$xval = current($this->xml->xpath($val['xpath']));
+				$xval = getxpval($this->xml, $val['xpath']);
 				if ( $xval && ( !$val['admin'] || $username ) ) {
 					if ( in_array($tpl, explode(",", $val['show'])) || ( !$val['show'] && $tpl == "long" ) ) {
 						if ( $val['lang'] && $val['lang'] != $lang ) continue;
@@ -269,7 +269,7 @@ class TTXML
 						if ( $val['link'] && $hval ) {
 							if ( strpos($val['link'], "http") != false ) $tmp = $val['link'];
 							else if ( strpos($val['link'], "{#") != false ) $tmp = xpathrun($val['link'], $this->xml);
-							else $tmp = current($this->xml->xpath($val['link']));
+							else $tmp = getxpval($this->xml, $val['link']);
 							if ( $tmp ) $hval = "<a href='$tmp'>$hval</a>";
 						};
 						if ( $settings['teiheader'][$key]['options'][$hval]['display'] ) 

@@ -30,11 +30,13 @@
 		$file = file_get_contents("$xmlfolder/$fileid"); 
 		$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 
+		if ( !$tokid ) { fatal("No token specified"); };
+
 		if ($_POST['newxml']) {
 			$levels = $_GET['levels'] or $levels = 1;
 			$result = $xml->xpath("//tok[@id='$tokid']"); 
 			$token = $result[0];
-			if ( !$token ) { print "Token not found: $tokid<hr>"; print $file; exit; };
+			if ( !$token ) { fatal("Token not found: $tokid"); };
 				
 			$context = $token;	
 			for ( $i=0; $i<$levels; $i++ ) {

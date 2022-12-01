@@ -158,7 +158,7 @@
 			} else 
 				$witrows .= "<tr><td><a href='index.php?action=file&cid=$cid&jmp=$jmpid'>$cid2</a></td><td wit=$cid2 class=wits style='border-bottom: 1px solid #ffddaa;'>$facsdiv$resxml</td></tr>";
 		};
-		$maintext .= "<table id=mtxt>$baserow$witrows</table><hr><p>$cnt witnesses &bull; <a href='' id='dltei' download='app.xml' taget='_blank'>download TEI app</a>";
+		$maintext .= "<table id=mtxt>$baserow$witrows</table><hr><p>$cnt witnesses &bull; <a href='' id='dltei' download='app.xml' target='_blank'>download TEI app</a>";
 		$maintext .= "
 			<script language=Javascript src='$jsurl/collate.js'></script>
 		<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>

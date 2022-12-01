@@ -11,6 +11,7 @@
 	};
 	$ttfile = $_GET['tagset'] or $ttfile = $tagsetfile;
 	$tttags = new TTTAGS($ttfile, false);
+	if ( !$tttags || !is_array($tttags->tagset) ) fatal("No tagset defined");
 	$tagset = $tttags->tagset['positions'];
 	$noneval = $tttags->tagset['noval'];
 	if ( !$tagset ) { fatal("Tagset $ttfile not position-based or positions not defined"); };

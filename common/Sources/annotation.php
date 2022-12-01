@@ -543,6 +543,8 @@
 					if ( $segment['idx'] ) {
 						# A substring - mark it up
 						list ( $pa, $pb ) = explode("-", $segment['idx']);
+						$pa = intval($pa);
+						$pb = intval($pb);
 						if ( !$pb ) $pb = $pa;
 						$pre = mb_substr($segment, 0, $pa-1);
 						$middle = mb_substr($segment, $pa-1, $pb-$pa+1);

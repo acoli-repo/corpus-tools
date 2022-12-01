@@ -369,7 +369,7 @@
 				$status = "to be done";
 				$color = "#666666";
 			};
-			$cnt{$status}++;
+			$cnt[$status]++;
 			$maintext .= "<tr><th><a href='index.php?action=$action&cid=$ttxml->fileid&page={$pagexml['id']}'>{$pagexml['id']}</a><td>{$pagexml['n']}<td style='color: $color;'>$status";
 		};
 		$maintext .= "</table>

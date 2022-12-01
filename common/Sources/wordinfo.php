@@ -2,12 +2,14 @@
 
 	// Word at a glance
 	// (c) Maarten Janssen, 2019
+
+	$tid = $_GET['tid'];
+	if ( !$tid ) fatal("No token specified");
 	
 	require ("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML();
 	$fileid = $ttxml->fileid;
 
-	$tid = $_GET['tid'];
 
 	$maintext .= "<h1>{%Word Info}</h1><table>";
 	

@@ -32,7 +32,7 @@
 		$resxml = shell_exec($cmd);
 	
 	} else {
-		if ( $context + 0 == 0 && !$settings['cqp']['sattributes'][$context] ) {
+		if ( intval($context) == 0 && is_array($settings['cqp']['sattributes']) && !$settings['cqp']['sattributes'][$context] ) {
 			if ( $username ) fatal("Context set to $context, which is not a CQP level in this corpus. Please correct in settings.xml//context");
 			$context = 5;
 		};      

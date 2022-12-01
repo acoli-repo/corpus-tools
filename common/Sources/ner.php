@@ -46,7 +46,7 @@
 		$tagsetfile = $settings['xmlfile']['ner']['tagset'] or $tagsetfile = "tagset-ner.xml";
 		require ( "$ttroot/common/Sources/tttags.php" );
 		$tttags = new TTTAGS($tagsetfile, false);
-		if ( $tttags->tagset['positions'] ) {
+		if ( is_array($tttags->tagset) && $tttags->tagset['positions'] ) {
 			$tmp = $tttags->xml->asXML();
 			$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);
 			$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
@@ -778,7 +778,7 @@
 						if ( $tmp2 ) $name = $tmp2->asXMl();
 						else $name = $nerid;
 						$type = $val['display'];
-						last;
+						break;
 					};
 				};
 				if ( $type) $snippettxt .= "<tr><th>{%$type}:<td style='font-weight: bold;'>$name</th></tr>";
@@ -1044,6 +1044,7 @@
 		$cql = "group Matches match {$neratt}_{$nerform} by match {$neratt}_nerid";
 		$results = $cqp->exec($cql); 
 		
+		$rowhash = array();
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $nerid, $form, $cnt ) = explode("\t", $resline);
 			if ( $form == '' || $form == '_') $form = $nerid;

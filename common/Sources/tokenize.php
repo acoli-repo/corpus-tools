@@ -11,7 +11,7 @@
 	// Character-level tags can be defined within each project, but this is the default list
 	if ( !$settings['defaults']['chartags'] ) $chartags = Array ( "add", "del", "supplied", "expan", "abbr", "hi", "lb", "pb", "cb", "ex" ); 
 	
-	$fileid = $_POST['id'] or $fileid = $_GET['id'];
+	$fileid = $_POST['id'] or $fileid = $_GET['cid'] or $fileid = $_GET['id'];
 	
 	if ( $fileid ) { 
 

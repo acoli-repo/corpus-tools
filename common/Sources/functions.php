@@ -13,7 +13,7 @@
 			if ( $allowme ) return;
 		};
 
-		if ( $settings['permissions']['groups'] ) $grouprec = $settings['permissions']['groups'][$user['group'].""];
+		if ( is_array($settings['permissions']) && is_array($settings['permissions']['groups']) ) $grouprec = $settings['permissions']['groups'][$user['group'].""];
 				
 		if ( $user['permissions'] == "admin" ) return; # Always allow admin
 		if ( $action == "user" && $username ) return; # Always allow people to see their user profile (and logout)
@@ -659,9 +659,14 @@
 		global $username;
 		$time = time();
 		if (!is_dir("tmp")) mkdir("tmp"); 
-		file_put_contents("tmp/error_$time.txt", $txt);
-		print "<h1>Fatal Error</h1><p>A fatal error has occurred
-			<script language=Javascript>top.location='index.php?action=error&msg=$time';</script>";
+		$filename = "tmp/error_$time.txt";
+		file_put_contents($filename, $txt);
+		print "<h1>Fatal Error</h1><p>A fatal error has occurred";
+		if ( $txt && file_exists($filename) ) {
+			print "<script language=Javascript>top.location='index.php?action=error&msg=$time';</script>";
+		} else { 
+			print "<p>Due to permission problem, the error message cannot be displayed"; 
+		};
 		exit;
 	};
 
@@ -1189,5 +1194,12 @@
 			return $needle !== '' && mb_strpos($haystack, $needle) !== false;
 		}
 	}
+	
+	function getxpval($node, $xpath) {
+		$tmp = $node->xpath($xpath);
+
+		if ( !$tmp ) return "";
+		return current($tmp);
+	};
 	
 ?>

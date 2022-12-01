@@ -193,8 +193,13 @@
 		$showbb = 1;
 
 		$imgsize = getimagesize("Facsimile/{$pb['facs']}");
-		$dim = $imgsize[1]/$imgsize[0];
-		$fact = 1500/$imgsize[0];
+		if ( !$imgsize[0] ) {
+			$dim = 1;
+			$fact = 1;
+		} else {
+			$dim = $imgsize[1]/$imgsize[0];
+			$fact = 1500/$imgsize[0];
+		};
 		if ( $_GET['debug'] ) $maintext .= "<p>Image: {$imgsize[1]}x{$imgsize[0]} - factor: $fact";
 		# $maintext .= print_r($imgsize, 1);
 		$wdt = 1500;

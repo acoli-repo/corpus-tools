@@ -6,14 +6,19 @@
 
 	$fileid = $_POST['cid'] or $fileid = $_GET['cid'];
 	$tokid = $_POST['tid'] or $tokid = $_GET['tid'];
+	
+	if ( !$tokid ) fatal("No token specified");
+	
+	$filename = $fileid;
+	if ( !file_exists("$filename") ) $filename = "$xmlfolder/$fileid";
 		
 	if ( $fileid ) { 
 	
-		if ( !file_exists("$xmlfolder/$fileid") ) { 
-			print "No such XML File: $xmlfolder/$fileid"; 
+		if ( !file_exists("$filename") ) { 
+			print "No such XML File: $filename"; 
 			exit;
 		};
-		$file = file_get_contents("$xmlfolder/$fileid"); 
+		$file = file_get_contents("$filename"); 
 		$xml = simplexml_load_string($file);
 		if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
 

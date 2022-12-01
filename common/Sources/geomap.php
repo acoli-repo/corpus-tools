@@ -66,8 +66,8 @@ if ( $act == "xml" ) {
 		list ( $lat, $lng ) = explode ( " ", $geo );
 		$maintext .= "<li>$place"; if ( $desc ) $maintext .= ": $desc";
 		
-		$descs{$geo} .= "<p>$desc</p>"; $desctxt = $descs{$geo};
-		if ( $lng != "" && $lat != "" ) $jsonpoints{$geo} = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
+		$descs[$geo] .= "<p>$desc</p>"; $desctxt = $descs[$geo];
+		if ( $lng != "" && $lat != "" ) $jsonpoints[$geo] = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
 		
 	};
 	$maintext .= "</ul>";
@@ -289,14 +289,14 @@ if ( $act == "xml" ) {
 			$lng = preg_replace("/,.*/", "", $lng);
 			$cnt += 0;
 			if ( $lat != "" && $lat != "_" && $lng != "" && $lat != "" ) {
-				$tot{$geo}{$i} += $cnt; 
-				$dcnt{$geo}{$i} += 1;
+				$tot[$geo][$i] += $cnt; 
+				$dcnt[$geo][$i] += 1;
 				$cnttxt = ""; $sep = "";
-				foreach ( $tot{$geo} as $mset => $mcnt ) { 
-					$mdoc = $dcnt{$geo}{$mset};
+				foreach ( $tot[$geo] as $mset => $mcnt ) { 
+					$mdoc = $dcnt[$geo][$mset];
 					$cnttxt .= $sep."$mset:$mdoc:$mcnt"; $sep = ","; 
 				};
-				$jsonpoints{$geo} = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$name\", \"cnt\": \"$cnttxt\" }";
+				$jsonpoints[$geo] = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$name\", \"cnt\": \"$cnttxt\" }";
 			};
 		};
 	};

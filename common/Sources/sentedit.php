@@ -184,6 +184,8 @@
 
 		} else {
 		
+			if ( !$sentid ) fatal ( "No sentence specified" );
+
 			$result = $xml->xpath("//*[@id='$sentid']"); 
 			$sent = $result[0]; # print_r($token); exit;
 			if ( !$sent ) fatal ( "Sentence not found: $sentid" );

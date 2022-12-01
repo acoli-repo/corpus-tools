@@ -35,7 +35,7 @@
 
 		$result = $xml->xpath("//tok[@id='$tokid']"); 
 		$token = $result[0]; # print_r($token); exit;
-		if ( !$token ) { print "Token not found: $tokid<hr>"; print $file; exit; };
+		if ( !$token ) { fatal("Token not found: $tokid"); };
 
 		$tokform = $token['form'] or $tokform = $token."";
 

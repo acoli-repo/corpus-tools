@@ -3,6 +3,8 @@
 	# Stastistics
 	# (c) Maarten Janssen, 2019
 
+	if ( !is_dir("cqp") ) fatal("This corpus has not yet been indexed");
+
 	include ("$ttroot/common/Sources/cwcqp.php");
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
 	$cqp = new CQP();
@@ -98,7 +100,7 @@
 			$vardec = $val['dec'] or $vardec = 3;
 			if ( floor($varval) != $varval || $val['dec'] ) $varval = number_format($varval, $vardec);
 			 
-			$vars{$val['var']} = $varval;
+			$vars[$val['var']] = $varval;
 			$tit = str_replace("'", "&quot;", "$varname: $tit");
 			if ( $cid ) $maintext .= "<tr><th title='$tit'>{%{$val['display']}}";
 			if ( $val['display'] ) $maintext .= "<td align=right>$varval";
@@ -128,7 +130,7 @@
 			$vardec = $val['dec'] or $vardec = 3;
 			if ( floor($varval) != $varval || $val['dec'] ) $varval = number_format($varval, $vardec);
 			 
-			$vars{$val['var']} = $varval;
+			$vars[$val['var']] = $varval;
 			$tit = str_replace("'", "&quot;", "$varname: $tit");
 			if ( $cid ) $maintext .= "<tr><th title='$tit'>{%{$val['display']}}";
 			if ( $val['display'] ) $maintext .= "<td align=right>$varval";

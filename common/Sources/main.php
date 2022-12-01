@@ -91,10 +91,9 @@
 	else if ( preg_match ( "/\/(...?)\/index\.php/", $_SERVER['REQUEST_URI'], $matches ) ) {
 		if ( $matches[1] != $settings['defaults']['base']['foldername'] ) $lang = $matches[1];
 		else $lang = $deflang;	
-	} else if ( $_COOKIE['lang'] ) $lang = $_COOKIE['lang'];
+	} else if ( $_SESSION['lang'] ) $lang = $_SESSION['lang'];
 	else $lang = $deflang;
-	if ( !$settings['languages']['prefixed'] ) setcookie("lang", $lang); # Store the language use in a session if not using prefixes
-	else  setcookie("lang", "");
+	if ( is_array($settings['languages']) && !$settings['languages']['prefixed'] ) $_SESSION['lang'] = $lang;
 	
 	# Determine the base URL and the root folder
 	if ( !$baseurl )

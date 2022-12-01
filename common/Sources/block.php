@@ -103,6 +103,7 @@
 			<div style='$dircss'>$stxt</div>
 			<div class=blockdata>";
 		foreach ( $settings['xmlfile']['sattributes'][$stype] as $item ) {
+			if ( !is_array($item) ) continue;
 			$key = $item['key'];
 			if ( $item['noshow'] ) continue;
 			$atv = preg_replace("/\/\//", "<lb/>", $sent[$key]);	

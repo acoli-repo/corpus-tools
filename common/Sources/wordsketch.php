@@ -3,6 +3,9 @@
 	// Use tt-cqp to calculate a dependency-concordancer for corpora with dependency relations (head, deprel)
 	// (c) Maarten Janssen, 2018
 	
+	# Check that there are deprels
+	if ( !file_exists("cqp/deprel.lexicon") ) fatal("Dependency sketches depends on dependency relations, which are not present in this corpus (yet)");
+	
 	if ( !$_POST ) $_POST = $_GET;
 	
 	$cql = $_POST['cql'];

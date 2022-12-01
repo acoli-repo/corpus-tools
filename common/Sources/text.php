@@ -612,12 +612,13 @@
 	};
 	
 	$sep = "<hr style='clear: both; margin-top: 10px;'><p>";
-	if ( ( $settings['download']['admin'] != "1" || $username ) && $settings['download']['disabled'] != "1" ) {
-		$dltit = $settings['download']['title'] or $dltit = "Download XML";
+	if ( !is_array($settings['download']) || ( ( $settings['download']['admin'] != "1" || $username ) && $settings['download']['disabled'] != "1" ) ) {
+		$dltit = "Download XML";
+		if ( is_array($settings['download']) && $settings['download']['title'] ) $dltit = $settings['download']['title'];
 		$maintext .= "$sep<a href='index.php?action=getxml&cid=$fileid'>{%$dltit}</a> &bull; ";
 		$sep = "";
 	};
-	if ( $settings['download']['disabled'] != "1" ) {
+	if ( !is_array($settings['download']) || $settings['download']['disabled'] != "1" ) {
 		$maintext .= "$sep<a onClick='exporttxt();' style='cursor: pointer;'>{%Download text}</a>
 		"; $sep = " &bull; ";
 	};

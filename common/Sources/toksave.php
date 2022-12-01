@@ -10,13 +10,12 @@
 	if ( $fileid ) { 
 	
 		if ( !file_exists("$xmlfolder/$fileid") ) { 
-			print "No such XML File: $xmlfolder/$fileid"; 
-			exit;
+			fatal("No such XML File: $xmlfolder/$fileid"); 
 		};
 		# print_r($_POST); exit;
 		$file = file_get_contents("$xmlfolder/$fileid"); 
 		$xml = simplexml_load_string($file);
-		if ( !$xml ) { print "Failing to read/parse $fileid<hr>"; print $file; exit; };
+		if ( !$xml ) { fatal("Failing to read/parse $fileid<hr>"); };
 
 		$nodetype = substr($tokid,0,1);
 		if ( $nodetype == "w" ) 
@@ -26,7 +25,7 @@
 		else
 			$result = $xml->xpath("//*[@id='$tokid']"); 
 		$token = $result[0]; # print_r($token); exit;
-		if ( !$token ) { print "Token not found: $tokid<hr>"; print $file; exit; };
+		if ( !$token ) { fatal("Token not found: $tokid"); };
 
 		if ( $act == "delete" ) {
 			$maintext .= "<h1>Delete Token</h1>

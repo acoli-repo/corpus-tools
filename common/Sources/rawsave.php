@@ -9,10 +9,7 @@
 	
 	if ( $cardid ) { 
 	
-		if ( !file_exists("$xmlfolder/$cardid") ) { 
-			print "No such letter: $xmlfolder/$cardid"; 
-			exit;
-		};
+		if ( !file_exists("$xmlfolder/$cardid") ) { 		fatal("No such file: $xmlfolder/$cardid");	};
 		# print_r($_POST); exit;
 		$file = file_get_contents("$xmlfolder/$cardid"); 
 

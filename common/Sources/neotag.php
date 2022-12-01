@@ -256,8 +256,8 @@
 				$maintext .= "<p><a href='index.php?action=$action&params=$paramsfile&act=update'>Update this parameter set</a>";
 			};
 			$maintext .= "<p><a href='index.php?action=adminsettings&section=neotag'>Go to the NeoTag settings section</a>";
-			if ( $settings['tagset']["positions"]  ) $maintext .= "<p><a href='index.php?action=$action&params=$paramsfile&act=tagcheck'>Check tagset consistency for this parameter set</a>";
-			if ( count($settings['neotag']['parameters']) > 1  ) $maintext .= "<p><a href='index.php?action=$action'>Switch parameter set</a>";
+			if ( is_array( $settings['tagset']) && $settings['tagset']["positions"]  ) $maintext .= "<p><a href='index.php?action=$action&params=$paramsfile&act=tagcheck'>Check tagset consistency for this parameter set</a>";
+			if ( is_array($settings['neotag']) && is_array($settings['neotag']['parameters']) && count($settings['neotag']['parameters']) > 1  ) $maintext .= "<p><a href='index.php?action=$action'>Switch parameter set</a>";
 			
 	};
 
