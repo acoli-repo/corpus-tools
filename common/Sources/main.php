@@ -24,11 +24,24 @@
 		ini_set("session.cookie_secure", 0); // TEITOK typically does not work on HTTPS, so SESSION vars have to be allow on HTTP
 	};
 
+	// Parse the URL if it is not just index.php
+	$phpself = $_SERVER['SCRIPT_NAME'];
+	$urireq = $_SERVER['REQUEST_URI'];
+	$basefldr = str_replace("index.php", "", $phpself);
+	$basereq = substr($urireq, strlen($basefldr));
+	if ( preg_match("/^(...?)\/(.*)$/", $basereq, $matches) 
+		&& is_array($settings['languages']) && $settings['languages']['options'][$matches[1]] # Only allow defined langs via the URL
+	) { 
+		$basereq = $matches[2]; $urllang = $matches[1];
+	};
+
 	
 	# Determine the folder to set a folder-specific user cookie
 	$scriptfolder = realpath($_SERVER['SCRIPT_FILENAME']);
 	if ( !$foldername )
-	if ( preg_match("/\/([^\/]*)\/\.\.\/index\.php\//", $scriptfolder, $matches ) ) {
+	if ( preg_match("/([^\/]+)\/$/", $basefldr, $matches ) ) {
+		$foldername = $matches[1];
+	} else if ( preg_match("/\/([^\/]*)\/\.\.\/index\.php\//", $scriptfolder, $matches ) ) {
 		$foldername = $matches[1];
 	} else if ( preg_match("/\/([^\/]*)\/index\.php/", $scriptfolder, $matches ) ) {
 		$foldername = $matches[1];
@@ -85,12 +98,12 @@
 		$_GET = strip_array($_GET);
 	}
 
+
 	# Determine which language to use
 	$deflang = $settings['languages']['default'] or $deflang = "en";
 	if ( $_GET['lang'] ) $lang = $_GET['lang'];
-	else if ( preg_match ( "/\/(...?)\/index\.php/", $_SERVER['REQUEST_URI'], $matches ) ) {
-		if ( $matches[1] != $settings['defaults']['base']['foldername'] ) $lang = $matches[1];
-		else $lang = $deflang;	
+	else if ( $urllang ) {
+		$lang = $urllang;
 	} else if ( $_SESSION['lang'] ) $lang = $_SESSION['lang'];
 	else $lang = $deflang;
 	if ( is_array($settings['languages']) && !$settings['languages']['prefixed'] ) $_SESSION['lang'] = $lang;
@@ -99,6 +112,8 @@
 	if ( !$baseurl )
 	if ( $settings['defaults']['base']['url'] ) {
 		$baseurl = str_replace('{$corpusfolder}', $foldername, $settings['defaults']['base']['url']);
+	} else if ( $basefldr ) {
+		$baseurl = $basefldr;
 	} else {
 		$baseurl = preg_replace('/index.php.*/', '', $_SERVER['SCRIPT_NAME'] );
 		$baseurl = str_replace("/$lang/", '/', $baseurl );
@@ -131,8 +146,10 @@
 	if ( $action == "" ) {
 		$tmp = str_replace("/", "\\/", preg_quote($baseurl));
 		$miniuri = preg_replace("/^.*$tmp/", "", $_SERVER['REQUEST_URI']);
-		if ( preg_match("/([^\/]+)\.(html|php)/", $_SERVER['REQUEST_URI'], $matches ) ) $action = $matches[1];
-		else if ( preg_match("/\//", $miniuri, $matches ) && !preg_match("/index\.php/", $miniuri) ) {
+		if ( preg_match("/([^\/]+)\.(html|php)/", $basereq, $matches ) ) $action = $matches[1];
+		else if ( preg_match("/^([^\/]+)\/([^\/]+\.xml)$/", $basereq, $matches ) ) {
+			$action = $matches[1]; $_GET['cid'] = $matches[2];
+		} else if ( preg_match("/\//", $miniuri, $matches ) && !preg_match("/index\.php/", $miniuri) ) {
 			$parts = explode("/", $miniuri );
 			$action = array_shift($parts);
 			$partdesc = explode(",", $settings['shorturl'][$action.'']['parts'] ); 

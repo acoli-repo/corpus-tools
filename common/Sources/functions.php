@@ -82,11 +82,14 @@
 		}
 		return $fileList;
 	};
-	function rglob($pattern, $flags = 0) {
+	function rglob($pattern, $flags = 0, $done = array()) {
 		// rglob('myfldr/**/this**file')
 		$files = glob($pattern, $flags); 
 		foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
-			$files = array_merge($files, rglob($dir.'/'.basename($pattern), $flags));
+			$real = realpath($dir);
+			if ( $done[$real] ) continue;
+			$done[$real] = 1;
+			$files = array_merge($files, rglob($dir.'/'.basename($pattern), $flags, $done));
 		}
 		return $files;
 	};
