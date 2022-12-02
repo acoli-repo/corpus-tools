@@ -91,8 +91,8 @@
 		$tmp = scandir($guessroot);
 		$rootbase = $settings['defaults']['base']['httproot'] or $rootbase = str_replace($_SERVER['DOCUMENT_ROOT'], "", $guessroot);
 		// $maintext .= "<p>$guessroot - $rootbase</p>";
-		# $cmd = "find -L $guessroot -name 'settings.xml'"; $tmp = shell_exec($cmd); $setfiles = explode("\n", $tmp);
-		$setfiles = rglob("$guessroot/*settings.xml");
+		$cmd = "find -L $guessroot -name 'settings.xml'"; $tmp = shell_exec($cmd); $setfiles = explode("\n", $tmp);
+		# $setfiles = rglob("$guessroot/*settings.xml");
 		foreach ( $setfiles as $fl ) {
 			$xtmp = simplexml_load_file($fl);
 			if ( !$xtmp ) continue;
@@ -109,7 +109,7 @@
 		foreach ( $prs as $prk => $prv ) {
 			$maintext .= "<tr><td><a target=teitok href='$rootbase/$prk/index.php'>$prk</a><td>$prv";
 		};
-		$maintext .= "</table>";
+		$maintext .= "</table><hr><p>".count($prs)." projects";
 	
 	} else if ( $act == "newproject" ) {
 	

@@ -28,13 +28,14 @@
 	$phpself = $_SERVER['SCRIPT_NAME'];
 	$urireq = $_SERVER['REQUEST_URI'];
 	$basefldr = str_replace("index.php", "", $phpself);
-	$basereq = substr($urireq, strlen($basefldr));
-	if ( preg_match("/^(...?)\/(.*)$/", $basereq, $matches) 
-		&& is_array($settings['languages']) && $settings['languages']['options'][$matches[1]] # Only allow defined langs via the URL
-	) { 
-		$basereq = $matches[2]; $urllang = $matches[1];
+	if ( substr($urireq, 0,strlen($basefldr)) == $basefldr) {
+		$basereq = substr($urireq, strlen($basefldr));
+		if ( preg_match("/^(...?)\/(.*)$/", $basereq, $matches) 
+			&& is_array($settings['languages']) && $settings['languages']['options'][$matches[1]] # Only allow defined langs via the URL
+		) { 
+			$basereq = $matches[2]; $urllang = $matches[1];
+		};
 	};
-
 	
 	# Determine the folder to set a folder-specific user cookie
 	$scriptfolder = realpath($_SERVER['SCRIPT_FILENAME']);
