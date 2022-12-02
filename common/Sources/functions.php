@@ -70,24 +70,30 @@
 
 		return $filepath;
 	};
-	function rsearch($folder, $pattern) {
-		// rsearch('myfldr', 'this**file')
-		$dir = new RecursiveDirectoryIterator($folder);
-		$ite = new RecursiveIteratorIterator($dir);
-		if ( !$ite ) return array();
-		$files = new RegexIterator($ite, $pattern, RegexIterator::GET_MATCH);
-		$fileList = array();
-		foreach($files as $file) {
-			$fileList = array_merge($fileList, $file);
+
+	function rsearch($folder, $pattern, $done = array() ) {
+		$files = array();
+		$ress = glob($folder."/*" ); 
+		foreach ( $ress as $res) {
+			if ( is_dir($res) ) {
+				$real = realpath($res);
+				if ( !$done[$real] ) {
+					$done[$real] = 1;
+					$files = array_merge($files, rsearch($res, $pattern, $done));
+				} else print "<p>done: $real";
+			} else if ( preg_match("/$pattern/", $res) ) {
+				array_push($files, $res);
+			};
 		}
-		return $fileList;
+		return $files;
 	};
+
 	function rglob($pattern, $flags = 0, $done = array()) {
 		// rglob('myfldr/**/this**file')
 		$files = glob($pattern, $flags); 
 		foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
 			$real = realpath($dir);
-			if ( $done[$real] ) continue;
+			if ( $done[$real] ) { continue; };
 			$done[$real] = 1;
 			$files = array_merge($files, rglob($dir.'/'.basename($pattern), $flags, $done));
 		}
