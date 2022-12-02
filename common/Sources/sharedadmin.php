@@ -91,7 +91,7 @@
 		$tmp = scandir($guessroot);
 		$rootbase = $settings['defaults']['base']['httproot'] or $rootbase = str_replace($_SERVER['DOCUMENT_ROOT'], "", $guessroot);
 		// $maintext .= "<p>$guessroot - $rootbase</p>";
-		$cmd = "find -L $guessroot -name 'settings.xml'"; $tmp = shell_exec($cmd); $setfiles = explode("\n", $tmp);
+		$cmd = "find -L $guessroot -name 'settings.xml' -not -path '*/xmlfiles' -not -path '*/..' -not -path '*/..'"; $tmp = shell_exec($cmd); $setfiles = explode("\n", $tmp);
 		# $setfiles = rglob("$guessroot/*settings.xml");
 		foreach ( $setfiles as $fl ) {
 			$xtmp = simplexml_load_file($fl);
