@@ -217,7 +217,7 @@ if ( $debug ) {
 
 
 # There are some element that should never be broken
-if ( !$nonl ) {
+if ( !$nonl && $preg ) {
 	if ( $debug ) { print "Adding newlines to: "; $preg; };
 	$tagtxt =~ s/(?<![\n\r])($preg)/\n\1/g;
 };
@@ -225,7 +225,11 @@ if ( !$nonl ) {
 # Now actually tokenize
 # Go line by line to make it faster
 if ( $sentsplit != 2 ) {
-	foreach $line ( split ( "\0", $tagtxt ) ) {
+	@textlines = split ( "\n", $tagtxt );
+	$totl = scalar @textlines;
+	if ( $verbose ) { print "$tokl lines to tokenize";  };
+	$lcnt = 0;
+	foreach $line ( @textlines ) {
 
 		# Protect XML tags
 		$line =~ s/<([a-zA-Z0-9]+)>/<\1%%>/g;
@@ -260,9 +264,9 @@ if ( $sentsplit != 2 ) {
 		$line =~ s/<tokk>(<[^>]+>)(\p{isPunct})/\1<tokk>\2/g;
 
 		if ( $debug ) {
-			print "BP|| $line\n";
-		};
-
+			print "BP ".$lcnt++." - ".int(($lcnt/$totl)*100)."% || $line\n";
+		}; 
+		
 		# Split off the punctuation marks
 		while ( $line =~ /(?<!<tokk>)(\p{isPunct}<\/tok>)/ ) {
 			$line =~ s/(?<!<tokk>)(\p{isPunct}<\/tok>)/<\/tok><tokk>\1/g;
