@@ -120,6 +120,8 @@
 		if ( $filetype == "txt" ) $filetype = "plain_text";
 		if ( $filetype == "tab" ) { $filetype = "plain_text"; $settabs = "editor.getSession().setTabSize(25); editor.getSession().setUseSoftTabs(false); ";  };
 		if ( $filetype == "pl" ) $filetype = "perl";
+		if ( $filetype == "py" ) $filetype = "python";
+		if ( $filetype == "rb" ) $filetype = "ruby";
 			
 		if ( $filetype == "html" ) $protcontent = preg_replace( "/%/", "&#37;", $protcontent );
 			

@@ -281,7 +281,7 @@
 
 		if ( $typedef['admin'] ) check_login("admin"); 
 		$accept = str_replace('*', '', $typedef['extension']);
-		$acar = explode ( " ", $accept );
+		$acar = explode ( ",", $accept );
 		$maxsize = min(intval(ini_get("upload_max_filesize")), intval(ini_get("post_max_size")), intval(ini_get("memory_limit")));
 
 		$maintext .= "<h1>File Upload</h1>
@@ -382,6 +382,7 @@
 		$maintext .= "<table cellpadding='5px'>
 				";
 
+		$blessed = explode(",", $settings['files']['blessed'] );
 		foreach ( $files as $line ) {
 			$fn = preg_replace("/.*\//", "", $line);
 			$ffn = str_replace("xmlfiles/", "", $line);
@@ -396,13 +397,16 @@
 					$warnings = "<p class=warning>There are subfolders, while the settings do not allow for those. You should flatten the folder, or change the settings.";
 				};
 			} else if ( !in_array(".$ext", $acar) ) {
-				$maintext .= "<tr><td><td style='color: grey'>$ffn (not allowed: $ext - ".join(",", $acar).")";
+				$maintext .= "<tr><td><td style='color: grey'>$ffn (not allowed: $ext - ".join(";", $acar).")";
 			} else {
 				$maintext .= "<tr><td><a href='$baseurl$line' target=file>view</a>
 				<td> <a href='index.php?action=$action&act=download&type={$typedef['folder']}&file=$ffn' target=file>download</a>
 				<td> {$ffn} <td align=right>".human_filesize(filesize($line));
 				$deltype = $settings['files'][$type]['delete'] or $deltype = $settings['files']['delete'];
 				if ( $deltype != "none" && ( $deltype != "sudo" || $user['permissions'] == "admin" ) )  $maintext .= "<td><a href='index.php?action=$action&act=delete&type=$type&file=$line'>delete</a>";
+				if ( in_array($typedef['folder'], $blessed) && $user['permissions'] == "admin" ) {
+					$maintext .= "<td><a href='index.php?action=adminedit&folder={$typedef['folder']}&id=$fn'>raw edit</a>";
+				};
 				$totsize += filesize($line); $cnt++;
 			};
 		};

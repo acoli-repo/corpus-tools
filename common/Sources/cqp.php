@@ -951,7 +951,7 @@
 			function cqpdo(elm, autorun = false) {
 				var newcql;
 				if ( typeof(elm) == 'string' ) newcql = elm;
-				else newcql = elm.innerHTML;
+				else newcql = elm.innerText;
 				document.cqp.cql.value = newcql;
 				if ( typeof(code) == 'object') { 
 					code.innerText = newcql; 
