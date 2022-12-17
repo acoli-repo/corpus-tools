@@ -270,8 +270,10 @@ class TTXML
 						// Link when so asked
 						if ( $val['link'] && $hval ) {
 							if ( strpos($val['link'], "http") != false ) $tmp = $val['link'];
-							else if ( strpos($val['link'], "{#") != false ) $tmp = xpathrun($val['link'], $this->xml);
-							else $tmp = getxpval($this->xml, $val['link']);
+							else if ( strpos($val['link'], "{#") != false ) {
+								$tmp = xpathrun($val['link'], $this->xml);
+								if ( $tmp == preg_replace("/{#[^{}]*}/", "", $val['link']) ) $tmp = "";
+							} else $tmp = getxpval($this->xml, $val['link']);
 							if ( $tmp ) $hval = "<a href='$tmp'>$hval</a>";
 						};
 						if ( $settings['teiheader'][$key]['options'][$hval]['display'] ) 

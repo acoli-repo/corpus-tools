@@ -136,8 +136,7 @@ use XML::LibXML;
 				if ( 1==1 ) { print "$tokid => $sid"; };
 				$s2tok{$sid} .= "#$tokid ";
 			} else {
-				print $tmp->item(0)->toString;
-				print "\nNo sent found for $tokid: ".$tok->parentNode->toString;
+				if ( $debug ) { print "\nNo sent found for $tokid: ".$tok->parentNode->toString; };
 			};
 		};
 
