@@ -32,8 +32,8 @@ class TTXML
 		if ( strstr($options, "pagetrans") != false ) {  $xmlfolder = "pagetrans"; };
 		
 		if (!$fileid) $fileid = $_POST['cid'] or $fileid = $_POST['id'] or $fileid = $_GET['cid'] or $fileid = $_GET['id'];
-		$this->fileid = $fileid;
 		if ( !preg_match("/\.xml/", $fileid) && $fileid != "" ) $fileid .= ".xml";
+		$this->fileid = $fileid;
 		$oid = $fileid;
 		
 		if ( !$this->fileid  && $fatal ) { 
@@ -59,7 +59,7 @@ class TTXML
 			$fileid = preg_replace("/^".preg_quote($xmlfolder, '/')."\/?/", "", $temp);
 	
 			if ( $fileid == "" && $fatal ) {
-				fatal("No such XML File: {$oid}"); 
+				fatal("No such XML File: {$fileid}"); 
 			};
 			$this->fileid = $fileid;
 		};
