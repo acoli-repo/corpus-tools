@@ -171,14 +171,14 @@ class TTXML
 		};		
 	}
 	
-	function title() {
+	function title( $type = "" ) {
 		global $settings;
 		if (!$this->xml) return "";
 		if ( !$this->title ) {
 			if ( $settings['xmlfile']['title'] == "[id]" ) {
 				$this->title = $this->xmlid;
 			} else {
-				$titlexp = $settings['xmlfile']['title']."" or $titlexp = "//title";
+				$titlexp = $settings['xmlfile'][$type]."" or $titlexp = $settings['xmlfile']['title']."" or $titlexp = "//title";
 				$result = $this->xml->xpath($titlexp); 
 				$this->title = $result[0];
 			};
