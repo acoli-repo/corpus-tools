@@ -31,9 +31,9 @@ class TTXML
 		if ( !$xmlfolder ) $xmlfolder = "xmlfiles";
 		if ( strstr($options, "pagetrans") != false ) {  $xmlfolder = "pagetrans"; };
 		
-		if (!$fileid) $fileid = $_POST['id'] or $fileid = $_GET['id'] or $fileid = $_GET['cid'];
+		if (!$fileid) $fileid = $_POST['cid'] or $fileid = $_POST['id'] or $fileid = $_GET['cid'] or $fileid = $_GET['id'];
 		$this->fileid = $fileid;
-		if ( !preg_match("/\.xml/", $fileid) && $fileid ) $fileid .= ".xml";
+		if ( !preg_match("/\.xml/", $fileid) && $fileid != "" ) $fileid .= ".xml";
 		$oid = $fileid;
 		
 		if ( !$this->fileid  && $fatal ) { 
@@ -45,7 +45,7 @@ class TTXML
 		};
 	
 		if ( !file_exists("$xmlfolder/$fileid") ) {
-			if ( $settings['xmlfile']['fullpath'] ) fatal("No such XML File: {$oid}"); 
+			if ( $settings['xmlfile']['fullpath'] ) fatal("No such XML File: $xmlfolder/$fileid"); 
 			# Search for the file, unless told to only use direct path
 			$fileid = preg_replace("/^.*\//", "", $fileid);
 			$test = array_merge(glob("$xmlfolder/**/$fileid")); 
