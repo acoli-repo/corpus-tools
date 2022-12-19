@@ -42,7 +42,7 @@ class TTXML
 
 		if ( !file_exists("$xmlfolder/".$this->fileid) && substr($this->fileid,-4) != ".xml" ) { 
 			$fileid .= ".xml";
-			$this->fileid = .= ".xml";
+			$this->fileid .= ".xml";
 		};
 	
 		if ( !file_exists("$xmlfolder/$fileid") ) {
