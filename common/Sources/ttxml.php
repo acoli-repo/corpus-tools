@@ -41,11 +41,12 @@ class TTXML
 		};
 
 		if ( !file_exists("$xmlfolder/".$this->fileid) && substr($this->fileid,-4) != ".xml" ) { 
-			$this->fileid .= ".xml";
+			$fileid .= ".xml";
+			$this->fileid = $fileid;
 		};
 	
 		if ( !file_exists("$xmlfolder/$fileid") ) {
-			if ( $settings['xmlfile']['fullpath'] ) fatal("No such XML File: $xmlfolder/$fileid"); 
+			if ( $settings['xmlfile']['fullpath'] ) fatal("No such XML File: $fileid"); 
 			# Search for the file, unless told to only use direct path
 			$fileid = preg_replace("/^.*\//", "", $fileid);
 			$test = array_merge(glob("$xmlfolder/**/$fileid")); 
