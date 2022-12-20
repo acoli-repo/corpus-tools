@@ -44,6 +44,10 @@ class TTXML
 			$fileid .= ".xml";
 			$this->fileid .= ".xml";
 		};
+		if ( !file_exists("$xmlfolder/".$this->fileid) && substr($this->fileid,0,9) == "xmlfiles/" ) { 
+			$fileid = substr($fileid, 9);
+			$this->fileid = substr($this->fileid, 9);
+		};
 	
 		if ( !file_exists("$xmlfolder/$fileid") ) {
 			if ( $settings['xmlfile']['fullpath'] ) {
