@@ -458,7 +458,7 @@
 	function namespacemake ( $text ) {
 		global $settings;
 		if ( $settings['xmlfile']['protect'] ) $protects = explode(",", $settings['xmlfile']['protect']);
-		else $protects = array ( "head", "opener", "address", "div", "option", "image" );
+		else $protects = array ( "head", "opener", "address", "div", "option", "image", "body" );
 		# prefix HTML element in XML with xml namespace
 		foreach ( $protects as $tagname ) {
 			if ( !$tagname ) continue;

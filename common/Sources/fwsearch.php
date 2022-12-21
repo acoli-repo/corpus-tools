@@ -159,7 +159,19 @@
 				};
 				if ( autorun ) document.cqp.submit();
 			};
-			</script>";
+			</script>
+			<link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css\">
+			<style>
+			@font-face { ... }
+			div[onclick] { 
+				cursor: pointer;
+			}
+			div[onclick]:before { 
+				font-family: \"FontAwesome\"; font-weight: 100; content: \"\\f021\" ' ';
+				color: #aaaaaa;
+			}
+			</style>
+			";
 	
 			$maintext .= $explanation;
 				
