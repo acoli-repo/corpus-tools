@@ -150,9 +150,9 @@ void treatfile ( string filename ) {
 				// When asked, add more attributes to each result
 				for( vector<string>::iterator it2 = moreatts.begin(); it2 != moreatts.end(); it2++ ) {
 					string mxp = *it2;	
+					if ( debug ) { cout << "Looking up additional attribute: " << mxp << endl; };
 					pugi::xpath_node mnode = node.node().select_node(mxp.c_str());
 					mnode.node().print(std::cout);
-					cout << "blob: " << mxp << endl;
 					string mxv = mxp + "=";
 					node.node().append_attribute(mnode.attribute().name()) = mnode.attribute().value();
 				};
