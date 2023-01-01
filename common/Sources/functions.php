@@ -1163,7 +1163,7 @@
 		return $newurl;
 	};
 
-	function sentbyid($text, $eid) {
+	function sentbyid($text, $eid, $lvl = "s") {
 		# Use an explicit list of sentence IDs 
 		global $settings;
 		$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
@@ -1177,13 +1177,15 @@
 			$cqpfolder = "cqp/$subcorpus";
 		};
 
-		if ( !file_exists("cqp$subf/slist.csv") ) {
-			$cql = "Matches = <s> []+ </s>; tabulate Matches match text_id, match s_id, match, matchend;";
-			$cmd = "echo '$cql' | cqp -c -r cqp -D $cqpcorpus > cqp$subf/slist.csv";
+		$slistf = "cqp$subf/{$lvl}_list.csv";
+
+		if ( !file_exists($slistf) ) {
+			$cql = "Matches = <$lvl> []+ </$lvl>; tabulate Matches match text_id, match {$lvl}_id, match, matchend;";
+			$cmd = "echo '$cql' | /usr/local/bin/cqp -c -r cqp -D $cqpcorpus > $slistf";
 			shell_exec($cmd);
 		};
 		
-		$cmd = "grep '$text\t$eid\t' cqp$subf/slist.csv";
+		$cmd = "/usr/bin/grep '$text\t$eid\t' $slistf";
 		$poss = shell_exec($cmd);
 		
 		list ( $fileid, $elementid, $leftpos, $rightpos ) = explode("\t", $poss);

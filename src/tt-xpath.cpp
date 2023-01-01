@@ -26,6 +26,7 @@ pugi::xml_document trainlog;
 pugi::xml_node clsettings;
 pugi::xml_node cqpstats;
 vector<string> formTags;
+vector<string> moreatts;
 
 pugi::xml_document doc;
 pugi::xml_document xmlsettings;
@@ -146,6 +147,15 @@ void treatfile ( string filename ) {
 				if ( debug > 0 ) { cout << "  Result nr: " << sofar << " / " << perpage << endl; };
 				node.node().append_attribute("resnr") = to_string(sofar).c_str();
 				node.node().append_attribute("fileid") = fileid.c_str();
+				// When asked, add more attributes to each result
+				for( vector<string>::iterator it2 = moreatts.begin(); it2 != moreatts.end(); it2++ ) {
+					string mxp = *it2;	
+					pugi::xpath_node mnode = node.node().select_node(mxp.c_str());
+					mnode.node().print(std::cout);
+					cout << "blob: " << mxp << endl;
+					string mxv = mxp + "=";
+					node.node().append_attribute(mnode.attribute().name()) = mnode.attribute().value();
+				};
 				if ( sofar > start ) { 
 					node.node().print(*myout);
 				};
@@ -310,7 +320,7 @@ int main(int argc, char *argv[])
 	if ( clsettings.attribute("cluster") != NULL ) { cluster = clsettings.attribute("cluster").value(); }
 	if ( clsettings.attribute("max") != NULL ) { perpage = atoi(clsettings.attribute("max").value()); };
 	if ( clsettings.attribute("start") != NULL ) { start = atoi(clsettings.attribute("start").value()); } else { start = 0; };
-
+	if ( clsettings.attribute("moreatts") != NULL ) { moreatts = split(clsettings.attribute("moreatts").value(), ","); };
 
 	if ( xpquery == "" ) {
 		string tmp = argv[argc-1];

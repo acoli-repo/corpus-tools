@@ -4,7 +4,7 @@
 	$cid = preg_replace("/.*\//", "", $cid);
 	$cid = preg_replace("/\.xml/", "", $cid);
 	$treeid = $_GET['treeid'];
-	$sentenceid = $_GET['sentence'];
+	$sentenceid = $_GET['sentence'] or $sentenceid = $_GET['sid'];
 	$xpath = $_POST['xpath'] or $xpath = $_GET['xpath'] or $xpath = $_POST['query'] or $xpath = $_GET['query'];
 	if ( !$xpath && $_GET['qid'] && ( $userid || $username ) ) {
 		require("$ttroot/common/Sources/querymng.php");
@@ -786,7 +786,7 @@
 			$result = $forestxml->xpath("//forest"); 
  			foreach ( $result as $tmp ) { 
  				$sentid = $tmp['sentid'] or $sentid = $tmp['Location'];
- 				if ( !$sentid ) next; # Jump over forests without a linked sentence
+ 				if ( !$sentid ) continue; # Jump over forests without a linked sentence
  				$forestid = $tmp['id'];
 
 				unset($tmp);

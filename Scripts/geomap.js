@@ -80,7 +80,7 @@
 			  putxt = '<h2>Cluster</h2>';
 			  putxt += '<p>' + c.layer._childCount + ' locations</p><table>'
 			  for ( var mset in clusterdata.mdcnt ) {
-			  	if ( cqlset[mset].includes('%3Ctext') ) {
+			  	if ( cqlset[mset] !== undefined && cqlset[mset].includes('%3Ctext') ) {
 			  		// Document-level query
 					putxt += '<tr><td><span style="color: '+ collist[mset] +'">&#9641;</span><td align=right>' + clusterdata.mcnt[mset] + ' ' + doctxt + '</tr>';
 			  	} else {
@@ -130,7 +130,7 @@
 				doc.setcnt[mset] = mcnt;
 				doc.marktot += mcnt * 1;
 				markercol = collist[mset];
-				if ( cqlset[mset].includes('%3Ctext') ) {
+				if ( cqlset[mset] !== undefined && cqlset[mset].includes('%3Ctext') ) {
 					marktxt += '<tr><td><span style="color: '+markercol+'">&#9641;</span><td align=right>' + mcnt + ' ' + doctxt + '</tr>';
 				} else {
 					marktxt += '<tr><td><span style="color: '+markercol+'">&#9641;</span><td align=right>' + mdoc + ' ' + doctxt + '<td>|<td align=right>' + mcnt + ' results</tr>';

@@ -290,6 +290,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 		$maintext .= "<div id='mtxt' mod='$action' $textdir $tokselect>$xmltxt</div><table>";
 		if ( count($settings['xmlfile']['sattributes']['s']) > 1 && $username ) $maintext .= "<a style='float: right' href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid&act=metaedit'>edit metadata</a>";
 		foreach ( $settings['xmlfile']['sattributes']['s'] as $key => $val ) {
+			if ( !is_array($val) ) continue;
 			if ( $val['noshow'] || $val['nodeptree'] || $key == "id" ) continue;
 			if ( $val['color'] ) $style = " style=\"color: {$val['color']}\"";
 			$xval = $sent[$key]; $some = 1;
