@@ -589,8 +589,27 @@ $maintext .= "
 		
 		} else {
 		
+			$max = $_GET['perpage'] or $max = 100;
+			$tt = count($sentlist);
+			if ( $tt > $max ) {
+				$start = $_GET['start'] or $start = 0;
+				$st = $start + 1;
+				$lt = $start + $max;
+				$nav = "<p>Showing $st - $lt of $tt ";
+				if ( $st > 0 ) { 
+					$pt = max(0,$st-$max);
+					$nav .= " &bull; <a href='index.php?action=$action&cid=$cid&start=$pt'>previous</a>";
+				};
+				if ( $lt < $tt ) { 
+					$nt = min($tt,$lt);
+					$nav .= " &bull; <a href='index.php?action=$action&cid=$cid&start=$nt'>next</a>";
+				};
+				$sentlist = array_slice($sentlist,$start,$max);
+			};
 			$maintext .= "
 				<p>Select a sentence
+				
+				$nav
 				<table id='mtxt' mod='$action' $textdir>"; 
 		
 			foreach ( $sentlist as $sent ) {
