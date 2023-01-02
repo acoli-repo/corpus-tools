@@ -278,7 +278,9 @@ class TTXML
 						// Link when so asked
 						if ( $val['link'] && $hval ) {
 							if ( strpos($val['link'], "http") != false ) $tmp = $val['link'];
-							else if ( strpos($val['link'], "{#") != false ) {
+							else if ( $val['link'] == "self" ) {
+								$tmp = $val;
+							} else if ( strpos($val['link'], "{#") != false ) {
 								$tmp = xpathrun($val['link'], $this->xml);
 								if ( $tmp == preg_replace("/{#[^{}]*}/", "", $val['link']) ) $tmp = "";
 							} else $tmp = getxpval($this->xml, $val['link']);
