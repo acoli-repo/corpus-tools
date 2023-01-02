@@ -26,8 +26,8 @@
 	if ( $checkshared == $foldername ) $isshared = 1;
 	
 	# See if there are any local or shared startup scripts
-	if ( file_exists("Sources/startup.php") ) require("Sources/startup.php");
 	if ( file_exists("$sharedfolder/Sources/startup.php") ) require("$sharedfolder/Sources/startup.php");
+	if ( file_exists("Sources/startup.php") ) require("Sources/startup.php");
 
 	# Read any shared settings
 	function readinshared($sharr, &$starr) {
