@@ -167,9 +167,9 @@ function infotable (elmnode) {
 			var atttype = '';
 			if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['type'] ) atttype = formdef[att]['type'];
 			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['type'] ) atttype = tagdef[att]['type'];
-			if ( atttype == 'pos' ) { rowval = treatpos(elmnode, att, 'full'); }
-				else if ( atttype == 'udfeats' ) { rowval = treatfeats(elmnode, att, 'full'); }
-				else if ( atttype == 'ref' ) { rowval = treatref(elmnode, att, 'full'); }
+			if ( atttype == 'pos' && typeof(treatpos) == 'function' ) { rowval = treatpos(elmnode, att, 'full'); }
+				else if ( atttype == 'udfeats' && typeof(treatfeats) == 'function' ) { rowval = treatfeats(elmnode, att, 'full'); }
+				else if ( atttype == 'ref' && typeof(treatref) == 'function' ) { rowval = treatref(elmnode, att, 'full'); }
 				else if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['options'] && formdef[att]['options'][rowval] ) { rowval = formdef[att]['options'][rowval]['display'] + ' (' + rowval + ')'; }
 				else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['options'] && tagdef[att]['options'][rowval] ) { rowval = tagdef[att]['options'][rowval]['display'] + ' (' + rowval + ')'; 
 			}; 
