@@ -13,6 +13,7 @@ if ( !document.getElementById('tokinfo') ) {
 	tokinfo.setAttribute('id', 'tokinfo');
 	document.body.appendChild(tokinfo);
 };
+if ( typeof(tibel) == 'undefined' ) { var tibel = 4; };
 
 function clickEvent(evt) { 
 	element = evt.toElement;
@@ -40,6 +41,9 @@ function clickEvent(evt) {
 
 function mouseOut(evt) {
 	hidetokinfo();
+	if ( typeof(dllines) == "object" ) {
+		remlines();
+	};
 };
 
 function hidetokinfo() {
@@ -62,7 +66,11 @@ function mouseEvent(evt) {
 
 	showtokinfo(evt, element);
 	highlightbb(element);
-	
+
+	if ( typeof(dllines) == "object" ) {
+		drawtok(element);
+	};
+		
 };
 	
 function showtokinfo(evt, element, poselm) {
@@ -128,7 +136,7 @@ function showtokinfo(evt, element, poselm) {
 			var foffset = offset(poselm);
 		};
 		tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
-		tokinfo.style.top = ( foffset.top + element.offsetHeight + 4 ) + 'px';
+		tokinfo.style.top = ( foffset.top + element.offsetHeight + tibel ) + 'px';
 
     };
  
@@ -353,4 +361,70 @@ function treatref ( tok, label, type ) {
 	return tagexpl;
 };
 
+
+// Show dependency lines
+var dldepth = { 'top': 0, 'bottom': 0};
+var dlcols = { 'top': 'rgba(226,0,122,0.6)', 'bottom': 'rgba(0,122,226,0.6)'};
+
+function drawline(id1, id2, pos = 'top') {
+	el1 = document.getElementById(id1);
+	el2 = document.getElementById(id2);
+	var dpt = 5;
+	if ( typeof(dloff) != 'undefined' ) {
+		dpt = 5 * (dldepth[pos] + 1);
+	};
+	var line = new LeaderLine(
+	  el1,
+	  el2,
+			{
+				  size: 1.5,
+				  endPlug: 'Arrow3',
+				  endPlugSize: 1.8,
+				  color: dlcols[pos],
+				  startSocket: pos,
+				  startSocketGravity: dpt,
+				  endSocket: pos,
+				  endSocketGravity: dpt,
+				  path: 'grid',
+				  dash: false
+			} );
+	return line;
+};
+function drawhead (tok, pos = 'top') {
+	if ( typeof(tok) != 'object' ) return false;
+	id1 = tok.getAttribute('id');
+	id2 = tok.getAttribute('head');
+	if ( id1 && id2 ) { 
+		line = drawline(id1, id2, pos); 
+		if ( line ) { 
+			dllines.push(line); 
+			dldepth[pos]++;
+		};
+	};
+};
+function drawtok ( element ) {
+	sent = element;
+	while( sent.parentNode && sent.tagName != 'S'  ) {
+		sent = sent.parentNode;
+	};
+	if ( sent.tagName == 'S' ) {
+		drawhead(element);
+		deps = sent.getElementsByTagName('TOK');
+		for ( dep in deps ) {
+			if ( deps[dep].tagName == 'TOK' ) {
+				tok = deps[dep];
+				if ( tok.getAttribute('head') == element.getAttribute('id') ) {
+					line = drawhead(tok, 'bottom'); 
+				};
+			};
+		};
+	};
+};
+function remlines() {
+	while ( line = dllines.pop() ) {
+		line.remove();
+	};
+	dldepth['top'] = 0;
+	dldepth['bottom'] = 0;
+};
 

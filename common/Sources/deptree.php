@@ -287,7 +287,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 			};
 		};
 
-		$maintext .= "<div id='mtxt' mod='$action' $textdir $tokselect>$xmltxt</div><table>";
+		$maintext .= "<div id='mtxt' mod='$action' $textdir $tokselect style='padding: 10px;'>$xmltxt</div><table>";
 		if ( count($settings['xmlfile']['sattributes']['s']) > 1 && $username ) $maintext .= "<a style='float: right' href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid&act=metaedit'>edit metadata</a>";
 		foreach ( $settings['xmlfile']['sattributes']['s'] as $key => $val ) {
 			if ( !is_array($val) ) continue;
@@ -359,6 +359,11 @@ $maintext .= "
 	 		<option value='conll-u' link='index.php?action=$action&act=conllu&cid={$ttxml->fileid}&sid={$sent['id']}'>CoNLL-U</option>
 	 	</select>
 	<canvas style='display: none;' id='myCanvas' width='800' height='400' ></canvas>
+				<script src=\"https://cdnjs.cloudflare.com/ajax/libs/leader-line/1.0.3/leader-line.min.js\"></script>
+				<script>
+						var dllines = [];
+						var tibel = 15;
+				</script>
 	<script language=Javascript>
 		document.getElementById('svgdiv').style.height = document.querySelector('svg').getAttribute('height') + 'px';
 		var localhl = 1; // use a local highlight function
@@ -608,10 +613,15 @@ $maintext .= "
 			};
 			$maintext .= "
 				<p>Select a sentence
-				
+
+				<script src=\"https://cdnjs.cloudflare.com/ajax/libs/leader-line/1.0.3/leader-line.min.js\"></script>
+				<script>
+						var dllines = [];
+						var tibel = 10;
+				</script>
 				$nav
 				<table id='mtxt' mod='$action' $textdir>"; 
-		
+	
 			foreach ( $sentlist as $sent ) {
 			
 				if ( $username && $settings['xmlfile']['sattributes']['s']['status'] ) {
