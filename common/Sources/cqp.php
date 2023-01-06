@@ -11,6 +11,8 @@
 
 	include ("$ttroot/common/Sources/cwcqp.php");
 
+	if ( $act == "select" ) $_SESSION['subc'] = "";
+	
 	# Determine which form to search on by default
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 
@@ -40,7 +42,7 @@
 			};
 			if ( !$subcorpusname ) $subcorpusname = $subfolder;
 			if ( !$corpusname ) $corpusname = "Subcorpus $subcorpusname";
-			$subcorpustit = "<h2>$corpusname</h2>";
+			$subcorpustit = "<h2>$corpusname (<a href='index.php?action=$action&act=select'>{%change}</a>)</h2>";
 		};
 	} else {
 		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
