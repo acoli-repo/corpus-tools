@@ -14,11 +14,11 @@
 
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	if ( $settings['cqp']['subcorpora'] ) {
-		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'];
+		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername];
 		if ( !$subcorpus ) {
 			fatal("No subcorpus selected");
 		};
-		$_SESSION['subc'] = $subcorpus;
+		$_SESSION['subc-'.$foldername] = $subcorpus;
 		$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = "cqp/$subcorpus";
 		$corpusname = $_SESSION['corpusname'] or $corpusname = "Subcorpus $subcorpus";

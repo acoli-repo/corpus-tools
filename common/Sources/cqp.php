@@ -11,7 +11,7 @@
 
 	include ("$ttroot/common/Sources/cwcqp.php");
 
-	if ( $act == "select" ) $_SESSION['subc'] = "";
+	if ( $act == "select" ) $_SESSION['subc-'.$foldername] = "";
 	
 	# Determine which form to search on by default
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
@@ -19,20 +19,20 @@
 	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	if ( $settings['cqp']['subcorpora'] ) {
-		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'] or $subcorpus = "";
+		$subcorpus = $subcorpus = $_GET['subc'] or $_SESSION['subc-'.$foldername] or $subcorpus = "";
 		if ( !$subcorpus ) {
 			# fatal("No subcorpus selected");
 			$act = "select";
 			$cqpcorpus = "";
 		} else {
-			$_SESSION['subc'] = $subcorpus;
+			$_SESSION['subc-'.$foldername] = $subcorpus;
 			if ( file_exists($registryfolder."/".strtolower($subcorpus)) ) {
 				$cqpcorpus = strtoupper("$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
 				$subfolder = preg_replace("/.*-/", "", $subcorpus);
 			} else $subfolder = "$subcorpus";
 			if ( !file_exists($registryfolder."/".strtolower($cqpcorpus)) ) {
 				print "Not a subcorpus: $cqpcorpus / $subcorpus"; exit;
-				$_SESSION['subc'] = "";
+				$_SESSION['subc-'.$foldername] = "";
 				$act = "select";
 				$cqpcorpus = "";
 			}

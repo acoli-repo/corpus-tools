@@ -27,7 +27,7 @@
 	$end = $start + $max;
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps and cannot be provided by API
-	$subcorpus = $_POST['subcorpus'] or $subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc']; 
+	$subcorpus = $_POST['subcorpus'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = $_GET['subc']; 
 	if ( $subcorpus ) {
 		$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = "cqp/$subcorpus";

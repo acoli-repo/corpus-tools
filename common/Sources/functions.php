@@ -1170,7 +1170,7 @@
 		$cqpcorpus = strtoupper($cqpcorpus);
 		$cqpfolder = "cqp";
 		
-		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'] or $subcorpus = "";
+		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = "";
 		if ( $subcorpus ) { 
 			$subf = "/$subcorpus"; 
 			$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
@@ -1185,6 +1185,8 @@
 			shell_exec($cmd);
 		};
 		
+		# if (substr($text,0,9) != "xmlfiles" ) $text = "xmlfiles/$textid";
+
 		$cmd = "/bin/grep '$text\t$eid\t' $slistf";
 		$poss = shell_exec($cmd);
 		
