@@ -1213,4 +1213,18 @@
 		return current($tmp);
 	};
 	
+	function doinclude($file) {
+		global $sharedfolder, $username;
+		
+		if ( !preg_match("/\..*/", $file) ) $file .= ".php";
+		if ( file_exists("Sources/$file") ) $inc = "Sources/$file";
+		if ( file_exists("$sharedfolder/Sources/$file") ) $inc = "$sharedfolder/Sources/$file";
+		if ( file_exists("$ttroot/common/Sources/$file") ) $inc = "$ttroot/common/Sources/$file";
+		
+		if ( $inc ) require_once($inc);
+		else if ( $username ) fatal("Module not found: $file");
+		else fatal("A fatal error occurred");
+		
+	};
+	
 ?>

@@ -4,6 +4,7 @@ use Getopt::Long;
 
 GetOptions ( ## Command line options
 		'debug' => \$debug, # debugging mode
+		'verbose' => \$verbose, # verbose mode
 		'test' => \$test, # tokenize to string, do not change the database
 		'sub=s' => \$subc, # set which subcorpus to compile
 		'setfile=s' => \$setfile, # alternative settings file
@@ -19,6 +20,8 @@ if ( $setfile ) {
 } else {
 	$setfile = "Resources/settings.xml";
 };
+
+if ( $debug ) { $verbose = 1; };
 
 # Read the parameter set
 my $settings = XML::LibXML->load_xml(
@@ -42,7 +45,7 @@ if ( $settings->findnodes("//cqp/\@searchfolder") ) {
 } else { $search = "xmlfiles"; };
 
 
-if ( $sub ) { $scf = "$sub/"; };
+if ( $subc ) { $scf = "/$subc"; };
 
 $starttime = time(); 
 print FILE 'Regeneration started on '.localtime();
@@ -61,15 +64,33 @@ if ( $sub ) {
 	while ( <$search/*> ) {
 		$sf = $_; ( $fn = $sf ) =~ s/.*\///;
 		
+		if ( !-d "$search/$fn" ) { next; };
+		$test = `find $search/$fn -name '*.xml' | head -n 3`;
+		if ( !$test ) { 
+			if ( $verbose ) { print "Skipping empty subfolder: $fn"; }
+			next;
+		};
+		
 		if ( $subc && $fn ne $subc ) { next; };
 		print "Creating $fn";	
 
 		$subcorpus = "$cqpcorpus-$fn";
 		`mkdir -p cqp/$fn`;
 		
+		if ( $settings->findnodes("//cqp/subcorpora") ) {
+			$cqpcorpus = $settings->findnodes("//cqp/\@corpus")->item(0)->value."";
+		} elsif ( $settings->findnodes("//title/\@display") ) {
+			$corpname = $settings->findnodes("//title/\@display")->item(0)->value."";
+			$subcorpusname = $corpname." - ".$fn;
+		} else {
+			$subcorpusname = $subcorpus;
+		};
+		
+		if ( $verbose ) { print "Dealing with subcorpus $subcorpus - $subcorpusname"; }
+		
 		print FILE '----------------------';
 		print FILE '(1) Encoding subcorpus $fn';
-		$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder --folder='$sf' --corpusfolder='cqp/$fn' --corpus='$subcorpus' $setopt";
+		$cmd = "/usr/local/bin/tt-cwb-encode -r $regfolder --folder='$sf' --corpusfolder='cqp/$fn' --corpus='$subcorpus' --name='$subcorpusname' $setopt";
 		print FILE "command:
 		$cmd";
 		`$cmd`;

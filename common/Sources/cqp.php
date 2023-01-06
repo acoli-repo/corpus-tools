@@ -19,17 +19,34 @@
 	if ( $settings['cqp']['subcorpora'] ) {
 		$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'] or $subcorpus = "";
 		if ( !$subcorpus ) {
-			fatal("No subcorpus selected");
+			# fatal("No subcorpus selected");
+			$act = "select";
+			$cqpcorpus = "";
+		} else {
+			$_SESSION['subc'] = $subcorpus;
+			if ( file_exists($registryfolder."/".strtolower($subcorpus)) ) {
+				$cqpcorpus = strtoupper("$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
+				$subfolder = preg_replace("/.*-/", "", $subcorpus);
+			} else $subfolder = "$subcorpus";
+			if ( !file_exists($registryfolder."/".strtolower($cqpcorpus)) ) {
+				print "Not a subcorpus: $cqpcorpus / $subcorpus"; exit;
+				$_SESSION['subc'] = "";
+				$act = "select";
+				$cqpcorpus = "";
+			}
+			$cqpfolder = "cqp/$subfolder";
+			if ( is_array($settings['cqp']['subcorpora']) && is_array($settings['cqp']['subcorpora'][$subfolder]) ) {
+				$subcorpusname = $settings['cqp']['subcorpora'][$subfolder]['display'];
+			};
+			if ( !$subcorpusname ) $subcorpusname = $subfolder;
+			if ( !$corpusname ) $corpusname = "Subcorpus $subcorpusname";
+			$subcorpustit = "<h2>$corpusname</h2>";
 		};
-		$_SESSION['subc'] = $subcorpus;
-		$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = "cqp/$subcorpus";
-		$corpusname = $_SESSION['corpusname'] or $corpusname = "Subcorpus $subcorpus";
-		$subcorpustit = "<h2>$corpusname</h2>";
 	} else {
 		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
 		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
 	};
+	
 	// Do not allow searches while the corpus is being rebuilt...
 	if ( file_exists("tmp/recqp.pid") ) {
 		fatal ( "Search is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
@@ -47,15 +64,17 @@
 	if  ( !$corpusfolder ) $corpusfolder = "cqp";
 
 	# Check whether the registry file exists
-	if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
-		# For backward compatibility, always check the central registry
-		$registryfolder = "/usr/local/share/cwb/registry/";
+	if ( $cqpcorpus ) {
+		if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
+			# For backward compatibility, always check the central registry
+			$registryfolder = "/usr/local/share/cwb/registry/";
+		};
+		if ( !file_exists($registryfolder.'/'.strtolower($cqpcorpus)) && !file_exists("cqp/".strtolower($cqpcorpus)) ) {
+			if ( $username ) fatal ( "Corpus $cqpcorpus has no registry file" );
+			else fatal ( "This corpus is not yet ready for searching" );
+		};
 	};
-	if ( !file_exists($registryfolder.'/'.strtolower($cqpcorpus)) && !file_exists("cqp/".strtolower($cqpcorpus)) ) {
-		if ( $username ) fatal ( "Corpus $cqpcorpus has no registry file" );
-		else fatal ( "This corpus is not yet ready for searching" );
-	};
-
+	
 	# Old sattributes did not have <text> inside
 	if ( !is_array($settings['cqp']['sattributes']['text']) ) {
 		$settings['cqp']['sattributes']['text'] = $settings['cqp']['sattributes'];
@@ -88,7 +107,35 @@
 	$cql = stripslashes($cql);
 
 
-	if ( $act == "download" ) {
+	if ( $act == "select" ) {
+
+		foreach ( scandir("cqp") as $fld ) {
+			$fldrs = array();
+			if ( is_dir($fld) ) {
+				array_push($fldrs, $fld);
+			} else {
+				if ( filesize("cqp/$fld") > 2000 ) continue;
+				$res = shell_exec("grep 'NAME ' cqp/$fld");
+				if ( substr($res,0,5) == "NAME " ) {
+					$corpname = substr($res,5);
+					$corpname = preg_replace("/^\"(.*)\"\$/", "\\1", $corpname);
+					$corpid = preg_replace("/.*-/", "", $fld);
+					$corps[$fld] = $corpname;
+				};
+			};
+		};
+	
+		if ( !$corps ) fatal("No subcorpora of this corpus are searchable at this time");
+		
+		$maintext .= "<h1>{%Select Subcorpus}</h1><ul>";
+		$maintext .= getlangfile("subc-select");
+	
+		foreach ( $corps as $corpid => $corpname ) {
+			$maintext .= "<li> <a href='index.php?action=$action&subc=$corpid'>$corpname</li>";
+		};
+		$maintext .= "</ul>";
+	
+	} else if ( $act == "download" ) {
 		# Download results of a Match as TXT
 
 		header("content-type: text/txt; charset=utf-8");

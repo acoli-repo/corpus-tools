@@ -74,7 +74,8 @@ class TTTAGS
 	function taglist () {
 		global $lang;
 		$optionarray = array ();
-		foreach ( $this->tagset['positions'] as $key => $val ) {
+		if ( is_array($this->tagset) && is_array($this->tagset['positions']) ) 
+		  foreach ( $this->tagset['positions'] as $key => $val ) {
 			if ( $val['multi'] ) {
 				foreach ( $val['multi'] as $key2 => $val2 ) {
 					$pname = $val2['display-'.$lang] or $pname = "{%".$val2['display']."}";

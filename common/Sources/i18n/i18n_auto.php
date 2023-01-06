@@ -60,6 +60,7 @@
 		"Collation on" => "Collation on",
 		"results" => "results",
 		"headtext" => "headtext",
+		"Select Subcorpus" => "Select Subcorpus",
 		"Word Distribution" => "Word Distribution",
 		"Words by" => "Words by",
 		"Corpus Search" => "Corpus Search",
