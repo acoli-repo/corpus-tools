@@ -27,9 +27,9 @@
 	// Parse the URL if it is not just index.php
 	$phpself = $_SERVER['SCRIPT_NAME'];
 	$urireq = $_SERVER['REQUEST_URI'];
-	if ( $settings['defaults']['base']['ttroot'] && $settings['defaults']['base']['foldername'] ) $basefldr = $settings['defaults']['base']['ttroot'].$settings['defaults']['base']['foldername'];
+	if ( $settings['defaults']['base']['ttroot'] && $settings['defaults']['base']['foldername'] ) $basefldr = $settings['defaults']['base']['ttroot'].$settings['defaults']['base']['foldername']."/";
 	else $basefldr = str_replace("index.php", "", $phpself);
-	if ( substr($urireq, 0,strlen($basefldr)) == $basefldr) {
+	if ( substr($urireq, 0, strlen($basefldr)) == $basefldr) {
 		$basereq = substr($urireq, strlen($basefldr));
 		if ( preg_match("/^(...?)\/(.*)$/", $basereq, $matches) 
 			&& is_array($settings['languages']) && $settings['languages']['options'][$matches[1]] # Only allow defined langs via the URL
