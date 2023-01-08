@@ -27,7 +27,8 @@
 	// Parse the URL if it is not just index.php
 	$phpself = $_SERVER['SCRIPT_NAME'];
 	$urireq = $_SERVER['REQUEST_URI'];
-	$basefldr = str_replace("index.php", "", $phpself);
+	if ( $settings['defaults']['base']['ttroot'] && $settings['defaults']['base']['foldername'] ) $basefldr = $settings['defaults']['base']['ttroot'].$settings['defaults']['base']['foldername'];
+	else $basefldr = str_replace("index.php", "", $phpself);
 	if ( substr($urireq, 0,strlen($basefldr)) == $basefldr) {
 		$basereq = substr($urireq, strlen($basefldr));
 		if ( preg_match("/^(...?)\/(.*)$/", $basereq, $matches) 

@@ -26,7 +26,7 @@
 	
 	if ( $_GET['subc'] ) {
 		$subc = $_GET['subc'];
-		$subcsel = " --subc='$subc' ";
+		$subcsel = " --sub='$subc' ";
 		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
 	};
 	
