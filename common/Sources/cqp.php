@@ -747,10 +747,11 @@
 		$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
 	};
 
+	#  style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'
 			$maintext .= "
 					$viewoptions $showoptions
 					<hr>
-				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
+				<div id='tokinfo'></div>
 				$countrow
 				<div id='mtxt' mod='$action' $textdir><text><table class='kwictable' $direc>$editxml</table></text></div>
 

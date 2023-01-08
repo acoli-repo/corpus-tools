@@ -23,6 +23,13 @@
 	
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
+	
+	if ( $_GET['subc'] ) {
+		$subc = $_GET['subc'];
+		$subcsel = " --subc='$subc' ";
+		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
+	};
+	
 	$registryfile = $registryfolder.strtolower($cqpcorpus);
 	
 	if ( file_exists($registryfile) ) {
@@ -114,7 +121,7 @@
 				</script>";
 				
 		# Start the perl script as a background process
-		$cmd = "perl $scriptname $setfile > /dev/null &";
+		$cmd = "perl $scriptname $setfile $subcsel > /dev/null &";
 		exec($cmd);
 
 	} else if ( ( $_GET['check'] || $recentfile ) && file_exists("tmp/recqp.log")  && !$_GET['force'] ) {
