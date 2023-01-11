@@ -70,6 +70,7 @@ anon::after { content: ']'; }
 #mtxt tei_head[n=2] { display: block; font-size: 120%; }
 #mtxt tei_head[n=3] { display: block; font-size: 110%; }
 #mtxt tei_head[n=4] { display: block; font-size: 100%; }
+#mtxt tei_div { display: block; }
 
 /* Style for the token boxes when showing tags */
 .floatblock {
