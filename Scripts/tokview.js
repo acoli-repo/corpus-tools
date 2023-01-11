@@ -149,7 +149,7 @@ function infotable (elmnode) {
 			var fsa = Object.keys(formdef);
 			attributelist = attributelist.concat(fsa);
 		};
-		if ( tagdef ) {
+		if ( typeof(tagdef) == "object" ) {
 			var fsa = Object.keys(tagdef);
 			attributelist = attributelist.concat(fsa);
 		};

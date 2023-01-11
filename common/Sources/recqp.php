@@ -70,9 +70,21 @@
 			<p>Step 2 tends to be fast, while steps 1 can take several minutes (or even hours depending on the size of the corpus). ";
 		};
 		
-		$cursize = hrnum(filesize("cqp/word.corpus")/4);
+		$tmp = shell_exec("grep 'CQP Corpus:' tmp/recqp.pid");
+		if ( !$subc && preg_match("/$cqpcorpus-(.*)/i", $tmp, $matches) ) {
+			$subc = $matches[1];
+			$corpname = $matches[0];
+			$tmp = shell_exec("grep NAME cqp/".strtolower($corpname));
+			if ( preg_match("/NAME \"(.*?)\"/", $tmp, $matches2) ) $corpname = $matches2[1];
+			$corpname = "<p>Subcorpus: $corpname";
+		};
+		
+		$cursize = hrnum(filesize("cqp/$subc/word.corpus")/4);
 		$maintext .= "<p>The current status of the process can be read below. 
-			$proctxt			
+		
+		$corpname
+		
+		$proctxt			
 			<p> - Last regeneration: $lastupdate
 			<p> - Current regeneration: $cursize tokens indexed
 		
