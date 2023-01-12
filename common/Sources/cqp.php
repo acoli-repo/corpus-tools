@@ -610,7 +610,7 @@
 				$rawxml = $resxml;
 
 				# Replace block-type elements by vertical bars
-				$resxml = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l|lg|div) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='\\1'>|</span> ", $resxml);
+				$resxml = preg_replace ( "/(<\/?(p|seg|u|l)>\s*|<(p|seg|u|l|lg|div|tei_div) [^>]*>\s*)+/", " <span style='color: #aaaaaa' title='\\1'>|</span> ", $resxml);
 				$resxml = preg_replace ( "/(<\/?(doc)>\s*|<(doc) [^>]*>\s*)+/", " <span style='color: #995555; font-weight: bold;' title='\\1'>|</span> ", $resxml);
 				$resxml = preg_replace ( "/(<(lb|br|cb|sb)[^>]*>)\s*/", " <span style='color: #aaffaa' title='\\1'>|</span> ", $resxml);
 				$resxml = preg_replace ( "/(<pb[^>]*>\s*)+/", " <span style='color: #ffaaaa' title='\\1'>|</span> ", $resxml);
