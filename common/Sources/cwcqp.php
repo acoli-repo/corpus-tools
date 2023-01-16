@@ -178,10 +178,9 @@ function checkcqp($subcorpus) {
 		if ( $subcorpus ) {
 			$tmp = file_get_contents("tmp/recqp.pid");
 			if ( preg_match( "/CQP Corpus: (.*)/", $tmp, $matches) ) $buildc = strtoupper($matches[1]);
-			if ( $buildc == strtoupper($subcorpus) ) $busy = 2;
-			else if ( $buildc == strtoupper($settings['cqp']['corpus']) ) $busy = 1;
+			if ( $buildc == strtoupper($subcorpus) || $buildc == strtoupper($settings['cqp']['corpus'])  || $buildc == strtoupper($settings['cqp']['corpus']."-".$subcorpus) ) $busy = 1;
 		} else {
-			$buildc = "the CQP corpus";
+			$buildc = "the entire CQP corpus";
 			$busy = 1;
 		};
 	};
