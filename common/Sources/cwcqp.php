@@ -177,7 +177,7 @@ function checkcqp($subcorpus) {
 	if ( file_exists("tmp/recqp.pid") ) {
 		if ( $subcorpus ) {
 			$tmp = file_get_contents("tmp/recqp.pid");
-			if ( preg_match( "/CQP Corpus: (.*)/", $tmp, $matches) ) $buildc = $matches[1];
+			if ( preg_match( "/CQP Corpus: (.*)/", $tmp, $matches) ) $buildc = strtoupper($matches[1]);
 			if ( $buildc == strtoupper($subcorpus) ) $busy = 2;
 			else if ( $buildc == strtoupper($settings['cqp']['corpus']) ) $busy = 1;
 		} else {
