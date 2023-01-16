@@ -170,4 +170,25 @@ class CQP
     
 }
 
+function checkcqp($subcorpus) {
+	global $settings, $username;
+	$busy = false;
+
+	if ( file_exists("tmp/recqp.pid") ) {
+		if ( $subcorpus ) {
+			$tmp = file_get_contents("tmp/recqp.pid");
+			if ( preg_match( "/CQP Corpus: (.*)/", $tmp, $matches) ) $buildc = $matches[1];
+			if ( $buildc == strtoupper($subcorpus) ) $busy = 2;
+			else if ( $buildc == strtoupper($settings['cqp']['corpus']) ) $busy = 1;
+		} else {
+			$buildc = "the CQP corpus";
+			$busy = 1;
+		};
+	};
+	if ( $username && $busy ) fatal ( "Search is currently unavailable because $buildc is being rebuilt. Please try again in a couple of minutes." );
+	else if ( $busy ) fatal ( "Search is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
+
+	return true;
+};
+
 ?>

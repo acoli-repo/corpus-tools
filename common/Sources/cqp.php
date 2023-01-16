@@ -50,9 +50,7 @@
 	};
 	
 	// Do not allow searches while the corpus is being rebuilt...
-	if ( file_exists("tmp/recqp.pid") ) {
-		fatal ( "Search is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
-	};
+	checkcqp($subcorpus);
 	# print "Folder: $cqpfolder - reg: $registryfolder - corpus: $cqpcorpus"; exit;
 	
 	// This version of CQP relies on XIDX - check whether program and file exist
