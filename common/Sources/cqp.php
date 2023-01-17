@@ -115,13 +115,18 @@
 				array_push($fldrs, $fld);
 			} else {
 				if ( filesize("cqp/$fld") > 2000 ) continue;
+				$res = shell_exec("grep 'HOME ' cqp/$fld");
+				if ( substr($res,0,5) == "HOME " ) {
+					$corpfolder = substr($res,5);
+					$corpf[$fld] = $corpfolder;
+				};
 				$res = shell_exec("grep 'NAME ' cqp/$fld");
 				if ( substr($res,0,5) == "NAME " ) {
 					$corpname = substr($res,5);
 					$corpname = trim(preg_replace("/^\"(.*)\"\$/", "\\1", $corpname));
 					$corpid = preg_replace("/.*-/", "", $fld);
 					if ( !$corpname ) $corpname = $corpid;
-					if ( !$corpname ) $corpname = $fld;
+					if ( !$corpname ) $corpname = preg_replace("/.*\//", "", $corpfolder);
 					if ( !$corpname ) $corpname = "(no name)";
 					$corps[$fld] = $corpname;
 				};
