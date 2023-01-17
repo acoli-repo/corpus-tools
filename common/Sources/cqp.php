@@ -42,7 +42,9 @@
 			};
 			if ( !$subcorpusname ) $subcorpusname = $subfolder;
 			if ( !$corpusname ) $corpusname = "Subcorpus $subcorpusname";
-			$subcorpustit = "<h2>$corpusname (<a href='index.php?action=$action&act=select'>{%change}</a>)</h2>";
+			$subcorpustit = "<h2>$corpusname (<a href='index.php?action=$action&act=select'>{%change}</a>)";
+			if ( $username ) $subcorpustit .= " - <a style='font-weight: normal;' href='index.php?action=recqp&subc=$subfolder'>regenerate</a>";
+			$subcorpustit .= "</h2>";
 		};
 	} else {
 		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
