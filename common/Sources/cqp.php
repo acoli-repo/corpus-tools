@@ -121,6 +121,7 @@
 					$corpname = preg_replace("/^\"(.*)\"\$/", "\\1", $corpname);
 					$corpid = preg_replace("/.*-/", "", $fld);
 					if ( !$corpname ) $corpname = $corpid;
+					if ( !$corpname ) $corpname = $fld;
 					$corps[$fld] = $corpname;
 				};
 			};
