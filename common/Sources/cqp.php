@@ -130,13 +130,19 @@
 	
 		if ( !$corps ) fatal("No subcorpora of this corpus are searchable at this time");
 		
-		$maintext .= "<h1>{%Select Subcorpus}</h1><ul>";
+		$maintext .= "<h1>{%Select Subcorpus}</h1>
+		
+			<table>
+			<tr><th>Subcorpus<th>Token size</th></tr>";
 		$maintext .= getlangfile("subc-select");
 	
-		foreach ( $corps as $corpid => $corpname ) {
-			$maintext .= "<li> <a href='index.php?action=$action&subc=$corpid'>$corpname</li>";
+		$fullcorp = strtolower($settings['cqp']['corpus']);
+		foreach ( $corps as $corpid => $corpname ) {	
+			$corpfld = str_replace($fullcorp."-", "", $corpid);
+			$rawsize = hrnum(filesize("cqp/$corpfld/word.corpus")/4);
+			if ( $rawsize > 0 ) $maintext .= "<tr><td><a href='index.php?action=$action&subc=$corpid'>$corpname</a><td align=right>$rawsize";
 		};
-		$maintext .= "</ul>";
+		$maintext .= "</table>";
 	
 	} else if ( $act == "download" ) {
 		# Download results of a Match as TXT
