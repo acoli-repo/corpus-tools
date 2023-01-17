@@ -119,8 +119,8 @@
 				if ( substr($res,0,5) == "NAME " ) {
 					$corpname = substr($res,5);
 					$corpname = preg_replace("/^\"(.*)\"\$/", "\\1", $corpname);
-					if ( !$corpname ) $corpname = $corpid;
 					$corpid = preg_replace("/.*-/", "", $fld);
+					if ( !$corpname ) $corpname = $corpid;
 					$corps[$fld] = $corpname;
 				};
 			};
