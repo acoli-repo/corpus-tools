@@ -28,14 +28,12 @@
 			$_SESSION['subc-'.$foldername] = $subcorpus;
 			if ( file_exists($registryfolder."/".strtolower($subcorpus)) ) {
 				$cqpcorpus = strtoupper("$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
-				$subfolder = preg_replace("/.*-/", "", $subcorpus);
-			} else {
 				$res = shell_exec("grep 'HOME ' $registryfolder/$subcorpus");
 				if ( substr($res,0,5) == "HOME " ) {
 					$subcorpfolder = trim(substr($res,5));
 				};
 				$subfolder = preg_replacE("/.*\//", "", $subcorpfolder);
-			};
+			} else $subfolder = "$subcorpus";
 			if ( !file_exists($registryfolder."/".strtolower($cqpcorpus)) ) {
 				print "Not a subcorpus: $cqpcorpus / $subcorpus"; exit;
 				$_SESSION['subc-'.$foldername] = "";
