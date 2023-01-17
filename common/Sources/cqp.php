@@ -117,7 +117,7 @@
 				if ( filesize("cqp/$fld") > 2000 ) continue;
 				$res = shell_exec("grep 'HOME ' cqp/$fld");
 				if ( substr($res,0,5) == "HOME " ) {
-					$corpfolder = substr($res,5);
+					$corpfolder = trim(substr($res,5));
 					$corpf[$fld] = $corpfolder;
 				};
 				$res = shell_exec("grep 'NAME ' cqp/$fld");
@@ -143,9 +143,9 @@
 	
 		$fullcorp = strtolower($settings['cqp']['corpus']);
 		foreach ( $corps as $corpid => $corpname ) {	
-			$corpfld = str_replace($fullcorp."-", "", $corpid);
-			$rawsize = hrnum(filesize("cqp/$corpfld/word.corpus")/4);
-			if ( $rawsize > 0 ) $maintext .= "<tr><td><a href='index.php?action=$action&subc=$corpid'>$corpname</a><td align=right>$rawsize";
+			$corpfld = $corpf[$corpid];
+			$rawsize = hrnum(filesize("$corpfld/word.corpus")/4);
+			if ( $rawsize > 0 || 1==1 ) $maintext .= "<tr><td><a href='index.php?action=$action&subc=$corpid'>$corpname</a><td align=right>$rawsize";
 		};
 		$maintext .= "</table>";
 	
