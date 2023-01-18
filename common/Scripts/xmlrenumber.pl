@@ -212,11 +212,26 @@ if ( $test ) {
 
 sub addid($xnode, $newid, $newcnt) { 
 	( $xnode, $newid, $newcnt ) = @_; 
+	
+	# For speed, check once whether there isa need to renumber 
+	$nn = $xnode->getName();
+
+	if ( !$hasnums{$nn} ) {
+		$tmpc = "//text//".$nn."[\@id]";
+		$tmp = $tmpdoc->findnodes($tmpc);
+		if ( $tmp ) { 
+			$hasnums{$nn} = 1; # There are numbered examples of this type
+			if ( $verbose ) { print "Checking renumber on $nn nodes since there are numbered examples\n"; };
+		} else {
+			$hasnums{$nn} = 2; # There are no numbered examples of this type
+			if ( $verbose ) { print "Not checking renumber on $nn nodes since there are no numbered examples\n"; };
+		};
+	};
 	$oldid = $xnode->getAttribute('id'); $toset = 0;
 	if ( $newcnt && ( !$oldid || $override || $oldid eq "torenew" || $used{$oldid} ) ) { 
 		$tmp = $newid.'-'.$newcnt;
 		# make sure IDs are unique
-		if ( !$override ) {
+		if ( !$override && $hasnums{$nn} != 2 ) {
 			while ( $tmpdoc->findnodes("//*[\@id=\"$tmp\"]") ) { 
 				$tmp = $newid.'-'.++$newcnt;
 			};
