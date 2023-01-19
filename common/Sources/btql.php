@@ -329,7 +329,7 @@
 			var blinker;
 			function dlall(elm) {
 				blinker = elm;
-				elm.classList.add('blink-me');
+				blinker.classList.add('blink-me');
 				var fileName = '$foldername-results.txt';
 				requrl = 'index.php?action=apiquery';
 				var postdata = 'type='+frontview+'&qid='+qid+'&perpage=all&start=0&query='+encodeURIComponent(rawq);
