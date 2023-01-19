@@ -195,6 +195,17 @@
 		<div id=mtxt><table id=resulttable></table></div>
 		<div id=loadmore style='margin-top: 10px;'></div>
 
+		<style>
+			.blink_me {
+			  animation: blinker 1s linear infinite;
+			}
+
+			@keyframes blinker {
+			  50% {
+				opacity: 0;
+			  }
+			}
+		</style>
 		<script language='Javascript' src=\"$jsurl/btqlparser.js\"></script>
 		<script language=Javascript src='$jsurl/tokedit.js'></script>
 		<script language=Javascript src='$jsurl/tokview.js'></script>
@@ -315,7 +326,10 @@
 				return false;
 			};
 
-			function dlall(){
+			var blinker;
+			function dlall(elm) {
+				blinker = elm;
+				elm.classList.add('blink-me');
 				var fileName = '$foldername-results.txt';
 				requrl = 'index.php?action=apiquery';
 				var postdata = 'type='+frontview+'&qid='+qid+'&perpage=all&start=0&query='+encodeURIComponent(rawq);
@@ -338,6 +352,7 @@
 				  aElement.setAttribute('target', '_blank');
 				  aElement.click();
 				  URL.revokeObjectURL(href);
+				  blinker.classList.remove('blink-me');
 				});
 			};
 
@@ -380,7 +395,7 @@
 					 start = end;
 					 document.getElementById('navdiv').innerHTML = navtxt;
 					 if ( json.results.length > 0 ) {
-						 document.getElementById('butlist').innerHTML = ' &bull; <a onClick=\"dlall();\">{%download results}</a>';
+						 document.getElementById('butlist').innerHTML = ' &bull; <a onClick=\"dlall(this);\">{%download results}</a>';
 					 }
 					 for ( var i in json.results ) {
 					 	rowdata = json.results[i];
