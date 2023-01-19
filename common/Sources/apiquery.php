@@ -24,7 +24,7 @@
 	
 	$start = $_POST['start'] or $start = 0;
 	$max = $_POST['perpage'] or $max = 100;
-	$end = $start + $max;
+	if ( $max != "all" ) $end = $start + $max;
 
 	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps and cannot be provided by API
 	$subcorpus = $_POST['subcorpus'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = $_GET['subc']; 
@@ -56,6 +56,7 @@
 	if ( $username && $_POST['debug'] ) $debug = 1;
 
 	if ( !file_exists("cache/$qid") || $debug ) {
+	
 		# Run the query
 		if ( file_exists("Sources/query-$type.php") ) {
 			$qsrc = "Sources/query-$type.php";
@@ -89,15 +90,19 @@
 		$last = min($totcnt+0, $end+0);
 	};
 	
-	$tail = min($max, $totcnt-$start); 
-	$results = shell_exec("head -n $end cache/$qid | tail -n $tail");
+	if ( $max == "all" ) {
+		$tail = $totcnt;
+		$end = $totcnt;
+	} else $tail = min($max, $totcnt-$start);
+	$cmd = "head -n $end cache/$qid | tail -n $tail"; 
+	$results = shell_exec($cmd);
 
 	if ( $format == 'json' ) {
 		header('Content-Type: application/json; charset=utf-8');
 		if ( !filesize("cache/$qid") ) {
 			print "{\"total\": 0, \"results\": []}"; exit;
 		};
-		print "{\"total\": $totcnt, \"start\":  $start, \"results\": [\n"; 
+		print "{\"total\": $totcnt, \"qid\": \"$qid\", \"start\":  $start, \"results\": [\n"; 
 		$sep = "";
 		foreach ( explode("\n", $results) as $i => $line ) {
 			list ( $textid, $sentid, $toks, $text ) = explode("\t", $line);
@@ -124,6 +129,22 @@
 		print "\n]}";
 		
 	} elseif ( $format == 'text' ) {
+	
+		header('Content-Type: text/plain; charset=utf-8');
+		// header("Content-Disposition: attachment; filename=\"$foldername-results.txt\"");
+		
+		foreach ( explode("\n", $results) as $i => $line ) {
+			list ( $textid, $sentid, $toks, $text ) = explode("\t", $line);
+			if ( !$textid ) continue;
+			if ( !$sentid ) list ($textid, $sentid) = explode("_", $textid);
+			if ( substr($textid,-4) != ".xml" ) $textid .= ".xml";
+			$toklist = '"'.join('", "', explode(",",  $toks)).'"';
+			if ( !$text ) {
+				$tmp = sentbyid($textid, $sentid, $lvl);
+				$text = totext($tmp);
+			};
+			print $text."\n";
+		};
 				
 	} elseif ( $format == 'conllu' ) {
 

@@ -33,6 +33,7 @@
 		"none" => "none",
 		"documents" => "documents",
 		"All documents" => "All documents",
+		"download results" => "download results",
 		"Custom annotation" => "Custom annotation",
 		"My annotations" => "My annotations",
 		"Create your own annotation file" => "Create your own annotation file",

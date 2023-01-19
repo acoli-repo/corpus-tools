@@ -1187,7 +1187,8 @@
 		
 		# if (substr($text,0,9) != "xmlfiles" ) $text = "xmlfiles/$textid";
 
-		$cmd = "/bin/grep '$text\t$eid\t' $slistf";
+		$grepcmd = findapp('grep'); 
+		$cmd = "$grepcmd '$text\t$eid\t' $slistf";
 		$poss = shell_exec($cmd);
 		
 		list ( $fileid, $elementid, $leftpos, $rightpos ) = explode("\t", $poss);
