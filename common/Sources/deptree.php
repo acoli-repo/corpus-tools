@@ -195,7 +195,7 @@
 
 		$puctnsh = $_GET['puctnsh'] or $puctnsh = $_SESSION['puctnsh'] or $puctnsh = $settings['deptree']['showpunct'] or $puctnsh = "without";
 		$_SESSION['puctnsh'] = $puctnsh;
-		$hpos = $_GET['hpos'] or $hpos = $_SESSION['hpos'] or $hpos = $settings['defaults']['deptree']['hpos'] or $hpos = "branch";
+		$hpos = $_GET['hpos'] or $hpos = $_SESSION['hpos'] or $hpos = $settings['defaults']['deptree']['hpos'] or $hpos = "wordorder";
 		$_SESSION['hpos'] = $hpos;
 
 		if ( $_GET['auto'] ) {

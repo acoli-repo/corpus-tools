@@ -141,8 +141,8 @@
 			<form action='index.php?action=$action&act=createnew' method=post>
 			<table>
 			<tr><th>TEITOK root folder<td><input size=60 name='root' value='$guessroot'>
-			<tr><th>Project folder name<td><input size=60 name='project'>
-			<tr><th>Project title<td><input size=60 name='title'>
+			<tr><th>Project folder name<td><input size=60 name='project'  oninvalid=\"this.setCustomValidity('Please use only a-z and 0-9')\" pattern=\"[A-Za-z0-9]\" required> <i>folder name - only normal letters and digits</i>
+			<tr><th>Project title<td><input size=60 name='title' >
 			<tr><th>Copy settings from<td><select name='settings'><option value='.'>Shared project</option><option value='$ttroot/projects/default-min/'>Minimal project</option>$optlist</select>
 			</table>
 			
