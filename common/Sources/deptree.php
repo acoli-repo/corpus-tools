@@ -107,7 +107,7 @@
 		<table>";
 
 		foreach ( $settings['xmlfile']['sattributes']['s'] as $key => $val ) {
-			if ( $val['noshow'] || $val['nodeptree'] || $key == "id" ) continue;
+			if ( !is_array($val) || $val['noshow'] || $val['nodeptree'] || $key == "id" ) continue;
 			if ( $val['color'] ) $style = " style=\"color: {$val['color']}\"";
 			$xval = $sent[$key];
 			$maintext .= "<tr><td><th>{$val['display']}<td><input name='sent[$key]' size=80 value=\"$xval\"></tr>";
@@ -396,7 +396,7 @@ $maintext .= "
 	$selopt = "class=\"selected\"";
 	if ( $treeview == "graph" ) $selvg = $selopt; else $selvt = $selopt;
 	if ( $_GET['puctnsh'] == "with" ) $selpz = $selopt; else $selpm = $selopt;
-	if ( $_GET['hpos'] == "narrow" ) $selhn = $selopt; else if ( $_GET['hpos'] == "wordorder" ) $selhw = $selopt;  else $selhb = $selopt;
+	if ( $hpos == "narrow" ) $selhn = $selopt; else if ( $hpos == "wordorder" ) $selhw = $selopt; else $selhb = $selopt;
 	$maintext .= "
 	<h3>{%View options}</h3>
 	<table>
