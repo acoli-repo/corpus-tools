@@ -302,7 +302,10 @@ window.addEventListener(\"beforeunload\", function (e) {
 
 		if ( $treeview == "graph" ) {
 			$graph = drawgraph($sent);
-		} else if ( $treeview == "tree" ) {
+		} else if ( $treeview == "php" ) {
+			$graph = drawtree($sent);
+			$morejs .= "scaletext();";
+		} else  {
 			//		<text text-anchor="middle" x="536.66666666667" y="135" font-size="9pt" fill="#ff8866" type="label" baseid="w-148">obl</text>
 			$maintext .= "<div id=graph></div>\n<script language=Javascript>var tree = ".json_encode(drawjson($sent), JSON_PRETTY_PRINT).";</script>\n";
 			$senta = array(); foreach ( $sent->xpath($toksel) as $tok ) { array_push($senta, $tok['id']); };
@@ -318,6 +321,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 			const svgns = 'http://www.w3.org/2000/svg';
 			var children = {}; var levw = [];
 			var punct = '$puctnsh';
+			var jmp = '$jmp';
 			function drawsvg(elm, svgid = 'svgdiv', hpos = '$hpos' ) {
 				svg = document.createElementNS(svgns, 'svg');
 				svg.setAttribute('id', 'svgtree');
@@ -325,6 +329,11 @@ window.addEventListener(\"beforeunload\", function (e) {
 				div = document.getElementById(svgid);
 				div.appendChild(svg);
 				putchildren(elm, svg, rootlvl);
+
+				if ( toks[jmp] ) {
+					toks[jmp].setAttribute('fill', '#aa2200');
+					toks[jmp].setAttribute('font-weight', 'bold');
+				};
 				
 				// do initial placement
 				for ( i in lvls ) {
@@ -349,6 +358,31 @@ window.addEventListener(\"beforeunload\", function (e) {
 				
 				if ( hpos == 'branch' ) {
 					// redraw starting from longest line
+					for ( h in lvls[maxlevel-1] ) {
+						// move right if there are children on the longest line left of their parent (due to non-child items)
+						hid = lvls[maxlevel-1][h];
+						c1 = toks[children[hid][0]];
+						c2 = toks[children[hid].at(-1)];
+						if ( !c1 || !c2 ) { continue; };
+						b1 = c1.getBBox();
+						b2 = c2.getBBox();
+						bb = toks[hid].getBBox();
+						x1 = b1['x']; x2 = b2['x'] + b2['width'];
+						if ( bb['x'] > b1['x'] ) { 
+							xm = ( x1 + x2 ) / 2; 
+							hm = bb['x'] + ( bb['width'] / 2 ); 
+							dx = hm - xm;
+							gomove = 0;
+							for ( h in lvls[maxlevel] ) {
+								child = lvls[maxlevel][h];
+								if ( child == children[hid][0] ) { gomove = 1; };
+								if ( gomove ) {
+									newx = parseInt(toks[child].getAttribute('x')) + dx;
+									toks[child].setAttribute('x', newx);
+								};
+							};
+						};
+					};
 					for ( i = maxlevel-1; i>=0; i-- ) {
 						// Center parent above their children starting from longest line
 						for ( h in lvls[i] ) {
@@ -383,11 +417,12 @@ window.addEventListener(\"beforeunload\", function (e) {
 								newx = hi;
 								hi = hi + spacing + toks[tid].getBBox()['width'];
 								toks[tid].setAttribute('x', newx);
-								if ( maxwidth < newx + 100 ) {  maxwidth = newx + 100; };
 							};
 						};
+						unoverlap(i);
 						unoverlap(parseInt(i) + 1);
 					};
+					unoverlap(lastlvl);
 				} else if ( hpos == 'wordorder' ) {
 					var hi = 0;
 					var lh = [];
@@ -400,7 +435,6 @@ window.addEventListener(\"beforeunload\", function (e) {
 						toks[t].setAttribute('x', th);
 						hi = th;
 						bb = toks[t].getBBox();
-						if ( maxwidth < th + bb['width'] ) {  maxwidth = th + bb['width'] + 100; };
 						lh[tl] = th + bb['width'] + spacing;
 					};
 				} else if ( hpos == 'narrow' ) {
@@ -413,6 +447,24 @@ window.addEventListener(\"beforeunload\", function (e) {
 						};
 					};
 				};
+				
+				// check maxwidth and negative offsets (and repair)
+				minwidth = 0;
+				for ( t in toks ) {
+					bb = toks[t].getBBox();
+					left = bb['x'];
+					right = bb['x'] + bb['width'];
+					if ( right > maxwidth ) { maxwidth = right; };
+					if ( left < minwidth ) { minwidth = left; };
+				};				
+				if ( minwidth < 0 ) {
+					maxwidth = maxwidth - minwidth;
+					dx = ( 0 - minwidth ) + 20;
+					for ( t in toks ) {
+						newx = parseInt(toks[t].getAttribute('x')) + dx;
+						toks[t].setAttribute('x', newx);
+					};
+				};
 												
 				// draw the lines and place deprels
 				for ( t in toks ) {
@@ -422,6 +474,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 						bb = tok.getBBox(); x = bb['x'] + (bb['width']/2); y = bb['y'] + bb['height'] + 12;
 						newtext = document.createElementNS(svgns, 'text');
 						newtext.innerHTML = deprel;
+						newtext.setAttribute('id', 'deprel-'+tok);
 						newtext.setAttribute('x', x);
 						newtext.setAttribute('y', y);
 						newtext.setAttribute('text-anchor', 'middle');
@@ -448,12 +501,16 @@ window.addEventListener(\"beforeunload\", function (e) {
 			};
 			
 			function unoverlap( lvl ) {
+				console.log('unoverlapping ' + lvl);
 				toklist = lvls[lvl];
 				// move overlapping tokens
 				var moved = true; var it = 0;
-				while ( moved && it < 10 ) {
+				while ( moved ) {
 					ll = 2000; lr = -1000;
 					moved = false; it++;
+					if ( it > 10 ) {
+						console.log('emergency break - looping'); return false;
+					};
 					for ( h in toklist ) {
 						var hid = toklist[h];
 						var bb = toks[hid].getBBox();
@@ -502,9 +559,6 @@ window.addEventListener(\"beforeunload\", function (e) {
 			};
 			</script>";
 			$postaction .= "<script language=Javascript>drawsvg(tree);</script>";
-		} else {
-			$graph = drawtree($sent);
-			$morejs .= "scaletext();";
 		};
 		
 		if ( $username && $act == "edit" ) {
