@@ -53,6 +53,7 @@
 
 	if ( $_POST['action'] == "save" ) { $act = "save"; };
 
+
 	if ( $act == "save" && $_POST['sent'] ) {
 
 		$sent =	current($ttxml->xml->xpath("//s[@id='$sid']"));
@@ -195,7 +196,7 @@
 
 		$puctnsh = $_GET['puctnsh'] or $puctnsh = $_SESSION['puctnsh'] or $puctnsh = $settings['deptree']['showpunct'] or $puctnsh = "without";
 		$_SESSION['puctnsh'] = $puctnsh;
-		$hpos = $_GET['hpos'] or $hpos = $_SESSION['hpos'] or $hpos = $settings['defaults']['deptree']['hpos'] or $hpos = "wordorder";
+		$hpos = $_GET['hpos'] or $hpos = $_SESSION['hpos'] or $hpos = $settings['defaults']['deptree']['hpos'] or $hpos = "branch";
 		$_SESSION['hpos'] = $hpos;
 
 		if ( $_GET['auto'] ) {
@@ -301,6 +302,206 @@ window.addEventListener(\"beforeunload\", function (e) {
 
 		if ( $treeview == "graph" ) {
 			$graph = drawgraph($sent);
+		} else if ( $treeview == "tree" ) {
+			//		<text text-anchor="middle" x="536.66666666667" y="135" font-size="9pt" fill="#ff8866" type="label" baseid="w-148">obl</text>
+			$maintext .= "<div id=graph></div>\n<script language=Javascript>var tree = ".json_encode(drawjson($sent), JSON_PRETTY_PRINT).";</script>\n";
+			$senta = array(); foreach ( $sent->xpath($toksel) as $tok ) { array_push($senta, $tok['id']); };
+			$maintext .= "<script language=Javascript>var sent = ['".join("','", $senta)."'];</script>\n";
+			$maintext .= "<div id=graph></div>\n<script language=Javascript src=\"/Volumes/Data2/Downloads/treefun_files/treeToDiagram.js\"></script>\n";
+			// $graph .= "<svg id='svgtree' version='1.1' height='400' width='600' viewbox='0 0 400 600' style='z-index: 2; position: absolute;'></svg>";
+			$postaction .= "<script language=Javascript>
+			var toks = {}; var toknr = 0;
+			var lineheight = 100; var base = 30; var rootlvl = 0;
+			var svg; var lvls = [];
+			var maxheight = 0; var maxwidth = 0;
+			var spacing = 50; var ungrouping = 50;
+			const svgns = 'http://www.w3.org/2000/svg';
+			var children = {}; var levw = [];
+			var punct = '$puctnsh';
+			function drawsvg(elm, svgid = 'svgdiv', hpos = '$hpos' ) {
+				svg = document.createElementNS(svgns, 'svg');
+				svg.setAttribute('id', 'svgtree');
+				svg.setAttribute('style', 'z-index: 2; position: absolute');
+				div = document.getElementById(svgid);
+				div.appendChild(svg);
+				putchildren(elm, svg, rootlvl);
+				
+				// do initial placement
+				for ( i in lvls ) {
+					hi = 100;
+					lasthead = 0;
+					for ( h in lvls[i] ) {
+						var hid = lvls[i][h];
+						var bb = toks[hid].getBBox();
+						thishead = toks[hid].getAttribute('head');
+						toks[hid].setAttribute('x', hi);
+						hi = hi + bb['width'] + spacing;
+						if ( lasthead && lasthead != thishead ) { hi = hi + ungrouping; }; // extra spacing between non-siblings
+						if ( maxwidth < hi ) { 
+							maxwidth = hi;
+							maxlevel = i;
+						};
+						lasthead = thishead;
+					};
+					levw[i] = hi;
+					lastlvl = i;
+				};
+				
+				if ( hpos == 'branch' ) {
+					// redraw starting from longest line
+					for ( i = maxlevel-1; i>=0; i-- ) {
+						// Center parent above their children starting from longest line
+						for ( h in lvls[i] ) {
+							var hid = lvls[i][h];
+							c1 = toks[children[hid][0]];
+							c2 = toks[children[hid].at(-1)];
+							if ( !c1 || !c2 ) { continue; };
+							b1 = c1.getBBox();
+							b2 = c2.getBBox();
+							bb = toks[hid].getBBox();
+							x1 = b1['x']; x2 = b2['x'] + b2['width'];
+							xm = ( x1 + x2 ) / 2; 
+							tx = xm - (bb['width']/2);
+							toks[hid].setAttribute('x', tx);
+						};
+						unoverlap(i);
+					};
+					for ( i = maxlevel; i<=lastlvl; i++ ) {
+						// Redistribute children under their parent starting from longest line
+						for ( h in lvls[i] ) {
+							var hid = lvls[i][h];
+							bb = toks[hid].getBBox();
+							tm = bb['x'] + (bb['width']/2);
+							var cw = 0;
+							for  ( t in children[hid] ) {
+								childid = children[hid][t]; 
+								cw = cw + spacing + toks[childid].getBBox()['width'];
+							};
+							hi = tm - ((cw-spacing)/2);
+							for  ( t in children[hid] ) {
+								tid = children[hid][t];
+								newx = hi;
+								hi = hi + spacing + toks[tid].getBBox()['width'];
+								toks[tid].setAttribute('x', newx);
+								if ( maxwidth < newx + 100 ) {  maxwidth = newx + 100; };
+							};
+						};
+						unoverlap(parseInt(i) + 1);
+					};
+				} else if ( hpos == 'wordorder' ) {
+					var hi = 0;
+					var lh = [];
+					for ( i in sent ) {
+						t = sent[i]; console.log(t);
+						if ( !toks[t] ) { continue; }; // deal with hidden punctuation
+						tl = parseInt(toks[t].getAttribute('lvl'));
+						th = hi + spacing;
+						if ( lh[tl] && lh[tl] > th ) { th = lh[tl]; };
+						toks[t].setAttribute('x', th);
+						hi = th;
+						bb = toks[t].getBBox();
+						if ( maxwidth < th + bb['width'] ) {  maxwidth = th + bb['width'] + 100; };
+						lh[tl] = th + bb['width'] + spacing;
+					};
+				} else if ( hpos == 'narrow' ) {
+					for ( i in lvls ) {				
+						var dx = ( levw[maxlevel] - levw[i] ) / 2 ;
+						for ( h in lvls[i] ) {
+							var hid = lvls[i][h];
+							curx = toks[hid].getBBox()['x'];
+							toks[hid].setAttribute('x', curx+dx);
+						};
+					};
+				};
+												
+				// draw the lines and place deprels
+				for ( t in toks ) {
+					tok = toks[t];
+					deprel = tok.getAttribute('deprel');
+					if ( deprel ) {
+						bb = tok.getBBox(); x = bb['x'] + (bb['width']/2); y = bb['y'] + bb['height'] + 12;
+						newtext = document.createElementNS(svgns, 'text');
+						newtext.innerHTML = deprel;
+						newtext.setAttribute('x', x);
+						newtext.setAttribute('y', y);
+						newtext.setAttribute('text-anchor', 'middle');
+						newtext.setAttribute('fill', '#ff8866');
+						newtext.setAttribute('font-size', '9pt');
+						svg.appendChild(newtext);
+					};
+					head = tok.getAttribute('head');
+					if ( head ) {
+						htok = toks[head];
+						b1 = tok.getBBox(); x1 = b1['x'] + (b1['width']/2); y1 = b1['y'] - 5;
+						b2 = htok.getBBox(); x2 = b2['x'] + (b2['width']/2); y2 = b2['y'] + b2['height'] + 20;
+						newline = document.createElementNS(svgns, 'line');
+						newline.setAttribute('x1', x1);
+						newline.setAttribute('y1', y1);
+						newline.setAttribute('x2', x2);
+						newline.setAttribute('y2', y2);
+						newline.setAttribute('style', 'stroke: #aa2200;stroke-width:0.5');
+						svg.appendChild(newline);
+					};
+				};
+				svg.setAttribute('height', maxheight);
+				svg.setAttribute('width', maxwidth + 100 );
+			};
+			
+			function unoverlap( lvl ) {
+				toklist = lvls[lvl];
+				// move overlapping tokens
+				var moved = true; var it = 0;
+				while ( moved && it < 10 ) {
+					ll = 2000; lr = -1000;
+					moved = false; it++;
+					for ( h in toklist ) {
+						var hid = toklist[h];
+						var bb = toks[hid].getBBox();
+						left = bb['x']; right = left + bb['width'];
+						if ( lr + spacing > left ) {  
+							toks[hid].setAttribute('x', lr + spacing);
+							if ( maxwidth < lr + spacing + bb['width'] ) { 
+								maxwidth = lr + spacing + bb['width'] + 100;
+							};
+							moved = true;
+						};
+						ll = left; lr = right;
+					};
+				};
+			};
+			
+			function putchildren(node, svg, lvl) {
+				var headid = node['id'];
+				children[headid] = [];
+				for ( childid in node.children ) {
+					toknr++; 
+					if ( node.children[childid]['rel'] == 'punct' && punct != 'with' ) { continue; };
+					if ( !lvls[lvl] ) { lvls[lvl] = []; };
+					lvls[lvl].push(childid);
+					children[headid].push(childid);
+					child = node.children[childid];
+					if ( !childid ) { childid = 'tok-' + toknr; };
+					newtok = document.createElementNS(svgns, 'text');
+					newtok.innerHTML = child['label'];
+					rh = base + lineheight * lvl;
+					maxheight = Math.max(maxheight, rh + lineheight );
+					newtok.setAttribute('y', rh);
+					newtok.setAttribute('x', 10);
+					newtok.setAttribute('id', 'node-'+childid);
+					newtok.setAttribute('lvl', lvl);
+					newtok.setAttribute('tokid', childid);
+					if ( typeof(headid) != 'undefined' ) { newtok.setAttribute('head', headid); };
+					if ( typeof(child['rel']) != 'undefined' ) { newtok.setAttribute('deprel', child['rel']); };
+					newtok.setAttribute('text-anchor', 'left');
+					newtok.setAttribute('font-size', '12pt');
+					newtok.setAttribute('type', 'tok');
+					toks[childid] = newtok;
+					svg.appendChild(newtok);
+					putchildren(child, svg, lvl+1);
+				};
+			};
+			</script>";
+			$postaction .= "<script language=Javascript>drawsvg(tree);</script>";
 		} else {
 			$graph = drawtree($sent);
 			$morejs .= "scaletext();";
@@ -336,6 +537,7 @@ $graph
 	z-index: 1000;
 }
 </style>
+$postaction
 <form action='' method=post id=sentform name=sentform style='display: none;'>
 <textarea id=sentxml name=sent>$editxml</textarea> <input type=submit>
 <input type=hidden name=action value='edit'>
@@ -852,6 +1054,32 @@ $maintext .= "
 		
 		
 		return $svgxml->asXML();
+	};
+
+	function drawjson ($node) {
+		$array = array();
+		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight;
+		foreach ( $node->xpath($toksel) as $tok ) {
+			$text = $tok['form']."" or $text = $tok."";
+			# $text = str_replace(" ", "_", $text);
+			$tokid = $tok['id']."";
+			$deprel = $tok['deprel']."";
+			$headid = $tok['head']."";
+
+			if ( !$headid ) $headid = "root";
+			if ( $deprel == "root" ) $rootid = $tokid;
+
+			if ( !is_array($array[$headid]) ) { $array[$headid] = array(); $array[$headid]['children'] = array(); };
+			if ( !is_array($array[$tokid]) ) { $array[$tokid] = array(); };
+
+			$array[$tokid]['label'] = $text;
+			$array[$tokid]['rel'] = $deprel;
+			$array[$tokid]['id'] = $tokid;
+			
+			$array[$headid]['children'][$tokid] = &$array[$tokid];
+
+		};
+		return $array['root'];
 	};
 
 	function drawgraph ( $node ) {
