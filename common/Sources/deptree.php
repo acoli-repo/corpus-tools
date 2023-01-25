@@ -383,7 +383,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 							};
 						};
 					};
-					for ( i = maxlevel-1; i>=0; i-- ) {
+					for ( i = maxlevel; i>=0; i-- ) {
 						// Center parent above their children starting from longest line
 						for ( h in lvls[i] ) {
 							var hid = lvls[i][h];
@@ -501,7 +501,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 			};
 			
 			function unoverlap( lvl ) {
-				console.log('unoverlapping ' + lvl);
+				// console.log('unoverlapping ' + lvl);
 				toklist = lvls[lvl];
 				// move overlapping tokens
 				var moved = true; var it = 0;
