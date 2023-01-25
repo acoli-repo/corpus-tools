@@ -213,13 +213,15 @@
 		if ( $nextsent ) {
 			$nid = $nextsent['id'];
 			$nexts = $nextsent['n'] or $nexts = $nid;
-			$nnav = "<a href='index.php?action=$action&cid=$fileid&sid=$nid&view={$treeview}'>> $nexts</a>";
+			$nlink = "index.php?action=$action&cid=$fileid&sid=$nid&view={$treeview}";
+			$nnav = "<a href='$nlink'>> $nexts</a>";
 		};
 		$prevsent = current($sent->xpath("preceding::s[1]")); 
 		if ( $prevsent ) {
 			$pid = $prevsent['id'];
 			$prevs = $prevsent['n'] or $prevs = $pid;
-			$bnav = "<a href='index.php?action=$action&cid=$fileid&sid=$pid&view={$treeview}'>$prevs <</a>";
+			$plink = "index.php?action=$action&cid=$fileid&sid=$pid&view={$treeview}";
+			$bnav = "<a href='$plink'>$prevs <</a>";
 		};
 		
 		$pagenav = "<table style='width: 100%'><tr> <!-- /<$pbelm [^>]*id=\"{$_GET['pageid']}\"[^>]*n=\"(.*?)\"/ -->
@@ -383,7 +385,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 							};
 						};
 					};
-					for ( i = maxlevel; i>=0; i-- ) {
+					for ( i = maxlevel-1; i>=0; i-- ) {
 						// Center parent above their children starting from longest line
 						for ( h in lvls[i] ) {
 							var hid = lvls[i][h];
@@ -501,7 +503,6 @@ window.addEventListener(\"beforeunload\", function (e) {
 			};
 			
 			function unoverlap( lvl ) {
-				// console.log('unoverlapping ' + lvl);
 				toklist = lvls[lvl];
 				// move overlapping tokens
 				var moved = true; var it = 0;
@@ -566,6 +567,19 @@ window.addEventListener(\"beforeunload\", function (e) {
 			<script language=\"Javascript\">var labelstxt = 'Select a dependency label from the popout list <div class=\"popoutlist\">$labelstxt</div>';</script>
 			";
 			$editxml = $sent->asXML();
+		} else {
+			$maintext .= "<script language=\"Javascript\">
+				document.onkeydown = function(evt) {
+					evt = evt || window.event;
+				   if ( evt.keyCode == 37 ) {
+						var plink = '$plink';
+						if ( plink ) { window.open(plink, '_self'); };
+				   } else if ( evt.keyCode == 39 ) {
+						var nlink = '$nlink';
+						if ( nlink ) { window.open(nlink, '_self'); };
+				   };
+				};</script>
+				";
 		};
 		
 		
@@ -598,7 +612,8 @@ $postaction
 </form>
 <script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
 <script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>
-<script language=\"Javascript\">$morejs</script>";
+<script language=\"Javascript\">$morejs</script>
+";
 
 	$maintext .= "<hr><p><a href='index.php?action=$action&cid=$ttxml->fileid'>{%back to list}</a> &bull; ".$ttxml->viewswitch();
 	$minurl = "index.php?action=$action&cid={$ttxml->fileid}&sid=$sid";
