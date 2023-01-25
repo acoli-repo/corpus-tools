@@ -1130,6 +1130,7 @@ $maintext .= "
 		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight;
 		foreach ( $node->xpath($toksel) as $tok ) {
 			$text = $tok['form']."" or $text = $tok."";
+			if ( $text == "" ) $text = "&#8709;";
 			# $text = str_replace(" ", "_", $text);
 			$tokid = $tok['id']."";
 			$deprel = $tok['deprel']."";
