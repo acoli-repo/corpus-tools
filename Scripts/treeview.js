@@ -18,7 +18,7 @@ function drawsvg(elm, divid = 'svgdiv', hpos = 'branch' ) {
 		div.appendChild(mendiv);
 		treeicon = '<div style=\'font-size: 24px; text-align: right\' id=\'treemicon\' onClick="this.style.display=\'none\'; this.parentNode.children[1].style.display=\'block\';">≡</div>';
 		treeopts = '<div class=\'helpbox\' style=\'display: none;\'> <h2>Tree Options</h2> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' value=\'0\'>show boxes</button></p> <p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' value=\'0\'>hide labels</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'punctbut\' name=\'punct\' value=\'0\'>show punctuation</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> </div> </div>';
-		mendiv.setAttribute('style', 'position: inline; float: right; clear: both; right: 5px; top: 70px; z-index: 2000;');
+		mendiv.setAttribute('style', 'position: inline; float: right; clear: both; z-index: 2000;');
 		mendiv.innerHTML = treeicon + treeopts;		
 	};
 	
