@@ -1,21 +1,25 @@
 var lineheight = 100; var base = 30; var rootlvl = 0;
-var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgelm, haspunct, hidelabs, haslabs;
+var defdiv = 'svgdiv';
+var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos;
 var spacing = 50; var ungrouping = 50;
 const svgns = 'http://www.w3.org/2000/svg';
 var children = {}; var levw = [];
 if (  typeof(punct) == 'undefined' ) { var punct = 0; };
 if (  typeof(debug) == 'undefined' ) { var debug = 0; };
 
-function drawsvg(elm, divid = 'svgdiv', hpos = 'branch' ) {
+function drawsvg(elm, divid = null ) {
+
+	if ( typeof(divid) == 'undefined' || !document.getElementById(divid) ) { divid = defdiv; };
+	defdiv = divid;
 
 	div = document.getElementById(divid);
-	if ( typeof(svgelm) == 'undefined' ) { 
-		svgelm = document.createElement('div');
-		svgelm.setAttribute('id', 'svgcontainer');
+	if ( typeof(svgcontainer) == 'undefined' ) { 
+		svgcontainer = document.createElement('div');
+		svgcontainer.setAttribute('id', 'svgcontainer');
 		mendiv = document.createElement('div');
 		mendiv.setAttribute('id', 'treeopts');
 		div.appendChild(mendiv);
-		div.appendChild(svgelm);
+		div.appendChild(svgcontainer);
 		treeicon = '<div style=\'font-size: 24px; text-align: right\' id=\'treemicon\' onClick="this.style.display=\'none\'; this.parentNode.children[1].style.display=\'block\';">≡</div>';
 		treeopts = '<div class=\'helpbox\' style=\'display: none; padding-left: 5px padding-left: 20px;\'> <h2>Tree Options</h2> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' value=\'0\'>show boxes</button></p> <p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' value=\'0\'>hide labels</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'punctbut\' name=\'punct\' value=\'0\'>show punctuation</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> </div> </div>';
 		mendiv.setAttribute('style', 'position: inline; float: right; z-index: 2000;');
@@ -26,8 +30,9 @@ function drawsvg(elm, divid = 'svgdiv', hpos = 'branch' ) {
 	svg = document.createElementNS(svgns, 'svg');
 	svg.setAttribute('id', 'svgtree');
 	svg.setAttribute('style', 'z-index: 2; position: absolute');
-	svgelm.innerHTML = '';
-	svgelm.appendChild(svg);
+	
+	while ( svgcontainer.firstChild ) { svgcontainer.removeChild(svgcontainer.firstChild); };
+	svgcontainer.appendChild(svg);
 	
 	maxheight = 0; maxwidth = 0;
 	toks = {}; toknr = 0;
@@ -37,6 +42,7 @@ function drawsvg(elm, divid = 'svgdiv', hpos = 'branch' ) {
 
 	putchildren(elm, svg, rootlvl);
 	
+	if ( typeof(hpos) == 'undefined' ) { hpos = 'branch'; };
 
 	if ( typeof(jmp) != 'undefined' && toks[jmp] ) {
 		toks[jmp].setAttribute('fill', '#aa2200');
@@ -135,7 +141,7 @@ function drawsvg(elm, divid = 'svgdiv', hpos = 'branch' ) {
 		var hi = 0;
 		var lh = [];
 		for ( i in sent ) {
-			t = sent[i]; console.log(t);
+			t = sent[i]; 
 			if ( !toks[t] ) { continue; }; // deal with hidden punctuation
 			tl = parseInt(toks[t].getAttribute('lvl'));
 			th = hi + spacing;
