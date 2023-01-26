@@ -316,7 +316,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 // var punct = '$puctnsh';
 // var jmp = '$jmp';
 
-			$postaction .= "<script language=Javascript>drawsvg(tree);</script>";
+			$postaction .= "<script language=Javascript>var hpos = '$hpos'; var jmp = '$jmp'; drawsvg(tree);</script>";
 		};
 		
 		if ( $username && $act == "edit" ) {
