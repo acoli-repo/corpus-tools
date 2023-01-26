@@ -70,7 +70,30 @@ function drawsvg(elm, divid = null ) {
 		lastlvl = i;
 	};
 	
-	if ( hpos == 'branch' ) {
+	if ( hpos == 'wordorder' && typeof(wordarray) != 'undefined' ) {
+		var hi = 0;
+		var lh = [];
+		for ( i in wordarray ) {
+			t = wordarray[i]; 
+			if ( !toks[t] ) { continue; }; // deal with hidden punctuation
+			tl = parseInt(toks[t].getAttribute('lvl'));
+			th = hi + spacing;
+			if ( lh[tl] && lh[tl] > th ) { th = lh[tl]; };
+			toks[t].setAttribute('x', th);
+			hi = th;
+			bb = toks[t].getBBox();
+			lh[tl] = th + bb['width'] + spacing;
+		};
+	} else if ( hpos == 'narrow' ) {
+		for ( i in lvls ) {				
+			var dx = ( levw[maxlevel] - levw[i] ) / 2 ;
+			for ( h in lvls[i] ) {
+				var hid = lvls[i][h];
+				curx = toks[hid].getBBox()['x'];
+				toks[hid].setAttribute('x', curx+dx);
+			};
+		};
+	} else  { // if ( hpos == 'branch' )
 		// redraw starting from longest line
 		for ( h in lvls[maxlevel-1] ) {
 			// move right if there are children on the longest line left of their parent (due to non-child items)
@@ -137,29 +160,6 @@ function drawsvg(elm, divid = null ) {
 			unoverlap(parseInt(i) + 1);
 		};
 		unoverlap(lastlvl);
-	} else if ( hpos == 'wordorder' ) {
-		var hi = 0;
-		var lh = [];
-		for ( i in sent ) {
-			t = sent[i]; 
-			if ( !toks[t] ) { continue; }; // deal with hidden punctuation
-			tl = parseInt(toks[t].getAttribute('lvl'));
-			th = hi + spacing;
-			if ( lh[tl] && lh[tl] > th ) { th = lh[tl]; };
-			toks[t].setAttribute('x', th);
-			hi = th;
-			bb = toks[t].getBBox();
-			lh[tl] = th + bb['width'] + spacing;
-		};
-	} else if ( hpos == 'narrow' ) {
-		for ( i in lvls ) {				
-			var dx = ( levw[maxlevel] - levw[i] ) / 2 ;
-			for ( h in lvls[i] ) {
-				var hid = lvls[i][h];
-				curx = toks[hid].getBBox()['x'];
-				toks[hid].setAttribute('x', curx+dx);
-			};
-		};
 	};
 	
 	// check maxwidth and negative offsets (and repair)

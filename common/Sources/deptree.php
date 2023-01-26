@@ -311,12 +311,14 @@ window.addEventListener(\"beforeunload\", function (e) {
 			//		<text text-anchor="middle" x="536.66666666667" y="135" font-size="9pt" fill="#ff8866" type="label" baseid="w-148">obl</text>
 			$maintext .= "<div id=graph></div>\n<script language=Javascript>var tree = ".json_encode(drawjson($sent), JSON_PRETTY_PRINT).";</script>\n";
 			$senta = array(); foreach ( $sent->xpath($toksel) as $tok ) { array_push($senta, $tok['id']); };
-			$maintext .= "<script language=Javascript>var sent = ['".join("','", $senta)."'];</script>\n";
+			$maintext .= "<script language=Javascript>var wordarray = ['".join("','", $senta)."'];</script>\n";
 			$postaction .= "<script language=Javascript src=\"$jsurl/treeview.js\"></script>";
 // var punct = '$puctnsh';
 // var jmp = '$jmp';
 
-			$postaction .= "<script language=Javascript>var hpos = '$hpos'; var jmp = '$jmp'; drawsvg(tree);</script>";
+			if ( $puctnsh == "with" ) $paction = "vtoggle(document.getElementById('punctbut'))";
+
+			$postaction .= "<script language=Javascript>var hpos = '$hpos'; var jmp = '$jmp'; drawsvg(tree); $paction</script>";
 		};
 		
 		if ( $username && $act == "edit" ) {
