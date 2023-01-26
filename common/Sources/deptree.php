@@ -341,7 +341,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 		
 		
 		$maintext .= "\n
-<div id=svgdiv>
+<div id=svgdiv style='clear: both;'>
 $graph
 </div>
 <style>
