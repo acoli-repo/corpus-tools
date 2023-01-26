@@ -1,6 +1,6 @@
 var lineheight = 100; var base = 30; var rootlvl = 0;
 var defdiv = 'svgdiv';
-var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos;
+var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos, maxlevel;
 var spacing = 50; var ungrouping = 50;
 const svgns = 'http://www.w3.org/2000/svg';
 var children = {}; var levw = [];
@@ -21,7 +21,7 @@ function drawsvg(elm, divid = null ) {
 		div.appendChild(mendiv);
 		div.appendChild(svgcontainer);
 		treeicon = '<div style=\'font-size: 24px; text-align: right\' id=\'treemicon\' onClick="this.style.display=\'none\'; this.parentNode.children[1].style.display=\'block\';">≡</div>';
-		treeopts = '<div class=\'helpbox\' style=\'display: none; padding-left: 5px padding-left: 20px;\'> <h2>Tree Options</h2> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' value=\'0\'>show boxes</button></p> <p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' value=\'0\'>hide labels</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'punctbut\' name=\'punct\' value=\'0\'>show punctuation</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> </div> </div>';
+		treeopts = '<div class=\'helpbox\' style=\'display: none; padding-left: 5px padding-left: 20px;\'><span style="float: right" onClick="this.parentNode.style.display=\'none\'; this.parentNode.parentNode.children[0].style.display=\'block\';">x</span> <h2>Tree Options</h2> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' value=\'0\'>show boxes</button></p> <p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' value=\'0\'>hide labels</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'punctbut\' name=\'punct\' value=\'0\'>show punctuation</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> </div> </div>';
 		mendiv.setAttribute('style', 'position: inline; float: right; z-index: 2000;');
 		mendiv.innerHTML = treeicon + treeopts;		
 	};
@@ -34,7 +34,7 @@ function drawsvg(elm, divid = null ) {
 	while ( svgcontainer.firstChild ) { svgcontainer.removeChild(svgcontainer.firstChild); };
 	svgcontainer.appendChild(svg);
 	
-	maxheight = 0; maxwidth = 0;
+	maxheight = 0; maxwidth = 0; maxlevel = 0;
 	toks = {}; toknr = 0;
 	lvls = [];
 	children = {}; levw = [];
@@ -224,6 +224,7 @@ function drawsvg(elm, divid = null ) {
 			newrect = document.createElementNS(svgns, 'rect');
 			newrect.setAttribute('x', rb['x'] - hpadding );
 			newrect.setAttribute('y', rb['y']  - vpadding );
+			if ( typeof(ctree) != 'undefined' && ctree && children[t].length ) { newrect.setAttribute('rx', '15'); };
 			newrect.setAttribute('width',  rb['width'] + hpadding*2 );
 			newrect.setAttribute('height', rb['height'] + vpadding*2 + sublh );
 			newrect.setAttribute('fill', 'none');
@@ -278,19 +279,21 @@ function unoverlap( lvl ) {
 
 function putchildren(node, svg, lvl) {
 	var headid = node['id'];
+	if ( !headid && lvl > 0  ) { headid = 'tok-' + toknr; };
 	children[headid] = [];
 	
-	for ( childid in node.children ) {
+	for ( i in node.children ) {
 		toknr++; 
-		if ( node.children[childid]['rel'] == 'punct' ) { 
+		child = node.children[i];
+		childid = child['id'];
+		if ( !childid ) { childid = 'tok-' + toknr; };
+		if ( node.children[i]['rel'] == 'punct' ) { 
 			haspunct = 1;
 			if ( !punct ) { continue; };
 		};
 		if ( !lvls[lvl] ) { lvls[lvl] = []; };
 		lvls[lvl].push(childid);
 		children[headid].push(childid);
-		child = node.children[childid];
-		if ( !childid ) { childid = 'tok-' + toknr; };
 		newtok = document.createElementNS(svgns, 'text');
 		newtok.innerHTML = child['label'];
 		rh = base + lineheight * lvl;
