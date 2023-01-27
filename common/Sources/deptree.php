@@ -403,6 +403,7 @@ $maintext .= "
 		var username = '$username';
 		$tokedit
 		formify(); setForm('$formfld');
+		makeinteract();
 		var canvas=document.getElementById('myCanvas');
 		var ctxt = canvas.getContext('2d');
 		var svgelm = document.querySelector('svg');

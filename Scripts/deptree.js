@@ -1,60 +1,62 @@
 document.onkeyup = keyb; 
 
-var toks = document.getElementsByTagName("text");
-var selected = null;
-var sentxml;
-var svgdiv = document.querySelector('svg').parentNode;
+function makeinteract() {
+	var toks = document.getElementsByTagName("text");
+	var selected = null;
+	var sentxml;
+	var svgdiv = document.querySelector('svg').parentNode;
 
-for ( var a = 0; a<toks.length; a++ ) {
-	var it = toks[a];
-	it.onmouseover = function () {
-		var tid = this.getAttribute('tokid');
-		if ( tid ) {
-			highlight(tid, '#ffff00'); 
-			showtokinfo(this, document.getElementById(tid), this);
+	for ( var a = 0; a<toks.length; a++ ) {
+		var it = toks[a];
+		it.onmouseover = function () {
+			var tid = this.getAttribute('tokid');
+			if ( tid ) {
+				highlight(tid, '#ffff00'); 
+				showtokinfo(this, document.getElementById(tid), this);
+			};
+		};
+		it.onmouseout = function() {
+			unhighlight(); hidetokinfo();
 		};
 	};
-	it.onmouseout = function() {
-		unhighlight(); hidetokinfo();
-	};
-};
 
-if ( typeof(labelstxt) != "undefined" ) {
-	if ( labelstxt != '' ) {
-		document.getElementById('linktxt').innerText = "Edit mode: Select a node in the tree to attach it to a new head - or select a label to change it";
-		sentxml = makeXML(document.getElementById('sentxml').value)
-		if ( !document.getElementById('sentxml').value ) {
-			sentxml = makeXML(document.getElementById('mtxt').innerHTML);
-			var senttxt = new XMLSerializer().serializeToString(sentxml);
-			document.getElementById('sentxml').value = senttxt;
+	if ( typeof(labelstxt) != "undefined" ) {
+		if ( labelstxt != '' ) {
+			document.getElementById('linktxt').innerText = "Edit mode: Select a node in the tree to attach it to a new head - or select a label to change it";
+			sentxml = makeXML(document.getElementById('sentxml').value)
+			if ( !document.getElementById('sentxml').value ) {
+				sentxml = makeXML(document.getElementById('mtxt').innerHTML);
+				var senttxt = new XMLSerializer().serializeToString(sentxml);
+				document.getElementById('sentxml').value = senttxt;
+			};
 		};
 	};
-};
 
-const getTransformParameters = (element) => {
-  const transform = element.style.transform;
-  let scale = 1,
-    x = 0,
-    y = 0;
-  if (transform.includes("scale"))
-    scale = parseFloat(transform.slice(transform.indexOf("scale") + 6));
-  if (transform.includes("translateX"))
-    x = parseInt(transform.slice(transform.indexOf("translateX") + 11));
-  if (transform.includes("translateY"))
-    y = parseInt(transform.slice(transform.indexOf("translateY") + 11));
-  return { scale, x, y };
-};
-const getTransformString = (scale, x, y) =>
-  "scale(" + scale + ") " + "translateX(" + x + "%) translateY(" + y + "%)";
-function zoomsvg (dScale=0.1) {
-	var svgtree = document.getElementById('svgtree');
-	const { scale, x, y } = getTransformParameters(svgtree);
-	var newscale = scale + dScale;
-	svgtree.style.transform = getTransformString(newscale, x, y);
-	var svgdiv = document.getElementById('svgdiv');
-	var baseheight = svgtree.height.baseVal.value;
-	console.log(baseheight*newscale);
-	svgdiv.style.height = baseheight*newscale + 'px';
+	const getTransformParameters = (element) => {
+	  const transform = element.style.transform;
+	  let scale = 1,
+		x = 0,
+		y = 0;
+	  if (transform.includes("scale"))
+		scale = parseFloat(transform.slice(transform.indexOf("scale") + 6));
+	  if (transform.includes("translateX"))
+		x = parseInt(transform.slice(transform.indexOf("translateX") + 11));
+	  if (transform.includes("translateY"))
+		y = parseInt(transform.slice(transform.indexOf("translateY") + 11));
+	  return { scale, x, y };
+	};
+	const getTransformString = (scale, x, y) =>
+	  "scale(" + scale + ") " + "translateX(" + x + "%) translateY(" + y + "%)";
+	function zoomsvg (dScale=0.1) {
+		var svgtree = document.getElementById('svgtree');
+		const { scale, x, y } = getTransformParameters(svgtree);
+		var newscale = scale + dScale;
+		svgtree.style.transform = getTransformString(newscale, x, y);
+		var svgdiv = document.getElementById('svgdiv');
+		var baseheight = svgtree.height.baseVal.value;
+		console.log(baseheight*newscale);
+		svgdiv.style.height = baseheight*newscale + 'px';
+	};
 };
 
 function keyb(evt) {

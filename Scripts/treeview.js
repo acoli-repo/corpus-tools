@@ -206,7 +206,7 @@ function drawsvg(elm, divid = null ) {
 		vpadding = 5;
 		hpadding = spacing/3; // horizontal spacing in boxes depends on node spacing
 		deprel = tok.getAttribute('deprel');
-		sublh = 0;
+		sublh = 0; newtext = 0;
 		if ( deprel && !hidelabs ) {
 			bb = tok.getBBox(); x = bb['x'] + (bb['width']/2); y = bb['y'] + bb['height'] + 12;
 			newtext = document.createElementNS(svgns, 'text');
@@ -267,6 +267,10 @@ function drawsvg(elm, divid = null ) {
 	if ( tmp ) {
 		if ( typeof(ctree) != 'undefined' && ctree ) { tmp.style.display = 'none'; }
 		else { tmp.style.display = 'none'; }; // show root does not work properly
+	};
+	
+	if ( typeof makeinteract === "function" ) {
+		makeinteract();
 	};
 };
 
