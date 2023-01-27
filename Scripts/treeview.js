@@ -1,11 +1,12 @@
-var lineheight = 100; var base = 30; var rootlvl = 0;
+var lineheight = 100; var base = 30; 
 var defdiv = 'svgdiv';
-var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos, maxlevel;
+var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos, maxlevel, showroot;
 var spacing = 50; var ungrouping = 50;
 const svgns = 'http://www.w3.org/2000/svg';
 var children = {}; var levw = [];
 if (  typeof(punct) == 'undefined' ) { var punct = 0; };
 if (  typeof(debug) == 'undefined' ) { var debug = 0; };
+showroot = 0;
 
 function drawsvg(elm, divid = null ) {
 
@@ -21,7 +22,7 @@ function drawsvg(elm, divid = null ) {
 		div.appendChild(mendiv);
 		div.appendChild(svgcontainer);
 		treeicon = '<div style=\'font-size: 24px; text-align: right\' id=\'treemicon\' onClick="this.style.display=\'none\'; this.parentNode.children[1].style.display=\'block\';">≡</div>';
-		treeopts = '<div class=\'helpbox\' style=\'display: none; padding-left: 5px padding-left: 20px;\'><span style="float: right" onClick="this.parentNode.style.display=\'none\'; this.parentNode.parentNode.children[0].style.display=\'block\';">x</span> <h2>Tree Options</h2> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' value=\'0\'>show boxes</button></p> <p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' value=\'0\'>hide labels</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'punctbut\' name=\'punct\' value=\'0\'>show punctuation</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> </div> </div>';
+		treeopts = '<div class=\'helpbox\' style=\'display: none; padding-left: 5px padding-left: 20px;\'><span style="float: right" onClick="this.parentNode.style.display=\'none\'; this.parentNode.parentNode.children[0].style.display=\'block\';">x</span> <h2>Tree Options</h2> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' value=\'0\'>show boxes</button></p> <p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' value=\'0\'>hide labels</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'punctbut\' name=\'punct\' value=\'0\'>show punctuation</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'rootbut\' name=\'showroot\' value=\'0\'>show root</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> </div> </div>';
 		mendiv.setAttribute('style', 'position: relative; float: right; z-index: 2000;');
 		mendiv.innerHTML = treeicon + treeopts;		
 	};
@@ -39,6 +40,25 @@ function drawsvg(elm, divid = null ) {
 	lvls = [];
 	children = {}; levw = [];
 	haspunct = 0; haslabs = 0;
+
+	rootlvl = 0;
+	if ( showroot ) { 
+		newtok = document.createElementNS(svgns, 'text');
+		newtok.innerHTML = 'root';
+		newtok.setAttribute('y', base);
+		newtok.setAttribute('x', 10);
+		newtok.setAttribute('tokid', 'tn-1');
+		toknr = 1;
+		newtok.setAttribute('lvl', 0);
+		newtok.setAttribute('text-anchor', 'left');
+		newtok.setAttribute('font-size', '10pt');
+		newtok.setAttribute('fill', '#666666');
+		newtok.setAttribute('type', 'root');
+		toks['tn-1'] = newtok;
+		children['tn-1'] = ['tn-2']; 
+		svg.appendChild(newtok);
+		rootlvl = 1; 
+	}; 
 
 	putchildren(elm, svg, rootlvl);
 	
@@ -201,11 +221,9 @@ function drawsvg(elm, divid = null ) {
 			sublh = newtext.getBBox()['height'];
 		};
 		head = tok.getAttribute('head');
-		if ( head ) {
+		if ( head && toks[head] ) {
 			htok = toks[head];
 			b1 = tok.getBBox(); x1 = b1['x'] + (b1['width']/2); y1 = b1['y'] - vpadding;
-			if ( typeof(newtext) != 'undefined' ) {
-			};
 			b2 = htok.getBBox(); x2 = b2['x'] + (b2['width']/2); y2 = b2['y'] + b2['height'] + vpadding + sublh;
 			newline = document.createElementNS(svgns, 'line');
 			newline.setAttribute('x1', x1);
@@ -242,8 +260,13 @@ function drawsvg(elm, divid = null ) {
 	};
 	tmp = document.getElementById('labbut');
 	if ( tmp ) {
-		if ( haslabs ) { labbut.style.display = 'block'; }
-		else { labbut.style.display = 'none'; };
+		if ( haslabs ) { tmp.style.display = 'block'; }
+		else { tmp.style.display = 'none'; };
+	};
+	tmp = document.getElementById('rootbut');
+	if ( tmp ) {
+		if ( typeof(ctree) != 'undefined' && ctree ) { tmp.style.display = 'none'; }
+		else { tmp.style.display = 'none'; }; // show root does not work properly
 	};
 };
 
