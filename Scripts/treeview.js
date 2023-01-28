@@ -10,6 +10,8 @@ showroot = 0;
 
 function drawsvg(elm, divid = null ) {
 
+	if ( elm == null ) { return false; }
+
 	if ( typeof(divid) == 'undefined' || !document.getElementById(divid) ) { divid = defdiv; };
 	defdiv = divid;
 
@@ -37,7 +39,7 @@ function drawsvg(elm, divid = null ) {
 	
 	maxheight = 0; maxwidth = 0; maxlevel = 0;
 	toks = {}; toknr = 0;
-	lvls = [];
+	lvls = []; lastlvl = 0;
 	children = {}; levw = [];
 	haspunct = 0; haslabs = 0;
 
@@ -59,7 +61,7 @@ function drawsvg(elm, divid = null ) {
 		svg.appendChild(newtok);
 		rootlvl = 1; 
 	}; 
-
+	
 	putchildren(elm, svg, rootlvl);
 	
 	if ( typeof(hpos) == 'undefined' ) { hpos = 'branch'; };

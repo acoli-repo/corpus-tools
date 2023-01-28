@@ -896,7 +896,7 @@ $maintext .= "
 			$deprel = $tok['deprel']."";
 			$headid = $tok['head']."";
 
-			if ( !$headid ) $headid = "root";
+			if ( !$headid || $headid == $tokid ) $headid = "root";
 			if ( $deprel == "root" ) $rootid = $tokid;
 
 			if ( !is_array($array[$headid]) ) { $array[$headid] = array(); $array[$headid]['children'] = array(); };
