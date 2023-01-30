@@ -308,8 +308,17 @@ window.addEventListener(\"beforeunload\", function (e) {
 			$graph = drawtree($sent);
 			$morejs .= "scaletext();";
 		} else  {
-			//		<text text-anchor="middle" x="536.66666666667" y="135" font-size="9pt" fill="#ff8866" type="label" baseid="w-148">obl</text>
-			$maintext .= "<div id=graph></div>\n<script language=Javascript>var tree = ".json_encode(drawjson($sent), JSON_PRETTY_PRINT).";</script>\n";
+			$arraytree = drawjson($sent);
+			$jsontree = json_encode($arraytree, JSON_PRETTY_PRINT);
+			if ( $jsontree == "" ) {
+				if ( $username ) {
+					print "Unable to convert array tree to JSON (see error): <pre>".print_r($arraytree, 1); 
+					exit;
+				} else {
+					$jsontree = '{"children": []}';				
+				};
+			};
+			$maintext .= "<div id=graph></div>\n<script language=Javascript>var tree = $jsontree;</script>\n";
 			$senta = array(); foreach ( $sent->xpath($toksel) as $tok ) { array_push($senta, $tok['id']); };
 			$maintext .= "<script language=Javascript>var wordarray = ['".join("','", $senta)."'];</script>\n";
 			$postaction .= "<script language=Javascript src=\"$jsurl/treeview.js\"></script>";
@@ -886,7 +895,7 @@ $maintext .= "
 	};
 
 	function drawjson ($node) {
-		$array = array();
+		$array = array(); $parents = array();
 		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight;
 		foreach ( $node->xpath($toksel) as $tok ) {
 			$text = $tok['form']."" or $text = $tok."";
@@ -907,7 +916,22 @@ $maintext .= "
 			$array[$tokid]['id'] = $tokid;
 			
 			$array[$headid]['children'][$tokid] = &$array[$tokid];
+			if ( $parents[$tokid] ) { print "Already has a parent: $tokdid => $headid"; exit; };
+			$parents[$tokid] = $headid;
 
+		};
+		if ( !$array['root'] && $username )  {
+			if ( $debug ) { $maintext .= "<p class=wrong>No root node generated</p>"; };
+			if ( !$rootid ) {
+				# If there is no root, climb the tree from the first word
+				$rootid = array_keys($array)[0]; 
+				while ( $parents[$rootid] &&  $parents[$rootid]['label']  ) {  $rootid = $parents[$rootid]; };
+			};
+			if ( $rootid ) {
+				$array['root']['children'][$tokid] = &$array[$rootid];
+				return $array['root'];
+			};
+			return array ( "children" => array() );
 		};
 		return $array['root'];
 	};

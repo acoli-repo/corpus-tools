@@ -62,7 +62,7 @@ function makeinteract() {
 function keyb(evt) {
 	if ( evt.key == "+" ) { zoomsvg(0.1); };
 	if ( evt.key == "-" ) { zoomsvg(-0.1); };
-	if ( selected ) {
+	if ( typeof(selected) != 'undefined' && selected ) {
 		var newsel = '';
 		var thisid = selected.getAttribute('tokid');
 		var prntid = selected.getAttribute('head');

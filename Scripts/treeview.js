@@ -296,12 +296,38 @@ function unoverlap( lvl ) {
 			left = bb['x']; right = left + bb['width'];
 			if ( lr + spacing > left ) {  
 				toks[hid].setAttribute('x', lr + spacing);
+				centerbelow(hid);
 				if ( maxwidth < lr + spacing + bb['width'] ) { 
 					maxwidth = lr + spacing + bb['width'] + 100;
 				};
 				moved = true;
 			};
 			ll = left; lr = right;
+		};
+	};
+};
+
+function centerbelow ( hid ) {
+	// Check that the children of a node are below the parent
+	c1 = toks[children[hid][0]];
+	c2 = toks[children[hid].at(-1)];
+	if ( !c1 || !c2 ) { return false; };
+	b1 = c1.getBBox();
+	b2 = c2.getBBox();
+	bb = toks[hid].getBBox();
+	x1 = b1['x']; x2 = b2['x'] + b2['width'];
+	if ( bb['x'] > b1['x'] ) { 
+		xm = ( x1 + x2 ) / 2; 
+		hm = bb['x'] + ( bb['width'] / 2 ); 
+		dx = hm - xm;
+		gomove = 0;
+		for ( h in lvls[maxlevel] ) {
+			child = lvls[maxlevel][h];
+			if ( child == children[hid][0] ) { gomove = 1; };
+			if ( gomove ) {
+				newx = parseInt(toks[child].getAttribute('x')) + dx;
+				toks[child].setAttribute('x', newx);
+			};
 		};
 	};
 };
@@ -325,7 +351,7 @@ function putchildren(node, svg, lvl) {
 		children[headid].push(childid);
 		newtok = document.createElementNS(svgns, 'text');
 		labtxt = child['label'];
-		if ( labtxt == '' ) { labtxt = '&#8709;'; };
+		if ( labtxt == '' || typeof(labtxt) == 'undefined' ) { labtxt = '&#8709;'; };
 		newtok.innerHTML = labtxt;
 		rh = base + lineheight * lvl;
 		maxheight = Math.max(maxheight, rh + lineheight );
