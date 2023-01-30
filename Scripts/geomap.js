@@ -9,6 +9,7 @@
   };
   if ( typeof tiletit == "undefined" ) { tiletit = ''; };
   if ( typeof tileid == "undefined" ) { tileid = 'mapbox/streets-v11'; };
+  if ( typeof viewaction == "undefined" ) { viewaction = 'geomap'; };
   if ( tilelayer.includes("google") ) {
 	tiletit = 'Imagery © <a href="https://maps.google.com/">Google</a>';
 	sublist = ['mt0','mt1','mt2','mt3'];
@@ -140,7 +141,7 @@
 			if ( tmp.length > 1 ) {
 				markercol = 'yellow';
 			};
-			htmltxt = '<div><h2>' + doc.location + '</h2>'+ marktxt +'<p><a href="index.php?action=geomap&act=view&place=' + doc.location + ' &lat=' + doc.lat + '&lng=' + doc.lng + '&cql=' + cql + '">view ' + doctxt + '</a></p>';
+			htmltxt = '<div><h2>' + doc.location + '</h2>'+ marktxt +'<p><a href="index.php?action='+viewaction+'&act=view&place=' + doc.location + ' &lat=' + doc.lat + '&lng=' + doc.lng + '&cql=' + cql + '">view ' + doctxt + '</a></p>';
 		};
 
 		if ( typeof cluster != "undefined" ) {
