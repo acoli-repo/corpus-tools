@@ -187,7 +187,7 @@
 		<hr>
 		</div>
 		<table style='width: 100%;'>
-		<tr><td>
+		<tr><td valign=top>
 		$tqinput
 		</td><td style='width: 45%; padding-left: 15px;'>
 		$docsel
