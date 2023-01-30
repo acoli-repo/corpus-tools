@@ -238,7 +238,7 @@ function drawsvg(elm, divid = null ) {
 		if ( window['boxed'] ) {
 			// place boxes around tokens when asked
 			bb = tok.getBBox(); rb = bb;
-			if ( typeof(newtext) != 'undefined' ) {
+			if ( typeof(newtext) == 'Object' ) {
 				db = newtext.getBBox(); if ( db['width'] > rb['width'] ) { rb['x'] = db['x']; rb['width'] = db['width'];  };
 			};
 			newrect = document.createElementNS(svgns, 'rect');
@@ -330,6 +330,9 @@ function centerbelow ( hid ) {
 			};
 		};
 	};
+	lvl = toks[hid].getAttribute('lvl');
+	nextlvl = parseInt(lvl)+1;
+	// if ( nextlvl && nextlvl <= maxlevel ) { unoverlap(nextlvl); };
 };
 
 function putchildren(node, svg, lvl) {
