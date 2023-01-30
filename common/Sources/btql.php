@@ -37,6 +37,14 @@
 
 	if (is_array($settings['qlis'])) $tqs = array_keys($settings['qlis']);
 	else $tqs = array ( "BTQL", "UDAPI", "CQL" , "PML-TQ" ); 
+	
+	if(count($tqs) == 1 ) {
+		$settingsdefs .= "document.getElementById('tqbuts').style.display = 'none';\n";
+		$qtype = $frontview = $tqs[0];
+	} else if ( !in_array($tqs, $qtype ) ) {
+		$qtype = $frontview = $tqs[0];
+	};
+	
 	$tqlist = '"'.join('", "', $tqs).'"';
 	$abouts = "<div id='about' style='display: none; position: absolute; right: 25px; top: 80px; padding: 10px; width: 500px; z-index: 1000; background-color: #eeeeee; border: 1px solid #555555;'>
 	<span style=\"float: right; font-size: small; margin-top: -5px;\" onClick=\"document.getElementById('about').style.display='none';\">close</span>
@@ -159,6 +167,8 @@
 		$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";
 	};
 	
+	$tophelp = getlangfile("btqhelp-text");
+	
 	$treex = $settings['defaults']['treex'] or $treex = "deptree";
 	$maintext .= "<h1>Tree Query</h1>
 	
@@ -166,15 +176,16 @@
 			.button { display: inline-block; background-color: #eeeeee; border: 1px solid #444444; padding: 2px 10px 2px 10px; }
 			.button[active] { background-color: #66ff66; }
 		</style>
-		<p>On this page, you can query UD parsed corpora in a number of different query languages. 
-		</p>
-		
+	
+		$tophelp		
 		$qname
 		<form action='index.php?action=$action' method=post id='qf' onSubmit='return false;'>
 		
+		<div id=tqbuts>
 		<div style='display: inline-block;'>$tqbuts$transbuts</div> 
 		<div style='display: inline-block; float: right;'>$notrbuts</div> 
 		<hr>
+		</div>
 		<table style='width: 100%;'>
 		<tr><td>
 		$tqinput
@@ -441,6 +452,8 @@
 			switchqv('$frontview');
 		</script>
 		"; 
+
+	$maintext .= "<div id='helptext'>".getlangfile("btqltext2")."</div>";		
 
 	$maintext .= "<hr><p><a href='index.php?action=querymng&type=btql'>stored queries</a> <span id='butlist'></span> $morebuts";
 
