@@ -182,6 +182,8 @@ function drawsvg(elm, divid = null ) {
 			unoverlap(parseInt(i) + 1);
 		};
 		unoverlap(lastlvl);
+		
+		if ( typeof(window.posttree) === 'function' ) { posttree(); };
 	};
 	
 	// check maxwidth and negative offsets (and repair)
@@ -362,6 +364,12 @@ function putchildren(node, svg, lvl) {
 		newtok.setAttribute('x', 10);
 		newtok.setAttribute('id', 'node-'+childid);
 		newtok.setAttribute('lvl', lvl);
+		for ( i in child ) {
+			// Copy any additional attributes from the JSON
+			var att = child[i];
+			if ( i == 'tokid' || i == 'label' || typeof(att) != 'string' ) { continue; };
+			newtok.setAttribute(i, att);
+		};
 		tokid = child['tokid']; if ( !tokid ) { tokid = child['id']; };
 		if ( tokid) { newtok.setAttribute('tokid', tokid);};
 		if ( typeof(headid) != 'undefined' ) { newtok.setAttribute('head', headid); };
