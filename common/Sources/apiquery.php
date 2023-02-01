@@ -6,7 +6,7 @@
 
 	$qid = $_POST['qid'];
 	$query = $_POST['query'];
-	$type = $_POST['type'];
+	$qrtype = $_POST['type'];
 	$format = $_POST['format'] or $format = "json";
 	$output = $_POST['output'] or $output = "xml";
 	$lvl = $_POST['lvl'] or $lvl = $settings['cqp']['sent'] or $lvl = "s";
@@ -58,18 +58,18 @@
 	if ( !file_exists("cache/$qid") || $debug ) {
 	
 		# Run the query
-		if ( file_exists("Sources/query-$type.php") ) {
-			$qsrc = "Sources/query-$type.php";
-		} else if ( $sharedfolder && file_exists("$sharedfolder/Sources/query-$type.php") ) {
-			$qsrc = "$sharedfolder/Sources/query-$type.php";
-		} else if ( file_exists("$ttroot/common/Sources/query-$type.php") ) {
-			$qsrc = "$ttroot/common/Sources/query-$type.php";
+		if ( file_exists("Sources/query-$qrtype.php") ) {
+			$qsrc = "Sources/query-$qrtype.php";
+		} else if ( $sharedfolder && file_exists("$sharedfolder/Sources/query-$qrtype.php") ) {
+			$qsrc = "$sharedfolder/Sources/query-$qrtype.php";
+		} else if ( file_exists("$ttroot/common/Sources/query-$qrtype.php") ) {
+			$qsrc = "$ttroot/common/Sources/query-$qrtype.php";
 		};
 
 		if ( $qsrc ) {
 			include($qsrc);	
 			$time1 = microtime(true);
-			$fname = preg_replace("/[^a-zA-Z0-9]/", "", "query$type");
+			$fname = preg_replace("/[^a-zA-Z0-9]/", "", "query$qrtype");
 			$fname($query, $qid);
 			$time2 = microtime(true);
 			$extime = sprintf("%0.3f", $time2-$time1);
@@ -78,10 +78,10 @@
 			$totcnt = $tmp[0];
 			$last = min($totcnt+0, $end+0);
 			$lquery = preg_replace("/[\n\r]+/", " ## ", $query);
-			$logline = "$date\t$type\t$extime\t$totcnt\t$lquery\n";
+			$logline = "$date\t$qrtype\t$extime\t$totcnt\t$lquery\n";
 			file_put_contents("tmp/query.log", $logline, FILE_APPEND);
 		} else {
-			print "{\"error\": \"No search engine for $type\"}";
+			print "{\"error\": \"No search engine for $qrtype\"}";
 			exit;
 		};
 	} else {
@@ -154,7 +154,7 @@
 		};
 		$startt = $start+1;
 		print "# TEITOK API output
-# Query ($type): $query
+# Query ($qrtype): $query
 # Results: $startt-$last of $totcnt
 \n";
 
@@ -265,7 +265,7 @@
 
 		$startt = $start+1;
 		print "# TEITOK API output
-# Query ($type): $query
+# Query ($qrtype): $query
 # Results: $startt-$last of $totcnt
 \n";
 
