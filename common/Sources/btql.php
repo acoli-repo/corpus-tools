@@ -63,6 +63,12 @@
 			};
 			if ( $unusable && $username ) $maintext .= "<div class='adminpart warning'>Query language $tq is not usable ($unusable)</div>";
 		};
+		if ( $qbform[$tq] ) {
+			$qbformtxt .= "<div id='qb-$tq'>{$qbform[$tq]}</div>";
+		};
+		if ( $qbscript[$tq] ) {
+			$qbscripts .= $qbscript[$tq];
+		};
 		$but = "<div class=button onClick=\"switchqv('$tq');\" id='tb-$tq' value='$tq'>$tq</div>";
 		if ( $tq == "BTQL" ) {
 			$tqbuts = "$but &Rarr; ";
@@ -169,6 +175,8 @@
 	
 	$tophelp = getlangfile("btqhelp-text");
 	
+	if ( $qbformtxt ) $qblink = " &bull; <a id=qblink onClick='showqb();'>Query Builder</a>";
+	
 	$treex = $settings['defaults']['treex'] or $treex = "deptree";
 	$maintext .= "<h1>Tree Query</h1>
 	
@@ -179,6 +187,12 @@
 	
 		$tophelp		
 		$qname
+		<div id='qbs' style='display: none'>$qbformtxt</div>
+		<div  id='currqbdiv'  style='padding: 5px; border: 1px solid #666666; background-color: #eeeebb; display: none;'>
+			<div style='float: right' onClick='hidecurr();'>x</div>
+			<h2 id='qbname'></h2>
+			<div id='currqb'></div>
+		</div>
 		<form action='index.php?action=$action' method=post id='qf' onSubmit='return false;'>
 		
 		<div id=tqbuts>
@@ -198,7 +212,9 @@
 		$clusteropt
 		$abouts
 
+
 		<p><input type=button id=runq onClick='runquery();' value='Run Query'> <a onClick='showhelp();'>Help</a>
+		$qblink
 		</form>
 		
 		<hr>
@@ -220,6 +236,7 @@
 		<script language='Javascript' src=\"$jsurl/btqlparser.js\"></script>
 		<script language=Javascript src='$jsurl/tokedit.js'></script>
 		<script language=Javascript src='$jsurl/tokview.js'></script>
+		$qbscripts
 		<script>
 			var frontview = '$frontview';
 			var tqs = [$tqlist];
@@ -239,6 +256,21 @@
 			$attnamelist
 			var orgXML = document.getElementById('mtxt').innerHTML;
 			
+			function showqb() {
+				if ( !document.getElementById('qb-'+frontview) ) { return false; }; 
+				document.getElementById('currqb').appendChild(document.getElementById('qb-'+frontview));
+				document.getElementById('currqbdiv').style.display = 'block';
+				document.getElementById('qbname').innerHTML = 'Query Builder ' + frontview;
+			};
+			function setqry(qry) {
+				document.getElementById('ta-'+frontview).value = qry;
+				hidecurr();
+			};
+			function hidecurr() {
+				document.getElementById('qbs').appendChild(document.getElementById('qb-'+frontview));
+				document.getElementById('currqbdiv').style.display = 'none';
+			};
+
 			function showhelp() {
 				var fhelp = document.getElementById('help-'+frontview);
 				if ( fhelp ) {
@@ -274,7 +306,8 @@
 
 			function switchqv( toview = 'BTQL' ) {
 				document.getElementById('about').style.display = 'none';
-				btql = document.getElementById('ta-BTQL').value;
+				btql = '';
+				if ( document.getElementById('ta-BTQL') ) btql = document.getElementById('ta-BTQL').value;
 				if ( toview == 'BTQL' ) {
 					document.getElementById('runq').disabled = true;
 				} else {
