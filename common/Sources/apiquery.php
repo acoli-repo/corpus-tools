@@ -78,7 +78,8 @@
 			$totcnt = $tmp[0];
 			$last = min($totcnt+0, $end+0);
 			$lquery = preg_replace("/[\n\r]+/", " ## ", $query);
-			$logline = "$date\t$qrtype\t$extime\t$totcnt\t$lquery\n";
+			$uip = $_SERVER['REMOTE_ADDR'];
+			$logline = "$date\t$qrtype\t$extime\t$totcnt\t$lquery\t$qid\t$uip\n";
 			file_put_contents("tmp/query.log", $logline, FILE_APPEND);
 		} else {
 			print "{\"error\": \"No search engine for $qrtype\"}";
