@@ -958,6 +958,56 @@ class TTXML
 		};
 	}
 
+	function viewopts() {
+		global $settings, $username, $editxml;
+		#Build the view options
+		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			$formcol = $item['color'];
+			# Only show forms that are not admin-only
+			if ( $username || !$item['admin'] ) {
+				if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+				$ikey = $item['inherit'];
+				if ( preg_match("/ $key=/", $editxml) || $item['transliterate'] || ( $item['subtract'] && preg_match("/ $ikey=/", $editxml) ) || $key == "pform" ) { #  || $item['subtract']
+					$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+					$fbc++;
+				};
+				if ( $key != "pform" ) {
+					if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+					$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+				};
+			};
+		}; 
+		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+			$val = $item['display'];
+			if ( preg_match("/ $key=/", $editxml) ) {
+				if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
+				if ( !$item['admin'] || $username ) {
+					if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+					$attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+					$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+					$pcolor = $item['color'];
+					$tagstxt .= " <button id='tbt-$key' style='background-color: #$bc; color: $pcolor;$bgcol' onClick=\"toggletag('$key')\">{%$val}</button>";
+				};
+			} else if ( is_array($labarray) && ($akey = array_search($key, $labarray)) !== false) {
+				unset($labarray[$akey]);
+			};
+		};
+
+		$showform = $_POST['showform'] or $showform = $_GET['showform'] or $showform = 'form';
+		if ( $showform == "word" ) $showform = $wordfld;
+		$this->showform = $showform;
+
+		# Only show text options if there is more than one form to show
+		if ( $fbc > 1 ) {
+			$viewopts['view'] .= "<p>{%Text}: $formbuts"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
+
+			$viewopts['show'] .= " - <button id='btn-col' style='background-color: #ffffff;' title='{%color-code form origin}' onClick=\"togglecol();\">{%Colors}</button> ";
+			$sep = " - ";
+		};
+
+		return $viewopts;
+	}
+
 	function deanon( $anon ) {
 		global $settings;
 		$full = $anon['type']."-".$anon['subtype'];

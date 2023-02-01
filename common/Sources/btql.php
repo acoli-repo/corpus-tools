@@ -4,6 +4,12 @@
 		$_POST = $_GET;
 	};
 
+	# Check whether we have sentences in our corpus
+	if ( ( !is_array($settings['qlis']) || !$settings['qlis']['nosent'] ) && !file_exists("cqp/s_id.avs") ) {
+		if ( $username ) fatal("The corpus has no sentences, which tree search relies on");
+		else fatal("Tree search is currently not available for this corpus");
+	};
+
 	if ( $_GET['query'] ) {
 		$qtype = $_GET['type'] or $qtype = "BTQL";
 	};
@@ -21,7 +27,8 @@
 	if ( !$btql && !$rawq ) {
 		$btql = "[upos=\"NOUN\" and [upos=\"ADP\"] ]";
 	} else if ( !$btql && $rawq ) {
-		$frontview = "rawq";
+		# $frontview = "rawq";
+		$btql = $rawq;
 	};
 
 	$about['BTQL'] = "<p>BTQL (Bracketed Tree Query Language) is a simple language using a syntax similar to that of CQL, but with
@@ -85,11 +92,66 @@
 		$abouts .= "<div id='abouts-$tq' style='display: none' syntax=\"{$syntax[$tq]}\"><div id='help-$tq'>{$about[$tq]}</div></div>";
 	}; 
 
+	# Remove BTQL if it serves no purpose
+	if ( !$transbuts ) {
+		$tqbuts = "";
+		$transbuts = $notrbuts;
+		$notrbuts = "";
+		if (($key = array_search('BTQL', $tqs)) !== false) {
+			unset($tqs[$key]);
+			$funclist .= "document.getElementById('ta-BTQL').style.display = 'none';";
+		};
+		$tqs = array_values($tqs);
+		$tqlist = '"'.join('", "', $tqs).'"';
+		$qtype = $frontview = $tqs[0];
+	};
+
+	#Build the view options
+	foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+		$formcol = $item['color'];
+		# Only show forms that are not admin-only
+		if ( $username || !$item['admin'] ) {
+			if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+			$ikey = $item['inherit'];
+			$formbuts .= " <button id='but-$key' onClick=\"setbut(this['id']); setForm('$key')\" style='color: $formcol;$bgcol'>{%".$item['display']."}</button>";
+			$fbc++;
+			if ( $key != "pform" ) {
+				if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+				$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+			};
+		};
+	};
+	foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+		$val = $item['display'];
+		if ( preg_match("/ $key=/", $editxml) ) {
+			if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
+			if ( !$item['admin'] || $username ) {
+				if ( $item['admin'] ) { $bgcol = " border: 2px dotted #992000; "; } else { $bgcol = ""; };
+				$attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+				$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+				$pcolor = $item['color'];
+				$tagstxt .= " <button id='tbt-$key' style='background-color: #$bc; color: $pcolor;$bgcol' onClick=\"toggletag('$key')\">{%$val}</button>";
+			};
+		} else if ( is_array($labarray) && ($akey = array_search($key, $labarray)) !== false) {
+			unset($labarray[$akey]);
+		};
+	};
+
+	$showform = $_POST['showform'] or $showform = $_GET['showform'] or $showform = 'form';
+	if ( $showform == "word" ) $showform = $wordfld;
+
+	# Only show text options if there is more than one form to show
+	if ( $fbc > 1 ) {
+		$viewoptions = "<p>{%Text}: $formbuts"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
+		# $showoptions .= " - <button id='btn-col' style='background-color: #ffffff;' title='{%color-code form origin}' onClick=\"togglecol();\">{%Colors}</button> ";
+	};
+
 	# Document selection list	
 	if ( !$corpusfolder ) $corpusfolder = "cqp";
 	$cqpatts = $settings['cqp']['sattributes'];
 	$docsel .= "<h3>Metadata Restrictions</h3>
 		<table>";
+		
 	# Deal with old-style pattributes as xattribute
 	# Deal with any additional level attributes (sentence, utterance)
 	foreach ( $settings['cqp']['sattributes'] as $xatts ) {
@@ -177,7 +239,12 @@
 	
 	if ( $qbformtxt ) $qblink = " &bull; <a id=qblink onClick='showqb();'>Query Builder</a>";
 	
+	# Determine what to do with trees	
 	$treex = $settings['defaults']['treex'] or $treex = "deptree";
+	$treet = $settings['defaults']['treet'] or $treet = "tree";
+	if ( !$settings['defaults']['treex'] && !file_exists("cqp/head.avs") ) {
+		$treex = "file"; $treet = "sentence";
+	};
 	$maintext .= "<h1>Tree Query</h1>
 	
 		<style>
@@ -219,6 +286,7 @@
 		
 		<hr>
 		<div id=navdiv style='margin-bottom: 10px;'></div>
+		<div id='viewopts' style='display: none;'>$viewoptions</div>	
 		<div id=mtxt><table id=resulttable></table></div>
 		<div id=loadmore style='margin-top: 10px;'></div>
 
@@ -446,7 +514,7 @@
 					 	rcnt = parseInt(json.start) + parseInt(i);
 					 	content = rowdata.content.replaceAll(' id=\"', ' id=\"row'+rcnt+'_');
 					 	docid = rowdata.cid.replace('.xml', '').replace('xmlfiles/', '');
-					 	doctit = 'tree';
+					 	doctit = '$treet';
 					 	row =  '<tr id=\"row'+rcnt+'\"><td style=\"padding-right: 10px;\"><a target=details cid=\"'+docid+'\" onmouseover=\"showdocinfo(this)\" href=\"index.php?action=$treex&cid=' + rowdata.cid + '&sid=' + rowdata.sentid + '\">' + doctit + '</a></td><td>' + content + '</td></tr>';
 						document.getElementById('resulttable').innerHTML += row;
 						for ( var j in rowdata.toks ) { 
@@ -458,6 +526,8 @@
 					 };
 					 formify();
 					 setForm('$showform');
+					 if ( document.getElementById('helptext') ) { document.getElementById('helptext').style.display = 'none'; };
+					 if ( document.getElementById('viewopts') ) { document.getElementById('viewopts').style.display = 'block'; };
 				  } else  if (this.readyState == 4 ) {
 					 document.getElementById('navdiv').innerHTML = '<b>An error has occcurred while loading the results</b>';				  	
 				  };
@@ -486,7 +556,8 @@
 		</script>
 		"; 
 
-	$maintext .= "<div id='helptext'>".getlangfile("btqltext2")."</div>";		
+	$maintext .= "<div id='helptext'>".getlangfile("btqltext2")."</div>";	
+		
 
 	$maintext .= "<hr><p><a href='index.php?action=querymng&type=btql'>stored queries</a> <span id='butlist'></span> $morebuts";
 

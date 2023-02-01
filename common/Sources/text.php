@@ -545,7 +545,7 @@
 	if ( $settings['defaults']['wordinfo'] ) $settingsdefs .= "\n\t\tvar wordinfo = true;";
 	$jsontrans = array2json($settings['transliteration']);
 				
-	$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'];	
+	$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'] or $highlights = $_GET['sid'];	
 
 	// Load the tagset 
 	require ( "$ttroot/common/Sources/tttags.php" );
