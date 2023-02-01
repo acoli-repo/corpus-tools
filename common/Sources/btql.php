@@ -529,7 +529,8 @@
 					 if ( document.getElementById('helptext') ) { document.getElementById('helptext').style.display = 'none'; };
 					 if ( document.getElementById('viewopts') ) { document.getElementById('viewopts').style.display = 'block'; };
 				  } else  if (this.readyState == 4 ) {
-					 document.getElementById('navdiv').innerHTML = '<b>An error has occcurred while loading the results</b>';				  	
+					 document.getElementById('navdiv').innerHTML = '<b>An error has occcurred while loading the results</b>';	
+					 if ( username ) { console.log(this.status); };			  	
 				  };
 				};
 				requrl = 'index.php?action=apiquery';
