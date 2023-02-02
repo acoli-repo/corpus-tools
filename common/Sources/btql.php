@@ -12,6 +12,7 @@
 
 	if ( $_GET['query'] ) {
 		$qtype = $_GET['type'] or $qtype = "BTQL";
+		$_POST['tqs'][$qtype] = $_GET['query'];
 	};
 	if ( !$_POST['tqs'] ) {
 		$_POST['tqs']['BTQL'] = '[upos="NOUN" and [deprel="case"] ]';

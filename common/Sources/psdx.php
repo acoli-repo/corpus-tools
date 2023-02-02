@@ -20,7 +20,13 @@
 		};
 	};
 		
-	if ( $sid && $psdxfile ) {
+	if ( $act == 'query' ) {
+	
+		print "Reloading to BTQL
+			<script language=Javascript>window.location='index.php?action=btql&type=PSDX&query={$_GET['query']}'</script>
+			";
+	
+	} else if ( $sid && $psdxfile ) {
 	 
 		require_once("$ttroot/common/Sources/ttxml.php");
 	
