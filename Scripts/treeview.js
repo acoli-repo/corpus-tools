@@ -72,6 +72,7 @@ function drawsvg(elm, divid = null ) {
 	}; 
 	
 	putchildren(elm, svg, rootlvl);
+	if ( typeof(wordarray) == 'undefined' ) { var wordarray = getwords(); };
 	
 	if ( typeof(hpos) == 'undefined' ) { hpos = 'branch'; };
 
@@ -436,6 +437,28 @@ function conllu2tree(conll) {
 			trees[head]['children'][tokid] = trees[ord];
 		};
 	};
+};
+
+function getwords() {
+	words = [];
+	if ( typeof(orgtoks) != 'undefined' ) { console.log(orgtoks); };
+	mtxt = document.getElementById('mtxt');
+	if ( !mtxt ) return false;
+	var toks = mtxt.getElementsByTagName("tok");
+	for ( i in toks ) {
+		tok = toks[i];
+		if ( typeof(tok) != 'object' ) continue;
+		dtoks = tok.getElementsByTagName("dtok");
+		if ( dtoks.length > 0 ) {
+			for ( j in dtoks ) {
+				dtok = dtoks[j];
+				words.push(dtok.getAttribute('id'));
+			};
+		} else {
+			words.push(toks[i].getAttribute('id'));
+		};
+	};
+	return words;
 };
 
 function setvar(vname, vvalue) {
