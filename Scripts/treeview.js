@@ -72,7 +72,7 @@ function drawsvg(elm, divid = null ) {
 	}; 
 	
 	putchildren(elm, svg, rootlvl);
-	if ( typeof(wordarray) == 'undefined' ) { var wordarray = getwords(); };
+	// if ( typeof(wordarray) == 'undefined' ) { var wordarray = getwords(); };
 	
 	if ( typeof(hpos) == 'undefined' ) { hpos = 'branch'; };
 
