@@ -96,6 +96,8 @@
 
 	
 			</script>";
+	
+	$maintext .= "<hr><p>".$ttxml->viewswitch();
 
 	} else if ( $psdxfile ) {
 
