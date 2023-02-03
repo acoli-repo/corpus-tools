@@ -24,7 +24,7 @@ function drawsvg(elm, divid = null ) {
 		div.appendChild(mendiv);
 		div.appendChild(svgcontainer);
 		treeicon = '<div style=\'font-size: 24px; text-align: right\' id=\'treemicon\' onClick="this.style.display=\'none\'; this.parentNode.children[1].style.display=\'block\';">≡</div>';
-		treeopts = '<div class=\'helpbox\' style=\'display: none; padding-left: 5px padding-left: 20px;\'><span style="float: right" onClick="this.parentNode.style.display=\'none\'; this.parentNode.parentNode.children[0].style.display=\'block\';">x</span> <h2>Tree Options</h2> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' value=\'0\'>show boxes</button></p> <p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' value=\'0\'>hide labels</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'punctbut\' name=\'punct\' value=\'0\'>show punctuation</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'rootbut\' name=\'showroot\' value=\'0\'>show root</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> </div> </div>';
+		treeopts = '<div class=\'helpbox\' style=\'display: none; padding-left: 5px padding-left: 20px;\'><span style="float: right" onClick="this.parentNode.style.display=\'none\'; this.parentNode.parentNode.children[0].style.display=\'block\';">x</span> <h2>Tree Options</h2> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' value=\'0\'>show boxes</button></p> <p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' value=\'0\'>hide labels</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'punctbut\' name=\'punct\' value=\'0\'>show punctuation</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'rootbut\' name=\'showroot\' value=\'0\'>show root</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> <p><button onClick="downloadSVG(\'svgtree\');" factor="1.2" name=\'lineheight\'>download SVG</button></p></div> </div>';
 		mendiv.setAttribute('style', 'position: relative; float: right; z-index: 2000;');
 		mendiv.innerHTML = treeicon + treeopts;		
 	};
@@ -444,3 +444,18 @@ function vchange(button) {
 	setvar(vname, window[vname]*factor );
 };
 
+function downloadSVG(id, filename = null) {
+  if ( typeof(filename) == 'undefined' || filename == null ) { 
+  	filename  = 'tree';
+    if ( typeof(treeid) != 'undefined' ) {  filename  = filename + '-'+treeid; };
+  	filename  = filename + '.svg';
+  };
+  document.getElementById(id).setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+  const svg = document.getElementById(id).outerHTML;
+  const blob = new Blob([svg.toString()]);
+  const element = document.createElement("a");
+  element.download = filename;
+  element.href = window.URL.createObjectURL(blob);
+  element.click();
+  element.remove();
+}

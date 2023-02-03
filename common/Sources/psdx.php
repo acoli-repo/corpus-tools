@@ -88,6 +88,7 @@
 			<script>
 				$settingsdefs
 				var tree = $json;
+				var treeid = '$ttxml->xmlid-$sid';
 				var ctree = 1;
 				var hpos = 'wordorder';
 				document.getElementById('tokinfo').style['z-index'] = 3000;

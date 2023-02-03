@@ -337,6 +337,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 			$editxml = $sent->asXML();
 		} else {
 			$maintext .= "<script language=\"Javascript\">
+				var treeid = '$ttxml->xmlid-$sid';
 				document.onkeydown = function(evt) {
 					evt = evt || window.event;
 				   if ( evt.keyCode == 37 ) {
