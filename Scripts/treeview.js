@@ -1,6 +1,6 @@
 var lineheight = 100; var base = 30; 
 var defdiv = 'svgdiv';
-var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos, maxlevel, showroot;
+var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos, maxlevel, showroot, wordorder;
 var spacing = 50; var ungrouping = 50;
 const svgns = 'http://www.w3.org/2000/svg';
 var children = {}; var levw = [];
@@ -24,7 +24,16 @@ function drawsvg(elm, divid = null ) {
 		div.appendChild(mendiv);
 		div.appendChild(svgcontainer);
 		treeicon = '<div style=\'font-size: 24px; text-align: right\' id=\'treemicon\' onClick="this.style.display=\'none\'; this.parentNode.children[1].style.display=\'block\';">≡</div>';
-		treeopts = '<div class=\'helpbox\' style=\'display: none; padding-left: 5px padding-left: 20px;\'><span style="float: right" onClick="this.parentNode.style.display=\'none\'; this.parentNode.parentNode.children[0].style.display=\'block\';">x</span> <h2>Tree Options</h2> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' value=\'0\'>show boxes</button></p> <p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' value=\'0\'>hide labels</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'punctbut\' name=\'punct\' value=\'0\'>show punctuation</button></p> <p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'rootbut\' name=\'showroot\' value=\'0\'>show root</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> <p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> <p><button onClick="downloadSVG(\'svgtree\');" factor="1.2" name=\'lineheight\'>download SVG</button></p></div> </div>';
+		treeopts = '<div class=\'helpbox\' style=\'display: none; padding-left: 5px padding-left: 20px;\'><span style="float: right" onClick="this.parentNode.style.display=\'none\'; this.parentNode.parentNode.children[0].style.display=\'block\';">x</span> \
+			<h2>Tree Options</h2> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' value=\'0\'>show boxes</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'wordorder\' id=\'wobut\' value=\'0\'>word order</button></p> \
+			<p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' value=\'0\'>hide labels</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'punctbut\' name=\'punct\' value=\'0\'>show punctuation</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'rootbut\' name=\'showroot\' value=\'0\'>show root</button></p> \
+			<p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> \
+			<p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> \
+			<p><button onClick="downloadSVG(\'svgtree\');" factor="1.2" name=\'lineheight\'>download SVG</button></p></div> </div>';
 		mendiv.setAttribute('style', 'position: relative; float: right; z-index: 2000;');
 		mendiv.innerHTML = treeicon + treeopts;		
 	};
@@ -92,7 +101,7 @@ function drawsvg(elm, divid = null ) {
 		lastlvl = i;
 	};
 	
-	if ( hpos == 'wordorder' && typeof(wordarray) != 'undefined' ) {
+	if ( ( hpos == 'wordorder' || wordorder ) && typeof(wordarray) != 'undefined' ) {
 		var hi = 0;
 		var lh = [];
 		for ( i in wordarray ) {
@@ -265,6 +274,11 @@ function drawsvg(elm, divid = null ) {
 	tmp = document.getElementById('labbut');
 	if ( tmp ) {
 		if ( haslabs ) { tmp.style.display = 'block'; }
+		else { tmp.style.display = 'none'; };
+	};
+	tmp = document.getElementById('wobut');
+	if ( tmp ) {
+		if ( typeof(wordarray) != 'undefined' && wordarray.length > 0 ) { tmp.style.display = 'block'; }
 		else { tmp.style.display = 'none'; };
 	};
 	tmp = document.getElementById('rootbut');
