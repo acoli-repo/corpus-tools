@@ -72,7 +72,7 @@ function drawsvg(elm, divid = null ) {
 	}; 
 	
 	putchildren(elm, svg, rootlvl);
-	// if ( typeof(wordarray) == 'undefined' ) { var wordarray = getwords(); };
+	if ( typeof(wordarray) == 'undefined' ) { var wordarray = getwords(); };
 	
 	if ( typeof(hpos) == 'undefined' ) { hpos = 'branch'; };
 
@@ -457,7 +457,8 @@ function getwords() {
 			words.push(toks[i].getAttribute('id'));
 		};
 	};
-	return words;
+	console.log(words);
+	// return words;
 };
 
 function setvar(vname, vvalue) {
