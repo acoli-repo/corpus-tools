@@ -97,7 +97,7 @@
 	
 			</script>";
 	
-	$maintext .= "<hr><p>".$ttxml->viewswitch();
+	$maintext .= "<hr><p><a href='index.php?action=$action&cid=$ttxml->fileid&'>{%Sentence list}</a> &bull; ".$ttxml->viewswitch();
 
 	} else if ( $psdxfile ) {
 

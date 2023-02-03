@@ -185,6 +185,7 @@
 		"empty" => "empty",
 		"Page" => "Page",
 		"Folio" => "Folio",
+		"Sentence list" => "Sentence list",
 		"Select a file from the list below or" => "Select a file from the list below or",
 		"Query Builder" => "Query Builder",
 		"Text Search" => "Text Search",
