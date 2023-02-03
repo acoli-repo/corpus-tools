@@ -46,12 +46,14 @@
 		$tmp = $forest->xpath("./preceding::forest[1]");
 		if ( $tmp ) {
 			$prid = current($tmp)['sentid'];
-			$prev = "<a href='index.php?action=$action&cid=$ttxml->fileid&sid=$prid'>&lt;</a>";
+			$plink ="index.php?action=$action&cid=$ttxml->fileid&sid=$prid";
+			$prev = "<a href='$plink'>&lt;</a>";
 		};
 		$tmp = $forest->xpath("./following::forest[1]");
 		if ( $tmp ) {
 			$flid = current($tmp)['sentid'];
-			$next = "<a href='index.php?action=$action&cid=$ttxml->fileid&sid=$flid'>&gt;</a>";
+			$nlink = "index.php?action=$action&cid=$ttxml->fileid&sid=$flid";
+			$next = "<a href='$nlink'>&gt;</a>";
 		};
 		$maintext .= "<table style='width: 100%'><tr><td>$prev<td style='text-align: center'><b>Tree {$forest['id']} = Sentence $sid</b></td><td>$next</tr></table>
 		<hr>";
@@ -94,7 +96,16 @@
 				document.getElementById('tokinfo').style['z-index'] = 3000;
 				drawsvg(tree, 'svgdiv');
 
-	
+				document.onkeydown = function(evt) {
+					evt = evt || window.event;
+				   if ( evt.keyCode == 37 ) {
+						var plink = '$plink';
+						if ( plink ) { window.open(plink, '_self'); };
+				   } else if ( evt.keyCode == 39 ) {
+						var nlink = '$nlink';
+						if ( nlink ) { window.open(nlink, '_self'); };
+				   };
+				};
 			</script>";
 	
 	$maintext .= "<hr><p><a href='index.php?action=$action&cid=$ttxml->fileid&'>{%Sentence list}</a> &bull; ".$ttxml->viewswitch();
