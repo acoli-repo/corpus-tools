@@ -102,7 +102,7 @@ function drawsvg(elm, divid = null ) {
 		lastlvl = i;
 	};
 	
-	if ( ( hpos == 'wordorder' || wordorder ) && typeof(wordarray) != 'undefined' ) {
+	if ( ( hpos == 'wordorder' || wordorder == 1 ) && typeof(wordarray) != 'undefined' ) {
 		var hi = 0;
 		var lh = [];
 		for ( i in wordarray ) {
