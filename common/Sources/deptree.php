@@ -311,7 +311,8 @@ window.addEventListener(\"beforeunload\", function (e) {
 			$arraytree = drawjson($sent);
 			$jsontree = json_encode($arraytree, JSON_PRETTY_PRINT);
 			if ( $jsontree == "" ) {
-				if ( $username ) {
+				if ( $username && $_GET['debug'] ) {
+					print haskey($arraytree, "w-156");
 					print "Unable to convert array tree to JSON (see error): <pre>".print_r($arraytree, 1); 
 					exit;
 				} else {
@@ -916,8 +917,8 @@ $maintext .= "
 			$array[$tokid]['rel'] = $deprel;
 			$array[$tokid]['id'] = $tokid;
 			
-			$array[$headid]['children'][$tokid] = &$array[$tokid];
-			if ( $parents[$tokid] ) { print "Already has a parent: $tokdid => $headid"; exit; };
+			if ( !haskey($array[$headid], $tokid) &&  !haskey($array[$tokid], $headid) ) # Avoid recursion
+				$array[$headid]['children'][$tokid] = &$array[$tokid];
 			$parents[$tokid] = $headid;
 
 		};
@@ -1028,5 +1029,14 @@ $maintext .= "
 		 }
 		 return strcmp($a,$b);
 	  };    
+
+	function haskey($array, $key) {
+		if ( !is_array($array) ) return false;
+		foreach ( $array as $ak => $av ) {
+			if ( $ak == $key ) return true;
+			if ( haskey($av, $key) ) return true;
+		};
+		return false;
+	};
 
 ?>
