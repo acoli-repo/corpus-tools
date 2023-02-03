@@ -441,7 +441,6 @@ function conllu2tree(conll) {
 
 function getwords() {
 	words = [];
-	if ( typeof(orgtoks) != 'undefined' ) { console.log(orgtoks); };
 	mtxt = document.getElementById('mtxt');
 	if ( !mtxt ) return false;
 	var toks = mtxt.getElementsByTagName("tok");
@@ -452,7 +451,7 @@ function getwords() {
 		if ( dtoks.length > 0 ) {
 			for ( j in dtoks ) {
 				dtok = dtoks[j];
-				words.push(dtok.getAttribute('id'));
+				if ( typeof(dtok) == 'object' ) words.push(dtok.getAttribute('id'));
 			};
 		} else {
 			words.push(toks[i].getAttribute('id'));
