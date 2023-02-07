@@ -323,12 +323,14 @@ window.addEventListener(\"beforeunload\", function (e) {
 			$senta = array(); foreach ( $sent->xpath($toksel) as $tok ) { array_push($senta, $tok['id']); };
 			$maintext .= "<script language=Javascript>var wordarray = ['".join("','", $senta)."'];</script>\n";
 			$postaction .= "<script language=Javascript src=\"$jsurl/treeview.js\"></script>";
-// var punct = '$puctnsh';
-// var jmp = '$jmp';
 
 			if ( $puctnsh == "with" ) $paction = "vtoggle(document.getElementById('punctbut'))";
 
-			$postaction .= "<script language=Javascript>var hpos = '$hpos'; var jmp = '$jmp'; drawsvg(tree); $paction</script>";
+			foreach ( $_SESSION['viewopts'] as $key => $val ) {
+				## Pre-click the buttons based on global view options
+			}; 
+
+			$morejs .= "var hpos = '$hpos'; var jmp = '$jmp'; drawsvg(tree); $paction";
 		};
 		
 		if ( $username && $act == "edit" ) {
@@ -387,86 +389,8 @@ $postaction
 
 	$maintext .= "<hr><p><a href='index.php?action=$action&cid=$ttxml->fileid'>{%back to list}</a> &bull; ".$ttxml->viewswitch();
 	$minurl = "index.php?action=$action&cid={$ttxml->fileid}&sid=$sid";
+	$maintext .= " &bull; <a href='index.php?action=$action&act=conllu&cid={$ttxml->fileid}&sid={$sent['id']}'>Download as CoNLL-U</a>";
 
-
-$formfld = $_GET['form'] or $formfld = "";
-$graphbase = base64_encode(str_replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ', $graph));
-$maintext .= "
-	 &bull; {%Download}: 
-	 	<select name='dlopt' onChange=\"makelink(this)\">
-	 		<option value=''>[{%select}]</option>
-	 		<option value='svg' link='data:image/svg+xml;base64,$graphbase'>SVG</option>
-			<option value='png' id='pnglink'>PNG</option>
-	 		<option value='conll-u' link='index.php?action=$action&act=conllu&cid={$ttxml->fileid}&sid={$sent['id']}'>CoNLL-U</option>
-	 	</select>
-	<canvas style='display: none;' id='myCanvas' width='800' height='400' ></canvas>
-				<script src=\"https://cdnjs.cloudflare.com/ajax/libs/leader-line/1.0.3/leader-line.min.js\"></script>
-				<script>
-						var dllines = [];
-						var tibel = 15;
-				</script>
-	<script language=Javascript>
-		document.getElementById('svgdiv').style.height = document.querySelector('svg').getAttribute('height') + 'px';
-		var localhl = 1; // use a local highlight function
-		var nofacs = 1; var noimg = 1; // do not show facsimile images
-		var orgtoks = new Object();
-		var cid = '$ttxml->fileid';
-		var username = '$username';
-		$tokedit
-		formify(); setForm('$formfld');
-		makeinteract();
-		var canvas=document.getElementById('myCanvas');
-		var ctxt = canvas.getContext('2d');
-		var svgelm = document.querySelector('svg');
-		function drawInlineSVG(svgElement, ctx, callback){
-		  var svgURL = new XMLSerializer().serializeToString(svgElement);
-		  var img  = new Image();
-		  img.onload = function(){
-			ctx.drawImage(this, 0,0);
-			callback();
-			}
-		  	img.src = 'data:image/svg+xml; charset=utf8, '+encodeURIComponent(svgURL);
-		  }
-
-		canvas.height = svgelm.height.baseVal.value;
-		canvas.width = svgelm.width.baseVal.value;
-		drawInlineSVG(svgelm, ctxt, function(){
-			document.getElementById('pnglink').setAttribute('link', canvas.toDataURL());
-		});
-	</script>
-	<style>a.selected { font-weight: bold; }</style>";
-	$selopt = "class=\"selected\"";
-	if ( $treeview == "graph" ) $selvg = $selopt; else $selvt = $selopt;
-	if ( $_GET['puctnsh'] == "with" ) $selpz = $selopt; else $selpm = $selopt;
-	if ( $hpos == "narrow" ) $selhn = $selopt; else if ( $hpos == "wordorder" ) $selhw = $selopt; else $selhb = $selopt;
-	$maintext .= "
-	<h3>{%View options}</h3>
-	<table>
-	<tr><th>{%Main view}<td>
-		<ul>
-		<li><a href='$minurl&view=tree' $selvt>{%Tree}</a>
-		<li><a href='$minurl&view=graph' $selvg>{%Graph}</a>		
-		</ul>	
-	<tr><th>{%Punctuation}<td>
-		<ul>	
-		<li><a href='$minurl&puctnsh=without' $selpm>{%Hide}</a>
-		<li><a href='$minurl&puctnsh=with' $selpz>{%Show}</a>			
-		</ul>";
-	if ( $treeview != "graph" ) $maintext .= "
-	<tr><th>{%Horizontal placement}<td>
-		<ul>	
-		<li><a href='$minurl&hpos=branch' $selhb>{%Branching}</a>
-		<li><a href='$minurl&hpos=wordorder' $selhw>{%Word order}</a>			
-		<li><a href='$minurl&hpos=narrow' $selhn>{%Centralized}</a>	
-		</ul>";
-	$maintext .= "
-	</table>		
-	";
-
-
-# SVG:  value='data:image/svg+xml;base64,$graphbase' download=\"deptree.svg\"
-# PNG:  value='pnglink' download=\"deptree.png\"
-# CoNLL-U index.php?action=$action&act=conllu&cid={$ttxml->fileid}&sid={$sent['id']}
 
 	} else if ( $act == "parse" ) {
 		

@@ -6,7 +6,7 @@ const svgns = 'http://www.w3.org/2000/svg';
 var children = {}; var levw = [];
 if (  typeof(punct) == 'undefined' ) { var punct = 0; };
 if (  typeof(debug) == 'undefined' ) { var debug = 0; };
-showroot = 0;
+if (  typeof(showroot) == 'undefined' ) { var showroot = 0; };
 
 function drawsvg(elm, divid = null ) {
 
@@ -58,7 +58,7 @@ function drawsvg(elm, divid = null ) {
 		newtok.innerHTML = 'root';
 		newtok.setAttribute('y', base);
 		newtok.setAttribute('x', 10);
-		newtok.setAttribute('tokid', 'tn-1');
+		// newtok.setAttribute('tokid', 'tn-1');
 		toknr = 1;
 		newtok.setAttribute('lvl', 0);
 		newtok.setAttribute('text-anchor', 'left');
@@ -68,8 +68,12 @@ function drawsvg(elm, divid = null ) {
 		toks['tn-1'] = newtok;
 		children['tn-1'] = ['tn-2']; 
 		svg.appendChild(newtok);
+		lvls[0] = ['tn-1'];
+		if ( typeof(wordarray) != 'undefined' && wordarray[0] != 'tn-1' ) { wordarray.unshift('tn-1'); };
 		rootlvl = 1; 
-	}; 
+	} else if ( typeof(wordarray) != 'undefined' && wordarray[0] == 'tn-1' ) { 
+		wordarray.shift();
+	};
 	
 	putchildren(elm, svg, rootlvl);
 	// if ( typeof(wordarray) == 'undefined' ) { var wordarray = getwords(); };
@@ -80,6 +84,7 @@ function drawsvg(elm, divid = null ) {
 		toks[jmp].setAttribute('fill', '#aa2200');
 		toks[jmp].setAttribute('font-weight', 'bold');
 	};
+
 	
 	// do initial placement
 	for ( i in lvls ) {
@@ -102,10 +107,13 @@ function drawsvg(elm, divid = null ) {
 		lastlvl = i;
 	};
 	
-	if ( ( hpos == 'wordorder' || wordorder == 1 ) && typeof(wordarray) != 'undefined' ) {
-		var hi = 0;
+	if ( ( hpos == 'wordorder' || wordorder == 1 ) && typeof(wordarray) != 'undefined' ) { // only do wordorder if we know the words
+		// Go through word order, and place each token on the first available position
+		var hi = spacing;
 		var lh = [];
+		toks[wordarray[0]].setAttribute('x', hi); // place the very first token to the left
 		for ( i in wordarray ) {
+			if ( i == 0 ) { continue; }; // deal with hidden punctuation
 			t = wordarray[i]; 
 			if ( !toks[t] ) { continue; }; // deal with hidden punctuation
 			tl = parseInt(toks[t].getAttribute('lvl'));
@@ -116,85 +124,41 @@ function drawsvg(elm, divid = null ) {
 			bb = toks[t].getBBox();
 			lh[tl] = th + bb['width'] + spacing;
 		};
-	} else if ( hpos == 'narrow' ) {
-		for ( i in lvls ) {				
-			var dx = ( levw[maxlevel] - levw[i] ) / 2 ;
-			for ( h in lvls[i] ) {
-				var hid = lvls[i][h];
-				curx = toks[hid].getBBox()['x'];
-				toks[hid].setAttribute('x', curx+dx);
-			};
-		};
-	} else  { // if ( hpos == 'branch' )
-		// redraw starting from longest line
-		for ( h in lvls[maxlevel-1] ) {
-			// move right if there are children on the longest line left of their parent (due to non-child items)
-			hid = lvls[maxlevel-1][h];
-			c1 = toks[children[hid][0]];
-			c2 = toks[children[hid].at(-1)];
-			if ( !c1 || !c2 ) { continue; };
-			b1 = c1.getBBox();
-			b2 = c2.getBBox();
-			bb = toks[hid].getBBox();
-			x1 = b1['x']; x2 = b2['x'] + b2['width'];
-			if ( bb['x'] > b1['x'] ) { 
-				xm = ( x1 + x2 ) / 2; 
-				hm = bb['x'] + ( bb['width'] / 2 ); 
-				dx = hm - xm;
-				gomove = 0;
-				for ( h in lvls[maxlevel] ) {
-					child = lvls[maxlevel][h];
-					if ( child == children[hid][0] ) { gomove = 1; };
-					if ( gomove ) {
-						newx = parseInt(toks[child].getAttribute('x')) + dx;
-						toks[child].setAttribute('x', newx);
+	} else { //  if ( hpos == 'centered' ) {
+		// Repeatedly move token under their parent until stabalised (max 20 iterations in case of loops)
+		hm = 1; lcnt = 0;
+		while ( hm && lcnt < 20 ) {
+			hm = 0; lcnt = lcnt + 1;
+			for ( i = lastlvl; i>=0; i-- ) {
+				for ( h in lvls[i] ) {
+					var hid = lvls[i][h];
+					c1 = toks[children[hid][0]];
+					c2 = toks[children[hid].at(-1)];
+					if ( !c1 || !c2 || !toks[hid] ) { continue; };
+					b1 = c1.getBBox();
+					b2 = c2.getBBox();
+					bb = toks[hid].getBBox();
+					x1 = b1['x']; x2 = b2['x'] + b2['width'];
+					xm = ( x1 + x2 ) / 2; 
+					tx = xm - (bb['width']/2);
+					if ( tx > bb['x'] ) {
+						// move parent to right
+						hm = 1;
+						toks[hid].setAttribute('x', tx);
+						unoverlap(i);
+					} else if ( tx < bb['x'] ) {
+						// move first child to right (rest will push along)
+						hm = 1;
+						dx = tx - bb['x'];
+						c1.setAttribute('x', c1.getAttribute('x') - dx);
+						unoverlap(parseInt(i)+1);
 					};
 				};
 			};
 		};
-		for ( i = maxlevel-1; i>=0; i-- ) {
-			// Center parent above their children starting from longest line
-			for ( h in lvls[i] ) {
-				var hid = lvls[i][h];
-				c1 = toks[children[hid][0]];
-				c2 = toks[children[hid].at(-1)];
-				if ( !c1 || !c2 ) { continue; };
-				b1 = c1.getBBox();
-				b2 = c2.getBBox();
-				bb = toks[hid].getBBox();
-				x1 = b1['x']; x2 = b2['x'] + b2['width'];
-				xm = ( x1 + x2 ) / 2; 
-				tx = xm - (bb['width']/2);
-				toks[hid].setAttribute('x', tx);
-			};
-			unoverlap(i);
-		};
-		for ( i = maxlevel; i<=lastlvl; i++ ) {
-			// Redistribute children under their parent starting from longest line
-			for ( h in lvls[i] ) {
-				var hid = lvls[i][h];
-				bb = toks[hid].getBBox();
-				tm = bb['x'] + (bb['width']/2);
-				var cw = 0;
-				for  ( t in children[hid] ) {
-					childid = children[hid][t]; 
-					cw = cw + spacing + toks[childid].getBBox()['width'];
-				};
-				hi = tm - ((cw-spacing)/2);
-				for  ( t in children[hid] ) {
-					tid = children[hid][t];
-					newx = hi;
-					hi = hi + spacing + toks[tid].getBBox()['width'];
-					toks[tid].setAttribute('x', newx);
-				};
-			};
-			unoverlap(i);
-			unoverlap(parseInt(i) + 1);
-		};
-		unoverlap(lastlvl);
-		
-		if ( typeof(window.posttree) === 'function' ) { posttree(); };
+				
 	};
+	if ( typeof(window.posttree) === 'function' ) { posttree(); }; // if needed, run post scripts, pe to make things clickable again
 	
 	// check maxwidth and negative offsets (and repair)
 	minwidth = 0;
@@ -285,7 +249,7 @@ function drawsvg(elm, divid = null ) {
 	tmp = document.getElementById('rootbut');
 	if ( tmp ) {
 		if ( typeof(ctree) != 'undefined' && ctree ) { tmp.style.display = 'none'; }
-		else { tmp.style.display = 'none'; }; // show root does not work properly
+		else { tmp.style.display = 'block'; }; // show root does not work properly
 	};
 	
 	if ( typeof makeinteract === "function" ) {
