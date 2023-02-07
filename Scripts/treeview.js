@@ -111,7 +111,8 @@ function drawsvg(elm, divid = null ) {
 		// Go through word order, and place each token on the first available position
 		var hi = spacing;
 		var lh = [];
-		toks[wordarray[0]].setAttribute('x', hi); // place the very first token to the left
+		t = toks[wordarray[0]];
+		if ( t ) t.setAttribute('x', hi); // place the very first token to the left
 		for ( i in wordarray ) {
 			if ( i == 0 ) { continue; }; // deal with hidden punctuation
 			t = wordarray[i]; 
