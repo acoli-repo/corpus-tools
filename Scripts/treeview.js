@@ -126,9 +126,10 @@ function drawsvg(elm, divid = null ) {
 		};
 	} else { //  if ( hpos == 'centered' ) {
 		// Repeatedly move token under their parent until stabalised (max 20 iterations in case of loops)
-		hm = 1; lcnt = 0;
-		while ( hm && lcnt < 20 ) {
+		hm = 1; lcnt = 0; lmax = 50;
+		while ( hm ) {
 			hm = 0; lcnt = lcnt + 1;
+			if ( lcnt > lmax ) { console.log('looping'); break; };
 			for ( i = lastlvl; i>=0; i-- ) {
 				for ( h in lvls[i] ) {
 					var hid = lvls[i][h];
