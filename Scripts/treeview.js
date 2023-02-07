@@ -1,6 +1,6 @@
 var lineheight = 100; var base = 30; 
 var defdiv = 'svgdiv';
-var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos, maxlevel, showroot, wordorder;
+var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos, maxlevel, showroot, wordorder, hlbox;
 var spacing = 50; var ungrouping = 50;
 const svgns = 'http://www.w3.org/2000/svg';
 var children = {}; var levw = [];
@@ -161,7 +161,7 @@ function drawsvg(elm, divid = null ) {
 				
 	};
 	if ( typeof(window.posttree) === 'function' ) { posttree(); }; // if needed, run post scripts, pe to make things clickable again
-	
+		
 	// check maxwidth and negative offsets (and repair)
 	minwidth = 0;
 	for ( t in toks ) {
@@ -213,7 +213,7 @@ function drawsvg(elm, divid = null ) {
 			newline.setAttribute('style', 'stroke: #996633;stroke-width:0.5');
 			svg.appendChild(newline);
 		};
-		if ( window['boxed'] ) {
+		if ( 1 == 1 ) {
 			// place boxes around tokens when asked
 			bb = tok.getBBox(); rb = bb;
 			if ( typeof(newtext) == 'Object' ) {
@@ -226,9 +226,15 @@ function drawsvg(elm, divid = null ) {
 			newrect.setAttribute('width',  rb['width'] + hpadding*2 );
 			newrect.setAttribute('height', rb['height'] + vpadding*2 + sublh );
 			newrect.setAttribute('fill', 'none');
-			newrect.setAttribute('style', 'stroke: #bbbbbb; stroke-width:0.4');
+			newrect.setAttribute('id', 'box-'+tok.getAttribute('id'));
+			if ( window['boxed']) newrect.setAttribute('style', 'stroke: #bbbbbb; stroke-width:0.4');
 			svg.appendChild(newrect);
 		};
+		// remove and add to get the rectangle below the text
+		svg.removeChild(tok);
+		svg.appendChild(tok);
+		svg.removeChild(newtext);
+		svg.appendChild(newtext);
 	};
 	svg.setAttribute('height', maxheight);
 	div.style.height = maxheight + 'px';
@@ -461,4 +467,20 @@ function downloadSVG(id, filename = null) {
   element.href = window.URL.createObjectURL(blob);
   element.click();
   element.remove();
-}
+};
+
+function posttok(inout, evt, tokid) {
+	if ( typeof(tokid) == 'undefined' ) return -1;
+	if ( inout == 'out' ) {
+		if ( hlbox ) {
+			hlbox.setAttribute('fill', 'none')
+			hlbox = null;
+		};
+	} else {
+		tmp = document.getElementById('box-'+tokid);
+		if ( tmp ) {
+			hlbox = tmp;
+			hlbox.setAttribute('fill', '#ffff00');
+		};
+	};
+};

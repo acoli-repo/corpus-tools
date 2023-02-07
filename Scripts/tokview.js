@@ -54,6 +54,7 @@ function hidetokinfo() {
 		hlbar.style.display = 'none';
 		var tmp = facsdiv.getElementsByClassName('hlbar'+hln);
 	};
+	if ( typeof(window.posttok) === 'function' ) { posttok('out', null, tokid); }; // if needed, run post scripts, pe to highlight the token elsewhere
 };
 
 function mouseEvent(evt) { 
@@ -139,6 +140,8 @@ function showtokinfo(evt, element, poselm) {
 		tokinfo.style.top = ( foffset.top + element.offsetHeight + tibel ) + 'px';
 
     };
+    
+	if ( typeof(window.posttok) === 'function' ) { posttok('in', evt, tokid); }; // if needed, run post scripts, pe to highlight the token elsewhere
  
 } 
 
