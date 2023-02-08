@@ -1,6 +1,6 @@
 var lineheight = 100; var base = 30; 
 var defdiv = 'svgdiv';
-var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos, maxlevel, showroot, wordorder, hlbox;
+var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos, maxlevel, showroot, wordorder, wordsdown, hlbox;
 var spacing = 50; var ungrouping = 50;
 const svgns = 'http://www.w3.org/2000/svg';
 var children = {}; var levw = [];
@@ -26,11 +26,12 @@ function drawsvg(elm, divid = null ) {
 		treeicon = '<div style=\'font-size: 24px; text-align: right\' id=\'treemicon\' onClick="this.style.display=\'none\'; this.parentNode.children[1].style.display=\'block\';">≡</div>';
 		treeopts = '<div class=\'helpbox\' style=\'display: none; padding-left: 5px padding-left: 20px;\'><span style="float: right" onClick="this.parentNode.style.display=\'none\'; this.parentNode.parentNode.children[0].style.display=\'block\';">x</span> \
 			<h2>Tree Options</h2> \
-			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' value=\'0\'>show boxes</button></p> \
-			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'wordorder\' id=\'wobut\' value=\'0\'>word order</button></p> \
-			<p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' value=\'0\'>hide labels</button></p> \
-			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'punctbut\' name=\'punct\' value=\'0\'>show punctuation</button></p> \
-			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'rootbut\' name=\'showroot\' value=\'0\'>show root</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' id=\'but-boxed\' value=\'0\'>show boxes</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'wordorder\' id=\'but-wordorder\' value=\'0\'>word order</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'wordsdown\' id=\'but-wordsdown\' value=\'0\'>words down</button></p> \
+			<p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' id=\'but-hidelabs\' value=\'0\'>hide labels</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'but-punct\' name=\'punct\' value=\'0\'>show punctuation</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'but-showroot\' name=\'showroot\' value=\'0\'>show root</button></p> \
 			<p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> \
 			<p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> \
 			<p><button onClick="downloadSVG(\'svgtree\');" factor="1.2" name=\'lineheight\'>download SVG</button></p></div> </div>';
@@ -75,18 +76,19 @@ function drawsvg(elm, divid = null ) {
 		wordarray.shift();
 	};
 	
+	// place text elements for all nodes in the tree - arbitrarily placed
 	putchildren(elm, svg, rootlvl);
+	
 	// if ( typeof(wordarray) == 'undefined' ) { var wordarray = getwords(); };
 	
-	if ( typeof(hpos) == 'undefined' ) { hpos = 'branch'; };
-
+	// highlight any nodes if asked
 	if ( typeof(jmp) != 'undefined' && toks[jmp] ) {
 		toks[jmp].setAttribute('fill', '#aa2200');
 		toks[jmp].setAttribute('font-weight', 'bold');
 	};
-
 	
 	// do initial placement
+	if ( typeof(hpos) == 'undefined' ) { hpos = 'branch'; };
 	for ( i in lvls ) {
 		hi = 100;
 		lasthead = 0;
@@ -107,6 +109,7 @@ function drawsvg(elm, divid = null ) {
 		lastlvl = i;
 	};
 	
+	// do horizontal distribution
 	if ( ( hpos == 'wordorder' || wordorder == 1 ) && typeof(wordarray) != 'undefined' ) { // only do wordorder if we know the words
 		// Go through word order, and place each token on the first available position
 		var hi = spacing;
@@ -125,6 +128,54 @@ function drawsvg(elm, divid = null ) {
 			bb = toks[t].getBBox();
 			lh[tl] = th + bb['width'] + spacing;
 		};
+		
+	} else if ( hpos == 'wordsdown' || wordsdown == 1 ) {
+
+		rh = base + lineheight * lastlvl;
+		lvls[lastlvl] = [];
+		// put all terminal nodes down
+		for ( tid in toks ) {	
+			if ( children[tid].length == 0  ) {
+				node = toks[tid];
+				node.setAttribute('y', rh);
+				tokid = node.getAttribute('id').replace('node-', '');
+				tlvl = node.getAttribute('lvl');
+				if ( tlvl != lastlvl ) {
+					lvls[tlvl].splice(lvls[tlvl].indexOf(tokid), 1);				
+				};
+				lvls[lastlvl].push(tokid);
+			};
+		};
+		th = spacing;
+		for ( i in lvls[lastlvl] ) {
+			tid = lvls[lastlvl][i];
+			tok = toks[tid];
+			tok.setAttribute('x', th);
+			bb = tok.getBBox();
+			th = th + bb['width'] + spacing;
+			
+			hid = tok.getAttribute('head');
+			hb = toks[hid].getBBox();
+			hp = bb['x'] + (bb['width']-hb['width'])/2;
+			toks[hid].setAttribute('x', hp);
+		};	
+		for ( i = lastlvl-1; i>=0; i-- ) {
+			for ( h in lvls[i] ) {
+				var hid = lvls[i][h];
+				c1 = toks[children[hid][0]];
+				c2 = toks[children[hid].at(-1)];
+				if ( !c1 || !c2 || !toks[hid] ) { continue; };
+				b1 = c1.getBBox();
+				b2 = c2.getBBox();
+				bb = toks[hid].getBBox();
+				x1 = b1['x']; x2 = b2['x'] + b2['width'];
+				xm = ( x1 + x2 ) / 2; 
+				tx = xm - (bb['width']/2);
+				toks[hid].setAttribute('x', tx);
+			};
+		};
+		
+	
 	} else { //  if ( hpos == 'centered' ) {
 		// Repeatedly move token under their parent until stabalised (max 20 iterations in case of loops)
 		hm = 1; lcnt = 0; lmax = 50;
@@ -160,6 +211,8 @@ function drawsvg(elm, divid = null ) {
 		};
 				
 	};
+	
+	
 	if ( typeof(window.posttree) === 'function' ) { posttree(); }; // if needed, run post scripts, pe to make things clickable again
 		
 	// check maxwidth and negative offsets (and repair)
@@ -233,33 +286,39 @@ function drawsvg(elm, divid = null ) {
 		// remove and add to get the rectangle below the text
 		svg.removeChild(tok);
 		svg.appendChild(tok);
-		svg.removeChild(newtext);
-		svg.appendChild(newtext);
+		if ( newtext ) {
+			svg.removeChild(newtext);
+			svg.appendChild(newtext);
+		};
 	};
 	svg.setAttribute('height', maxheight);
 	div.style.height = maxheight + 'px';
 	svg.setAttribute('width', maxwidth + 100 );
-	tmp = document.getElementById('punctbut');
+	tmp = document.getElementById('but-punct');
 	if ( tmp ) {
 		if ( haspunct ) { tmp.style.display = 'block'; }
 		else { tmp.style.display = 'none'; };
 	};
-	tmp = document.getElementById('labbut');
+	tmp = document.getElementById('but-hidelabs');
 	if ( tmp ) {
 		if ( haslabs ) { tmp.style.display = 'block'; }
 		else { tmp.style.display = 'none'; };
 	};
-	tmp = document.getElementById('wobut');
+	tmp = document.getElementById('but-wordorder');
 	if ( tmp ) {
 		if ( typeof(wordarray) != 'undefined' && wordarray.length > 0 ) { tmp.style.display = 'block'; }
 		else { tmp.style.display = 'none'; };
 	};
-	tmp = document.getElementById('rootbut');
+	tmp = document.getElementById('but-showroot');
 	if ( tmp ) {
 		if ( typeof(ctree) != 'undefined' && ctree ) { tmp.style.display = 'none'; }
-		else { tmp.style.display = 'block'; }; // show root does not work properly
+		else { tmp.style.display = 'block'; };
 	};
-	
+	tmp = document.getElementById('but-wordsdown');
+	if ( tmp ) {
+		if ( typeof(ctree) != 'undefined' && ctree ) { tmp.style.display = 'block'; }
+		else { tmp.style.display = 'none'; };
+	};
 	if ( typeof makeinteract === "function" ) {
 		makeinteract();
 	};
@@ -281,6 +340,7 @@ function unoverlap( lvl ) {
 		};
 		for ( h in toklist ) {
 			var hid = toklist[h];
+			if ( !toks[hid] ) { continue; };
 			var bb = toks[hid].getBBox();
 			left = bb['x']; right = left + bb['width'];
 			if ( lr + spacing > left ) {  
