@@ -47,7 +47,9 @@ function mouseOut(evt) {
 };
 
 function hidetokinfo() {
+	
 	if ( document.getElementById('tokinfo') ) {
+		tokid = document.getElementById('tokinfo').getAttribute('tokid');
 		document.getElementById('tokinfo').style.display = 'none';
 	};
 	if ( typeof(hlbar) != "undefined" && typeof(facsdiv) != "undefined" ) {
@@ -83,6 +85,7 @@ function showtokinfo(evt, element, poselm) {
     if ( element.tagName == "TOK" || element.tagName == "DTOK" || element.tagName == "MTOK" ) {
     	var atts = element.attributes;
     	var tokid = element.getAttribute('id');
+    	tokinfo.setAttribute('tokid', tokid);
     	if ( element.tagName == "DTOK" ) { 
     		textvalue = element.getAttribute('form');
     	} else if ( typeof(orgtoks) != "undefined" ) { 

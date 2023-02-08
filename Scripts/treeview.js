@@ -9,9 +9,10 @@ if (  typeof(showroot) == 'undefined' ) { var showroot = 0; };
 
 function drawsvg(elm, divid = null ) {
 
+	if ( typeof(divid) == 'undefined' || !document.getElementById(divid) ) { divid = defdiv; };
+	if ( elm == null && trees[divid] ) elm = trees[divid];
 	if ( elm == null ) { console.log('No tree provided'); return false; }
 	trees[divid] = elm;
-	if ( typeof(divid) == 'undefined' || !document.getElementById(divid) ) { divid = defdiv; };
 
 	spacing = parseFloat(getvar('spacing', divid)); if ( !spacing ) spacing = defspacing;
 	lineheight = parseFloat(getvar('lineheight', divid)); if ( !lineheight ) lineheight = deflineheight;
@@ -122,7 +123,7 @@ function drawsvg(elm, divid = null ) {
 		levw[i] = hi;
 		lastlvl = i;
 	};
-
+	
 	// do horizontal distribution
 	if ( getvar('hpos', divid) == 'wordorder' ) { 
 
@@ -328,8 +329,8 @@ function drawsvg(elm, divid = null ) {
 	};
 	tmp = buts['wordorder'];
 	if ( tmp ) {
-		if ( typeof(wordarray) != 'undefined' && wordarray.length > 0 ) { tmp.style.display = 'block'; }
-		else { tmp.style.display = 'none'; };
+		if ( typeof(ctree) != 'undefined' && ctree == 1 ) { tmp.style.display = 'none'; }
+		else { tmp.style.display = 'block'; };
 	};
 	tmp = buts['showroot'];
 	if ( tmp ) {
