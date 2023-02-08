@@ -80,6 +80,8 @@
 				};
 			</script>";
 		};
+
+		$setopts = array2json($_SESSION['options']);
 		
 		$maintext .= "<div id=svgdiv></div>
 
@@ -92,7 +94,7 @@
 				var tree = $json;
 				var treeid = '$ttxml->xmlid-$sid';
 				var ctree = 1;
-				var hpos = 'wordorder';
+				var options = $setopts;
 				document.getElementById('tokinfo').style['z-index'] = 3000;
 				drawsvg(tree, 'svgdiv');
 

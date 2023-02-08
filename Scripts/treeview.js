@@ -1,21 +1,27 @@
-var lineheight = 100; var base = 30; 
+var deflineheight = 100; var base = 30; 
 var defdiv = 'svgdiv';
-var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, svgcontainer, haspunct, hidelabs, haslabs, hpos, maxlevel, showroot, wordorder, wordsdown, hlbox;
-var spacing = 50; var ungrouping = 50;
+var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, hpos, maxlevel, showroot, hlbox;
+var defspacing = 50; var ungrouping = 50;
 const svgns = 'http://www.w3.org/2000/svg';
-var children = {}; var levw = [];
-if (  typeof(punct) == 'undefined' ) { var punct = 0; };
+var children = {}; var svgcontainers = {}; var hasatts = {}; var trees = {}; var levw = [];
 if (  typeof(debug) == 'undefined' ) { var debug = 0; };
 if (  typeof(showroot) == 'undefined' ) { var showroot = 0; };
 
 function drawsvg(elm, divid = null ) {
 
-	if ( elm == null ) { return false; }
-
+	if ( elm == null ) { console.log('No tree provided'); return false; }
+	trees[divid] = elm;
 	if ( typeof(divid) == 'undefined' || !document.getElementById(divid) ) { divid = defdiv; };
-	defdiv = divid;
+
+	spacing = parseFloat(getvar('spacing', divid)); if ( !spacing ) spacing = defspacing;
+	lineheight = parseFloat(getvar('lineheight', divid)); if ( !lineheight ) lineheight = deflineheight;
 
 	div = document.getElementById(divid);
+	if ( typeof(div) == 'undefined' ) { console.log('No such DIV: ' + divid); return -1; };
+	div.setAttribute('svgdiv', 1);
+	svgcontainer = svgcontainers[divid];
+	var buts = {};
+	
 	if ( typeof(svgcontainer) == 'undefined' ) { 
 		svgcontainer = document.createElement('div');
 		svgcontainer.setAttribute('id', 'svgcontainer');
@@ -23,20 +29,27 @@ function drawsvg(elm, divid = null ) {
 		mendiv.setAttribute('id', 'treeopts');
 		div.appendChild(mendiv);
 		div.appendChild(svgcontainer);
-		treeicon = '<div style=\'font-size: 24px; text-align: right\' id=\'treemicon\' onClick="this.style.display=\'none\'; this.parentNode.children[1].style.display=\'block\';">≡</div>';
+		treeicon = '<div style=\'font-size: 24px; text-align: right\' onClick="this.style.display=\'none\'; this.parentNode.children[1].style.display=\'block\';">≡</div>';
 		treeopts = '<div class=\'helpbox\' style=\'display: none; padding-left: 5px padding-left: 20px;\'><span style="float: right" onClick="this.parentNode.style.display=\'none\'; this.parentNode.parentNode.children[0].style.display=\'block\';">x</span> \
 			<h2>Tree Options</h2> \
-			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'boxed\' id=\'but-boxed\' value=\'0\'>show boxes</button></p> \
-			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'wordorder\' id=\'but-wordorder\' value=\'0\'>word order</button></p> \
-			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" name=\'wordsdown\' id=\'but-wordsdown\' value=\'0\'>words down</button></p> \
-			<p><button style=\'background-color: #ffffff;\' id=\'labbut\' onClick="vtoggle(this);" name=\'hidelabs\' id=\'but-hidelabs\' value=\'0\'>hide labels</button></p> \
-			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'but-punct\' name=\'punct\' value=\'0\'>show punctuation</button></p> \
-			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);" id=\'but-showroot\' name=\'showroot\' value=\'0\'>show root</button></p> \
-			<p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);" factor="1.2" name=\'spacing\'>+</button></p> \
-			<p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);" factor="1.2" name=\'lineheight\'>+</button></p> \
-			<p><button onClick="downloadSVG(\'svgtree\');" factor="1.2" name=\'lineheight\'>download SVG</button></p></div> </div>';
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);	return false;" name=\'boxed\' value=\'0\'>show boxes</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);	return false;" name=\'wordorder\' var=\'hpos\' value=\'0\'>word order</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);	return false;" name=\'wordsdown\' var=\'hpos\' value=\'0\'>words down</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);	return false;" name=\'hidelabs\' value=\'0\'>hide labels</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);	return false;" name=\'punct\' value=\'0\'>show punctuation</button></p> \
+			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);	return false;" name=\'showroot\' value=\'0\'>show root</button></p> \
+			<p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);	return false;" factor="1.2" name=\'spacing\'>+</button></p> \
+			<p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);	return false;" factor="1.2" name=\'lineheight\'>+</button></p> \
+			<p><button onClick="downloadSVG(\'svgtree\');	return false;" factor="1.2" name=\'lineheight\'>download SVG</button></p></div> </div>';
 		mendiv.setAttribute('style', 'position: relative; float: right; z-index: 2000;');
 		mendiv.innerHTML = treeicon + treeopts;		
+		svgcontainers[divid] = svgcontainer;
+	};
+	for ( i in mendiv.getElementsByTagName('button') ) {
+		but = mendiv.getElementsByTagName('button')[i];
+		if ( typeof(but) != 'object') continue;
+		name = but.getAttribute('name');
+		buts[name] = but;
 	};
 	
 	// Create the SVG
@@ -51,10 +64,14 @@ function drawsvg(elm, divid = null ) {
 	toks = {}; toknr = 0;
 	lvls = []; lastlvl = 0;
 	children = {}; levw = [];
-	haspunct = 0; haslabs = 0;
+	hasatts[divid] = {}
+	hasatts[divid]['punct'] = 0; hasatts[divid]['labs'] = 0;
+
+	hpos = getvar('hpos', divid);
+	if ( !hpos ) { setvar('hpos', 'branch', divid, false); };
 
 	rootlvl = 0;
-	if ( showroot ) { 
+	if ( getvar('showroot', divid) == 1 ) { 
 		newtok = document.createElementNS(svgns, 'text');
 		newtok.innerHTML = 'root';
 		newtok.setAttribute('y', base);
@@ -79,8 +96,6 @@ function drawsvg(elm, divid = null ) {
 	// place text elements for all nodes in the tree - arbitrarily placed
 	putchildren(elm, svg, rootlvl);
 	
-	// if ( typeof(wordarray) == 'undefined' ) { var wordarray = getwords(); };
-	
 	// highlight any nodes if asked
 	if ( typeof(jmp) != 'undefined' && toks[jmp] ) {
 		toks[jmp].setAttribute('fill', '#aa2200');
@@ -88,7 +103,6 @@ function drawsvg(elm, divid = null ) {
 	};
 	
 	// do initial placement
-	if ( typeof(hpos) == 'undefined' ) { hpos = 'branch'; };
 	for ( i in lvls ) {
 		hi = 100;
 		lasthead = 0;
@@ -108,9 +122,12 @@ function drawsvg(elm, divid = null ) {
 		levw[i] = hi;
 		lastlvl = i;
 	};
-	
+
 	// do horizontal distribution
-	if ( ( hpos == 'wordorder' || wordorder == 1 ) && typeof(wordarray) != 'undefined' ) { // only do wordorder if we know the words
+	if ( getvar('hpos', divid) == 'wordorder' ) { 
+
+		if ( typeof(wordarray) == 'undefined'  ) { var wordarray = getwords(); }; // get the words if they were not specified
+
 		// Go through word order, and place each token on the first available position
 		var hi = spacing;
 		var lh = [];
@@ -129,7 +146,7 @@ function drawsvg(elm, divid = null ) {
 			lh[tl] = th + bb['width'] + spacing;
 		};
 		
-	} else if ( hpos == 'wordsdown' || wordsdown == 1 ) {
+	} else if ( getvar('hpos', divid) == 'wordsdown'  ) {
 
 		rh = base + lineheight * lastlvl;
 		lvls[lastlvl] = [];
@@ -176,12 +193,13 @@ function drawsvg(elm, divid = null ) {
 		};
 		
 	
-	} else { //  if ( hpos == 'centered' ) {
+	} else { //  if ( hpos == 'branch' ) {
+	
 		// Repeatedly move token under their parent until stabalised (max 20 iterations in case of loops)
 		hm = 1; lcnt = 0; lmax = 50;
 		while ( hm ) {
 			hm = 0; lcnt = lcnt + 1;
-			if ( lcnt > lmax ) { console.log('looping'); break; };
+			if ( lcnt > lmax ) { console.log('emergency break - looping in branch'); break; };
 			for ( i = lastlvl; i>=0; i-- ) {
 				for ( h in lvls[i] ) {
 					var hid = lvls[i][h];
@@ -239,8 +257,10 @@ function drawsvg(elm, divid = null ) {
 		vpadding = 5;
 		hpadding = spacing/3; // horizontal spacing in boxes depends on node spacing
 		deprel = tok.getAttribute('deprel');
-		sublh = 0; newtext = 0;
-		if ( deprel && !hidelabs ) {
+		sublh = 0; newtext = 0; 
+		if ( deprel ) {
+			hasatts[divid]['labs'] = 1;
+			if ( getvar('hidelabs', divid) != 1 ) {
 			bb = tok.getBBox(); x = bb['x'] + (bb['width']/2); y = bb['y'] + bb['height'] + 12;
 			newtext = document.createElementNS(svgns, 'text');
 			newtext.innerHTML = deprel;
@@ -252,7 +272,7 @@ function drawsvg(elm, divid = null ) {
 			newtext.setAttribute('font-size', '9pt');
 			svg.appendChild(newtext);
 			sublh = newtext.getBBox()['height'];
-		};
+		};};
 		head = tok.getAttribute('head');
 		if ( head && toks[head] ) {
 			htok = toks[head];
@@ -280,7 +300,7 @@ function drawsvg(elm, divid = null ) {
 			newrect.setAttribute('height', rb['height'] + vpadding*2 + sublh );
 			newrect.setAttribute('fill', 'none');
 			newrect.setAttribute('id', 'box-'+tok.getAttribute('id'));
-			if ( window['boxed']) newrect.setAttribute('style', 'stroke: #bbbbbb; stroke-width:0.4');
+			if ( getvar('boxed',divid) == 1 ) newrect.setAttribute('style', 'stroke: #bbbbbb; stroke-width:0.4');
 			svg.appendChild(newrect);
 		};
 		// remove and add to get the rectangle below the text
@@ -294,29 +314,31 @@ function drawsvg(elm, divid = null ) {
 	svg.setAttribute('height', maxheight);
 	div.style.height = maxheight + 'px';
 	svg.setAttribute('width', maxwidth + 100 );
-	tmp = document.getElementById('but-punct');
+	
+	// Hide (/show) irrelevant button
+	tmp = buts['punct'];
 	if ( tmp ) {
-		if ( haspunct ) { tmp.style.display = 'block'; }
+		if ( hasatts[divid]['punct'] ) { tmp.style.display = 'block'; }
 		else { tmp.style.display = 'none'; };
 	};
-	tmp = document.getElementById('but-hidelabs');
+	tmp = buts['hidelabs'];
 	if ( tmp ) {
-		if ( haslabs ) { tmp.style.display = 'block'; }
+		if ( hasatts[divid]['labs'] ) { tmp.style.display = 'block'; }
 		else { tmp.style.display = 'none'; };
 	};
-	tmp = document.getElementById('but-wordorder');
+	tmp = buts['wordorder'];
 	if ( tmp ) {
 		if ( typeof(wordarray) != 'undefined' && wordarray.length > 0 ) { tmp.style.display = 'block'; }
 		else { tmp.style.display = 'none'; };
 	};
-	tmp = document.getElementById('but-showroot');
+	tmp = buts['showroot'];
 	if ( tmp ) {
-		if ( typeof(ctree) != 'undefined' && ctree ) { tmp.style.display = 'none'; }
+		if ( typeof(ctree) != 'undefined' && ctree == 1 ) { tmp.style.display = 'none'; }
 		else { tmp.style.display = 'block'; };
 	};
-	tmp = document.getElementById('but-wordsdown');
+	tmp = buts['wordsdown'];
 	if ( tmp ) {
-		if ( typeof(ctree) != 'undefined' && ctree ) { tmp.style.display = 'block'; }
+		if ( typeof(ctree) != 'undefined' && ctree == 1 ) { tmp.style.display = 'block';  }
 		else { tmp.style.display = 'none'; };
 	};
 	if ( typeof makeinteract === "function" ) {
@@ -334,7 +356,7 @@ function unoverlap( lvl ) {
 		if ( it > 10 ) {
 			// somehow moving loops, overlap rather than crash
 			if ( debug ) {
-				console.log('emergency break - looping'); 
+				console.log('emergency break - looping in unoverlap'); 
 			};
 			return false;
 		};
@@ -386,6 +408,8 @@ function centerbelow ( hid ) {
 
 function putchildren(node, svg, lvl) {
 	var headid = node['id'];
+	div = svg.parentNode.parentNode;
+	if ( div ) divid = div.getAttribute('id'); else divid = defdiv;
 	if ( !headid && lvl > 0  ) { headid = 'tn-' + toknr; };
 	children[headid] = [];
 	
@@ -395,8 +419,8 @@ function putchildren(node, svg, lvl) {
 		childid = child['id'];
 		if ( !childid ) { childid = 'tn-' + toknr; };
 		if ( node.children[i]['rel'] == 'punct' || node.children[i]['ispunct'] ) { 
-			haspunct = 1;
-			if ( !punct ) { continue; };
+			hasatts[divid]['punct'] = 1;
+			if ( getvar('punct', divid) == 0 ) { continue; };
 		};
 		if ( !lvls[lvl] ) { lvls[lvl] = []; };
 		lvls[lvl].push(childid);
@@ -420,8 +444,8 @@ function putchildren(node, svg, lvl) {
 		tokid = child['tokid']; if ( !tokid ) { tokid = child['id']; };
 		if ( tokid) { newtok.setAttribute('tokid', tokid);};
 		if ( typeof(headid) != 'undefined' ) { newtok.setAttribute('head', headid); };
-		if ( typeof(child['rel']) != 'undefined' ) { newtok.setAttribute('deprel', child['rel']); haslabs = 1; };
-		if ( typeof(child['sublabel']) != 'undefined' ) { newtok.setAttribute('deprel', child['sublabel']); haslabs = 1; };
+		if ( typeof(child['rel']) != 'undefined' ) { newtok.setAttribute('deprel', child['rel']);  };
+		if ( typeof(child['sublabel']) != 'undefined' ) { newtok.setAttribute('deprel', child['sublabel']);  };
 		newtok.setAttribute('text-anchor', 'left');
 		newtok.setAttribute('font-size', '12pt');
 		newtok.setAttribute('type', 'tok');
@@ -432,21 +456,16 @@ function putchildren(node, svg, lvl) {
 };
 
 function conllu2tree(conll) {
-	tmp = document.getElementById(conll);
-	if ( tmp ) {
-		conll = tmp.innerText;
-	};
-	
-	trees = {}; root = -1;
+	treesc = {}; root = -1;
 	lines = conll.split('\n');
 	for ( i in lines ) {
 		line = lines[i];
 		if ( line[0] == '#' ) {
 		} else if ( line == '' ) {	
-			if ( trees[root] ) {
-				trees['root'] = { children: {} };
-				trees['root']['children'][rootid] = trees[root];
-				return trees['root'];
+			if ( treesc[root] ) {
+				treesc['root'] = { children: {} };
+				treesc['root']['children'][rootid] = treesc[root];
+				return treesc['root'];
 			};
 		} else {
 			fields = line.split("\t");
@@ -460,15 +479,90 @@ function conllu2tree(conll) {
 			}; 
 			
 			if ( deprel == 'root' ) { root = ord; rootid = tokid; };
-			if ( typeof(trees[ord]) == 'undefined' ) { trees[ord] = {'children': {}};}
-			trees[ord]['label'] = fields[1];
-			trees[ord]['rel'] = deprel;
-			trees[ord]['id'] = tokid;
+			if ( typeof(treesc[ord]) == 'undefined' ) { treesc[ord] = {'children': {}};}
+			treesc[ord]['label'] = fields[1];
+			treesc[ord]['rel'] = deprel;
+			treesc[ord]['id'] = tokid;
 			
-			if ( typeof(trees[head]) == 'undefined' ) { trees[head] = {'children': {}};}
-			trees[head]['children'][tokid] = trees[ord];
+			if ( typeof(treesc[head]) == 'undefined' ) { treesc[head] = {'children': {}};}
+			treesc[head]['children'][tokid] = treesc[ord];
 		};
 	};
+	
+	return treesc['root'];
+};
+
+function parseteitok(sent) {
+	treesc = {}; root = -1;
+	if ( typeof(sent) == 'string' ) sent = new DOMParser().parseFromString(sent, "text/html");
+	toks = sent.getElementsByTagName('tok'); 
+	ord = 0;
+	for ( i in toks ) {
+		tok = toks[i];
+		if ( typeof(tok) != 'object' ) continue;
+
+		word = tok.getAttribute('form'); if (!word) word = tok.innerText;
+		head = tok.getAttribute('head');
+		deprel = tok.getAttribute('deprel');
+		tokid = tok.getAttribute('id');
+		
+		if ( deprel == 'root' && ( !head || !rootid ) ) { 
+			root = tokid; rootid = tokid; 
+		};
+		if ( typeof(treesc[tokid]) == 'undefined' ) { treesc[tokid] = {'children': {}};}
+		treesc[tokid]['label'] = word;
+		treesc[tokid]['rel'] = deprel;
+		treesc[tokid]['id'] = tokid;
+		
+		if ( typeof(treesc[head]) == 'undefined' ) { treesc[head] = {'children': {}};}
+		treesc[head]['children'][tokid] = treesc[tokid];
+
+	};
+	
+	treesc['root'] = { children: {} };
+	treesc['root']['children'][rootid] = treesc[root];
+	return treesc['root'];
+};
+
+function psd2tree(string) {
+	string = string.replaceAll('\n', ' ');
+	string = string.replace(/^.*\(0/gsmi, '(0');
+	string = string.replace(/\((\d+) ([^ ()<>]+)/gsmi, '<node n="$1" label="$2">');
+	string = string.replace(/\((\d+) /gsmi, '<node n="$1">');
+	string = string.replace(/ ([^<>()]+)\)/gsmi, '<node label="$1"/></node>');
+	string = string.replaceAll(' <node', '<node');
+	string = string.replaceAll('(', '<node>');
+	string = string.replaceAll(')', '</node>');
+	string = string.replaceAll('> <', '><');
+	doc = new DOMParser().parseFromString(string, "text/xml");
+	for ( i in doc.getElementsByTagName('node') ) { 
+		node = doc.getElementsByTagName('node')[i];
+		if ( typeof(node) == 'object'  && isPunct(node.getAttribute('label')) ) {
+			node.setAttribute('ispunct', '1');
+			node.parentNode.setAttribute('ispunct', '1');
+		};
+	};
+	json = '{"children": [' + xml2tree(doc.firstChild.firstChild) + ']}';
+	var tree = JSON.parse(json);
+	return tree;
+};
+function xml2tree(node) {
+	if ( typeof(node) != 'object' ) { return ''; };
+	label = node.getAttribute('label');
+	ispunct = '';
+	if ( node.getAttribute('ispunct') ) ispunct = ', "ispunct": "1"'
+	var json = '{ "label": "'+label+'"'+ispunct+', "children": [';
+	var sep = '';
+	for(var child=node.firstChild; child!==null; child=child.nextSibling) {
+		if ( node.nodeName != 'node' ) { continue; };
+		chj = xml2tree(child);
+		if ( chj != '' || 1==1 ) { 
+			json = json + sep + chj;
+			sep = ', ';
+		};
+	};
+	json = json + ']}';
+	return json;
 };
 
 function getwords() {
@@ -489,28 +583,55 @@ function getwords() {
 			words.push(toks[i].getAttribute('id'));
 		};
 	};
-	console.log(words);
-	// return words;
+	return words;
 };
 
-function setvar(vname, vvalue) {
-	window[vname] = vvalue;
-	drawsvg(tree);
+function setvar(vname, vvalue, divid = defdiv, redraw = true) {
+	svgdiv = document.getElementById(divid);
+	if ( !svgdiv ) return -1;
+	svgdiv.setAttribute(vname, vvalue);
+	divid = svgdiv.getAttribute('id');
+	// submit the 
+  	var url = 'index.php?action=sessionrenew&type=setopt&var='+vname+'&val='+vvalue;
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", url);
+	xhr.send();
+	if ( redraw ) drawsvg(trees[divid], divid);
 };
+function getvar(vname, divid = defdiv) {
+	svgdiv = document.getElementById(divid);
+	vval = svgdiv.getAttribute(vname);
+	if ( typeof(vval) == 'undefined' || vval == null ) return 0;
+	return vval;
+	return 0;
+};
+
 function vtoggle(button) {
-	vname = button.name;
-	if ( window[vname] ) {
-		setvar(vname, 0);
+	vname = button.getAttribute('var');
+	svgdiv = findAncestor(button, 'svgdiv');
+	divid = svgdiv.getAttribute('id');
+	if ( vname ) {
+		val = button.name;
+	} else {
+		vname = button.name;
+		val = 1;
+	};
+	if ( getvar(vname, divid) == val ) {
+		setvar(vname, 0, divid);
 		button.style.backgroundColor = '#ffffff';
 	} else {
-		setvar(vname, 1);
+		setvar(vname, val, divid);
 		button.style.backgroundColor = '#66ff66';
 	};
 };
 function vchange(button) {
 	vname = button.name;
+	svgdiv = findAncestor(button, 'svgdiv');
+	divid = svgdiv.getAttribute('id');
 	factor = parseFloat(button.getAttribute('factor'));
-	setvar(vname, window[vname]*factor );
+	oldval = getvar(vname, divid); if ( !oldval ) oldval = window[vname];
+	newval = oldval*factor;
+	setvar(vname, newval, divid);
 };
 
 function downloadSVG(id, filename = null) {
@@ -544,3 +665,17 @@ function posttok(inout, evt, tokid) {
 		};
 	};
 };
+
+function parseopts() {
+	if ( typeof(options) == 'undefined' ) return -1;
+};
+
+function findAncestor (el, sel) {
+    while ((el = el.parentElement) && !(el.getAttribute(sel) ) );
+    return el;
+}
+
+var onlyPunctuation = /^(?:[!-#%-\*,-/:;\?@\[-\]_\{\}\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u0AF0\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E44\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]|\uD800[\uDD00-\uDD02\uDF9F\uDFD0]|\uD801\uDD6F|\uD802[\uDC57\uDD1F\uDD3F\uDE50-\uDE58\uDE7F\uDEF0-\uDEF6\uDF39-\uDF3F\uDF99-\uDF9C]|\uD804[\uDC47-\uDC4D\uDCBB\uDCBC\uDCBE-\uDCC1\uDD40-\uDD43\uDD74\uDD75\uDDC5-\uDDC9\uDDCD\uDDDB\uDDDD-\uDDDF\uDE38-\uDE3D\uDEA9]|\uD805[\uDC4B-\uDC4F\uDC5B\uDC5D\uDCC6\uDDC1-\uDDD7\uDE41-\uDE43\uDE60-\uDE6C\uDF3C-\uDF3E]|\uD807[\uDC41-\uDC45\uDC70\uDC71]|\uD809[\uDC70-\uDC74]|\uD81A[\uDE6E\uDE6F\uDEF5\uDF37-\uDF3B\uDF44]|\uD82F\uDC9F|\uD836[\uDE87-\uDE8B]|\uD83A[\uDD5E\uDD5F])*$/
+function isPunct (string) {
+    return onlyPunctuation.test(string)
+}

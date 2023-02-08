@@ -1,7 +1,11 @@
 <?php
 
 	// PHP script to keep the session alive when doing potentially long edits
-	if ( $_GET['type'] == "text" ) {
+	if ( $_GET['type'] == "setopt" ) {
+		$var = $_GET['var'];
+		$val = $_GET['val'];
+		$_SESSION['options'][$var] = $val;
+	} else if ( $_GET['type'] == "text" ) {
 		header('Content-Type: text/plain');
 		if ( $username != "" ) {
 			print "logged in";
