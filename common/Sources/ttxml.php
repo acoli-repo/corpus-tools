@@ -222,7 +222,7 @@ class TTXML
 		$jsontrans = array2json($settings['transliteration']);
 		$header = "
 			<script language=Javascript src=\"$jsurl/tokview.js\"></script>
-			<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa; z-index: 3;'></div>
+			<div id='tokinfo' style='display: block; position: absolute; z-index: 3;'></div>
 			<script language=Javascript>
 				var formdef = $jsonforms;
 				var attributelist = Array($attlisttxt);
