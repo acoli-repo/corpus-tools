@@ -123,7 +123,7 @@
 				$vxml = $versions[$verlist[0]];
 				$tmp = current($vxml->xml->xpath("//text//*[@$tuidatt=\"$tuid\"]"));
 				if ( $tmp ) {
-					$prev = current($tmp->xpath("preceding-sibling::*[@$tuidatt]"));
+					$prev = current($tmp->xpath("preceding-sibling::*[@$tuidatt][1]"));
 					if ( $prev ) {
 						$prevb = "<a href='index.php?action=$action&act=$act&cid=$ids&tuid={$prev[$tuidatt]}'>{$prev[$tuidatt]} &lt;</a>";;
 					};
