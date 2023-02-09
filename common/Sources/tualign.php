@@ -104,32 +104,53 @@
 			$ids = $_GET['id'] or $ids = $_GET['cid'];
 			$idlist = explode(",", $ids); 
 	
-			$appid = $_GET['appid'];
+			$tuid = $_GET['appid'] or $tuid = $_GET['tuid'];
+			$tuidatt = $_GET['tuidatt'] or $tuidatt = $settings['defaults']['align']['tuidatt'] or $tuidatt = "tuid";
 		
 			require_once("$ttroot/common/Sources/ttxml.php");
 
 			foreach ( $idlist as $cid ) {
 				$tmp = new TTXML($cid, false);
-				if ( $tmp->xml && $tmp->fileid ) $versions[$cid] = $tmp; 
+				if ( $tmp->xml && $tmp->xml && $tmp->fileid ) $versions[$cid] = $tmp; 
 				else $maintext .= "<p>Not found: $cid";
 			};
 
+			$verlist = array_keys($versions);
+			$verj = array2json($verlist);
+
 			$maintext .= "<h1>Aligned Texts</h1>";
+			if ( $tuid ) {
+				$vxml = $versions[$verlist[0]];
+				$tmp = current($vxml->xml->xpath("//text//*[@$tuidatt=\"$tuid\"]"));
+				if ( $tmp ) {
+					$prev = current($tmp->xpath("preceding-sibling::*[@$tuidatt]"));
+					if ( $prev ) {
+						$prevb = "<a href='index.php?action=$action&act=$act&cid=$ids&tuid={$prev[$tuidatt]}'>{$prev[$tuidatt]} &lt;</a>";;
+					};
+					$next = current($tmp->xpath("following-sibling::*[@$tuidatt]"));
+					if ( $next ) {
+						$nextb = "<a href='index.php?action=$action&act=$act&cid=$ids&tuid=$next[$tuidatt]'>&gt; {$next[$tuidatt]}</a>";;
+					};
+				};
+				$maintext .= "<table style='width:100%'><tr><td>$prevb<td style='text-align: center;'><h3>Selection: $tuid</h3><td style='text-align: right'>$nextb</tr></table>";
+			};
 
 			$w = 95/(count($versions));
 
-			$verj = array2json(array_keys($versions));
 
 			foreach ( $versions as $key => $vxml ) {
+				if ( $tuid ) {
+					$tmp = current($vxml->xml->xpath("//text//*[@$tuidatt=\"$tuid\"]"));
+					if ( !$tmp ) continue;
+					$editxml = $tmp->asXML();
+				} else $editxml = $vxml->asXML();
 				$maintext .= "<div style='float: left; width: {$w}%; padding: 5px;' class='parbox' id='parb-$key'>";
 				$title = $vxml->title();
 				$maintext .= "<p><a href='index.php?action=file&cid=$key'>$key</a></p>";
-				$editxml = $vxml->asXML();
 				$maintext .= "<div id='mtxt-$key' style=' overflow-y: scroll;' class='mtxt'>$editxml</div>";
 				$maintext .= "</div>";
 			};
 	
-			$tuidatt = $_GET['tuidatt'] or $tuidatt = $settings['defaults']['align']['tuidatt'] or $tuidatt = "tuid";
 			$maintext .= "<script language=Javascript>
 				// document.onclick = clickEvent; 
 				document.onmouseover = mouseEvent; 
@@ -227,7 +248,7 @@
 	} else if ( $_GET['id'] || $_GET['cid'] ) {
 	
 		require ("$ttroot/common/Sources/ttxml.php");
-		$ttxml = new TTXML($cid, false);
+		$ttxml = new TTXML($cid, true);
 		if ( !$ttxml ) {
 			fatal("Failed to open {$_GET['cid']}");
 		};
@@ -559,7 +580,7 @@
 
 	};
 
-	pg_close($dbconn);
+	if ( $dbconn ) pg_close($dbconn);
 
 	function cqlparse($cql) {
 		$sql = ""; $sep = "";
