@@ -5,6 +5,7 @@
 		$var = $_GET['var'];
 		$val = $_GET['val'];
 		$_SESSION['options'][$var] = $val;
+		print_r($_SESSION['options']);
 	} else if ( $_GET['type'] == "text" ) {
 		header('Content-Type: text/plain');
 		if ( $username != "" ) {
