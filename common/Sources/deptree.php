@@ -319,7 +319,8 @@ window.addEventListener(\"beforeunload\", function (e) {
 					$jsontree = '{"children": []}';				
 				};
 			};
-			$maintext .= "<div id=graph></div>\n<script language=Javascript>var tree = $jsontree;</script>\n";
+			$setopts = array2json($_SESSION['options']);
+			$maintext .= "<div id=graph></div>\n<script language=Javascript>var tree = $jsontree; var options = $setopts;</script>\n";
 			$senta = array(); foreach ( $sent->xpath($toksel) as $tok ) { array_push($senta, $tok['id']); };
 			$maintext .= "<script language=Javascript>var wordarray = ['".join("','", $senta)."'];</script>\n";
 			$postaction .= "<script language=Javascript src=\"$jsurl/treeview.js\"></script>";

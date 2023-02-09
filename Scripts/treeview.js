@@ -10,7 +10,7 @@ if (  typeof(showroot) == 'undefined' ) { var showroot = 0; };
 function drawsvg(elm, divid = null, divopts = null ) {
 
 	if ( typeof(divid) == 'undefined' || !document.getElementById(divid) ) { divid = defdiv; };
-	if ( divopts == null ) { divopts = options; };
+	if ( divopts == null && typeof(options) != 'undefined' ) { divopts = options; };
 	if ( elm == null && trees[divid] ) elm = trees[divid];
 	if ( elm == null ) { console.log('No tree provided'); return false; }
 	trees[divid] = elm;
