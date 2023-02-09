@@ -93,7 +93,7 @@
 				};
 				$maintext .= "<table style='width:100%'><tr><td>$prevb<td style='text-align: center;'><h3>Selection: $tuid</h3><td style='text-align: right'>$nextb</tr></table><hr>";
 			};
-			$maintext .= "<div id='appidshow' style='height: 12px; color: #999999; text-align: center;'></div>";
+			$maintext .= "<div id='appidshow' style='height: 14px; color: #999999; text-align: center; font-size: small;'></div>";
 
 			$w = 95/(count($versions));
 
