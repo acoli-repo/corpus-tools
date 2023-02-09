@@ -77,7 +77,7 @@
 			$verlist = array_keys($versions);
 			$verj = array2json($verlist);
 
-			$maintext .= "<h1>Aligned Texts</h1>";
+			$maintext .= "<h1>Aligned Texts</h1><div id='appidshow' style='float: right'></div>";
 			if ( $tuid ) {
 				$vxml = $versions[$verlist[0]];
 				$tmp = current($vxml->xml->xpath("//text//*[@$tuidatt=\"$tuid\"]"));
@@ -91,7 +91,7 @@
 						$nextb = "<a href='index.php?action=$action&act=$act&cid=$ids&tuid=$next[$tuidatt]'>&gt; {$next[$tuidatt]}</a>";;
 					};
 				};
-				$maintext .= "<table style='width:100%'><tr><td>$prevb<td style='text-align: center;'><h3>Selection: $tuid</h3><td style='text-align: right'>$nextb</tr></table>";
+				$maintext .= "<table style='width:100%'><tr><td>$prevb<td style='text-align: center;'><h3>Selection: $tuid</h3><td style='text-align: right'>$nextb</tr></table><hr>";
 			};
 
 			$w = 95/(count($versions));
@@ -114,7 +114,7 @@
 				// document.onclick = clickEvent; 
 				document.onmouseover = mouseEvent; 
 				document.onmouseout = mouseOut; 
-				var hls = [];
+				var hls = []; var appidshow = document.getElementById('appidshow');
 				var versions = $verj;
 				maxheight = window.innerHeight;
 				v1 = document.getElementById('mtxt-'+versions['0']);
@@ -140,10 +140,9 @@
 					while ( vo.parentNode && vo.getAttribute('class') != 'mtxt' ) vo = vo.parentNode;
 					alid = element.getAttribute('$tuidatt');
 					if ( !alid ) return -1;
+					appidshow.innerHTML = alid;
 					// find element in all aligned versions
 					orgScroll = element.offsetTop - vo.scrollTop; // element.offsetTop , vob['y'] , vob['height'] , vo.scrollTop
-					console.log(vo);
-					console.log(vo.scrollTop);
 					xpath = './/*[@$tuidatt=\"'+alid+'\"]';
 					for ( i in versions ) {
 						vx = document.getElementById('mtxt-'+versions[i]);
@@ -171,6 +170,7 @@
 						unhighlight(hls[i]);
 					};
 					hls = [];
+					appidshow.innerHTML = '';
 				};
 				</script>";
 		
