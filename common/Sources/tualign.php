@@ -77,7 +77,7 @@
 			$verlist = array_keys($versions);
 			$verj = array2json($verlist);
 
-			$maintext .= "<h1>Aligned Texts</h1><div id='appidshow' style='float: right'></div>";
+			$maintext .= "<h1>Aligned Texts</h1>";
 			if ( $tuid ) {
 				$vxml = $versions[$verlist[0]];
 				$tmp = current($vxml->xml->xpath("//text//*[@$tuidatt=\"$tuid\"]"));
@@ -93,6 +93,7 @@
 				};
 				$maintext .= "<table style='width:100%'><tr><td>$prevb<td style='text-align: center;'><h3>Selection: $tuid</h3><td style='text-align: right'>$nextb</tr></table><hr>";
 			};
+			$maintext .= "<div id='appidshow' style='float: right'></div>";
 
 			$w = 95/(count($versions));
 
