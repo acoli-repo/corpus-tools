@@ -58,47 +58,6 @@
 		};
 		$maintext .= "</table>";
 		
-		
-	} else if ( $_GET['tuid'] && $dbconn && $_GET['type'] != "xml" ) {
-		
-		# Align a single TU across all files
-		$lvl = $_GET['lvl'] or $lvl = $settings['defaults']['align']['level'] or $lvl = "p";
-		$base = $settings['defaults']['align']['cqp'] or $base = "lang";
-		$basetxt = $settings['cqp']['sattributes']['text'][$base]['display'] or $basetxt = "<i>".ucfirst($base)."</i>";
-		$seg = $lvl;
-		$tuid = $_GET['tuid'];
-		$query = "SELECT * FROM $seg 
-			join text on {$seg}2text=text_seq
-			WHERE {$seg}_{$tuidatt} = '$tuid' 
-			;";
-		if ( $debug ) $maintext .= "<p>$query";
-		$result = pg_query($query);
-	
-		if ( pg_num_rows($result) ) {
-			$maintext .= "<p>
-				<style>.highlight { background-color: #ffeeaa; }</style>
-						<h2>Results</h2>
-
-				<table id=rollovertable data-sortable>
-				<tr><th id='filecol' title='File' data-sortable-type='alpha'>$basetxt<th colspan=2>Text";
-			foreach ( $_POST['target'] as $i => $tqp ) {
-				if ( $tqp == "" ) continue;
-				$maintext .= "<th colspan=2>$tqp";
-			};
-			while ($line = pg_fetch_array($result, null, PGSQL_ASSOC)) {
-				$tit = $line['text_'.$base];	
-				$cid = $line['text_id'];
-				$sid = $line[$seg.'_id'];
-				$maintext .= "<tr base='$tit'><td><a href='index.php?action=file&cid=$cid&jmp=$sid'>$tit</a><td>".$line[$seg.'_rawtext']; 
-				$tot++;
-			};
-			$maintext .= "</table>	
-		<script language=Javascript src=\"https://cdnjs.cloudflare.com/ajax/libs/sortable/0.8.0/js/sortable.min.js\"></script>
-		<script language=Javascript>Sortable.init(); document.getElementById('filecol').click();</script>
-		<link rel=\"stylesheet\" href=\"https://github.hubspot.com/sortable/css/sortable-theme-bootstrap.css\">
-		<hr><p>$tot results";
-		};
-	
 	} else if ( $act == "columns" && ( $_GET['id'] || $_GET['cid'] ) ) { 
 	
 			$ids = $_GET['id'] or $ids = $_GET['cid'];
@@ -214,6 +173,47 @@
 					hls = [];
 				};
 				</script>";
+		
+	} else if ( $_GET['tuid'] && $dbconn && $_GET['type'] != "xml" ) {
+		
+		# Align a single TU across all files
+		$lvl = $_GET['lvl'] or $lvl = $settings['defaults']['align']['level'] or $lvl = "p";
+		$base = $settings['defaults']['align']['cqp'] or $base = "lang";
+		$basetxt = $settings['cqp']['sattributes']['text'][$base]['display'] or $basetxt = "<i>".ucfirst($base)."</i>";
+		$seg = $lvl;
+		$tuid = $_GET['tuid'];
+		$query = "SELECT * FROM $seg 
+			join text on {$seg}2text=text_seq
+			WHERE {$seg}_{$tuidatt} = '$tuid' 
+			;";
+		if ( $debug ) $maintext .= "<p>$query";
+		$result = pg_query($query);
+	
+		if ( pg_num_rows($result) ) {
+			$maintext .= "<p>
+				<style>.highlight { background-color: #ffeeaa; }</style>
+						<h2>Results</h2>
+
+				<table id=rollovertable data-sortable>
+				<tr><th id='filecol' title='File' data-sortable-type='alpha'>$basetxt<th colspan=2>Text";
+			foreach ( $_POST['target'] as $i => $tqp ) {
+				if ( $tqp == "" ) continue;
+				$maintext .= "<th colspan=2>$tqp";
+			};
+			while ($line = pg_fetch_array($result, null, PGSQL_ASSOC)) {
+				$tit = $line['text_'.$base];	
+				$cid = $line['text_id'];
+				$sid = $line[$seg.'_id'];
+				$maintext .= "<tr base='$tit'><td><a href='index.php?action=file&cid=$cid&jmp=$sid'>$tit</a><td>".$line[$seg.'_rawtext']; 
+				$tot++;
+			};
+			$maintext .= "</table>	
+		<script language=Javascript src=\"https://cdnjs.cloudflare.com/ajax/libs/sortable/0.8.0/js/sortable.min.js\"></script>
+		<script language=Javascript>Sortable.init(); document.getElementById('filecol').click();</script>
+		<link rel=\"stylesheet\" href=\"https://github.hubspot.com/sortable/css/sortable-theme-bootstrap.css\">
+		<hr><p>$tot results";
+		};
+	
 	
 	} else if ( $_GET['tuid'] ) {
 		
