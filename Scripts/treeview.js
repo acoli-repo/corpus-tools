@@ -7,9 +7,10 @@ var children = {}; var svgcontainers = {}; var hasatts = {}; var trees = {}; var
 if (  typeof(debug) == 'undefined' ) { var debug = 0; };
 if (  typeof(showroot) == 'undefined' ) { var showroot = 0; };
 
-function drawsvg(elm, divid = null ) {
+function drawsvg(elm, divid = null, divopts = null ) {
 
 	if ( typeof(divid) == 'undefined' || !document.getElementById(divid) ) { divid = defdiv; };
+	if ( divopts == null ) { divopts = options; };
 	if ( elm == null && trees[divid] ) elm = trees[divid];
 	if ( elm == null ) { console.log('No tree provided'); return false; }
 	trees[divid] = elm;
@@ -22,6 +23,7 @@ function drawsvg(elm, divid = null ) {
 	div.setAttribute('svgdiv', 1);
 	svgcontainer = svgcontainers[divid];
 	var buts = {};
+
 	
 	if ( typeof(svgcontainer) == 'undefined' ) { 
 		svgcontainer = document.createElement('div');
@@ -52,6 +54,9 @@ function drawsvg(elm, divid = null ) {
 		name = but.getAttribute('name');
 		buts[name] = but;
 	};
+
+	// See if we got pre-defined settings
+	parseopts(divopts, div, buts);
 	
 	// Create the SVG
 	svg = document.createElementNS(svgns, 'svg');
@@ -597,7 +602,7 @@ function setvar(vname, vvalue, divid = defdiv, redraw = true) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", url);
 	xhr.send();
-	if ( redraw ) drawsvg(trees[divid], divid);
+	if ( redraw ) drawsvg(trees[divid], divid, {});
 };
 function getvar(vname, divid = defdiv) {
 	svgdiv = document.getElementById(divid);
@@ -607,7 +612,7 @@ function getvar(vname, divid = defdiv) {
 	return 0;
 };
 
-function vtoggle(button) {
+function vtoggle(button, redraw = true) {
 	vname = button.getAttribute('var');
 	svgdiv = findAncestor(button, 'svgdiv');
 	divid = svgdiv.getAttribute('id');
@@ -618,10 +623,10 @@ function vtoggle(button) {
 		val = 1;
 	};
 	if ( getvar(vname, divid) == val ) {
-		setvar(vname, 0, divid);
+		setvar(vname, 0, divid, redraw);
 		button.style.backgroundColor = '#ffffff';
 	} else {
-		setvar(vname, val, divid);
+		setvar(vname, val, divid, redraw);
 		button.style.backgroundColor = '#66ff66';
 	};
 };
@@ -667,8 +672,29 @@ function posttok(inout, evt, tokid) {
 	};
 };
 
-function parseopts() {
+function parseopts(options, div, buts) {
 	if ( typeof(options) == 'undefined' ) return -1;
+	for ( key in options ) {
+		butdone = 0;
+		val = options[key];
+		for ( i in buts ) {
+			but = buts[i];
+			butvar = but.getAttribute('var'); 
+			if ( butvar ) {
+				butval = but.getAttribute('name');
+			} else {
+				butvar = but.getAttribute('name');
+				butval = 1;
+			};
+			if ( key == butvar && val == butval ) {
+				vtoggle(but, false);
+				butdone = 1;
+			};
+		};
+		if ( !butdone ) {
+			setvar(key, val, div.getAttribute('id'), false);
+		};
+	};
 };
 
 function findAncestor (el, sel) {
