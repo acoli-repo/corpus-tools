@@ -258,6 +258,7 @@ function drawsvg(elm, divid = null, divopts = null ) {
 	};
 									
 	// draw the lines and place deprels
+	moreh = {}; // 
 	for ( t in toks ) {
 		tok = toks[t];
 		vpadding = 5;
@@ -278,20 +279,8 @@ function drawsvg(elm, divid = null, divopts = null ) {
 			newtext.setAttribute('font-size', '9pt');
 			svg.appendChild(newtext);
 			sublh = newtext.getBBox()['height'];
+			moreh[t] = sublh;
 		};};
-		head = tok.getAttribute('head');
-		if ( head && toks[head] ) {
-			htok = toks[head];
-			b1 = tok.getBBox(); x1 = b1['x'] + (b1['width']/2); y1 = b1['y'] - vpadding;
-			b2 = htok.getBBox(); x2 = b2['x'] + (b2['width']/2); y2 = b2['y'] + b2['height'] + vpadding + sublh;
-			newline = document.createElementNS(svgns, 'line');
-			newline.setAttribute('x1', x1);
-			newline.setAttribute('y1', y1);
-			newline.setAttribute('x2', x2);
-			newline.setAttribute('y2', y2);
-			newline.setAttribute('style', 'stroke: #996633;stroke-width:0.5');
-			svg.appendChild(newline);
-		};
 		if ( 1 == 1 ) {
 			// place boxes around tokens when asked
 			bb = tok.getBBox(); rb = bb;
@@ -308,6 +297,21 @@ function drawsvg(elm, divid = null, divopts = null ) {
 			newrect.setAttribute('id', 'box-'+tok.getAttribute('id'));
 			if ( getvar('boxed',divid) == 1 ) newrect.setAttribute('style', 'stroke: #bbbbbb; stroke-width:0.4');
 			svg.appendChild(newrect);
+		};
+		head = tok.getAttribute('head');
+		if ( head && toks[head] ) {
+			htok = toks[head];
+			b1 = tok.getBBox(); x1 = b1['x'] + (b1['width']/2); y1 = b1['y'] - vpadding;
+			console.log(head + ' => ' + moreh[head]);
+			if ( moreh[head] ) headsub = moreh[head]; else headsub = 0;
+			b2 = htok.getBBox(); x2 = b2['x'] + (b2['width']/2); y2 = b2['y'] + b2['height'] + vpadding + headsub;
+			newline = document.createElementNS(svgns, 'line');
+			newline.setAttribute('x1', x1);
+			newline.setAttribute('y1', y1);
+			newline.setAttribute('x2', x2);
+			newline.setAttribute('y2', y2);
+			newline.setAttribute('style', 'stroke: #996633;stroke-width:0.5');
+			svg.appendChild(newline);
 		};
 		// remove and add to get the rectangle below the text
 		svg.removeChild(tok);
