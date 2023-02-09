@@ -23,7 +23,7 @@ function drawsvg(elm, divid = null, divopts = null ) {
 	div.setAttribute('svgdiv', 1);
 	svgcontainer = svgcontainers[divid];
 	var buts = {};
-
+	if ( typeof(ctree) == 'undefined' ) ctree = 0;
 	
 	if ( typeof(svgcontainer) == 'undefined' ) { 
 		svgcontainer = document.createElement('div');
@@ -152,7 +152,7 @@ function drawsvg(elm, divid = null, divopts = null ) {
 			lh[tl] = th + bb['width'] + spacing;
 		};
 		
-	} else if ( getvar('hpos', divid) == 'wordsdown'  ) {
+	} else if ( getvar('hpos', divid) == 'wordsdown' && ctree == 1 ) {
 
 		rh = base + lineheight * lastlvl;
 		lvls[lastlvl] = [];
@@ -301,7 +301,7 @@ function drawsvg(elm, divid = null, divopts = null ) {
 			newrect = document.createElementNS(svgns, 'rect');
 			newrect.setAttribute('x', rb['x'] - hpadding );
 			newrect.setAttribute('y', rb['y']  - vpadding );
-			if ( typeof(ctree) != 'undefined' && ctree && children[t].length ) { newrect.setAttribute('rx', '15'); };
+			if ( ctree == 1 && children[t].length ) { newrect.setAttribute('rx', '15'); };
 			newrect.setAttribute('width',  rb['width'] + hpadding*2 );
 			newrect.setAttribute('height', rb['height'] + vpadding*2 + sublh );
 			newrect.setAttribute('fill', 'none');
@@ -334,17 +334,17 @@ function drawsvg(elm, divid = null, divopts = null ) {
 	};
 	tmp = buts['wordorder'];
 	if ( tmp ) {
-		if ( typeof(ctree) != 'undefined' && ctree == 1 ) { tmp.style.display = 'none'; }
+		if ( ctree == 1 ) { tmp.style.display = 'none'; }
 		else { tmp.style.display = 'block'; };
 	};
 	tmp = buts['showroot'];
 	if ( tmp ) {
-		if ( typeof(ctree) != 'undefined' && ctree == 1 ) { tmp.style.display = 'none'; }
+		if ( ctree == 1 ) { tmp.style.display = 'none'; }
 		else { tmp.style.display = 'block'; };
 	};
 	tmp = buts['wordsdown'];
 	if ( tmp ) {
-		if ( typeof(ctree) != 'undefined' && ctree == 1 ) { tmp.style.display = 'block';  }
+		if ( ctree == 1 ) { tmp.style.display = 'block';  }
 		else { tmp.style.display = 'none'; };
 	};
 	if ( typeof makeinteract === "function" ) {
