@@ -205,7 +205,7 @@
 					element.style.backgroundColor = '#ffff66';
 				};
 				function unhighlight(element) { 
-					element.style.backgroundColor = '#ffffff';
+					element.style.backgroundColor = null;
 				};
 				function mouseOut(evt) { 
 					for ( i in hls ) {
