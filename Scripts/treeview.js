@@ -530,6 +530,37 @@ function parseteitok(sent) {
 	return treesc['root'];
 };
 
+function tab2tree(string) {
+	lvls = {}; 
+	lines = string.split('\n');
+	json = '{ "children": [ '; last = -1;
+	for ( i in lines ) {
+		line = lines[i];
+		lvl = 0;
+		while (  line[0] == ' ' ) { line = line.substr(1); lvl = lvl + 1; };
+		if ( line == '' ) continue;
+		if ( lvl <= last ) {
+			for ( j=last; j>=lvl; j-- ) { 
+				json = json + '] } ';
+				if ( j > lvl ) lvls[j] = 0;
+			};
+		};
+		if ( lvls[lvl] ) {
+			json = json + ', ';
+		};
+		json = json + '{ "label": "'+line+'", "children": [ ';
+		lvls[lvl] = 1;
+		last = lvl;
+	};
+	for ( j=last; j>=0; j-- ) { 
+		json = json + '] } ';
+		lvls[j] = 0;
+	};
+	json = json + '] }';
+	var tree = JSON.parse(json);
+	return tree;
+};
+
 function psd2tree(string) {
 	string = string.replaceAll('\n', ' ');
 	string = string.replace(/^.*\(0/gsmi, '(0');
