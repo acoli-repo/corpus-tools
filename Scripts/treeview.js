@@ -574,8 +574,8 @@ function psd2tree(string) {
 	string = string.replaceAll(' <node', '<node');
 	string = string.replaceAll('(', '<node>');
 	string = string.replaceAll(')', '</node>');
-	string = string.replaceAll('> <', '><');
 	string = string.replace(/<node>([^<>() ]+)/gsmi, '<node label="$1">');
+	string = string.replaceAll('> <', '><');
 	doc = new DOMParser().parseFromString(string, "text/xml");
 	for ( i in doc.getElementsByTagName('node') ) { 
 		node = doc.getElementsByTagName('node')[i]; nodelabel = '';
@@ -585,8 +585,10 @@ function psd2tree(string) {
 			// If the punct is below a punct node, hide that as well
 			if ( node.parentNode.children.length == 1 ) node.parentNode.setAttribute('ispunct', '1');
 		};
-	};
-	json = '{"children": [' + xml2tree(doc.firstChild.firstChild) + ']}';
+	}; 
+	rootnode = doc.firstChild;
+	if ( rootnode.children[1] && rootnode.children[1].getAttribute('label') == 'ID' ) { rootnode = rootnode.firstChild; };
+	json = '{"children": [' + xml2tree(rootnode) + ']}';
 	var tree = JSON.parse(json);
 	return tree;
 };
