@@ -65,6 +65,7 @@
 			if ( $_POST['files'] ) $idlist = array_keys($_POST['files']);
 			
 			$tuid = $_GET['appid'] or $tuid = $_GET['tuid'];
+			$jmp = $_GET['jmp'];
 			$tuidatt = $_GET['tuidatt'] or $tuidatt = $settings['defaults']['align']['tuidatt'] or $tuidatt = "tuid";
 		
 			require_once("$ttroot/common/Sources/ttxml.php");
@@ -79,10 +80,12 @@
 			$verj = array2json($verlist);
 
 			$maintext .= "<h1>Aligned Texts</h1>";
-			if ( $tuid ) {
+			if ( $tuid || $jmp ) {
 				$vxml = $versions[$verlist[0]];
-				$tmp = current($vxml->xml->xpath("//text//*[@$tuidatt=\"$tuid\"]"));
+				if ( $jmp ) $tmp = current($vxml->xml->xpath("//text//*[@id=\"$jmp\"]"));
+				else { $tmp = current($vxml->xml->xpath("//text//*[@$tuidatt=\"$tuid\"]")); };
 				if ( $tmp ) {
+					if ( !$tuid ) $tuid = $tmp['tuid'];
 					$prev = current($tmp->xpath("preceding-sibling::*[@$tuidatt][1]"));
 					if ( $prev ) {
 						$prevb = "<a href='index.php?action=$action&act=$act&cid=$ids&tuid={$prev[$tuidatt]}'>{$prev[$tuidatt]} &lt;</a>";;
@@ -198,7 +201,7 @@
 						<h2>Results</h2>
 
 				<table id=rollovertable data-sortable>
-				<tr><th id='filecol' title='File' data-sortable-type='alpha'>$basetxt<th colspan=2>Text";
+				<tr><td><th id='filecol' title='File' data-sortable-type='alpha'>$basetxt<th colspan=2>Text";
 			foreach ( $_POST['target'] as $i => $tqp ) {
 				if ( $tqp == "" ) continue;
 				$maintext .= "<th colspan=2>$tqp";
@@ -207,14 +210,14 @@
 				$tit = $line['text_'.$base];	
 				$cid = $line['text_id'];
 				$sid = $line[$seg.'_id'];
-				$maintext .= "<tr base='$tit'><td><a href='index.php?action=file&cid=$cid&jmp=$sid'>$tit</a><td>".$line[$seg.'_rawtext']; 
+				$maintext .= "<tr base='$tit'><td><input type=checkbox name='files[$cid]' value='1'><td><a href='index.php?action=file&cid=$cid&jmp=$sid'>$tit</a><td>".$line[$seg.'_rawtext']; 
 				$tot++;
 			};
 			$maintext .= "</table>	
 		<script language=Javascript src=\"https://cdnjs.cloudflare.com/ajax/libs/sortable/0.8.0/js/sortable.min.js\"></script>
 		<script language=Javascript>Sortable.init(); document.getElementById('filecol').click();</script>
 		<link rel=\"stylesheet\" href=\"https://github.hubspot.com/sortable/css/sortable-theme-bootstrap.css\">
-		<hr><p>$tot results";
+		<hr><p>$tot results - <input type=submit value='Align selected files'></form>";
 		};
 	
 	
