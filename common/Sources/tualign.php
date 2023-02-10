@@ -91,7 +91,7 @@
 						$nextb = "<a href='index.php?action=$action&act=$act&cid=$ids&tuid=$next[$tuidatt]'>&gt; {$next[$tuidatt]}</a>";;
 					};
 				};
-				$maintext .= "<table style='width:100%'><tr><td>$prevb<td style='text-align: center;'><h3>Selection: $tuid</h3><td style='text-align: right'>$nextb</tr></table><hr>";
+				$maintext .= "<table style='width:100%'><tr><td>$prevb<td style='text-align: center;'><h3>$tuid</h3><td style='text-align: right'>$nextb</tr></table><hr>";
 			};
 			$maintext .= "<div id='appidshow' style='height: 14px; color: #999999; text-align: center; font-size: small;'></div>";
 
