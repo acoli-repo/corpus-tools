@@ -58,11 +58,12 @@
 		};
 		$maintext .= "</table>";
 		
-	} else if ( $act == "columns" && ( $_GET['id'] || $_GET['cid'] ) ) { 
+	} else if ( $act == "columns" && ( $_GET['id'] || $_GET['cid'] || $_POST['files'] ) ) { 
 	
 			$ids = $_GET['id'] or $ids = $_GET['cid'];
 			$idlist = explode(",", $ids); 
-	
+			if ( $_POST['files'] ) $idlist = array_keys($_POST['files']);
+			
 			$tuid = $_GET['appid'] or $tuid = $_GET['tuid'];
 			$tuidatt = $_GET['tuidatt'] or $tuidatt = $settings['defaults']['align']['tuidatt'] or $tuidatt = "tuid";
 		
@@ -97,7 +98,7 @@
 
 			$w = 95/(count($versions));
 
-
+			$maintext .= "<div id=mtxt>";
 			foreach ( $versions as $key => $vxml ) {
 				if ( $tuid ) {
 					$tmp = current($vxml->xml->xpath("//text//*[@$tuidatt=\"$tuid\"]"));
@@ -106,10 +107,11 @@
 				} else $editxml = $vxml->asXML();
 				$maintext .= "<div style='float: left; width: {$w}%; padding: 5px;' class='parbox' id='parb-$key'>";
 				$title = $vxml->title();
-				$maintext .= "<p><a href='index.php?action=file&cid=$key'>$key</a></p>";
+				$maintext .= "<p><a href='index.php?action=file&cid=$key'>$title</a></p>";
 				$maintext .= "<div id='mtxt-$key' style=' overflow-y: scroll;' class='mtxt'>$editxml</div>";
 				$maintext .= "</div>";
 			};
+			$maintext .= "</div>";
 	
 			$maintext .= "<script language=Javascript>
 				// document.onclick = clickEvent; 
@@ -234,17 +236,17 @@
 		
 		$totres = count($resxml->xpath("/results/*"));
 		
-		$maintext .= "<table id=rollovertable data-sortable>
-			 <thead><tr><th id='filecol'  data-sortable-type='alpha'>File</th><th>Text</th></tr> </thead><tbody>";
+		$maintext .= "<form action='index.php?action=$action&act=columns' method=post><table id=rollovertable data-sortable>
+			 <thead><tr><td><th id='filecol'  data-sortable-type='alpha'>File</th><th>Text</th></tr> </thead><tbody>";
 		foreach ( $resxml->xpath("/results/*") as $resline ) {
 			$langid = str_replacE(".xml", "", $resline['fileid']);
-			$maintext .= "<tr lnk='$langid'><td><a href='index.php?action=file&cid={$resline['fileid']}&jmp={$resline['id']}'>$langid</a><td>".html_entity_decode($resline->asXML());
+			$maintext .= "<tr lnk='$langid'><td><input type=checkbox name='files[{$resline['fileid']}]' value='1'><td><a href='index.php?action=file&cid={$resline['fileid']}&jmp={$resline['id']}'>$langid</a><td>".html_entity_decode($resline->asXML());
 		};
 		$maintext .= "</tbody></table>
 		<script language=Javascript src=\"https://cdnjs.cloudflare.com/ajax/libs/sortable/0.8.0/js/sortable.min.js\"></script>
 		<script language=Javascript>Sortable.init(); document.getElementById('filecol').click();</script>
 		<link rel=\"stylesheet\" href=\"https://github.hubspot.com/sortable/css/sortable-theme-bootstrap.css\">";
-		$maintext .= "<hr>$totres results (XML)";
+		$maintext .= "<hr>$totres results (XML) - <input type=submit value='Align selected files'></form>";
 		
 	} else if ( $_GET['id'] || $_GET['cid'] ) {
 	
