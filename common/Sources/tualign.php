@@ -200,6 +200,7 @@
 				<style>.highlight { background-color: #ffeeaa; }</style>
 						<h2>Results</h2>
 
+				<form action='index.php?action=$action&act=columns' method=post>
 				<table id=rollovertable data-sortable>
 				<tr><td><th id='filecol' title='File' data-sortable-type='alpha'>$basetxt<th colspan=2>Text";
 			foreach ( $_POST['target'] as $i => $tqp ) {
