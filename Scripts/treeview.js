@@ -31,6 +31,7 @@ function drawsvg(elm, divid = null ) {
 	svgcontainer = svgcontainers[divid];
 	var buts = {};
 	if ( typeof(ctree) == 'undefined' ) ctree = divopts['ctree'];
+	if ( divopts['type'] && divopts['type'] == 'constituency' ) ctree = 1;
 	if ( typeof(ctree) == 'undefined' ) ctree = 0;
 
 	if ( typeof(svgcontainer) == 'undefined' ) { 
@@ -602,7 +603,7 @@ function parseteitok(sent, makewords = true) {
 function tab2tree(string) {
 	lvls = {}; 
 	lines = string.split('\n');
-	json = '{ "options": {"ctree": "1"}, "children": [ '; last = -1;
+	json = '{ "options": {"type": "constituency"}, "children": [ '; last = -1;
 	for ( i in lines ) {
 		line = lines[i];
 		lvl = 0;
@@ -630,6 +631,22 @@ function tab2tree(string) {
 	return tree;
 };
 
+function etree2tree(string) {
+	string = string.replace(/<(\/?)(etree|eleaf)/gsmi, '<$1node');
+	doc = new DOMParser().parseFromString(string, "text/xml");
+	nodes = doc.getElementsByTagName('node')
+	for ( i in nodes ) {
+		node = nodes[i]; 
+		if ( typeof(node.getAttribute) != 'function' ) { continue; };
+		tmp = node.getElementsByTagName('label')[0];
+		node.setAttribute('label', tmp.textContent);
+		node.removeChild(tmp); 
+	};
+	rootnode = doc.firstChild;
+	json = '{"options": {"type": "constituency"}, "children": [' + xml2tree(rootnode) + ']}';
+	var tree = JSON.parse(json);
+	return tree;
+};
 function psd2tree(string) {
 	if ( typeof(string) != 'string' ) return false;
 	string = string.replaceAll('\n', ' ');
@@ -654,11 +671,12 @@ function psd2tree(string) {
 	}; 
 	rootnode = doc.firstChild;
 	if ( rootnode.children[1] && rootnode.children[1].getAttribute('label') == 'ID' ) { rootnode = rootnode.firstChild; };
-	json = '{"options": {"ctree": "1"}, "children": [' + xml2tree(rootnode) + ']}';
+	json = '{"options": {"type": "constituency"}, "children": [' + xml2tree(rootnode) + ']}';
 	var tree = JSON.parse(json);
 	return tree;
 };
 function xml2tree(node) {
+	console.log(node);
 	if ( typeof(node.getAttribute) != 'function' ) { return ''; };
 	label = node.getAttribute('label');
 	ispunct = '';

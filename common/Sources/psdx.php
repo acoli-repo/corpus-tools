@@ -93,8 +93,9 @@
 				$settingsdefs
 				var tree = $json;
 				var treeid = '$ttxml->xmlid-$sid';
-				var ctree = 1;
 				var options = $setopts;
+				tree['options'] = {};
+				tree['options']['type'] = 'constituency';
 				document.getElementById('tokinfo').style['z-index'] = 3000;
 				drawsvg(tree, 'svgdiv');
 
