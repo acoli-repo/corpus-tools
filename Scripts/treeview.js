@@ -633,18 +633,24 @@ function tab2tree(string) {
 
 function etree2tree(string) {
 	string = string.replace(/<(\/?)(etree|eleaf)/gsmi, '<$1node');
+	string = string.replace(/>\s+</gsmi, '><'); // remove whitespaces
+	string = string.replace(/ (Label|Text|NoText)="/gsmi, ' label="'); // remove whitespaces
 	doc = new DOMParser().parseFromString(string, "text/xml");
 	nodes = doc.getElementsByTagName('node')
 	for ( i in nodes ) {
 		node = nodes[i]; 
 		if ( typeof(node.getAttribute) != 'function' ) { continue; };
 		tmp = node.getElementsByTagName('label')[0];
-		node.setAttribute('label', tmp.textContent);
-		node.removeChild(tmp); 
+		if ( tmp ) {
+			node.setAttribute('label', tmp.textContent);
+			node.removeChild(tmp);
+		};
 	};
 	rootnode = doc.firstChild;
-	json = '{"options": {"type": "constituency"}, "children": [' + xml2tree(rootnode) + ']}';
-	var tree = JSON.parse(json);
+	tree = {"options": {"type": "constituency"}};
+	tree['children'] = [];
+	chj = xml2tree(rootnode);
+	tree['children'].push(chj);
 	return tree;
 };
 function psd2tree(string) {
@@ -671,27 +677,30 @@ function psd2tree(string) {
 	}; 
 	rootnode = doc.firstChild;
 	if ( rootnode.children[1] && rootnode.children[1].getAttribute('label') == 'ID' ) { rootnode = rootnode.firstChild; };
-	json = '{"options": {"type": "constituency"}, "children": [' + xml2tree(rootnode) + ']}';
-	var tree = JSON.parse(json);
+	tree = {"options": {"type": "constituency"}};
+	tree['children'] = [];
+	chj = xml2tree(rootnode);
+	if ( chj ) { tree['children'].push(chj); };
 	return tree;
 };
 function xml2tree(node) {
-	if ( typeof(node.getAttribute) != 'function' ) { return ''; };
-	label = node.getAttribute('label');
-	ispunct = '';
-	if ( node.getAttribute('ispunct') ) ispunct = ', "ispunct": "1"'
-	var json = '{ "label": "'+label+'"'+ispunct+', "children": [';
-	var sep = '';
+	if ( typeof(node.getAttribute) != 'function' ) { return false; };
+	var tree = {};
+	for ( i in node.attributes ) {
+		att = node.attributes[i];
+		if ( att.value ) {
+			tree[att.name] = att.value;
+		};
+	}; 
+	if ( typeof(tree['ispunct']) == 'undefined' && isPunct(tree['label']) ) tree['ispunct'] = '1';
+	if ( !node.firstChild ) return tree;
+	tree['children'] = [];
 	for(var child=node.firstChild; child!==null; child=child.nextSibling) {
 		if ( node.nodeName != 'node' ) { continue; };
 		chj = xml2tree(child);
-		if ( chj != '' ) { 
-			json = json + sep + chj;
-			sep = ', ';
-		};
+		tree['children'].push(chj);	
 	};
-	json = json + ']}';
-	return json;
+	return tree;
 };
 
 function getwords() {
