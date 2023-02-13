@@ -274,16 +274,16 @@ function drawsvg(elm, divid = null ) {
 		tok = toks[t];
 		vpadding = 5;
 		hpadding = spacing/3; // horizontal spacing in boxes depends on node spacing
-		deprel = tok.getAttribute('deprel');
+		sublabel = tok.getAttribute('sublabel');
 		tokid = tok.getAttribute('id'); if ( !tokid ) { tokid = t; };
 		sublh = 0; newtext = 0; 
-		if ( deprel ) {
+		if ( sublabel ) {
 			hasatts[divid]['labs'] = 1;
 			if ( getvar('hidelabs', divid) != 1 ) {
 			bb = tok.getBBox(); x = bb['x'] + (bb['width']/2); y = bb['y'] + bb['height'] + 12;
 			newtext = document.createElementNS(svgns, 'text');
-			newtext.innerHTML = deprel;
-			newtext.setAttribute('id', 'deprel-'+tokid);
+			newtext.innerHTML = sublabel;
+			newtext.setAttribute('id', 'sublabel-'+tokid);
 			newtext.setAttribute('x', x);
 			newtext.setAttribute('y', y);
 			newtext.setAttribute('text-anchor', 'middle');
@@ -490,11 +490,11 @@ function putchildren(node, svg, lvl) {
 		tokid = child['tokid']; if ( !tokid ) { tokid = child['id']; };
 		if ( tokid) { newtok.setAttribute('tokid', tokid);};
 		if ( typeof(headid) != 'undefined' ) { newtok.setAttribute('head', headid); };
-		if ( typeof(child['rel']) != 'undefined' ) { newtok.setAttribute('deprel', child['rel']);  };
-		if ( typeof(child['sublabel']) != 'undefined' ) { newtok.setAttribute('deprel', child['sublabel']);  };
+		if ( typeof(child['rel']) != 'undefined' ) { newtok.setAttribute('sublabel', child['rel']);  };
+		if ( typeof(child['sublabel']) != 'undefined' ) { newtok.setAttribute('sublabel', child['sublabel']);  };
 		newtok.setAttribute('text-anchor', 'left');
 		newtok.setAttribute('font-size', '12pt');
-		newtok.setAttribute('type', 'tok');
+		// newtok.setAttribute('type', 'tok');
 		toks[childid] = newtok;
 		svg.appendChild(newtok);
 		putchildren(child, svg, lvl+1);
@@ -866,7 +866,7 @@ if ( typeof(document.onmouseover) !== 'function' ) {
 				return false;
 			};
 			if ( tokid.substr(0,3) == 'wn-' ) { tokid = tokid.substr(3); };
-			if ( tokid.substr(0,7) == 'deprel-' ) { tokid = tokid.substr(7); };
+			if ( tokid.substr(0,9) == 'sublabel-' ) { tokid = tokid.substr(9); };
 			highLight('box-'+tokid);
 			highLight('wn-'+tokid);
 			tok = document.getElementById(tokid);
@@ -879,6 +879,7 @@ if ( typeof(document.onmouseover) !== 'function' ) {
 						rows = rows + '<tr><th>'+att.name+'</th><td>'+att.value+'</td></tr>';
 					};
 				}; 
+				if ( rows == '' ) return false;
 				html = '<table>'+rows+'</table>';
 				tokinfo.innerHTML = html;
 				tokinfo.style.display = 'block';
