@@ -6,20 +6,34 @@ const svgns = 'http://www.w3.org/2000/svg';
 var children = {}; var svgcontainers = {}; var hasatts = {}; var trees = {}; var levw = [];
 if (  typeof(debug) == 'undefined' ) { var debug = 0; };
 if (  typeof(showroot) == 'undefined' ) { var showroot = 0; };
+if (  typeof(wordarray) == 'undefined' ) { var wordarray = []; };
 
-function drawsvg(elm, divid = null, divopts = null ) {
+function drawsvg(elm, divid = null, divopts = {} ) {
 
 	if ( typeof(divid) == 'undefined' || !document.getElementById(divid) ) { divid = defdiv; };
-	if ( divopts == null && typeof(options) != 'undefined' ) { divopts = options; };
+	div = document.getElementById(divid);
+	if ( typeof(div) == 'undefined' ) { console.log('No such DIV: ' + divid); return -1; };
+
+	if ( Object.keys(divopts).length == null && typeof(options) != 'undefined' ) { divopts = options; };
 	if ( elm == null && trees[divid] ) elm = trees[divid];
 	if ( elm == null ) { console.log('No tree provided'); return false; }
 	trees[divid] = elm;
+	
+	tmp = divopts['wordarray'];
+	if ( tmp ) {
+		treewords = tmp.split(','); 
+	} else if ( typeof(wordarray) != 'undefined' ) { 
+		treewords = wordarray; 
+	};
+	if ( treewords ) {
+		div.setAttribute('wordarray', treewords.join(','));
+	} else {
+		treewords = [];
+	};
 
 	spacing = parseFloat(getvar('spacing', divid)); if ( !spacing ) spacing = defspacing;
 	lineheight = parseFloat(getvar('lineheight', divid)); if ( !lineheight ) lineheight = deflineheight;
 
-	div = document.getElementById(divid);
-	if ( typeof(div) == 'undefined' ) { console.log('No such DIV: ' + divid); return -1; };
 	div.setAttribute('svgdiv', 1);
 	svgcontainer = svgcontainers[divid];
 	var buts = {};
@@ -82,7 +96,6 @@ function drawsvg(elm, divid = null, divopts = null ) {
 		newtok.innerHTML = 'root';
 		newtok.setAttribute('y', base);
 		newtok.setAttribute('x', 10);
-		// newtok.setAttribute('tokid', 'tn-1');
 		toknr = 1;
 		newtok.setAttribute('lvl', 0);
 		newtok.setAttribute('text-anchor', 'left');
@@ -93,10 +106,10 @@ function drawsvg(elm, divid = null, divopts = null ) {
 		children['tn-1'] = ['tn-2']; 
 		svg.appendChild(newtok);
 		lvls[0] = ['tn-1'];
-		if ( typeof(wordarray) != 'undefined' && wordarray[0] != 'tn-1' ) { wordarray.unshift('tn-1'); };
+		if ( typeof(treewords) != 'undefined' && treewords[0] != 'tn-1' ) { treewords.unshift('tn-1'); };
 		rootlvl = 1; 
-	} else if ( typeof(wordarray) != 'undefined' && wordarray[0] == 'tn-1' ) { 
-		wordarray.shift();
+	} else if ( typeof(treewords) != 'undefined' && treewords[0] == 'tn-1' ) { 
+		treewords.shift();
 	};
 	
 	// place text elements for all nodes in the tree - arbitrarily placed
@@ -132,16 +145,16 @@ function drawsvg(elm, divid = null, divopts = null ) {
 	// do horizontal distribution
 	if ( getvar('hpos', divid) == 'wordorder' ) { 
 
-		if ( typeof(wordarray) == 'undefined'  ) { var wordarray = getwords(); }; // get the words if they were not specified
+		if ( typeof(treewords) == 'undefined'  ) { var treewords = getwords(); }; // get the words if they were not specified
 
 		// Go through word order, and place each token on the first available position
 		var hi = spacing;
 		var lh = [];
-		t = toks[wordarray[0]];
+		t = toks[treewords[0]];
 		if ( t ) t.setAttribute('x', hi); // place the very first token to the left
-		for ( i in wordarray ) {
+		for ( i in treewords ) {
 			if ( i == 0 ) { continue; }; // deal with hidden punctuation
-			t = wordarray[i]; 
+			t = treewords[i]; 
 			if ( !toks[t] ) { continue; }; // deal with hidden punctuation
 			tl = parseInt(toks[t].getAttribute('lvl'));
 			th = hi + spacing;
@@ -264,6 +277,7 @@ function drawsvg(elm, divid = null, divopts = null ) {
 		vpadding = 5;
 		hpadding = spacing/3; // horizontal spacing in boxes depends on node spacing
 		deprel = tok.getAttribute('deprel');
+		tokid = tok.getAttribute('id'); if ( !tokid ) { tokid = t; };
 		sublh = 0; newtext = 0; 
 		if ( deprel ) {
 			hasatts[divid]['labs'] = 1;
@@ -271,7 +285,7 @@ function drawsvg(elm, divid = null, divopts = null ) {
 			bb = tok.getBBox(); x = bb['x'] + (bb['width']/2); y = bb['y'] + bb['height'] + 12;
 			newtext = document.createElementNS(svgns, 'text');
 			newtext.innerHTML = deprel;
-			newtext.setAttribute('id', 'deprel-'+tok);
+			newtext.setAttribute('id', 'deprel-'+tokid);
 			newtext.setAttribute('x', x);
 			newtext.setAttribute('y', y);
 			newtext.setAttribute('text-anchor', 'middle');
@@ -464,9 +478,13 @@ function putchildren(node, svg, lvl) {
 	};
 };
 
-function conllu2tree(conll) {
+function conllu2tree(conll, makewords = true) {
 	treesc = {}; root = -1;
 	lines = conll.split('\n');
+	if ( makewords ) {
+		wordarray = [];
+	};
+	
 	for ( i in lines ) {
 		line = lines[i];
 		if ( line[0] == '#' ) {
@@ -482,10 +500,8 @@ function conllu2tree(conll) {
 			head = fields[6];
 			deprel = fields[7];
 			
-			tokid = ord;
-			if ( fields[9] != '_' ) {
-				tokid = fields[9];
-			}; 
+			tokid = 'w-'+ord;
+			wordarray.push(tokid);
 			
 			if ( deprel == 'root' ) { root = ord; rootid = tokid; };
 			if ( typeof(treesc[ord]) == 'undefined' ) { treesc[ord] = {'children': {}};}

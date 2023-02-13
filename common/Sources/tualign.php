@@ -57,6 +57,15 @@
 			};
 		};
 		$maintext .= "</table>";
+
+	} else if ( $act == "select" && ( $_GET['id'] || $_GET['cid'] ) ) { 
+	
+			require_once("$ttroot/common/Sources/ttxml.php");
+			$ttxml = new TTXML();
+		
+			$elm1 = current($ttxml->xml->xpath("//*[@$tuidatt]"));
+			
+			if ( !$elm1 ) fatal("No alignment items ($tuidatt) found");
 		
 	} else if ( $act == "columns" && ( $_GET['id'] || $_GET['cid'] || $_POST['files'] ) ) { 
 	
