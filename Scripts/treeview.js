@@ -7,6 +7,7 @@ var children = {}; var svgcontainers = {}; var hasatts = {}; var trees = {}; var
 if (  typeof(debug) == 'undefined' ) { var debug = 0; };
 if (  typeof(showroot) == 'undefined' ) { var showroot = 0; };
 
+
 function drawsvg(elm, divid = null ) {
 
 	if ( typeof(divid) == 'undefined' || !document.getElementById(divid) ) { divid = defdiv; };
@@ -839,3 +840,40 @@ function isPunct (string) {
 	if ( string == null || typeof(string) != 'string' ) return false;
     return onlyPunctuation.test(string)
 }
+
+if ( typeof(document.onmouseover) !== 'function' ) { 
+	var hllist = [];
+	document.onclick = clickEvent; 
+	document.onmouseover = mouseEvent; 
+	document.onmouseout = mouseOut; 
+	function clickEvent(evt) { 
+		element = evt.toElement;
+	};
+	function mouseEvent(evt) { 
+		element = evt.toElement;
+		nn = element.nodeName;
+		if ( nn == 'SPAN' || nn == 'TEXT' || nn == 'span' || nn == 'text' ) {
+			tokid = element.getAttribute('id');
+			if ( tokid.substr(0,3) == 'wn-' ) { tokid = tokid.substr(3); };
+			highLight('box-'+tokid);
+			highLight('wn-'+tokid);
+		};
+		
+	};
+	function highLight(elmid) { 
+		elm = document.getElementById(elmid);
+		if ( !elm ) return false;
+		hllist.push(elm);
+		if ( elm.nodeName == 'SPAN' ) elm.style.backgroundColor = '#ffff00';
+		else elm.setAttribute('fill', '#ffff00');
+	};
+	function mouseOut(evt) { 
+		element = evt.toElement;
+		for ( i in hllist ) {
+			elm = hllist[i];
+			if ( elm.nodeName == 'SPAN' ) elm.style.backgroundColor = null;
+			else elm.setAttribute('fill', '#ffffff');
+		};
+		hllist = [];
+	};
+}; // if needed, run post scripts, pe to make things clickable again
