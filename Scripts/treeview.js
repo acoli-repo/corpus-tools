@@ -843,6 +843,13 @@ function isPunct (string) {
 
 if ( typeof(document.onmouseover) !== 'function' ) { 
 	var hllist = [];
+	if ( !document.getElementById('tokinfo') ) {
+		var tokinfo = document.createElement("div"); 
+		tokinfo.setAttribute('id', 'tokinfo');
+		document.body.appendChild(tokinfo);
+		tokinfo.style.display = 'none';
+		tokinfo.style['z-index'] = '4000';
+	};
 	document.onclick = clickEvent; 
 	document.onmouseover = mouseEvent; 
 	document.onmouseout = mouseOut; 
@@ -851,14 +858,39 @@ if ( typeof(document.onmouseover) !== 'function' ) {
 	};
 	function mouseEvent(evt) { 
 		element = evt.toElement;
+		var ignore = ['x', 'y', 'label', 'sublabel', 'text-anchor', 'lvl', 'font-size'];
 		nn = element.nodeName;
 		if ( nn == 'SPAN' || nn == 'TEXT' || nn == 'span' || nn == 'text' ) {
 			tokid = element.getAttribute('id');
+			if ( !tokid ) {
+				return false;
+			};
 			if ( tokid.substr(0,3) == 'wn-' ) { tokid = tokid.substr(3); };
+			if ( tokid.substr(0,7) == 'deprel-' ) { tokid = tokid.substr(7); };
 			highLight('box-'+tokid);
 			highLight('wn-'+tokid);
+			tok = document.getElementById(tokid);
+			if ( tok && tok.nodeName == 'text' ) {
+				rows = '';
+				for ( i in tok.attributes ) {
+					att = tok.attributes[i];
+					if ( ignore.includes(att.name) ) continue;
+					if ( att.value ) {
+						rows = rows + '<tr><th>'+att.name+'</th><td>'+att.value+'</td></tr>';
+					};
+				}; 
+				html = '<table>'+rows+'</table>';
+				tokinfo.innerHTML = html;
+				tokinfo.style.display = 'block';
+				poselement = element;
+				if ( nn == 'text' ) poselement = document.getElementById('box-'+tokid);
+				var foffset = offset(poselement);
+				tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
+				osh = poselement.offsetHeight;
+				if ( !osh ) osh = poselement.getBBox()['height'];
+				tokinfo.style.top = ( foffset.top + osh + 5 ) + 'px';
+			};
 		};
-		
 	};
 	function highLight(elmid) { 
 		elm = document.getElementById(elmid);
@@ -875,5 +907,29 @@ if ( typeof(document.onmouseover) !== 'function' ) {
 			else elm.setAttribute('fill', '#ffffff');
 		};
 		hllist = [];
+		tokinfo.style.display = 'none';
 	};
+	function offset(elem) {
+		if(!elem) elem = this;
+
+		var x = elem.offsetLeft;
+		var y = elem.offsetTop;
+
+		if ( typeof(x) == "undefined" ) {
+
+			bbr = elem.getBoundingClientRect();
+			x = bbr.left + window.pageXOffset;
+			y = bbr.top + window.pageYOffset;
+
+		} else {
+
+			while (elem = elem.offsetParent) {
+				x += elem.offsetLeft;
+				y += elem.offsetTop;
+			}
+	
+		};
+	
+		return { left: x, top: y };
+	}    
 }; // if needed, run post scripts, pe to make things clickable again
