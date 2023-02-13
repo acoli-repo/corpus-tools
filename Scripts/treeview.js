@@ -676,7 +676,6 @@ function psd2tree(string) {
 	return tree;
 };
 function xml2tree(node) {
-	console.log(node);
 	if ( typeof(node.getAttribute) != 'function' ) { return ''; };
 	label = node.getAttribute('label');
 	ispunct = '';
