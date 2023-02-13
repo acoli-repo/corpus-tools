@@ -30,7 +30,8 @@ function drawsvg(elm, divid = null ) {
 	div.setAttribute('svgdiv', 1);
 	svgcontainer = svgcontainers[divid];
 	var buts = {};
-	if ( typeof(ctree) == 'undefined' ) ctree = getvar('ctree', divid);
+	if ( typeof(ctree) == 'undefined' ) ctree = divopts['ctree'];
+	if ( typeof(ctree) == 'undefined' ) ctree = 0;
 
 	if ( typeof(svgcontainer) == 'undefined' ) { 
 		svgcontainer = document.createElement('div');
