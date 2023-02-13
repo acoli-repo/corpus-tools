@@ -484,6 +484,7 @@ function conllu2tree(conll, makewords = true) {
 	if ( makewords ) {
 		wordarray = [];
 	};
+	fldlist = ['ord', 'word', 'lemma', 'upos', 'xpos', 'feats', 'head', 'deprel', 'deps', 'misc'];
 	
 	for ( i in lines ) {
 		line = lines[i];
@@ -492,33 +493,53 @@ function conllu2tree(conll, makewords = true) {
 			if ( treesc[root] ) {
 				treesc['root'] = { children: {} };
 				treesc['root']['children'][rootid] = treesc[root];
-				return treesc['root'];
+				// return treesc['root'];
+				break;
 			};
 		} else {
 			fields = line.split("\t");
-			ord = fields[0];
-			head = fields[6];
-			deprel = fields[7];
 			
-			tokid = 'w-'+ord;
-			wordarray.push(tokid);
+			ord = fields[0]; 
+			tokid = 'tok-'+ord;
+			if ( typeof(treesc[tokid]) == 'undefined' ) { treesc[tokid] = {'children': {}};}
+			for ( i in fldlist ) {
+				fn = fldlist[i];
+				if ( fn && fields[i] != '_' ) {
+					treesc[tokid][fn] = fields[i];
+				};
+			};
 			
-			if ( deprel == 'root' ) { root = ord; rootid = tokid; };
-			if ( typeof(treesc[ord]) == 'undefined' ) { treesc[ord] = {'children': {}};}
-			treesc[ord]['label'] = fields[1];
-			treesc[ord]['rel'] = deprel;
-			treesc[ord]['id'] = tokid;
+			if ( makewords ) { wordarray.push(tokid); };
 			
-			if ( typeof(treesc[head]) == 'undefined' ) { treesc[head] = {'children': {}};}
-			treesc[head]['children'][tokid] = treesc[ord];
+			if ( treesc[tokid]['deprel'] == 'root' ) { root = tokid; rootid = tokid; };
+
+			treesc[tokid]['label'] = treesc[tokid]['word'];
+			treesc[tokid]['sublabel'] = treesc[tokid]['deprel'];
+			treesc[tokid]['id'] = tokid;
+
+			if ( treesc[tokid]['deprel'] == 'punct' ) { treesc[tokid]['ispunct'] = 1; };
+
+			headid = 'tok-' + treesc[tokid]['head'];
+			if ( typeof(treesc[headid]) == 'undefined' ) { 
+				treesc[headid] = {'children': {}};
+			} else if ( typeof(treesc[headid]['children'] ) == 'undefined' ) { 
+				treesc[headid]['children'] = {}; 
+			};
+			treesc[headid]['children'][tokid] = treesc[tokid];
 		};
 	};
 	
+	console.log(rootid);
+	console.log(treesc);
+	console.log('done');
 	return treesc['root'];
 };
 
-function parseteitok(sent) {
-	treesc = {}; root = -1;
+function parseteitok(sent, makewords = true) {
+	treesc = {}; root = -1; rootid = null;
+	if ( makewords ) {
+		wordarray = [];
+	};
 	if ( typeof(sent) == 'string' ) sent = new DOMParser().parseFromString(sent, "text/html");
 	toks = sent.getElementsByTagName('tok'); 
 	ord = 0;
@@ -526,24 +547,38 @@ function parseteitok(sent) {
 		tok = toks[i];
 		if ( typeof(tok) != 'object' ) continue;
 
-		word = tok.getAttribute('form'); if (!word) word = tok.innerText;
-		head = tok.getAttribute('head');
-		deprel = tok.getAttribute('deprel');
 		tokid = tok.getAttribute('id');
+		if ( makewords ) { wordarray.push(tokid); };
+		if ( typeof(treesc[tokid]) == 'undefined' ) { treesc[tokid] = {'children': {}};}
+
+		for ( i in tok.attributes ) {
+			att = tok.attributes[i];
+			if ( att.value ) {
+				treesc[tokid][att.name] = att.value;
+			};
+		}; 
+
+		word = tok.getAttribute('form'); if (!word) word = tok.innerText;
+		head = tok.getAttribute('head'); 
 		
-		if ( deprel == 'root' && ( !head || !rootid ) ) { 
+		if ( treesc[tokid]['deprel'] == 'root' && ( !head || !rootid ) ) { 
 			root = tokid; rootid = tokid; 
 		};
-		if ( typeof(treesc[tokid]) == 'undefined' ) { treesc[tokid] = {'children': {}};}
+		
+		treesc[tokid]['form'] = word;
 		treesc[tokid]['label'] = word;
-		treesc[tokid]['rel'] = deprel;
-		treesc[tokid]['id'] = tokid;
+		treesc[tokid]['sublabel'] = treesc[tokid]['deprel'];
+
+		if ( treesc[tokid]['deprel'] == 'punct' ) { treesc[tokid]['ispunct'] = 1; };
 		
 		if ( typeof(treesc[head]) == 'undefined' ) { treesc[head] = {'children': {}};}
 		treesc[head]['children'][tokid] = treesc[tokid];
 
 	};
 	
+	if ( !rootid ) {
+	}
+
 	treesc['root'] = { children: {} };
 	treesc['root']['children'][rootid] = treesc[root];
 	return treesc['root'];
