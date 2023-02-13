@@ -858,7 +858,7 @@ if ( typeof(document.onmouseover) !== 'function' ) {
 	};
 	function mouseEvent(evt) { 
 		element = evt.toElement;
-		var ignore = ['x', 'y', 'label', 'sublabel', 'text-anchor', 'lvl', 'font-size'];
+		var ignore = ['x', 'y', 'label', 'sublabel', 'text-anchor', 'lvl', 'font-size', 'id', 'type', 'head', 'tokid'];
 		nn = element.nodeName;
 		if ( nn == 'SPAN' || nn == 'TEXT' || nn == 'span' || nn == 'text' ) {
 			tokid = element.getAttribute('id');
