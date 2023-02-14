@@ -8,7 +8,7 @@ if (  typeof(debug) == 'undefined' ) { var debug = 0; };
 if (  typeof(showroot) == 'undefined' ) { var showroot = 0; };
 
 
-function drawsvg(elm, divid = null ) {
+function drawsvg(elm, divid = null, opts = {} ) {
 
 	if ( typeof(divid) == 'undefined' || !document.getElementById(divid) ) { divid = defdiv; };
 	div = document.getElementById(divid);
@@ -20,6 +20,7 @@ function drawsvg(elm, divid = null ) {
 
 	divopts = trees[divid]['options'];
 	if ( typeof(divopts) == 'undefined' ) divopts = {};
+	for ( i in Object.keys(opts) ) { key = Object.keys(opts)[i]; divopts[key] = opts[key]; };
 	if ( Object.keys(divopts).length == null && typeof(options) != 'undefined' ) { divopts = options; };
 	
 	treewords = trees[divid]['words']; 
@@ -71,7 +72,7 @@ function drawsvg(elm, divid = null ) {
 
 	// See if we got pre-defined settings
 	parseopts(divopts, div, buts);
-	
+
 	// Create the SVG
 	svg = document.createElementNS(svgns, 'svg');
 	svg.setAttribute('id', 'svgtree');
@@ -145,23 +146,17 @@ function drawsvg(elm, divid = null ) {
 	// do horizontal distribution
 	if ( getvar('hpos', divid) == 'wordorder' && ctree == 0 && treewords.length > 0 ) { 
 
+
 		// Go through word order, and place each token on the first available position
-		var hi = spacing;
-		var lh = [];
-		t = toks[treewords[0]];
-		if ( t ) t.setAttribute('x', hi); // place the very first token to the left
+		var th = spacing;
 		for ( i in treewords ) {
-			if ( i == 0 ) { continue; }; // deal with hidden punctuation
 			t = treewords[i]; 
 			if ( !toks[t] ) { continue; }; // deal with hidden punctuation
-			tl = parseInt(toks[t].getAttribute('lvl'));
-			th = hi + spacing;
-			if ( lh[tl] && lh[tl] > th ) { th = lh[tl]; };
-			toks[t].setAttribute('x', th);
-			hi = th;
 			bb = toks[t].getBBox();
-			lh[tl] = th + bb['width'] + spacing;
+			toks[t].setAttribute('x', th);
+			th = th + bb['width'] + spacing;
 		};
+		
 		
 	} else if ( getvar('hpos', divid) == 'wordsdown' && ctree == 1 ) {
 
@@ -209,6 +204,25 @@ function drawsvg(elm, divid = null ) {
 			};
 		};
 		
+	} else if ( getvar('hpos', divid) == 'sentorder' ) { 
+
+		// Go through word order, and place each token on the first available position
+		var hi = spacing;
+		var lh = [];
+		t = toks[treewords[0]];
+		if ( t ) t.setAttribute('x', hi); // place the very first token to the left
+		for ( i in treewords ) {
+			if ( i == 0 ) { continue; }; // deal with hidden punctuation
+			t = treewords[i]; 
+			if ( !toks[t] ) { continue; }; // deal with hidden punctuation
+			tl = parseInt(toks[t].getAttribute('lvl'));
+			th = hi + spacing;
+			if ( lh[tl] && lh[tl] > th ) { th = lh[tl]; };
+			toks[t].setAttribute('x', th);
+			hi = th;
+			bb = toks[t].getBBox();
+			lh[tl] = th + bb['width'] + spacing;
+		};
 	
 	} else { //  if ( hpos == 'branch' ) {
 	
@@ -549,6 +563,7 @@ function conllu2tree(conll, makewords = true) {
 			treesc[headid]['children'][tokid] = treesc[tokid];
 		};
 	};
+	if ( !treesc['root'] ) return false;
 	if ( makewords ) { treesc['root']['words'] = treewords; };
 	return treesc['root'];
 };
@@ -635,7 +650,7 @@ function tab2tree(string) {
 function etree2tree(string) {
 	string = string.replace(/<(\/?)(etree|eleaf)/gsmi, '<$1node');
 	string = string.replace(/>\s+</gsmi, '><'); // remove whitespaces
-	string = string.replace(/ (Label|Text|NoText)="/gsmi, ' label="'); // remove whitespaces
+	// string = string.replace(/ (Label|Text|NoText)="/gsmi, ' label="'); // remove whitespaces
 	doc = new DOMParser().parseFromString(string, "text/xml");
 	nodes = doc.getElementsByTagName('node')
 	for ( i in nodes ) {
@@ -648,6 +663,7 @@ function etree2tree(string) {
 		};
 	};
 	rootnode = doc.firstChild;
+	if ( rootnode.nodeName != 'node' ) rootnode = rootnode.firstChild; 
 	tree = {"options": {"type": "constituency"}};
 	tree['children'] = [];
 	chj = xml2tree(rootnode);
@@ -690,9 +706,17 @@ function xml2tree(node) {
 	for ( i in node.attributes ) {
 		att = node.attributes[i];
 		if ( att.value ) {
-			tree[att.name] = att.value;
+			tree[att.name.toLowerCase()] = att.value;
 		};
 	}; 
+	if ( !tree['label'] ) {
+		altlabel = '';
+		if ( tree['notext'] ) altlabel = tree['notext'];
+		if ( tree['text'] ) altlabel = tree['text'];
+		if ( tree['form'] ) altlabel = tree['form'];
+		if ( tree['word'] ) altlabel = tree['word'];
+		if ( altlabel != '' ) tree['label'] = altlabel;
+	};
 	if ( typeof(tree['ispunct']) == 'undefined' && isPunct(tree['label']) ) tree['ispunct'] = '1';
 	if ( !node.firstChild ) return tree;
 	tree['children'] = [];
@@ -849,6 +873,8 @@ if ( typeof(document.onmouseover) !== 'function' ) {
 		document.body.appendChild(tokinfo);
 		tokinfo.style.display = 'none';
 		tokinfo.style['z-index'] = '4000';
+		tokinfo.style['position'] = 'absolute';
+		tokinfo.style['background-color'] = 'white';
 	};
 	document.onclick = clickEvent; 
 	document.onmouseover = mouseEvent; 
