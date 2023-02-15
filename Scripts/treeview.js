@@ -661,7 +661,7 @@ function etree2tree(string, altlab = 'word,form,text,notext') {
 		node = nodes[i]; 
 		if ( typeof(node.getAttribute) != 'function' ) { continue; };
 		nn = node.nodeName;
-		if ( nn == 'etree' || nn == 'eleaf' ) {
+		if ( nn == 'etree' || nn == 'eleaf' || nn == 'eTree' || nn == 'eLeaf' ) {
 			tmp = node.getElementsByTagName('label')[0];
 			if ( tmp ) {
 				node.setAttribute('label', tmp.textContent);
