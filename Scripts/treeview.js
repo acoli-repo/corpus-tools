@@ -1,7 +1,7 @@
 var deflineheight = 100; var base = 30; 
 var defdiv = 'svgdiv';
-var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, hpos, maxlevel, showroot, hlbox;
-var defspacing = 50; var ungrouping = 50;
+var svg, maxheight, maxwidth, toknr, toks, lvls, children, levw, menubox, hpos, maxlevel, showroot, hlbox, hpadding, vpadding;
+var defspacing = 40; var defpadding = 5; var ungrouping = 50;
 const svgns = 'http://www.w3.org/2000/svg';
 var children = {}; var svgcontainers = {}; var hasatts = {}; var trees = {}; var levw = [];
 if (  typeof(debug) == 'undefined' ) { var debug = 0; };
@@ -28,6 +28,8 @@ function drawsvg(elm, divid = null, opts = {} ) {
 
 	spacing = parseFloat(getvar('spacing', divid)); if ( !spacing ) spacing = defspacing;
 	lineheight = parseFloat(getvar('lineheight', divid)); if ( !lineheight ) lineheight = deflineheight;
+	hpadding = parseFloat(getvar('hpadding', divid)); if ( !hpadding ) hpadding = defpadding;
+	vpadding = parseFloat(getvar('vpadding', divid)); if ( !vpadding ) vpadding = defpadding;
 
 	div.setAttribute('svgdiv', 1);
 	svgcontainer = svgcontainers[divid];
@@ -35,6 +37,8 @@ function drawsvg(elm, divid = null, opts = {} ) {
 	if ( typeof(ctree) == 'undefined' ) ctree = divopts['ctree'];
 	if ( divopts['type'] && divopts['type'] == 'constituency' ) ctree = 1;
 	if ( typeof(ctree) == 'undefined' ) ctree = 0;
+
+	console.log(hpos);
 
 	if ( typeof(svgcontainer) == 'undefined' ) { 
 		svgcontainer = document.createElement('div');
@@ -282,12 +286,10 @@ function drawsvg(elm, divid = null, opts = {} ) {
 		};
 	};
 									
-	// draw the lines and place deprels
+	// draw the lines and place sublabels
 	moreh = {}; // 
 	for ( t in toks ) {
 		tok = toks[t];
-		vpadding = 5;
-		hpadding = spacing/3; // horizontal spacing in boxes depends on node spacing
 		sublabel = tok.getAttribute('sublabel');
 		tokid = tok.getAttribute('id'); if ( !tokid ) { tokid = t; };
 		sublh = 0; newtext = 0; 
@@ -310,8 +312,9 @@ function drawsvg(elm, divid = null, opts = {} ) {
 		if ( 1 == 1 ) {
 			// place boxes around tokens when asked
 			bb = tok.getBBox(); rb = bb;
-			if ( typeof(newtext) == 'Object' ) {
-				db = newtext.getBBox(); if ( db['width'] > rb['width'] ) { rb['x'] = db['x']; rb['width'] = db['width'];  };
+			if ( typeof(newtext) == 'object' || typeof(newtext) == 'Object' ) {
+				db = newtext.getBBox(); 
+				if ( db['width'] > rb['width'] ) { rb['x'] = db['x']; rb['width'] = db['width'];  };
 			};
 			newrect = document.createElementNS(svgns, 'rect');
 			newrect.setAttribute('x', rb['x'] - hpadding );
@@ -413,7 +416,7 @@ function unoverlap( lvl ) {
 	while ( moved ) {
 		ll = 2000; lr = -1000;
 		moved = false; it++;
-		if ( it > 10 ) {
+		if ( it > 20 ) {
 			// somehow moving loops, overlap rather than crash
 			if ( debug ) {
 				console.log('emergency break - looping in unoverlap'); 
@@ -424,11 +427,13 @@ function unoverlap( lvl ) {
 			var hid = toklist[h];
 			if ( !toks[hid] ) { continue; };
 			var bb = toks[hid].getBBox();
-			left = bb['x']; right = left + bb['width'];
-			if ( lr + spacing > left ) {  
-				toks[hid].setAttribute('x', lr + spacing);
+			left = bb['x']; right = left + bb['width'] + 2*hpadding;
+			minleft = lr + spacing; 
+			if ( minleft > left ) {  
+				toks[hid].setAttribute('x', minleft);
 				centerbelow(hid);
-				if ( maxwidth < lr + spacing + bb['width'] ) { 
+				if ( maxwidth < lr + spacing + bb['width'] ) {
+					// adjust the width of the entire SVG if needed 
 					maxwidth = lr + spacing + bb['width'] + 100;
 				};
 				moved = true;
@@ -525,12 +530,7 @@ function conllu2tree(conll, makewords = true) {
 		line = lines[i];
 		if ( line[0] == '#' ) {
 		} else if ( line == '' ) {	
-			if ( treesc[root] ) {
-				treesc['root'] = { children: {} };
-				treesc['root']['children'][rootid] = treesc[root];
-				// return treesc['root'];
-				break;
-			};
+			break;
 		} else {
 			fields = line.split("\t");
 			
@@ -563,7 +563,14 @@ function conllu2tree(conll, makewords = true) {
 			treesc[headid]['children'][tokid] = treesc[tokid];
 		};
 	};
-	if ( !treesc['root'] ) return false;
+	if ( treesc[root] ) {
+		treesc['root'] = { children: {} };
+		treesc['root']['children'][rootid] = treesc[root];
+	};
+	if ( !treesc['root'] ) {
+		console.log('No root in CoNLL-U');
+		return false;
+	};
 	if ( makewords ) { treesc['root']['words'] = treewords; };
 	return treesc['root'];
 };
@@ -674,8 +681,8 @@ function psd2tree(string) {
 	if ( typeof(string) != 'string' ) return false;
 	string = string.replaceAll('\n', ' ');
 	string = string.replace(/^.*\(0/gsmi, '(0');
-	string = string.replace(/\((\d+) ([^ ()<>]+)/gsmi, '<node n="$1" label="$2">');
-	string = string.replace(/\((\d+) /gsmi, '<node n="$1">');
+	string = string.replace(/\((\d+) ([^ ()<>]+)/gsmi, '<node id="node-$1" label="$2">');
+	string = string.replace(/\((\d+) /gsmi, '<node id="node-$1">');
 	string = string.replace(/ ([^<>()]+)\)/gsmi, '<node label="$1"/></node>');
 	string = string.replaceAll(' <node', '<node');
 	string = string.replaceAll('(', '<node>');
