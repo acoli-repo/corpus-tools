@@ -38,8 +38,6 @@ function drawsvg(elm, divid = null, opts = {} ) {
 	if ( divopts['type'] && divopts['type'] == 'constituency' ) ctree = 1;
 	if ( typeof(ctree) == 'undefined' ) ctree = 0;
 
-	console.log(hpos);
-
 	if ( typeof(svgcontainer) == 'undefined' ) { 
 		svgcontainer = document.createElement('div');
 		svgcontainer.setAttribute('id', 'svgcontainer');
@@ -654,26 +652,61 @@ function tab2tree(string) {
 	return tree;
 };
 
-function etree2tree(string) {
-	string = string.replace(/<(\/?)(etree|eleaf)/gsmi, '<$1node');
+function etree2tree(string, altlab = 'word,form,text,notext') {
+	string = string.replace(/[\n\r]/gsmi, ''); // remove whitespaces
 	string = string.replace(/>\s+</gsmi, '><'); // remove whitespaces
-	// string = string.replace(/ (Label|Text|NoText)="/gsmi, ' label="'); // remove whitespaces
 	doc = new DOMParser().parseFromString(string, "text/xml");
-	nodes = doc.getElementsByTagName('node')
+	nodes = doc.querySelectorAll("*");
 	for ( i in nodes ) {
 		node = nodes[i]; 
 		if ( typeof(node.getAttribute) != 'function' ) { continue; };
-		tmp = node.getElementsByTagName('label')[0];
-		if ( tmp ) {
-			node.setAttribute('label', tmp.textContent);
-			node.removeChild(tmp);
+		nn = node.nodeName;
+		if ( nn == 'etree' || nn == 'eleaf' ) {
+			tmp = node.getElementsByTagName('label')[0];
+			if ( tmp ) {
+				node.setAttribute('label', tmp.textContent);
+				node.removeChild(tmp);
+			};
+		};
+		if ( nn == 'w' ) {
+			nodetxt = '';
+			chlds = node.childNodes;
+			console.log(node);
+			for ( i in chlds ) {
+				ch = chlds[i];
+				
+				if ( ch.nodeType ) console.log(ch);
+				if ( ch.nodeType == 3 ) {
+					nodetxt = nodetxt + ch.textContent;
+					node.removeChild(ch);
+					console.log('removing');
+				};
+			};
+			if ( !node.getAttribute('label') ) node.setAttribute('label', nodetxt);
+		};
+		if ( nn == 'phr' && !node.getAttribute('label') ) {
+			node.setAttribute('label', node.getAttribute('type'));
 		};
 	};
 	rootnode = doc.firstChild;
-	if ( rootnode.nodeName != 'node' ) rootnode = rootnode.firstChild; 
+	if ( rootnode.nodeName == 'forest' ) rootnode = rootnode.firstChild; 
 	tree = {"options": {"type": "constituency"}};
 	tree['children'] = [];
-	chj = xml2tree(rootnode);
+	chj = node2subtree(rootnode, altlab);
+	tree['children'].push(chj);
+	return tree;
+};
+function xml2tree(string, altlab = 'word,form,text,notext') {
+	// Generic XML tree
+	string = string.replace(/[\n\r]/gsmi, ''); // remove whitespaces
+	string = string.replace(/>\s+</gsmi, '><'); // remove whitespaces
+	doc = new DOMParser().parseFromString(string, "text/xml");
+	nodes = doc.querySelectorAll("*");
+	rootnode = doc.firstChild;
+	if ( rootnode.nodeName == 'alpino_ds' ) rootnode = rootnode.firstChild; 
+	tree = {"options": {"type": "constituency"}};
+	tree['children'] = [];
+	chj = node2subtree(rootnode, altlab);
 	tree['children'].push(chj);
 	return tree;
 };
@@ -703,13 +736,17 @@ function psd2tree(string) {
 	if ( rootnode.children[1] && rootnode.children[1].getAttribute('label') == 'ID' ) { rootnode = rootnode.firstChild; };
 	tree = {"options": {"type": "constituency"}};
 	tree['children'] = [];
-	chj = xml2tree(rootnode);
+	chj = node2subtree(rootnode);
 	if ( chj ) { tree['children'].push(chj); };
 	return tree;
 };
-function xml2tree(node) {
-	if ( typeof(node.getAttribute) != 'function' ) { return false; };
+function node2subtree(node, altlab = 'word,form,text' ) {
+	altarr = altlab.split(',');
+	if ( node.nodeType && node.nodeType == 3 ) { return {"nodetype": "text", "label": node.textContent}; };
+	if ( typeof(node.getAttribute) != 'function' ) { console.log('Incorrect child node - skipping'); return false; };
 	var tree = {};
+	nn = node.nodeName;
+	if ( nn != 'node' ) { tree['nodetype'] = nn; };
 	for ( i in node.attributes ) {
 		att = node.attributes[i];
 		if ( att.value ) {
@@ -717,19 +754,22 @@ function xml2tree(node) {
 		};
 	}; 
 	if ( !tree['label'] ) {
-		altlabel = '';
-		if ( tree['notext'] ) altlabel = tree['notext'];
-		if ( tree['text'] ) altlabel = tree['text'];
-		if ( tree['form'] ) altlabel = tree['form'];
-		if ( tree['word'] ) altlabel = tree['word'];
+		altlabel = ''; // Use some common denominators as the label
+		for ( i in altarr ) {
+			altatt = altarr[i];
+			if ( tree[altatt] ) {
+				altlabel = tree[altatt];
+				break;
+			};
+		};
 		if ( altlabel != '' ) tree['label'] = altlabel;
+		else tree['label'] = tree['nodetype'];
 	};
 	if ( typeof(tree['ispunct']) == 'undefined' && isPunct(tree['label']) ) tree['ispunct'] = '1';
 	if ( !node.firstChild ) return tree;
 	tree['children'] = [];
 	for(var child=node.firstChild; child!==null; child=child.nextSibling) {
-		if ( node.nodeName != 'node' ) { continue; };
-		chj = xml2tree(child);
+		chj = node2subtree(child, altlab);
 		tree['children'].push(chj);	
 	};
 	return tree;
