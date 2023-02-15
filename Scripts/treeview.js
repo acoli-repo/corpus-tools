@@ -796,7 +796,10 @@ function node2subtree(node, altlab = 'word,form,text' ) {
 			};
 		};
 		if ( altlabel != '' ) tree['label'] = altlabel;
-		else tree['label'] = tree['nodeName'];
+		else {
+			tree['label'] = tree['nodeName'];
+			delete(tree['nodeName']);
+		};
 	};
 	if ( typeof(tree['ispunct']) == 'undefined' && isPunct(tree['label']) ) tree['ispunct'] = '1';
 	if ( !node.firstChild ) return tree;
