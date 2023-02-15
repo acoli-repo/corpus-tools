@@ -149,18 +149,18 @@ if ( $act == "xml" ) {
 	$cqpquery = "Matches = <text_$geofld = \"$location\"> []";
 	$cqp->exec($cqpquery);
 
-	$size = $cqp->exec("size Matches");
+	$size = $cqp->exec("size Matches") * 1;
 
 	$maintext .= "<h1>{%Documents from} $place</h1>
-		<p>$size {%$docname} $showall</p><hr>
 		$cqptit
 		";
 
+	$tsize = 0;
 	if ( $size > 0 ) {
-		$cqpquery = "tabulate Matches 0 100 match text_id, match text_$ftit";
+		$cqpquery = "tabulate Matches match text_id, match text_$ftit";
 		$results = $cqp->exec($cqpquery); 
 
-		$maintext .= "<table>";
+		$table .= "<table>";
 		foreach ( explode ( "\n", $results ) as $line ) {	
 			list ( $fileid, $title ) = explode ( "\t", $line );
 			if ( preg_match ( "/([^\/]+)\.xml/", $fileid, $matches ) ) {	
@@ -170,14 +170,24 @@ if ( $act == "xml" ) {
 				$matchcnt = "";
 				foreach ( $docmatch[$fileid] as $i => $cnt ) {
 					if ( !$txttype[$i] ) $cnttxt = $cnt; else $cnttxt = "&nbsp;";
+					$tcnt += $cnt;
+					$tsize ++;
 					$matchcnt .= "<span style='background-color: {$collist[$i]}; color: white; font-size: 10px; padding-left: 3px; padding-right: 3px;'>$cnttxt</span> ";
 				};
-				if ( !$docmatch || $matchcnt ) $maintext .= "<tr><td>$matchcnt<td><a href='index.php?action=file&cid=$cid&cql={$_GET['cql']}'>$title</a></tr>";
+				if ( !$docmatch || $matchcnt ) $table .= "<tr><td>$matchcnt<td><a href='index.php?action=file&cid=$cid&cql={$_GET['cql']}'>$title</a></tr>";
 			};
 		};
-		$maintext .= "</table>";
+		$table .= "</table>";
+	};
+	
+	if ( $tsize > 0 ) {
+		$maintext .= "
+			<p>$tcnt results in $tsize {%$docname} of $size $showall</p><hr>
+			$table
+			";
+
 	} else {
-		$maintext .= "<p><i>{%No results found}</i></p>";
+		$maintext .= "<p><i>{%No results found}</i></p> $tsize";
 	};
 	
 
