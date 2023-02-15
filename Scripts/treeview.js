@@ -481,7 +481,7 @@ function putchildren(node, svg, lvl) {
 		child = node.children[i];
 		childid = child['id'];
 		if ( !childid ) { childid = 'tn-' + toknr; };
-		if ( node.children[i]['rel'] == 'punct' || node.children[i]['ispunct'] ) { 
+		if ( node.children[i]['sublabel'] == 'punct' || node.children[i]['ispunct'] ) { 
 			hasatts[divid]['punct'] = 1;
 			if ( getvar('punct', divid) == 0 ) { continue; };
 		};
@@ -507,7 +507,6 @@ function putchildren(node, svg, lvl) {
 		tokid = child['tokid']; if ( !tokid ) { tokid = child['id']; };
 		if ( tokid) { newtok.setAttribute('tokid', tokid);};
 		if ( typeof(headid) != 'undefined' ) { newtok.setAttribute('head', headid); };
-		if ( typeof(child['rel']) != 'undefined' ) { newtok.setAttribute('sublabel', child['rel']);  };
 		if ( typeof(child['sublabel']) != 'undefined' ) { newtok.setAttribute('sublabel', child['sublabel']);  };
 		newtok.setAttribute('text-anchor', 'left');
 		newtok.setAttribute('font-size', '12pt');
@@ -696,16 +695,50 @@ function etree2tree(string, altlab = 'word,form,text,notext') {
 	tree['children'].push(chj);
 	return tree;
 };
-function xml2tree(string, altlab = 'word,form,text,notext') {
+function xml2tree(string, altlab = 'word,form,text,notext', subl = '', wrdats = '') {
 	// Generic XML tree
 	string = string.replace(/[\n\r]/gsmi, ''); // remove whitespaces
 	string = string.replace(/>\s+</gsmi, '><'); // remove whitespaces
 	doc = new DOMParser().parseFromString(string, "text/xml");
-	nodes = doc.querySelectorAll("*");
+	if ( subl != '' ) {
+		suba = subl.split(',');
+		nodes = doc.querySelectorAll("*");
+		for ( i in nodes ) {
+			node = nodes[i]; 
+			if ( !node.getAttribute || node.getAttribute('sublabel') )  continue;
+			for ( j in suba ) {
+				subo = suba[j];
+				if ( node.getAttribute(subo) ) {
+					node.setAttribute('sublabel', node.getAttribute(subo) );
+					break;
+				};
+			};
+		};
+	};
+	words = [];
+	if ( wrdats != '' ) {
+		wrdar = wrdats.split(',');
+		nodes = doc.querySelectorAll("*");
+		for ( i in nodes ) {
+			node = nodes[i]; 
+			if ( !node.getAttribute )  continue;
+			for ( j in wrdar ) {
+				wrdat = wrdar[j];
+				if ( node.getAttribute(wrdat) ) {
+					id = 'w-'+(words.length+1);
+					node.setAttribute('id', id);
+					words.push(id);
+					break;
+				};
+			};
+		};
+	};
+	console.log(words);
 	rootnode = doc.firstChild;
 	if ( rootnode.nodeName == 'alpino_ds' ) rootnode = rootnode.firstChild; 
-	tree = {"options": {"type": "constituency"}};
+	tree = {"options": {}};
 	tree['children'] = [];
+	if ( words ) tree['words'] = words;
 	chj = node2subtree(rootnode, altlab);
 	tree['children'].push(chj);
 	return tree;
@@ -742,11 +775,11 @@ function psd2tree(string) {
 };
 function node2subtree(node, altlab = 'word,form,text' ) {
 	altarr = altlab.split(',');
-	if ( node.nodeType && node.nodeType == 3 ) { return {"nodetype": "text", "label": node.textContent}; };
+	if ( node.nodeType && node.nodeType == 3 ) { return {"label": node.textContent}; };
 	if ( typeof(node.getAttribute) != 'function' ) { console.log('Incorrect child node - skipping'); return false; };
 	var tree = {};
 	nn = node.nodeName;
-	if ( nn != 'node' ) { tree['nodetype'] = nn; };
+	if ( nn != 'node' ) { tree['nodeName'] = nn; };
 	for ( i in node.attributes ) {
 		att = node.attributes[i];
 		if ( att.value ) {
@@ -763,7 +796,7 @@ function node2subtree(node, altlab = 'word,form,text' ) {
 			};
 		};
 		if ( altlabel != '' ) tree['label'] = altlabel;
-		else tree['label'] = tree['nodetype'];
+		else tree['label'] = tree['nodeName'];
 	};
 	if ( typeof(tree['ispunct']) == 'undefined' && isPunct(tree['label']) ) tree['ispunct'] = '1';
 	if ( !node.firstChild ) return tree;
