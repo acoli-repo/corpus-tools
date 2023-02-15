@@ -143,7 +143,7 @@ if ( $act == "xml" ) {
 		$cqptit = "<table style='display: none;'><tr><td><a href='index.php?action=multisearch&act=stored'>{%edit}</a> {%Search Query}:  </td><td><table id='cqplegend'>$cqptit</table></table></p>";
 		//$cqptit = "<table><tr><td>{%Search Query}: </td><td>$cqptit</table><hr>";
 		if ( $cqpjson ) $cqpjson = "var cqpjson = [$cqpjson];";
-		$showall = " (<a href='index.php?action=geomap&act=view&place={$_GET['place']}&lat={$_GET['lat']}&lng={$_GET['lng']}'>{%show all}</a>)";
+		$showall = "<a href='index.php?action=geomap&act=view&place={$_GET['place']}&lat={$_GET['lat']}&lng={$_GET['lng']}'>{%show all}</a>";
 	};
 	
 	$cqpquery = "Matches = <text_$geofld = \"$location\"> []";
@@ -171,18 +171,23 @@ if ( $act == "xml" ) {
 				foreach ( $docmatch[$fileid] as $i => $cnt ) {
 					if ( !$txttype[$i] ) $cnttxt = $cnt; else $cnttxt = "&nbsp;";
 					$tcnt += $cnt;
-					$tsize ++;
 					$matchcnt .= "<span style='background-color: {$collist[$i]}; color: white; font-size: 10px; padding-left: 3px; padding-right: 3px;'>$cnttxt</span> ";
 				};
-				if ( !$docmatch || $matchcnt ) $table .= "<tr><td>$matchcnt<td><a href='index.php?action=file&cid=$cid&cql={$_GET['cql']}'>$title</a></tr>";
+				if ( !$docmatch || $matchcnt ) {
+					$table .= "<tr><td>$matchcnt<td><a href='index.php?action=file&cid=$cid&cql={$_GET['cql']}'>$title</a></tr>";
+					$tsize ++;
+				};
 			};
 		};
 		$table .= "</table>";
 	};
 	
+	if ( $tsize < $size ) { 
+		$ofsize = " (of $size - $showall)";
+	};
 	if ( $tsize > 0 ) {
 		$maintext .= "
-			<p>$tcnt results in $tsize {%$docname} of $size $showall</p><hr>
+			<p>$tcnt matches in $tsize {%$docname} $ofsize</p><hr>
 			$table
 			";
 
