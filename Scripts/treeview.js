@@ -60,7 +60,7 @@ function drawsvg(elm, divid = null, opts = {} ) {
 			<p><button style=\'background-color: #ffffff;\' onClick="vtoggle(this);	return false;" name=\'showroot\' value=\'0\'>show root</button></p> \
 			<p><button onClick="vchange(this);" factor="0.8" name=\'spacing\'>-</button> spacing <button onClick="vchange(this);	return false;" factor="1.2" name=\'spacing\'>+</button></p> \
 			<p><button onClick="vchange(this);" factor="0.8" name=\'lineheight\'>-</button> lineheight <button onClick="vchange(this);	return false;" factor="1.2" name=\'lineheight\'>+</button></p> \
-			<p><button onClick="downloadSVG(\'svgtree\');	return false;" factor="1.2" name=\'lineheight\'>download SVG</button></p></div> </div>';
+			<p><button onClick="downloadSVG(this);	return false;" factor="1.2" name=\'lineheight\'>download SVG</button></p></div> </div>';
 		mendiv.setAttribute('style', 'position: relative; float: right; z-index: 2000;');
 		mendiv.innerHTML = treeicon + treeopts;		
 		svgcontainers[divid] = svgcontainer;
@@ -880,14 +880,16 @@ function vchange(button) {
 	setvar(vname, newval, divid);
 };
 
-function downloadSVG(id, filename = null) {
+function downloadSVG(button, filename = null) {
   if ( typeof(filename) == 'undefined' || filename == null ) { 
   	filename  = 'tree';
     if ( typeof(treeid) != 'undefined' ) {  filename  = filename + '-'+treeid; };
   	filename  = filename + '.svg';
   };
-  document.getElementById(id).setAttribute('xmlns', 'http://www.w3.org/2000/svg')
-  const svg = document.getElementById(id).outerHTML;
+  svgdiv = findAncestor(button, 'svgdiv');
+  svgelm = svgdiv.getElementsByTagName('svg')[0];
+  svgelm.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+  const svg = svgelm.outerHTML;
   const blob = new Blob([svg.toString()]);
   const element = document.createElement("a");
   element.download = filename;
