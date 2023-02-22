@@ -631,8 +631,9 @@ $postaction
 			if ( !is_array($array[$tokid]) ) { $array[$tokid] = array(); };
 
 			$array[$tokid]['label'] = $text;
-			$array[$tokid]['rel'] = $deprel;
+			$array[$tokid]['sublabel'] = $deprel;
 			$array[$tokid]['id'] = $tokid;
+			if ( $deprel == 'punct' ) { $array[$tokid]['ispunct'] = 1; };
 			
 			if ( !haskey($array[$headid], $tokid) &&  !haskey($array[$tokid], $headid) ) # Avoid recursion
 				$array[$headid]['children'][$tokid] = &$array[$tokid];

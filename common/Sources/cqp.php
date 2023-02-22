@@ -759,7 +759,7 @@
 	$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
 	require_once ( "$ttroot/common/Sources/tttags.php" );
 	$tttags = new TTTAGS($tagsetfile, false);
-	if ( $tttags->tagset['positions'] ) {
+	if ( is_array($tttags->tagset) && $tttags->tagset['positions'] ) {
 		$tmp = $tttags->xml->asXML();
 		$tagsettext = preg_replace("/<([^ >]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tmp);
 		$maintext .= "<div id='tagset' style='display: none;'>$tagsettext</div>";

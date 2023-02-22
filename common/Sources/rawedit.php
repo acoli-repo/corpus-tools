@@ -98,7 +98,8 @@
 			}
 		</script>";
 
-	$editxml = preg_replace( "/<text([^>]*)\/>/", "<text\\1>\n</text>", $editxml );
+	# change from empty <text/> to <text></text>
+	$editxml = preg_replace( "/<text(?=[ >])([^>]*)\/>/", "<text\\1>\n</text>", $editxml );
 
 	if ( $_GET['view'] != "wysiwyg" ) $editxml = htmlentities($editxml, ENT_COMPAT, 'UTF-8');
 	
