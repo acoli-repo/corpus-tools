@@ -69,6 +69,12 @@
 				img.src = '$jsurl/load_img.gif';
 			</script>";
 	
+
+		# Check if all form inherit properly
+		if ( !$settings['cqp'] || !$settings['cqp']['pattributes'] ) {
+			$maintext .= "<p class=warn>No CQP export has been defined, your corpus will not become searchable.";
+		}
+		
 		# Check if all form inherit properly
 		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $val ) {
 			if ( $key == "pform" || $key == "form" ) continue; # <pform> and @form inherit automiatically
@@ -95,7 +101,8 @@
 		
 		# Check that the new teiHeader settings are used
 		if ( !$settings['teiheader'] ) {
-			$maintext .= "<p class=warn>Since version 2.5 TEITOK keeps the metadata in the settings file instead of a metadata template. You should go to the <a href='index.php?action=metadata'>settings</a> section to convert to the new format";
+			if ( file_exists("Resources/teiHeader.tpl") ) $maintext .= "<p class=warn>Since version 2.5 TEITOK keeps the metadata in the settings file instead of a metadata template. You should go to the <a href='index.php?action=metadata'>settings</a> section to convert to the new format";
+			$maintext .= "<p class=warn>No editable metadata have been defined for this corpus";
 		};
 		
 		# Check that there are no duplicate filenames

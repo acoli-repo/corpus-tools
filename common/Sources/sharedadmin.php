@@ -36,7 +36,7 @@
 			fatal("Failed to copy index from $ttroot/projects/default-shared/ to $projectfolder");
 		};
 
-		if ( $settings['xmlreader']['corplist'] && $_POST['corplist'] ) {
+		if ( $settings['xmlreader']['corplist'] && $_POST['corplist'] && $_POST['corplist']['name'] ) {
 			$tmp = file_get_contents("Resources/corplist.xml");
 			if ( !$tmp ) $tmp = "<corplist></corplist>";
 			$corpxml = simplexml_load_string($tmp);

@@ -957,7 +957,7 @@ int main(int argc, char *argv[])
 
 	// Throw an exception if we did not manage to create corpus.lexicon
 	if ( files["word"]["corpus"] == NULL ) {
-		cout << "Fatal error: failed to create CQP files, check cqp folder exists and is writable" << endl;
+		cout << "Fatal error: failed to create CQP files (no cqp/word.lexicon), check cqp folder exists and is writable" << endl;
 		return -1;
 	};
 
