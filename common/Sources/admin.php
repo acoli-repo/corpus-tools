@@ -50,7 +50,7 @@
 		foreach ( $cfs as $key => $value ) {
 			list ( $rw, $explanation, $failure ) = $value;
 			
-			if ( $rw == "w" && !is_writable($key) ) {
+			if ( $rw == "w" && ( ( !is_writable($key) && is_dir($key) ) || ( !is_writable(".") && !is_dir($key) ) ) ) {
 				$maintext .= "<p class=wrong> The folder $key (which $explanation) should be writable for PHP or $failure";
 				$foldererrors = 1;
 			};
