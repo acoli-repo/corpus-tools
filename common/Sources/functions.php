@@ -491,6 +491,7 @@
 		global $settings;
 		
 		if ( is_array( $settings['log']['errorlog']) ) $logfile = $settings['log']['errorlog']['filename'];
+		else return -1;
 		
 		$ip = $_SERVER['REMOTE_ADDR'];
 		$date = date ( "d/M/Y:h:i:s" );
