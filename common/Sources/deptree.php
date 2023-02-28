@@ -180,10 +180,13 @@
 
 	} else if ( $sid || $_GET['jmp'] || $_GET['tid'] ) {
 
+		$fileid = $ttxml->fileid;
+
 		$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
 		$jmp = preg_replace("/ .*/", "", $jmp);
 		if ( !$sid && $jmp ) {
 			$sid =	current($ttxml->xml->xpath("//s[.//tok[@id='$jmp']]/@id"));
+			if ( !$sid ) $sid =	current($ttxml->xml->xpath("//s[./following::tok[@id='$jmp']]/@id"));
 		};
 
 		if ( $_POST['sent'] ) {	
@@ -191,8 +194,7 @@
 		} else {
 			$sent =	current($ttxml->xml->xpath("//s[@id='$sid']"));
 		};
-		$fileid = $ttxml->fileid;
-		if ( !$sent ) { fatal("Sentence not found: $sid"); };
+		if ( !$sent ) { fatal("Sentence not found: $sid : "); };
 
 		$puctnsh = $_GET['puctnsh'] or $puctnsh = $_SESSION['puctnsh'] or $puctnsh = $settings['deptree']['showpunct'] or $puctnsh = "without";
 		$_SESSION['puctnsh'] = $puctnsh;
@@ -316,9 +318,12 @@ window.addEventListener(\"beforeunload\", function (e) {
 					print "Unable to convert array tree to JSON (see error): <pre>".print_r($arraytree, 1); 
 					exit;
 				} else {
-					$jsontree = '{"children": []}';				
+					$jsontree = '{"children": {}}';				
 				};
-			};
+			} else if ( !$arraytree['children']) {
+				# If we have a sameAs sent, read the tree from mtxt
+				$morejs = "tree = parseteitok(document.getElementById('mtxt')); drawsvg(tree);";
+			}
 			$setopts = array2json($_SESSION['options']);
 			$maintext .= "<div id=graph></div>\n<script language=Javascript>var tree = $jsontree; var options = $setopts;</script>\n";
 			$senta = array(); foreach ( $sent->xpath($toksel) as $tok ) { array_push($senta, $tok['id']); };
