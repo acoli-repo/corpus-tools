@@ -1,0 +1,9 @@
+FROM ubuntu:22.04
+RUN apt-get update
+RUN apt-get install -y wget sudo apt-utils
+
+RUN wget -P /tmp http://www.teitok.org/downloads/install-teitok.pl
+RUN DEBIAN_FRONTEND="noninteractive" perl /tmp/install-teitok.pl -q
+
+EXPOSE 80
+CMD ["apachectl", "-D", "FOREGROUND"]

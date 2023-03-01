@@ -213,7 +213,7 @@ void treatnode ( pugi::xpath_node node ) {
 	node.node().print(oss);
 	std::string xmltxt = oss.str();
 	int xmlpos2 = xmlpos1 + xmltxt.length();
-	if ( debug > 4 ) { cout << " - writing range: " << xmlpos1 << " - " << xmlpos2 << endl; };
+	if ( debug > 4 ) { cout << " - writing range (xidx): " << xmlpos1 << " - " << xmlpos2 << endl; };
 	write_network_number(xmlpos1, files["xidx"]["rng"]);
 	write_network_number(xmlpos2, files["xidx"]["rng"]);
 
@@ -998,13 +998,14 @@ int main(int argc, char *argv[])
 		filename = corpusfolder+"/"+"text_id.avx";
 		lexidx["text_id"] = 0; lexpos["text_id"] = 0;
 		files["text_id"]["avx"] = fopen(filename.c_str(), "wb");
-		filename = corpusfolder+"/"+"xidx.rng";
-		files["xidx"]["rng"] = fopen(filename.c_str(), "wb");
 		filename = corpusfolder+"/"+"text_id.rng";
 		files["text_id"]["rng"] = fopen(filename.c_str(), "wb");
 		filename = corpusfolder+"/"+"text_id.idx";
 		files["text_id"]["idx"] = fopen(filename.c_str(), "wb");
 	};
+	// We always make a text-level rng file
+	filename = corpusfolder+"/"+"xidx.rng";
+	files["xidx"]["rng"] = fopen(filename.c_str(), "wb");
 
 	// go through the stand-off annotations
 	for ( pugi::xml_node taglevel = xmlsettings.first_child().child("cqp").child("annotations").child("item"); taglevel != NULL; taglevel = taglevel.next_sibling("item") ) {
