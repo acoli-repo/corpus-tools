@@ -952,7 +952,6 @@ function highlight ( id, color, dtokcolor ) {
 			sameas = element.getAttribute('sameAs').substr(1).split(' #');
 			for ( i in sameas ) {
 				same = sameas[i];
-				console.log(same);
 				highlight(same, color, dtokcolor);
 			};
 		};
