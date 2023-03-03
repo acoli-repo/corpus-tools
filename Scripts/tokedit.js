@@ -948,6 +948,15 @@ function highlight ( id, color, dtokcolor ) {
 		if ( element.parentNode.tagName == "TOK" || element.parentNode.tagName == "MTOK" ) { element = element.parentNode; color = dtokcolor; };
 		if ( element.parentNode.parentNode.tagName == "TOK" || element.parentNode.parentNode.tagName == "MTOK" ) { element = element.parentNode.parentNode; color = dtokcolor; };
 		
+		if ( element.children.length == 0 && element.getAttribute('sameAs') ) {
+			sameas = element.getAttribute('sameAs').substr(1).split(' #');
+			for ( i in sameas ) {
+				same = sameas[i];
+				console.log(same);
+				highlight(same, color, dtokcolor);
+			};
+		};
+		
 		element.style['background-color'] = color;
 		element.style.backgroundColor= color; 
 	};
