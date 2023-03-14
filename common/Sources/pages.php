@@ -31,7 +31,7 @@
 		if ( is_array($settings['xmlfile']['toc']) && $settings['xmlfile']['toc']['file'] ) $tocfile = $settings['xmlfile']['toc']['file'];
 		$tocxml = simplexml_load_file($tocfile);
 		// Read the appids in the XML
-		foreach ( $ttxml->xml->xpath("//*[@appid]") as $appnode ) $appidlist[$appnode['appid'].""] = $appnode['id']."";
+		foreach ( $ttxml->xpath("//*[@appid]") as $appnode ) $appidlist[$appnode['appid'].""] = $appnode['id']."";
 		
 		$tocbaseurl = "index.php?action=file&cid=$ttxml->xmlid";
 
@@ -81,8 +81,8 @@
 
 		$tocdef = $settings['xmlfile']['toc'];
 		if ( $tocdef['xp'] ) $tocxp = $tocdef['xp']; else $tocxp = "//teiHeader/toc";
-		if ( $ttxml->xml->xpath($tocxp) ) {
-			$tocdef = xmlflatten(current($ttxml->xml->xpath($tocxp)));
+		if ( $ttxml->xpath($tocxp) ) {
+			$tocdef = xmlflatten(current($ttxml->xpath($tocxp)));
 		};
 
 		$tocname = $settings['xmlfile']['toc']['display'] or $tocname = "Table of Contents"; # {%Table of Contents}
@@ -121,12 +121,12 @@
 	};
 	
 	$maintext .= "<table style='width: 100%'><tr>";
-	if ( count($ttxml->xml->xpath("//pb")) > 1 ) {
+	if ( count($ttxml->xpath("//pb")) > 1 ) {
 		$lpnr = "";
 		$maintext .= "<td valign=top>
 			<h2>{%Page List}</h2>";
 		# Build the list of pages
-		$result = $ttxml->xml->xpath("//pb"); $tmp = 0;
+		$result = $ttxml->xpath("//pb"); $tmp = 0;
 		foreach ($result as $cnt => $node) {
 			$pid = $node['id'] or $pid = "[$cnt]";
 			$pnr = $node['n'] or $pnr = "[$cnt]";
@@ -150,11 +150,11 @@
 		if ( $val['div'] || $val['xpath'] ) {
 			if ( $val['xpath'] ) $divxp = $val['xpath'];
 			else $divxp = "//{$val['div']}[@type=\"$key\"]";
-			if ( count($ttxml->xml->xpath($divxp)) > 0 ) {
+			if ( count($ttxml->xpath($divxp)) > 0 ) {
 				$lpnr = "";
 				$maintext .= "<td valign=top><h2>{%{$val['display']}}</h2>";
 				# Build the list of pages
-				$result = $ttxml->xml->xpath($divxp); $tmp = 0;
+				$result = $ttxml->xpath($divxp); $tmp = 0;
 				foreach ( $result as $cnt => $node ) {
 					$pid = $node['id'] or $pid = "[$cnt]";
 					$pnr = $node[$pbatt] or $pnr = "[$cnt]";
@@ -163,10 +163,10 @@
 				$maintext .= "</td>";
 			};
 		} else {
-			if ( count($ttxml->xml->xpath("//milestone[@type=\"$key\"]")) > 0 ) {
+			if ( count($ttxml->xpath("//milestone[@type=\"$key\"]")) > 0 ) {
 				$maintext .= "<td valign=top><h2>{%{$val['display']}}</h2>";
 				# Build the list of pages
-				$result = $ttxml->xml->xpath("//milestone[@type=\"$key\"]"); $tmp = 0;
+				$result = $ttxml->xpath("//milestone[@type=\"$key\"]"); $tmp = 0;
 				foreach ($result as $cnt => $node) {
 					$pid = $node['id'] or $pid = "[$cnt]";
 					$pnr = $node[$pbatt] or $pnr = "[$cnt]";

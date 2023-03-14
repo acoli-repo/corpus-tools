@@ -26,12 +26,12 @@
 		} else if ($settings['parser']['parameters']) {
 			foreach ( $settings['parser']['parameters'] as $key => $tmp ) {
 				$xp = $tmp['restriction']; 
-				if ( $ttxml->xml->xpath($xp) ) {
+				if ( $ttxml->xpath($xp) ) {
 					$prm = $tmp; $pid = $key; last;
 				};
 			};
 		} else {
-			$lang = current($ttxml->xml->xpath("//langUsage/language/@ident")) or $lang = $seetings['defaults']['lang'];
+			$lang = current($ttxml->xpath("//langUsage/language/@ident")) or $lang = $seetings['defaults']['lang'];
 			if ( $lang && in_array($lang, $udpipelangs) ) {
 				$prm['model'] = $lang;
 			} else {

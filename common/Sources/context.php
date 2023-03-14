@@ -17,7 +17,7 @@
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
 		$xp = "//text//{$context}[.//tok[@id=\"$tid\"] | .//dtok[@id=\"$tid\"]]";
-		$node = current($ttxml->xml->xpath($xp));
+		$node = current($ttxml->xpath($xp));
 		$resxml = makexml($node);
 	
 	} else if ( $settings['context']['method'] == "xpath"  ) {

@@ -35,7 +35,7 @@
 				if ( !$forcerenum || $posdir == "after" ) { # renumbering + before will get the same tokid
 					require ("$ttroot/common/Sources/ttxml.php");
 					$ttxml = new TTXML();
-					$oldnode = current($ttxml->xml->xpath("//tok[@id='{$_GET['tid']}']"));
+					$oldnode = current($ttxml->xpath("//tok[@id='{$_GET['tid']}']"));
 					if ( $oldnode ) {
 						if ( $posdir == "after" ) {
 							$newnode = current($oldnode->xpath("following::tok"));

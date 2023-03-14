@@ -27,19 +27,19 @@
 	} else {
 		$xp = $settings['xmlfile']['divs']; 
 		if ( substr($xp,0,1) == "/" ) {
-			if ( $ttxml->xml->xpath($xp) ) $largexml = 1;
+			if ( $ttxml->xpath($xp) ) $largexml = 1;
 		} else {
 			if ( $xp ) $largelim = $xp + 0; 
 			else if ( $_GET['lim'] == "none" ) $nolarge = 1; 
 			else if ( $_GET['lim'] ) $largelim = $_GET['lim'] + 0; 
 			else $largelim = 1000;
-			if ( count($ttxml->xml->xpath("//tok")) > $largelim && !$nolarge ) $largexml = 1;
+			if ( count($ttxml->xpath("//tok")) > $largelim && !$nolarge ) $largexml = 1;
 		};
 	};
 	
 	if ( $_GET['editid'] ) { $_POST['remid'] = $_GET['editid']; $_POST['action'] = "edit"; };
 	
-	if ( !$ttxml->xml->xpath("//tok") ) {
+	if ( !$ttxml->xpath("//tok") ) {
 		
 		$maintext .= "<h1>XML Layout Editor</h1>
 			<p>This function relies on tokenization - and this text has not been tokenized yet. 
@@ -56,7 +56,7 @@
 			print "<p>Adding $nertype before ".$_POST['toklist'];
 			$idlist = explode(";", preg_replace("/;+$/", "", $_POST['toklist']));
 			$newner = simplexml_load_string("<$nertype/>");
-			$target = current($ttxml->xml->xpath("//*[@id=\"{$idlist[0]}\"]"));
+			$target = current($ttxml->xpath("//*[@id=\"{$idlist[0]}\"]"));
 			if ( !$target ) fatal("Element not found: {$idlist[0]}");
 			$target_dom = dom_import_simplexml($target);
 			$insert = $target_dom->ownerDocument->importNode(dom_import_simplexml($newner), true);
@@ -81,13 +81,13 @@
 		if ( !$remid && !$remnr	 ) fatal("No annotation given");
 		$maintext .= "<h2>XML Layout Editor</h2>";
 		if ( $remid ) {
-			$remrec = current($ttxml->xml->xpath("//*[@id=\"$remid\"]"));
+			$remrec = current($ttxml->xpath("//*[@id=\"$remid\"]"));
 		} else {
 			if ( $_GET['elmid'] ) {
 				$id = $_GET['elmid'];
-				$editxml = current($ttxml->xml->xpath("//*[@id=\"$id\"]"));
+				$editxml = current($ttxml->xpath("//*[@id=\"$id\"]"));
 			};
-			if ( !$editxml ) { $editxml = current($ttxml->xml->xpath("//$mtxtelement")); };
+			if ( !$editxml ) { $editxml = current($ttxml->xpath("//$mtxtelement")); };
 			$nodelist = $editxml->xpath(".//*");
 			$remrec = $nodelist[$remnr];
 		};
@@ -95,7 +95,7 @@
 
 		 if ( $_POST['action'] == "edit" ) {
 		 
-		 	$tmp = current($ttxml->xml->xpath("//*[@id=\"$remid\"]"));
+		 	$tmp = current($ttxml->xpath("//*[@id=\"$remid\"]"));
 		 	$contxt = $remrec->asXML();
 			$maintext .= "<h1>Edit Annotation</h1>
 			
@@ -167,7 +167,7 @@
 		$att = $_POST['att'];
 		print "<p>Changing $att in $nn";
 		
-		foreach ( $ttxml->xml->xpath($xpl) as $node ) {
+		foreach ( $ttxml->xpath($xpl) as $node ) {
 			$cnt++;
 			if ( $node[$att] || $_POST['vals'][$cnt] ) $node[$att] = $_POST['vals'][$cnt];
 			print "<p>$cnt: ".$_POST['vals'][$cnt];
@@ -221,7 +221,7 @@
 			};
 		};
 	
-		foreach ( $ttxml->xml->xpath($xpath) as $node ) {
+		foreach ( $ttxml->xpath($xpath) as $node ) {
 			$cnt++;
 			if ( $node['id'] ) $idfld = "<a href='index.php?action=$action&act=edit&cid=$ttxml->fileid&editid={$node['id']}'>{$node['id']}</a>";
 				else $idfld = "[$cnt]";
@@ -247,7 +247,7 @@
 		$maintext .= "<hr><p>Switch:";
 
 		# Check all nodes
-		foreach ( $ttxml->xml->xpath("//$mtxtelement//*") as $i => $node ) {
+		foreach ( $ttxml->xpath("//$mtxtelement//*") as $i => $node ) {
 			$nn = $node->getName().""; $nntxt = str_replace("tei_", "", $nn);
 			if ( !$done[$nn] ) $maintext .= " <a href='index.php?action=$action&act=elm&id=$ttxml->fileid&elm=$nn'>&lt;$nntxt&gt;</a>";
 			$done[$nn] = 1;
@@ -262,7 +262,7 @@
 	
 	} else if ( $act == "taglist" ) {
 
-		foreach ( $ttxml->xml->xpath("//$mtxtelement//*") as $i => $node ) {
+		foreach ( $ttxml->xpath("//$mtxtelement//*") as $i => $node ) {
 			$nn = $node->getName().""; $nntxt = str_replace("tei_", "", $nn);
 			$have[$nn] = $nntxt;
 		};
@@ -303,7 +303,7 @@
 		$basexp = "$mtxtelement";
 		if ( $_GET['selid'] ) { 
 			$id= $_GET['selid'];
-			$root = current($ttxml->xml->xpath("//$mtxtelement//*[@id=\"$id\"]"));
+			$root = current($ttxml->xpath("//$mtxtelement//*[@id=\"$id\"]"));
 			$focusxml = $root;
 			$nodepath = $focusxml->getName()."<span style='color: #aaaaaa'>[@id=\"".$focusxml['id']."\"]</span>";
 			while ( $focusxml ) {
@@ -316,19 +316,19 @@
 			};
 		} else if ( $_GET['xpath'] ) {
 			$basexp = $_GET['xpath'];
-			$root = current($ttxml->xml->xpath($basexp));
+			$root = current($ttxml->xpath($basexp));
 			# print "Nr of Children: ".count($root->children()); exit;
 			if ( !$root ) fatal("Node not found $basexp");
 			$nodepath = $root->getName();
 		};
 		if ( !$root ) {
-			$root = current($ttxml->xml->xpath("//$mtxtelement"));
+			$root = current($ttxml->xpath("//$mtxtelement"));
 			$nodepath = $root->getName();
 			while ( count($root->children()) == 1 ) {
 				$cn = current($root->children())->getName()."";
 				$nodepath .= " > $cn";
 				$basexp .= "/{$cn}[1]";
-				$root = current($ttxml->xml->xpath($basexp));
+				$root = current($ttxml->xpath($basexp));
 			};
 		};
 		if ( $nodepath ) $maintext .= "<p>Selection: $nodepath</p>";
@@ -351,7 +351,7 @@
 		
 		if ( $_GET['elmid'] ) {
 			$id = $_GET['elmid'];
-			$editxml = current($ttxml->xml->xpath("//*[@id=\"$id\"]"));
+			$editxml = current($ttxml->xpath("//*[@id=\"$id\"]"));
 			if ( $editxml ) {
 				$focusxml = $editxml;
 				$nodepath = str_replace("tei_", "", $focusxml->getName())."<span style='color: #aaaaaa'>[@id=\"".$focusxml['id']."\"]</span>";
@@ -367,7 +367,7 @@
 			};
 		} else if ( $_GET['xpath'] ) {
 			$basexp = $_GET['xpath'];
-			$editxml = current($ttxml->xml->xpath($basexp));
+			$editxml = current($ttxml->xpath($basexp));
 			$focusxml = $editxml;
 			$nodepath = str_replace("tei_", "", $focusxml->getName())."<span style='color: #aaaaaa'>[@id=\"".$focusxml['id']."\"]</span>";
 			while ( $focusxml ) {
@@ -380,7 +380,7 @@
 			};
 			if ( $nodepath ) $maintext .= "<p>Selection!: $nodepath</p><hr>";
 		};
-		if ( !$editxml ) { $editxml = current($ttxml->xml->xpath("//$mtxtelement")); };
+		if ( !$editxml ) { $editxml = current($ttxml->xpath("//$mtxtelement")); };
 		
 		if ( !$editxml ) fatal("Failed to get edit element {$_GET['elmid']}");
 

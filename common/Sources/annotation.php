@@ -127,7 +127,7 @@
 			$sep = ""; $tt = "";
 			foreach ( $val as $key2 => $val2 ) {
 				$tt .= $sep."#".$key2; 
-				$tmp = $ttxml->xml->xpath("//tok[@id='$key2']"); $tw = $tmp[0]['form'] or $tw = $tmp[0]."";
+				$tmp = $ttxml->xpath("//tok[@id='$key2']"); $tw = $tmp[0]['form'] or $tw = $tmp[0]."";
 				$tws .= $sep.$tw; 
 				$sep = " ";
 			};
@@ -234,7 +234,7 @@
 		for ( $i = $tks; $i <= $tkf; $i++ ) { 
 			$tokid = "w-$i";
 			if ( in_array($tokid, $toklist) ) $checked = "checked"; else $checked = "";
-			$tmp = $ttxml->xml->xpath("//tok[@id=\"$tokid\"]"); $ttok = $tmp[0];
+			$tmp = $ttxml->xpath("//tok[@id=\"$tokid\"]"); $ttok = $tmp[0];
 			if ($ttok) $toklisttxt .= "<tr><td><input type=checkbox name=toks[$sid][$tokid] $checked value=1><td>$tokid<td>$ttok<td style='color: #888888;'>".htmlentities($ttok->asXML(), ENT_QUOTES, 'UTF-8');
 		};
 		$toklisttxt .= "</table>";

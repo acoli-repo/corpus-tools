@@ -36,12 +36,12 @@
 				# Get the name of the item from the TOC
 				$tocdef = $settings['xmlfile']['toc'];
 				if ( $tocdef['xp'] ) $tocxp = $tocdef['xp']; else $tocxp = "//teiHeader/toc";
-				if ( $ttxml->xml->xpath($tocxp) ) {
-					$tocdef = xmlflatten(current($ttxml->xml->xpath($tocxp)));
+				if ( $ttxml->xpath($tocxp) ) {
+					$tocdef = xmlflatten(current($ttxml->xpath($tocxp)));
 				}; $tocidx = array_keys($tocdef);
 				
 				$levxp = "//*[@appid='$appid']";
-				$appnode = current($ttxml->xml->xpath($levxp));
+				$appnode = current($ttxml->xpath($levxp));
 				# Overrule the base level if we know what the node is (and we have that level in CQP)		
 				$tmp = $appnode->getName();
 				if ( $settings['cqp']['sattributes'][$tmp] ) $baselevel = $tmp;
@@ -50,7 +50,7 @@
 				$leaf = array_values(array_slice($tocdef, -1))[0];
 				if ( preg_match("/\]$/", $leaf['xp']) ) $leaftest = preg_replace("/\]/", " and @appid='$appid']", $leaf['xp']);
 				else $leaftest = "//".$leaf['xp']."[@appid='$appid']";
-				$leafnode = current($ttxml->xml->xpath($leaftest));
+				$leafnode = current($ttxml->xpath($leaftest));
 				if ( !$leafnode['appid'] ) {
 					$appidtxt = " > $appid";
 					$chnode = "[.//*[@appid='$appid']]";
@@ -63,7 +63,7 @@
 					$levdef = $tocdef[$tocidx[$i-1]];
 					$levxp = "//".$levdef['xp'].$chnode;
 					$chnode = "[.//*[@appid='$appid']]";
-					$level = current($ttxml->xml->xpath($levxp));
+					$level = current($ttxml->xpath($levxp));
 					$levatt = $levdef['att']."" or $levatt = "n";
 					$levtxt = $level[$levatt];
 					if ( $levdef['prefix'] ) $levtxt = "{%{$levdef['display']}}: $levtxt";

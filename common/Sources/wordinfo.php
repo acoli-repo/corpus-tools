@@ -13,7 +13,7 @@
 
 	$maintext .= "<h1>{%Word Info}</h1><table>";
 	
-	$node = current($ttxml->xml->xpath("//*[@id=\"$tid\"]"));
+	$node = current($ttxml->xpath("//*[@id=\"$tid\"]"));
 
 	$cqlbase = $settings['cqp']['cqlbase'] or $cqlbase = "index.php?action=cqp&cql=";
 	

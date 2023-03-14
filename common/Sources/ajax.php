@@ -107,7 +107,7 @@
 		if ( !$ttxml->xml ) { print "{\"error\": \"unable to load XML file\"]}"; exit; }
 
 		$facslist = array();
-		foreach ( $ttxml->xml->xpath("//pb[@facs]") as $pb  ) {
+		foreach ( $ttxml->xpath("//pb[@facs]") as $pb  ) {
 			$facs = $pb['facs'];
 			if ( file_exists("Thumbnails/$facs") ) $ffolder = "Thumbnails"; else   $ffolder = "Facsimile";
 			$facs = $ffolder."/".$facs;

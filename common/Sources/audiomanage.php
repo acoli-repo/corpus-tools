@@ -373,8 +373,8 @@
 			<h2>$fileid</h2>
 			<h1>Audio management</h1>";
 			
-		$soundfile = execsafe(current($ttxml->xml->xpath("//media[contains(@mimeType, \"audio\")]/@url")));
-		if ( !$soundfile ) $soundfile = current($ttxml->xml->xpath("//media/@url")); // maybe there is no mimeType
+		$soundfile = execsafe(current($ttxml->xpath("//media[contains(@mimeType, \"audio\")]/@url")));
+		if ( !$soundfile ) $soundfile = current($ttxml->xpath("//media/@url")); // maybe there is no mimeType
 		if ( !$soundfile ) fatal ("XML file has no media element providing a URL to the sound file");
 
 		if ( !strstr($audiourl, 'http') ) {

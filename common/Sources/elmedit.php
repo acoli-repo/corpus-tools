@@ -19,7 +19,7 @@
 		$file = file_get_contents("$xmlfolder/$fileid"); 
 		$xml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 
-		$result = $ttxml->xml->xpath("//*[@id='$tokid']"); 
+		$result = $ttxml->xpath("//*[@id='$tokid']"); 
 		$elm = $result[0]; # print_r($token); exit;
 
 		if ( !$elm ) fatal("No such element: $tokid");

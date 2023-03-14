@@ -41,7 +41,7 @@
 		foreach ( $files as $cid => $ttxml ) {
 			$filetit = $ttxml->title("short") or $filetit = $ttxml->fileid;
 			$maintext .= "<th id=\"tr-$cid\"><a href='index.php?action=file&cid=$ttxml->fileid'>$filetit</a></th>";
-			foreach ( $ttxml->xml->xpath("//".$lvl."[@$tuidatt]") as $tu ) {
+			foreach ( $ttxml->xpath("//".$lvl."[@$tuidatt]") as $tu ) {
 				$tuid = $tu[$tuidatt]."";
 				$tus[$cid][$tuid] = $tu;
 			}; 
@@ -63,7 +63,7 @@
 			require_once("$ttroot/common/Sources/ttxml.php");
 			$ttxml = new TTXML();
 		
-			$elm1 = current($ttxml->xml->xpath("//*[@$tuidatt]"));
+			$elm1 = current($ttxml->xpath("//*[@$tuidatt]"));
 			
 			if ( !$elm1 ) fatal("No alignment items ($tuidatt) found");
 		
@@ -363,7 +363,7 @@
 			fatal("Failed to open {$_GET['cid']}");
 		};
 
-		foreach ( $ttxml->xml->xpath("//*[@$tuidatt]") as $tu ) {
+		foreach ( $ttxml->xpath("//*[@$tuidatt]") as $tu ) {
 			$tuid = $tu['tuid'];
 			$maintext .= "<li><a href='index.php?action=$action&tuid=$tuid'>$tuid</a>";
 		};

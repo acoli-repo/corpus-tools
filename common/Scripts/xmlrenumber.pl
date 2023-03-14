@@ -127,16 +127,17 @@ use XML::LibXML;
 	# In case we have empty, unnumbered sentences
 	if ( !$emptyatt ) { $emptyatt = "sameAs"; };
 	if ( $tmpdoc->findnodes("//s[not(.//tok) and not(\@$emptyatt)]") ) {
-		if ( $verbose ) { print "Adding tokens explicitly to sentences"; };
+		if ( $verbose ) { print "Adding tokens explicitly to sentences\n"; };
 		foreach $tok ( $tmpdoc->findnodes("$mtxtelem//tok" ) ) {
 			$tokid = $tok->getAttribute("id");
 			$tmp = $tok->findnodes("./ancestor::s");
+			if ( !$tmp ) { $tmp = $tok->findnodes("./preceding::s[1]"); }; # This should always fire
 			if ( $tmp ) { 
 				$sid = $tmp->item(0)->getAttribute("id");
 				if ( 1==1 ) { print "$tokid => $sid"; };
 				$s2tok{$sid} .= "#$tokid ";
 			} else {
-				if ( $debug ) { print "\nNo sent found for $tokid: ".$tok->parentNode->toString; };
+				if ( $debug ) { print "\nNo sent found for $tokid: ".$tok->parentNode->toString; }; exit;
 			};
 		};
 

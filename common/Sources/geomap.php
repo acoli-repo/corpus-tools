@@ -55,7 +55,7 @@ if ( $act == "xml" ) {
 	$maintext .= $ttxml->tableheader();
 	
 	$maintext .= "<ul>";
-	foreach ( $ttxml->xml->xpath($geoxp) as $geonode ) {
+	foreach ( $ttxml->xpath($geoxp) as $geonode ) {
 
 		$geo = current($geonode->xpath($geoll))."";  
 		$place = current($geonode->xpath($geoname)).""; 

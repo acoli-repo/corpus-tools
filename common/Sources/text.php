@@ -422,7 +422,7 @@
 		if ( preg_match("/<text[^>]*>\s*<\/text>/", $editxml) ) $emptyxml = 1;
 		
 		# Check whether there are no unnumbered tokens
-		if ( $ttxml->xml->xpath("//tok[not(@id)]") )
+		if ( $ttxml->xpath("//tok[not(@id)]") )
 			$maintext .= "<p class=warning>			
 				This text has not been (fully) numbered, please click
 				<a href='index.php?action=renumber&id=$fileid'>here</a> to renumber the XML
@@ -528,7 +528,7 @@
 
 	if ( $_GET['jmpname'] ) {
 		$jmpname = str_replace("::", " &gt; ", $_GET['jmpname']);
-		$jmpnode = current($ttxml->xml->xpath("//*[@id='{$_GET['jmp']}']"));
+		$jmpnode = current($ttxml->xpath("//*[@id='{$_GET['jmp']}']"));
 		if ( $jmpnode['appid'] ) $applink = "(<a href='index.php?action=collate&act=cqp&from=$ttxml->xmlid&appid={$jmpnode['appid']}'>{%collation}</a>)";
 		$pagenav .= "<p style='text-align: center;'><span style=' font-weight: bold;'>$jmpname</span> $applink</p>";
 	};
@@ -711,7 +711,7 @@
 		# TODO: This should be changed to the NLP pipeline and/or the API
 		if ( $settings['parser'] ) {
 			if ( $settings['parser']['xprest'] ) {
-				if ( $ttxml->xml->xpath($settings['parser']['xprest']) ) {
+				if ( $ttxml->xpath($settings['parser']['xprest']) ) {
 					$doparser = 1;
 					$parsername = $settings['parser']['name'];
 				};

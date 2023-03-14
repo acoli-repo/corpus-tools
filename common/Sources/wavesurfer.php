@@ -30,12 +30,12 @@
 	
 	$utttag = strtoupper($_GET["utt"]) or $utttag = $settings['xmlfile']['defaults']['speechturn'] or $utttag = "U"; // Make it possible to use <p> instead of <u>
  	$tmp = "//".strtolower($utttag)."[not(@id)]"; // print $tmp; exit;
-	if ( $username && $ttxml->xml->xpath($tmp) ) {
+	if ( $username && $ttxml->xpath($tmp) ) {
 		$maintext .= "<p class=wrong>The waveform function will not work properly since the XML file has not been (properly) numbered -
 						all utterances need a unique identifier to work properly. You can renumber by clicking <a href='index.php?action=rawedit&cid=$ttxml->fileid'>here</a> 
 						and then click save.</p>";
 	};
-	if ( $username && !$ttxml->xml->xpath("/TEI/teiHeader") ) {
+	if ( $username && !$ttxml->xpath("/TEI/teiHeader") ) {
 		$maintext .= "<p class=wrong>The XML does not have a proper set-up with a /TEI/teiHeader. You should resolve this before editing this file.</p>";
 	};
 	
@@ -140,7 +140,7 @@
 		";
 		
 		$setedit = "false";
-		if ( count($ttxml->xml->xpath("//".strtolower($utttag))) == 0 && $username ) {
+		if ( count($ttxml->xpath("//".strtolower($utttag))) == 0 && $username ) {
 			$editmsg = "<p>You can create a transcription for the sound file above by creating utterances. 
 				Key codes: a = set start time; c = create timeslot (from a) (<a target=help href='http://www.teitok.org/index.php?action=help&id=wavesurfer#edit'>more</a>).<hr>";
 		} else if ( $act == "edit"  && $username ) {

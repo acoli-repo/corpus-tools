@@ -57,7 +57,7 @@
 		};
 		$maintext .= "<table style='width: 100%'><tr><td>$prev<td style='text-align: center'><b>Tree {$forest['id']} = Sentence $sid</b></td><td>$next</tr></table>
 		<hr>";
-		$tmp = current($ttxml->xml->xpath("//s[@id=\"$sid\"]"));
+		$tmp = current($ttxml->xpath("//s[@id=\"$sid\"]"));
 		if ( !$tmp ) { fatal("no such sentence: $sid"); };
 		$editxml = $tmp->asXML();
 		$maintext .= "<div id=mtxt>$editxml</div> <hr>";

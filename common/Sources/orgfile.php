@@ -33,7 +33,7 @@
 		$ttxml = new TTXML($_GET['cid'], true);
 		$ttheader .= "<h2>".$ttxml->title()."</h2>"; 
 		$ttheader .= $ttxml->tableheader(); 
-		$orgnode = current($ttxml->xml->xpath("//note[@n=\"orgfile\"]"));
+		$orgnode = current($ttxml->xpath("//note[@n=\"orgfile\"]"));
 		$filename = $orgnode."";
 		
 		if ( !file_exists($filename) ) $filename = "Originals/$filename";

@@ -14,7 +14,7 @@
 
 
 	$wordlvl = $settings['annotations'][$morphelm]['word']['display'] or $wordlvl = "Word";
-	$morphann = current($ttxml->xml->xpath("//spanGrp[@type=\"$morphelm\"]"));
+	$morphann = current($ttxml->xpath("//spanGrp[@type=\"$morphelm\"]"));
 	$annfile = "Annotations/{$morphelm}_$cid.xml"; 
 	if ( !$morphann && file_exists($annfile) ) {
 		$morphann = simplexml_load_file($annfile);
@@ -79,7 +79,7 @@
 		";
 	$maintext .= "<style>.floatbox { float: left; margin-right: 10px; }</style>";
 	
-	foreach ( $ttxml->xml->xpath("//$sentelm") as $sent ) {
+	foreach ( $ttxml->xpath("//$sentelm") as $sent ) {
 		$morphed = 0; 
 		if ( $sent->xpath(".//$morphelm") ) { $morphed = 1; };
 		if ( $morphann ) { $morphed = 1; };

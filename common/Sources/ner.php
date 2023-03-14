@@ -419,7 +419,7 @@
 		if ( !$nerid ) fatal("No NER given");
 		print "<p>Removing NER $nerid</p>";
 
-		$nerrec = current($ttxml->xml->xpath("//*[@id=\"$nerid\"]"));	
+		$nerrec = current($ttxml->xpath("//*[@id=\"$nerid\"]"));	
 		if ( !$nerrec ) fatal("No such NER: $nerid");
 
 		delparentnode($ttxml->xml, $nerid);
@@ -439,7 +439,7 @@
 		if ( !$nerid ) fatal("No NER given");
 		$maintext .= "<h1>Delete NER $nerid</h1>";
 
-		$nerrec = current($ttxml->xml->xpath("//*[@id=\"$nerid\"]"));
+		$nerrec = current($ttxml->xpath("//*[@id=\"$nerid\"]"));
 		if ( !$nerrec ) fatal("No such NER: $nerid");
 
 		$maintext .= "<h2>Annotation to be removed</h2><p>".$nerrec->getName()." here:<br>".showxml($nerrec);
@@ -481,7 +481,7 @@
 		$ttxml = new TTXML();
 		
 		$nerid = $_GET['nerid'];
-		$nernode = current($ttxml->xml->xpath("//*[@id=\"$nerid\"]"));
+		$nernode = current($ttxml->xpath("//*[@id=\"$nerid\"]"));
 		$nernodetype = $nernode->getName().'';
 
 		$form = $nernode['form'] or $form = trim(preg_replace("/<[^<>]+>/", "", $nernode->asXML()));
@@ -613,7 +613,7 @@
 			$xp = "$mtxtelement//{$nernodetype}[not(@corresp)]";
 			print "<p>Checking if there are more occurrences";
 			print "<p>".$xp;
-			foreach ( $ttxml->xml->xpath($xp) as $morenode ) {
+			foreach ( $ttxml->xpath($xp) as $morenode ) {
 				$morelemma = $morenode['lemma']; 
 				if ( !$morelemma ) {
 					$clone = simplexml_load_string($morenode->asXML());
@@ -652,7 +652,7 @@
 			<script language=Javascript src=\"$jsurl/ner.js\"></script>";
 
 		$toklist = array(); $tcnt=0;
-		foreach ( $ttxml->xml->xpath("//tok") as $tok ) {
+		foreach ( $ttxml->xpath("//tok") as $tok ) {
 			$toktext = preg_replace("/<[^>]+>/", "", $tok->asXML());
 			array_push($toklist, $toktext);
 			$tok2id[$tcnt] = $tok['id'];
@@ -727,7 +727,7 @@
 			<p><a href='index.php?action=$action&cid=$ttxml->fileid'>Cancel</a>";	
 		if ( $_GET['show'] != "all" ) $maintext .= " &bull; <a href='{$_SERVER['REQUEST_URI']}&show=all'>Show marked NER</a>";
 
-		$result = $ttxml->xml->xpath($mtxtelement); 
+		$result = $ttxml->xpath($mtxtelement); 
 		$txtxml = $result[0]; 
 		$maintext .= "<hr><div id=mtxt>".makexml($txtxml)."</div>";
 
@@ -751,7 +751,7 @@
 		$newner = addparentnode($ttxml->xml, $_POST['toklist'], $nertype);
 
 		$cnt=1;
-		while ( $ttxml->xml->xpath("//*[@id=\"ner-$cnt\"]") ) { $cnt++; };
+		while ( $ttxml->xpath("//*[@id=\"ner-$cnt\"]") ) { $cnt++; };
 		$newner->setAttribute("id", "ner-$cnt");
 		
 		saveMyXML($ttxml->xml->asXML(), $ttxml->fileid	);

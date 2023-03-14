@@ -10,12 +10,14 @@ class TTXML
 	public $xmlid; # The ID of the file
 	public $fileid; # Full path of the file (within xmlfiles)
 	public $xml; # The parsed XML
+	public $header; # The teiHeader
 	public $audio = array(); # An array with the audio file(s) in this XML
 	public $audiourl; # The URL for the first AUDIO node
 	public $video = array(); # An array with the video file(s) in this XML
 	public $videourl; # The URL for the first AUDIO node
 	public $nospace; # Not space-sensitive
 	public $warning = array(); # Warnings about the text
+	public $noparse; # flag to not parse the entire XML
 	
 	var $xmlfolder;
 	var $rawtext;
@@ -26,6 +28,10 @@ class TTXML
 
 	function __construct($fileid = "", $fatal = 1, $options = "" ) {	
 		global $xmlfolder; global $baseurl; global $settings; global $username;
+		
+		if ( !isset($this->noparse) ) 
+			if ( $settings['defaults'] && $settings['defaults']['noparse'] ) $this->noparse = true;
+			else $this->noparse = false;
 		
 		# Use $_GET to find the file
 		if ( !$xmlfolder ) $xmlfolder = "xmlfiles";
@@ -75,7 +81,86 @@ class TTXML
 		$this->filename = preg_replace ( "/.*\//", "", $fileid );
 		$this->xmlid = preg_replace ( "/\.xml/", "", $this->filename );
 
-		$this->rawtext = file_get_contents("$xmlfolder/$fileid"); 
+		if ( !$noparse ) $this->loadxmlfile();
+		else $this->loadheader();
+		
+	}
+	
+	function title( $type = "" ) {
+		global $settings;
+		if (!$this->xml) return "";
+		if ( !$this->title ) {
+			if ( $settings['xmlfile']['title'] == "[id]" ) {
+				$this->title = $this->xmlid;
+			} else {
+				$titlexp = $settings['xmlfile'][$type]."" or $titlexp = $settings['xmlfile']['title']."" or $titlexp = "//title";
+				$result = $this->xml->xpath($titlexp); 
+				$this->title = $result[0];
+			};
+			if ( $this->title == "" ) {
+				if (  $settings['xmlfile']['title'] ) $this->title = "<i>{%Without Title}</i>";
+				else $this->title = $this->xmlid;
+			};
+		};
+		return $this->title;
+	}
+
+	function xpath($xpath) {
+		$res = $this->xml->xpath($xpath);
+		return $res;
+	}
+	
+	function loadheader() {
+		global $ttroot;
+		$fullfile = "xmlfiles/".$this->fileid;
+		$perlapp = findapp("perl") or $perlapp = "/usr/bin/perl";
+
+		$cmd = "$perlapp $ttroot/common/Scripts/ttxpath.pl --file='$fullfile' --query='/TEI/teiHeader'";
+		$string = shell_exec($cmd);
+		$header = simplexml_load_string($string);
+		$this->header = $header;
+	}
+	
+	function viewheader() {
+		// Create necessary data for the view mode
+		global $settings; global $jsurl;
+		# Build the attribute names	
+		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			if ( $username || !$item['admin'] ) {
+				if ( $key != "pform" ) { 
+					if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
+					$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+				};
+			};
+		};
+		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+			if ( !$item['admin'] || $username ) {
+				$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
+				$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
+			};
+		};
+		if ( $settings['xmlfile']['mtokform'] ) $attnamelist .= "\nvar mtokform = true;";
+		$allatts = array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']);
+		$jsonforms = array2json($allatts);
+		$jsontrans = array2json($settings['transliteration']);
+		$header = "
+			<script language=Javascript src=\"$jsurl/tokview.js\"></script>
+			<div id='tokinfo' style='display: block; position: absolute; z-index: 3;'></div>
+			<script language=Javascript>
+				var formdef = $jsonforms;
+				var attributelist = Array($attlisttxt);
+				var transl = $jsontrans;
+				$attnamelist
+			</script>
+			";
+	
+		return $header;
+	}
+	
+	function loadxmlfile() {
+		global $xmlfolder; global $baseurl; global $settings; global $username;
+		$fullfile = "xmlfiles/".$this->fileid;
+		$this->rawtext = file_get_contents($fullfile); 
 
 		if ( strstr($options, "keepns") == false ) {
 			$this->rawtext = namespacemake($this->rawtext);
@@ -138,6 +223,9 @@ class TTXML
 			return;
 		};
 		
+		// Put the teiHeader in a variable
+		$this->header = current($this->xml->xpath("/TEI/teiHeader"));
+		
 		// See if there is an Audio element in the header
 		if ( $_GET['media'] ) {
 			$mediaxp = "//media[@id=\"{$_GET['media']}\"]";
@@ -176,64 +264,10 @@ class TTXML
 		// If we have pseudonimization rules, pseudonimize the text
 		if ( $settings['anonymization'] && !$settings['anonymization']['manual'] ) {
 			$this->pseudo();
-		};		
+		};	
+			
 	}
 	
-	function title( $type = "" ) {
-		global $settings;
-		if (!$this->xml) return "";
-		if ( !$this->title ) {
-			if ( $settings['xmlfile']['title'] == "[id]" ) {
-				$this->title = $this->xmlid;
-			} else {
-				$titlexp = $settings['xmlfile'][$type]."" or $titlexp = $settings['xmlfile']['title']."" or $titlexp = "//title";
-				$result = $this->xml->xpath($titlexp); 
-				$this->title = $result[0];
-			};
-			if ( $this->title == "" ) {
-				if (  $settings['xmlfile']['title'] ) $this->title = "<i>{%Without Title}</i>";
-				else $this->title = $this->xmlid;
-			};
-		};
-		return $this->title;
-	}
-
-	function viewheader() {
-		// Create necessary data for the view mode
-		global $settings; global $jsurl;
-		# Build the attribute names	
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
-			if ( $username || !$item['admin'] ) {
-				if ( $key != "pform" ) { 
-					if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
-					$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
-				};
-			};
-		};
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
-			if ( !$item['admin'] || $username ) {
-				$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
-				$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
-			};
-		};
-		if ( $settings['xmlfile']['mtokform'] ) $attnamelist .= "\nvar mtokform = true;";
-		$allatts = array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']);
-		$jsonforms = array2json($allatts);
-		$jsontrans = array2json($settings['transliteration']);
-		$header = "
-			<script language=Javascript src=\"$jsurl/tokview.js\"></script>
-			<div id='tokinfo' style='display: block; position: absolute; z-index: 3;'></div>
-			<script language=Javascript>
-				var formdef = $jsonforms;
-				var attributelist = Array($attlisttxt);
-				var transl = $jsontrans;
-				$attnamelist
-			</script>
-			";
-	
-		return $header;
-	}
-		
 	function tableheader( $tpl = "", $showbottom = true ) {
 		global $username; global $settings; global $lang;
 		if (!$this->xml) return "";
@@ -355,10 +389,43 @@ class TTXML
 	}
 	
 	function asXML( $whole = false ) {
-		global $mtxtelement; global $settings; global $username;
+		global $mtxtelement; global $settings; global $username; global $ttroot;
 		
 		if ( $_GET['page'] == "all" ) $whole = 1;
 		
+		if ( $this->noparse ) {
+		
+			$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
+			$jmp = preg_replace("/ .*/", "", $jmp);
+			$pbelm = $_GET['pbelm'] or $pbelm = "page";
+			$fileid = "xmlfiles/$this->fileid";
+
+			if ( $jmp ) $cql = "Matches = [id=\"$jmp\"] :: match.text_id=\"$fileid\"";
+			else $cql = "Matches = <text> [] :: match.text_id=\"$fileid\"";
+			
+			require("$ttroot/common/Sources/cwcqp.php");
+			$cqpcorpus = strtoupper($settings['cqp']['corpus'].$subcorpus); # a CQP corpus name ALWAYS is in all-caps
+			$cqpfolder = "cqp";
+			$cqp = new CQP();
+			$cqp->exec($cqpcorpus); // Select the corpus
+			$cqp->exec("set PrettyPrint off");
+			$cqp->exec($cql);
+			$tmp = $cqp->exec("tabulate Matches match, match text_id, match {$pbelm}_id");
+			list ( $leftpos, $textid, $pageid ) = explode("\t", $tmp );
+			$rightpos = $leftpos;
+			
+			$xidxcmd = findapp('tt-cwb-xidx'); 
+			$expand = " --expand='$pbelm'";
+			$cmd = "$xidxcmd --cqp='$cqpfolder' --filename='$fileid' $expand $leftpos $rightpos";
+			$xmltxt = shell_exec($cmd);
+			
+			if ( $xmltxt != "" ) {
+				return $xmltxt;
+			} else if ( $username ) {
+				$maintext .= "<p>Failed - no results for $cmd"; exit;
+			};
+		};
+
 		if ( $settings['xmlfile']['restriction'] && !$this->xml->xpath($settings['xmlfile']['restriction']) && !$username ) { 
 			$tokid = $_GET['jmp'] or $tokid = $_GET['tid'] or $tokid = 'w-1';
 			# Take only the first one

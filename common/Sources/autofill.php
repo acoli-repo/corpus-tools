@@ -26,7 +26,7 @@
 			foreach ( $tmp as $att => $val ) {
 				if ( $val ) {
 					print "<p> - Setting $att for $tokid to $val";
-					$tmp = $ttxml->xml->xpath("//*[@id='$tokid']"); $token = $tmp[0];
+					$tmp = $ttxml->xpath("//*[@id='$tokid']"); $token = $tmp[0];
 					if ( !$token ) print "<p>No such token: $tokid";
 					else  {
 						$token[$att] = $val;
@@ -43,7 +43,7 @@
 	
 		$vals = array();
 		# Read the tokens to check, with their current values
-		foreach ( $ttxml->xml->xpath("//tok") as $tok ) {
+		foreach ( $ttxml->xpath("//tok") as $tok ) {
 			$tokid = $tok['id']."";
 			$from = ""; $sep = ""; $skip = 1;
 			foreach ( array_keys($_POST['from']) as $fkey ) { 

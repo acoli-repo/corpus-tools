@@ -38,6 +38,7 @@ map<string, map<string, ofstream*> > streams; // ascii output files
 map<string, map<string, FILE*> > files; // real output files
 map<string,int > lexidx; // max lexitems id
 map<string,int > lexpos; // pos in the lexicon file
+map<string,int > tokxmlpos; // tokid to xml pos
 
 map<string,pugi::xml_document*> externals; // external XML files
 
@@ -153,19 +154,20 @@ void treatnode ( pugi::xpath_node node ) {
 
 	if ( debug > 3	) node.node().print(std::cout);
 
-	if ( node.node().attribute("id") == NULL ) {
-		if ( debug > 1 ) { cout << "Skipping - node without an ID: " << node.node().attribute("id").value() << endl; };
+	const char * tokid = node.node().attribute("id").value();
+	if ( tokid == NULL ) {
+		if ( debug > 1 ) { cout << "Skipping - node without an ID: " << tokid << endl; };
 		return;
 	};
 
 	if ( !strcmp( node.node().attribute(wordfld.c_str()).value(), "--" ) ) {
-		if ( debug > 1 ) { cout << "Skipping - empty value for " << wordfld <<  ": " << node.node().attribute("id").value() << endl; };
+		if ( debug > 1 ) { cout << "Skipping - empty value for " << wordfld <<  ": " << tokid << endl; };
 		return;
 	};
 
 	// We have a valid token - handle it
 	tokcnt++;
-	if ( debug > 1 ) { cout << "Token " << tokcnt << " : " << node.node().attribute("id").value()  << " = " << calcform(node.node(), wordfld) << endl; };
+	if ( debug > 1 ) { cout << "Token " << tokcnt << " : " << tokid  << " = " << calcform(node.node(), wordfld) << endl; };
 
 	// Write the .lexicon, .lexicon.idx and .corpus files
 	string formkey; // The key (name) for the pattribute 
@@ -209,6 +211,7 @@ void treatnode ( pugi::xpath_node node ) {
 
 	// Write the word.xidx.rng
 	int xmlpos1 = node.node().offset_debug()-1;
+	tokxmlpos[tokid] = xmlpos1;
 	std::ostringstream oss;
 	node.node().print(oss);
 	std::string xmltxt = oss.str();
@@ -234,8 +237,12 @@ void treatfile ( string filename ) {
     // Now - read the file
 	string sep = "";
 
-    if (!doc.load_file(filename.c_str(), pugi::parse_ws_pcdata)) {
+	pugi::xml_parse_result docres = doc.load_file(filename.c_str(), pugi::parse_ws_pcdata);
+    if ( !docres ) {
         cout << "  Failed to load XML file " << filename << endl;
+        if ( verbose ) {
+		    std::cout << "Error description: " << docres.description() << "\n";
+        };
     	return;
     };
 
@@ -297,6 +304,8 @@ void treatfile ( string filename ) {
 	{
 		pugi::xml_node node = it->node();
 
+		const char * tokid = node.attribute("id").value();
+
 		// If we have an enclosing <mtok>, use that one (when using mtoks)
 		// TODO: this currently only looks at the direct parent
 		if ( toktype.find("m") != std::string::npos && !strcmp(node.parent().name(), "mtok") ) {
@@ -313,16 +322,16 @@ void treatfile ( string filename ) {
 
 		// If we have child <dtok>, use that one (when using mtoks)
 		if ( toktype.find("d") != std::string::npos && node.child("dtok") ) {
-			id_pos[node.attribute("id").value()] = tokcnt; // Use the first <dtok> as ref for the whole <tok> for stand-off purposes
+			id_pos[tokid] = tokcnt; // Use the first <dtok> as ref for the whole <tok> for stand-off purposes
 	        for ( pugi::xml_node dtoken = node.child("dtok"); dtoken != NULL; dtoken = dtoken.next_sibling("dtok") ) {
-				id_pos[dtoken.attribute("id").value()] = tokcnt;
+				id_pos[tokid] = tokcnt;
 
 				treatnode(dtoken);
 				nodelist.push_back(dtoken);
 
 	    	};
 		} else {
-			id_pos[node.attribute("id").value()] = tokcnt;
+			id_pos[tokid] = tokcnt;
 
 			treatnode(node);
 			nodelist.push_back(node);
@@ -492,18 +501,37 @@ void treatfile ( string filename ) {
 			// Add non-text level attributes (skip empty elements)
 			string xpath = "//text//" + taglvl;
 			if ( debug > 2 ) { cout << "Looking for " << taglvl  << " = " << xpath << endl; };
+			string toklistatt = "sameAs";
+			if ( taglevel.attribute("toklist") != NULL ) { toklistatt = taglevel.attribute("toklist").value(); }
+			string tmpxpath;
+			if ( taglvl == "tok[dtok]" ) {
+				tmpxpath = "dtok";
+			} else {
+				tmpxpath = rel_tokxpath;
+			}
+			if ( debug > 4 ) { cout << " - Relative xpath: " << tmpxpath << endl; };
+			
 			// Loop through the actual items
 			pugi::xpath_node_set elmres = doc.select_nodes(xpath.c_str());
 			for (pugi::xpath_node_set::const_iterator it = elmres.begin(); it != elmres.end(); ++it) {
 
-				string tmpxpath;
-
+				pugi::xpath_node_set rel_toks = it->node().select_nodes(tmpxpath.c_str());
+				
+				// Determine the XXX_xidx.rng
+				int xmlpos1 = it->node().offset_debug()-1;
+				string nextxp = "./following::" + taglvl;
+				int xmlpos2 = it->node().select_node(nextxp.c_str()).node().offset_debug()-1;
+				if ( xmlpos2 < 0 ) {
+					// last result - calculate the end of the XML
+   					pugi::xml_node mtxt = doc.child("TEI").child("text");
+					std::ostringstream oss;
+					mtxt.print(oss, "", pugi::format_raw);
+					std::string raw_xml = oss.str();
+					xmlpos2 = mtxt.offset_debug() + raw_xml.size();
+				};
+				
 				string toka; string tokb;
-				string toklistatt = "";
-				if ( taglevel.attribute("toklist") != NULL ) { toklistatt = taglevel.attribute("toklist").value(); }
-				if ( toklistatt == "implicit" ) {
-					// TODO: for empty nodes like <pb/> - go from the first token after to the first token before the next....
-				} else if ( toklistatt != "" && it->node().attribute(toklistatt.c_str()) ) {
+				if ( it->node().attribute(toklistatt.c_str()) ) {
 					// For empty node that have a @corresp="#w-3 #w-7" type of content
 					string wlist = it->node().attribute(toklistatt.c_str()).value();
 					toka = wlist.substr(1,wlist.find(" ")-1);
@@ -511,19 +539,39 @@ void treatfile ( string filename ) {
 					if ( debug > 4 ) { 
 						cout << " Explicit token list: " << toka << " - " << tokb << endl;
 					};
-				} else {
-
-					if ( taglvl == "tok[dtok]" ) {
-						tmpxpath = "dtok";
+				} else if ( rel_toks.empty() ) {
+					if ( toklistatt == "implicit" || taglvl == "pb" || taglvl == "lb" ) {
+						// TODO: for empty nodes like <pb/> - go from the first token after to the first token before the next....
+						pugi::xpath_node tmp = it->node().select_node("./following::tok");
+						if ( tmp ) {
+							toka = tmp.node().attribute("id").value();
+						};
+						pugi::xpath_node tmpb = it->node().select_node(nextxp.c_str());
+						if ( tmpb ) {
+							tmp = tmpb.node().select_node("./preceding::tok[1]");
+							if ( tmp ) {
+								tokb = tmp.node().attribute("id").value();
+							};
+						} else {
+							// This has to be the last element - go until the end
+							pugi::xpath_node_set::const_iterator tmpit = toks.end(); --tmpit;
+							tokb = tmpit->node().attribute("id").value();
+							cout << " So found as the very last tok: " << tokb << endl; 
+						};
+						if ( debug > 4 ) { 
+							cout << " Implicit token list: " << toka << " - " << tokb << endl;
+						};
 					} else {
-						tmpxpath = rel_tokxpath;
-					}
-					if ( debug > 4 ) { cout << " - Relative xpath: " << tmpxpath << endl; };
-					pugi::xpath_node_set rel_toks = it->node().select_nodes(tmpxpath.c_str());
-					if ( rel_toks.empty() ) { continue; };
+						continue;
+					};
+				} else {
+					// Standard tokens below the node
+					xmlpos2 = it->node().select_node("./following::*").node().offset_debug()-1; // For closed regions, the region end before any next node
 					toka = rel_toks[0].node().attribute("id").value();
 					tokb = rel_toks[rel_toks.size()-1].node().attribute("id").value();
-
+					if ( debug > 4 ) { 
+						cout << " Dependent token list: " << toka << " - " << tokb << endl;
+					};
 				};
 
 				// Skip this is we do not have any tokens inside the range (or one of them does not have an ID?)
@@ -540,14 +588,6 @@ void treatfile ( string filename ) {
 				write_range(posa, posb, tagname ); 
 
 				// Write the XXX_xidx.rng
-				int xmlpos1 = it->node().offset_debug()-1;
-				// std::ostringstream oss;
-				// it->node().print(oss); // This is the interpreted XML, which is too long... get beginning of next node instead
-				// std::string xmltxt = oss.str();
-				// int xmlpos2 = xmlpos1 + xmltxt.length();
-				int xmlpos2 = it->node().select_node("./following::*").node().offset_debug()-1;
-
-
 				if ( debug > 4 ) { cout << "Writing XIDX for " << tagname << " = " << xmlpos1 << " - " << xmlpos2 << endl; };
 				write_network_number(xmlpos1, files[tagname + "_xidx"]["rng"]);
 				write_network_number(xmlpos2, files[tagname + "_xidx"]["rng"]);
@@ -696,6 +736,7 @@ void treatfile ( string filename ) {
 	};
 	
 	doc.reset(); // clear the variable to prevent potential memory leakage
+	tokxmlpos.clear();
 
 };
 

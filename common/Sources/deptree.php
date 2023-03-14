@@ -10,6 +10,9 @@
 		$deplabels = xmlflatten($deptreexml);
 	}; 
 
+	$flddeprel = $_GET['deprel'] or $flddeprel = "deprel";
+	$fldhead = $_GET['head'] or $fldhead = "head";
+
 	$stlist = $settings['xmlfile']['sattributes']['s']['status']['options'];
 	if ( !$stlist )	$stlist = array ( 
 		"auto" => array("display" => "automatically assigned"),
@@ -42,7 +45,7 @@
 	} else {
 		$dirxpath = $settings['xmlfile']['direction'];
 		if ( $dirxpath ) {
-			$tdval = current($ttxml->xml->xpath($dirxpath));
+			$tdval = current($ttxml->xpath($dirxpath));
 		};
 		if ( $tdval ) {
 			// Defined in the teiHeader for mixed-writing corpora
@@ -56,7 +59,7 @@
 
 	if ( $act == "save" && $_POST['sent'] ) {
 
-		$sent =	current($ttxml->xml->xpath("//s[@id='$sid']"));
+		$sent =	current($ttxml->xpath("//s[@id='$sid']"));
 		$newsent = simplexml_load_string($_POST['sent']);
 		
 		foreach ( $newsent->xpath($toksel) as $newtok ) {
@@ -82,7 +85,7 @@
 
 	} else if ( $act == "autofill" ) {
 
-		$sent =	current($ttxml->xml->xpath("//s[@id='$sid']"));
+		$sent =	current($ttxml->xpath("//s[@id='$sid']"));
 
 		foreach ( $sent->xpath ($toksel) as $tok ) {
 			
@@ -100,7 +103,7 @@
 	} else if ( $act == "metaedit" ) {
 
 		$maintext .= "<h1>Edit Sentence Metadata</h1>";
-		$sent =	current($ttxml->xml->xpath("//s[@id='$sid']"));
+		$sent =	current($ttxml->xpath("//s[@id='$sid']"));
 
 		$maintext .= "<div id=mtxt>".makexml($sent)."</div>
 		<hr>
@@ -117,7 +120,7 @@
 
 	} else if ( $act == "changesent" ) {
 
-		$sent =	current($ttxml->xml->xpath("//s[@id='$sid']"));
+		$sent =	current($ttxml->xpath("//s[@id='$sid']"));
 
 		foreach ( $_POST['sent'] as $key => $val ) {
 			$sent[$key] = $val;			
@@ -136,7 +139,7 @@
 		if ( $_GET['sid'] ) $sid = "[@id=\"{$_GET['sid']}\"]";
 
 		$formfld = $settings['udpipe']['tagform'] or $settings['xmlfile']['wordfld'] or $formfld = "form";
-		foreach ( $ttxml->xml->xpath("//s$sid") as $sent ) {
+		foreach ( $ttxml->xpath("//s$sid") as $sent ) {
 			$toks = $sent->xpath($toksel);
 			
 			if ( !$toks ) continue;
@@ -164,9 +167,9 @@
 				
 				$upos = $tok['upos'] or $upos = $tok['pos'] or $upos = "_";
 				$xpos = $tok['xpos'] or $xpos = "_";
-				$head = $ids[$tok['head'].""] or $head = "0";
+				$head = $ids[$tok[$fldhead].""] or $head = "0";
 				$feats = $tok['feats'] or $feats = "_";
-				$deprel = $tok['deprel'] or $deprel = "_";
+				$deprel = $tok[$flddeprel] or $deprel = "_";
 				$deps = $tok['deps'] or $deps = "_";
 				$misc = "_";
 				$maintok = "$form\t$lemma\t$upos\t$xpos\t$feats\t$head\t$deprel\t$deps\t$misc";
@@ -185,14 +188,14 @@
 		$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
 		$jmp = preg_replace("/ .*/", "", $jmp);
 		if ( !$sid && $jmp ) {
-			$sid =	current($ttxml->xml->xpath("//s[.//tok[@id='$jmp']]/@id"));
-			if ( !$sid ) $sid =	current($ttxml->xml->xpath("//s[./following::tok[@id='$jmp']]/@id"));
+			$sid =	current($ttxml->xpath("//s[.//tok[@id='$jmp']]/@id"));
+			if ( !$sid ) $sid =	current($ttxml->xpath("//s[./following::tok[@id='$jmp']]/@id"));
 		};
 
 		if ( $_POST['sent'] ) {	
 			$sent = simplexml_load_string($_POST['sent']);
 		} else {
-			$sent =	current($ttxml->xml->xpath("//s[@id='$sid']"));
+			$sent =	current($ttxml->xpath("//s[@id='$sid']"));
 		};
 		if ( !$sent ) { fatal("Sentence not found: $sid : "); };
 
@@ -204,8 +207,8 @@
 		if ( $_GET['auto'] ) {
 			foreach ( $deplabels['labels'] as $key => $val ) { if ( $val['base'] ) $nonamb[$val['base']] = $key; };
 			foreach ( $sent->xpath($toksel) as $tok ) {
-				if ( !$tok['deprel'] && $nonamb[$tok['pos'].""] ) { 
-					$tok['deprel'] = $nonamb[$tok['pos'].""];
+				if ( !$tok[$flddeprel] && $nonamb[$tok['pos'].""] ) { 
+					$tok[$flddeprel] = $nonamb[$tok['pos'].""];
 				}; 
 			};
 		};
@@ -248,7 +251,7 @@
 				$maintext .= "<span style='float: right; text-align: right;' $oncl\">Status: <span status='$st' title='$st'>$sttxt</span></div><div id=statbox style='display: none;'><form action='index.php?action=$action&act=changesent&cid=$ttxml->fileid&sid={$sent['id']}' method=post><select name='sent[status]' onChange='this.parentNode.submit();'>$statsel</select></form></div></span>";
 			};
 			$maintext .= "<p><span id='linktxt'>Click <a href='index.php?action=$action&act=edit&sid=$sid&cid=$cid'>here</a> to edit the dependency tree</a></span>";
-			if ( $act != "edit" && $sent->xpath(".//tok[not(@deprel)]") && $sent->xpath(".//tok[@upos]") ) {
+			if ( $act != "edit" && $sent->xpath(".//tok[not(@$flddeprel)]") && $sent->xpath(".//tok[@upos]") ) {
 				$maintext .= " &bull; <a href='index.php?action=$action&act=autofill&sid=$sid&cid=$cid'>Auto-fill</a> obligatory deprel";
 			};
 			if ( $_POST['sent'] ) {
@@ -293,7 +296,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 		};
 
 		$maintext .= "<div id='mtxt' mod='$action' $textdir $tokselect style='padding: 10px;'>$xmltxt</div><table>";
-		if ( count($settings['xmlfile']['sattributes']['s']) > 1 && $username ) $maintext .= "<a style='float: right' href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid&act=metaedit'>edit metadata</a>";
+		if ( $settings['xmlfile']['sattributes'] && is_array($settings['xmlfile']['sattributes']['s']) && count($settings['xmlfile']['sattributes']['s']) > 1 && $username ) $maintext .= "<a style='float: right' href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid&act=metaedit'>edit metadata</a>";
 		foreach ( $settings['xmlfile']['sattributes']['s'] as $key => $val ) {
 			if ( !is_array($val) ) continue;
 			if ( $val['noshow'] || $val['nodeptree'] || $key == "id" ) continue;
@@ -415,7 +418,7 @@ $postaction
 		$model = $_GET['pid'];
 		if ( !$pid ) {
 			foreach ( $settings['udpipe']['parameters'] as $key => $val ) {
-				if ( $ttxml->xml->xpath("".$val['restriction']) ) {
+				if ( $ttxml->xpath("".$val['restriction']) ) {
 					$pid = $key; $param = $val;
 					break;
 				};
@@ -434,7 +437,7 @@ $postaction
 		$tagfields = explode(",", $param['formtags']);
 		
 		## Verticalize the text in CoNLL-U format
-		foreach ( $ttxml->xml->xpath("//s[not(.//tok[@deprel])]") as $sent ) {
+		foreach ( $ttxml->xpath("//s[not(.//tok[@$flddeprel])]") as $sent ) {
 			$tnr = 0; $verticalized = "";	
 			unset($heads); unset($tid);
 			foreach ( $sent->xpath(".//tok[not(dtok)] | //dtok") as $tok ) {		
@@ -482,7 +485,7 @@ $postaction
 					if ( $word ) {
 						$tid[$tnr] = $tokid;
 						$heads[$tokid] = $head;
-						$toks[$tokid]['deprel'] = $drel;
+						$toks[$tokid][$flddeprel] = $drel;
 						
 						# Optionally also introduce upos, xpos, feats, lemma
 						if ( in_array("upos", $tagfields) ) { $toks[$tokid]['upos'] = $upos; };
@@ -494,7 +497,7 @@ $postaction
 				};
 				
 				foreach ( $heads as $tokid => $head ) {
-					if ( $tid[$head] ) $toks[$tokid]['head'] = $tid[$head];
+					if ( $tid[$head] ) $toks[$tokid][$fldhead] = $tid[$head];
 				};
 				
 			} else {
@@ -527,7 +530,7 @@ $postaction
 		
 	} else {
 	
-		$sentlist = $ttxml->xml->xpath("//s");
+		$sentlist = $ttxml->xpath("//s");
 	
 		if ( !strstr($ttxml->asXML(), "<tok" ) ) {
 
@@ -619,15 +622,16 @@ $postaction
 	};	
 
 	function drawjson ($node) {
+		global $fldhead; global $flddeprel;
 		$array = array(); $parents = array();
 		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight;
 		foreach ( $node->xpath($toksel) as $tok ) {
 			$text = $tok['form']."" or $text = $tok."";
 			if ( $text == "" ) $text = "&#8709;";
-			# $text = str_replace(" ", "_", $text);
+
 			$tokid = $tok['id']."";
-			$deprel = $tok['deprel']."";
-			$headid = $tok['head']."";
+			$deprel = $tok[$flddeprel]."";
+			$headid = $tok[$fldhead]."";
 
 			if ( !$headid || $headid == $tokid ) $headid = "root";
 			if ( $deprel == "root" ) $rootid = $tokid;
@@ -663,6 +667,7 @@ $postaction
 
 	function drawgraph ( $node ) {
 		$treetxt = "";
+		global $fldhead; global $flddeprel;
 		global $xpos; global $username; global $act; global $deplabels; global $toksel; global $maxheight;
 		$xpos = 0; $maxheight = 100;
 		foreach ( $node->xpath($toksel) as $tok ) {
@@ -671,7 +676,7 @@ $postaction
 			# $text = str_replace(" ", "_", $text);
 			$tokid = $tok['id']."";
 			
-			if ( $text != "" || $tok['head'] ) { 		
+			if ( $text != "" || $tok[$fldhead] ) { 		
 				
 				if ( $text == "" ) $text = "`";				
 
@@ -691,10 +696,10 @@ $postaction
 		$treetxt .= "\n";
 
 		foreach ( $node->xpath($toksel) as $tok ) {
-			if ( $tok['head'] && $tok['drel'] != "0" ) {
+			if ( $tok[$fldhead] && $tok['drel'] != "0" ) {
 				$in++;
 				$x1 = $mid[$tok['id'].""]; 
-				$x2 = $mid[$tok['head'].""];
+				$x2 = $mid[$tok[$fldhead].""];
 
 				# if ( $x1 > $x2 ) { $x1 -= 5; } else { $x1 += 5; }; // This puts the arrow next to each other..
 				$y1 = 25; // Y of the arch
@@ -706,20 +711,20 @@ $postaction
 				$os = floor($w/8); // curve point distance
 				$r1 = $x1+$os; $r2 = $x2-$os; // curve points
 				// place the arch
-				if ( $x2 ) $treearches .= "\n\t<path title=\"{$tok['deprel']}\" d=\"M$x1 $y1 C $r1 $y2, $r2 $y2, $x2 $y1\" stroke=\"#992000\" stroke-width=\"0.5\" fill=\"transparent\" />"; #  marker-end=\"url(#arrow)\"
+				if ( $x2 ) $treearches .= "\n\t<path title=\"{$tok[$flddeprel]}\" d=\"M$x1 $y1 C $r1 $y2, $r2 $y2, $x2 $y1\" stroke=\"#992000\" stroke-width=\"0.5\" fill=\"transparent\" />"; #  marker-end=\"url(#arrow)\"
 				// place a dot on the end (better than arrow)
 				if ( $x2 ) $treearches .= "<circle cx=\"$x1\" cy=\"$y1\" r=\"2\" stroke=\"black\" stroke-width=\"1\" fill=\"black\" />";
 
- 				if ( $tok['deprel'] || ( $username && $act == "edit" ) ) {
- 					$lw = 5.8*(mb_strlen($tok['deprel']));
+ 				if ( $tok[$flddeprel] || ( $username && $act == "edit" ) ) {
+ 					$lw = 5.8*(mb_strlen($tok[$flddeprel]));
  					$lx = $x1 + $w/2 - ($lw/2); // X of the text
  					$ly = $y1 + $h*0.75 - 5; // Y of the text
- 					$deplabel = $tok['deprel']."";
+ 					$deplabel = $tok[$flddeprel]."";
 					if ( $username && $act == "edit" ) {
 						if ( $deplabel == "" ) $deplabel = "??";
 						$onclick = " onClick=\"relabel(this);\"";
 					};
- 					$labeltxt = $deplabels[$tok['deprel'].""]['description'];
+ 					$labeltxt = $deplabels[$tok[$flddeprel].""]['description'];
  					$treelabels .= "\n\t<text x=\"$lx\" y=\"$ly\" font-family=\"Courier\" fill=\"#aa2000\" font-size=\"10\" type=\"label\" onMouseOver=\"this.setAttribute('fill', '#20aa00');\" baseid=\"{$tok['id']}\" title=\"$labeltxt\" $onclick>$deplabel</text> ";
  				};
 			};

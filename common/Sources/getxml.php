@@ -57,8 +57,8 @@
 			if ( $username ) $admp = ' class="adminpart" ';
 			else continue;
 			if ( $val['xprest'] || $val['xpcond'] ) {
-				if ( $val['xprest'] && $ttxml->xml->xpath($val['xprest']) ) continue;
-				if ( $val['xpcond'] && !$ttxml->xml->xpath($val['xpcond']) ) continue;
+				if ( $val['xprest'] && $ttxml->xpath($val['xprest']) ) continue;
+				if ( $val['xpcond'] && !$ttxml->xpath($val['xpcond']) ) continue;
 			};
 			$some = 1;
 			$maintext .= "<tr><td><a $admp href='index.php?action=$action&type=$key&cid=$fileid'>{%{$val['display']}}</a>

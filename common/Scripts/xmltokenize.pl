@@ -633,6 +633,8 @@ if ( !$doc ) {
 # Move tokens into sentences
 if ( $sentsplit && !$emptys ) {
 
+	if ( !$emptyatt ) { $emptyatt = "sameAs"; };
+
 	# Move the tokens inside the sentences
 	foreach $sent ( $doc->findnodes("//text//s" ) ) {
 

@@ -16,7 +16,7 @@
 
 	if ( $act == "save" ) {
 		foreach ( $_POST['bbox'] as $key => $bbox ) {
-			$elm = current($ttxml->xml->xpath("//lb[@id='$key'] | //l[@id='$key']"));
+			$elm = current($ttxml->xpath("//lb[@id='$key'] | //l[@id='$key']"));
 			if ( $elm ) {
 				if ( $bbox ) { 
 					$elm['bbox'] = $bbox; 
@@ -70,7 +70,7 @@
 				$maintext .= "<p>Line selection: $lbxpath";
 			};
 	
-			foreach ( $ttxml->xml->xpath($lbxpath) as $lb ) {
+			foreach ( $ttxml->xpath($lbxpath) as $lb ) {
 				$nr++;
 		
 				// Parse the actual line
@@ -232,7 +232,7 @@
 			<hr><p>";
 			$maintext .= $ttxml->viewswitch();
 
-			if ( $username && $ttxml->xml->xpath("//lb[@bbox]") ) 
+			if ( $username && $ttxml->xpath("//lb[@bbox]") ) 
 				$maintext .= " &bull;
 					<a href='index.php?action=lineedit&cid={$ttxml->fileid}&pbid={$curr['id']}' class=adminpart>Transcribe lines</a>
 					"; // Used to be $action&act=edit, but regionedit is nicer

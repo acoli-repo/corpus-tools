@@ -24,7 +24,7 @@
 
 		$lbid = $_POST['lbid'];	
 		$pbid = $_POST['pbid'];	
-		$lb = current($ttxml->xml->xpath("//lb[@id=\"$lbid\"]"));
+		$lb = current($ttxml->xpath("//lb[@id=\"$lbid\"]"));
 		$lb['text'] = $_POST['text'];
 		print showxml($lb); 
 		$ttxml->save();
@@ -35,8 +35,8 @@
 		
 	} else if ( $act == "unprov") {
 	
-		if ( $ttxml->xml->xpath("//tok") ) $tokenized = 1;
-		foreach ( $ttxml->xml->xpath("//lb[@text]") as $lb ) {
+		if ( $ttxml->xpath("//tok") ) $tokenized = 1;
+		foreach ( $ttxml->xpath("//lb[@text]") as $lb ) {
 			$lbid = $lb['id'];
 			$text = $lb['text'];
 			$editxml = $ttxml->page($lbid, array("elm"=>"lb"));	
@@ -89,7 +89,7 @@
 
 		$maintext .= "<p>Select page:";
 		
-		foreach ( $ttxml->xml->xpath("//pb") as $pb ) {
+		foreach ( $ttxml->xpath("//pb") as $pb ) {
 			$maintext .= "<p><a href='index.php?action=$action&cid=$ttxml->fileid&pbid={$pb['id']}'>{$pb['id']}</a> ".htmlentities($pb->asXML());
 		};	
 
@@ -97,7 +97,7 @@
 	
 		$maintext .= "<p>Select line:";
 		
-		foreach ( $ttxml->xml->xpath("//lb") as $lb ) {
+		foreach ( $ttxml->xpath("//lb") as $lb ) {
 			$maintext .= "<p><a href='index.php?action=$action&cid=$ttxml->fileid&pbid={$_GET['pbid']}&lbid={$lb['id']}'>{$lb['id']}</a> ".htmlentities($lb->asXML());
 		};	
 
@@ -106,7 +106,7 @@
 		$pbid = $_GET['pbid'];
 		# $lbid = $_GET['lbid'];
 		
-		foreach ( $ttxml->xml->xpath("//pb") as $i => $pbx ) { 
+		foreach ( $ttxml->xpath("//pb") as $i => $pbx ) { 
 			$pbi = $pbx['id'];
 			$sel = ""; 
 			if ( $pbi == $pbid ) $sel = "selected";
@@ -126,8 +126,8 @@
 			$lblist .= "<option value=$lbi $sel>Line ".($i+1)."</option>"; 
 		}; if ( !$lbid ) $lbid = $lbs[1][0];		
 		
-		$pb = current($ttxml->xml->xpath("//pb[@id=\"$pbid\"]"));
-		$lb = current($ttxml->xml->xpath("//lb[@id=\"$lbid\"]"));
+		$pb = current($ttxml->xpath("//pb[@id=\"$pbid\"]"));
+		$lb = current($ttxml->xpath("//lb[@id=\"$lbid\"]"));
 		$pbn = $pb['n'] or $pbn = $pb['id'];
 		$lbn = $lb['n'] or $lbn = $lb['id'];
 
@@ -211,7 +211,7 @@
 		if ( $lb['facs'] || $lb['corresp'] ) {
 			$facsid = $lb['corresp'] or $facsid = $lb['facs'];
 			$facsid = substr($facsid,1);
-			$zone = current($ttxml->xml->xpath("//*[@id=\"$facsid\" or @xml:id=\"$facsid\"]"));
+			$zone = current($ttxml->xpath("//*[@id=\"$facsid\" or @xml:id=\"$facsid\"]"));
 			$baseline = $zone['points'];
 			if ( strpos(",", $baseline ) == false ) $baseline = preg_replace("/ /", ",", $baseline);
 			if ( $_GET['debug'] ) $maintext .= "<p>Points: $baseline";

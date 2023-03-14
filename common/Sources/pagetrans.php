@@ -15,14 +15,14 @@
 		$ttxml = new TTXML($_GET['cid'], false, "pagetrans");
 		if ( !$ttxml->xml ) fatal("Could not load page-by-page XML file: {$_GET['cid']}");
 
-		$tmp = $ttxml->xml->xpath("//text"); $textnode = $tmp[0];
+		$tmp = $ttxml->xpath("//text"); $textnode = $tmp[0];
 		if ( $textnode->asXML() == "<text/>" ) {
 			# Completely empty - add a page
 			$pagexml = $textnode->addChild("page");
 			$pagexml["id"] = "page-1";
 		};
 
-		if ( !$ttxml->xml->xpath("//page") ) fatal("This is not a page-by-page edit XML file");
+		if ( !$ttxml->xpath("//page") ) fatal("This is not a page-by-page edit XML file");
 		$fileid = $ttxml->xmlid;
 	};
 
@@ -32,7 +32,7 @@
 	
 	if ( $act == "save" ) {
 	
-		$pagexml = current($ttxml->xml->xpath("//page[@id='{$_POST['pageid']}']"));
+		$pagexml = current($ttxml->xpath("//page[@id='{$_POST['pageid']}']"));
 		if ( $_POST['folionr'] ) {
 			$pagexml['n'] = $_POST['folionr'];
 		};
@@ -63,7 +63,7 @@
 				$linexml['status'] = $val;
 			};
 		} else {
-			$pagexml = current($ttxml->xml->xpath("//page[@id='{$_POST['pageid']}']"));
+			$pagexml = current($ttxml->xpath("//page[@id='{$_POST['pageid']}']"));
 			$pagexml[0] = $_POST['newcontent'];
 		};
 			
@@ -86,7 +86,7 @@
 	
 		$maintext .= "<h2>Page Index</h2><ul>";
 	
-		foreach ( $ttxml->xml->xpath("//text/page") as $pag) {	
+		foreach ( $ttxml->xpath("//text/page") as $pag) {	
 			$pageid = $pag['id'];
 			$pagenr = $pag['n'] or $pagenr = "[$pageid]";
 			$maintext .= "<li><a href='index.php?action=$action&cid=$ttxml->fileid&page=$pageid'>$pagenr</a>";
@@ -96,7 +96,7 @@
 
 	} else if ( $act == "convert" && $ttxml->fileid ) {
 	
-		if ( $ttxml->xml->xpath("//text/page[not(@empty) and not(@status=\"2\")]") ) {	
+		if ( $ttxml->xpath("//text/page[not(@empty) and not(@status=\"2\")]") ) {	
 			$warning = "<p style='color: #cc0000; font-weight: bold;'>Not all your pages are marked as verified yet!</p>";
 		};
 	
@@ -114,7 +114,7 @@
 		$maintext .= "<form action='index.php?action=$action&act=apply' method=post>
 			<input type=hidden name=fileid value='$ttxml->fileid'>";
 		
-		if ( !$ttxml->xml->xpath("//line") ) $maintext .= "<h2>Treatment of lines</h2>
+		if ( !$ttxml->xpath("//line") ) $maintext .= "<h2>Treatment of lines</h2>
 			
 			<p><input type=radio name=lines value='lb' checked> Treat each new line as an &lt;lb/&gt; (line beginning)
 			<p><input type=radio name=lines value='plb'> Treat empty lines as new paragraphs and other line as an &lt;lb/&gt; (line beginning)
@@ -274,7 +274,7 @@
 		# Insert a new page
 		$pageid = $_GET['pageid'];
 		$pagexp = "//text/page[@id='$pageid']";
-		$pagexml = current($ttxml->xml->xpath($pagexp));
+		$pagexml = current($ttxml->xpath($pagexp));
 	
 		if ( !$pagexml ) fatal("Page not found: $pageid");
 		
@@ -282,7 +282,7 @@
 		simplexml_insert_after($insert, $pagexml);
 
 		$options = "";
-		foreach ( $ttxml->xml->xpath("//text//page") as $page ) {
+		foreach ( $ttxml->xpath("//text//page") as $page ) {
 			$pagetxt = $page['n'] or $pagetxt = $page['id'];
 			if ( $page == $pagexml )  $sel = "selected"; else $sel = "";	
 			if ( $pagetxt ) $options .= "<option value='{$page['id']}'>$pagetxt</option>";
@@ -317,7 +317,7 @@
 		# Insert a new page
 		$pageid = $_POST['pageid'];
 		$pagexp = "//text/page[@id='$pageid']";
-		$pagexml = current($ttxml->xml->xpath($pagexp));
+		$pagexml = current($ttxml->xpath($pagexp));
 	
 		if ( !$pagexml ) fatal("Page not found: $pageid");
 		
@@ -327,7 +327,7 @@
 		simplexml_insert_after($insert, $pagexml, $_POST['beforeafter']);
 
 		$pn = 1; // Renumber
-		foreach ( $ttxml->xml->xpath("//page") as $page ) {
+		foreach ( $ttxml->xpath("//page") as $page ) {
 			$page['id'] = "page-".$pn++;
 			if ( $page == $pagexml ) {
 				$newid = "page-".$pn;
@@ -347,12 +347,12 @@
 		# Display the teiHeader data as a table
 		$maintext .= $ttxml->tableheader(); 
 
-		if ( $resp = current($ttxml->xml->xpath('//resp[@n="transcription"]')) && $resp != $user['realname'] ) {
+		if ( $resp = current($ttxml->xpath('//resp[@n="transcription"]')) && $resp != $user['realname'] ) {
 			$maintext .= "<p><b>Transcription</b>: $resp<hr>";
 		};
 
 		$maintext .= "<h2>Status of each page</h2><table>";
-		foreach ( $ttxml->xml->xpath("//page") as $pagexml ) {
+		foreach ( $ttxml->xpath("//page") as $pagexml ) {
 			if ( $pagexml['empty'] == "1" ) {
 				$status = "empty";
 				$color = "#00bb00";
@@ -389,7 +389,7 @@
 		# Display the teiHeader data as a table
 		$maintext .= $ttxml->tableheader(); 
 
-		if ( $resp = current($ttxml->xml->xpath('//resp[@n="transcription"]')) && $resp != $user['realname'] ) {
+		if ( $resp = current($ttxml->xpath('//resp[@n="transcription"]')) && $resp != $user['realname'] ) {
 			$maintext .= "<p><b>Transcription</b>: $resp<hr>";
 		};
 		
@@ -397,12 +397,12 @@
 		if ( $_GET['page']) $pagexp = "//text/page[@id='$pageid']";
 		else $pagexp = "//text/page[not(@empty) and not(@status=\"2\")]";
 
-		$pagexml = current($ttxml->xml->xpath($pagexp));
-		if ( !$pagexml && !$_GET['page'] ) $pagexml = current($ttxml->xml->xpath("//page")); 
+		$pagexml = current($ttxml->xpath($pagexp));
+		if ( !$pagexml && !$_GET['page'] ) $pagexml = current($ttxml->xpath("//page")); 
 		
 		if ( !$pagexml ) fatal ("Page not found: {$_GET['page']}");
 
-		if ( !$ttxml->xml->xpath("//text/page[not(@empty) and not(@status=\"2\")]") ) {
+		if ( !$ttxml->xpath("//text/page[not(@empty) and not(@status=\"2\")]") ) {
 			$converttxt .= "All pages marked as verified, click <a href='index.php?action=$action&cid=$fileid&act=convert'>here</a> to finish";
 		} else {
 			if ( $pagexml['status'] != "2" ) $noconvert .= "<input type=checkbox name=done value=1> Mark page as verified ";
@@ -597,7 +597,7 @@
 			// If the page has no FACS, assign it a FACS and reload
 			if ( !$pagexml['facs']  ) {
 				$pagenr = 1;
-				foreach ( $ttxml->xml->xpath("//page") as $i => $ptmp ) {
+				foreach ( $ttxml->xpath("//page") as $i => $ptmp ) {
 					if ( $ptmp == $pagexml ) {
 						$pagenr = $i+1;
 					};
