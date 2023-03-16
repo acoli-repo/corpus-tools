@@ -21,8 +21,13 @@
 			$corpusname = $settings['cqp']['name'] or $corpusname = $cqpcorpus;
 		};
 
-
-		$metaquery = "Matches = $query;
+		$lockn = rand(100,100000);
+		// Tabulate the relevant data about the sentence (text ID, sentence ID + matching token IDs)
+		// Lock for the query to prevent attacks
+		$metaquery = "
+	set QueryLock $lockn;
+	Matches = $query;
+	unlock $lockn;
 	tabulate Matches match text_id, match s_id, match[0]..matchend[0] id;";
 		file_put_contents("tmp/$qid.cql", $metaquery);
 		$cmd = "/usr/local/bin/cqp -r cqp -D $cqpcorpus -f 'tmp/$qid.cql' | perl -e 'while(<>) { s/ /,/g; print; };' > cache/$qid"; 
