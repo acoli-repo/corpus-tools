@@ -379,7 +379,7 @@ function updatequery( nodirect = false ) {
 				if ( matchtype == 'udfeats' ) {
 					var tmp = /(.*):(.*)/g.exec(pattn);       
 					if ( tmp != null ) {
-						pattname = tmp[1];
+						pattn = tmp[1];
 						var udfeat = tmp[2];
 						if ( typeof(udsep) == 'undefined' ) var udsep = '[|]';
 						val = '(.*'+udsep+')?' + udfeat + '=' + val + '('+udsep+'.*)?';
