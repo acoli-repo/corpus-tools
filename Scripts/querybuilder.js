@@ -377,7 +377,7 @@ function updatequery( nodirect = false ) {
 					val = '(.*'+mvsep+')?' + val + '('+mvsep+'.*)?';
 				};
 				if ( matchtype == 'udfeats' ) {
-					var tmp = /(.*):(.*)/g.exec(pattname);       
+					var tmp = /(.*):(.*)/g.exec(pattn);       
 					if ( tmp != null ) {
 						pattname = tmp[1];
 						var udfeat = tmp[2];

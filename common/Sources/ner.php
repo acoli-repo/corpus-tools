@@ -78,15 +78,18 @@
 			
 				foreach ( $nodelist as $node ) {
 					$nerid = $node[$val['nerid']];
-					if ( !$nerid ) { $nerid = $node['lemma'] or $nerid = $node.""; }; # use form if no ID is present
+					if ( $nerid ) { $idlist[$nerid] = 1; }; # use form if no ID is present
+					if ( !$nerid ) { $nerid = $node['lemma']; }; # use form if no ID is present
 					$name = makexml($node);
-					if ( $settings['xmlfile']['nospace'] == "2" ) $name = $name = preg_replace("/<\/tok>/", " ", $name);
 					$name = preg_replace("/<[^>]+>/", "", $name);
+					if ( $settings['xmlfile']['nospace'] == "2" ) $name = $name = preg_replace("/<\/tok>/", " ", $name);
+					if ( !$nerid ) { $nerid = $name; }; # use form if no ID is present
+					$nerid = trim($nerid);
 					$idnames[$nerid.""][$name.""]++;
 					$idcnt[$nerid.""]++;
 				};
 			};	
-			asort($idcnt);
+			ksort($idnames);
 			foreach ( $idnames as $nerid => $val ) {
 				$vallist = array_keys($val); natsort($vallist);
 				$name = join("<br/>", $vallist);
@@ -103,12 +106,13 @@
 					};
 				} else if ( $username ) $idtxt = "<i style='opacity: 0.5'>$nerid</i>";
 				else $idtxt = "<i style='opacity: 0'>$nerid</i>";
+				if ( $idlist[$nerid] ) $idtxt = "<a href='index.php?action=ner&nerid=".urlencode($nerid)."' target=ner>$idtxt</a>";
 				$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
 				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
 				$nametxt = "<td>".$name; 
-				if ( $node[$val['nerid']] ) $nametxt = "<td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a>";
+				if ( $idlist[$nerid] ) $nametxt = "<td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a>";
 				$maintext .= "<tr key='$name' class='$trc'>$nametxt 
-					<td><a href='index.php?action=ner&nerid=".urlencode($nerid)."' target=ner>$idtxt</a>
+					<td>$idtxt
 					<td style='opacity: 0.5; text-align: right; padding-left: 10px;' title='{%Occurrences}'>{$idcnt[$nerid]}";
 			};
 		};

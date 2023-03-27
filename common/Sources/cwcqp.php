@@ -30,6 +30,7 @@ class CQP
 	var $folder;
 	var $wordfld;
 	var $logfile;
+	var $unsafe;
 
 	# Old style constuctor = should be/become redundant
     function CQP($registryfolder = "", $cqpapp = "", $cqpcorpus = "") {    
@@ -126,6 +127,13 @@ class CQP
     	
     	$cmd = str_replace("\0", " ", $cmd);
     	$cmd = preg_replace("/[\n\r]/", " ", $cmd); # Keep commands on a single line
+		
+		// Add QueryLock around all Matches = queries
+		if ( !$this->unsafe && substr($cmd, 0, 9) == "Matches =" ) {
+			$lockn = rand(100,100000);
+			$cmd = "set QueryLock $lockn; $cmd; unlock $lockn;";
+		};
+
     	$cmd = preg_replace("/\s*;*\s*$/", "", $cmd).";\n;.EOL.;\n"; // Append the .EOL. command to mark the end of the CQP output
 			
         if (is_resource($this->prcs)) {

@@ -5,7 +5,7 @@
 
 	$cntcols = 1; $headrow = 'false';
 	$ttcqp = findapp("tt-cqp");
-	
+
 	if ( $_GET['cwb'] || $settings['cqp']['ttcqp'] == "0" ) $usecwb = 1;
 
 	if ( $act == "cql" ) {
@@ -80,6 +80,8 @@
 
 			$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "[]";
 			$cql = preg_replace("/[\n\r]/", " ", $cql);
+
+			$cql = preg_replace("/(;.*)>.*/", "\\1", $cql);
 
 			if ( preg_match("/ *\[([^\]]+)\](?: *within .*)?$/", $cql, $matches) || preg_match("/ *\[([^\]]+)\] *:: *(.*?)(?: *within .*)?$/", $cql, $matches) ) {
 				$pmatch = $matches[1]; $smatch = $matches[2];
