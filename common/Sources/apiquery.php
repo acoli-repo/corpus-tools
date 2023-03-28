@@ -122,6 +122,7 @@
 			};
 			$content = str_replace('"', '\\"', $content);
 			$content = str_replace("\n", ' ', $content);
+			$content = str_replace("\t", ' ', $content);
 			if ( trim($content) ) {
 				print $sep."\n{\"cid\": \"$textid\", \"sentid\": \"$sentid\", \"toks\": [$toklist], \"content\": \"$content\"}";
 				$sep = ",";
