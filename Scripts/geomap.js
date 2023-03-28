@@ -4,9 +4,9 @@
   // jsondata format: [ { "lat": lat, "lng": lng, "location": placename, "cnt": nr of docs } ]
   var map; var sublist = ['a', 'b', 'c'];
   if ( typeof tilelayer == "undefined" ) {
-		tilelayer = 'https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png'; // MapBox is no longer free - choose one from http://leaflet-extras.github.io/leaflet-providers/preview/index.html
-		// tilelayer = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
-		tiletit = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+		// MapBox is no longer free - choose one from http://leaflet-extras.github.io/leaflet-providers/preview/index.html
+		tilelayer = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'; 
+		tiletit = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
   };
   if ( typeof tiletit == "undefined" ) { tiletit = ''; };
   if ( typeof tileid == "undefined" ) { tileid = 'mapbox/streets-v11'; };
