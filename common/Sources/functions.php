@@ -1025,8 +1025,9 @@
 		# For implicit content nodes, add the content
 		$nn = $node->getName();
 		$corresp = $opts['corresp'] or $corresp = $settings['cqp']['sattributes'][$nn]['toklist'] or $corresp="sameAs";
-		if ( !$node->children() && $node[$corresp] ) {
-			$toklist = explode(" ", $node[$corresp]);
+		$corrlist = $node[$corresp] or $corrlist = $node[strtolower($corresp)];
+		if ( !$node->xpath(".//tok") && $corrlist ) {
+			$toklist = explode(" ", $corrlist);
 			$tok1 = substr($toklist[0],1); 
 			$tok2 = substr(end($toklist),1);
 			$raw = $ttxml->raw; if ( $raw == "" ) { 
