@@ -14,7 +14,7 @@
 	// Load the settings.xml file (via PHP)
 	include("$ttroot/common/Sources/settings.php");
 	
-	if ( !$hprot )  if ( isSecure() || ( is_array($settings['defaults']) && is_array($settings['defaults']['base']) &&  $settings['defaults']['base']['protocol'] == "https" ) ) {
+	if ( !$hprot )  if ( isSecure() || ( is_array($settings['defaults']['base']) &&  $settings['defaults']['base']['protocol'] == "https" ) ) {
 		# TODO : should this not specify HTTPS?
 		header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page! 
 		$hprot = "https";
@@ -137,10 +137,11 @@
 	};
 	
 	// Determine the main XML content 
-	$mtxtelement = $settings['xmlfile']['xpath'] or $mtxtelement = "//text";
+	$mtxtelement = "//text";
+	if ( is_array($settings['xmlfile']) && $settings['xmlfile']['xpath'] ) $mtxtelement = $settings['xmlfile']['xpath'];
 	
 	// Determine the locale
-	$langloc = $settings['languages']['option'][$lang]['locale'];
+	$langloc = current($settingsxml->xpath("//languages/options/item[@key=\"$lang\"]/@locale"));
 	if ( $langloc ) setlocale(LC_ALL, $langloc);	
 
 	// Deal with GET variables	
