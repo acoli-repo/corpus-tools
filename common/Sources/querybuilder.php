@@ -116,12 +116,12 @@
 				$udflist .= "</table>";
 				$wordsearchtxt .= "<tr id='udv$col'><th span=\"row\"$tstyle>{%$colname}
 									<input type=hidden name=\"matches[$col]\" value='contains'>
-						      <td>			<a onclick=\"document.getElementById('udf$col').style.visibility='visible'; document.getElementById('vals[$col]').value=''; document.getElementById('udv$col').style.display='none';\">{%expand}</a>		
+						      <td>			<a onclick=\"document.getElementById('udf$col').style.display='inherit'; document.getElementById('vals[$col]').value=''; document.getElementById('udv$col').style.display='none';\">{%expand}</a>		
 						      <td><input name=vals[$col] id='vals[$col]' size=40 $chareqfn>
-								<tr id='udf$col' style='visibility: collapse;'>
+								<tr id='udf$col' style='display: none;'>
 								<th span=\"row\"$tstyle>{%$colname}
 								<td colspan=2>$udflist</div>
-						      	";
+						      	"; # visibility: collapse
 			} else if ( $coldef['type'] == "pos" ) {
 				if( !$tagbuilder && file_exists("Resources/tagset.xml") ) {
 					$tagbuilder = "

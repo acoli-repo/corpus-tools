@@ -1608,6 +1608,9 @@ window.PARSER = /*
                     s7 = peg$parse_();
                     if (s7 !== peg$FAILED) {
                       s8 = peg$parseFlag();
+                      if (s8 === peg$FAILED) {
+                        s8 = null;
+                      }
                       if (s8 !== peg$FAILED) {
                         s9 = peg$parse_();
                         if (s9 !== peg$FAILED) {
