@@ -41,13 +41,12 @@
 	$stype = str_replace("|", "| //", $stype);
 	$result = $xml->xpath("//$stype$sel"); 
 
-
 	$sentnr = 1; $ewd = 25; $strt = 0; $perpage = $_GET['perpage'] or $perpage = 100;
 	$rescnt = count($result);
 	foreach ( $result as $sent ) {
 		$stxt = makexml($sent); 
 		
-		if ( $_GET['jmp'] && !$jumped && $sent['id'] != $_GET['jmp'] ) { $strt++; continue; };
+		if ( $_GET['sid'] && !$jumped && $sent['id'] != $_GET['sid'] ) { $strt++; continue; };
 		if ( $strt < $_GET['start'] && !$jumped  ) { $strt++; continue; };
 		if ( $cnt >= $perpage ) break;
 		$jumped = 1; $cnt++;
