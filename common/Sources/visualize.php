@@ -300,7 +300,6 @@
 						};
 					};
 					
-					
 					if ( $refquery ) {
 						$label = "Group"; # {%Group}
 						$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'wpm', 'label':'{%WPM}', 'type':'number'}, {'id':'perc', 'label':'{%Percent}', 'type':'number'}], ";
@@ -329,8 +328,10 @@
 										
 
 					if ( preg_match("/group Matches match (.*)/", $grquery, $matches ) ) {
-					$grtxt = "<span title='".htmlentities($grquery)."'>{%".pattname($matches[1])."}</span>";
-				} else $grtxt = $grquery;
+						$pn = pattname($matches[1]);
+						$qp['display'] = $pn;
+						$grtxt = "<span title='".htmlentities($grquery)."'>{%$pn}</span>";
+					} else $grtxt = $grquery;
 
 				};
 
@@ -350,11 +351,15 @@
 					foreach ( $groupflds as $grfld ) {
 						$grfld = preg_replace("/.*\./", "", $grfld);
 						if ( !$mainfld ) $mainfld = $grfld;
-						$grnames .= $sep."<b>{%".pattname($grfld)."}</b>"; $sep = " + ";
+						$pn = pattname($grfld);
+						$qp['display'] = $pn; 
+						$grnames .= $sep."<b>{%$pn}</b>"; $sep = " + ";
 					};
 					$grtxt = $grnames;
 				} else if ( !$grtxt ) $grtxt = $grquery;
-
+	  					
+				$maintext .= "<script>var qp = ".array2json($qp)."</script>";
+  		
 				$cqllink = urlencode($cql);
 				$maintext .= "<table>
 								<tr><th>{%Search Query}<td><a style='color: black;' href='index.php?action=cqp&cql=$cqllink'>$cqltxt</a></tr>

@@ -344,38 +344,54 @@ function selectHandler(e) {
 		val = val[0].split('+');
 	};
 	var linkfld = document.getElementById('linkfield');
+
+	if ( fld[0]['id'] == 'grp' && typeof(qp) != 'undefined' ) {
+		fld[0]['id'] = qp['att'];
+		fld[0]['label'] = qp['display'];
+	};
+
 	var fldlabs = fld.map(function(item) { return item['label']; });
+
 	
 	if ( typeof(cql) != undefined && charttype != "totals" ) {
-		linkfld.innerHTML = '<p>Search for ' + fldlabs.join('+') + ' = ' + val.join('+');
 		var tokrest = ''; var sep1 = ''; var sep2 = ''; var matchrest = '';
+		var newcql = cql;
 		var tmp = cql.match(/:: (.*)/i);
 		if ( tmp !=  null ) {
 			matchrest = tmp[1];
 		}
 		var tmp = cql.match(/:: (.*)/i);
 		if ( tmp !=  null ) {
-			matchrest = tmp[1]; sep1 = " & ";
+			matchrest = tmp[1]; 
+			sep1 = " & ";
+			newcql = tmp[0];
 			if ( matchrest.indexOf('within') != -1 ) { matchrest = matchrest.substr(0,matchrest.indexOf('within'))}
 		}
-		var tmp = cql.match(/\[([^\]]+)\]/i);
-		if ( tmp !=  null ) {
-			tokrest = tmp[1]; sep2 = " & ";
-		}
+		var singtok = 0;
+		var globatt = 0;
 		for ( var i=0; i<fld.length; i++ ) {
 			var j = fld[i];
 			var fldid = fld[i]['id'];
 			if ( fldid.indexOf('_') != -1 ) {
 				matchrest = matchrest + sep1 + 'match.' + fldid + '="'+val[i]+'"';
 				sep1 = ' & ';
+				globatt = 1;
 			} else {
 				tokrest = tokrest + sep2 + fldid + '="'+val[i]+'"';
 				sep2 = ' & ';
 			};
 		}; 
-		var newcql = '['+tokrest+'] ';
+		var tmp = cql.match(/^ *\[([^\]]+)\] *$	/i);
+		if ( tmp !=  null ) {
+			// if this is a single-token search, rebuild the token query
+			tokrest = tmp[1]; sep2 = " & ";
+			var newcql = '['+tokrest+'] ';
+			singtok = 1;
+		}
 		if ( matchrest != '' ) { newcql += ' :: ' + matchrest; };
+		if ( !singtok && !globatt ) { return; }; // Do not build a link if we cannot build the resulting query
 		var url = 'index.php?action=cqp&cql=' + encodeURIComponent(newcql);
+		linkfld.innerHTML = '<p>Search for ' + fldlabs.join('+') + ' = ' + val.join('+');
 		linkfld.onclick = function () { window.open(url, '_self'); };
 	};
 };
