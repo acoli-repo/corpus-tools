@@ -580,7 +580,7 @@
 							};
 						};
 					} else {
-						$linkurl = current($record->xpath($fldrec["link"].""));
+						$linkurl = getxpath($record, $fldrec["link"]);
 						if ( !$linkurl ) {
 							 $linkurl = $fldrec["link"]."";
 							if ( preg_match_all("{#([^\}]+)}", $linkurl, $matches ) ) {

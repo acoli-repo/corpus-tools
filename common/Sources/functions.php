@@ -230,6 +230,15 @@
 		return $num.$deg[$i];
 	};
 
+	function getxpath($node, $xp) {
+		if ( !$xp ) return false; # Make sure we have an XPath
+		$xp = $xp.""; # Make sure we have a string
+		if ( !$node ) return false; # Make sure we have a node
+		$tmp = $node->xpath($xp); # Search
+		if ( !$tmp ) return false; # Make sure there is an answer
+		return current($tmp); # Return first element of node
+	};
+
 	function i18n ( $text, $tolang = "" ) {
 		global $lang; global $i18n; global $langprefix; global $deflang; global $debug; global $ttroot; 
 		global $i18nlang; global $sharedfolder;
