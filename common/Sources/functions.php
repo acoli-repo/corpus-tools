@@ -278,7 +278,9 @@
 			} else {
 				$to = $txtel; # If we have no translation, just remove the brackets
 				$furl = $_SERVER['REQUEST_URI'] or $furl = 1;
-				if ($lang != "en" || strstr($txtel,'-') ) $_SESSION['mistrans'][$lang][$txtel] = $furl; # Store the missing translation in a cookie
+				if ($lang != "en" || strstr($txtel,'-') ) {
+					$_SESSION['mistrans'][$lang][$txtel] = $furl; # Store the missing translation in a cookie
+				};
 			};
 			$to = str_replace('"', '&quot;', $to);
 			$to = preg_replace("/\r/", '', $to); # Hidden \r make Javascript stop working
