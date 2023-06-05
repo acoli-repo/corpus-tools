@@ -279,6 +279,8 @@
 				$to = $txtel; # If we have no translation, just remove the brackets
 				$furl = $_SERVER['REQUEST_URI'] or $furl = 1;
 				if ($lang != "en" || strstr($txtel,'-') ) {
+					if ( !is_array($_SESSION['mistrans']) ) $_SESSION['mistrans'] = array();
+					if ( !is_array($_SESSION['mistrans'][$lang]) ) $_SESSION['mistrans'][$lang] = array();
 					$_SESSION['mistrans'][$lang][$txtel] = $furl; # Store the missing translation in a cookie
 				};
 			};
