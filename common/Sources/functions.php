@@ -234,6 +234,7 @@
 		global $lang; global $i18n; global $langprefix; global $deflang; global $debug; global $ttroot; 
 		global $i18nlang; global $sharedfolder;
 		if ( !$tolang ) $tolang = $lang;
+		if ( !$tolang ) $tolang = "en"; # To avoid PHP errors, set a default if nothing defined
 		
 		if ( strpos($text, "{%") == -1 ) return $text; # If there is nothing to translate - return to save time
 		
@@ -278,12 +279,12 @@
 			} else {
 				$to = $txtel; # If we have no translation, just remove the brackets
 				$furl = $_SERVER['REQUEST_URI'] or $furl = 1;
-				if ( $lang && ( $lang != "en" || strstr($txtel,'-') ) ) {
+				if ( $tolang && ( $tolang != "en" || strstr($txtel,'-') ) ) {
 					if ( !is_array($_SESSION['mistrans']) ) $_SESSION['mistrans'] = array();
-					if ( !is_array($_SESSION['mistrans'][$lang]) ) {
-						$_SESSION['mistrans'][$lang] = array();
+					if ( !is_array($_SESSION['mistrans'][$tolang]) ) {
+						$_SESSION['mistrans'][$tolang] = array();
 					};
-					$_SESSION['mistrans'][$lang][$txtel] = $furl; # Store the missing translation in a cookie
+					$_SESSION['mistrans'][$tolang][$txtel] = $furl; # Store the missing translation in a cookie
 				};
 			};
 			$to = str_replace('"', '&quot;', $to);
@@ -294,7 +295,7 @@
 	
 		# Finally, also prefix all uses of "index.php" with the language 
 		if ( $langprefix && $lang != $deflang ) {
-			$text = preg_replace ( "/([\"'])index\.php/", "\\1$lang/index.php", $text );
+			$text = preg_replace ( "/([\"'])index\.php/", "\\1$tolang/index.php", $text );
 		};
 		
 		return $text;
