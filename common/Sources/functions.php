@@ -235,6 +235,7 @@
 		global $i18nlang; global $sharedfolder;
 		if ( !$tolang ) $tolang = $lang;
 		if ( !$tolang ) $tolang = "en"; # To avoid PHP errors, set a default if nothing defined
+		$tolang = $tolang."";
 		
 		if ( strpos($text, "{%") == -1 ) return $text; # If there is nothing to translate - return to save time
 		
