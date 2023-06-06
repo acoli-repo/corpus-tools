@@ -77,7 +77,7 @@
 				$maintext .= "<tr><td colspan=2 style='padding-top: 10px; padding-bottom: 10px; '><b style='font-size: larger;'>{$val['display']}</b></tr>";
 			
 				foreach ( $nodelist as $node ) {
-					$nerid = $node[$val['nerid']];
+					$nerid = $node[$val['nerid'].""]."";
 					if ( $nerid ) { $idlist[$nerid] = 1; }; # use form if no ID is present
 					if ( !$nerid ) { $nerid = $node['lemma']; }; # use form if no ID is present
 					$name = makexml($node);
