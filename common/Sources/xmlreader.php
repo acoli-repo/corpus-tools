@@ -580,7 +580,7 @@
 							};
 						};
 					} else {
-						$linkurl = getxpath($record, $fldrec["link"]);
+						$linkurl = getxpval($record, $fldrec["link"]);
 						if ( !$linkurl ) {
 							 $linkurl = $fldrec["link"]."";
 							if ( preg_match_all("{#([^\}]+)}", $linkurl, $matches ) ) {

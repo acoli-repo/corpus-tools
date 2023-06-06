@@ -4,13 +4,14 @@
 	$filename = preg_replace("/.*\//", "", $fileid);
 	if ( preg_match("/([^\/]+)\.xml/", $filename, $matches ) ) $id = $matches[1];
 
-	if ( $settings['download']['admin'] == "1" && !$username ) 
+	if ( $settings['download'] && $settings['download']['admin'] == "1" && !$username ) 
 		{ fatal ("Download of XML files not permitted"); };
 
-	if ( $settings['download']['disabled'] == "1" ) 
+	if ( $settings['download'] && $settings['download']['disabled'] == "1" ) 
 		{ fatal ("Download of XML files not permitted"); };
 
-	if ( !$settings['download']['options'] ) {
+
+	if ( !$settings['download'] || !$settings['download']['options'] ) {
 		$downloadoptions = array ( "raw" => array ( "cmd" => "cat [fn]", "display" => "raw XML" ) ); 	
 	} else {
 		$downloadoptions = $settings['download']['options'];

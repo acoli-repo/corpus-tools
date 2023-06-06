@@ -216,6 +216,7 @@
 				$acnt = $bcnt = 0;
 				foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
 					if ( $key == $class ) continue;
+					if ( !is_array($item) ) continue; # Only do real children
 					if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
 					$val = $item['display']; # $val = $item['long'] or
 					if ( $item['type'] == "group" ) {

@@ -230,10 +230,10 @@
 		return $num.$deg[$i];
 	};
 
-	function getxpath($node, $xp) {
+	function getxpval($node, $xp) {
 		if ( !$xp ) return false; # Make sure we have an XPath
 		$xp = $xp.""; # Make sure we have a string
-		if ( !$node ) return false; # Make sure we have a node
+		if ( !is_object($node) ) return false; # Make sure we have a node that is a (XML) object
 		$tmp = $node->xpath($xp); # Search
 		if ( !$tmp ) return false; # Make sure there is an answer
 		return current($tmp); # Return first element of node
@@ -1227,14 +1227,7 @@
 			return $needle !== '' && mb_strpos($haystack, $needle) !== false;
 		}
 	}
-	
-	function getxpval($node, $xpath) {
-		$tmp = $node->xpath($xpath);
-
-		if ( !$tmp ) return "";
-		return current($tmp);
-	};
-	
+		
 	function doinclude($file) {
 		global $sharedfolder, $username;
 		
