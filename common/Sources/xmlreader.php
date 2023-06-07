@@ -345,7 +345,7 @@
 		if ( current($record->xpath("status")) == "private" && !$username ) fatal("Private resource"); 
 		
 		$tmp = explode ( ",", $itemtitle );
-		while ( !$tit && $tmp ) {  $tit = current($record->xpath(array_shift($tmp))); };
+		while ( !$tit && $tmp ) {  $tit = getxpval($record, array_shift($tmp)); };
 		$maintext .= "<h2>$tit</h2>
 		
 		<table>";

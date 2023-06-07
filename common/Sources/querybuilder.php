@@ -232,6 +232,7 @@
 		};
 		foreach ( $settings['cqp']['annotations'] as $lvl ) {
 			foreach ( $lvl as $xatt ) {
+				if ( !is_array($xatt) ) continue;
 				if ( $xatt['admin'] && !$username ) continue;
 				if ( !$xatt['display'] || !$xatt['key'] || !is_array($xatt) ) continue;
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";

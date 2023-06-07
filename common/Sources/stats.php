@@ -150,7 +150,11 @@ function evalmath($equation) {
 		$equation = str_replace($matches[1], $vars[$matches[1]]+0, $equation); 
     };
     if ( $equation != "" ){
-        $result = @eval("return " . $equation . ";" );
+        try {
+        	$result = @eval("return " . $equation . ";" );
+        } catch(Exception $e ) {
+        	return "NaN";
+        };
     }
     if ($result == null) {
         $result = "NaN";
