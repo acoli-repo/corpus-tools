@@ -98,7 +98,7 @@
 			};
 			
 			$vardec = $val['dec'] or $vardec = 3;
-			if ( floor($varval) != $varval || $val['dec'] ) $varval = number_format($varval, $vardec);
+			if (is_float($varval)) if ( floor($varval) != $varval || $val['dec'] ) $varval = number_format($varval, $vardec);
 			 
 			$vars[$val['var']] = $varval;
 			$tit = str_replace("'", "&quot;", "$varname: $tit");
@@ -152,7 +152,13 @@ function evalmath($equation) {
     if ( $equation != "" ){
         try {
         	$result = @eval("return " . $equation . ";" );
-        } catch(Exception $e ) {
+		} catch (Exception $t) {
+        	return "NaN";
+		} catch (ParseError $e) {
+        	return "NaN";
+		} catch (\DivisionByZeroError $e) {
+        	return "NaN";
+		} catch (\TypeError $e) {
         	return "NaN";
         };
     }
