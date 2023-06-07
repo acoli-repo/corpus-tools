@@ -1063,6 +1063,8 @@
 		# List of types of NER we have
 		$maintext .= "<h2>{%$nertitle}</h2><h1>{%Select}</h1>";
 		
+		$maintext .= getlangfile("nerlisttext");
+		
 		foreach ( $nerlist as $key => $val ) {
 			$maintext .= "<p><a href='index.php?action=$action&type=$key'>{$val['display']}</a>";
 		};
