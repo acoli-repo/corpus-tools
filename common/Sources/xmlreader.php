@@ -339,7 +339,7 @@
 		# Record details
 	
 		$result = $xml->xpath("//{$recname}[@id='{$_GET['id']}']"); 
-		$record = current($result);
+		if ( is_array($result) ) $record = current($result);
 		if ( !$record ) fatal ( "No such record: $id" );
 		
 		if ( current($record->xpath("status")) == "private" && !$username ) fatal("Private resource"); 

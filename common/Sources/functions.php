@@ -239,6 +239,20 @@
 		return current($tmp); # Return first element of node
 	};
 
+	function getset( $patht, $default ) {
+		global $settings;
+		$result = $default;
+		$path = explode('/', $patht);
+		$last = array_pop($path);
+		$curr = $settings;
+		foreach ( $path as $pp ) {
+			if ( !is_array($curr[$pp]) ) return $default;
+			$curr = $curr[$pp];
+		};
+		if ( !$curr[$last] ) return $default;
+		return $curr[$last];
+	};
+
 	function i18n ( $text, $tolang = "" ) {
 		global $lang; global $i18n; global $langprefix; global $deflang; global $debug; global $ttroot; 
 		global $i18nlang; global $sharedfolder;

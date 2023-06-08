@@ -288,7 +288,7 @@
 				
 		
 		// Preselect styles
-		$searchtype = $settings['cqp']['defaults']['searchtype'] or $searchtype = "kwic";
+		$searchtype = getset('cqp/defaults/searchtype', "kwic");
 		$moreactions .= "switchtype('style', '$searchtype');";  
 		$optiontext .= "
 				<p>{%Display method}: 
