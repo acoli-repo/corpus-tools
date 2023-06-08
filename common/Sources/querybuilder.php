@@ -303,19 +303,20 @@
 		if ( $user['permissions'] == "admin" && count($cqpopts) > 1 ) $optiontext .= "
 				<p>{%CQP application}: ".join("\n", $cqpopts);
 		
-		foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
-			if ( $settings['cqp']['defaults']['subtype'] == $key ) $sel = "checked"; else $sel = "";
+		$sattlist = getset('cqp/sattributes', array());
+		foreach ( $sattlist as $key => $val ) {
+			if ( !is_array($val) ) continue;
+			if ( getset('cqp/defaults/subtype') == $key) $sel = "checked"; else $sel = "";
 			if ( $key != "text" && $val['display'] ) $morecontext .= "<input type=radio name=substyle value='{$val['key']}' $sel> {$val['display']}";
 		};		
 		
-		
-		$cntlist1 = array ( 3,4,5,6,7 );
+		$cntlist1 = array ( 3,4,5,6,7 ); # Context length options
 		$defcnt = $settings['cqp']['defaults']['kwic'] or $defcnt = '5';
 		foreach ( $cntlist1 as $key ) { 
 			if ( $key == $defcnt ) $sel = "selected"; else $sel = "";
 			$cntopts1 .= "<option value='$key' $sel>$key</option>"; 
 		};
-		$cntlist2 = array ( 5, 15, 30, 50, 100 );
+		$cntlist2 = array ( 5, 15, 30, 50, 100 ); # Result size options
 		$defcnt = $settings['cqp']['defaults']['context'] or $defcnt = '30';
 		foreach ( $cntlist2 as $key ) { 			
 			if ( $key == $defcnt ) $sel = "selected"; else $sel = "";

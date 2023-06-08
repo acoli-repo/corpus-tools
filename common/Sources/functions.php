@@ -239,7 +239,7 @@
 		return current($tmp); # Return first element of node
 	};
 
-	function getset( $patht, $default ) {
+	function getset( $patht, $default = "" ) {
 		global $settings;
 		$result = $default;
 		$path = explode('/', $patht);
