@@ -311,13 +311,14 @@
 		};		
 		
 		$cntlist1 = array ( 3,4,5,6,7 ); # Context length options
-		$defcnt = $settings['cqp']['defaults']['kwic'] or $defcnt = '5';
+		# $defcnt = $settings['cqp']['defaults']['kwic'] or $defcnt = '5';
+		$defcnt = getset('cqp/defaults/kwic', '5');
 		foreach ( $cntlist1 as $key ) { 
 			if ( $key == $defcnt ) $sel = "selected"; else $sel = "";
 			$cntopts1 .= "<option value='$key' $sel>$key</option>"; 
 		};
 		$cntlist2 = array ( 5, 15, 30, 50, 100 ); # Result size options
-		$defcnt = $settings['cqp']['defaults']['context'] or $defcnt = '30';
+		$defcnt = getset('cqp/defaults/context', '30');
 		foreach ( $cntlist2 as $key ) { 			
 			if ( $key == $defcnt ) $sel = "selected"; else $sel = "";
 			$cntopts2 .= "<option value='$key' $sel>$key</option>"; 

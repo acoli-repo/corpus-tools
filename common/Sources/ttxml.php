@@ -106,6 +106,7 @@ class TTXML
 	}
 
 	function xpath($xpath) {
+		if ( !is_object($this->xml) ) return;
 		$res = $this->xml->xpath($xpath);
 		return $res;
 	}
