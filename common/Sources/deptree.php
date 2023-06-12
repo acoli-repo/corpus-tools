@@ -183,7 +183,7 @@
 		};
 		exit;
 
-	} else if ( $sid || $_GET['jmp'] || $_GET['tid'] ) {
+	} else if ( is_object($ttxml) && ( $sid || $_GET['jmp'] || $_GET['tid'] ) ) {
 
 		$fileid = $ttxml->fileid;
 
