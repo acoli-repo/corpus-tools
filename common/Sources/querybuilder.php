@@ -1,7 +1,8 @@
 <?php
 
 	$cqpcols = array();
-	foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
+	$tmp = getset('cqp/pattributes', array());
+	foreach ( $tmp as $key => $item ) {
 		if ( $username || !$item['admin'] ) array_push($cqpcols, $key); 
 	}; 
 	
@@ -16,7 +17,7 @@
 	};
 
 	# Determine which form to search on by default 
-	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "form";
+	$wordfld = getset('cqp/wordfld', "form");
 	if ( !in_array($wordfld, $cqpcols) )  array_unshift($cqpcols, $wordfld ); # We need the wordfld as a search option
 				
 		$querytext .= "<h2 style='text-align: left; margin-bottom: 20px;'>{%Query Builder}</h2>

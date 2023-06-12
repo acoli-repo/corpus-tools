@@ -219,6 +219,7 @@
 		# Make a human readable number
 		$deg = array ( "", "k", "M", "G", "T",  "P", "E" );
 		$i = 0;
+		if ( !is_numeric($num) ) $num = (int)$num;
 		# Keep dividing by 1000
 		while ( $num > 1000 ) {
 			$i++; $num = $num/1000;
