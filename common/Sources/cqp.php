@@ -34,8 +34,8 @@
 				if ( substr($res,0,5) == "HOME " ) {
 					$subcorpfolder = trim(substr($res,5));
 				};
-				$subfolder = preg_replacE("/.*\//", "", $subcorpfolder);
-			} else $subfolder = "$subcorpus";
+				if ( !$subfolder ) $subfolder = preg_replacE("/.*\//", "", $subcorpfolder);
+			} else if ( !$subfolder ) $subfolder = "$subcorpus";
 			if ( !file_exists($registryfolder."/".strtolower($cqpcorpus)) ) {
 				print "Not a subcorpus: $cqpcorpus / $subcorpus"; exit;
 				$_SESSION['subc-'.$foldername] = "";

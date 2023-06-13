@@ -100,6 +100,10 @@ string cwb_pos_2_val(string att, int pos) {
 
 	filename = cqpfolder + "/" + att + ".corpus";
 	file = fopen ( filename.c_str() , "rb" );
+	if ( !file ) {
+		if ( verbose ) { cout << "Failed to open " << filename << endl; };
+		return "";
+	};
 	int lexidx = read_network_number(pos,file);
 	if ( debug > 3 ) { cout << "Lexicon position for " << pos << " in " << filename << " = " << lexidx << endl; };
 	fclose (file);
