@@ -81,6 +81,18 @@ class TTXML
 		$this->filename = preg_replace ( "/.*\//", "", $fileid );
 		$this->xmlid = preg_replace ( "/\.xml/", "", $this->filename );
 
+		# Check whether this XML file is small enough to just load
+		if ( !$noparse ) {
+			$limit = str_replace(array('G', 'M', 'K'), array('000000000', '000000', '000'), ini_get('memory_limit'));
+			$maxsize = $limit / 3; # We can work with XML files taking up that 1/3 of the total PHP memory
+			$fullfile = "xmlfiles/".$this->fileid;
+			if ( file_exists($fullfile) ) $filesize = filesize($fullfile);
+			if ( $filesize > $maxsize ) {
+				$noparse = 1;
+				fatal("XML file exceeds file size limit");
+			};
+		};
+
 		if ( !$noparse ) $this->loadxmlfile();
 		else $this->loadheader();
 		

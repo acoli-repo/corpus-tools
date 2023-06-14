@@ -698,11 +698,17 @@
 	};
 
 	function fatal ($txt) {
-		global $username;
+		global $username, $settings, $action;
 		$time = time();
 		if (!is_dir("tmp")) mkdir("tmp"); 
 		$filename = "tmp/error_$time.txt";
 		file_put_contents($filename, $txt);
+		$logfile = getset("defaults/log/file");
+		if ( $logfile == "1" ) {
+			error_log($txt, 0);
+		} else if ( $logfile != "" ) {
+			error_log(strftime("%D %T")."\t$foldername\t$action\t{$_SERVER['REQUEST_URI']}\t$txt\n", 3, $logfile);
+		};
 		print "<h1>Fatal Error</h1><p>A fatal error has occurred";
 		if ( $txt && file_exists($filename) ) {
 			print "<script language=Javascript>top.location='index.php?action=error&msg=$time';</script>";
