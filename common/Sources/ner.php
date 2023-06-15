@@ -1001,7 +1001,7 @@
 			$neridtxt = str_replace("/", "\/", preg_quote($nerid));			
 		};
 		
-		$maintext .= "<div id=mtxt><table>";
+		$maintext .= "<div id=mtxt><table cellpadding=5>";
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $leftpos, $rightpos, $fileid, $tokid, $defval ) = explode("\t", $resline);
 			if ( !$fileid ) continue;
