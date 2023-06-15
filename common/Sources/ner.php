@@ -336,7 +336,8 @@
 			};
 		};
 
-		$result = $xml->xpath($mtxtelement); 
+		# Display the first parent node as context
+		$result = $nernode->xpath(".."); 
 		$txtxml = $result[0]; 
 
 		$maintext .= "</table>";
