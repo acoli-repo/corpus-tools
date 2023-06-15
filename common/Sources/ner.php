@@ -1001,7 +1001,7 @@
 			$neridtxt = str_replace("/", "\/", preg_quote($nerid));			
 		};
 		
-		$maintext .= "<div id=mtxt><table cellpadding=5>";
+		$maintext .= "<div id=mtxt><table cellpadding=2>";
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $leftpos, $rightpos, $fileid, $tokid, $defval ) = explode("\t", $resline);
 			if ( !$fileid ) continue;
@@ -1019,7 +1019,7 @@
 				$resxml = preg_replace ( "/(<\/?(table|cell|row)(?=[ >])[^>]*>\s*)+/", " ", $resxml);
 			};
 			$context = preg_replace("/.*\/(.*?)\.xml/", "\\1", $fileid);
-			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlid=".urlencode($_GET['nerid'])."'>$context</a><td>$resxml<td>$defval";
+			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlid=".urlencode($_GET['nerid'])."'>$context</a><td style='padding-left: 7px; padding-right: 7px; '>$resxml<td>$defval";
 		};
 		$maintext .= "</table></div>";
 		
