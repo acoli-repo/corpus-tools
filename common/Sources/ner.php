@@ -1019,7 +1019,7 @@
 				$resxml = preg_replace ( "/(<\/?(table|cell|row)(?=[ >])[^>]*>\s*)+/", " ", $resxml);
 			};
 			$context = preg_replace("/.*\/(.*?)\.xml/", "\\1", $fileid);
-			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlid=".urlencode($_GET['nerid'])."'>$context</a><td style='padding-left: 7px; padding-right: 7px; '>$resxml<td>$defval";
+			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlid=".urlencode($_GET['nerid'])."'>$context</a><td style='padding-left: 7px; padding-right: 7px; '>$resxml<td style='opacity: 0.5;'>$defval";
 		};
 		$maintext .= "</table></div>";
 		
