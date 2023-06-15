@@ -982,12 +982,15 @@
 		$nodetype = $nerdef['elm'];
 		$nodeatt = $nerdef['cqp'];
 
+		$tmp = getset("xmlfile/ner/deffld");
+		if ( $tmp ) $defcol = ", match $tmp";
+
 		$cql = "Matches = <$nodeatt> []+ </$nodeatt> :: match.{$nodeatt}_nerid=\".*#?{$_GET['nerid']}\"";
 		$cqp->exec($cql); 
 		$size = max(0, $cqp->exec("size Matches"));
 		if ( $size ) {
 			$maintext .= "<h2 style='margin-top: 20px;'>{%Occurrences}</h2>";
-			$results = $cqp->exec("tabulate Matches match, matchend, match text_id, match id");
+			$results = $cqp->exec("tabulate Matches match, matchend, match text_id, match id $defcol");
 			$xidxcmd = findapp("tt-cwb-xidx");
 
 			$csize = $settings['xmlfile']['ner']['context'] or $csize = 0;
@@ -1000,7 +1003,7 @@
 		
 		$maintext .= "<div id=mtxt><table>";
 		foreach ( explode("\n", $results) as $resline ) {
-			list ( $leftpos, $rightpos, $fileid, $tokid ) = explode("\t", $resline);
+			list ( $leftpos, $rightpos, $fileid, $tokid, $defval ) = explode("\t", $resline);
 			if ( !$fileid ) continue;
 			$cmd = "$xidxcmd --filename='$fileid' --cqp='$cqpfolder' $expand $leftpos $rightpos";
 			$resxml = shell_exec($cmd);
@@ -1016,13 +1019,13 @@
 				$resxml = preg_replace ( "/(<\/?(table|cell|row)(?=[ >])[^>]*>\s*)+/", " ", $resxml);
 			};
 			$context = preg_replace("/.*\/(.*?)\.xml/", "\\1", $fileid);
-			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlid=".urlencode($_GET['nerid'])."'>$context</a><td>$resxml";
+			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$fileid&jmp=$tokid&hlid=".urlencode($_GET['nerid'])."'>$context</a><td>$resxml<td>$defval";
 		};
 		$maintext .= "</table></div>";
 		
 
 	} else if ( $_GET['type'] || count($nerlist) == 1 ) {
-
+	
 		$type = strtolower($_GET['type']) or $type = current(array_keys($nerlist));
 		$subtypefld = $nerlist[$type]['subtypes']['fld'] or $subtypefld = "type";
 
@@ -1045,8 +1048,10 @@
 		$cql = "Matches = <$neratt> []"; 
 		$cqp->exec($cql); 
 		
-		$cql = "group Matches match {$neratt}_{$nerform} by match {$neratt}_nerid";
-		$results = $cqp->exec($cql); 
+		$cql2 = "group Matches match {$neratt}_{$nerform} by match {$neratt}_nerid";
+		$results = $cqp->exec($cql2); 
+
+		if ( $debug ) $maintext .= "<p>Query: $cql / $cql2";
 		
 		$rowhash = array();
 		foreach ( explode("\n", $results) as $resline ) {

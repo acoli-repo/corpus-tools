@@ -57,7 +57,7 @@ class TTXML
 	
 		if ( !file_exists("$xmlfolder/$fileid") ) {
 			if ( $settings['xmlfile']['fullpath'] ) {
-				if ( $fatal ) fatal("No such XML File: $fileid"); 
+				if ( $fatal ) fatal("No such XML File: $this->fileid"); 
 				else return -1;
 			};
 			# Search for the file, unless told to only use direct path
