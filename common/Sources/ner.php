@@ -906,7 +906,7 @@
 			$src = getxpval($fig, "graphic/@url");
 			$fh = getxpval($fig, "head");
 			$fd = getxpval($fig, "figDesc");
-			$maintext .= "<div style='float: right; width: 300px; clear: both;'><p style='font-weight: bold'>$fh</p><img src='$src' width='300px'/><p style='font-style: italic'>$fd</p></div>";
+			$maintext .= "<div style='float: right; width: 300px;'><p style='font-weight: bold'>$fh</p><img src='$src' width='300px'/><p style='font-style: italic'>$fd</p></div>";
 		};
 
 		$nername = $nerdef['display'] or $nername = $type;
