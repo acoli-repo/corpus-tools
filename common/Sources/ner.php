@@ -902,19 +902,28 @@
 			fatal("No such record: $nerid");
 		};
 
+		foreach ( $nernode->xpath("figure") as $fig ) {
+			$src = getxpval($fig, "graphic/@url");
+			$fh = getxpval($fig, "head");
+			$fd = getxpval($fig, "figDesc");
+			$maintext .= "<div style='float: right; width: 300px; clear: both;'><p style='font-weight: bold'>$fh</p><img src='$src' width='300px'/><p style='font-style: italic'>$fd</p></div>";
+		};
+
 		$nername = $nerdef['display'] or $nername = $type;
 		$maintext .= "<h2>{%$nertitle}</h2><h1>$name</h1>
 		<p>Type of $neritemname: <b>$nername</b>";
+
 		
-		$snippetelm = $settings['xmlfile']['ner']['snippet'] or $snippetelm = "label";
+		$snippetelm = $settings['xmlfile']['ner']['snippet'] or $snippetelm = "gloss";
 		$snippetxml = current($nernode->xpath(".//$snippetelm"));
 		if ( $snippetxml ) $maintext .= "<div style='padding: 10px; border: 1px solid #aaaaaa;'>".$snippetxml->asXML()."</div>";
+
 	
 		$subtypefld = $nerlist[$type]['subtypes']['fld'] or $subtypefld = "type";
 		$subdisplay = $nerlist[$type]['subtypes'][$subtype]['display'] or $subdisplay = $subvalue;
 		if ( $subdisplay ) $maintext .= "<p>Subtype: <b>$subdisplay</b>";
 	
-		$descflds = $nerdef['descflds'] or $descflds = array ("note", "desc", "head", "label");
+		$descflds = $nerdef['descflds'] or $descflds = array ("note", "desc", "gloss", "head", "label");
 		if ( $nerdef['options'] && $nernode ) {
 			$maintext .= "<p><table>";
 			foreach ( $nerdef['options'] as $key => $val ) {
@@ -935,6 +944,7 @@
 			$maintext .= "<table>";
 			foreach ( $nernode->children() as $childnode ) {
 				$nodename = $childnode->getName();
+				if ( $nodename == $snippetelm ) continue;
 				if ( in_array( $nodename, $descflds ) ) {
 					$maintext .= "<tr><td colspan=2>".makexml($childnode);
 				} else if ( trim($childnode) != "" && $nodename != $nameelm ) {
