@@ -572,11 +572,23 @@ function conllu2tree(conll, makewords = true) {
 	return treesc['root'];
 };
 
+function hashcombine(ar1, ar2){
+	var ary=[];
+	for (var i=0; i<ar1.length; i++){
+		ary.push(ar1[i]);
+	}
+	for (var i=0; i<ar2.length; i++){
+		ary.push(ar2[i]);
+	}
+	return ary;
+}
+
 function parseteitok(sent, makewords = true) {
 	treesc = {}; root = -1; rootid = null;
 	treewords = [];
 	if ( typeof(sent) == 'string' ) sent = new DOMParser().parseFromString(sent, "text/html");
-	toks = sent.getElementsByTagName('tok'); 
+	// toks = sent.getElementsByTagName('tok'); 
+	toks = hashcombine(sent.getElementsByTagName('tok'), sent.getElementsByTagName('dtok')); 
 	ord = 0;
 	for ( i in toks ) {
 		tok = toks[i];

@@ -1074,7 +1074,9 @@
 			};
 			$p1 = strpos($raw, " id=\"$tok1\""); $p1 = rstrpos($raw, "<tok", $p1);
 			$p2 = strpos($raw, " id=\"$tok2\""); $p2 = strpos($raw, "</tok>", $p2)+6;
-			$impl = substr($raw,$p1,$p2-$p1);
+			if ( !$p1 || !$p2 ) return "";
+			$pd = $p2-$p1;
+			$impl = substr($raw, $p1, $pd);
 			$xmltxt .= $impl;
 		};
 		

@@ -191,6 +191,9 @@ while ( $tagtxt =~ /<($notoktype)[^>]*(?<!\/)>.*?<\/\1>/gsmi )  {
 	};
 	$oldtxt = $newtxt;
 	$tagtxt =~ s/\Q$notetxt\E/<ntn n="$notecnt"\/>/;
+	if ( $debug ) {
+		print "Removing $notoktype : $notetxt";
+	};
 	$notecnt++;
 };	
 # Also do XML comments 
