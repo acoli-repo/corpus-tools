@@ -89,6 +89,7 @@ class CQP
 		$env = array(); # $env = array('some_option' => 'aeiou');
 
 		$this->prcs = proc_open($cqpapp.' -r '.$registryfolder.' -c', $descriptorspec, $this->pipes, '-c', $env); # This should be -c
+		ignore_user_abort(true); # Continue even if user terminates connection
 		foreach ($this->pipes as $pipe) {
 			stream_set_blocking($pipe, false);
 		};
@@ -124,6 +125,11 @@ class CQP
 
     public function exec($cmd) {
     	global $settings, $username;
+    	
+		if ( connection_aborted() ) {
+ 			proc_terminate($this->prcs);
+			return false;
+		}
     	
     	$cmd = str_replace("\0", " ", $cmd);
     	$cmd = preg_replace("/[\n\r]/", " ", $cmd); # Keep commands on a single line
