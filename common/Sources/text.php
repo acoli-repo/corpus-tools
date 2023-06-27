@@ -106,7 +106,7 @@
 	$maintext .= "<h2>$txtid</h2><h1>$title</h1>";
 	
 	# Warn on <page> type temp files
-	if ( $xml->xpath("//page") ) {
+	if ( $ttxml->xml->xpath("//page") ) {
 		$warnings .= "<p style='background-color: #ffaaaa; padding: 5px;; font-weight: bold;'>This is not a pure TEI file,
 			but a temporary file for <a href='index.php?action=pagetrans&id=$xmlid'>page-by-page transcription</a>. Best use the appropriate function for that.</p>";
 	};

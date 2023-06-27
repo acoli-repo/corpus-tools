@@ -89,31 +89,33 @@
 					$idcnt[$nerid.""]++;
 				};
 			};	
-			ksort($idnames);
-			foreach ( $idnames as $nerid => $val ) {
-				$vallist = array_keys($val); natsort($vallist);
-				$name = join("<br/>", $vallist);
-				if ( substr($nerid, 0, 4) == "http") $idtxt = "<a href='$nerid'>$nerid</a>";
-				else if ( substr($nerid, 0, 1) == "#" ) {
-					$idxp = "//*[@id=\"".substr($ref,1)."\" or @xml:id=\"".substr($nerid,1)."\"]";
-					$idnode = $xml->xpath($idxp);
-					$idtxt = ""; $sep = "";
-					if ( !$idnode ) $idtxt = ""; else 
-					foreach ( $idnode[0]->xpath(".//link") as $linknode ) {
-						$idname = $linknode['type'] or $idname = $linknode['target'];
-						$idtxt = $sep."<a href='{$linknode['target']}'>$idname</a>"; 
-						$sep = "<br/>";
-					};
-				} else if ( $username ) $idtxt = "<i style='opacity: 0.5'>$nerid</i>";
-				else $idtxt = "<i style='opacity: 0'>$nerid</i>";
-				if ( $idlist[$nerid] ) $idtxt = "<a href='index.php?action=ner&nerid=".urlencode($nerid)."' target=ner>$idtxt</a>";
-				$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
-				if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
-				$nametxt = "<td>".$name; 
-				if ( $idlist[$nerid] ) $nametxt = "<td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a>";
-				$maintext .= "<tr key='$name' class='$trc'>$nametxt 
-					<td>$idtxt
-					<td style='opacity: 0.5; text-align: right; padding-left: 10px;' title='{%Occurrences}'>{$idcnt[$nerid]}";
+			if (is_array($idnames)) {
+				ksort($idnames);
+				foreach ( $idnames as $nerid => $val ) {
+					$vallist = array_keys($val); natsort($vallist);
+					$name = join("<br/>", $vallist);
+					if ( substr($nerid, 0, 4) == "http") $idtxt = "<a href='$nerid'>$nerid</a>";
+					else if ( substr($nerid, 0, 1) == "#" ) {
+						$idxp = "//*[@id=\"".substr($ref,1)."\" or @xml:id=\"".substr($nerid,1)."\"]";
+						$idnode = $xml->xpath($idxp);
+						$idtxt = ""; $sep = "";
+						if ( !$idnode ) $idtxt = ""; else 
+						foreach ( $idnode[0]->xpath(".//link") as $linknode ) {
+							$idname = $linknode['type'] or $idname = $linknode['target'];
+							$idtxt = $sep."<a href='{$linknode['target']}'>$idname</a>"; 
+							$sep = "<br/>";
+						};
+					} else if ( $username ) $idtxt = "<i style='opacity: 0.5'>$nerid</i>";
+					else $idtxt = "<i style='opacity: 0'>$nerid</i>";
+					if ( $idlist[$nerid] ) $idtxt = "<a href='index.php?action=ner&nerid=".urlencode($nerid)."' target=ner>$idtxt</a>";
+					$cidr = ""; if ( substr($nerid,0,1) == "#" ) $cidr = "&cid=".$ttxml->fileid;
+					if ( $trc == "odd" ) $trc = "even"; else $trc = "odd";
+					$nametxt = "<td>".$name; 
+					if ( $idlist[$nerid] ) $nametxt = "<td title='{%Lemma}'><a href='index.php?action=$action&type=$key&nerid=".urlencode($nerid)."$cidr'>$name</a>";
+					$maintext .= "<tr key='$name' class='$trc'>$nametxt 
+						<td>$idtxt
+						<td style='opacity: 0.5; text-align: right; padding-left: 10px;' title='{%Occurrences}'>{$idcnt[$nerid]}";
+				};
 			};
 		};
 		$maintext .= "</table>
