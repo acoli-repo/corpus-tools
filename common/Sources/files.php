@@ -77,16 +77,19 @@
 			# The name of the file changed - make changes to backups and text/@id accordingly...
 		};
 		
-		$maintext .= "<h1>File renamed</h1>
+		$maintext .= "<h1>File moved</h1>
 			<p>Click <a href='index.php?action=files'>here</a> to return to file list";
 		
 		
 	} else if ( $act == "mv" && $_GET['id'] && $username ) {
 		
 		$id = $_GET['id'];
-		$maintext .= "<h1>Move file</h1>
+		$maintext .= "<h1>Manage file</h1>
+			<h2>Move/Rename/Delete</h2>
 			<p>Indicate the full path of the folder where you want to move this file, or type in the
-				full path of the new name for this file
+				full path of the new name for this file. By moving it to the Trash, it will still be
+				on the file system, but no longer be part of the corpus. Deleted files will have
+				to be recuperated via the file manager of the server.
 			<form action='index.php?action=$action&act=$act' method=post id=pst name=pst>
 			<table>
 				<tr><td>Old filename:<td>$id <input type=hidden name=id value='$id'>
@@ -138,7 +141,7 @@
 		}; 
 		foreach ( $files as $file ) {
 			$fn = str_replace("xmlfiles/", "", $file);
-			$editlink = "<div style='display: inline-block; padding: 4px;' class=adminpart><a href='index.php?action=$action&act=mv&id=$fn'>rename</a></div> ";
+			$editlink = "<div style='display: inline-block; padding: 4px;' class=adminpart><a href='index.php?action=$action&act=mv&id=$fn'>manage</a></div> ";
 			$maintext .= "<p>$editlink<a href='index.php?action=file&id=$fn'>$fn</a>"; 
 		};
 		$maintext .= "</ul>
@@ -190,7 +193,7 @@
 			$filelink = urlencode($file);
 			if ( substr($file, -4) == ".xml" ) { 
 				if ( $username ) {
-					$editlink = "<div style='display: inline-block; padding: 4px;' class=adminpart><a href='index.php?action=$action&act=mv&id=$subftxt2$file'>rename</a></div> ";
+					$editlink = "<div style='display: inline-block; padding: 4px;' class=adminpart><a href='index.php?action=$action&act=mv&id=$subftxt2$file'>manage</a></div> ";
 				};
 				$filelist .= "<p>$editlink<a href='index.php?action=file&id=$subftxt2$filelink'>$file</a>"; 
 				$cnt++;

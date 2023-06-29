@@ -271,7 +271,7 @@
 		if ( $folderlist ) {
 			$maintext .= "<hr style='clear:both;'><h3>Subfolders</h3>$folderlist";
 		};
-		$maintext .= "<hr style='clear:both;'><p><a href='index.php?action=$action&act=list&type=$type'>back to upload</a>";
+		$maintext .= "<hr style='clear:both;'><p><a href='index.php?action=$action&act=list&type=$type'>back to file manager</a>";
 		if ( $sf ) {
 			$upfolder = preg_replace("/\/?[^\/]+$/", "", $sf);
 			$maintext .= " &bull; <a href='index.php?action=$action&act=$act&type=$type&subfolder=$upfolder'>to parent folder</a>";
@@ -284,7 +284,7 @@
 		$acar = explode ( ",", $accept );
 		$maxsize = min(intval(ini_get("upload_max_filesize")), intval(ini_get("post_max_size")), intval(ini_get("memory_limit")));
 
-		$maintext .= "<h1>File Upload</h1>
+		$maintext .= "<h1>File Manager</h1>
 				<h2>{$typedef['display']}</h2>";
 
 		# First - read all the files
@@ -427,9 +427,9 @@
 
 	} else {
 
-		$maintext .= "<h1>File Upload</h1>
+		$maintext .= "<h1>File Manager</h1>
 
-			<h3>Select a type of file to upload</h3>
+			<h3>Select a filetype</h3>
 
 			<table>";
 
@@ -440,7 +440,13 @@
 			};
 		};
 
-		$maintext .= "</table>";
+		$maintext .= "</table>
+		<hr>
+		<p>
+		For safety, TEITOK does not provide a generic file manager, it only allows uploaded and 
+		delete specific types of files. New filetypes can be added by admin users in the settings.
+		</p>
+		";
 	};
 
 	function human_filesize($bytes, $decimals = 2) {
