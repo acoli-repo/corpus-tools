@@ -29,7 +29,12 @@
 	
 	if ( $act == "query" ) {
 	
-		include("$sharedfolder/Sources/apiquery.php");
+		if ( file_exists("Sources/apiquery.php") )
+			include("Sources/apiquery.php");
+		if ( file_exists("$sharedfolder/Sources/apiquery.php") )
+			include("$sharedfolder/Sources/apiquery.php");
+		else
+			include("$ttroot/common/Sources/apiquery.php");
 		exit;
 	
 	} else if ( $act == "download" ) {
