@@ -162,17 +162,16 @@
 				$content = sentbyid($textid, $sentid, $lvl);
 			};		
 			if ( $output == "json" ) {
-				$content = str_replace('"', '\\"', $content);
-				$content = str_replace("\n", ' ', $content);
-				$content = str_replace("\t", ' ', $content);
-				$content = "\"$content\"";
+				$content = $jcont;
+			} else {
+				$content = trim($content);
 			};
-			if ( trim($content) ) {
+			if ( $content ) {
 				$jce = json_decode ("{}");
 				$jce->cid = $textid;
 				$jce->sentid = $sentid;
 				$jce->toks = $tokar;
-				$jce->content = $jcont;
+				$jce->content = $content;
 				array_push($jc->results, $jce);
 			};
 		};
