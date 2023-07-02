@@ -105,13 +105,16 @@
 			print "{\"total\": 0, \"results\": []}"; exit;
 		};
 
+		$resar = explode("\n", $results);
+
 		$jc = json_decode ("{}");
 		$jc->total = $totcnt;
 		$jc->qid = $qid;
 		$jc->start = $start;
+		$jc->count = count($resar); # set here to get it in the right spot
 		$jc->results = [];
 
-		foreach ( explode("\n", $results) as $i => $line ) {
+		foreach ( $resar as $i => $line ) {
 			list ( $textid, $sentid, $toks, $text ) = explode("\t", $line);
 			if ( !$textid ) continue;
 			if ( !$sentid ) list ($textid, $sentid) = explode("_", $textid);
@@ -176,6 +179,7 @@
 				array_push($jc->results, $jce);
 			};
 		};
+		$jc->count = count($jc->results);
 		print json_encode($jc, JSON_PRETTY_PRINT);
 		
 	} elseif ( $format == 'text' ) {
