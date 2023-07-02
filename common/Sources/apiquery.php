@@ -176,7 +176,7 @@
 				array_push($jc->results, $jce);
 			};
 		};
-		print json_encode($jc);
+		print json_encode($jc, JSON_PRETTY_PRINT);
 		
 	} elseif ( $format == 'text' ) {
 	
