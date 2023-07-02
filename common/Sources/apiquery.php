@@ -129,7 +129,7 @@
 						$form = $tok['form'] or $form = $tok."";
 						$jtok->form = $tok."";
 						foreach ( $tok->attributes() as $key => $val ) {
-							$jtok->{$key} = $val;
+							$jtok->{$key} = $val."";
 						};
 						$arpos = array_search($tok['id'], $tokar);
 						if ( $arpos !== false ) {
