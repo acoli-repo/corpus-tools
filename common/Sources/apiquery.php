@@ -170,7 +170,7 @@
 			} else {
 				$content = trim($content);
 			};
-			if ( $content ) {
+			if ( $content || !$hideempties ) {
 				$jce = json_decode ("{}");
 				$jce->cid = $textid;
 				$jce->sentid = $sentid;
