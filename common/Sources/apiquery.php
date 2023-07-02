@@ -154,10 +154,11 @@
 					};
 				};
 			} else if ( $output == "text" ) {
-				if ( !$text ) {
+				if ( trim($text) == "" ) {
 					$tmp = sentbyid($textid, $sentid, $lvl);
 					$text = totext($tmp);
 				};
+				$content = $text;
 			} else { # if ( $output == "xml" ) {
 				$content = sentbyid($textid, $sentid, $lvl);
 			};		
