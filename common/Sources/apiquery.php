@@ -110,33 +110,42 @@
 			if ( !$textid ) continue;
 			if ( !$sentid ) list ($textid, $sentid) = explode("_", $textid);
 			if ( substr($textid,-4) != ".xml" ) $textid .= ".xml";
-			$toklist = '"'.join('", "', explode(",",  $toks)).'"';
+			$tokar = explode(",",  $toks);
+			$toklist = '"'.join('", "', $tokar).'"';
 			if ( $output == "json" ) {
 				$tmp = sentbyid($textid, $sentid, $lvl);
 				libxml_use_internal_errors(true);
 				$frag = simplexml_load_string("<node>$tmp</node>");
 				if ( $frag ) {
-					$content = "["; $sep = "";
+					$content = "["; $sep2 = "";
 					foreach ( $frag->xpath("//tok[not(dtok)] | //dtok") as $tok ) {
 						$form = $tok['form'] or $form = $tok."";
-						$content .= "$sep{\"form\": \"$form\"";
+						$content .= "$sep2{\"form\": \"$form\"";
 						foreach ( $tok->attributes() as $key => $val ) {
 							if ( $key != "form" ) $content .= ", \"$key\": \"$val\"";
 						};
-						$content .= "}"; $sep = ",";
+						$arpos = array_search($tok['id'], $tokar);
+						if ( $arpos !== false ) {
+							$content .= ", \"restok\": \"$arpos\"";
+						};
+						$content .= "}"; $sep2 = ",";
 					};
 					$content .= "]";
 				} else {
-					$content = "["; $sep = "";
+					$content = "["; $sep2 = "";
 					preg_match_all("/<tok[^<>]+>([^<>]+)<\/tok>/", $tmp, $matches);
 					foreach ( $matches[0] as $key => $val ) {
 						$tok = simplexml_load_string($val);
 						$form = $tok['form'] or $form = $tok."";
-						$content .= "$sep{\"form\": \"$form\"";
+						$content .= "$sep2{\"form\": \"$form\"";
 						foreach ( $tok->attributes() as $key => $val ) {
 							if ( $key != "form" ) $content .= ", \"$key\": \"$val\"";
 						};
-						$content .= "}"; $sep = ",";
+						$arpos = array_search($tok['id'], $tokar);
+						if ( $arpos !== false ) {
+							$content .= ", \"restok\": \"$arpos\"";
+						};
+						$content .= "}"; $sep2 = ",";
 					};
 					$content .= "]";
 				};
