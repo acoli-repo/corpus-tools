@@ -100,11 +100,17 @@
 
 	if ( $format == 'json' ) {
 		header('Content-Type: application/json; charset=utf-8');
+		
 		if ( !filesize("cache/$qid") ) {
 			print "{\"total\": 0, \"results\": []}"; exit;
 		};
-		print "{\"total\": $totcnt, \"qid\": \"$qid\", \"start\":  $start, \"results\": [\n"; 
-		$sep = "";
+
+		$jc = json_decode ("{}");
+		$jc->total = $totcnt;
+		$jc->qid = $qid;
+		$jc->start = $start;
+		$jc->results = [];
+
 		foreach ( explode("\n", $results) as $i => $line ) {
 			list ( $textid, $sentid, $toks, $text ) = explode("\t", $line);
 			if ( !$textid ) continue;
@@ -116,38 +122,36 @@
 				$tmp = sentbyid($textid, $sentid, $lvl);
 				libxml_use_internal_errors(true);
 				$frag = simplexml_load_string("<node>$tmp</node>");
+				$jcont = json_decode ("[]");
 				if ( $frag ) {
-					$content = "["; $sep2 = "";
 					foreach ( $frag->xpath("//tok[not(dtok)] | //dtok") as $tok ) {
+						$jtok = json_decode ("{}");
 						$form = $tok['form'] or $form = $tok."";
-						$content .= "$sep2{\"form\": \"$form\"";
+						$jtok->form = $tok."";
 						foreach ( $tok->attributes() as $key => $val ) {
-							if ( $key != "form" ) $content .= ", \"$key\": \"$val\"";
+							$jtok->{$key} = $val;
 						};
 						$arpos = array_search($tok['id'], $tokar);
 						if ( $arpos !== false ) {
-							$content .= ", \"restok\": \"$arpos\"";
+							$jtok->restok = $arpos;
 						};
-						$content .= "}"; $sep2 = ",";
+						array_push($jcont, $jtok);
 					};
-					$content .= "]";
 				} else {
-					$content = "["; $sep2 = "";
 					preg_match_all("/<tok[^<>]+>([^<>]+)<\/tok>/", $tmp, $matches);
 					foreach ( $matches[0] as $key => $val ) {
 						$tok = simplexml_load_string($val);
-						$form = $tok['form'] or $form = $tok."";
-						$content .= "$sep2{\"form\": \"$form\"";
+						$jtok = json_decode ("{}");
+						$jtok->form = $tok."";
 						foreach ( $tok->attributes() as $key => $val ) {
-							if ( $key != "form" ) $content .= ", \"$key\": \"$val\"";
+							$jtok->{$key} = $val."";
 						};
 						$arpos = array_search($tok['id'], $tokar);
 						if ( $arpos !== false ) {
-							$content .= ", \"restok\": \"$arpos\"";
+							$jtok->restok = $arpos;
 						};
-						$content .= "}"; $sep2 = ",";
+						array_push($jcont, $jtok);
 					};
-					$content .= "]";
 				};
 			} else if ( $output == "text" ) {
 				if ( !$text ) {
@@ -157,18 +161,22 @@
 			} else { # if ( $output == "xml" ) {
 				$content = sentbyid($textid, $sentid, $lvl);
 			};		
-			if ( $output != "json" ) {
+			if ( $output == "json" ) {
 				$content = str_replace('"', '\\"', $content);
 				$content = str_replace("\n", ' ', $content);
 				$content = str_replace("\t", ' ', $content);
 				$content = "\"$content\"";
 			};
 			if ( trim($content) ) {
-				print $sep."\n{\"cid\": \"$textid\", \"sentid\": \"$sentid\", \"toks\": [$toklist], \"content\": $content}";
-				$sep = ",";
+				$jce = json_decode ("{}");
+				$jce->cid = $textid;
+				$jce->sentid = $sentid;
+				$jce->toks = $tokar;
+				$jce->content = $jcont;
+				array_push($jc->results, $jce);
 			};
 		};
-		print "\n]}";
+		print json_encode($jc);
 		
 	} elseif ( $format == 'text' ) {
 	

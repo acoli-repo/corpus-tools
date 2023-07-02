@@ -213,7 +213,6 @@
 			};
 			print json_encode($data);
 			exit;
-			exit;
 		} else {
 			print '{"error": "unknown query type"}';
 			exit;

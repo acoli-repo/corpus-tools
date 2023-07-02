@@ -8,7 +8,6 @@
 	session_start();
 
 	if ( $ttroot == "" ) $ttroot = "..";
-
 	include ( "$ttroot/common/Sources/functions.php" ); # Global functions
 
 	// Load the settings.xml file (via PHP)
@@ -183,7 +182,9 @@
 	# Some settings that used to be flexible, but now fixed
 	$xmlfolder = "xmlfiles";
 	$imagefolder = "Facsimile";
-	
+		
+	$nohtmlactions = array("api", "apiquery");
+	if ( !in_array($action, $nohtmlactions)  )
 	if ( file_exists("Sources/menu.php") ) include("Sources/menu.php");
 	else include("$ttroot/common/Sources/menu.php");
 

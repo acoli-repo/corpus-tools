@@ -33,6 +33,7 @@
 	if ( file_exists("$sharedfolder/Sources/startup.php") ) require("$sharedfolder/Sources/startup.php");
 	if ( file_exists("Sources/startup.php") ) require("Sources/startup.php");
 
+
 	# Read any shared settings
 	function readinshared($sharr, &$starr) {
 		global $settings;
