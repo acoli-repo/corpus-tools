@@ -193,7 +193,7 @@
 		
 			<form action='index.php?action=$action&act=$act' method=post>
 				<textarea autocomplete=\"on\" style='width: 100%; height: 200px;' name=query>{$_POST['query']}</textarea>
-				<p><input type=submit value='Execute'> <input type=checkbox name=raw value=1> Download as plain text
+				<p><input type=submit value='Execute'> <input type=checkbox name=raw value=1> Download raw result
 			</form>";
 
 		if ( $_POST['query'] ) {

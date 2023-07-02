@@ -111,20 +111,51 @@
 			if ( !$sentid ) list ($textid, $sentid) = explode("_", $textid);
 			if ( substr($textid,-4) != ".xml" ) $textid .= ".xml";
 			$toklist = '"'.join('", "', explode(",",  $toks)).'"';
-			if ( $output == "xml" ) {
-				$content = sentbyid($textid, $sentid, $lvl);
+			if ( $output == "json" ) {
+				$tmp = sentbyid($textid, $sentid, $lvl);
+				libxml_use_internal_errors(true);
+				$frag = simplexml_load_string("<node>$tmp</node>");
+				if ( $frag ) {
+					$content = "["; $sep = "";
+					foreach ( $frag->xpath("//tok[not(dtok)] | //dtok") as $tok ) {
+						$form = $tok['form'] or $form = $tok."";
+						$content .= "$sep{\"form\": \"$form\"";
+						foreach ( $tok->attributes() as $key => $val ) {
+							if ( $key != "form" ) $content .= ", \"$key\": \"$val\"";
+						};
+						$content .= "}"; $sep = ",";
+					};
+					$content .= "]";
+				} else {
+					$content = "["; $sep = "";
+					preg_match_all("/<tok[^<>]+>([^<>]+)<\/tok>/", $tmp, $matches);
+					foreach ( $matches[0] as $key => $val ) {
+						$tok = simplexml_load_string($val);
+						$form = $tok['form'] or $form = $tok."";
+						$content .= "$sep{\"form\": \"$form\"";
+						foreach ( $tok->attributes() as $key => $val ) {
+							if ( $key != "form" ) $content .= ", \"$key\": \"$val\"";
+						};
+						$content .= "}"; $sep = ",";
+					};
+					$content .= "]";
+				};
 			} else if ( $output == "text" ) {
 				if ( !$text ) {
 					$tmp = sentbyid($textid, $sentid, $lvl);
 					$text = totext($tmp);
 				};
-				$content = $text;
+			} else { # if ( $output == "xml" ) {
+				$content = sentbyid($textid, $sentid, $lvl);
+			};		
+			if ( $output != "json" ) {
+				$content = str_replace('"', '\\"', $content);
+				$content = str_replace("\n", ' ', $content);
+				$content = str_replace("\t", ' ', $content);
+				$content = "\"$content\"";
 			};
-			$content = str_replace('"', '\\"', $content);
-			$content = str_replace("\n", ' ', $content);
-			$content = str_replace("\t", ' ', $content);
 			if ( trim($content) ) {
-				print $sep."\n{\"cid\": \"$textid\", \"sentid\": \"$sentid\", \"toks\": [$toklist], \"content\": \"$content\"}";
+				print $sep."\n{\"cid\": \"$textid\", \"sentid\": \"$sentid\", \"toks\": [$toklist], \"content\": $content}";
 				$sep = ",";
 			};
 		};
