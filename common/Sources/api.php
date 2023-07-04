@@ -602,7 +602,7 @@
 			<h3>Browser Example</h3>
 			<table style='width: 100%;'><tr>
 			<td valign=top><pre id='url-download'>$baseurl/index.php?action=api&act=download&format=conllu&cid=$exampleid</pre>
-			<td valign=top><button onclick=\"dodl('url-download')\">this this</button>
+			<td valign=top><button onclick=\"dodl('url-download')\">try this</button>
 			</tr></table>
 
 			<h2 id='annotate'>Method ANNOTATE</h2>
@@ -693,7 +693,7 @@
 			
 			<p>Regenerate the CWB corpus + all secondary corpus format. While being regenerated, the corpus will not be searchable. Requires a login token. Can be used to 
 			periodically reindex a corpus under development, say every day at midnight using a local timed command.</p>
-
+			
 			<h2 id='query'>Method DELETE</h2>
 		
 			<p>Delete a file from the corpus. Contrary to deleting via the interface, the will not keep the file in the trash.</p>
@@ -701,7 +701,7 @@
 			<table id=rollovertable style='width: 100%'>
 			<tr><th>Parameter<th>Mandatory<th>Data type<th>Description</tr>
 			<tr><td>cid<td>yes<td>string<td>the ID of the TEI/XML file to be deleted
-			</table>
+			</table><p>
 			
 			<h2 id='query'>Method QUERY</h2>
 		
@@ -724,7 +724,7 @@
 			<h3>Browser Example</h3>
 			<table style='width: 100%;'><tr>
 			<td valign=top><pre id='url-query'>$baseurl/index.php?action=api&act=query&output=text&type=CQL&query=$exquery</pre>
-			<td valign=top><button onclick=\"dodl('url-query')\">this this</button>
+			<td valign=top><button onclick=\"dodl('url-query')\">try this</button>
 			</tr></table>
 
 
