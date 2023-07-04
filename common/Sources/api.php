@@ -10,6 +10,7 @@
 	header('Content-Type: application/json; charset=utf-8');
 
 	if ( $_GET['cid'] ) {
+	
 		$cid = $_GET['cid'];
 		if ( !file_exists($cid) ) {
 			if ( substr($cid,0,9) != "xmlfiles/" )
@@ -119,6 +120,10 @@
 	} else if ( $act == "list" ) {
 
 		$username = check_token(false);
+		if ( $_GET['token'] && !$username ) {
+			print '{"error": "invalid token"}';
+			exit;
+		}; 
 		
 		if ( $_GET['status'] ) {
 			$tmp = $_GET['status'];
@@ -527,6 +532,7 @@
 			<tr><td><a onclick=\"jumpto('metadata');\">metadata</a><td>Add or modify metadata for a file<td>GET/POST
 			<tr><td><a onclick=\"jumpto('getmeta');\">getmeta</a><td>Get metadata for all files<td>GET/POST
 			<tr><td><a onclick=\"jumpto('nlp');\">nlp</a><td>Run the default NLP pipeline on a file<td>GET/POST
+			<tr><td><a onclick=\"jumpto('delete');\">delete</a><td>Delete a file from the corpus<td>GET/POST
 			<tr><td><a onclick=\"jumpto('reindex');\">reindex</a><td>Regenerate the index corpora<td>GET/POST
 			<tr><td><a onclick=\"jumpto('query');\">query</a><td>Send a query request to the indexed corpus<td>GET/POST
 			</table><p>
