@@ -181,7 +181,7 @@
 	
 		if ( $settings['permissions']['groups'] )  $grouprec = $settings['permissions']['groups'][$user['group'].""];
 		$adminmenulist = array (
-				"upload" => "manage files",
+				"upload" => "upload/manage files",
 				"pageedit" => "edit HTML files",
 				"i18n" => "edit internationalization",
 				"csv" => "batch-edit XML using CSV",

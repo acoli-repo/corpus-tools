@@ -35,8 +35,10 @@
 		check_folder($target_folder); # Create the folder if needed
 
 		if ( $_POST["filename"] ) {
-			$target_file = $target_folder."/".$_POST["filename"];
-		} else  $target_file = $target_folder."/".basename($_FILES["upfile"]["name"]);
+			$target_name = $_POST["filename"];
+		} else  $target_name = basename($_FILES["upfile"]["name"]);
+		$target_name = preg_replace("/[ '\"]+/", "_", $target_name); # Protect filenames
+		$target_file = $target_folder."/".$target_name;
 		$uploadOk = 1;
 		$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
 		$target_file = preg_replace("/^[.\/]+/", "", $target_file); # Protect against going outside dedicated folder

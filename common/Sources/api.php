@@ -272,7 +272,7 @@
 		$username = check_token();
 		
 		$xmlfile = str_replace("../", "", $_GET['cid']);
-		if ( substr($xmlfile, 0, 8) != "xmlfiles/" ) $xmlfile = "xmlfiles/$xmlfile";
+		if ( substr($xmlfile, 0,9) != "xmlfiles/" ) $xmlfile = "xmlfiles/$xmlfile";
 		if ( !file_exists($xmlfile) ) {
 			print '{"error": "no such XML file: '.$xmlfile.'" }';
 			exit;
