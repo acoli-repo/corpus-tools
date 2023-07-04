@@ -262,6 +262,24 @@
 		print "{'success': 'metadata successfullly modified for $ttxml->filename'}";
 		exit;
 
+	} else if ( $act == "delete" ) {
+	
+		$username = check_token();
+		
+		$xmlfile = str_replace("../", "", $_GET['cid']);
+		if ( substr($xmlfile, 0, 8) != "xmlfiles/" ) $xmlfile = "xmlfiles/$xmlfile";
+		if ( !file_exists($xmlfile) ) {
+			print '{"error": "invalid XML filename"}';
+			exit;
+		}; 
+		unlink($xmlfile);
+		if ( file_exists($xmlfile) ) {
+			print '{"error": "failed to delete '.$xmlfile.' (check permissions)"}';
+		} else {
+			print '{"success": "file  '.$xmlfile.' has been successfully removed"}';
+		};
+		exit;
+		
 	} else if ( $act == "annotate" ) {
 	
 		$username = check_token();
@@ -588,7 +606,7 @@
 			
 			<table id=rollovertable style='width: 100%'>
 			<tr><th>Parameter<th>Mandatory<th>Data type<th>Description</tr>
-			<tr><td>cid<td>yes<td>string<td>ID for the new TEITOK/XML file
+			<tr><td>cid<td>yes<td>string<td>ID for the TEITOK/XML file to be annotated
 			<tr><td>format<td>yes<td>string ( <code>conllu</code> / <code>cas</code> )<td>format of the uploaded file
 			<tr><td>force<td>no<td>string ( <code>yes</code> / <code>no</code> )<td>whether the uploaded file should overwrite existing annoations - default <code>no</code>
 			<tr><td>infile<td>yes<td>file / string<td>the uploaded file 
@@ -600,7 +618,7 @@
 			
 			<table id=rollovertable style='width: 100%'>
 			<tr><th>Parameter<th>Mandatory<th>Data type<th>Description</tr>
-			<tr><td>cid<td>yes<td>string<td>ID of the TEITOK/XML file to be annotated
+			<tr><td>cid<td>yes<td>string<td>ID the TEITOK/XML file should get in the corpus
 			<tr><td>format<td>yes<td>string<td>format of the uploaded file (see below)
 			<tr><td>mode<td>yes<td>string ( <code>reject</code> / <code>rename</code> / <code>replace</code> )<td>what to do if the file already exists, rename will add a sequential number to the end of the filename - default <code>reject</code>
 			<tr><td>infile<td>yes<td>file<td>the uploaded file 
@@ -670,6 +688,15 @@
 			<p>Regenerate the CWB corpus + all secondary corpus format. While being regenerated, the corpus will not be searchable. Requires a login token. Can be used to 
 			periodically reindex a corpus under development, say every day at midnight using a local timed command.</p>
 
+			<h2 id='query'>Method DELETE</h2>
+		
+			<p>Delete a file from the corpus. Contrary to deleting via the interface, the will not keep the file in the trash.</p>
+			
+			<table id=rollovertable style='width: 100%'>
+			<tr><th>Parameter<th>Mandatory<th>Data type<th>Description</tr>
+			<tr><td>cid<td>yes<td>string<td>the ID of the TEI/XML file to be deleted
+			</table>
+			
 			<h2 id='query'>Method QUERY</h2>
 		
 			<p>Send a query to the corpus. The API is intended for tree query languages, which always related to sentences, and as such, the results
