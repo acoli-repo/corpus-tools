@@ -329,10 +329,15 @@
 		
 		if ( $_GET['format'] == "conllu" ) {
 			# putenv("PYTHONPATH=/home/janssen/.local/lib/python3.10/site-packages");
-			$cmd = "/usr/bin/perl $toolroot/Scripts/readback_conllu.pl --cid='$xmlfile' --input='$infile' > tmp/readback.log 2>&1";
-			$reslist = shell_exec($cmd);
-			# TODO - have the readback script report problems, and add those to the JSON output
-			print "{'success': 'CoNLL-U file successfully read back'}";
+			$cmd = "/usr/bin/perl $toolroot/Scripts/readback_conllu.pl --cid='$xmlfile' --input='$infile' 2>&1";
+			$reslist = shell_exec($cmd); 
+			print $reslist;
+			exit;
+		} else if ( $_GET['format'] == "json" ) {
+			# putenv("PYTHONPATH=/home/janssen/.local/lib/python3.10/site-packages");
+			$cmd = "/usr/bin/perl $toolroot/Scripts/readback_json.pl --cid='$xmlfile' --input='$infile' 2>&1";
+			$reslist = shell_exec($cmd); 
+			print $reslist;
 			exit;
 		} else if ( $_GET['format'] == "cas" ) {
 			# putenv("PYTHONPATH=/home/janssen/.local/lib/python3.10/site-packages");
@@ -627,8 +632,8 @@
 			<table id=rollovertable style='width: 100%'>
 			<tr><th>Parameter<th>Mandatory<th>Data type<th>Description</tr>
 			<tr><td>cid<td>yes<td>string<td>ID for the TEITOK/XML file to be annotated
-			<tr><td>format<td>yes<td>string ( <code>conllu</code> / <code>cas</code> )<td>format of the uploaded file
-			<tr><td>force<td>no<td>string ( <code>yes</code> / <code>no</code> )<td>whether the uploaded file should overwrite existing annoations - default <code>no</code>
+			<tr><td>format<td>yes<td>string ( <code>conllu</code> / <code>cas</code> / <code>json</code> )<td>format of the uploaded file
+			<tr><td>force<td>no<td>string ( <code>yes</code> / <code>no</code> )<td>whether the uploaded file should overwrite existing annotations - default <code>no</code>
 			<tr><td>infile<td>yes<td>file / string<td>the uploaded file 
 			</table><p>
 
