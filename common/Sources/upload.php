@@ -37,7 +37,7 @@
 		if ( $_POST["filename"] ) {
 			$target_name = $_POST["filename"];
 		} else  $target_name = basename($_FILES["upfile"]["name"]);
-		$target_name = preg_replace("/[ '\"]+/", "_", $target_name); # Protect filenames
+		$target_name = preg_replace("/[ '\"+]+/", "_", $target_name); # Protect filenames
 		$target_file = $target_folder."/".$target_name;
 		$uploadOk = 1;
 		$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);

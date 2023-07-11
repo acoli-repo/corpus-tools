@@ -5,8 +5,8 @@
 	if ( strpos($_SERVER['HTTP_USER_AGENT'], "curl/") !== false ) $cmdln = true;
 	if ( strpos($_SERVER['HTTP_USER_AGENT'], "Wget/") !== false ) $cmdln = true;
 
-	if ( !$toolroot ) $toolroot = "/home/janssen/Git/teitok-tools/";
-
+	if ( !$toolroot ) $toolroot = "/home/git/teitok-tools/";
+	
 	header('Content-Type: application/json; charset=utf-8');
 
 	if ( $_GET['cid'] ) {
@@ -49,8 +49,8 @@
 			print '{"error": "no filename provided"}';
 			exit;
 		}
+		check_folder("tmp");
 		if ( $format == "conllu" ) {
-			$toolroot = "/home/janssen/Git/teitok-tools";
 			$tmp = "tmp/".time().".conllu";
 			shell_exec("perl $toolroot/Scripts/teitok2conllu.pl --file=$cid --output=$tmp --form=$form");
 			header('Content-Type: text/plain; charset=utf-8');
@@ -58,7 +58,6 @@
 			passthru("cat $tmp");
 			unlink($tmp);
 		} else if ( $format == "vrt" ) {
-			$toolroot = "/home/janssen/Git/teitok-tools";
 			$tmp = "tmp/".time().".vrt";
 			shell_exec("perl $toolroot/Scripts/teitok2vrt.pl --file=$cid --output=$tmp");
 			header('Content-Type: text/plain; charset=utf-8');
@@ -66,7 +65,6 @@
 			passthru("cat $tmp");
 			unlink($tmp);
 		} else if ( $format == "cas" ) {
-			$toolroot = "/home/janssen/Git/teitok-tools";
 			$tmp = "tmp/".time().".conllu";
 			shell_exec("python $toolroot/Scripts/teitok2cas.py --file=$cid --output=$tmp");
 			header('Content-Type: text/plain; charset=utf-8');
@@ -74,7 +72,6 @@
 			passthru("cat $tmp");
 			unlink($tmp);
 		} else if ( $format == "tcf" ) {
-			$toolroot = "/home/janssen/Git/teitok-tools";
 			$tmp = "tmp/".time().".tcf";
 			$lang = $_GET['lang'] or $lang = $settings['defaults']['lang'];
 			shell_exec("perl $toolroot/Scripts/teitok2tcf.pl --lang=$lang --file=$cid --output=$tmp");
@@ -83,7 +80,6 @@
 			passthru("cat $tmp");
 			unlink($tmp);
 		} else if ( $format == "tei" ) {
-			$toolroot = "/home/janssen/Git/teitok-tools";
 			$tmp = "tmp/".time()."-p5.xml";
 			shell_exec("perl $toolroot/Scripts/teitok2p5.pl --file=$cid --output=$tmp");
 			header('Content-Type: text/plain; charset=utf-8');
@@ -125,15 +121,22 @@
 			exit;
 		}; 
 		
-		if ( $_GET['status'] ) {
-			$tmp = $_GET['status'];
-			if ( $tmp == "notok" ) $chk = "</tok>";
-			if ( $tmp == "notag" ) $chk = " upos=";
-			if ( $tmp == "noparse" ) $chk = " head=";
+		if ( $username ) {
+			if ( $_GET['status'] ) {
+				$tmp = $_GET['status'];
+				if ( $tmp == "notok" ) $chk = "</tok>";
+				if ( $tmp == "notag" ) $chk = " upos=";
+				if ( $tmp == "noparse" ) $chk = " head=";
+			};
+			if ( $_GET['since'] ) {
+				$since = preg_replace("/[^0-9: -]/", "", $_GET['since']);
+				$datechk = "-newermt \"$since\"";
+				$moredata = "\"since\": \"$since\", ";
+			};
 		};
 		if ( $username ) {
-			print "{\"files\": ["; $sep  = "";
-			$cmd = "find xmlfiles -name '*.xml' -print";
+			print "{".$moredata."\"files\": ["; $sep  = "";
+			$cmd = "find xmlfiles -name '*.xml' $datechk -print";
 			$filelist = shell_exec($cmd);
 			foreach ( explode("\n", $filelist) as $filename ) {
 				if ( $chk && $filename ) {
@@ -272,16 +275,25 @@
 		$username = check_token();
 		
 		$xmlfile = str_replace("../", "", $_GET['cid']);
+		if ( !$xmlfile ) $xmlfile = str_replace("../", "", $_GET['file']);
+		if ( !$xmlfile ) $xmlfile = str_replace("../", "", $_GET['folder']);
+		if ( !$xmlfile ) {
+			print '{"error": "no file specified to delete" }';
+			exit;
+		};
 		if ( substr($xmlfile, 0,9) != "xmlfiles/" ) $xmlfile = "xmlfiles/$xmlfile";
 		if ( !file_exists($xmlfile) ) {
-			print '{"error": "no such XML file: '.$xmlfile.'" }';
+			print '{"error": "no such file or folder: '.$xmlfile.'" }';
 			exit;
 		}; 
-		unlink($xmlfile);
-		if ( file_exists($xmlfile) ) {
+		if ( is_dir($xmlfile) ) rmdir($xmlfile);
+		else unlink($xmlfile);
+		if ( is_dir($xmlfile) ) {
+			print '{"error": "failed to delete '.$xmlfile.' (not empty or not allowed)"}';
+		} else if ( file_exists($xmlfile) ) {
 			print '{"error": "failed to delete '.$xmlfile.' (check permissions)"}';
 		} else {
-			print '{"success": "file  '.$xmlfile.' has been successfully removed"}';
+			print '{"success": "'.$xmlfile.' has been successfully removed"}';
 		};
 		exit;
 		
@@ -290,7 +302,7 @@
 		$username = check_token();
 		
 		$xmlfile = str_replace("../", "", $_GET['cid']);
-		if ( substr($xmlfile, 0, 8) != "xmlfiles/" ) $xmlfile = "xmlfiles/$xmlfile";
+		if ( substr($xmlfile, 0, 9) != "xmlfiles/" ) $xmlfile = "xmlfiles/$xmlfile";
 		if ( substr($xmlfile, -4) != ".xml/" ) $xmlfile = "$xmlfile.xml";
 		if ( !file_exists($xmlfile) ) {
 			require("$ttroot/common/Sources/ttxml.php");
@@ -301,6 +313,7 @@
 			print '{"error": "invalid XML filename"}';
 		}; 
 		
+		check_folder("tmp/infiles");
 		if ( $_POST['infile'] ) {
 			$infile = "tmp/".time();
 			file_put_contents($infile, $_POST['infile']);
@@ -315,14 +328,14 @@
 		};
 		
 		if ( $_GET['format'] == "conllu" ) {
-			putenv("PYTHONPATH=/home/janssen/.local/lib/python3.10/site-packages");
-			$cmd = "/usr/bin/python3.10 $toolroot/Scripts/readback_conllu.py --file='$xmlfile' --infile='$infile' 2>&1";
+			# putenv("PYTHONPATH=/home/janssen/.local/lib/python3.10/site-packages");
+			$cmd = "/usr/bin/perl $toolroot/Scripts/readback_conllu.pl --cid='$xmlfile' --input='$infile' > tmp/readback.log 2>&1";
 			$reslist = shell_exec($cmd);
 			# TODO - have the readback script report problems, and add those to the JSON output
 			print "{'success': 'CoNLL-U file successfully read back'}";
 			exit;
 		} else if ( $_GET['format'] == "cas" ) {
-			putenv("PYTHONPATH=/home/janssen/.local/lib/python3.10/site-packages");
+			# putenv("PYTHONPATH=/home/janssen/.local/lib/python3.10/site-packages");
 			$cmd = "/usr/bin/python $toolroot/Scripts/readback_cas.py --file='$xmlfile' --infile='$infile'";
 			$reslist = shell_exec($cmd);
 			# TODO - have the readback script report problems, and add those to the JSON output
@@ -564,6 +577,7 @@
 			<table id=rollovertable style='width: 100%'>
 			<tr><th>Parameter<th>Mandatory<th>Data type<th>Description</tr>
 			<tr><td>status<td>no<td>string ( <code>notok</code> / <code>notag</code> / <code>noparse</code> )<td>list only file that are not (tokenized/tagged/parsed)
+			<tr><td>since<td>no<td>date ( <code>YYYY-MM-DD</code> )<td>list only file that were modified after a specific date 
 			</table><p>
 			
 			<style>pre { background-color: #f2f2f2; padding:5px; border: 1px solid #aaaaaa; }</style>	
@@ -696,7 +710,8 @@
 			
 			<h2 id='query'>Method DELETE</h2>
 		
-			<p>Delete a file from the corpus. Contrary to deleting via the interface, the will not keep the file in the trash.</p>
+			<p>Delete a file or folder from the corpus. Contrary to deleting via the interface, the will not keep the file in the trash.
+				Folders can only be deleted if they are empty.</p>
 			
 			<table id=rollovertable style='width: 100%'>
 			<tr><th>Parameter<th>Mandatory<th>Data type<th>Description</tr>
