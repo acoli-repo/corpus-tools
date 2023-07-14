@@ -6,6 +6,7 @@
 	if ( strpos($_SERVER['HTTP_USER_AGENT'], "Wget/") !== false ) $cmdln = true;
 
 	if ( !$toolroot ) $toolroot = "/home/git/teitok-tools/";
+	if ( !$username && is_array($_SESSION[$sessionvar.'-api']) ) $username = $_SESSION[$sessionvar.'-api']['username'];
 	
 	header('Content-Type: application/json; charset=utf-8');
 
@@ -34,7 +35,7 @@
 		
 		if ( $token ) {
 			$username = check_token();
-			$_SESSION[$sessionvar]['email'] = $username;
+			$_SESSION[$sessionvar.'-api']['username'] = $username;
 		} else {
 			$_POST['login'] = $_POST['user'];
 			$_POST['password'] = $_POST['pw'];
