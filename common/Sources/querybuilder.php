@@ -368,7 +368,7 @@
 					if ( $username) $atp = " class=\"adminpart\"";
 					else continue;
 				$xkey = "{$xatts['key']}_$key";
-				$atp .= " title=\"$xkey\" ";
+				$atp = " title=\"$xkey\" ";
 				$val = $item['long']."" or $val = $item['display']."";
 				if ( $item['type'] == "group" ) { 
 					$querytext .= "<tr><td>&nbsp;<tr><td colspan=2 style='text-align: center; color: #992000; font-size: 10pt; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa;'>{%$val}";

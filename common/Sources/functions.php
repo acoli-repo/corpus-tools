@@ -699,6 +699,10 @@
 
 	function fatal ($txt) {
 		global $username, $settings, $action;
+		if ( $action == "api" ) {
+			print "{\"error\": \"$txt\"}";
+			exit;
+		};
 		$time = time();
 		if (!is_dir("tmp")) mkdir("tmp"); 
 		$filename = "tmp/error_$time.txt";

@@ -91,9 +91,11 @@
 				if ( $_GET['goon'] ) $newurl = "top.location='{$_GET['goon']}';";
 				else if ( $_GET['action'] == "login" ) $newurl = "top.location='?action=admin';";
 				else $newurl = "top.location='{$_SERVER['HTTP_REFERER']}';";
-				print "<script language=javascript>$newurl</script>You have been logged in. This page will now reload. If it does not, please click 
-					<a href='$newurl'>here</a>.";
-				exit();
+				if ( $action != "api" ) {
+					print "<script language=javascript>$newurl</script>You have been logged in. This page will now reload. If it does not, please click 
+						<a href='$newurl'>here</a>.";
+					exit();
+				};
 			} else {
 				fatal("Your login to this corpus has been deactivated. If you need to work on this corpus, please contact the corpus administrator to reactivate your account.");
 				actionlog ( "permissions error: {$_POST['login']}" );

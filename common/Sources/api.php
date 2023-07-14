@@ -28,7 +28,26 @@
 		};
 	};
 	
-	if ( $act == "query" ) {
+	if ( $act == "login" ) {
+	
+		$token = $_POST['token'] or $token = $_GET['token'];
+		
+		if ( $token ) {
+			$username = check_token();
+			$_SESSION[$sessionvar]['email'] = $username;
+		} else {
+			$_POST['login'] = $_POST['user'];
+			$_POST['password'] = $_POST['pw'];
+			include("$ttroot/common/Sources/login.php");
+		};
+		$accesstoken = session_id();
+		if ( !$username ) 
+			print "{\"error\": \"invalid login/password\"}";
+		else 
+			print "{\"sessionId\": \"$accesstoken\", \"userName\": \"$username\"}";
+		exit;
+	
+	} else if ( $act == "query" ) {
 	
 		if ( file_exists("Sources/apiquery.php") )
 			include("Sources/apiquery.php");
@@ -40,6 +59,12 @@
 	
 	} else if ( $act == "download" ) {
 	
+		# Check whether download is barred
+		if ( $settings['download'] && $settings['download']['admin'] == "1" ) 
+			$username = check_token();
+		if ( $settings['download'] && $settings['download']['disabled'] == "1" ) 
+			{ fatal ("Download of files not permitted"); };
+
 		$format = $_GET['format'];
 		$form = $_GET['form'];
 			
@@ -88,7 +113,6 @@
 			unlink($tmp);
 		} else {
 			# Default to TEITOK/XML
-			$username = check_token();
 			header('Content-Type: application/xml; charset=utf-8');
 			header("Content-Disposition: attachment; filename=\"$baseid.xml\"");
 			passthru("cat $cid");
@@ -116,8 +140,8 @@
 	} else if ( $act == "list" ) {
 
 		$username = check_token(false);
-		if ( $_GET['token'] && !$username ) {
-			print '{"error": "invalid token"}';
+		if ( ( $_GET['token'] || $_COOKIE['PHPSESSID']  || $_GET['PHPSESSID'] ) && !$username ) {
+			print '{"error": "invalid token or session"}';
 			exit;
 		}; 
 		
@@ -244,10 +268,10 @@
 		}; 
 		
 		$data = $_POST['values']; if ( !$data ) {
-			$raw = $_GET['data'];
+			$raw = $_GET['data'] or $raw = $_POST['data'];
 			$data = json_decode($raw);
 			if ( $raw && !$data ) {
-				print '{"error": "invalid JSON data : ".$raw.""}';
+				print '{"error": "invalid JSON data provided"}';
 				exit;
 			}; 
 		};
@@ -259,8 +283,8 @@
 					
 		foreach ( $data as $xp => $val ) {
 			$node = xpathnode($ttxml->xml, $xp);
-			if ( !$node ) {
-				print '{"error": "no such node: ' + $xp + '"}';
+			if ( !is_object($node) ) {
+				print '{"error": "unable to create node: ' . $xp . '"}';
 			} else {
 				$node[0] = $val; # This only works for elements, not for attributes
 			};
@@ -351,7 +375,6 @@
 		};
 		exit;
 		
-	
 	} else if ( $act == "upload" ) {
 	
 		$username = check_token();
@@ -366,15 +389,22 @@
 		$pandoc = array ("rtf", "docx", "html", "odt", "md");
 		$inname = $_FILES['infile']['name'];
 		$fileid = preg_replace("/\..*/", "", $inname);
-		shell_exec("mkdir -p tmp/infiles");
-		shell_exec("mkdir -p xmlfiles");
+		check_folder("tmp/infiles");
+		check_folder("xmlfiles");
 		$tmpfile = "tmp/infiles/$fileid.$format";
 		$pdfile = "tmp/infiles/$fileid.xml";
 		rename($infile, $tmpfile);
-		if ( $format == "audio" ) $outfile = "Audio/$inname";
-		else if ( $format == "video" ) $outfile = "Video/$inname";
-		else if ( $format == "facsimile" ) $outfile = "Facsimile/$inname";
+		$toname = $_GET['name'] or $toname = $inname;
+		$toname = str_replace("..", "", $toname); # No ..
+		$toname = str_replace(" ", "_", $toname); # No spaces
+		$toname = preg_replace("['\"*+]", "", $toname); # No special chars (only [a-ZA-Z0-9_] ?)
+		if ( $format == "audio" ) $outfile = "Audio/$toname";
+		else if ( $format == "video" ) $outfile = "Video/$toname";
+		else if ( $format == "facsimile" ) $outfile = "Facsimile/$toname";
+		else if ( $format == "pagexml" ) $outfile = "Originals/$toname";
 		else $outfile = "xmlfiles/$fileid.xml";
+		$folder = preg_replace("/\/[^\/]*$/", "", $outfile);
+		check_folder($folder);
 		$created = "created";
 		if ( file_exists($outfile) ) {
 			$mode = $_GET['mode'];
@@ -401,6 +431,11 @@
 		} else if ( $format == "tei" ) {
 			$cmd = "/usr/bin/perl $toolroot/Scripts/teip52teitok.pl --file='$tmpfile' --output='$outfile'";
 			$cmdres = shell_exec($cmd);
+		} else if ( $format == "pagexml" ) {
+			rename($tmpfile, $outfile);
+			$xmlfile = str_replace("Originals/", "xmlfiles/", $outfile);
+			$cmd = "/usr/bin/perl $toolroot/Scripts/page2teitok.pl --nofolders --file='$outfile' --output='$xmlfile'";
+			$cmdres = shell_exec($cmd);
 		} else if ( $format == "audio" || $format == "video" || $format == "facsimile" ) {
 			if ( $mode == "rename" ) {
 				print '{"error": "renaming not supported for media files" }'; exit;
@@ -408,7 +443,6 @@
 			$mmime = $format; if ( $mmime == "facsimile" ) $mmime = "image";
 			$cmd = "/usr/bin/file --mime -b $tmpfile";
 			$mime = shell_exec($cmd);
-			print "$cmd => $mime\n";
 			if ( substr($mime, 0, strlen($mmime)) != $mmime ) { 
 				print '{"error": "not an '.$mmime.' file: '.$inname.'"}'; exit;
 			};
@@ -417,9 +451,9 @@
 			rename($tmpfile, $outfile);
 
 			if (file_exists($outfile)) {
-				print '{"success": "file '.$inname.' successfully '.$created.'" }'; exit;
+				print '{"success": "file successfully '.$created.'", "file": "'.$inname.'" }'; exit;
 			};
-			print '{"error": "uploading '.$inname.' failed" }';
+			print '{"error": "uploading '.$inname.' failed (check permissions)" }';
 			exit;
 		} else {
 			print '{"error": "not (yet) possible to upload '.$format.' files"}'; exit;
@@ -427,28 +461,30 @@
 		
 		if ( file_exists($outfile) ) {
 		
-			# Check whether there are missing media files
-			$cmd = "tt-xpath --filename='$outfile' --header=1 '//media | //pb[@facs]'";
-			$tmp = shell_exec($cmd);
-			$medias = simplexml_load_string($tmp);
-			$mismed = array();
-			if ( $medias )
-			foreach ( $medias->xpath("//results/*") as $mnode ) {
-				$nn = $mnode->getName(); $mf = ""; 
-				if ( $nn == "pb" ) { $mr = $mnode['facs'].""; $mf = "Facsimile/$mr"; };
-				if ( $nn == "media" ) { 
-					$mr = $mnode['url'].""; 
-					if ( substr($mr, 0, 4) != "http" ) { 
-						$mf = $mr; 
-						if ( substr($mr, 0, 6 ) == "Audio/" )  $mr = substr($mr, 6);
-						$mf = "Audio/$mr"; 
-					}; 
-				};
-				if ( $mf && !file_exists($mf) )  {
-					array_push($mismed, $mr);
-				};
-			}; if ( $mismed ) $mistxt = ", missing_media: [\"".join('", "', $mismed).'"]'; else $mistxt = "";
-		
+			if ( $folder == "xmlfiles" ) {
+				# Check whether there are missing media files
+				$cmd = "tt-xpath --filename='$outfile' --header=1 '//media | //pb[@facs]'";
+				$tmp = shell_exec($cmd);
+				$medias = simplexml_load_string($tmp);
+				$mismed = array();
+				if ( $medias )
+				foreach ( $medias->xpath("//results/*") as $mnode ) {
+					$nn = $mnode->getName(); $mf = ""; 
+					if ( $nn == "pb" ) { $mr = $mnode['facs'].""; $mf = "Facsimile/$mr"; };
+					if ( $nn == "media" ) { 
+						$mr = $mnode['url'].""; 
+						if ( substr($mr, 0, 4) != "http" ) { 
+							$mf = $mr; 
+							if ( substr($mr, 0, 6 ) == "Audio/" )  $mr = substr($mr, 6);
+							$mf = "Audio/$mr"; 
+						}; 
+					};
+					if ( $mf && !file_exists($mf) )  {
+						array_push($mismed, $mr);
+					};
+				}; if ( $mismed ) $mistxt = ", missing_media: [\"".join('", "', $mismed).'"]'; else $mistxt = "";
+			};
+					
 			print '{"success": "file '.$outfile.' successfully '.$created.'"'.$mistxt.' }'; exit;
 		
 		} else {
@@ -754,6 +790,9 @@
 
 
 	function check_token($fail = true) {
+		global $username;
+		
+		if ( $username ) return $username;
 		
 		$litok = $_GET['token'] or $litok = $_POST['token'];
 		
@@ -777,7 +816,7 @@
 			} else return "";
 		};
 		
-		return $chk['user'];
+		return $chk['user']."";
 		
 	};
 
