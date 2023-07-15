@@ -140,7 +140,7 @@
 		
 	} else if ( $act == "list" ) {
 
-		$username = check_token(false);
+		if (!$username) $username = check_token(false);
 		if ( ( $_GET['token'] || $_COOKIE['PHPSESSID']  || $_GET['PHPSESSID'] ) && !$username ) {
 			print '{"error": "invalid token or session"}';
 			exit;
