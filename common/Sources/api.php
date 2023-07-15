@@ -354,7 +354,7 @@
 		
 		if ( $_GET['format'] == "conllu" ) {
 			# putenv("PYTHONPATH=/home/janssen/.local/lib/python3.10/site-packages");
-			$cmd = "/usr/bin/perl $toolroot/Scripts/readback_conllu.pl --cid='$xmlfile' --input='$infile' 2>&1";
+			$cmd = "/usr/bin/perl $toolroot/Scripts/readback_conllu.pl --nobu --cid='$xmlfile' --input='$infile' 2>&1";
 			$reslist = shell_exec($cmd); 
 			print $reslist;
 			exit;
@@ -804,7 +804,7 @@
 		};
 		
 		$litoks = simplexml_load_file("Resources/litoks.xml");
-		if ( !$litoks ) {
+		if ( !is_object($litoks) ) {
 			if ( $fail ) {
 				print '{"error": "no active login tokens"}'; exit;
 			};
