@@ -807,14 +807,14 @@
 		if ( !is_object($litoks) ) {
 			if ( $fail ) {
 				print '{"error": "no active login tokens"}'; exit;
+			}
+		} else {		
+			$chk = current($litoks->xpath("//token[@id=\"$litok\"]"));
+			if ( !$chk ) {
+				if ( $fail ) {
+					print '{"error": "invalid login token"}'; exit;
+				} else return "";
 			};
-		};
-		
-		$chk = current($litoks->xpath("//token[@id=\"$litok\"]"));
-		if ( !$chk ) {
-			if ( $fail ) {
-				print '{"error": "invalid login token"}'; exit;
-			} else return "";
 		};
 		
 		return $chk['user']."";
