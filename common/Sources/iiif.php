@@ -56,8 +56,11 @@
 	$infile = $file;
 	if ( $informat == "pdf" || $page ) {
 		$infile = "{$file}[$page]";
-		$density = $_GET['density'] or $density = 600;
+		$density = $_GET['density'] or $density = 300;
 		$conv['density'] = "-density $density";
+		$imgquality = $_GET['imgquality'] or $imgquality = 85;
+		$conv['imgquality'] = "-quality $imgquality";
+		$conv['alpha'] = "-alpha remove";
 	};
 
 	$convopts = join(" ", array_values($conv));
@@ -70,7 +73,7 @@
 			exit;
 		};
 	
-		$cmd = "$imapp $infile $convopts $jpgname";
+		$cmd = "$imapp  $convopts $infile $jpgname";
 		if ( $debug ) $cmd .= " >> tmp/convert.log 2>&1";
 		# file_put_contents("tmp/convert.cmd", $cmd."\n");
 		exec($cmd);
