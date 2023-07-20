@@ -1,7 +1,6 @@
 <?php
 
 	# {scheme}://{server}{/prefix}/{identifier}/{region}/{size}/{rotation}/{quality}.{format}
-	$page = 0;
 	if ( preg_match("/iiif\/(.*)\/(.*)\/(.*)\/(.*)\/(.*)\.(.*)/", $_SERVER['REQUEST_URI'], $matches ) ) {
 		$id = $matches[1];
 		$region = $matches[2];
@@ -22,6 +21,7 @@
 		$region = $_GET['region'];
 		$page = $_GET['page'];
 	};
+	if ( !$page ) $page = 0;
 	
 	if ( preg_match("/^(.*):(\d+)$/", $file, $matches) ) {
 		$file = $matches[1];
@@ -67,8 +67,9 @@
 			exit;
 		};
 	
-		$cmd = "$imapp $infile $convopts $jpgname >> tmp/convert.log 2>&1";
-		file_put_contents("tmp/convert.cmd", $cmd."\n");
+		$cmd = "$imapp $infile $convopts $jpgname";
+		if ( $debug ) $cmd .= " >> tmp/convert.log 2>&1";
+		# file_put_contents("tmp/convert.cmd", $cmd."\n");
 		exec($cmd);
 		
 	} else {
