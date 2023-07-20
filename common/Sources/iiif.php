@@ -67,7 +67,7 @@
 			exit;
 		};
 	
-		$cmd = "/usr/local/bin/convert $infile $convopts $jpgname >> tmp/convert.log 2>&1";
+		$cmd = "$imapp $infile $convopts $jpgname >> tmp/convert.log 2>&1";
 		file_put_contents("tmp/convert.cmd", $cmd."\n");
 		exec($cmd);
 		
