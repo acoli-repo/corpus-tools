@@ -52,12 +52,15 @@
 		$tw = $cx2-$cx1; $th = $cy2-$cy1;
 		$conv['rotation'] = "-crop {$tw}x{$th}+{$cx1}+$cy1";
 	};
-	$convopts = join(" ", array_values($conv));
 
 	$infile = $file;
 	if ( $informat == "pdf" || $page ) {
 		$infile = "{$file}[$page]";
+		$density = $_GET['density'] or $density = 600;
+		$conv['density'] = "-density $density";
 	};
+
+	$convopts = join(" ", array_values($conv));
 
 	if ( $convopts ) {
 	
