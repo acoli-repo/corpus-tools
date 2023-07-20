@@ -148,7 +148,8 @@
 	if ( $action == "" ) {
 		$tmp = str_replace("/", "\\/", preg_quote($baseurl));
 		$miniuri = preg_replace("/^.*$tmp/", "", $_SERVER['REQUEST_URI']);
-		if ( preg_match("/([^\/]+)\.(html|php)/", $basereq, $matches ) ) $action = $matches[1];
+		if ( preg_match("/\/iiif\//", $tmp, $matches ) ) $action = "iiif";
+		else if ( preg_match("/([^\/]+)\.(html|php)/", $basereq, $matches ) ) $action = $matches[1];
 		else if ( preg_match("/^([^\/]+)\/([^\/]+\.xml)$/", $basereq, $matches ) ) {
 			$action = $matches[1]; $_GET['cid'] = $matches[2];
 		} else if ( preg_match("/\//", $miniuri, $matches ) && !preg_match("/index\.php/", $miniuri) ) {

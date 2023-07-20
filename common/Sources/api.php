@@ -2,8 +2,9 @@
 
 	# TEITOK API main - query, download, reindex, nlp
 
+	# see if we are calling this from a command line interface
 	if ( strpos($_SERVER['HTTP_USER_AGENT'], "curl/") !== false ) $cmdln = true;
-	if ( strpos($_SERVER['HTTP_USER_AGENT'], "Wget/") !== false ) $cmdln = true;
+	if ( strpos($_SERVER['HTTP_USER_AGENT'], "wget/") !== false ) $cmdln = true;
 
 	if ( !$toolroot ) $toolroot = "/home/git/teitok-tools/";
 	if ( !$username && is_array($_SESSION[$sessionvar.'-api']) ) $username = $_SESSION[$sessionvar.'-api']['username'];
@@ -140,7 +141,7 @@
 		
 	} else if ( $act == "list" ) {
 
-		if (!$username) $username = check_token(false);
+		if ( !$username ) $username = check_token(false);
 		if ( ( $_GET['token'] || $_COOKIE['PHPSESSID']  || $_GET['PHPSESSID'] ) && !$username ) {
 			print '{"error": "invalid token or session"}';
 			exit;
