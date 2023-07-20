@@ -32,9 +32,10 @@
 	$jpgname = "tmp/$now.jpg";
 
 	$file = "Facsimile/$file";
-	list ( $intype, $informat ) = explode("/", mime_content_type($file));
-	
 	if ( !file_exists($file) ) fatal("No such image: $file");
+
+	list ( $intype, $informat ) = explode("/", mime_content_type($file));	
+	if ( $intype != "image" && $informat != "pdf" ) fatal("Not an image: $file");
 		
 	if ( $quality != "default" ) {
 		if ( $quality == "grey") $conv['quality'] = "-colorspace Gray";
@@ -60,9 +61,9 @@
 
 	if ( $convopts ) {
 	
-		$cex = shell_exec("which convert");
-		if ( $cex == "" && 1==2 ) {
-			if ( $username ) fatal("ImageMagick is not installed - cannot create images from PDF");
+		$imapp = findapp("convert") or $imapp = "/usr/bin/convert";
+		if ( !file_exists($imapp) ) {
+			if ( $username ) fatal("ImageMagick is not installed - please install ($findapp)");
 			exit;
 		};
 	
@@ -75,11 +76,13 @@
 		$format = $informat;
 	};
 	
-	# print "FILE: ".$jpgname; exit;
+	# Correct some mime types
+	if ( $format == "jpg" ) $format = "jpeg";
+	
 	header('Content-type: image/$format');
 	header('Content-Disposition: inline; filename="filename.'.$format.'"');
 	readfile($jpgname); 
-	# if ( $file != $jpgname )  unlink($jpgname);
+	if ( $file != $jpgname )  unlink($jpgname);
 
 	exit;
 
