@@ -6,6 +6,7 @@
 	if ( strpos($_SERVER['HTTP_USER_AGENT'], "curl/") !== false ) $cmdln = true;
 	if ( strpos($_SERVER['HTTP_USER_AGENT'], "wget/") !== false ) $cmdln = true;
 
+	if ( !$toolroot ) $toolroot = $settings['defaults']['base']['tools'];
 	if ( !$toolroot ) {
 		$toolroot = str_replace("Scripts/conllu2teitok.pl", "", shell_exec("locate conllu2teitok.pl"));
 	};
