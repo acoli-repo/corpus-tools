@@ -11,6 +11,8 @@
 	};
 	if ( !$toolroot ) $toolroot = "/home/git/teitok-tools/";
 	if ( !$username && is_array($_SESSION[$sessionvar.'-api']) ) $username = $_SESSION[$sessionvar.'-api']['username'];
+
+	if ( !file_exists("$toolroot/Scripts/conllu2teitok.pl") ) fatal("teitok-tools repository not found");
 	
 	header('Content-Type: application/json; charset=utf-8');
 
