@@ -46,10 +46,13 @@
 	if (is_array($settings['qlis'])) $tqs = array_keys($settings['qlis']);
 	else $tqs = array ( "BTQL", "UDAPI", "CQL" , "PML-TQ" ); 
 	
-	if(count($tqs) == 1 ) {
+	if ( !is_array($tqs) ) {
+		# Nothing defined
+		$qtype = $frontview = "";
+	} else if(count($tqs) == 1 ) {
 		$settingsdefs .= "document.getElementById('tqbuts').style.display = 'none';\n";
 		$qtype = $frontview = $tqs[0];
-	} else if ( !in_array($tqs, $qtype ) ) {
+	} else if ( !in_array($qtype, $tqs) ) {
 		$qtype = $frontview = $tqs[0];
 	};
 	

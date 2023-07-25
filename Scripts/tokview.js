@@ -263,28 +263,39 @@ function highlightbb (elm, hln=0) {
 	var facsimg = facsdiv.getElementsByTagName('img').item(0);
 	var orgImg = new Image(); orgImg.src = facsimg.src; 
 	
-	var imgscale = facsimg.width/orgImg.width;
+	orgImg.setAttribute("bbox", elm.getAttribute('bbox'));
+	orgImg.setAttribute("fsize", facsimg.width);
 
-	var bb = elm.getAttribute('bbox').split(' '); 
-	hlbar.style.display = 'block';
-	hlbar.style['background-color'] = '#ffff00';
-	hlbar.style['z-index'] = '100';
-	hlbar.style['position'] = 'absolute';
-	hlbar.style['opacity'] = '0.5';
+	// show the hlbar once the image is loaded
+	orgImg.onload = function(){
+		var imgscale = this.getAttribute("fsize")/this.width;
+		var bb = this.getAttribute('bbox').split(' '); 
+		console.log(this.getAttribute("fsize"));
+		console.log(imgscale);
+		console.log(bb);
+		
+		hlbar.style.display = 'block';
+		hlbar.style['background-color'] = '#ffff00';
+		hlbar.style['z-index'] = '100';
+		hlbar.style['position'] = 'absolute';
+		hlbar.style['opacity'] = '0.5';
 	
-	facsleft = facsimg.offsetLeft; obj = facsimg; while ( obj.offsetParent ) { obj = obj.offsetParent; facsleft += obj.offsetLeft; };
-	facstop = facsimg.offsetTop; obj = facsimg; while ( obj.offsetParent ) { obj = obj.offsetParent; facstop += obj.offsetTop; };
+		facsleft = facsimg.offsetLeft; obj = facsimg;
+		// The hlbar is embedded - should not always use offset 
+		while ( obj.offsetParent ) { obj = obj.offsetParent; facsleft += obj.offsetLeft; };
+		facstop = facsimg.offsetTop; obj = facsimg; while ( obj.offsetParent ) { obj = obj.offsetParent; facstop += obj.offsetTop; };
 	
-	hlleft = ( bb[0] * imgscale ) + facsleft;
-	hltop = ( bb[1] * imgscale ) + facstop;
-	hlwidth = (bb[2] - bb[0])  * imgscale;
-	hlheight = (bb[3] - bb[1])  * imgscale;
+		hlleft = ( bb[0] * imgscale ) + facsleft;
+		hltop = ( bb[1] * imgscale ) + facstop;
+		hlwidth = (bb[2] - bb[0])  * imgscale;
+		hlheight = (bb[3] - bb[1])  * imgscale;
 
-	
-	hlbar.style.left = hlleft + 'px';
-	hlbar.style.top = hltop + 'px';
-	hlbar.style.width = hlwidth + 'px';
-	hlbar.style.height = hlheight + 'px';
+		hlbar.style.left = hlleft + 'px';
+		hlbar.style.top = hltop + 'px';
+		hlbar.style.width = hlwidth + 'px';
+		hlbar.style.height = hlheight + 'px';
+	}
+
 	
 };
 

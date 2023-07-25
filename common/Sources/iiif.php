@@ -56,7 +56,7 @@
 	$infile = $file;
 	if ( $informat == "pdf" || $page ) {
 		$infile = "{$file}[$page]";
-		$density = $_GET['density'] or $density = 300;
+		$density = $_GET['density'] or $density = 150;
 		$conv['density'] = "-density $density";
 		$imgquality = $_GET['imgquality'] or $imgquality = 85;
 		$conv['imgquality'] = "-quality $imgquality";

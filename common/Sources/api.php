@@ -6,6 +6,9 @@
 	if ( strpos($_SERVER['HTTP_USER_AGENT'], "curl/") !== false ) $cmdln = true;
 	if ( strpos($_SERVER['HTTP_USER_AGENT'], "wget/") !== false ) $cmdln = true;
 
+	if ( !$toolroot ) {
+		$toolroot = str_replace("Scripts/conllu2teitok.pl", "", shell_exec("locate conllu2teitok.pl"));
+	};
 	if ( !$toolroot ) $toolroot = "/home/git/teitok-tools/";
 	if ( !$username && is_array($_SESSION[$sessionvar.'-api']) ) $username = $_SESSION[$sessionvar.'-api']['username'];
 	
