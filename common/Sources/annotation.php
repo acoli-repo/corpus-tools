@@ -27,7 +27,7 @@
 		};
 
 		$maintext .= "<h2 title=\"$filename\">".$ttxml->title()."</h2>"; 
-		$maintext .= "<h1>{%{$settings['annotations'][$annotation]['display']}}</h1>";
+		if ($annotation) $maintext .= "<h1>{%{$settings['annotations'][$annotation]['display']}}</h1>";
 
 	};
 	
@@ -513,8 +513,9 @@
 		$maintext .= "<h1>Select a stand-off annotation</h1>
 			<table>";
 		
-		foreach ( $settings['annotations'] as $ann ) {
-			$maintext .= "<tr><th>".print_r($ann,1);
+		foreach ( $settings['annotations'] as $key => $ann ) {
+			$display = $ann['display'] or $display = $key;
+			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$ttxml->xmlid&annotation=$key'>select</a><td>$display";
 			$somedone = 1;
 		};
 		
