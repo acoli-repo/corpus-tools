@@ -270,7 +270,7 @@
 	
 	// Load smarty content
 	if ( !isset($pagetitle) && is_array($pagetitles) ) $pagetitle = $pagetitles[$action];
-	if ( !isset($pagetitle) && is_array($settings['defaults']) && is_array($settings['defaults']['title']) )  $pagetitle = $settings['defaults']['title']['display'];
+	if ( !isset($pagetitle) && is_array($settings) && is_array($settings['defaults']) && is_array($settings['defaults']['title']) )  $pagetitle = $settings['defaults']['title']['display'];
 	$smarty->assign("title", $pagetitle);
 	$smarty->assign("header", $pagetitle);
 	$smarty->assign("menu", $menu);
