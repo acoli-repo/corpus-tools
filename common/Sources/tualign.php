@@ -1,5 +1,7 @@
 <?php
 
+	if ( !$settings['align'] && is_array( $settings['defaults']['align']) ) $settings['align'] = $settings['defaults']['align'];
+
 	# Check we have a PSQL DB
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	$db = strtolower(str_replace("-", "_", $cqpcorpus)); # Manatee corpus name
@@ -40,10 +42,21 @@
 		$maintext .= "<table id=rollovertable><tr><td>";
 		foreach ( $files as $cid => $ttxml ) {
 			$filetit = $ttxml->title("short") or $filetit = $ttxml->fileid;
-			$maintext .= "<th id=\"tr-$cid\"><a href='index.php?action=file&cid=$ttxml->fileid'>$filetit</a></th>";
+			$moreheader = "";
+			if ( is_array($settings['align']) && is_array($settings['align']['fields']) ) {
+				foreach ( $settings['align']['fields'] as $fld ) {
+					$xp = $fld['xpath']."";
+					$tmp = $ttxml->xpath($xp);
+					if ( $tmp ) {
+						$moreheader .= "<p title='{$fld['display']}'>".current($tmp)."</p>";
+					};
+				};
+			};
+			$maintext .= "<th id=\"tr-$cid\"><h3><a href='index.php?action=file&cid=$ttxml->fileid'>$filetit</a></h3>$moreheader</th>";
 			foreach ( $ttxml->xpath("//".$lvl."[@$tuidatt]") as $tu ) {
 				$tuid = $tu[$tuidatt]."";
-				$tus[$cid][$tuid] = $tu;
+				if ( !is_array($tus[$cid][$tuid]) ) $tus[$cid][$tuid] = array();
+				array_push($tus[$cid][$tuid], $tu);
 			}; 
 		};
 		
@@ -51,8 +64,8 @@
 			$tutxt = str_replace(",", "<br/>", $tuid);
 			$maintext .= "<tr id=\"tr-$tuid\"><td><a href='index.php?action=$action&tuid=$tuid'>$tutxt</a></td>";
 			foreach ( $files as $cid => $ttxml ) {
-				if (  $tus[$cid][$tuid] ) $tutxt = $tus[$cid][$tuid]->asXML();
-				else $tutxt = "<i>--</i>";
+				$tutxt = "";
+				foreach ( $tus[$cid][$tuid] as $tu ) $tutxt .= $tu->asXML();
 				$maintext .= "<td id=\"td-$cid-$tuid\">$tutxt</td>";
 			};
 		};
@@ -368,20 +381,81 @@
 			$maintext .= "<li><a href='index.php?action=$action&tuid=$tuid'>$tuid</a>";
 		};
 
+	} else if ( $act == "align" && $settings['align']['group'] && !$_GET['group'] ) {
+	
+		$groupfld = $settings['align']['group'];
+		if ( !is_array($settings['cqp']['sattributes']['text'][$groupfld]) ) {
+			if ( $username ) fatal("Not defined in settings: cqp/text_{$groupfld}");
+			else fatal("An error occurred");
+		};
+		$groupname = $settings['cqp']['sattributes']['text'][$groupfld]['display'];
+
+		$maintext .= "<p>Select a $groupname:</p>";
+		if ( file_exists("cqp/text_{$groupfld}.avs") ) {
+			$gns = explode("\0", file_get_contents("cqp/text_{$groupfld}.avs"));
+		} else {
+			$maintext .= "<p>Not found: cqp/text_{$groupfld}.avs";
+		};
+		sort($gns);
+		$maintext .= "<ul>";
+		foreach ( $gns as $gn ) {
+			$gnl = urlencode($gn);
+			if ( $gn ) $maintext .= "<li> <a href='index.php?action=$action&act=$act&group=$gnl'>$gn</a>";
+		};
+		$maintext .= "</ul>";
+
+	} else if ( $act == "align" && $settings['align']['group'] ) {
+
+		$groupfld = $settings['align']['group'];
+		$groupname = $settings['cqp']['sattributes']['text'][$groupfld]['display'];
+		$group = $_GET['group'];
+		if ( $group )
+	 		$maintext .= "<h2>$groupname = <b>$group</b></h2><p>Select one or more versions to align:</p>";
+		else $maintext .= "<p>Select one or more files to align:</p>";
+				
+		if ( is_array($settings['align']['fields'] ) ) {
+			foreach ( $settings['align']['fields'] as $key => $fld ) {
+				$morefld .= ", match text_{$key}";
+				$moreth .= "<th>{$fld['display']}";
+			};
+		};		
+				
+		$maintext .= "<form action=\"index.php?action=$action&act=files\" method=post>
+				<input type=hidden name=action value='$action'>
+				<input type=hidden name=act value='files'>
+				<table>
+					<tr><td><th>Title$moreth";
+		
+		$group = str_replace("'", "'\''", $_GET['group']);
+		$group = str_replace('"', "[\"]", $group);
+		
+		$cql = "Matches = <text> [] :: match.text_{$groupfld}=\"$group\"; tabulate Matches match text_id, match text_title $morefld;";
+		$cmd = "/bin/echo '$cql' | /usr/local/bin/cqp -c -r cqp -D $cqpcorpus";
+		foreach ( explode("\n",shell_exec($cmd)) as $row ) {
+			$flds = explode("\t", $row);
+			$fn = str_replacE("xmlfiles/", "", $flds[0]);
+			if ( $flds[1] ) $maintext .= "<tr><td><input type=checkbox name=ids[$fn] value='1'><td><a class=black href='index.php?action=$action&cid=$fn'>{$flds[1]}</a><td>".join("\t", array_slice($flds,2));
+		};
+
+				
+		$maintext .= "</table>
+			<p><input type=submit value=Align>
+			</form>";
+
 	} else if ( $act == "align" ) {
 
-		$maintext .= "<p>Select one or more files to align:</p>
+		$maintext .= "<p>Select one or more files to align:</p>";
 				
-				<form action=\"index.php?action=$action&act=files\" method=post>
+		$maintext .= "<form action=\"index.php?action=$action&act=files\" method=post>
 				<input type=hidden name=action value='$action'>
 				<input type=hidden name=act value='files'>
 				<p>";
 		
-		if ( file_exists("cqp/text_id.avs") ) {
-			$fns = explode("\0", file_get_contents("cqp/text_id.avs"));
-		} else if ( $username ) {
+		if ( $username ) {
 			$cmd = "find xmlfiles -name '*.xml' -print";
 			$fns = explode("\n", shell_exec($cmd));
+		} else if ( file_exists("cqp/text_id.avs") ) {
+			$fns = explode("\0", file_get_contents("cqp/text_id.avs"));
 		} else {
 			fatal("Parallel alignment not currently supported for this corpus");
 		};

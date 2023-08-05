@@ -136,7 +136,7 @@
 		$cqp->exec("set PrettyPrint off");
 
 		# $val = htmlentities($val);
-		$qval = preg_quote($val);
+		$qval = str_replace("'", "[\\']", $val); # Protect quotes
 		if ( $all ) $cqpquery = "Matches = <text> [] $cqlrest";
 		else if ( $item['values'] == "multi" ) $cqpquery = "Matches = <text> [] :: match.text_$class = '.*$qval.*'";
 		else $cqpquery = "Matches = <text> [] :: match.text_$class = '$qval'";

@@ -320,7 +320,8 @@ class TTXML
 				if ( $xval && ( !$val['admin'] || $username ) ) {
 					if ( in_array($tpl, explode(",", $val['show'])) || ( !$val['show'] && $tpl == "long" ) ) {
 						if ( $val['lang'] && $val['lang'] != $lang ) continue;
-						if ( preg_match("/@[^\/]+$/", $val['xpath']) ) $hval = "".$xval;
+						if ( $settings['teiheader'][$key]['type'] == "xml" ) $hval = $xval->asXML();
+						else if ( preg_match("/@[^\/]+$/", $val['xpath']) ) $hval = "".$xval;
 						else $hval = preg_replace( "/^<[^>]+>|<[^>]+>$/", "", $xval->asXML());
 						// Link when so asked
 						if ( $val['link'] && $hval ) {
