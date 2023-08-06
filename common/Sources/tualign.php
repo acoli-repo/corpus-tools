@@ -75,6 +75,7 @@
 					$id2 = substr(end($sames), 1); $pos2 = strpos($context, " id=\"$id2\"");
 					$x2 = strpos($context, "</tok>", $pos2) + 6;
 					$tutxt = substr($context, $x1, $x2);
+					$tutxt = preg_replace("/(<[^>]+)$/", "\1>", $tutxt);
 				};
 				$maintext .= "<td id=\"td-$cid-$tuid\">$tutxt</td>";
 			};
