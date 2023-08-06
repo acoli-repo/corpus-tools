@@ -184,6 +184,12 @@ class CQP
     
 }
 
+function cqlprotect( $string ) {
+	$string = preg_quote($string);
+	$string = str_replace("'", "[\\']", $string);
+	return $string;
+};
+
 function checkcqp($subcorpus) {
 	global $settings, $username;
 	$busy = false;
