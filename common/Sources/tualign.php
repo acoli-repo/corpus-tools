@@ -66,6 +66,15 @@
 			foreach ( $files as $cid => $ttxml ) {
 				$tutxt = "";
 				foreach ( $tus[$cid][$tuid] as $tu ) $tutxt .= $tu->asXML();
+				if ( $tu['sameAs'] && $tu."" == "" ) {
+					$context = current($tu->xpath("parent::*"))->asXML();
+					$sames = explode(" ", $tu['sameAs']);
+					$id1 = substr($sames[0], 1); $pos1 = strpos($context, " id=\"$id1\"");
+					$x1 = rstrpos($context, "<tok ", $pos1+2);
+					$id2 = substr(end($sames), 1); $pos2 = strpos($context, " id=\"$id2\"");
+					$x2 = strpos($context, "</tok>", $pos2) + 6;
+					$tutxt = substr($context, $x1, $x2);
+				};
 				$maintext .= "<td id=\"td-$cid-$tuid\">$tutxt</td>";
 			};
 		};
