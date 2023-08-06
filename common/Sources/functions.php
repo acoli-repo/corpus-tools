@@ -722,6 +722,33 @@
 		exit;
 	};
 
+	function elmcontent ( $node ) {
+		$nodexml = $node->asXML();
+		if ( $node['sameAs'] && $node."" == "" ) {
+			$sames = explode(" ", $node['sameAs'] );
+			$id1 = substr($sames[0], 1); $id2 = substr(end($sames), 1);
+			$context = $node;
+			while ( $context->getName() != "text" 
+				&& ( !$context->xpath(".//*[@id=\"$id1\"]") 
+					|| !$context->xpath(".//*[@id=\"$id2\"]") 
+				)
+				) {
+				$tmp = current($context->xpath(".."));
+				if ( !$tmp ) break;
+				$context = $tmp;
+			};
+			$raw = str_replace("/\n/", " ", $context->asXML());
+			$pos1 = strpos($raw, " id=\"$id1\"");
+			$x1 = rstrpos($raw, "<tok ", $pos1+2);
+			$pos2 = strpos($raw, " id=\"$id2\"");
+			$x2 = strpos($raw, "</tok>", $pos2) + 6;
+			
+			$nodexml .= substr($raw, $x1, $x2-$x1);
+			$nodexml = preg_replace("/(<[^>]*)$/", "\1>", $nodexml); # Close off if somehow not correct XML
+		};
+		return $nodexml;
+	};
+
 	function forminherit ( $node, $form, $rich = false ) {
 		# Calculate inherited form
 		global $settings;
