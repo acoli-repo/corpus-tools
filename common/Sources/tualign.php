@@ -54,7 +54,8 @@
 				};
 			};
 			$maintext .= "<th id=\"tr-$cid\"><h3><a href='index.php?action=file&cid=$ttxml->fileid'>$filetit</a></h3>$moreheader</th>";
-			foreach ( $ttxml->xpath("//".$lvl."[@$tuidatt]") as $tu ) {
+			$xp = "//".$lvl."[@$tuidatt]";
+			foreach ( $ttxml->xpath($xp) as $tu ) {
 				$tuid = $tu[$tuidatt]."";
 				if ( !is_array($tus[$cid][$tuid]) ) $tus[$cid][$tuid] = array();
 				array_push($tus[$cid][$tuid], $tu);
@@ -65,19 +66,22 @@
 			$tutxt = str_replace(",", "<br/>", $tuid);
 			$maintext .= "<tr id=\"tr-$tuid\"><td><a href='index.php?action=$action&tuid=$tuid'>$tutxt</a></td>";
 			foreach ( $files as $cid => $ttxml ) {
-				$tutxt = "";
-				foreach ( $tus[$cid][$tuid] as $tu ) $tutxt .= $tu->asXML();
-				if ( $tu['sameAs'] && $tu."" == "" ) {
-					$context = current($tu->xpath("parent::*"))->asXML();
-					$sames = explode(" ", $tu['sameAs']);
-					$id1 = substr($sames[0], 1); $pos1 = strpos($context, " id=\"$id1\"");
-					$x1 = rstrpos($context, "<tok ", $pos1+2);
-					$id2 = substr(end($sames), 1); $pos2 = strpos($context, " id=\"$id2\"");
-					$x2 = strpos($context, "</tok>", $pos2) + 6;
-					$tutxt = substr($context, $x1, $x2);
-					$tutxt = preg_replace("/(<[^>]+)$/", "\1>", $tutxt);
+				$tutxt = ""; $tutot = "";
+				foreach ( $tus[$cid][$tuid] as $tu ) {
+					$tutxt = $tu->asXML();
+					if ( $tu['sameAs'] && $tu."" == "" ) {
+						$context = current($tu->xpath("parent::*"))->asXML();
+						$sames = explode(" ", $tu['sameAs']);
+						$id1 = substr($sames[0], 1); $pos1 = strpos($context, " id=\"$id1\"");
+						$x1 = rstrpos($context, "<tok ", $pos1+2);
+						$id2 = substr(end($sames), 1); $pos2 = strpos($context, " id=\"$id2\"");
+						$x2 = strpos($context, "</tok>", $pos2) + 6;
+						$tutxt = substr($context, $x1, $x2);
+						$tutxt = preg_replace("/(<[^>]*)$/", "\1>", $tutxt);
+					};
+					$tutot .= $tutxt;
 				};
-				$maintext .= "<td id=\"td-$cid-$tuid\">$tutxt</td>";
+				$maintext .= "<td id=\"td-$cid-$tuid\">$tutot</td>";
 			};
 		};
 		$maintext .= "</table>";
