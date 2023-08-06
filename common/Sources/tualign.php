@@ -22,7 +22,7 @@
 
 		
 		$lvl = $_GET['lvl'] or $lvl = $settings['defaults']['align']['level'] or $lvl = "p";
-		$lvltxt = $setting['cqp']['sattributes'][$lvl]['element'] or $lvltxt = $lvl;
+		$lvltxt = getset("cqp/sattributes/$lvl/element", $lvl);
 
 		$maintext .= "<h2>Selected Files</h2>
 			<p>Alignment level: $lvltxt</p>";
