@@ -7,8 +7,8 @@
 	$db = strtolower(str_replace("-", "_", $cqpcorpus)); # Manatee corpus name
 	$dbconn = pg_connect("host=localhost dbname=$db user=www password=localpwd");
 
-	$tuidatt = $_GET['tuidatt'] or $tuidatt = $settings['defaults']['align']['tuidatt'] or $tuidatt = "tuid";
-	$tuidtit = $_GET['tuidtit'] or $tuidtit = $settings['defaults']['align']['display']; 
+	$tuidatt = $_GET['tuidatt'] or $tuidatt = $settings['align']['tuidatt'] or $tuidatt = "tuid";
+	$tuidtit = $_GET['tuidtit'] or $tuidtit = $settings['align']['display']; 
 	if ( !$tuidtit ) if ( $tuidatt == "tuid" ) $tuidtit = "Translation unit"; else if ( $tuidatt = "appid" ) $tuidtit = "Apparatus unit"; else $tuidtit = "Alignment unit";
 
 	$maintext .= "<h1>{%{$tuidtit}s}</h1>";
@@ -21,7 +21,7 @@
 		# Works on a single level - default is <p>
 
 		
-		$lvl = $_GET['lvl'] or $lvl = $settings['defaults']['align']['level'] or $lvl = "p";
+		$lvl = $_GET['lvl'] or $lvl = $settings['align']['level'] or $lvl = "p";
 		$lvltxt = getset("cqp/sattributes/$lvl/element", $lvl);
 
 		$maintext .= "<h2>Selected Files</h2>
@@ -98,7 +98,7 @@
 			
 			$tuid = $_GET['appid'] or $tuid = $_GET['tuid'];
 			$jmp = $_GET['jmp'];
-			$tuidatt = $_GET['tuidatt'] or $tuidatt = $settings['defaults']['align']['tuidatt'] or $tuidatt = "tuid";
+			$tuidatt = $_GET['tuidatt'] or $tuidatt = $settings['align']['tuidatt'] or $tuidatt = "tuid";
 		
 			require_once("$ttroot/common/Sources/ttxml.php");
 
@@ -215,8 +215,8 @@
 	} else if ( $_GET['tuid'] && $dbconn && $_GET['type'] != "xml" ) {
 		
 		# Align a single TU across all files
-		$lvl = $_GET['lvl'] or $lvl = $settings['defaults']['align']['level'] or $lvl = "p";
-		$base = $settings['defaults']['align']['cqp'] or $base = "lang";
+		$lvl = $_GET['lvl'] or $lvl = $settings['align']['level'] or $lvl = "p";
+		$base = $settings['align']['cqp'] or $base = "lang";
 		$basetxt = $settings['cqp']['sattributes']['text'][$base]['display'] or $basetxt = "<i>".ucfirst($base)."</i>";
 		$seg = $lvl;
 		$tuid = $_GET['tuid'];
@@ -473,7 +473,7 @@
 		sort($fns);
 		foreach ( $fns as $fn ) {
 			$fn = str_replacE("xmlfiles/", "", $fn);
-			$filerest = str_replace("/", "\\/", $settings['defaults']['align']['filerest']);
+			$filerest = str_replace("/", "\\/", $settings['align']['filerest']);
 			if ( $filerest && !preg_match("/$filerest/", $fn) ) continue;
 			if ( $fn ) $maintext .= "<p><input type=checkbox name=ids[$fn] value='1'> <a class=black href='index.php?action=$action&cid=$fn'>$fn</a>";
 		};
@@ -491,7 +491,7 @@
 			
 			<p>You can also start by selecting <a href='index.php?action=$action&act=align'>align</a> on one or more texts.";
 		
-		$base = $settings['defaults']['align']['cqp'] or $base = "lang";
+		$base = $settings['align']['cqp'] or $base = "lang";
 		$basetxt = $settings['cqp']['sattributes']['text'][$base]['display'];
 		if ( !file_exists("cqp/text_$base.avs") ) {
 			if ( $username ) fatal("Base does not exist in CQP corpus: text_$base");
@@ -516,7 +516,7 @@
 			$defset .= "setOption(document.getElementById('tsel$i'), '$tg'); ";
 		};
 
-		$lvl = $_GET['lvl'] or $lvl = $settings['defaults']['align']['level'] or $lvl = "p";
+		$lvl = $_GET['lvl'] or $lvl = $settings['align']['level'] or $lvl = "p";
 
 		if ( !$_POST ) $_POST = $_GET;
 
@@ -571,7 +571,7 @@
 		<p><input type=submit value=Search>
 		</form>
 		";
-		$base = $settings['defaults']['align']['cqp'] or $base = "lang";
+		$base = $settings['align']['cqp'] or $base = "lang";
 	
 		if ( $_POST['source'] && $_POST['squery'] ) {		
 		
