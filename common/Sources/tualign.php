@@ -40,7 +40,7 @@
 		}; 
 		if ( !in_array($mid, $cids) ) $mid = $cids[0];
 		
-		$maintext .= "<table id=rollovertable><tr><td>";
+		$maintext .= "<table id=rollovertable data-sortable><tr><td>";
 		foreach ( $files as $cid => $ttxml ) {
 			$filetit = $ttxml->title("short") or $filetit = $ttxml->fileid;
 			$moreheader = "";
@@ -218,7 +218,7 @@
 			join text on {$seg}2text=text_seq
 			WHERE {$seg}_{$tuidatt} = '$tuid' 
 			;";
-		if ( $debug ) $maintext .= "<p>$query";
+		if ( $debug ) $maintext .= "<p>CQL Query: $query";
 		$result = pg_query($query);
 	
 		if ( pg_num_rows($result) ) {
@@ -260,17 +260,28 @@
 
 		$resxml = simplexml_load_string($res);
 		
-		if ( $_GET['debug'] && $username ) {
+		if ( $debug ) {
 			$maintext .= "<code>$cmd</cmd><hr>".showxml($resxml);
 		};
 		
 		$totres = count($resxml->xpath("/results/*"));
 		
+		$orgxml = array();
 		$maintext .= "<form action='index.php?action=$action&act=columns' method=post><table id=rollovertable data-sortable>
 			 <thead><tr><td><th id='filecol'  data-sortable-type='alpha'>File</th><th>Text</th></tr> </thead><tbody>";
 		foreach ( $resxml->xpath("/results/*") as $resline ) {
 			$langid = str_replacE(".xml", "", $resline['fileid']);
-			$maintext .= "<tr lnk='$langid'><td><input type=checkbox name='files[{$resline['fileid']}]' value='1'><td><a href='index.php?action=file&cid={$resline['fileid']}&jmp={$resline['id']}'>$langid</a><td>".html_entity_decode($resline->asXML());
+			if ( $resline."" != "" ) {
+				$elmtxt = html_entity_decode($resline->asXML());
+			} else {
+				$elmid = $resline['id']."";
+				if ( !is_object($orgxml[$langid]) ) {
+					$orgxml[$langid] = simplexml_load_file("xmlfiles/".$resline['fileid']);
+				};
+				$orgelm = current($orgxml[$langid]->xpath("//*[@id=\"$elmid\"]"));
+				$elmtxt = elmcontent($orgelm);
+			};
+			$maintext .= "<tr lnk='$langid'><td><input type=checkbox name='files[{$resline['fileid']}]' value='1'><td><a href='index.php?action=file&cid={$resline['fileid']}&jmp={$resline['id']}'>$langid</a><td>$elmtxt";
 		};
 		$maintext .= "</tbody></table>
 		<script language=Javascript src=\"https://cdnjs.cloudflare.com/ajax/libs/sortable/0.8.0/js/sortable.min.js\"></script>
@@ -420,15 +431,15 @@
 		if ( is_array($settings['align']['fields'] ) ) {
 			foreach ( $settings['align']['fields'] as $key => $fld ) {
 				$morefld .= ", match text_{$key}";
-				$moreth .= "<th>{$fld['display']}";
+				$moreth .= "<th id='col-$key'>{$fld['display']}";
 			};
 		};		
 				
 		$maintext .= "<form action=\"index.php?action=$action&act=files\" method=post>
 				<input type=hidden name=action value='$action'>
 				<input type=hidden name=act value='files'>
-				<table>
-					<tr><td><th>Title$moreth";
+				<table id=rollovertable data-sortable>
+					<tr><td><th id='col-tit'>Title$moreth";
 		
 		$group = str_replace("'", "'\''", $_GET['group']);
 		$group = str_replace('"', "[\"]", $group);
@@ -444,6 +455,10 @@
 				
 		$maintext .= "</table>
 			<p><input type=submit value=Align>
+		<script language=Javascript src=\"https://cdnjs.cloudflare.com/ajax/libs/sortable/0.8.0/js/sortable.min.js\"></script>
+		<script language=Javascript>Sortable.init(); document.getElementById('col-tit').click();</script>
+		<link rel=\"stylesheet\" href=\"https://github.hubspot.com/sortable/css/sortable-theme-bootstrap.css\">
+
 			</form>";
 
 	} else if ( $act == "align" ) {
@@ -661,7 +676,7 @@
 				$maintext .= "</table>";
 			} else {
 				$maintext .= "<i>No results</i>";
-				if ( $username ) $debug = 1;
+				# if ( $username ) $debug = 1;
 			};
 
 			# $debug = 1;
