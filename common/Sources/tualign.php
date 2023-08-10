@@ -524,7 +524,7 @@
 		$veropt = join("", $tmp);
 
 		if (is_array($_POST['target'])) 
-			$n = max(1, count());
+			$n = max(1, count($_POST['target']));
 		else $n = 1;
 		for ( $i=1; $i<= $n; $i++ ) {
 			$tq = $_POST['tquery'][$i];
