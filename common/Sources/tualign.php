@@ -40,7 +40,8 @@
 		}; 
 		if ( !in_array($mid, $cids) ) $mid = $cids[0];
 		
-		$maintext .= "<table id=rollovertable data-sortable><tr><td>";
+		$maintext .= "<table id=rollovertable data-sortable>
+			 <thead><tr><td>";
 		foreach ( $files as $cid => $ttxml ) {
 			$filetit = $ttxml->title("short") or $filetit = $ttxml->fileid;
 			$moreheader = "";
@@ -228,7 +229,7 @@
 
 				<form action='index.php?action=$action&act=columns' method=post>
 				<table id=rollovertable data-sortable>
-				<tr><td><th id='filecol' title='File' data-sortable-type='alpha'>$basetxt<th colspan=2>Text";
+				 <thead><tr><td><th id='filecol' title='File' data-sortable-type='alpha'>$basetxt<th colspan=2>Text";
 			foreach ( $_POST['target'] as $i => $tqp ) {
 				if ( $tqp == "" ) continue;
 				$maintext .= "<th colspan=2>$tqp";
@@ -431,7 +432,7 @@
 		if ( is_array($settings['align']['fields'] ) ) {
 			foreach ( $settings['align']['fields'] as $key => $fld ) {
 				$morefld .= ", match text_{$key}";
-				$moreth .= "<th id='col-$key'>{$fld['display']}";
+				$moreth .= "<th id='col-$key' data-sortable-type=\"alpha\">{$fld['display']}</th>";
 			};
 		};		
 				
@@ -439,7 +440,7 @@
 				<input type=hidden name=action value='$action'>
 				<input type=hidden name=act value='files'>
 				<table id=rollovertable data-sortable>
-					<tr><td><th id='col-tit'>Title$moreth";
+					 <thead><tr><th>{%Select}</th><th id='col-tit'>Title</th>$moreth</thead>";
 		
 		$group = str_replace("'", "'\''", $_GET['group']);
 		$group = str_replace('"', "[\"]", $group);
@@ -449,7 +450,7 @@
 		foreach ( explode("\n",shell_exec($cmd)) as $row ) {
 			$flds = explode("\t", $row);
 			$fn = str_replacE("xmlfiles/", "", $flds[0]);
-			if ( $flds[1] ) $maintext .= "<tr><td><input type=checkbox name=ids[$fn] value='1'><td><a class=black href='index.php?action=$action&cid=$fn'>{$flds[1]}</a><td>".join("\t", array_slice($flds,2));
+			if ( $flds[1] ) $maintext .= "<tr><td><input type=checkbox name=ids[$fn] value='1'></td><td><a class=black href='index.php?action=$action&cid=$fn'>{$flds[1]}</a></td><td>".join("\t", array_slice($flds,2))."</td>";
 		};
 
 				
@@ -686,7 +687,28 @@
 			};
 
 		};
-
+		
+	} else if ( $username ) {
+	
+		$maintext .= "<h2>Admin Debugging Report</h2>
+			<p>Parellel search relies on a PostgreSQL database, which does not
+			seem to be present or not accessible.";
+			
+		if ( !file_exists("/usr/bin/psql") && !file_exists("/usr/local/bin/psql") ) {
+			$maintext .= "<p class=wrong>PostgreSQL (psql) does not seem to be installed on this server";
+		} else {
+			$dblist = shell_exec("psql -l");
+			$maintext .= "<pre>$dblist</pre>";
+			foreach ( explode("\n", $dblist) as $line ) {
+				
+			};
+		};
+	
+	} else {
+		
+		fatal("You attempted to access the parallel search and visualization of TEITOK
+			using an incorrect URL.");
+		
 	};
 
 	if ( $dbconn ) pg_close($dbconn);
