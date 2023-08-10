@@ -2,6 +2,8 @@
 
 	if ( !$settings['align'] && is_array( $settings['defaults']['align']) ) $settings['align'] = $settings['defaults']['align'];
 
+	if ( $_GET['debug'] && $username ) $debug = 1;
+
 	# Check we have a PSQL DB
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	$db = strtolower(str_replace("-", "_", $cqpcorpus)); # Manatee corpus name
@@ -694,13 +696,22 @@
 			<p>Parellel search relies on a PostgreSQL database, which does not
 			seem to be present or not accessible.";
 			
-		if ( !file_exists("/usr/bin/psql") && !file_exists("/usr/local/bin/psql") ) {
+		$psqlapp = findapp("psql");
+		if ( !$psqlapp ) {
 			$maintext .= "<p class=wrong>PostgreSQL (psql) does not seem to be installed on this server";
 		} else {
-			$dblist = shell_exec("psql -l");
-			$maintext .= "<pre>$dblist</pre>";
-			foreach ( explode("\n", $dblist) as $line ) {
-				
+			$cmd = "$psqlapp -U www -l 2>&1";
+			$dblist = shell_exec($cmd);
+			if ( str_contains($dblist, "role \"www\" does not exist") ) {
+				$maintext .= "<p class=wrong>PostgreSQL user www does not seem to exist";
+			} else {
+				foreach ( explode("\n", $dblist) as $line ) {
+					$tmp = explode(' | ', $line);
+					if ( $tmp[0]== $db ) $db2user = $tmp[1];
+				};
+				if ( !$db2user ) {
+					$maintext .= "<p class=wrong>The database for this corpus ($db) does not exist";
+				};
 			};
 		};
 	

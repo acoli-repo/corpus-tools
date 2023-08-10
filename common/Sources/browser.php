@@ -409,6 +409,7 @@
 	
 		} else {
 			$maintext .= "<ul id=sortlist>";
+			$scnt = count($vals);
 			foreach ( $vals as $val => $cnt ) {
 				$oval = urlencode($val);
 				if ( $val == "" || $val == "_" ) {
@@ -418,6 +419,7 @@
 				$maintext .= "<li key='$val'><a href='index.php?action=$action&class=$class&val=$oval'>$val</a></li>";
 			};
 			$maintext .= "</ul><script language=Javascript>sortList(document.getElementById('sortlist'));</script>";
+			$maintext .= "<hr><p>$scnt {%results}";
 		};
 
 	} else {
