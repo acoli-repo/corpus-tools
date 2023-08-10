@@ -2,7 +2,10 @@
 
 	if ( !$settings['align'] && is_array( $settings['defaults']['align']) ) $settings['align'] = $settings['defaults']['align'];
 
-	if ( $_GET['debug'] && $username ) $debug = 1;
+	if ( $_GET['debug'] && $username ) {
+		$debug = 1;
+		$debuglnk = "&debug=1";
+	};
 
 	# Check we have a PSQL DB
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
@@ -539,7 +542,7 @@
 			$tquery = $_POST['tquery'];
 		
 		$maintext .= "
-		<form action='index.php?action=$action&act=search' method=post>
+		<form action='index.php?action=$action&act=search$debuglnk' method=post>
 		<input name=align value=\"$lvl\" type=hidden>
 		<table>
 		<tbody id='ptab'>
@@ -678,7 +681,7 @@
 				};
 				$maintext .= "</table>";
 			} else {
-				$maintext .= "<i>No results</i>";
+				$maintext .= "<i>{%No results}</i>";
 				# if ( $username ) $debug = 1;
 			};
 

@@ -247,6 +247,7 @@
 		"Due to copyright restrictions, only a fragment of this text is displayed" => "Due to copyright restrictions, only a fragment of this text is displayed",
 		"index" => "index",
 		"anonymized" => "anonymized",
+		"No results" => "No results",
 		"Grouping Query" => "Grouping Query",
 		"Query Comparison" => "Query Comparison",
 		"Keywords" => "Keywords",
