@@ -510,6 +510,7 @@ void treatfile ( string filename ) {
 				tmpxpath = rel_tokxpath;
 			}
 			if ( debug > 4 ) { cout << " - Relative xpath: " << tmpxpath << endl; };
+			if ( debug > 4 ) { cout << " - Toklist attribute (for empty nodes): " << toklistatt << endl; };
 			
 			// Loop through the actual items
 			pugi::xpath_node_set elmres = doc.select_nodes(xpath.c_str());
@@ -532,7 +533,7 @@ void treatfile ( string filename ) {
 				
 				string toka; string tokb;
 				if ( it->node().attribute(toklistatt.c_str()) ) {
-					// For empty node that have a @corresp="#w-3 #w-7" type of content
+					// For empty node that have a @sameAs="#w-3 #w-7" type of content
 					string wlist = it->node().attribute(toklistatt.c_str()).value();
 					toka = wlist.substr(1,wlist.find(" ")-1);
 					tokb = wlist.substr(wlist.find_last_of("#")+1);
