@@ -116,7 +116,7 @@
 			</script>
 			";
 	if ( $settings['defaults']['browser']['select'] == "menu" ) {
-		$subsel = 1; $all = 1;
+		$subsel = "menu"; $all = 1;
 	};
 	if ( $_GET['all'] || $_GET['show'] == "all" ) $all = 1;
 	
@@ -142,13 +142,12 @@
 		else $cqpquery = "Matches = <text> [] :: match.text_$class = '$qval'";
 		$cqp->exec($cqpquery);
 
-
 	# Deal with subselection style
 	if ( $subsel == "menu" ) {
-
 		# Make the menu bar options
 		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
 			if ( !is_array($item) || ( $item['type'] != "select" && !$item['browse'] ) ) continue;
+			if ( $item['admin'] && !$username ) continue;
 			$selmenu .= "<h2>{$item['display']}</h2>";
 			$xkey = "text_$key"; 
 
@@ -185,7 +184,7 @@
 			else sort( $optarr, SORT_LOCALE_STRING ); 
 			$optlist = join ( "", $optarr );
 		
-			$selmenu .= "<div>$optlist</div>";
+			$selmenu .= "<div style='max-height: 250px; overflow-y: scroll;'>$optlist</div>";
 		};
 	};
 			
