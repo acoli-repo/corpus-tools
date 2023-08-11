@@ -156,7 +156,7 @@
 			$resarr = explode ( "\n", $tmp );
 			foreach ( $resarr as $line ) { 
 				list ( $kva, $kcnt ) = explode("\t", $line ); unset($kvl);
-				if ( $kva ) {
+				if ( $kva != "" && $kva != "_" ) {
 					if ( $item['values'] == "multi" ) {
 						$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
 						$kvl = explode ( $mvsep, $kva );
@@ -172,7 +172,7 @@
 					};
 				};
 				foreach ( $kvl as $kval ) {
-					if ( $kval && $kval != "_" ) {
+					if ( $kval != "" && $kval != "_" ) {
 						if ( $item['type'] == "kselect" || $item['translate'] ) $ktxt = "{%$key-$kval}"; 
 							else $ktxt = $kval;
 						if ( $presets[$xkey] == $kval ) $sld = "selected"; else $sld = "";
@@ -184,7 +184,7 @@
 			else sort( $optarr, SORT_LOCALE_STRING ); 
 			$optlist = join ( "", $optarr );
 		
-			$selmenu .= "<div style='max-height: 250px; overflow-y: scroll;'>$optlist</div>";
+			$selmenu .= "<div style='max-height: 250px; margin-bottom: 10px; overflow-y: scroll;'>$optlist</div>";
 		};
 	};
 			
