@@ -105,6 +105,8 @@
 	if ( $username || $ssouser ) $txtid = $fileid; else $txtid = $xmlid;
 	$maintext .= "<h2>$txtid</h2><h1>$title</h1>";
 	
+	if ( !$ttxml->xml ) { fatal("Unable to load file"); };
+	
 	# Warn on <page> type temp files
 	if ( $ttxml->xml->xpath("//page") ) {
 		$warnings .= "<p style='background-color: #ffaaaa; padding: 5px;; font-weight: bold;'>This is not a pure TEI file,

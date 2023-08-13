@@ -946,10 +946,11 @@ class TTXML
 			if ( $item['filecond'] && !file_exists($filerest) ) $dothis = 0;
 			if ( $item['filerest'] && file_exists($filerest) ) $dothis = 0;
 			if ( $dothis ) { // View condition
+				if (strpos($key, '{#') !== false) $key = xpathrun($key, $this->xml);
 				$lvltxt = $item['display'];
 				$viewopts[$key] = $lvltxt;
 			}; 
-		}; 
+		};
 		
 		// Add the annotation levels
 		if ( $settings['annotations'] ) {

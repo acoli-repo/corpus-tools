@@ -172,6 +172,8 @@
 
 	function xpathrun ( $text, $xml, $filename = "" ) {
 		# Fill in variable from XPath queries
+		# Format: ... {#//xpath} ...
+		
 		global $showempties; global $fileid; // When so desired, remove empty rows
 		if ( !$xml ) { return $text; }; # No XML to compare to, so just return
 		if ( !$filename ) $filename = $fileid;

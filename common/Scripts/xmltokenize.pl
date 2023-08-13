@@ -617,7 +617,7 @@ if ( !$doc ) {
 	} else {
 		$wrongxml = "/tmp/wrong.xml";
 	};
-	print "XML got messed up - saved to $wrongxml\n"; 
+	print "XML of $filename got messed up - saved to $wrongxml\n"; 
 	open FILE, ">$wrongxml";
 	binmode ( FILE, ":utf8" );
 	print FILE $xmlfile;

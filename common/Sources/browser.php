@@ -5,7 +5,9 @@
 	$class = $_GET['class'];
 	$val = $_GET['val'];
 
-	$maintext .= "<h1>{%Document Browser}</h1>";
+	$brtit = getset("defaults/browser/title", "Document Browser");
+
+	$maintext .= "<h1>{%$brtit}</h1>";
 
 	$titlefld = $settings['cqp']['titlefld'];
 	if ( !$titlefld )
