@@ -369,7 +369,12 @@
 		foreach ( explode("\n",shell_exec($cmd)) as $row ) {
 			$flds = explode("\t", $row);
 			$fn = str_replacE("xmlfiles/", "", $flds[0]);
-			if ( $flds[1] ) $maintext .= "<tr><td><input type=checkbox name=ids[$fn] value='1'></td><td><a class=black href='index.php?action=$action&cid=$fn'>{$flds[1]}</a></td><td>".join("\t", array_slice($flds,2))."</td>";
+			$chk = "";
+			if ( $_GET['cid'] ) {
+				$scid = str_replacE("xmlfiles/", "", $_GET['cid']);
+				if ( $scid == $fn ) $chk = "checked";
+			};
+			if ( $flds[1] ) $maintext .= "<tr><td><input type=checkbox $chk name=ids[$fn] value='1'></td><td><a class=black href='index.php?action=$action&cid=$fn'>{$flds[1]}</a></td><td>".join("\t", array_slice($flds,2))."</td>";
 		};
 
 				
