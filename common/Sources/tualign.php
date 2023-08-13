@@ -295,92 +295,6 @@
 		<link rel=\"stylesheet\" href=\"https://github.hubspot.com/sortable/css/sortable-theme-bootstrap.css\">";
 		$maintext .= "<hr>$totres results (XML) - <input type=submit value='Align selected files'></form>";
 		
-	} else if ( $_GET['id'] || $_GET['cid'] ) {
-	
-		require ("$ttroot/common/Sources/ttxml.php");
-		$ttxml = new TTXML($cid, true);
-		if ( !$ttxml ) {
-			fatal("Failed to open {$_GET['cid']}");
-		};
-
-		$maintext .= "<h2>".$ttxml->title()."</h2>";
-		$maintext .= $ttxml->tableheader();
-
-		$editxml = "<div id=mtxt>".$ttxml->asXML()."</div>";
-
-		$maintext .= $ttxml->pagenav;
-		$maintext .= $editxml;
-	
-		$maintext .= "<hr>".$ttxml->viewswitch();
-
-		$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'];	
-
-		$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
-			
-		$maintext .= "
-			<style>.tu { color: blue; font-size: x-small; };</style>
-			<script language=Javascript src='$jsurl/tokedit.js'></script>
-			<script language=Javascript src='$jsurl/tokview.js'></script>
-			<script langauge=Javascript>
-			var lasthl;
-			function gotuid (elm) { 
-				tuid = elm.parentNode.getAttribute('$tuidatt');
-				window.open('index.php?action=$action&tuid='+tuid, '_self');
-			};
-			function hl (elm) { 
-				tu = elm.parentNode;
-				if ( lasthl && lasthl != tu ) {
-					lasthl.style['background-color'] = '';
-					lasthl.style.backgroundColor = '';
-				};
-				tu.style['background-color'] = '#fff3cc';
-				tu.style.backgroundColor = '#fff3cc';
-				lasthl = tu;
-				tokinfo.style.display = 'block';
-				tokinfo.innerHTML = '<p style=\"height: 23px; margin-bottom: 0px; background-color: #eee0bb;\">$tuidtit: ' + tu.getAttribute('$tuidatt') + '</p>';
-				var foffset = offset(elm);
-				tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
-				tokinfo.style.top = ( foffset.top - 35 ) + 'px';
-			};
-			function unhl (elm) { 
-				tu = elm.parentNode;
-				tu.style['background-color'] = '';
-				tu.style.backgroundColor = '';
-				tokinfo.style.display = 'none';
-			};
-			var mtch = document.evaluate(\"//*[@$tuidatt]\", document, null, XPathResult.ANY_TYPE, null); 
-			var mitm = mtch.iterateNext();
-			var tus = [];
-			while ( mitm ) {
-			  if ( typeof(mitm) != 'object' ) { continue; };
-			  tus.push(mitm);
-			  mitm = mtch.iterateNext();
-			};
-			tus.forEach( mitm => {
-			  const tu = document.createElement('span');
-			  tu.innerHTML = '[u] ';
-			  // tu.setAttribute('title', mitm.getAttribute('$tuidatt'));
-			  tu.setAttribute('class', 'tu');
-			  tu.onclick = function() { gotuid(this); };
-			  tu.onmouseover = function() { hl(this); };
-			  tu.onmouseout = function() { unhl(this); };
-			  mitm.insertBefore(tu, mitm.firstChild);
-			});
-			var jmps = '$highlights'; var jmpid;
-			if ( jmps ) { 
-				var jmpar = jmps.split(' ');
-				for (var i = 0; i < jmpar.length; i++) {
-					var jmpid = jmpar[i];
-					highlight(jmpid, '$hlcol');
-				};
-				element = document.getElementById(jmpar[0]);
-				alignWithTop = true;
-				if ( element != null && typeof(element) != null ) { 
-					element.scrollIntoView(alignWithTop); 
-				};
-			};
-			$settingsdefs;
-			</script>";
 	
 	} else if ( $act == "list" ) {
 
@@ -497,6 +411,93 @@
 		$maintext .= "</p>
 			<p><input type=submit value=Align>
 			</form>";
+
+	} else if ( $_GET['id'] || $_GET['cid'] ) {
+	
+		require ("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML($cid, true);
+		if ( !$ttxml ) {
+			fatal("Failed to open {$_GET['cid']}");
+		};
+
+		$maintext .= "<h2>".$ttxml->title()."</h2>";
+		$maintext .= $ttxml->tableheader();
+
+		$editxml = "<div id=mtxt>".$ttxml->asXML()."</div>";
+
+		$maintext .= $ttxml->pagenav;
+		$maintext .= $editxml;
+	
+		$maintext .= "<hr>".$ttxml->viewswitch();
+
+		$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'];	
+
+		$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
+			
+		$maintext .= "
+			<style>.tu { color: blue; font-size: x-small; };</style>
+			<script language=Javascript src='$jsurl/tokedit.js'></script>
+			<script language=Javascript src='$jsurl/tokview.js'></script>
+			<script langauge=Javascript>
+			var lasthl;
+			function gotuid (elm) { 
+				tuid = elm.parentNode.getAttribute('$tuidatt');
+				window.open('index.php?action=$action&tuid='+tuid, '_self');
+			};
+			function hl (elm) { 
+				tu = elm.parentNode;
+				if ( lasthl && lasthl != tu ) {
+					lasthl.style['background-color'] = '';
+					lasthl.style.backgroundColor = '';
+				};
+				tu.style['background-color'] = '#fff3cc';
+				tu.style.backgroundColor = '#fff3cc';
+				lasthl = tu;
+				tokinfo.style.display = 'block';
+				tokinfo.innerHTML = '<p style=\"height: 23px; margin-bottom: 0px; background-color: #eee0bb;\">$tuidtit: ' + tu.getAttribute('$tuidatt') + '</p>';
+				var foffset = offset(elm);
+				tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
+				tokinfo.style.top = ( foffset.top - 35 ) + 'px';
+			};
+			function unhl (elm) { 
+				tu = elm.parentNode;
+				tu.style['background-color'] = '';
+				tu.style.backgroundColor = '';
+				tokinfo.style.display = 'none';
+			};
+			var mtch = document.evaluate(\"//*[@$tuidatt]\", document, null, XPathResult.ANY_TYPE, null); 
+			var mitm = mtch.iterateNext();
+			var tus = [];
+			while ( mitm ) {
+			  if ( typeof(mitm) != 'object' ) { continue; };
+			  tus.push(mitm);
+			  mitm = mtch.iterateNext();
+			};
+			tus.forEach( mitm => {
+			  const tu = document.createElement('span');
+			  tu.innerHTML = '[u] ';
+			  // tu.setAttribute('title', mitm.getAttribute('$tuidatt'));
+			  tu.setAttribute('class', 'tu');
+			  tu.onclick = function() { gotuid(this); };
+			  tu.onmouseover = function() { hl(this); };
+			  tu.onmouseout = function() { unhl(this); };
+			  mitm.insertBefore(tu, mitm.firstChild);
+			});
+			var jmps = '$highlights'; var jmpid;
+			if ( jmps ) { 
+				var jmpar = jmps.split(' ');
+				for (var i = 0; i < jmpar.length; i++) {
+					var jmpid = jmpar[i];
+					highlight(jmpid, '$hlcol');
+				};
+				element = document.getElementById(jmpar[0]);
+				alignWithTop = true;
+				if ( element != null && typeof(element) != null ) { 
+					element.scrollIntoView(alignWithTop); 
+				};
+			};
+			$settingsdefs;
+			</script>";
 
 	} else if ( $dbconn ) {
 	
