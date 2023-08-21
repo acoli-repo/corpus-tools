@@ -1186,7 +1186,8 @@
 		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $val ) {
 			$item = $tags->addChild("item");
 			foreach ( $val as $key2 => $val2 ) {
-				$item[$key2] = $val2;
+				if ( !is_array($val2) ) # To account for <options>
+					$item[$key2] = $val2;
 			};
 		};
 		$satts = $xmlf->addChild("sattributes");
