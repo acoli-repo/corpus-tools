@@ -150,7 +150,6 @@
 		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
 			if ( !is_array($item) || ( $item['type'] != "select" && !$item['browse'] ) ) continue;
 			if ( $item['admin'] && !$username ) continue;
-			$selmenu .= "<h2>{$item['display']}</h2>";
 			$xkey = "text_$key"; 
 
 			$tmp = $cqp->exec("group Matches match $xkey");
@@ -186,6 +185,8 @@
 			else sort( $optarr, SORT_LOCALE_STRING ); 
 			$optlist = join ( "", $optarr );
 		
+			$scnt = count($optarr);
+			$selmenu .= "<h2>{$item['display']} ($scnt)</h2>";
 			$selmenu .= "<div style='max-height: 250px; margin-bottom: 10px; overflow-y: scroll;'>$optlist</div>";
 		};
 	};

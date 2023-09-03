@@ -564,7 +564,8 @@
 			if ($mine) {
 				$maintext .= "<p>Your (active) token(s):</p><ul>";
 				foreach ( $mine as $chk ) {
-					$maintext .= "<li><span style='color: #999999'>".strftime("%d %h %Y %H:%m:%S", $chk['time']."")."</span> {$chk['id']} ";
+					$chkt = int($chk['time']);
+					if ( $chkt ) $maintext .= "<li><span style='color: #999999'>".strftime("%d %h %Y %H:%m:%S", $chkt)."</span> {$chk['id']} ";
 				};
 				$maintext .= "</ul>";
 			} else {
