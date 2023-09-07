@@ -133,56 +133,91 @@
 	} else if ( $act == "conllu" ) {
 
 		$ccid = $ttxml->xmlid;
+		
 		header('Content-Type: text/plain; charset=utf-8');
 		header('Content-Disposition: attachment; filename="'.$ccid.'.conllu"');
-		print "# newdoc id = $ccid\n\n";
-		if ( $_GET['sid'] ) $sid = "[@id=\"{$_GET['sid']}\"]";
+		if ( file_exists("$toolroot/Scripts/teitok2conllu.pl") && !$_GET['sid'] && 1==2 ) {
+			$cmd = "perl $toolroot/Scripts/teitok2conllu.pl xmlfiles/".$ttxml->filename;
+			print shell_exec($cmd);			
+			exit;
+		} else {
+			print "# newdoc id = $ccid\n";
+			if ( $_GET['sid'] ) $sid = "[@id=\"{$_GET['sid']}\"]";
 
-		$formfld = "form";
-		if ( $settings['udpipe'] && $settings['udpipe']['tagform'] ) $formfld = $settings['udpipe']['tagform'];
-		if ( $settings['xmlfile'] && $settings['xmlfile']['wordfld'] ) $formfld = $settings['xmlfile']['wordfld'];
-		foreach ( $ttxml->xpath("//s$sid") as $sent ) {
-			$toks = $sent->xpath($toksel);
+			$formfld = "form";
+			if ( $settings['udpipe'] && $settings['udpipe']['tagform'] ) $formfld = $settings['udpipe']['tagform'];
+			if ( $settings['xmlfile'] && $settings['xmlfile']['wordfld'] ) $formfld = $settings['xmlfile']['wordfld'];
 			
-			if ( !$toks ) continue;
-			print "# sent_id = $ccid:{$sent['id']}\n";
-			$rawtext = trim(preg_replace("/[\n\r\s \t]+/", " ", strip_tags($sent->asXML())));
-			print "# text = $rawtext\n";
-			$tnr = 0; $toklist = array ();
-			foreach ( $toks as $tok ) {
-				$form = forminherit($tok, $formfld);
-				if ( $form != "--" ) {
-					$tnr++;	 $toknr = $tnr;
-					$ids[$tok['id'].""] = $tnr;
-					
-					array_push($toklist, $tok);
-					
-				};
-			};
-
-			foreach ( $toklist as $tok ) {		
 			
-				$form = forminherit($tok, $formfld);
-				$lemma = $tok['lemma'] or $lemma = "_";
-				$tokid = $tok['id']."";
-				$tnr = $ids[$tokid];
+			foreach ( $ttxml->xpath("//s$sid") as $sent ) {
+				$toks = $sent->xpath($toksel);
+			
+				if ( !$toks ) {
+					$rawtext = "";
+					if ( !$sent['sameAs'] ) continue;
+					
+					print "# sent_id = $ccid:{$sent['id']}\n";
+					$idlist = explode(" ", $sent['sameAs'] );
+					if ( !$id2tok ) {
+						foreach ( $ttxml->xpath($toksel) as $tok ) {
+							$id2tok[$tok['id'].""] = $tok;
+						};
+					};
+					$tnr = 0; $toklist = array ();
+					foreach ( $idlist as $idx ) {
+						$tok = $id2tok[substr($idx,1)];
+						$form = forminherit($tok, $formfld);
+						if ( $form != "--" ) {
+							$tnr++;	 $toknr = $tnr;
+							$ids[$tok['id'].""] = $tnr;
+					
+							array_push($toklist, $tok);
+							$rawtext .= "$form";
+							if ( $tok->xpath("following-sibling::node()") && current($tok->xpath("following-sibling::node()"))->getName()."" != "tok" ) $rawtext .= " ";
+						};
+					};
+					print "# text = $rawtext\n";
 				
-				$upos = $tok['upos'] or $upos = $tok['pos'] or $upos = "_";
-				$xpos = $tok['xpos'] or $xpos = "_";
-				$head = $ids[$tok[$fldhead].""] or $head = "0";
-				$feats = $tok['feats'] or $feats = "_";
-				$deprel = $tok[$flddeprel] or $deprel = "_";
-				$deps = $tok['deps'] or $deps = "_";
-				$misc = "_";
-				$maintok = "$form\t$lemma\t$upos\t$xpos\t$feats\t$head\t$deprel\t$deps\t$misc";
+				} else {
+					print "# sent_id = $ccid:{$sent['id']}\n";
+					$rawtext = trim(preg_replace("/[\n\r\s \t]+/", " ", strip_tags($sent->asXML())));
+					print "# text = $rawtext\n";
+					$tnr = 0; $toklist = array ();
+					foreach ( $toks as $tok ) {
+						$form = forminherit($tok, $formfld);
+						if ( $form != "--" ) {
+							$tnr++;	 $toknr = $tnr;
+							$ids[$tok['id'].""] = $tnr;
 					
-				print "$tnr\t$form\t$lemma\t$upos\t$xpos\t$feats\t$head\t$deprel\t$deps\t$misc\n";
+							array_push($toklist, $tok);
+						};
+					};
+				};
+				
+				foreach ( $toklist as $tok ) {		
 			
+					$form = forminherit($tok, $formfld);
+					$lemma = $tok['lemma'] or $lemma = "_";
+					$tokid = $tok['id']."";
+					$tnr = $ids[$tokid];
+				
+					$upos = $tok['upos'] or $upos = $tok['pos'] or $upos = "_";
+					$xpos = $tok['xpos'] or $xpos = "_";
+					$head = $ids[$tok[$fldhead].""] or $head = "0";
+					$feats = $tok['feats'] or $feats = "_";
+					$deprel = $tok[$flddeprel] or $deprel = "_";
+					$deps = $tok['deps'] or $deps = "_";
+					$misc = "_";
+					$maintok = "$form\t$lemma\t$upos\t$xpos\t$feats\t$head\t$deprel\t$deps\t$misc";
+					
+					print "$tnr\t$form\t$lemma\t$upos\t$xpos\t$feats\t$head\t$deprel\t$deps\t$misc\n";
+			
+				};
+				print "\n";
 			};
-
-		};
-		exit;
-
+			exit;
+		}
+		
 	} else if ( is_object($ttxml) && ( $sid || $_GET['jmp'] || $_GET['tid'] ) ) {
 
 		$fileid = $ttxml->fileid;
