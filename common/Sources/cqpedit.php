@@ -334,7 +334,7 @@
 		$max = $_POST['max'] or $max = $_GET['max'] or $max = $cqpmax or $max = 500; $_POST['max'] = $max;
 		$start = $_POST['start'] or $start = $_GET['start'] or $start = 0; $_POST['start'] = $start;
 		$end = $start + $max;
-		$showform = "word";
+		$showform = "form";
 
 		if ( strstr($cql, '@') ) { 
 			$tarmat = "target";
