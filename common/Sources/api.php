@@ -7,7 +7,7 @@
 	if ( strpos($_SERVER['HTTP_USER_AGENT'], "wget/") !== false ) $cmdln = true;
 
 	if ( !$toolroot ) $toolroot = $settings['defaults']['base']['tools'];
-	if ( !$toolroot !file_exists("$toolroot/Scripts/conllu2teitok.pl") ) {
+	if ( !$toolroot ||  !file_exists("$toolroot/Scripts/conllu2teitok.pl") ) {
 		$toolroot = str_replace("Scripts/conllu2teitok.pl", "", shell_exec("locate conllu2teitok.pl"));
 	};
 	if ( !$toolroot || !file_exists("$toolroot/Scripts/conllu2teitok.pl") ) $toolroot = "/home/git/teitok-tools/";
