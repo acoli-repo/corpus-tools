@@ -7,15 +7,13 @@
 	
 		$file = file_get_contents("Resources/settings.xml");
 		$settingsxml = simplexml_load_string($file);
-	
-		if ( !$settingsxml ) {
-			$file = file_get_contents("$ttroot/common/Resources/settings.xml");
-			$settingsxml = simplexml_load_string($file);
-		}; 
-		
-		$settings = xmlflatten($settingsxml);
-
 	};	
+	if ( !$settingsxml ) {
+		$file = file_get_contents("$ttroot/common/Resources/settings.xml");
+		$settingsxml = simplexml_load_string($file);
+	}; 
+	
+	$settings = xmlflatten($settingsxml);
 
 	if ( !is_array($settings['defaults']) ) $settings['defaults'] = array();
 

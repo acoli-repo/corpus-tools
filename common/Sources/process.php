@@ -12,8 +12,6 @@
 	
 		<div>$log</div>";
 
-
-
 	if ( !strstr($log, "Process finished") ) {
 		$maintext .= "<hr><p>Process still running. This page will reload every 10s</p>
 		<script type=\"text/javascript\">
