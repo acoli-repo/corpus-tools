@@ -418,6 +418,10 @@
 		$audiobit
 		<hr>";
 
+	if ( file_exists("Sources/textextra.php") ) {
+		require("Sources/textextra.php");
+	}; 
+
 	if ( $username ) {
 		
 		# TODO: Check why this fails in the new version
