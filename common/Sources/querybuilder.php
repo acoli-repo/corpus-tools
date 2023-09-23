@@ -440,6 +440,7 @@
 			if ( $xatts['admin'] ) $adms = " class=adminpart";
 			$querytext .= "$hr<div$adms><h3>{%{$xatts['display']}}</h3><table  class=qbt >"; $hr = "<hr>";
 			foreach ( $xatts as $key => $item ) {
+				if ( !is_object($item) ) continue;
 				$xkey = "{$xatts['key']}_$key";
 				$val = $item['long']."" or $val = $item['display']."";
 				if ( $item['type'] == "group" ) { 
