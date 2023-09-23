@@ -419,7 +419,7 @@
 		<hr>";
 
 	if ( file_exists("Sources/textextra.php") ) {
-		require("Sources/textextra.php");
+		include("Sources/textextra.php");
 	}; 
 
 	if ( $username ) {
