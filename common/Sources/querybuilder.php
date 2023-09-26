@@ -6,7 +6,10 @@
 		if ( $username || !$item['admin'] ) array_push($cqpcols, $key); 
 	}; 
 	
-	if ( !$corpusfolder )  $corpusfolder = "cqp";
+	if ( !$corpusfolder ) $corpusfolder = "cqp";
+	if ( $subcorpfolder ) {
+		$corpusfolder = $subcorpfolder;
+	}; 
 
 	# See if we have any subcorpus (pre-set values)
 	foreach ( explode(",", $_GET['preset']) as $tmp ) {
