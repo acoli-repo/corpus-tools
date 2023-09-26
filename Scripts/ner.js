@@ -140,7 +140,8 @@ function showinfo(showelement) {
 			  xhttp.send();
 		};
 	};
-	if ( typeof(window.postner) === 'function' ) { postner('in', nerid); }; // if needed, run post scripts, pe to highlight the token elsewhere
+	console.log('running post');
+	if ( typeof(window.postner) === 'function' ) { postner('in', nerid); }; // if needed, run post scripts, pe to show popups over non-tokens
 };
 
 function offset(elem) {
