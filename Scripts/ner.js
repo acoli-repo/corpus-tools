@@ -77,13 +77,14 @@ function doclick(elm) {
 };
 
 function hideinfo(showelement) {
-if ( document.getElementById('tokinfo') ) {
-	document.getElementById('tokinfo').style.display = 'none';
-};
-if ( typeof(hlbar) != "undefined" && typeof(facsdiv) != "undefined" ) {
-	hlbar.style.display = 'none';
-	var tmp = facsdiv.getElementsByClassName('hlbar'+hln);
-};
+	if ( document.getElementById('tokinfo') ) {
+		document.getElementById('tokinfo').style.display = 'none';
+	};
+	if ( typeof(hlbar) != "undefined" && typeof(facsdiv) != "undefined" ) {
+		hlbar.style.display = 'none';
+		var tmp = facsdiv.getElementsByClassName('hlbar'+hln);
+	};
+	if ( typeof(window.postner) === 'function' ) { postner('out', null, nerid); }; // if needed, run post scripts, pe to highlight the token elsewhere
 };
 
 function showinfo(showelement) {
@@ -139,6 +140,7 @@ function showinfo(showelement) {
 			  xhttp.send();
 		};
 	};
+	if ( typeof(window.postner) === 'function' ) { postner('in', evt, nerid); }; // if needed, run post scripts, pe to highlight the token elsewhere
 };
 
 function offset(elem) {
