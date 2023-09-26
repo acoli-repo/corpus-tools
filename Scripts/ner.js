@@ -52,7 +52,7 @@ for ( var i=0; i<Object.keys(nerlist).length; i++) {
 			doclick(this);
 		};
 		it.onmouseover = function(event) {
-			showinfo(event, this);
+			showinfo(this);
 		};
 		it.onmouseout = function(event) {
 			hideinfo(this);
@@ -84,10 +84,9 @@ function hideinfo(showelement) {
 		hlbar.style.display = 'none';
 		var tmp = facsdiv.getElementsByClassName('hlbar'+hln);
 	};
-	if ( typeof(window.postner) === 'function' ) { postner('out', null, nerid); }; // if needed, run post scripts, pe to highlight the token elsewhere
 };
 
-function showinfo(evt, showelement) {
+function showinfo(showelement) {
 	if ( !tokinfo ) { return -1; };
 	var nertype = nerlist[showelement.nodeName.toLowerCase()];
 
@@ -140,7 +139,6 @@ function showinfo(evt, showelement) {
 			  xhttp.send();
 		};
 	};
-	if ( typeof(window.postner) === 'function' ) { postner('in', evt, nerid); }; // if needed, run post scripts, pe to highlight the token elsewhere
 };
 
 function offset(elem) {
