@@ -52,7 +52,7 @@ for ( var i=0; i<Object.keys(nerlist).length; i++) {
 			doclick(this);
 		};
 		it.onmouseover = function(event) {
-			showinfo(this);
+			showinfo(event, this);
 		};
 		it.onmouseout = function(event) {
 			hideinfo(this);
@@ -84,10 +84,10 @@ function hideinfo(showelement) {
 		hlbar.style.display = 'none';
 		var tmp = facsdiv.getElementsByClassName('hlbar'+hln);
 	};
-	if ( typeof(window.postner) === 'function' ) { postner('out', nerid); }; // if needed, run post scripts, pe to highlight the token elsewhere
+	if ( typeof(window.postner) === 'function' ) { postner('out', null, nerid); }; // if needed, run post scripts, pe to highlight the token elsewhere
 };
 
-function showinfo(showelement) {
+function showinfo(evt, showelement) {
 	if ( !tokinfo ) { return -1; };
 	var nertype = nerlist[showelement.nodeName.toLowerCase()];
 
@@ -140,8 +140,7 @@ function showinfo(showelement) {
 			  xhttp.send();
 		};
 	};
-	console.log('running post');
-	if ( typeof(window.postner) === 'function' ) { postner('in', nerid); }; // if needed, run post scripts, pe to show popups over non-tokens
+	if ( typeof(window.postner) === 'function' ) { postner('in', evt, nerid); }; // if needed, run post scripts, pe to highlight the token elsewhere
 };
 
 function offset(elem) {
