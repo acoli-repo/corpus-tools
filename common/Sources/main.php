@@ -85,9 +85,6 @@
 	};
 	include(SMARTY_DIR . 'Smarty.class.php');
 
-	if ( file_exists("Sources/onload.php") ) {
-		include("Sources/onload.php");
-	}; 
 
 	// Have a uniform treatment of magic quotes
 	// set_magic_quotes_runtime(false); // turn magic quotes off (this throws an error in newer PHP versions)
@@ -261,6 +258,10 @@
 			$maintext .= "<hr><span class=adminpart><a href='index.php?action=pageedit&id=new&name=$action-$lang.html'>create</a> this as an HTML page</span>";
 		};		
 	};
+
+	if ( file_exists("Sources/onload.php") ) {
+		include("Sources/onload.php");
+	}; 
 
 	# Treat internationalisation CW-style
 	$maintext = i18n($maintext);
