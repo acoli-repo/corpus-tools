@@ -282,7 +282,7 @@ class TTXML
 	}
 	
 	function tableheader( $tpl = "", $showbottom = true ) {
-		global $username; global $settings; global $lang;
+		global $username; global $settings; global $lang; global $popup;
 		if (!$this->xml) return "";
 
 		// Determine which header to show
@@ -318,6 +318,7 @@ class TTXML
 				};
 				$xval = getxpval($this->xml, $val['xpath']);
 				if ( $xval && ( !$val['admin'] || $username ) ) {
+					if ( $popup && $val['nopopup'] ) continue;
 					if ( in_array($tpl, explode(",", $val['show'])) || ( !$val['show'] && $tpl == "long" ) ) {
 						if ( $val['lang'] && $val['lang'] != $lang ) continue;
 						if ( $settings['teiheader'][$key]['type'] == "xml" ) $hval = $xval->asXML();

@@ -119,6 +119,7 @@
 
 	} else if ( $_GET['data'] == "docinfo" ) {
 		
+		$popup = 1;
 		$output = "<table width=100% style='margin-bottom: -4px;'><tr><th><b>".$ttxml->title()."</b></th><tr></table>".$ttxml->tableheader("", false);
 		print i18n($output);
 		exit;

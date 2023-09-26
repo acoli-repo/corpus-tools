@@ -418,10 +418,6 @@
 		$audiobit
 		<hr>";
 
-	if ( file_exists("Sources/textextra.php") ) {
-		include("Sources/textextra.php");
-	}; 
-
 	if ( $username ) {
 		
 		# TODO: Check why this fails in the new version

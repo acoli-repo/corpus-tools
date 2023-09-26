@@ -84,7 +84,10 @@
 		} else print "This site is currently down due to technical problems";
 	};
 	include(SMARTY_DIR . 'Smarty.class.php');
-	
+
+	if ( file_exists("Sources/onload.php") ) {
+		include("Sources/onload.php");
+	}; 
 
 	// Have a uniform treatment of magic quotes
 	// set_magic_quotes_runtime(false); // turn magic quotes off (this throws an error in newer PHP versions)
