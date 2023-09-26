@@ -133,8 +133,14 @@
 					$corpname = substr($res,5);
 					$corpname = trim(preg_replace("/^\"(.*)\"\$/", "\\1", $corpname));
 					$corpid = preg_replace("/.*-/", "", $fld);
-					if ( !$corpname ) $corpname = $corpid;
-					if ( !$corpname ) $corpname = preg_replace("/.*\//", "", $corpfolder);
+					if ( !$corpname ) {
+						$corpname = $corpid;
+						if ( $corpname ) $corpname = "{%sub-$corpname}";
+					};
+					if ( !$corpname ) {
+						$corpname = preg_replace("/.*\//", "", $corpfolder);
+						if ( $corpname ) $corpname = "{%sub-$corpname}";
+					};
 					if ( !$corpname ) $corpname = "(no name)";
 					$corps[$fld] = $corpname;
 				};

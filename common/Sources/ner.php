@@ -860,7 +860,7 @@
 		
 		$maintext .= "<hr>".$ttxml->viewswitch();
 		$maintext .= " &bull; <a href='index.php?action=$action&act=list&cid=$ttxml->fileid'>{%List names}</a>";
-		if ( $username ) $maintext .= " &bull; <a href='index.php?action=$action&act=detect&cid=$ttxml->fileid' class=adminpart>{%Auto-detect names}</a>";
+		if ( $username ) $maintext .= " &bull; <a href='index.php?action=$action&act=detect&cid=$ttxml->fileid' class=adminpart>Auto-detect names</a>";
 				
 		$maintext .= "
 			<style>

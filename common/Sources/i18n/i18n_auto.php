@@ -149,7 +149,6 @@
 		"Occurrences" => "Occurrences",
 		"back" => "back",
 		"List names" => "List names",
-		"Auto-detect names" => "Auto-detect names",
 		"External links" => "External links",
 		"Select" => "Select",
 		"Not Allowed" => "Not Allowed",
