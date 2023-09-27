@@ -508,7 +508,7 @@
 				$maintext .= "<li key='$cat'><a href='index.php?action=$saction&class=$key'>{%$cat}</a></li>";
 			};
 		};
-		$maintext .= "<li key='$cat'><a href='index.php?action=$faction&show=all'>{%All documents}</a></li>";
+		$maintext .= "<li key='$cat'><a href='index.php?action=$saction&show=all'>{%All documents}</a></li>";
 		$maintext .= "</ul>"; //<script language=Javascript>sortlist(document.getElementById('sortlist'));</script>";
 		if ( !$foundsome ) $maintext .= "<script language=Javascript>top.location='index.php?action=$gaction&show=all'</script>";
 	};
