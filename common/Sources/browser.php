@@ -7,6 +7,7 @@
 
 	$brtit = getset("defaults/browser/title", "Document Browser");
 
+	$faction = $action; $saction = $action;
 	if ( $settings['cqp']['subcorpora'] ) {
 		if ( $act == "select" ) $_SESSION['subc-'.$foldername] = "";
 		if ( $_GET['subc'] ) $_SESSION['subc-'.$foldername] = $_GET['subc'];
@@ -20,7 +21,9 @@
 				$subcorpusname = $settings['cqp']['subcorpora'][$subfolder]['display'];
 			};
 			if ( !$subcorpusname ) $subcorpusname = "{%subc-$subcorpus}";
-			$subpath = " &gt; $subcorpusname";
+			$faction = "$action&act=select";
+			$saction = "$action&sub=$subcorpus";
+			$subpath = " &gt; <a href='index.php?action=$saction'>$subcorpusname</a>";
 		};
 	};
 
