@@ -374,7 +374,7 @@
 				$maintext .= "</table>";
 
 			} else {
-				$maintext .= "<p>$path$subpath
+				$maintext .= "<p>$path
 					<p>$cnt {%documents} $nav
 					<hr><ul id=sortlist>";
 
