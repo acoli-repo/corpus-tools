@@ -7,6 +7,9 @@
 
 	$brtit = getset("defaults/browser/title", "Document Browser");
 
+	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+	$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+
 	$faction = $action; $saction = $action;
 	if ( $settings['cqp']['subcorpora'] ) {
 		if ( $act == "select" ) $_SESSION['subc-'.$foldername] = "";
@@ -21,6 +24,9 @@
 				$subcorpusname = $settings['cqp']['subcorpora'][$subfolder]['display'];
 			};
 			if ( !$subcorpusname ) $subcorpusname = "{%subc-$subcorpus}";
+			$subfolder = preg_replace("/$cqpcorpus-/i", "", $subcorpus);
+			$cqpcorpus = strtoupper($subcorpus); # a CQP corpus name ALWAYS is in all-caps
+			$cqpfolder = "$cqpfolder/$subfolder";
 			$faction = "$action&act=select";
 			$saction = "$action&sub=$subcorpus";
 			$subpath = " &gt; <a href='index.php?action=$saction'>$subcorpusname</a>";
@@ -33,8 +39,6 @@
 	if ( !$titlefld )
 		if ( $settings['cqp']['sattributes']['text']['title'] ) $titlefld = "text_title"; else $titlefld = "text_id";
 
-	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-	$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
 
 	if ( $settings['defaults']['locale'] ) $localebit = ", '{$settings['defaults']['locale']}'";
 	$docname = $settings['defaults']['browser']['documents'] or $docname = "documents";
