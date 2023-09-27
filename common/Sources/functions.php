@@ -1298,5 +1298,41 @@
 		else fatal("A fatal error occurred");
 		
 	};
+
+	function subcorpora($subcorpus = "") {
+		global $username;
+		foreach ( scandir("cqp") as $fld ) {
+			$fldrs = array();
+			if ( is_dir($fld) ) {
+				array_push($fldrs, $fld);
+			} else {
+				if ( filesize("cqp/$fld") > 2000 ) continue;
+				if ( substr($fld, -4) == ".csv" ) continue;
+				$res = shell_exec("grep 'HOME ' cqp/$fld");
+				if ( substr($res,0,5) == "HOME " ) {
+					$corpfolder = trim(substr($res,5));
+					$corpf[$fld] = $corpfolder;
+				};
+				$res = shell_exec("grep 'NAME ' cqp/$fld");
+				if ( substr($res,0,5) == "NAME " ) {
+					$corpname = substr($res,5);
+					$corpname = trim(preg_replace("/^\"(.*)\"\$/", "\\1", $corpname));
+				};
+				$corpid = preg_replace("/.*-/", "", $fld);
+				if ( !$corpid ) $corpid = preg_replace("/.*\//", "", $corpfolder);
+				if ( !$corpname ) $corpname = "{%sub-$corpid}";
+				
+				if ( is_dir($corpfolder) || $username ) {
+					$corps[$fld] = array ( 
+						"name" => $corpname,
+						"id" => $corpid,
+						"folder" => $corpfolder,
+					);
+					if ( !is_dir($corpfolder) ) $corps[$fld]['nofldr'] = 1;
+				};
+			};
+		};
+		return $corps;
+	};
 	
 ?>

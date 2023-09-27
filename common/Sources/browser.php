@@ -148,35 +148,7 @@
 	
 	if ( $act == "select" ) {
 	
-		foreach ( scandir("cqp") as $fld ) {
-			$fldrs = array();
-			if ( is_dir($fld) ) {
-				array_push($fldrs, $fld);
-			} else {
-				if ( filesize("cqp/$fld") > 2000 ) continue;
-				$res = shell_exec("grep 'HOME ' cqp/$fld");
-				if ( substr($res,0,5) == "HOME " ) {
-					$corpfolder = trim(substr($res,5));
-					$corpf[$fld] = $corpfolder;
-				};
-				$res = shell_exec("grep 'NAME ' cqp/$fld");
-				if ( substr($res,0,5) == "NAME " ) {
-					$corpname = substr($res,5);
-					$corpname = trim(preg_replace("/^\"(.*)\"\$/", "\\1", $corpname));
-					$corpid = preg_replace("/.*-/", "", $fld);
-					if ( !$corpname ) {
-						$corpname = $corpid;
-						if ( $corpname ) $corpname = "{%sub-$corpname}";
-					};
-					if ( !$corpname ) {
-						$corpname = preg_replace("/.*\//", "", $corpfolder);
-						if ( $corpname ) $corpname = "{%sub-$corpname}";
-					};
-					if ( !$corpname ) $corpname = "(no name)";
-					$corps[$fld] = $corpname;
-				};
-			};
-		};
+		$corps = subcorpora();	
 	
 		if ( !$corps ) fatal("No subcorpora of this corpus are searchable at this time");
 		
@@ -184,7 +156,8 @@
 		# $maintext .= getlangfile("subc-select");
 	
 		$fullcorp = strtolower($settings['cqp']['corpus']);
-		foreach ( $corps as $corpid => $corpname ) {	
+		foreach ( $corps as $corpid => $corpdata ) {
+			$corpname = $corpdata['name'];	
 			$corpfld = $corpf[$corpid];
 			$rawsize = hrnum(filesize("$corpfld/word.corpus")/4);
 			if ( $rawsize > 0 || 1==1 ) $maintext .= "<li><a href='index.php?action=$action&subc=$corpid'>$corpname</a>";
