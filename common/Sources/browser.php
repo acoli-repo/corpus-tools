@@ -265,14 +265,14 @@
 		if ( $_GET['show'] ) $morel = "&show={$_GET['show']}";
 		if ( $size > $max || $start > 0 ) {
 			$next = $stop; $beg = $start + 1; $prev = max(0, $start - $max);
-			if ( $start > 0 ) $bnav .= " <a href='index.php?action=$action&class=$class&val=$oval&start=$prev$morel'>{%previous}</a> ";
-			if ( $size > $max ) $bnav .= " <a href='index.php?action=$action&class=$class&val=$oval&start=$next$morel'>{%next}</a> ";
+			if ( $start > 0 ) $bnav .= " <a href='index.php?action=$saction&class=$class&val=$oval&start=$prev$morel'>{%previous}</a> ";
+			if ( $size > $max ) $bnav .= " <a href='index.php?action=$saction&class=$class&val=$oval&start=$next$morel'>{%next}</a> ";
 			$nav = " - {%showing} $beg - $stop - $bnav";
 		};
 		
 		if ( $subsel ) $path = "<div id=floatbox>$selmenu</div>";
-		else if ( $all ) $path = "<a href='index.php?action=$action'>{%!documents}</a>$subpath > all";
-		else $path = "<a href='index.php?action=$action'>{%!documents}</a>$subpath > <a href='index.php?action=$action&class=$class'>{%$cat}</a> > $val";
+		else if ( $all ) $path = "<a href='index.php?action=$faction'>{%!documents}</a>$subpath > all";
+		else $path = "<a href='index.php?action=$faction'>{%!documents}</a>$subpath > <a href='index.php?action=$saction&class=$class'>{%$cat}</a> > $val";
 
 
 		if ( $cnt > 0 ) {
@@ -392,7 +392,7 @@
 		$item = $settings['cqp']['sattributes']['text'][$class];
 		$cat = $item['display'];
 
-		$maintext .= "<p><a href='index.php?action=$action'>{%!documents}</a>$subpath > {%$cat}
+		$maintext .= "<p><a href='index.php?action=$faction'>{%!documents}</a>$subpath > {%$cat}
 			<hr>";
 
 		$list = file_get_contents("$cqpfolder/text_$class.avs");
@@ -465,7 +465,7 @@
 							checkmonth();
 						},
 						onChange: function(selectedDates, dateStr, instance) {
-							window.open('index.php?action=$action&class=$class&val='+dateStr, '_self');
+							window.open('index.php?action=$saction&class=$class&val='+dateStr, '_self');
 						},
 					});
 				</script>";
@@ -480,7 +480,7 @@
 					if ( !$settings['cqp']['listnone'] ) continue;
 					$val = "({%none})";
 				} else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
-				$maintext .= "<li key='$val'><a href='index.php?action=$action&class=$class&val=$oval'>$val</a></li>";
+				$maintext .= "<li key='$val'><a href='index.php?action=$saction&class=$class&val=$oval'>$val</a></li>";
 			};
 			$maintext .= "</ul><script language=Javascript>sortList(document.getElementById('sortlist'));</script>";
 			$maintext .= "<hr><p>$scnt {%results}";
@@ -488,7 +488,7 @@
 
 	} else {
 
-		if ( $subpath ) $doctitle = "<a href='index.php?action=$action'>{%!documents}</a>$subpath";
+		if ( $subpath ) $doctitle = "<a href='index.php?action=$faction'>{%!documents}</a>$subpath";
 		else $doctitle = getlangfile("browsertext", true);
 		
 		$maintext .= "$doctitle
@@ -502,12 +502,12 @@
 			if ( ( $item['type'] == "select" || $item['browse'] || $item['type'] == "kselect"  || $item['type'] == "date" )
 					&& is_array($item) && ( ( ( !$item['noshow'] || $item['browse'] ) && !$item['admin']  ) || $username ) ) {
 				$foundsome = 1;
-				$maintext .= "<li key='$cat'><a href='index.php?action=$action&class=$key'>{%$cat}</a></li>";
+				$maintext .= "<li key='$cat'><a href='index.php?action=$saction&class=$key'>{%$cat}</a></li>";
 			};
 		};
-		$maintext .= "<li key='$cat'><a href='index.php?action=$action&show=all'>{%All documents}</a></li>";
+		$maintext .= "<li key='$cat'><a href='index.php?action=$faction&show=all'>{%All documents}</a></li>";
 		$maintext .= "</ul>"; //<script language=Javascript>sortlist(document.getElementById('sortlist'));</script>";
-		if ( !$foundsome ) $maintext .= "<script language=Javascript>top.location='index.php?action=$action&show=all'</script>";
+		if ( !$foundsome ) $maintext .= "<script language=Javascript>top.location='index.php?action=$gaction&show=all'</script>";
 	};
 
 	if ( $username ) {
