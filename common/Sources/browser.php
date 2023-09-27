@@ -7,6 +7,17 @@
 
 	$brtit = getset("defaults/browser/title", "Document Browser");
 
+	if ( $settings['cqp']['subcorpora'] ) {
+		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = "";
+		if ( !$subcorpus ) {
+			# Force reload to corpus select
+			print "reloading
+				<script>top.location='index.php?action=cqp&ac=select';</script>
+				";
+			exit;		
+		};
+	};
+	
 	$maintext .= "<h1>{%$brtit}</h1>";
 
 	$titlefld = $settings['cqp']['titlefld'];
