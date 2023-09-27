@@ -8,16 +8,22 @@
 	$brtit = getset("defaults/browser/title", "Document Browser");
 
 	if ( $settings['cqp']['subcorpora'] ) {
+		if ( $act == "select" ) $_SESSION['subc-'.$foldername] = "";
+		if ( $_GET['subc'] ) $_SESSION['subc-'.$foldername] = $_GET['subc'];
 		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = "";
 		if ( !$subcorpus ) {
-			# Force reload to corpus select
-			print "reloading
-				<script>top.location='index.php?action=cqp&ac=select';</script>
-				";
-			exit;		
+			# fatal("No subcorpus selected");
+			$act = "select";
+			$cqpcorpus = "";
+		} else {
+			if ( is_array($settings['cqp']['subcorpora']) && is_array($settings['cqp']['subcorpora'][$subfolder]) ) {
+				$subcorpusname = $settings['cqp']['subcorpora'][$subfolder]['display'];
+			};
+			if ( !$subcorpusname ) $subcorpusname = "{%subc-$foldername}";
+			$subpath = " &gt; $subcorpusname";
 		};
 	};
-	
+
 	$maintext .= "<h1>{%$brtit}</h1>";
 
 	$titlefld = $settings['cqp']['titlefld'];
@@ -133,7 +139,52 @@
 	};
 	if ( $_GET['all'] || $_GET['show'] == "all" ) $all = 1;
 	
-	if ( ( $class && $val ) || $all ) {
+	if ( $act == "select" ) {
+	
+		foreach ( scandir("cqp") as $fld ) {
+			$fldrs = array();
+			if ( is_dir($fld) ) {
+				array_push($fldrs, $fld);
+			} else {
+				if ( filesize("cqp/$fld") > 2000 ) continue;
+				$res = shell_exec("grep 'HOME ' cqp/$fld");
+				if ( substr($res,0,5) == "HOME " ) {
+					$corpfolder = trim(substr($res,5));
+					$corpf[$fld] = $corpfolder;
+				};
+				$res = shell_exec("grep 'NAME ' cqp/$fld");
+				if ( substr($res,0,5) == "NAME " ) {
+					$corpname = substr($res,5);
+					$corpname = trim(preg_replace("/^\"(.*)\"\$/", "\\1", $corpname));
+					$corpid = preg_replace("/.*-/", "", $fld);
+					if ( !$corpname ) {
+						$corpname = $corpid;
+						if ( $corpname ) $corpname = "{%sub-$corpname}";
+					};
+					if ( !$corpname ) {
+						$corpname = preg_replace("/.*\//", "", $corpfolder);
+						if ( $corpname ) $corpname = "{%sub-$corpname}";
+					};
+					if ( !$corpname ) $corpname = "(no name)";
+					$corps[$fld] = $corpname;
+				};
+			};
+		};
+	
+		if ( !$corps ) fatal("No subcorpora of this corpus are searchable at this time");
+		
+		$maintext .= "<p>{%!documents}$subpath<hr><ul>";
+		# $maintext .= getlangfile("subc-select");
+	
+		$fullcorp = strtolower($settings['cqp']['corpus']);
+		foreach ( $corps as $corpid => $corpname ) {	
+			$corpfld = $corpf[$corpid];
+			$rawsize = hrnum(filesize("$corpfld/word.corpus")/4);
+			if ( $rawsize > 0 || 1==1 ) $maintext .= "<li><a href='index.php?action=$action&subc=$corpid'>$corpname</a>";
+		};
+		$maintext .= "</ul>";
+	
+	} else if ( ( $class && $val ) || $all ) {
 
 		// Do not allow searches while the corpus is being rebuilt...
 		if ( file_exists("tmp/recqp.pid") ) {
@@ -220,8 +271,8 @@
 		};
 		
 		if ( $subsel ) $path = "<div id=floatbox>$selmenu</div>";
-		else if ( $all ) $path = "<a href='index.php?action=$action'>{%!documents}</a> > all";
-		else $path = "<a href='index.php?action=$action'>{%!documents}</a> > <a href='index.php?action=$action&class=$class'>{%$cat}</a> > $val";
+		else if ( $all ) $path = "<a href='index.php?action=$action'>{%!documents}</a>$subpath > all";
+		else $path = "<a href='index.php?action=$action'>{%!documents}</a>$subpath > <a href='index.php?action=$action&class=$class'>{%$cat}</a> > $val";
 
 
 		if ( $cnt > 0 ) {
@@ -316,7 +367,7 @@
 				$maintext .= "</table>";
 
 			} else {
-				$maintext .= "<p>$path
+				$maintext .= "<p>$path$subpath
 					<p>$cnt {%documents} $nav
 					<hr><ul id=sortlist>";
 
@@ -341,7 +392,7 @@
 		$item = $settings['cqp']['sattributes']['text'][$class];
 		$cat = $item['display'];
 
-		$maintext .= "<p><a href='index.php?action=$action'>{%!documents}</a> > {%$cat}
+		$maintext .= "<p><a href='index.php?action=$action'>{%!documents}</a>$subpath > {%$cat}
 			<hr>";
 
 		$list = file_get_contents("$cqpfolder/text_$class.avs");
@@ -437,8 +488,9 @@
 
 	} else {
 
-		$doctitle = getlangfile("browsertext", true);
-
+		if ( $subpath ) $doctitle = "<a href='index.php?action=$action'>{%!documents}</a>$subpath";
+		else $doctitle = getlangfile("browsertext", true);
+		
 		$maintext .= "$doctitle
 			<hr><ul id=sortlist>";
 		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
