@@ -19,7 +19,7 @@
 			if ( is_array($settings['cqp']['subcorpora']) && is_array($settings['cqp']['subcorpora'][$subfolder]) ) {
 				$subcorpusname = $settings['cqp']['subcorpora'][$subfolder]['display'];
 			};
-			if ( !$subcorpusname ) $subcorpusname = "{%subc-$foldername}";
+			if ( !$subcorpusname ) $subcorpusname = "{%subc-$subcorpus}";
 			$subpath = " &gt; $subcorpusname";
 		};
 	};
