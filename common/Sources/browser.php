@@ -24,9 +24,18 @@
 				$subcorpusname = $settings['cqp']['subcorpora'][$subfolder]['display'];
 			};
 			if ( !$subcorpusname ) $subcorpusname = "{%subc-$subcorpus}";
-			$subfolder = preg_replace("/$cqpcorpus-/i", "", $subcorpus);
+			
+			$subname = strtolower("cqp/$subcorpus");
+			$subcdef = file_get_contents($subname);
+			if ( preg_match("/HOME (.+)/", $subcdef, $matches )  ) {
+				$home = $matches[1];
+				$cqpfolder = preg_replace("/.+\/(cqp\/)/", "cqp/", $home);
+			} else {
+				$cqpfolder = "$cqpfolder/$subfolder";
+				$subfolder = preg_replace("/$cqpcorpus-/i", "", $subcorpus);
+			};
+			
 			$cqpcorpus = strtoupper($subcorpus); # a CQP corpus name ALWAYS is in all-caps
-			$cqpfolder = "$cqpfolder/$subfolder";
 			$faction = "$action&act=select";
 			$saction = "$action&sub=$subcorpus";
 			$subpath = " &gt; <a href='index.php?action=$saction'>$subcorpusname</a>";
