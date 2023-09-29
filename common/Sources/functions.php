@@ -1303,7 +1303,7 @@
 		global $username;
 		foreach ( scandir("cqp") as $fld ) {
 			$fldrs = array();
-			if ( is_dir($fld) ) {
+			if ( is_dir("cqp/$fld") ) {
 				array_push($fldrs, $fld);
 			} else {
 				if ( filesize("cqp/$fld") > 2000 ) continue;
