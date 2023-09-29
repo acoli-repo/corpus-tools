@@ -494,7 +494,7 @@
 				if ( filesize("$cqpfolder/text_$key.avs") > 2 ) {
 					$foundsome = 1;
 					$maintext .= "<li key='$cat'><a href='index.php?action=$saction&class=$key'>{%$cat}</a>";
-					if ( $username ) $maintext .= " <span style='color: grey'>".filesize("$cqpfolder/text_$key.avs")."</span>";
+					# if ( $username ) $maintext .= " <span style='color: grey'>".filesize("$cqpfolder/text_$key.avs")."</span>";
 				};
 			};
 		};
