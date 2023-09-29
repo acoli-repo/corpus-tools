@@ -490,8 +490,12 @@
 
 			if ( ( $item['type'] == "select" || $item['browse'] || $item['type'] == "kselect"  || $item['type'] == "date" )
 					&& is_array($item) && ( ( ( !$item['noshow'] || $item['browse'] ) && !$item['admin']  ) || $username ) ) {
-				$foundsome = 1;
-				$maintext .= "<li key='$cat'><a href='index.php?action=$saction&class=$key'>{%$cat}</a></li>";
+				# Check we have value (only _ has size 2)
+				if ( filesize("$cqpfolder/text_$key.avs") > 2 ) {
+					$foundsome = 1;
+					$maintext .= "<li key='$cat'><a href='index.php?action=$saction&class=$key'>{%$cat}</a>";
+					if ( $username ) $maintext .= " <span style='color: grey'>".filesize("$cqpfolder/text_$key.avs")."</span>";
+				};
 			};
 		};
 		$maintext .= "<li key='$cat'><a href='index.php?action=$saction&show=all'>{%All documents}</a></li>";
