@@ -171,6 +171,7 @@
 	};
 
 	function xpathrun ( $text, $xml, $filename = "" ) {
+		global $action, $act;
 		# Fill in variable from XPath queries
 		# Format: ... {#//xpath} ...
 		
@@ -180,7 +181,10 @@
 		
 		if ( strpos("{#", $text) == -1 ) return $text; # If there is nothing to translate - return to save time
 
+		# Custom variables
 		$text = preg_replace ( "/\{#fn\}/", $filename, $text );		
+		$text = preg_replace ( "/\{#action\}/", $action, $text );		
+		$text = preg_replace ( "/\{#act\}/", $act, $text );		
 		
 		preg_match_all ( "/\{#([^\}]+)\}/", $text, $matches );		
 
