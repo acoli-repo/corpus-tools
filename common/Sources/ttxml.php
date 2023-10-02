@@ -343,7 +343,7 @@ class TTXML
 							} else $tmp = getxpval($this->xml, $val['link']);
 							if ( $tmp ) 
 								if ( $val['docinfo'] ) {
-									$hval = "<a href='$tmp' cid=\"$hval\"  onmouseover=\"showdocinfo(this)\">$hval</a>";
+									$hval = "<a href='$tmp' cid=\"$hval\"  onmouseover=\"showdocinfo(this)\" onmouseout=\"hidetokinfo()\">$hval</a>";
 								} else $hval = "<a href='$tmp'>$hval</a>";
 						};
 						if ( $settings['teiheader'][$key]['options'][$hval]['display'] ) 
