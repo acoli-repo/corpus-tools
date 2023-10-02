@@ -316,14 +316,22 @@ class TTXML
 					$tableheader .= "<tr><th colspan=2>{%$disp}";
 					continue;
 				};
-				$xval = getxpval($this->xml, $val['xpath']);
+				if ( $val['xpath'] ) {
+					$xval = getxpval($this->xml, $val['xpath']);
+				} else if ( $val['value'] ) {
+					$xval = $val['value'];
+					if ( strpos(" ".$xval, "{#") != false ) {
+						$xval = xpathrun($xval, $this->xml);
+					};
+				};
 				if ( $xval && ( !$val['admin'] || $username ) ) {
 					if ( $popup && $val['nopopup'] ) continue;
 					if ( in_array($tpl, explode(",", $val['show'])) || ( !$val['show'] && $tpl == "long" ) ) {
 						if ( $val['lang'] && $val['lang'] != $lang ) continue;
 						if ( $settings['teiheader'][$key]['type'] == "xml" ) $hval = $xval->asXML();
 						else if ( preg_match("/@[^\/]+$/", $val['xpath']) ) $hval = "".$xval;
-						else $hval = preg_replace( "/^<[^>]+>|<[^>]+>$/", "", $xval->asXML());
+						else if ( is_object($xval) ) $hval = preg_replace( "/^<[^>]+>|<[^>]+>$/", "", $xval->asXML());
+						else $hval = $xval;
 						// Link when so asked
 						if ( $val['link'] && $hval ) {
 							if ( strpos($val['link'], "http") != false ) $tmp = $val['link'];
@@ -333,7 +341,10 @@ class TTXML
 								$tmp = xpathrun($val['link'], $this->xml);
 								if ( $tmp == preg_replace("/{#[^{}]*}/", "", $val['link']) ) $tmp = "";
 							} else $tmp = getxpval($this->xml, $val['link']);
-							if ( $tmp ) $hval = "<a href='$tmp'>$hval</a>";
+							if ( $tmp ) 
+								if ( $val['docinfo'] ) {
+									$hval = "<a href='$tmp' cid=\"$hval\"  onmouseover=\"showdocinfo(this)\">$hval</a>";
+								} else $hval = "<a href='$tmp'>$hval</a>";
 						};
 						if ( $settings['teiheader'][$key]['options'][$hval]['display'] ) 
 							$hval = $settings['teiheader'][$key]['options'][$hval]['display'];
