@@ -64,6 +64,10 @@ for ( var i=0; i<Object.keys(nerlist).length; i++) {
 	};
 };
 
+function hidetokinfo(elm) {
+	hideinfo(elm);
+};
+
 function doclick(elm) {
 	var ttype = elm.nodeName.toLowerCase();
 	var neratt = nerlist[ttype]['nerid'];
