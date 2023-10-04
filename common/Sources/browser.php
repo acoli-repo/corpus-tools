@@ -495,6 +495,8 @@
 					$foundsome = 1;
 					$maintext .= "<li key='$cat'><a href='index.php?action=$saction&class=$key'>{%$cat}</a>";
 					# if ( $username ) $maintext .= " <span style='color: grey'>".filesize("$cqpfolder/text_$key.avs")."</span>";
+				} else if ( $username ) {
+					$maintext .= "<li key='$cat' style='opacity: 0.5;'><a href='index.php?action=$saction&class=$key'>{%$cat}</a> (no values for this corpus)";
 				};
 			};
 		};
