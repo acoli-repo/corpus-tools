@@ -652,10 +652,11 @@ void treatfile ( string filename ) {
 							};
 							pugi::xpath_node xext;
 							string extxpath = "//*[@id='"+extid+"' or @xml:id='"+extid+"']";
-							if ( debug > 4 ) { cout << " - Compiling external lookup: " << external << " = " << exfile << " / " << extid << " = " << extxpath << endl; };
 							if ( exfile != "" && externals.find(exfile) != externals.end()  ) {
+								if ( debug > 4 ) { cout << " - Compiling external lookup: " << external << " = " << exfile << " / " << extid << " = " << extxpath << endl; };
 								xext = externals[exfile]->select_node(extxpath.c_str());
 							} else {
+								if ( debug > 4 ) { cout << " - Compiling internal lookup: " << external << " = (local) "  << " / " << extid << " = " << extxpath << endl; };
 								xext = doc.select_node(extxpath.c_str());
 							};
 							xres = xext.node().select_node(xpath.c_str());
