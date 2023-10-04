@@ -659,9 +659,13 @@ void treatfile ( string filename ) {
 								if ( debug > 4 ) { cout << " - Compiling internal lookup: " << external << " = (local) "  << " / " << extid << " = " << extxpath << endl; };
 								xext = doc.select_node(extxpath.c_str());
 							};
-							xres = xext.node().select_node(xpath.c_str());
-							formval = pugi::xpath_query(".").evaluate_string(xres);;
-							if ( debug > 3 ) { cout << " - External lookup: " << external << " = " << extxpath << " / " << exfile << " => " << xext.node() << " : " << formval << endl; };
+							if ( xext ) {
+								xres = xext.node().select_node(xpath.c_str());
+								formval = pugi::xpath_query(".").evaluate_string(xres);;
+								if ( debug > 3 ) { cout << " - External lookup: " << external << " = " << extxpath << " / " << exfile << " => " << xext.node() << " : " << formval << endl; };
+							} else if ( debug ) {
+								 cout << " - External lookup failed: " << extxpath << endl;
+							};
 						};
 					
 
