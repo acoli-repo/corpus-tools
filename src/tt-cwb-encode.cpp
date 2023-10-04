@@ -662,7 +662,7 @@ void treatfile ( string filename ) {
 							if ( xext ) {
 								xres = xext.node().select_node(xpath.c_str());
 								formval = pugi::xpath_query(".").evaluate_string(xres);;
-								if ( debug > 3 ) { cout << " - External lookup: " << external << " = " << extxpath << " / " << exfile << " / " << exres << " => " << xext.node() << " : " << formval << endl; };
+								if ( debug > 3 ) { cout << " - External lookup: " << external << " = " << extxpath << " / " << exfile << " / " << xres << " => " << xext.node() << " : " << formval << endl; };
 							} else if ( debug ) {
 								 cout << " - External lookup failed: " << extxpath << endl;
 							};
