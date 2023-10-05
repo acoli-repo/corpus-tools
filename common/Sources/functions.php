@@ -1214,6 +1214,17 @@
 			$basef = $deff->addChild("base");
 			$basef["url"] = $settings['defaults']['base']['url'];
 		};
+		if ( $settings['defaults']['query'] ) {
+			if ( !$deff ) $deff = $merged->addChild("defaults");
+			$queryf = $deff->addChild("query");
+			foreach ( $settings['defaults']['query'] as $key => $val ) {
+				if ( is_array($val) ) {
+					# Handle query definitions
+				} else {
+					$queryf[$key] = $val;
+				};
+			};
+		};
 		
 		return $merged;
 	};
