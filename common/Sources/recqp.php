@@ -39,7 +39,7 @@
 		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
 		$cqpfolder = "cqp/$subc";
 		$forc = " (for $subc) ";
-	} else if ( $settings['cqp']['subcorpora'] == "always" ) {
+	} else if ( $settings['cqp']['subcorpora'] == "only" ) {
 		fatal("Regeneration should be done always for a specific subcorpus in this project");
 	};
 	
