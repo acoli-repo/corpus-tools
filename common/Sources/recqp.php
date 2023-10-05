@@ -153,9 +153,10 @@
 		$cmd = "perl $scriptname $setfile $subcsel > /dev/null &";
 		exec($cmd);
 
-	} else if ( ( $_GET['check'] || $recentfile ) && file_exists("tmp/recqp.log")  && !$_GET['force'] ) {
+	} else if ( ( $_GET['check'] || $recentfile ) && ( file_exists("tmp/recqp.log") || file_exists("tmp/recqp-$subc.log")  )  && !$_GET['force'] ) {
 		
-		$logtxt = file_get_contents("tmp/recqp.log");
+		if ( $subc && file_exists("tmp/recqp-$subc.log") ) $logtxt = file_get_contents("tmp/recqp-$subc.log");
+		else $logtxt = file_get_contents("tmp/recqp.log");
 		
 		if ( !$subc && preg_match("/Subcorpus: (.+)/", $logtxt, $matches ) ) {
 			$subcu = $matches[1];
