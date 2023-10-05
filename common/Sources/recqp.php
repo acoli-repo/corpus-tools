@@ -46,7 +46,8 @@
 	};
 
 	$lastupdate = "<i>No information</i>";
-	$tmp = file_get_contents("tmp/lastupdate.log");
+	if ( $subc ) $tmp = shell_exec("grep '$subc' tmp/lastupdate.log | tail -n 1");
+	else $tmp = shell_exec("tail -n 1 tmp/lastupdate.log");
 	if ( $tmp ) {
 		list ( $start, $lapse, $size ) = explode("\t", $tmp);
 		$size = hrnum($size);
@@ -72,8 +73,8 @@
 			<p>Step 2 tends to be fast, while steps 1 can take several minutes (or even hours depending on the size of the corpus). ";
 		};
 		
-		$tmp = shell_exec("grep 'CQP Corpus:' tmp/recqp.pid");
-		if ( !$subc && preg_match("/$cqpcorpus-(.*)/i", $tmp, $matches) ) {
+		$tmp = shell_exec("grep 'Subcorpus:' tmp/recqp.pid");
+		if ( !$subc && preg_match("/Subcorpus: (.*)/i", $tmp, $matches) ) {
 			$subc = $matches[1];
 			$corpname = $matches[0];
 			$tmp = shell_exec("grep NAME cqp/".strtolower($corpname));
