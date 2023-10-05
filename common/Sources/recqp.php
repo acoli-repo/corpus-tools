@@ -148,7 +148,7 @@
 			$tmp = shell_exec("grep 'HOME ' $deff");
 			$subc = preg_replace("/.*\//", "", $tmp);
 			if ( !$subc ) { $subc = $subcu; };
-			$subcheck = "(for subcorpus $subc)";
+			$subcheck = "(for subcorpus $deff)";
 		};
 		
 		if ( filesize("cqp/$subc/word.corpus") == 0 ) 
