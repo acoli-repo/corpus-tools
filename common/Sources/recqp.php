@@ -134,7 +134,7 @@
 				To show the progess, this page will reload
 				<script type=\"text/javascript\">
 					setTimeout(function () { 
-					  top.location = 'index.php?action=recqp&check=1';
+					  top.location = 'index.php?action=recqp&check=1&subc=$subc';
 					}, 5 * 1000);
 				</script>";
 				
