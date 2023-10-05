@@ -63,7 +63,7 @@
 	} else $tmp = shell_exec("tail -n 1 tmp/lastupdate.log");
 	if ( $tmp ) {
 		list ( $start, $lapse, $size, $subct ) = explode("\t", $tmp);
-		if ( !$subc ) $subc = $subct;
+		# if ( !$subc ) $subc = $subct;
 		$size = hrnum($size);
 		$lapse = preg_replace("/ 0+ ([^ ]+)/", " ", date(" z \d\a\y\s H \h\o\u\\r\s i \m\i\\n\u\\t\\e\s s \s\\e\c\o\\n\d\s", $lapse));
 		$lastupdate = "Started $start - generated corpus of $size tokens in $lapse";
