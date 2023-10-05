@@ -140,8 +140,10 @@
 
 	} else if ( ( $_GET['check'] || $recentfile ) && file_exists("tmp/recqp.log")  && !$_GET['force'] ) {
 		
-		
 		$logtxt = file_get_contents("tmp/recqp.log");
+		
+		if ( !$subc && $logtxt )
+		
 		if ( filesize("cqp/$subc/word.corpus") == 0 ) 
 			$maintext .= "<p>The generation process seems to have terminated, but the corpus file is empty. The transcript of the process
 				can be read below. ";
@@ -206,6 +208,9 @@
 		$script .= "\n\nprint FILE 'Regeneration started on '.localtime();";
 		$script .= "\nprint FILE 'Process id: '.\$\$;";
 		$script .= "\nprint FILE 'CQP Corpus: $cqpcorpus';";
+		if ( $subc ) {
+			$script .= "\nprint FILE 'Subcorpus: $subc';";
+		};
 				
 		# Remove the old files (otherwise CQP gets confused)
 		$cmd = "/bin/rm -f $thisdir/cqp/*";
