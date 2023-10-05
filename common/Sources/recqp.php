@@ -40,7 +40,7 @@
 		$cqpfolder = "cqp/$subc";
 		$forc = " (for $subc) ";
 	};
-	if ( getset("cqp/subcorpora") == "always" ) && !$subc ) {
+	if ( getset("cqp/subcorpora") == "always" && !$subc ) {
 		fatal("Regeneration should be done always for a specific subcorpus in this project");
 	};
 	
