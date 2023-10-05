@@ -25,17 +25,18 @@
 	$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
 	
 	$cqpfolder = "cqp";
-	if ( $_GET['subc'] ) {
-		$subc = $_GET['subc'];
-		$subcsel = " --sub='$subc' ";
-		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
-		$cqpfolder = "cqp/$subc";
-		$forc = " (for $subc) ";
-	} else {
+	$subc = $_GET['subc'];
+	if ( !$subc) {
 		$tmp = shell_exec("grep 'Subcorpus:' tmp/recqp.pid");
 		if ( preg_match("/Subcorpus: (.*)/i", $tmp, $matches) ) {
 			$subc =  trim($matches[1]);
 		};
+	};
+	if ( $subc ) {
+		$subcsel = " --sub='$subc' ";
+		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
+		$cqpfolder = "cqp/$subc";
+		$forc = " (for $subc) ";
 	};
 	
 	$registryfile = $registryfolder.strtolower($cqpcorpus);
