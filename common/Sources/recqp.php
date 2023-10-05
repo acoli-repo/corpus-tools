@@ -33,7 +33,6 @@
 		};
 	};
 	if ( $subc ) {
-		$maintext .= "<p>Subcorpus: $subc";
 		$subcsel = " --sub='$subc' ";
 		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
 		$cqpfolder = "cqp/$subc";
@@ -55,6 +54,7 @@
 
 	$lastupdate = "<i>No information</i>";
 	if ( $subc ) {
+		$maintext .= "<p>Subcorpus: $subc";
 		$tmp = shell_exec("grep '$subc' tmp/lastupdate.log | tail -n 1");
 		$lastupdate = "<i>No information for $subc</i>";
 	} else $tmp = shell_exec("tail -n 1 tmp/lastupdate.log");
