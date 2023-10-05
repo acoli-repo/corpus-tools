@@ -76,10 +76,10 @@
 		$tmp = shell_exec("grep 'Subcorpus:' tmp/recqp.pid");
 		if ( !$subc && preg_match("/Subcorpus: (.*)/i", $tmp, $matches) ) {
 			$subc = $matches[1];
-			$corpname = $matches[0];
-			$tmp = shell_exec("grep NAME cqp/".strtolower($corpname));
-			if ( preg_match("/NAME \"(.*?)\"/", $tmp, $matches2) ) $corpname = $matches2[1];
-			$corpname = "<p>Subcorpus: $corpname";
+// 			$corpname = $matches[0];
+// 			$tmp = shell_exec("grep NAME cqp/".strtolower($corpname));
+// 			if ( preg_match("/NAME \"(.*?)\"/", $tmp, $matches2) ) $corpname = $matches2[1];
+			$maintext .= "<p>Subcorpus: $subc";
 		};
 		
 		$cursize = hrnum(filesize("cqp/$subc/word.corpus")/4);
