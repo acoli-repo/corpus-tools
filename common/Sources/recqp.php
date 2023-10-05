@@ -145,10 +145,10 @@
 		if ( !$subc && preg_match("/Subcorpus: (.+)/", $logtxt, $matches ) ) {
 			$subcu = $matches[1];
 			$deff = strtolower("cqp/$cqpcorpus-$subcu");
-			$tmp = shell_exec("grep 'HOME ' $deff");
+			$tmp = shell_exec("grep 'HOME' $deff");
 			$subc = preg_replace("/.*\//", "", $tmp);
 			if ( !$subc ) { $subc = $subcu; };
-			$subcheck = "(for subcorpus $deff)";
+			$subcheck = "(for subcorpus $subc)";
 		};
 		
 		if ( filesize("cqp/$subc/word.corpus") == 0 ) 
