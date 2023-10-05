@@ -49,7 +49,7 @@
 			if ( !$subcorpusname ) $subcorpusname = $subfolder;
 			if ( !$corpusname ) $corpusname = "Subcorpus $subcorpusname";
 			$subcorpustit = "<h2>$corpusname (<a href='index.php?action=$action&act=select'>{%change}</a>)";
-			if ( $username ) $subcorpustit .= " - <a style='font-weight: normal;' href='index.php?action=recqp&subc=$subfolder'>regenerate</a>";
+			if ( $username ) $subcorpustit .= " - <span class=adminpart><a style='font-weight: normal;' href='index.php?action=recqp&subc=$subfolder'>regenerate</a> / <a style='font-weight: normal;' href='index.php?action=recqp&check=1&subc=$subfolder'>check</a>";
 			$subcorpustit .= "</h2>";
 		};
 	} else {

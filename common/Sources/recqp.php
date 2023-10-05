@@ -39,7 +39,7 @@
 		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
 		$cqpfolder = "cqp/$subc";
 		$forc = " (for $subc) ";
-	} else if ( $settings['cqp']['subcorpora'] == "only" ) {
+	} else if ( !$_GET['check'] && $settings['cqp']['subcorpora'] == "only" ) {
 		fatal("Regeneration should be done always for a specific subcorpus in this project");
 	};
 	
@@ -172,7 +172,7 @@
 		$maintext .= "<p>The generation process seems to have terminated successfully. The transcript of the process
 			can be read below. 
 			<p>Click <a href='index.php?action=cqp'>here</a> to continute to the CQP search
-			<p>Click <a href='index.php?action=recqp'>here</a> to regenerate again
+			<p>Click <a href='index.php?action=recqp&subc=$subc'>here</a> to regenerate again
 			
 				<hr><pre>$logtxt</pre>";
 		
