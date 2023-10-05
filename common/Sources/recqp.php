@@ -24,7 +24,7 @@
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
 	
-	$cqpfolder = "cqp"
+	$cqpfolder = "cqp";
 	if ( $_GET['subc'] ) {
 		$subc = $_GET['subc'];
 		$subcsel = " --sub='$subc' ";
