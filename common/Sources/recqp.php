@@ -33,6 +33,7 @@
 		};
 	};
 	if ( $subc ) {
+		$maintext .= "<p>Subcorpus: $subc";
 		$subcsel = " --sub='$subc' ";
 		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
 		$cqpfolder = "cqp/$subc";
