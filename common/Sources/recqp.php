@@ -146,7 +146,7 @@
 			$subcu = $matches[1];
 			$deff = strtolower("cqp/$cqpcorpus-$subcu");
 			$tmp = shell_exec("grep 'HOME' $deff");
-			$subc = preg_replace("/.*\//", "", $tmp);
+			$subc = trim(preg_replace("/.*\//", "", $tmp));
 			if ( !$subc ) { $subc = $subcu; };
 			$subcheck = "(for subcorpus $subc)";
 		};
