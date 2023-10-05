@@ -31,6 +31,11 @@
 		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
 		$cqpfolder = "cqp/$subc";
 		$forc = " (for $subc) ";
+	} else {
+		$tmp = shell_exec("grep 'Subcorpus:' tmp/recqp.pid");
+		if ( preg_match("/Subcorpus: (.*)/i", $tmp, $matches) ) {
+			$subc =  trim($matches[1]);
+		};
 	};
 	
 	$registryfile = $registryfolder.strtolower($cqpcorpus);
