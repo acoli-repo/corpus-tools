@@ -51,6 +51,7 @@ $starttime = time();
 print FILE 'Regeneration started on '.localtime();
 print FILE 'Process id: '.$$;
 print FILE "CQP Corpus: $cqpcorpus";
+if ( $subc ) { print FILE "Subcorpus: $cqpcorpus"; };
 print FILE 'Removing the old files';
 print FILE "command:
 /bin/rm -Rf cqp$scf/*";

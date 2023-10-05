@@ -142,10 +142,16 @@
 		
 		$logtxt = file_get_contents("tmp/recqp.log");
 		
-		if ( !$subc && $logtxt )
+		if ( !$subc && preg_match("/Subcorpus: (.+)/", $logtxt, $matches ) ) {
+			$subcu = $matches[1];
+			$deff = strtolower("cqp/-$subcu");
+			$tmp = shell_exec("grep 'HOME ' $deff");
+			$subc = preg_replace("/.*\//", "", $tmp);
+			$subcheck = "(for subcorpus $subc)";
+		};
 		
 		if ( filesize("cqp/$subc/word.corpus") == 0 ) 
-			$maintext .= "<p>The generation process seems to have terminated, but the corpus file is empty. The transcript of the process
+			$maintext .= "<p>The generation process seems to have terminated, but the corpus file $subcheck is empty. The transcript of the process
 				can be read below. ";
 		else
 		$maintext .= "<p>The generation process seems to have terminated successfully. The transcript of the process
