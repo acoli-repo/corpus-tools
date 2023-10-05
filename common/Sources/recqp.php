@@ -24,10 +24,12 @@
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
 	
+	$cqpfolder = "cqp"
 	if ( $_GET['subc'] ) {
 		$subc = $_GET['subc'];
 		$subcsel = " --sub='$subc' ";
 		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
+		$cqpfolder = "cqp/$subc";
 	};
 	
 	$registryfile = $registryfolder.strtolower($cqpcorpus);
@@ -112,7 +114,7 @@
 		};
 		if ( !$cqpfolder ) 		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
 		
-		if ( ( file_exists("cqp/word.corpus")	&& !is_writable("cqp/word.corpus") ) || !is_writable("cqp") ) 
+		if ( ( file_exists("cqp/$subc/word.corpus")	&& !is_writable("cqp/$subc/word.corpus") ) || !is_writable("cqp") ) 
 			fatal("The permissions on the CQP files prevent the system from writing them");		
 
 		if ( file_exists("Scripts/recqp.pl") ) $scriptname = "Scripts/recqp.pl"; 
@@ -138,8 +140,9 @@
 
 	} else if ( ( $_GET['check'] || $recentfile ) && file_exists("tmp/recqp.log")  && !$_GET['force'] ) {
 		
+		
 		$logtxt = file_get_contents("tmp/recqp.log");
-		if ( filesize("cqp/word.corpus") == 0 ) 
+		if ( filesize("cqp/$subc/word.corpus") == 0 ) 
 			$maintext .= "<p>The generation process seems to have terminated, but the corpus file is empty. The transcript of the process
 				can be read below. ";
 		else
