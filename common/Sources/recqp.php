@@ -6,6 +6,7 @@
 	$maintext .= "<h1>Regenerating the CQP Corpus</h1>";
 	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
 
+
 	if ( file_exists("tmp/recqp.log") ) {
 		$modtime = filemtime("tmp/recqp.log");
 		$now = time(); $timediff = $now-$modtime;
@@ -26,7 +27,7 @@
 	
 	$cqpfolder = "cqp";
 	$subc = $_GET['subc'];
-	if ( !$subc) {
+	if ( !$subc ) {
 		$tmp = shell_exec("grep 'Subcorpus:' tmp/recqp.pid");
 		if ( preg_match("/Subcorpus: (.*)/i", $tmp, $matches) ) {
 			$subc =  trim($matches[1]);
@@ -38,6 +39,9 @@
 		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
 		$cqpfolder = "cqp/$subc";
 		$forc = " (for $subc) ";
+	};
+	if ( getset("cqp/subcorpora") == "always" ) && !$subc ) {
+		fatal("Regeneration should be done always for a specific subcorpus in this project");
 	};
 	
 	$registryfile = $registryfolder.strtolower($cqpcorpus);
