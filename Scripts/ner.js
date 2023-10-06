@@ -72,12 +72,15 @@ function doclick(elm) {
 	var ttype = elm.nodeName.toLowerCase();
 	var neratt = nerlist[ttype]['nerid'];
 	var trgt = elm.getAttribute(neratt);
-	var newurl = 'index.php?action=ner&nerid='+encodeURIComponent(trgt)+'&type='+ttype;
+	var newurl = '';
+	if ( trgt ) {
+		newurl = 'index.php?action=ner&nerid='+encodeURIComponent(trgt)+'&type='+ttype;
+	};
 	if ( username ) {
 		newurl = 'index.php?action=ner&act=edit&cid='+fileid+'&nerid='+elm.getAttribute('id');
 	};
 	console.log(newurl);
-	window.open(newurl, '_self');
+	if ( newurl ) { window.open(newurl, '_self'); };
 };
 
 function hideinfo(showelement) {
