@@ -76,10 +76,9 @@ function doclick(elm) {
 	if ( trgt ) {
 		newurl = 'index.php?action=ner&nerid='+encodeURIComponent(trgt)+'&type='+ttype;
 	};
-	if ( username ) {
+	if ( username && fileid && elm.getAttribute('id') ) {
 		newurl = 'index.php?action=ner&act=edit&cid='+fileid+'&nerid='+elm.getAttribute('id');
 	};
-	console.log(newurl);
 	if ( newurl ) { window.open(newurl, '_self'); };
 };
 
