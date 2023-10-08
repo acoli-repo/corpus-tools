@@ -48,7 +48,9 @@
 			};
 			if ( !$subcorpusname ) $subcorpusname = $subfolder;
 			if ( !$corpusname ) $corpusname = "Subcorpus $subcorpusname";
-			$subcorpustit = "<h2>$corpusname (<a href='index.php?action=$action&act=select'>{%change}</a>)";
+			$subsellink = "index.php?action=$action&act=select";
+			if ( file_exists("Sources/subselect.php") || file_exists("$sharedfolder/Sources/subselect.php") ) $subsellink = "index.php?action=subselect";
+			$subcorpustit = "<h2>$corpusname (<a href='$subsellink'>{%change}</a>)";
 			if ( $username ) $subcorpustit .= " - <span class=adminpart><a style='font-weight: normal;' href='index.php?action=recqp&subc=$subfolder'>regenerate</a> / <a style='font-weight: normal;' href='index.php?action=recqp&check=1&subc=$subfolder'>check</a>";
 			$subcorpustit .= "</h2>";
 		};
