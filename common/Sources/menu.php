@@ -43,6 +43,11 @@
 	
     $menu .= "<ul style='text-align: left'>";
         	
+    if ( is_array($moremenu) ) 
+    	foreach ( $moremenu as $key => $val ) {
+    		$settings['menu']['itemlist'][$key] = $val;
+    	};
+        	
     foreach ( $settings['menu']['itemlist'] as $key => $item ) { 
 		$scl = $scli = $trgt = $link = "";
     	if ( !is_array($item) ) continue; # Skip attributes
