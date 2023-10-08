@@ -23,7 +23,11 @@
 	if ( $settings['cqp']['subcorpora'] ) {
 		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = "";
 		if ( !$subcorpus ) {
-			# fatal("No subcorpus selected");
+			if ( file_exists("Sources/subselect.php") || file_exists("$sharedfolder/Sources/subselect.php")  ) {
+				print "Forcing subcorpus select
+					<script>top.location='index.php?action=subselect';</script>";
+				exit;
+			};
 			$act = "select";
 			$cqpcorpus = "";
 		} else {
