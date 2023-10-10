@@ -155,11 +155,11 @@
 		$atts = ""; $unit = "em";
 		
 		if ( !$xml ) return "";
-		if ( !$xml->children() && count($xml->attributes()) + count($xml->attributes('xml', TRUE)) < 1 && strlen($xml."") < 50 ) {
-			$showxml .= "\n<div style='margin-left: {$ident}$unit;'><span style='color: #0000dd;'>&lt;".$xml->getName()."&gt;</span><span style='color: black;'>$xml</span><span style='color: #0000dd;'>&lt;/".$xml->getName()."&gt;</span></div>";					
+		foreach ( $xml->attributes() as $key => $val ) { $atts .= " <span style='color: #aa0000;'>$key=\"$val\"<span>"; }
+		foreach ( $xml->attributes('xml', TRUE) as $key => $val ) { $atts .= " <span style='color: #aa0000;'>xml:$key=\"$val\"<span>"; }
+		if ( !$xml->children() && count($xml->attributes()) + count($xml->attributes('xml', TRUE)) < 2 && strlen($xml."") < 50 ) {
+			$showxml .= "\n<div style='margin-left: {$ident}$unit;'><span style='color: #0000dd;'>&lt;".$xml->getName()."$atts&gt;</span><span style='color: black;'>$xml</span><span style='color: #0000dd;'>&lt;/".$xml->getName()."&gt;</span></div>";					
 		} else {
-			foreach ( $xml->attributes() as $key => $val ) { $atts .= " <span style='color: #aa0000;'>$key=\"$val\"<span>"; }
-			foreach ( $xml->attributes('xml', TRUE) as $key => $val ) { $atts .= " <span style='color: #aa0000;'>xml:$key=\"$val\"<span>"; }
 			$showxml .= "\n<div style='margin-left: {$ident}$unit;'><span style='color: #0000dd;'>&lt;".$xml->getName().$atts."&gt;</span></div>";
 			if ( preg_replace("/\s/", "", $xml."") != "" ) $showxml .= "\n<div style='margin-left: {$ident}$unit; padding-left: 1$unit;'><span style='color: black;'>".$xml."</span></div>";		
 			foreach ( $xml->children() as $child ) {
