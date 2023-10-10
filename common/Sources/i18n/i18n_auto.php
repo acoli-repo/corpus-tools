@@ -5,6 +5,7 @@
 		"previous" => "previous",
 		"next" => "next",
 		"back to list" => "back to list",
+		"Document not found" => "Document not found",
 		"select" => "select",
 		"Distribution" => "Distribution",
 		"Query" => "Query",

@@ -5,7 +5,7 @@
 	
 	if ( $_GET['cid'] ) {
 		require ("$ttroot/common/Sources/ttxml.php");
-		$ttxml = new TTXML();
+		$ttxml = new TTXML( $_GET['cid'], false);
 	};
 
 	if ( $_GET['cqp'] || $cqptype[$_GET['data']] ) {
@@ -120,7 +120,8 @@
 	} else if ( $_GET['data'] == "docinfo" ) {
 		
 		$popup = 1;
-		$output = "<table width=100% style='margin-bottom: -4px;'><tr><th><b>".$ttxml->title()."</b></th><tr></table>".$ttxml->tableheader("", false);
+		if ( !$ttxml->xml ) { $output = "<i>{%Document not found}</i>"; }
+		else $output = "<table width=100% style='margin-bottom: -4px;'><tr><th><b>".$ttxml->title()."</b></th><tr></table>".$ttxml->tableheader("", false);
 		print i18n($output);
 		exit;
 		
