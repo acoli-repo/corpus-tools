@@ -155,7 +155,7 @@
 		$atts = ""; $unit = "em";
 		
 		if ( !$xml ) return "";
-		if ( !$xml->children() && count($xml->attributes()) < 2 && strlen($xml."") < 50 ) {
+		if ( !$xml->children() && count($xml->attributes()) + count($xml->attributes('xml', TRUE)) < 1 && strlen($xml."") < 50 ) {
 			$showxml .= "\n<div style='margin-left: {$ident}$unit;'><span style='color: #0000dd;'>&lt;".$xml->getName()."&gt;</span><span style='color: black;'>$xml</span><span style='color: #0000dd;'>&lt;/".$xml->getName()."&gt;</span></div>";					
 		} else {
 			foreach ( $xml->attributes() as $key => $val ) { $atts .= " <span style='color: #aa0000;'>$key=\"$val\"<span>"; }
