@@ -5,6 +5,8 @@
 
 	require ("$ttroot/common/Sources/ttxml.php");
 	
+	$colors = array ('red', 'green', 'blue', 'orange', 'purple', 'pink');
+	
 	$ttxml = new TTXML();
 	$cid = $ttxml->xmlid;
 	
@@ -85,6 +87,18 @@
 		if ( $morphann ) { $morphed = 1; };
 		$maintext .= "<table id=$sid><tr><td style='border-right: 1px solid #bbaabb;' valign=top>";
 		$maintext .= "<div class='floatbox' id='$sid' style='padding-right: 5px;'>{%$wordlvl}";
+// 		$doatts = array(); $con = 0;
+// 		foreach ( $settings['xmlfile']['pattributes']['tags'] as $patttag ) {
+// 			$pattname = $patttag['display'];
+// 			$pattlvl = $patttag['lvl'] or $pattlvl = $patttag['key'];
+// 			if ( $sent->xpath(".//tok[@$pattlvl]") ) {
+// 				$thiscolor = $colors[$con++];
+// 				$maintext .= "<br><span style='color: $thiscolor' title='$pattlvl'>$pattname</span>";
+// 				$doatts[$pattlvl] = $thiscolor;
+// 			} else {
+// 				$maintext .= "<br>No $pattname";
+// 			};
+// 		};
 		if ( $morphed ) {
 			$maintext .= "<hr><table style='margin: 0;'>";
 			foreach ( $settings['annotations'][$morphelm] as $item ) {
@@ -97,6 +111,10 @@
 		foreach ( $sent->xpath(".//tok") as $tok ) {
 			$tokid = $tok['id'];
 			$maintext .= "<div class=floatbox id='$sid' style='text-align: center;'>".$tok->asXML();
+// 			foreach ( $doatts as $pattlvl => $thiscolor ) {
+// 				$val = $tok[$pattlvl]."" or $val = "-";
+// 				$maintext .= "<br><span style='color: $thiscolor'>$val</span>";
+// 			};
 			if ( $morphed ) {
 				$maintext .= "<hr><table style='margin: 0;'>";
 				foreach ( $settings['annotations'][$morphelm] as $item ) {

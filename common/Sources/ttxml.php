@@ -963,7 +963,16 @@ class TTXML
 				$viewopts[$key] = $lvltxt;
 			}; 
 		};
-		
+
+		// Add the download link
+		if ( $action != "text" && $settings['download']['always'] ) {
+			if ( !is_array($settings['download']) || ( ( $settings['download']['admin'] != "1" || $username ) && $settings['download']['disabled'] != "1" ) ) {
+				$dltit = "Download XML";
+				if ( is_array($settings['download']) && $settings['download']['title'] ) $dltit = $settings['download']['title'];
+				$viewopts['getxml:xml'] = $dltit;
+			};
+		};
+						
 		// Add the annotation levels
 		if ( $settings['annotations'] ) {
 			foreach ( $settings['annotations'] as $key => $val ) {
