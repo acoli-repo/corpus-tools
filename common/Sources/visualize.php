@@ -233,7 +233,8 @@
 							fatal("No subcorpus selected");
 						};
 						$_SESSION['subc-'.$foldername] = $subcorpus;
-						$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
+						# We might need to check if the corpus name does (not) start with the full corpus
+						$cqpcorpus = strtoupper("$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
 						$cqpfolder = "cqp/$subcorpus";
 						$corpusname = $_SESSION['corpusname'] or $corpusname = "Subcorpus $subcorpus";
 						$subcorpustit = "<h2>$corpusname</h2>";
