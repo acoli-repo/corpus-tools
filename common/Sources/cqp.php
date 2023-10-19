@@ -225,6 +225,42 @@
 			} else $maintext .= "<hr><h2>Result</h2><pre>".htmlentities($result)."</pre>";
 		};
 	
+	} else if ( $act == "scan" ) {
+	
+		# Distribute over a bunch of different sattributes (using scan)
+
+		$maintext .= "<h1>{%Word Distribution}</h1>";
+		if ( file_exists("Page/distributetext.html") ) $maintext .= getlangfile("distributetext");
+
+		$corpid = strtolower($cqpcorpus);
+		$showlist = $settings['cqp']['distribute']
+			or $showlist = $settings['cqp']['sattributes']['text'];
+		foreach ( $showlist as $key => $val1 ) {
+			$val = $settings['cqp']['sattributes']['text'][$key];
+			if ( strpos($key, '_') !== false ) { $xkey = $key; } else { $xkey = "text_$key"; };
+			if ( $val['type'] != "select" && $val['type'] != "kselect" && strpos($key, '_') === false ) continue;
+
+			$cwbscan = findapp("cwb-scan-corpus");
+			$cmd = "$cwbscan  -q -r cqp $corpid $xkey";
+			$results = shell_exec($cmd);
+
+			$displaytxt = $val1['display'] or $displaytxt = "{%Words by} {%".$val['display']."}";
+			$maintext .= "<h2>$displaytxt</h2>";
+			if ( $val1['header'] ) {
+				$tmp = $val1['header'][$lang] or $tmp = $val1['header']["en"];
+				$maintext .= "<p>{$tmp}</p>";
+			};
+			$maintext .= "<table class=restable>";
+			foreach ( explode("\n", $results) as $line ) {
+				list ( $cnt, $cvl ) = explode ( "\t", $line );
+
+				if ( $key == "project" ) $cvlt = $settings['projects'][$cvl]['name'];
+				else if ( $val['type'] == "kselect" || $val['translate'] ) $cvlt = "{%$key-$cvl}";
+				else $cvlt = $cvl;
+				if ( $cvl && !$val['noshow'] ) $maintext .= "<tr><th span='row'>$cvlt<td style='text-align: right; padding-left: 10px;'>".number_format($cnt);
+			};
+			$maintext .= "</table>";
+		};
 
 	} else if ( $act == "distribute" ) {
 		# Distribute over a bunch of different sattributes
