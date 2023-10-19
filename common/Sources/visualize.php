@@ -320,6 +320,7 @@
 						$json = "[[{'id':'grp', 'label':'{%$label}'}, {'id':'count', 'label':'{%Count}', 'type':'number'}, {'id':'perc', 'label':'{%Percent}', 'type':'number'}], ";
 						foreach ( explode("\n", $cqpresults) as $line ) {
 							list ( $grp, $cnt ) = explode ( "\t", $line );
+							if ( $grfld && $istranslatable ) { $grp = "$grfld-$grp"; }; # TODO: check whether the field should be translated
 							$grp = str_replace("'", "\\'", $grp); # Protect '
 							$perc = sprintf("%0.2f", (intval($cnt)/intval($totcnt))*100);
 							if ( $grp && $cnt ) $json .= "['$grp', $cnt, $perc], ";
@@ -329,7 +330,8 @@
 										
 
 					if ( preg_match("/group Matches match (.*)/", $grquery, $matches ) ) {
-						$pn = pattname($matches[1]);
+						$grfld = $matches[1];
+						$pn = pattname($grfld);
 						$qp['display'] = $pn;
 						$grtxt = "<span title='".htmlentities($grquery)."'>{%$pn}</span>";
 					} else $grtxt = $grquery;

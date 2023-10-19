@@ -244,8 +244,8 @@
 			or $showlist = $settings['cqp']['sattributes']['text'];
 		foreach ( $showlist as $key => $val1 ) {
 			$val = $settings['cqp']['sattributes']['text'][$key];
-			if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
-			if ( $val['type'] != "select" && $val['type'] != "kselect" ) continue;
+			if ( strpos($key, '_') !== false ) { $xkey = $key; } else { $xkey = "text_$key"; };
+			if ( $val['type'] != "select" && $val['type'] != "kselect" && strpos($key, '_') === false ) continue;
 			$cqpquery = "group Matches matchend $xkey";
 			$results = $cqp->exec($cqpquery);
 
