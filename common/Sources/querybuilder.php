@@ -388,7 +388,7 @@
 						$tmp = "";
 						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
 						foreach ( explode ( "\0", $tmp ) as $kva ) { 
-							$kvl = "";
+							$kvl = array ( $kva );
 							if ( $kva ) {
 								if ( $item['values'] == "multi" ) {
 									$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
