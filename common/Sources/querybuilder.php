@@ -385,8 +385,10 @@
 							<input type='hidden' name=matches[$xkey] value='startswith'>";
 					else if ( $item['type'] == "select" || $item['type'] == "kselect" ) {
 						# Read this index file
+						$tmp = "";
 						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
 						foreach ( explode ( "\0", $tmp ) as $kva ) { 
+							$kvl = "";
 							if ( $kva ) {
 								if ( $item['values'] == "multi" ) {
 									$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
