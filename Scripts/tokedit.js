@@ -937,7 +937,7 @@ function unhighlight () {
 	};
 };
 
-function highlight ( id, color, dtokcolor ) {
+function highlight ( id, color, dtokcolor, title ) {
 	if ( !id )  { return -1; };
 	if ( !color )  { color = '#ffffaa'; };
 	if ( !dtokcolor )  { dtokcolor = color; };
@@ -958,6 +958,8 @@ function highlight ( id, color, dtokcolor ) {
 		
 		element.style['background-color'] = color;
 		element.style.backgroundColor= color; 
+		
+		if ( title ) { element.setAttribute('title', title); };
 	};
 };
 
