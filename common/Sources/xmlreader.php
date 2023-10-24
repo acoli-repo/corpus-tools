@@ -208,7 +208,10 @@
 			if ( !$record ) fatal ( "No such record: $id" );
 
 			$tmp = explode ( ",", $itemtitle );
-			while ( !$tit && $tick++ < 100 ) $tit = current($record->xpath(array_shift($tmp)));
+			while ( !$tit && $tick++ < 100 ) {
+				$tmp2 = $record->xpath(array_shift($tmp));
+				if ( $tmp2 ) $tit = current($tmp);
+			};
 		};
 
 		$maintext .= "<h2>$tit</h2>
