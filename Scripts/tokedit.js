@@ -1163,6 +1163,29 @@ function showdocinfo(showelement) {
 
 };
 
+function offset(elem) {
+	if(!elem) elem = this;
+
+	var x = elem.offsetLeft;
+	var y = elem.offsetTop;
+
+	if ( typeof(x) == "undefined" ) {
+
+		bbr = elem.getBoundingClientRect();
+		x = bbr.left + window.pageXOffset;
+		y = bbr.top + window.pageYOffset;
+
+	} else {
+
+		while (elem = elem.offsetParent) {
+			x += elem.offsetLeft;
+			y += elem.offsetTop;
+		}
+	
+	};
+	
+	return { left: x, top: y };
+}    
 
 
 // TODO - the functions below are redundant but might still get pulled form teitok.org
