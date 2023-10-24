@@ -35,7 +35,7 @@
 
 		if ( $bindir ) $xdir = "$bindir/";
 		$cmd = "$app --folder='' --filename='{$filenames[0]}' --xpquery='$xp'"; 
-		$resxml = shell_exec($cmd)." <= $cmd";
+		$resxml = shell_exec($cmd);
 	
 	} else {
 	
@@ -138,6 +138,7 @@
 
 
 	if ( $format == "raw" ) {
+		if ( simplexml_load_string($resxml) ) header('Content-Type: text/xml');
 		if ( $resxml == "" ) $resxml = "<i>Not found</i>";
 		print $resxml;
 	} else if ( $format == "json" ) {
