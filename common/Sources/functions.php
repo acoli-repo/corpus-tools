@@ -422,49 +422,54 @@
 		};
 	};
 	
-	function saveMyXML ( $xmltxt, $filename, $noempties = true ) {
+	function saveMyXML ( $xmlinput, $filename, $noempties = true, $folder = "" ) {
 		// Safe store XML to file, and keep a backup
 		global $xmlfolder;
+		if ( !$folder ) $folder = $xmlfolder;
 		libxml_use_internal_errors(true);
 
 		if ( $noempties ) {
 			$xmltxt = preg_replace( "/ [a-zA-Z0-9]+=\"\"/", "", $xmltxt );
 		};
 
-		$xml = simplexml_load_string($xmltxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		if ( $xml === false ) {
-			# The input is not XML (anymore) - throw an error and do not save
-			print "<h1>Oops</h1> <p>There is an error in the XML and we will not save. 
-					The error messages are shows below. 
-					More info can be found by looking at the source code of this page.</p>";
+		if ( is_string($xmlinput) ) {
+			$xml = simplexml_load_string($xmlinput, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+			if ( $xml === false ) {
+				# The input is not XML (anymore) - throw an error and do not save
+				print "<h1>Oops</h1> <p>There is an error in the XML and we will not save. 
+						The error messages are shows below. 
+						More info can be found by looking at the source code of this page.</p>";
 
-			foreach(libxml_get_errors() as $error) {
-				echo "<p>&nbsp; &nbsp; ", $error->message;
-				if ( preg_match("/error line (\d+) /", $error->message, $matches) ) { 
-					$linenr = $matches[1] - 1;
-					if ( $linenr != 0 ) $markers .= "editor.resize(true); editor.scrollToLine($linenr, true, true, function () {}); editor.getSession().addMarker(new Range($linenr, 0, $linenr, 2000), 'warning', 'line', true);";
+				foreach(libxml_get_errors() as $error) {
+					echo "<p>&nbsp; &nbsp; ", $error->message;
+					if ( preg_match("/error line (\d+) /", $error->message, $matches) ) { 
+						$linenr = $matches[1] - 1;
+						if ( $linenr != 0 ) $markers .= "editor.resize(true); editor.scrollToLine($linenr, true, true, function () {}); editor.getSession().addMarker(new Range($linenr, 0, $linenr, 2000), 'warning', 'line', true);";
+					}
 				}
-			}
 
-			$xmltxt = htmlentities($xmltxt);
-			if ( $markers ) print "<p>The (first) conflicting line has been highlighted";
+				$xmltxt = htmlentities($xmltxt);
+				if ( $markers ) print "<p>The (first) conflicting line has been highlighted";
 	
-			print "<p>Click <a href='index.php?action=file&cid=$filename'>here</a> to go (back) to view mode";
+				print "<p>Click <a href='index.php?action=file&cid=$filename'>here</a> to go (back) to view mode";
 
-			exit;
+				exit;
+			};
+		} else {
+			$xml = $xmlinput;
 		};
-		
+				
 		# First - make a once-a-day backup
 		$date = date("Ymd"); 
 		$buname = preg_replace ( "/\.xml/", "-$date.xml", $filename );
 		$buname = preg_replace ( "/.*\//", "", $buname );
 		if ( !file_exists("backups") ) { mkdir("backups"); };
 		if ( !file_exists("backups/$buname") ) {
-			copy ( "$xmlfolder/$filename", "backups/$buname");
+			copy ( "$folder/$filename", "backups/$buname");
 		};
 		
 		# Now, make a safe XML text out of this and save it to file
-		file_put_contents("$xmlfolder/$filename", $xml->asXML());
+		file_put_contents("$folder/$filename", $xml->asXML());
 	};
 
 	function unshorthand ( $shorthand ) {
