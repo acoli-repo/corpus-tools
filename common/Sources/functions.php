@@ -1040,7 +1040,6 @@
 	};
 
 	function xmlflatten ( $xml, $int = 0 ) {
-		global $maintext; 
 		if ( !$xml ) return "";
 	
 		if ( $xml->attributes() ) 
@@ -1058,7 +1057,7 @@
 				else { $icnt++; $key = $icnt; };
 			} else $key = $chn;
 			
-			$flatxml[$key] = xmlflatten($node);
+			$flatxml[$key] = xmlflatten($node, $int);
 		};
 	
 		return $flatxml;
