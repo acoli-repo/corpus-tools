@@ -918,8 +918,8 @@ function psearch ( pos, match ) {
 	return false; 
 };
 
-function unhighlight () {
-	var toks = document.getElementsByTagName("tok");
+function unhighlight (elm = document) {
+	var toks = elm.getElementsByTagName("tok");
 	for ( var a = 0; a<toks.length; a++ ) {
 		var tok = toks[a];
 		if ( tok.style ) { 
@@ -927,7 +927,7 @@ function unhighlight () {
 			tok.style.backgroundColor= ""; 
 		};
 	};
-	var toks = document.getElementsByTagName("mtok");
+	var toks = elm.getElementsByTagName("mtok");
 	for ( var a = 0; a<toks.length; a++ ) {
 		var tok = toks[a];
 		if ( tok.style ) { 
