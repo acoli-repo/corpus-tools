@@ -12,7 +12,11 @@
 	if ( isset($_GET['wordh']) ) $withword = $_GET['wordh']; else if ( isset($settings['context']['wordheader']) ) $withword = $settings['context']['wordheader']; else $withword = 0; # Whether to display the word itself
 	$context = $_GET['context'] or $context = $settings['context']['context'] or $context = "s";
 	
-	if ( $settings['context']['method'] == "xml"  ) {
+	if ( $_GET['type'] == "sent" ) {
+	
+		$resxml = sentbyid($cid, $tid);
+	
+	} else if ( $settings['context']['method'] == "xml"  ) {
 	
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
@@ -20,18 +24,21 @@
 		$node = current($ttxml->xpath($xp));
 		$resxml = makexml($node);
 	
-	} else if ( $settings['context']['method'] == "xpath"  ) {
+	} else if ( $settings['context']['method'] == "xpath" || $_GET['type'] == "xpath" ) {
 
 		$app = findapp("tt-xpath");
 		if ( !$app ) fatal ("This function relies on tt-xpath, which is not installed on the server");
 		
 		$filenames = rglob("xmlfiles/*/$cid*");  // There should be only one file
+		if ( count($filenames) == 0 ) $filenames = glob("xmlfiles/$cid*");
 		$xp = "//text//{$context}[.//tok[@id=\"$tid\"] | .//dtok[@id=\"$tid\"]]";
 
-		$cmd = "$bindir/tt-xpath --folder='' --filename='{$filenames[0]}' --xpquery='$xp'"; 
-		$resxml = shell_exec($cmd);
+		if ( $bindir ) $xdir = "$bindir/";
+		$cmd = "$app --folder='' --filename='{$filenames[0]}' --xpquery='$xp'"; 
+		$resxml = shell_exec($cmd)." <= $cmd";
 	
 	} else {
+	
 		if ( intval($context) == 0 && is_array($settings['cqp']['sattributes']) && !$settings['cqp']['sattributes'][$context] ) {
 			if ( $username ) fatal("Context set to $context, which is not a CQP level in this corpus. Please correct in settings.xml//context");
 			$context = 5;
@@ -129,7 +136,11 @@
 	# Protect empty elements
 	$resxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $resxml );
 
-	if ( $format == "json" ) {
+	if ( $resxml == "" ) $resxml = "<i>Not found</i>";
+
+	if ( $format == "raw" ) {
+		print $resxml;
+	} else if ( $format == "json" ) {
 		print "{'results': '$resxml'}";
 	} else {
 		$resxml = preg_replace("/<tok /", "<tok onmouseover=\"window.showtokinfo(this)\" onmouseout=\"window.hidetokinfo();\" ", $resxml );
