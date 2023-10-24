@@ -136,9 +136,9 @@
 	# Protect empty elements
 	$resxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $resxml );
 
-	if ( $resxml == "" ) $resxml = "<i>Not found</i>";
 
 	if ( $format == "raw" ) {
+		if ( $resxml == "" ) $resxml = "<i>Not found</i>";
 		print $resxml;
 	} else if ( $format == "json" ) {
 		print "{'results': '$resxml'}";
