@@ -849,7 +849,9 @@
 	function xpathnode ( $xml, $xquery) {
 		$dom = dom_import_simplexml($xml)->ownerDocument; #->ownerDocument		
 		$settingsdom = createnode($dom, $xquery);
-		$resnode = current($xml->xpath($xquery));	
+		$tmp = $xml->xpath($xquery);
+		if ( !$tmp ) return false;
+		$resnode = current($tmp);	
 		return $resnode;
 	};
 	
