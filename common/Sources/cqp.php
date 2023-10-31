@@ -17,8 +17,7 @@
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 
 	$registryfolder = "cqp";
-	if ( $settings['cqp'] && $settings['cqp']['defaults'] && $settings['cqp']['defaults']['registry'] )
-		$registryfolder = $settings['cqp']['defaults']['registry'];
+	$registryfolder = getset("cqp/defaults/registry");
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	if ( $settings['cqp']['subcorpora'] ) {
 		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = "";
@@ -603,9 +602,9 @@
 			$maxmatchlength = 0;
 			$minmatchlength = 1000;
 
-			$showstyle = $_POST['style'] or $showstyle = $settings['cqp']['defaults']['searchtype'] or $showstyle = "kwic";
-			$showsubstyle = $_POST['substyle'] or $showsubstyle = $settings['cqp']['defaults']['subtype'];
-			if ( $showsubstyle && !$settings['cqp']['sattributes'][$showsubstyle] ) {
+			$showstyle = $_POST['style'] or $showstyle = getset("cqp/defaults/searchtype") or $showstyle = "kwic";
+			$showsubstyle = $_POST['substyle'] or $showsubstyle = getset("cqp/defaults/subtype");
+			if ( $showsubstyle && !getset("cqp/sattributes/$showsubstyle") ) {
 				if ( $user['permissions'] == "admin" ) {
 					print "Incoherent settings - asked to display context on non-existing &lt;$showsubstyle&gt; - please go to admin > check configuration settings
 						<script language=Javascript>top.location='index.php?action=admin&act=configcheck';</script>";
