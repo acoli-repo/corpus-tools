@@ -67,7 +67,7 @@ class CQP
   	
     	# Determine the registry folder
     	if ( $registryfolder == "" ) { 
-			$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+			$registryfolder = getset("cqp/defaults/registry", "cqp");
     	};
     	$this->registryfolder = $registryfolder;
 		if ( $cqpcorpus == "" ) $cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
