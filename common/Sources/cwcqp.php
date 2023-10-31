@@ -45,8 +45,8 @@ class CQP
   
   		# Determine the corpus name
 		if ( !$cqpcorpus ) {
-			$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
-			if ( $settings['cqp']['subcorpora'] ) {
+			$cqpcorpus = getset("cqp/corpus", "tt-".$foldername);
+			if ( getset("cqp/subcorpora") ) {
 				$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername];
 				if ( !$subcorpus ) {
 					fatal("No subcorpus selected");
@@ -58,7 +58,7 @@ class CQP
 				$subcorpustit = "<h2>$corpusname</h2>";
 			} else {
 				$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
-				$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+				$cqpfolder = getset("cqp/cqpfolder", "cqp");
 			};
 		};
 		$this->name = $corpusname;
@@ -70,13 +70,13 @@ class CQP
 			$registryfolder = getset("cqp/defaults/registry", "cqp");
     	};
     	$this->registryfolder = $registryfolder;
-		if ( $cqpcorpus == "" ) $cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		if ( $cqpcorpus == "" ) $cqpcorpus = strtoupper(getset("cqp/corpus")); # a CQP corpus name ALWAYS is in all-caps
 		if ( !file_exists($registryfolder."/".strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
 			# For backward compatibility, always check the central registry
 			$registryfolder = "/usr/local/share/cwb/registry/";
 		};
 		
-		$this->wordfld = $settings['cqp']['wordfld'] or $this->wordfld = "word";
+		$this->wordfld = getset("cqp/wordfld", "word");
 
         $this->active = true;
 
@@ -151,9 +151,9 @@ class CQP
 			} while ( !strstr($line, "-::-EOL-::-") );
 			$data = preg_replace ("/-::-EOL-::-/", "", $data); 
 
-			if ( $settings['defaults']['cwblog'] || $this->logfile ) {
+			if ( getset("defaults/cwblog") || $this->logfile ) {
 				# Write a CWB log file if so asked
-				if ( !$this->logfile ) $this->logfile = $settings['defaults']['cwblog']['file'];
+				if ( !$this->logfile ) $this->logfile = getset("defaults/cwblog/file");
 				if ( $fh = fopen($this->logfile, 'a') ) { 
 						fwrite($fh, $cmd);
 						fclose ( $fh );
@@ -195,10 +195,10 @@ function checkcqp($subcorpus) {
 	$busy = false;
 
 	if ( file_exists("tmp/recqp.pid") ) {
-		if ( $subcorpus || $settings['cqp']['subcorpora'] ) {
+		if ( $subcorpus || getset("cqp/subcorpora") ) {
 			$tmp = file_get_contents("tmp/recqp.pid");
 			if ( preg_match( "/CQP Corpus: (.*)/", $tmp, $matches) ) $buildc = strtoupper($matches[1]);
-			if ( $buildc == strtoupper($subcorpus) || $buildc == strtoupper($settings['cqp']['corpus'])  || $buildc == strtoupper($settings['cqp']['corpus']."-".$subcorpus) ) $busy = 1;
+			if ( $buildc == strtoupper($subcorpus) || $buildc == strtoupper(getset("cqp/corpus"))  || $buildc == strtoupper(getset("cqp/corpus")."-".$subcorpus) ) $busy = 1;
 		} else {
 			$buildc = "the entire CQP corpus";
 			$busy = 1;
