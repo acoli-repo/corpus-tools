@@ -16,8 +16,7 @@
 	# Determine which form to search on by default
 	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
 
-	$registryfolder = "cqp";
-	$registryfolder = getset("cqp/defaults/registry");
+	$registryfolder = getset("cqp/defaults/registry", "cqp");
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
 	if ( $settings['cqp']['subcorpora'] ) {
 		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = "";
