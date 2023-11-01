@@ -226,6 +226,7 @@
 		$jmp = preg_replace("/ .*/", "", $jmp);
 		if ( !$sid && $jmp ) {
 			$sid =	current($ttxml->xpath("//s[.//tok[@id='$jmp']]/@id"));
+			if ( !$sid ) $sid =	current($ttxml->xpath("//s[@id='$jmp']/@id"));
 			if ( !$sid ) $sid =	current($ttxml->xpath("//s[./following::tok[@id='$jmp']]/@id"));
 		};
 
