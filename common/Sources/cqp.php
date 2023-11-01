@@ -40,7 +40,7 @@
 				if ( !$subfolder ) $subfolder = preg_replacE("/.*\//", "", $subcorpfolder);
 			} else if ( !$subfolder ) $subfolder = "$subcorpus";
 			if ( !file_exists($registryfolder."/".strtolower($subcorpus)) && !file_exists($registryfolder."/".strtolower($cqpcorpus)) && !file_exists($registryfolder."/".strtolower($cqpcorpus.'-'.$subcorpus))  ) {
-				print "Not a subcorpus: $cqpcorpus / $subcorpus"; exit;
+				if ( $username ) { print "Not a subcorpus: $cqpcorpus / $subcorpus - $registryfolder/$subcorpus nor $registryfolder/$cqpcorpus nor $registryfolder/$cqpcorpus-$subcorpus"; exit; };
 				$_SESSION['subc-'.$foldername] = "";
 				$act = "select";
 				$cqpcorpus = "";
