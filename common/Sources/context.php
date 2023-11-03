@@ -31,12 +31,17 @@
 		
 		$filenames = rglob("xmlfiles/*/$cid*");  // There should be only one file
 		if ( count($filenames) == 0 ) $filenames = glob("xmlfiles/$cid*");
-		$xp = "//text//{$context}[.//tok[@id=\"$tid\"] | .//dtok[@id=\"$tid\"]]";
+		if ( $tid ) $xp = "//text//{$context}[.//tok[@id=\"$tid\"] | .//dtok[@id=\"$tid\"]]";
+		else if ( $_GET['tuid'] ) $xp = "//text//{$context}[@tuid=\"{$_GET['tuid']}\"]";
 
-		if ( $bindir ) $xdir = "$bindir/";
-		$cmd = "$app --folder='' --filename='{$filenames[0]}' --xpquery='$xp'"; 
-		$resxml = shell_exec($cmd);
-	
+		if ( $xp ) {
+			if ( $bindir ) $xdir = "$bindir/";
+			$cmd = "$app --folder='' --filename='{$filenames[0]}' --xpquery='$xp'"; 
+			$resxml = shell_exec($cmd);
+		} else {
+			$resxml = "<error>No query given</error>";
+		};
+			
 	} else {
 	
 		if ( intval($context) == 0 && is_array($settings['cqp']['sattributes']) && !$settings['cqp']['sattributes'][$context] ) {

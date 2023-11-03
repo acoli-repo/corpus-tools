@@ -711,7 +711,7 @@
 		
 	};
 
-	function fatal ($txt) {
+	function fatal ($txt, $logtxt) {
 		global $username, $settings, $action;
 		if ( $action == "api" ) {
 			print "{\"error\": \"$txt\"}";
@@ -725,7 +725,8 @@
 		if ( $logfile == "1" ) {
 			error_log($txt, 0);
 		} else if ( $logfile != "" ) {
-			error_log(strftime("%D %T")."\t$foldername\t$action\t{$_SERVER['REQUEST_URI']}\t$txt\n", 3, $logfile);
+			if ( !$logtxt ) $logtxt = $txt;
+			error_log(strftime("%D %T")."\t$foldername\t$action\t{$_SERVER['REQUEST_URI']}\t$logtxt\n", 3, $logfile);
 		};
 		print "<h1>Fatal Error</h1><p>A fatal error has occurred";
 		if ( $txt && file_exists($filename) ) {
