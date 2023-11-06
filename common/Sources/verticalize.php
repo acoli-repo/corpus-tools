@@ -108,7 +108,8 @@
 		
 		if ( $_POST['view'] ) {
 			$showfields = array_keys($_POST['view']);
-			$editfields = array_keys($_POST['edit']);
+			if ( $_POST['edit'] ) $editfields = array_keys($_POST['edit']);
+			else $editfields = array();
 			# foreach ( $editfields as $fld ) if ( !in_array($fld, $showfields) ) array_push($showfields,$fld);
 		} else {
 			$toshow = $_GET['showfields'] or $toshow = $settings['xmlfile']['vertfields'] or $toshow = "pform,nform";

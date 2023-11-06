@@ -120,7 +120,7 @@
 				foreach ( $settings['annotations'][$morphelm] as $item ) {
 					$maintext .= "<tr>";
 					$morphs = $tok->xpath(".//$morphelm");
-					if ( !$morphs ) { $morphs = $morphann->xpath(".//span[@corresp=\"#$tokid\"]"); };
+					if ( !$morphs && $morphann ) { $morphs = $morphann->xpath(".//span[@corresp=\"#$tokid\"]"); };
 					foreach ( $morphs as $morph ) {
 						if (!is_array($item)) continue;
 						$txt = $morph[$item['key']]; if ( $txt == '' ) { $txt = "&nbsp;"; };
