@@ -711,7 +711,7 @@
 		
 	};
 
-	function fatal ($txt, $logtxt) {
+	function fatal ($txt, $logtxt = "") {
 		global $username, $settings, $action;
 		if ( $action == "api" ) {
 			print "{\"error\": \"$txt\"}";
