@@ -268,7 +268,8 @@ class TTXML
 		if ( $videourl != "" ) {
 			if ( !strstr($videourl, 'http') ) {
 				if ( file_exists($videourl) ) $videourl =  "$baseurl/$videourl"; 
-				else $videourl =  "$mediabaseurl/$videourl"; 
+				else if ( file_exists("Video/$videourl") ) $videourl =  "Video/$videourl"; 
+				else $videourl =  "$mediabaseurl/$videourl!!"; 
 				# else if ( !strstr($videourl, 'Video') ) $videourl = $baseurl."Video/$videourl"; 
 			};
 			$this->videourl = $videourl;
