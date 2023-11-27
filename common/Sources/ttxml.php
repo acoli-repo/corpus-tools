@@ -598,7 +598,7 @@ class TTXML
 			};
 		};
 
-		if ( $page && $settings['xmlfile']['paged']['header'] ) {
+		if ( $page && getset('xmlfile/paged/header') ) {
 			$pageinfo = "<center><table>";
 			foreach ( $settings['xmlfile']['paged']['header'] as $kk => $vv ) {
 				$vval = $page[$kk];
@@ -635,13 +635,13 @@ class TTXML
 			$moreactions .= "\n\tvar username='$username'; ";
 		};	
 		
-		$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
+		$jsonforms = array2json(getset('xmlfile/pattributes/forms'));
 		#Build the view options	
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 			$attlisttxt .= $alsep."\"$key\""; $alsep = ",";
 			$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 		};
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 			$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
 			$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 		};
