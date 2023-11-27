@@ -497,9 +497,9 @@ class TTXML
 	
 	function elm2id ( $elm ) {
 		global $settings;
-		$att = $settings['xmlfile']['paged']['att'] or $att = "n";
+		$att = getset('xmlfile/paged/att', "n");
 		$elmid = $elm[$att] or $elmid = $elm['id'];
-		if ( $settings['xmlfile']['paged']['seqnum'] ) $elmid = preg_replace("/.*-/", "", $elmid);
+		if ( getset('xmlfile/paged/seqnum') ) $elmid = preg_replace("/.*-/", "", $elmid);
 		return $elmid;
 	}
 	
