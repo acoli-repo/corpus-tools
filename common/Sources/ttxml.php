@@ -526,7 +526,7 @@ class TTXML
 		$befnum = $this->elm2id($page);
 		$aftnum = $befnum;
 		if ( !$page ) {
-			if ( $settings['xmlfile']['paged']['hard'] ) fatal("No such page: $xp");
+			if ( getset('xmlfile/paged/hard') ) fatal("No such page: $xp");
 			else $page = $this->xml;
 		};
 		
@@ -555,8 +555,8 @@ class TTXML
 		if ( $befnum == $aftnum ) $num = $befnum; else $num = "$befnum - $aftnum";
 		
 		
-		$folioname = $settings['xmlfile']['paged']['display'] or $folioname = "page";
-		if ( $settings['xmlfile']['paged']['i18n'] ) $folioname = "{%$folioname}";
+		$folioname = getset('xmlfile/paged/display', "page");
+		if ( getset('xmlfile/paged/i18n') ) $folioname = "{%$folioname}";
 
 		if ( $action == "text" || $action == "file" || $settings['xmlfile']['paged']['index'] ) $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
 		if ( $befpag[$bp] ) {
