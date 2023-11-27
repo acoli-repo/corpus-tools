@@ -453,13 +453,13 @@ class TTXML
 			};
 		};
 
-		if ( $settings['xmlfile']['restriction'] && !$this->xml->xpath($settings['xmlfile']['restriction']) && !$username ) { 
+		if ( getset('xmlfile/restriction') && !$this->xml->xpath($settings['xmlfile']['restriction']) && !$username ) { 
 			$tokid = $_GET['jmp'] or $tokid = $_GET['tid'] or $tokid = 'w-1';
 			# Take only the first one
 			$tokid = preg_replace("/ .*/", "", $tokid);
 			$xmltxt = $this->context($tokid);
 			$this->pagenav = "<p>{%Due to copyright restrictions, only a fragment of this text is displayed}</p><hr>"; 
-		} else if ( !$whole && ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['type'] == "xp" ) ) {
+		} else if ( !$whole && ( getset('xmlfile/paged/type') == "xp" || $_GET['pagetype'] == "xp" ) ) {
 			$xmltxt = $this->xppage();
 		} else if ( !$whole && ( $_GET['paged'] 
 				|| ( is_array($settings['xmlfile']) && ( $settings['xmlfile']['paged'] || is_array($settings['xmlfile']['paged']) ) )
