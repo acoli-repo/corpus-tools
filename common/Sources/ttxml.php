@@ -532,7 +532,7 @@ class TTXML
 		
 		$befpag = array_reverse($page->xpath("preceding-sibling::$pbelm"));
 		$aftpag = $page->xpath("following-sibling::$pbelm");
-		$max = $settings['xmlfile']['paged']['multi'] or $max = 0;
+		$max = getset('xmlfile/paged/multi', 0);
 
 		$pagedxml = $page->asXML(); 
 		$bp = min($max, count($befpag));
