@@ -366,7 +366,8 @@
 			$fldval = current($record->xpath($key))."";
 			if ( $fldval == "" ) continue;
 			if ( $fldrec["link"] ) {
-				 $linkurl = $fldrec["link"]."";
+				$linkurl = $fldrec["link"]."";
+				if ( $linkurl == "cid" ) $linkurl = "index.php?action=file&cid=$val";
 				if ( preg_match_all("{#([^\}]+)}", $linkurl, $matches ) ) {
 					foreach ( $matches[1] as $xp ) {
 						$linkurl = str_replace("{#$xp}",  current($record->xpath($xp)), $linkurl);
