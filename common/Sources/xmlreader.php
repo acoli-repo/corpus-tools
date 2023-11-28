@@ -576,7 +576,8 @@
 				$keyt = urlencode($key);
 				$val = current($record->xpath($key));
 				if ( $fldrec["link"] ) {
-					if ( substr($fldrec["link"],0,1) == "%" ) {
+					if ( $linkurl == "cid" ) $linkurl = "index.php?action=file&cid=$val";
+					else if ( substr($fldrec["link"],0,1) == "%" ) {
 						$linkurl = substr($fldrec["link"],1);
 						if ( preg_match_all("{#([^\}]+)}", $linkurl, $matches ) ) {
 							foreach ( $matches[1] as $xp ) {
