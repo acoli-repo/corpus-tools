@@ -717,6 +717,18 @@
 		$txtxml = $result[0];
 		$editxml = $txtxml->asXML();
 
+		# Hard cut-down if the context is too long
+		if ( strlen($editxml) > 50000 ) { 
+			$tmp = strlen($editxml);
+			$respos = strpos($editxml, "id=\"$tokid\"");
+			$editxml = substr($editxml, max(0, $respos-10000), 20000);
+			$tok1 = max(0, strpos($editxml, "<tok"));
+			if ( $tok1 ) {
+				$editxml = substr($editxml, $tok1);
+				$tok2 = strrpos($editxml, "</tok>");
+				$editxml = substr($editxml, 0, $tok2+6);
+			};
+		};
 		
 		# empty tags are working horribly in browsers - change
 		$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
