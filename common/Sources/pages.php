@@ -121,7 +121,7 @@
 	};
 	
 	$maintext .= "<table style='width: 100%'><tr>";
-	if ( count($ttxml->xpath("//pb")) > 1 ) {
+	if ( count($ttxml->xpath("//$pbelm")) > 1 ) {
 		$lpnr = "";
 		$maintext .= "<td valign=top>
 			<h2>{%Page List}</h2>";
