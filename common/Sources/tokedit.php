@@ -612,7 +612,7 @@
 			foreach ( $editables as $ek => $ev ) {
 				$edir = $ev['place'] or $edir = "before";
 				$etxt = $ev['display'] or $etxt = $ek;
-				$maitnext .= "\n\t\t\t<a title='$edir' href='index.php?action=retok&dir=$edir&cid=$fileid&tid=$tokid&node=$ek'>$etxt</a>";
+				$maintext .= "\n\t\t\t<a title='$edir' href='index.php?action=retok&dir=$edir&cid=$fileid&tid=$tokid&node=$ek'>$etxt</a>";
 			};
 
 // 				<!-- <a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=par'>paragraph</a> ; -->
