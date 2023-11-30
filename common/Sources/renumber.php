@@ -20,13 +20,21 @@
 		# Build the UNIX command that does the actual renumbering
 		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot"; };
 		$cmd = "$perlapp $scrt/common/Scripts/xmlrenumber.pl $xxx --filename='xmlfiles/$fileid' ";
-		# print $cmd; exit;
 		$res = shell_exec($cmd);
-		preg_match("/NEWID: (.*)/", $res, $matches); $newid = $matches[1];
+		if ( preg_match("/NEWID: ([^ ]+)(.*)/", $res, $matches) ) {
+			$newid = $matches[1]; $newtype = $matches[2];
+			$maintext .= "<p>New ID: $newid / $newtype";
+		} else {
+			$maintext .= "<p>No new ID: $res";
+		};
 		for ( $i=1; $i<1000; $i++ ) { $n = $n+(($i+$n)/$i); }; # Force a bit of waiting...
 		
 		if ( $_GET['nexturl'] ) {
 			$nexturl = str_replace('newid', $newid, $_GET['nexturl']);
+		} else if ( $newid && $newtype == "tok" ) {
+			$nexturl = "index.php?action=tokedit&cid=$cardid&tid=$newid";
+		} else if ( $newid ) {
+			$nexturl = "index.php?action=elmedit&cid=$cardid&tid=$newid";
 		} else if ( $_GET['tid'] ) {
 			$newtid = $_GET['tid'];
 			$posdir = $_GET['dir'];

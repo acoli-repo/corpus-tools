@@ -25,7 +25,7 @@
 		if ( !$elm ) fatal("No such element: $tokid");
 
 		$etype = $elm->getName();
-
+		$maintext .= showxml($elm);
 
 		$maintext .= "<h1>Edit Element</h1>
 			<h2>Element ($tokid): ".$etype."</h2>

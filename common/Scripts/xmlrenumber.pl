@@ -43,11 +43,11 @@ use XML::LibXML;
 	$max = 0; 
 	foreach $ttnode ($tmpdoc->findnodes("//tok")) {
 		$tid = 	$ttnode->getAttribute('id')."";
-		if ( $idlist{$tid} && $tid ) {
-			print "Found duplicate node: $tid\n";
+		if ( $used{$tid} && $tid ) {
+			if ( $verbose ) { print "Found duplicate node: $tid\n"; };
 			$ttnode->setAttribute('torenum', '1');
 		};
-		$idlist{$tid} = $ttnode;
+		$used{$tid} = $ttnode;
 		if ( $tid =~ /^w-(\d+)$/ ) {
 			if ( $1 > $max ) { $max = $1;};
 		};
@@ -67,7 +67,7 @@ use XML::LibXML;
 			$newtid = "w-".$cnt++;
 			$ttnode->setAttribute('id', $newtid);
 			$ttnode->removeAttribute('torenum');
-			print "Renumbering duplicate node $tid to $newtid\n";
+			if ( $verbose ) { print "Renumbering duplicate node $tid to $newtid\n"; };
 		};
 	};
 	
@@ -108,17 +108,20 @@ use XML::LibXML;
 	}; 
 	
 	# In case things have ended up as tei_div - rename
+	if ( $debug ) { print "Renaming <tei_div> errors back to <div>"; };
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//tei_div")) {
 		$ttnode->setName('div');
 	}; 
 	
 	# Number the divs
+	if ( $debug ) { print "Renumbering <div>"; };
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//div")) {
 		addid($ttnode, "div", ++$cnt);
 	}; 
 	
 	# Number the sentences
+	if ( $debug ) { print "Renumbering <s>"; };
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//s | $mtxtelem//l")) {
 		addid($ttnode, "s", ++$cnt);
@@ -149,12 +152,14 @@ use XML::LibXML;
 	};
 		
 	# Number the utterances
+	if ( $debug ) { print "Renumbering <u>\n"; };
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//u")) {
 		addid($ttnode, "u", ++$cnt);
 	}; 
 	
 	# Number the breaks and other empty elements
+	if ( $debug ) { print "Renumbering ee: <pb>, <lb>, <cb>, <gap>, <deco>, <milestone>\n"; };
 	$cnt = 0;
 	foreach $ttnode ($tmpdoc->findnodes("$mtxtelem//pb | $mtxtelem//lb | $mtxtelem//cb | $mtxtelem//gap | $mtxtelem//deco | $mtxtelem//milestone")) {
 		addid($ttnode, "e", ++$cnt);
@@ -199,7 +204,7 @@ use XML::LibXML;
 	
 	$teitext = $tmpdoc->toString;
 			
-print "\n-- renumbering complete\n";
+if ( $verbose ) { print "\n-- renumbering complete\n"; };
 if ( $test ) {
 	# binmode ( STDOUT, ":utf8" );
 	print $teitext;
@@ -211,41 +216,44 @@ if ( $test ) {
 	close FILE;
 };
 
-sub addid($xnode, $newid, $newcnt) { 
-	( $xnode, $newid, $newcnt ) = @_; 
+sub addid($xnode, $newtype, $newcnt) { 
+	( $xnode, $newtype, $newcnt ) = @_; 
+	if ( $debug ) { print "Adding ID for $newtype - trying $newcnt\n"; };
 	
 	# For speed, check once whether there isa need to renumber 
 	$nn = $xnode->getName();
 
-	if ( !$hasnums{$nn} ) {
-		$tmpc = "//text//".$nn."[\@id]";
-		$tmp = $tmpdoc->findnodes($tmpc);
-		if ( $tmp ) { 
-			$hasnums{$nn} = 1; # There are numbered examples of this type
-			if ( $verbose ) { print "Checking renumber on $nn nodes since there are numbered examples\n"; };
-		} else {
-			$hasnums{$nn} = 2; # There are no numbered examples of this type
-			if ( $verbose ) { print "Not checking renumber on $nn nodes since there are no numbered examples\n"; };
-		};
+	if ( !$listed{$nn} ) {
+		$tmpc = "//text//".$nn;
+		if ( $debug ) { print " -- looping through existing IDs for $nn named $newtype = $tmpc\n"; }; 
+		foreach $cnode ( $tmpdoc->findnodes($tmpc) ) {
+			$cnid = $cnode->getAttribute("id")."";
+			if ( $cnid ) { 
+				$used{$cnid} = 1;
+			};
+		}
+		$listed{$nn}  = 1;
 	};
+	
 	$oldid = $xnode->getAttribute('id'); $toset = 0;
-	if ( $newcnt && ( !$oldid || $override || $oldid eq "torenew" || $used{$oldid} ) ) { 
-		$tmp = $newid.'-'.$newcnt;
+	if ( $newtype && ( !$oldid || $override || $oldid eq "torenew" ) ) { 
+		$tmp = $newtype.'-'.$newcnt;
 		# make sure IDs are unique
 		if ( !$override && $hasnums{$nn} != 2 ) {
-			while ( $tmpdoc->findnodes("//*[\@id=\"$tmp\"]") ) { 
-				$tmp = $newid.'-'.++$newcnt;
+			while ( $used{$tmp} ) { 
+				$tmp = $newtype.'-'.++$newcnt;
 			};
 		};
 		$newid = $tmp;
-		$toset = 1;
 		$used{$newid} = 1; 
+		$toset = 1;
 	} else { 
 		$used{$oldid} = 1; 
 	};
-	if ( $oldid eq "torenew" ) { $oldid = ""; $gotoid = $newid; print "NEWID: $gotoid"; };
+	if ( $oldid eq "torenew" ) { $oldid = ""; $gotoid = $newid; print "NEWID: $gotoid $nn\n"; };
 	if ( $toset || $override ) {
 		if ( $debug ) { print "Setting ID to $newid\n"; };
 		$xnode->setAttribute('id', $newid);
+		if ( $debug ) { print "Done?\n"; };
 	};
 };

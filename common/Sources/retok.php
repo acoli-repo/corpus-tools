@@ -25,23 +25,29 @@
 		# What node to place
 		$nodetype = $_GET['node']; # or $nodetype = "tok";
 		
+		$tmpid = " id=\"torenew\" ";
+		
 		if ( $nodetype == "par" ) {
-			$newnode = "<sb/>";
+			$newnode = "<sb$tmpid/>";
 			$nodepos = "right";
 		} else if ( $nodetype == "dtok" ) {
-			$newnode = "<dtok/>";
+			$newnode = "<dtok$tmpid/>";
 			$nodepos = "inside";
 		} else if ( $nodetype == "lb" ) {
-			$newnode = "<lb/>";
+			$newnode = "<lb$tmpid/>";
 			$nodepos = "left";
 		} else if ( $nodetype == "s" ) {
-			$newnode = "<s/>";
+			$newnode = "<s$tmpid/>";
 			$nodepos = "left";
 		} else if ( $nodetype == "note" ) {
-			$newnode = "<note id=\"torenew\"/>";
+			$newnode = "<note$tmpid/>";
 			$nodedir = "after";
 			$nodepos = "left";
 			$goto = urlencode("index.php?action=elmedit&cid=$fileid&tid=newid");
+		} else if ( $nodetype ) {
+			$nodetype = asciify($nodetype);
+			$newnode = "<$nodetype$tmpid/>";
+			$nodepos = $_GET['pos'];
 		} else {
 			## By default, insert a token with no written form
 			$newnode = "<tok><ee/></tok>";
@@ -65,16 +71,18 @@
 		} else if ( $nodedir == "before" ) {
 		
 			if ( $nodetype == "w" ) {
+				# print "<p>Adding before w = $tokid";
 				if ( $nodepos == "left" ) {
-					$file = preg_replace ( "/ (<tok ([^>]*)id=\"$tokid\")/", "$newnode $1", $file );
+					$file = preg_replace ( "/(\s+)(<tok ([^>]*)id=\"$tokid\")/", "$newnode$1$2", $file );
 				} else if ( $nodepos == "right" ) {
 					$file = preg_replace ( "/(<tok ([^>]*)id=\"$tokid\")/", "$newnode$1", $file );
 				} else if ( $nodepos == "glued" ) {
-					$file = preg_replace ( "/ (<tok ([^>]*)id=\"$tokid\")/", "$newnode$1", $file );
+					$file = preg_replace ( "/(\s+)(<tok ([^>]*)id=\"$tokid\")/", "$newnode$1$2", $file );
 				} else {
 					$file = preg_replace ( "/(<tok ([^>]*)id=\"$tokid\")/", "$newnode $1", $file );
 				};
 			} else {
+				# print "<p>Adding before non-w = $tokid";
 				if ( $nodepos == "left" ) {
 					$file = preg_replace ( "/ (<([^>]*) id=\"$tokid\")/", "$newnode $1", $file );
 				} else if ( $nodepos == "right" ) {
@@ -99,6 +107,7 @@
 		} else if ( $nodedir == "after" ) {	
 
 			if ( $nodetype == "w" ) {
+				print "<p>Adding after w = $tokid";
 				if ( $nodepos == "left" ) {
 					$file = preg_replace ( "/(<tok ([^>]*)id=\"$tokid\".*?<\/tok>)/", "$1$newnode", $file );
 				} else if ( $nodepos == "right" ) {
@@ -112,6 +121,7 @@
 				// just increase the number if we have token
 				$ntid = $nodetype.'-'.(substr($tokid,2)+1);
 			} else {
+				print "<p>Adding after non-w = $tokid";
 				if ( $nodepos == "left" ) {
 					$file = preg_replace ( "/(<*([^>]*) id=\"$tokid\"[^>]*\/>)/", "$1$newnode", $file );
 				} else if ( $nodepos == "right" ) {
@@ -126,9 +136,11 @@
 				};
 			};
 		};
-					
+		
+		$maintext .= "<p>Added ".htmlentities($newnode)." $nodepos $tokid"; 
+		
 		if ( $goto ) $newurl = "&nexturl=$goto";
-		$nexturl = "index.php?action=renumber&cid=$fileid&tid=$nextid&dir=$nodedir$newurl";
+		$nexturl = "index.php?action=renumber&cid=$fileid&tid=$tmpid&dir=$nodedir$newurl";
 					
 		saveMyXML($file, $fileid);
 				
