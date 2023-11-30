@@ -21,7 +21,7 @@
 		$pbtype = "milestone";
 	} else {
 		$pbelm = "milestone[@type=\"$pbsel\"]";
-		$titelm = ucfirst($pbsel);
+		$titelm = $_GET['pbtit'] or $titelm = ucfirst($pbsel);
 		$pbtype = "milestone";
 	};
 	
@@ -124,9 +124,9 @@
 	if ( count($ttxml->xpath("//$pbelm")) > 1 ) {
 		$lpnr = "";
 		$maintext .= "<td valign=top>
-			<h2>{%Page List}</h2>";
+			<h2>{%$titelm List}</h2>";
 		# Build the list of pages
-		$result = $ttxml->xpath("//pb"); $tmp = 0;
+		$result = $ttxml->xpath("//$pbelm"); $tmp = 0;
 		foreach ($result as $cnt => $node) {
 			$pid = $node['id'] or $pid = "[$cnt]";
 			$pnr = $node['n'] or $pnr = "[$cnt]";

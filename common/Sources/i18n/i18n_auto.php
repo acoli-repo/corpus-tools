@@ -168,7 +168,6 @@
 		"smaller font" => "smaller font",
 		"larger font" => "larger font",
 		"Table of Contents" => "Table of Contents",
-		"Page List" => "Page List",
 		"empty" => "empty",
 		"Page" => "Page",
 		"Folio" => "Folio",
