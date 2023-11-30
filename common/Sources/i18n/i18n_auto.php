@@ -229,6 +229,7 @@
 		"Show details" => "Show details",
 		"show pagebreaks" => "show pagebreaks",
 		"show linebreaks" => "show linebreaks",
+		"show milestones" => "show milestones",
 		"show facsimile images" => "show facsimile images",
 		"Images" => "Images",
 		"Video fragment for this text" => "Video fragment for this text",

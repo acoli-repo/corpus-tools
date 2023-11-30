@@ -149,7 +149,7 @@
 	# Define which view to show
 	$defaultview = $settings['xmlfile']['defaultview'];
 	// Calculate where to start from settings and cookies
-	$tagoptlist = array ( "interpret", "colors", "images", 'pb', 'lb', 'ee' );
+	$tagoptlist = array ( "interpret", "colors", "images", 'pb', 'lb', 'ee', 'milestone' );
 	$setviews = explode(",", $_GET['setviews']);
 	foreach ( $tagoptlist as $tagtmp ) {
 		if ( ( strpos($defaultview, $tagtmp) && !$_COOKIE["toggle-$tagtmp"] ) 
@@ -240,6 +240,11 @@
 	if ( !$nobreakoptions && ( strpos($editxml, "<lb", $tokpos) ) ) {
 		$showoptions .= " <button id='btn-tag-lb' title='{%show linebreaks}' onClick=\"toggletn('lb');\">&lt;lb&gt;</button> ";
 	};
+	if ( !$nobreakoptions && ( strpos($editxml, "<milestone", $tokpos) ) && ( $username || getset("xmlfile/show/milestone") ) ) {
+		$showoptions .= " <button id='btn-tag-milestone' title='{%show milestones}' onClick=\"toggletn('milestone');\">&lt;milestone&gt;</button> ";
+	};
+	
+	
 	
 	# Deal with conditional styling
 	foreach ( $settings['xmlfile']['styles'] as $key => $item ) {

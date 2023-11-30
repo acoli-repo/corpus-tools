@@ -457,6 +457,8 @@ function toggletn (tag) { // Show or hide empty elements
 				it.style.display = 'none';
 			};
 		};
+	} else if ( tag == 'milestone' ) {
+		shownodes(tag);
 	} else {
 		setview();
 	};
@@ -487,6 +489,30 @@ function toggletag (tag) { // Show or hide empty elements
 	};
 	document.cookie = 'labels='+labels.join();
 	setForm(showform);
+};
+
+function shownodes(tag) {
+
+	var mtxt = document.getElementById('mtxt');
+	var nodes = mtxt.getElementsByTagName(tag);
+	// there should be no <c_pb> at this point
+	var pnr = 0;
+	for ( var a = 0; a<nodes.length; a++ ) {
+		var node = nodes[a];
+		console.log(node);
+		if ( showtag[tag] ) {
+			tagname = tag;
+			if ( node.getAttribute('n') ) { tagname += ': ' + node.getAttribute('n'); };
+			node.innerHTML = '<span style="color: #777777">['+tagname+']</span>'
+			node.style.display = 'block';
+			if ( username && node.getAttribute('id') ) {
+				node.onClick = window.open('index.php?action=elmedit&cid='+cid+'&id='+node.getAttribute('id'));
+			};
+		} else {
+			node.style.display = 'none';
+		};
+	};
+	
 };
 
 function setview () {
@@ -595,7 +621,6 @@ function showempties () {
 	  mitm.innerHTML = '<span style="color: #4444ff; font-size: 12px;">['+nn+']</span>';
 	  mitm = mtch.iterateNext();
 	}
-
 };
 
 function setbd (bd) {
