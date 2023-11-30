@@ -587,6 +587,7 @@
 		
 		# Allow adding/deleting tokens 
 		if ( $username ) {
+		
 			$maintext .= "
 			<hr>
 				$warning
@@ -598,11 +599,25 @@
 				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&pos=right'>attached</a> /
 				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid'>separate</a>
 			&bull;
-				insert elm:
-				<!-- <a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=par'>paragraph</a> ; -->
-				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=note'>note</a> ;
-				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=lb'>linebreak</a>
-				";
+				insert elm:";
+			
+			if ( getset("xmlfile/editable") ) {
+				$editables = array();
+			} else {
+				$editables = array(
+					"note" => array ( "place" => "after" ),
+					"lb" => array ( "place" => "before", "display" => "linebreak" ),
+				);
+			};
+			foreach ( $editables as $ek => $ev ) {
+				$edir = $ev['place'] or $edir = "before";
+				$etxt = $ev['display'] or $etxt = $ek;
+				$maitnext .= "\n\t\t\t<a title='$edir' href='index.php?action=retok&dir=$edir&cid=$fileid&tid=$tokid&node=$ek'>$etxt</a>";
+			};
+
+// 				<!-- <a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=par'>paragraph</a> ; -->
+// 				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=note'>note</a> ;
+// 				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=lb'>linebreak</a>
 		
 			if ( $dtk ) {
 				$maintext .= " &bull;
