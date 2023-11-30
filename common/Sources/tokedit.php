@@ -601,18 +601,26 @@
 			&bull;
 				insert elm:";
 			
-			if ( getset("xmlfile/editable") ) {
-				$editables = array();
-			} else {
-				$editables = array(
-					"note" => array ( "place" => "after" ),
-					"lb" => array ( "place" => "before", "display" => "linebreak" ),
-				);
+			$editables = array(
+				"note" => array ( "place" => "after" ),
+				"lb" => array ( "place" => "before", "display" => "linebreak" ),
+			);
+			if ( $etype = getset("xmlfile/editable") ) {
+				if ( $etype == "replace" ) $editables = array();
+				foreach ( $settings['xmlfile']['sattributes'] as $sk => $satt ) {
+					if ( $satt['type'] == "empty" || $satt['editable'] ) {
+						$editables[$skey] = array();
+						$editables[$skey]['place'] = $satt['place'];
+						$editables[$skey]['display'] = $satt['display'];
+					};
+				};
 			};
 			foreach ( $editables as $ek => $ev ) {
+				$sep = "";
 				$edir = $ev['place'] or $edir = "before";
 				$etxt = $ev['display'] or $etxt = $ek;
 				$maintext .= "\n\t\t\t<a title='$edir' href='index.php?action=retok&dir=$edir&cid=$fileid&tid=$tokid&node=$ek'>$etxt</a>";
+				$sep = " ; ";
 			};
 
 // 				<!-- <a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=par'>paragraph</a> ; -->
