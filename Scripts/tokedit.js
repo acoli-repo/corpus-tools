@@ -502,6 +502,8 @@ function shownodes(tag) {
 		console.log(node);
 		if ( showtag[tag] ) {
 			tagname = tag;
+			node.tile = 'milestone';
+			if ( node.getAttribute('type') ) { tagname = node.getAttribute('type'); };
 			if ( node.getAttribute('n') ) { tagname += ': ' + node.getAttribute('n'); };
 			node.innerHTML = '<span style="color: #777777">['+tagname+']</span>'
 			node.style.display = 'block';
