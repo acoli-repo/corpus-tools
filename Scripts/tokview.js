@@ -246,10 +246,10 @@ function highlightbb (elm, hln=0) {
 	orgImg.onload = function(){
 		var imgscale = this.getAttribute("fsize")/this.width;
 		var bb = this.getAttribute('bbox').split(' '); 
-		console.log(this.getAttribute("fsize"));
-		console.log(imgscale);
-		console.log(bb);
-		
+// 		console.log(this.getAttribute("fsize"));
+// 		console.log(imgscale);
+// 		console.log(bb);
+// 		
 		hlbar.style.display = 'block';
 		hlbar.style['background-color'] = '#ffff00';
 		hlbar.style['z-index'] = '100';
