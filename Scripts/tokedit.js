@@ -506,7 +506,7 @@ function shownodes(tag) {
 			node.innerHTML = '<span style="color: #777777">['+tagname+']</span>'
 			node.style.display = 'block';
 			if ( username && node.getAttribute('id') ) {
-				node.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&id='+node.getAttribute('id')); };
+				node.onclick = function() { window.open('index.php?action=elmedit&cid='+tid+'&tid='+node.getAttribute('id')); };
 			};
 		} else {
 			node.style.display = 'none';
