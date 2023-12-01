@@ -131,15 +131,16 @@
 			$pid = $node['id'] or $pid = "[$cnt]";
 			$pnr = $node['n'] or $pnr = "[$cnt]";
 			$tst = ""; if ( $node['empty'] ) $tst = "style='opacity: 0.2;' title='{%empty}'";
-			if ( $settings['defaults']['thumbnails'] ) {
+			if ( $settings['defaults']['thumbnails'] && $pbelm == "pb" ) {
 				$tni = $node['facs']; 
 				$tnn = "$ttxml->xmlid/$ttxml->xmlid"."_$pnr.jpg";
 				if ( $tni && file_exists("Thumbnails/$tni") ) $tni = "Thumbnails/$tni";
 				else if ( file_exists("Thumbnails/$tnn") ) $tni = "Thumbnails/$tnn";
 				else if ( !preg_match("/http/", $tni) ) $tni = "Facsimile/$tni";
-				$maintext .= "<a  $tst href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\"><div class=thumbnail><img src='$tni' title=\"$ttxml->xmlid:$pnr\"/><br>$pnr</a></div>";
+				$maintext .= "<a $tst href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\"><div class=thumbnail><img src='$tni' title=\"$ttxml->xmlid:$pnr\"/><br>$pnr</a></div>";
 			} else {
-				$maintext .= "<p><a $tst href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
+				if ( $username ) $editlnk = "<a style='font-size: smaller; color: #aaaaaa' href='index.php?action=elmedit&cid=$fileid&tid=$pid'>edit</a> ";
+				$maintext .= "<p>$editlnk<a $tst href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
 			};
 		};
 		$maintext .= "</td>";
