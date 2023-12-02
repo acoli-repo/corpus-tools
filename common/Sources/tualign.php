@@ -273,7 +273,9 @@
 		$totres = count($resxml->xpath("/results/*"));
 		
 		$orgxml = array();
-		$maintext .= "<form action='index.php?action=$action&act=columns' method=post><table id=rollovertable data-sortable>
+		$maintext .= "<form action='index.php?action=$action&act=columns' method=post>
+			<div id=mtxt>
+			<table id=rollovertable data-sortable>
 			 <thead><tr><td><th id='filecol'  data-sortable-type='alpha'>File</th><th>Text</th></tr> </thead><tbody>";
 		foreach ( $resxml->xpath("/results/*") as $resline ) {
 			$langid = str_replacE(".xml", "", $resline['fileid']);
@@ -289,7 +291,7 @@
 			};
 			$maintext .= "<tr lnk='$langid'><td><input type=checkbox name='files[{$resline['fileid']}]' value='1'><td><a href='index.php?action=file&cid={$resline['fileid']}&jmp={$resline['id']}'>$langid</a><td>$elmtxt";
 		};
-		$maintext .= "</tbody></table>
+		$maintext .= "</tbody></table></div>
 		<script language=Javascript src=\"https://cdnjs.cloudflare.com/ajax/libs/sortable/0.8.0/js/sortable.min.js\"></script>
 		<script language=Javascript>Sortable.init(); document.getElementById('filecol').click();</script>
 		<link rel=\"stylesheet\" href=\"https://github.hubspot.com/sortable/css/sortable-theme-bootstrap.css\">";

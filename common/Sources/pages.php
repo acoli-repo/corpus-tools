@@ -139,7 +139,7 @@
 				else if ( !preg_match("/http/", $tni) ) $tni = "Facsimile/$tni";
 				$maintext .= "<a $tst href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\"><div class=thumbnail><img src='$tni' title=\"$ttxml->xmlid:$pnr\"/><br>$pnr</a></div>";
 			} else {
-				if ( $username ) $editlnk = "<a style='font-size: smaller; color: #aaaaaa' href='index.php?action=elmedit&cid=$fileid&tid=$pid'>edit</a> ";
+				if ( $username ) $editlnk = "<a style='font-size: smaller; color: #aaaaaa' target=edit href='index.php?action=elmedit&cid=$fileid&tid=$pid'>edit</a> ";
 				$maintext .= "<p>$editlnk<a $tst href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
 			};
 		};
