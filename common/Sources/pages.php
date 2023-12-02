@@ -127,6 +127,8 @@
 			<h2>{%$titelm List}</h2>";
 		# Build the list of pages
 		$result = $ttxml->xpath("//$pbelm"); $tmp = 0;
+		$titelm = getset("xmlfile/sattributes/$pbtype/titelm", "title");
+		$titxp = getset("xmlfile/sattributes/$pbtype/titxp");
 		foreach ($result as $cnt => $node) {
 			$pid = $node['id'] or $pid = "[$cnt]";
 			$pnr = $node['n'] or $pnr = "[$cnt]";
@@ -141,6 +143,12 @@
 			} else {
 				if ( $username ) $editlnk = "<a style='font-size: smaller; color: #aaaaaa' target=edit href='index.php?action=elmedit&cid=$fileid&tid=$pid'>edit</a> ";
 				$maintext .= "<p>$editlnk<a $tst href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
+				# (esp for non-pb) see if there is a title to display
+				if ( $titelm && $node[$titelm] ) $maintext .= " ".$node[$titelm];
+				else if ( $titxp ) {
+					$titnode = $node->xpath($titxp);
+					if ( $titnode ) $maintext .= " ".current($titnode)->asXML();
+				};
 			};
 		};
 		$maintext .= "</td>";
