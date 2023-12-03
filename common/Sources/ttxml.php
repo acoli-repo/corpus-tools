@@ -554,7 +554,6 @@ class TTXML
 		
 		if ( $befnum == $aftnum ) $num = $befnum; else $num = "$befnum - $aftnum";
 		
-		
 		$folioname = getset('xmlfile/paged/display', "page");
 		if ( getset('xmlfile/paged/i18n') ) $folioname = "{%$folioname}";
 
@@ -766,7 +765,7 @@ class TTXML
 			$pbatt = $settings['xmlfile']['paged']['att'] or $pbatt = "n";
 		} else {  // Generic milestone
 			$pbtype = "milestone[@type=\"{$pbtmp}\"]";
-			$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($pbtmp);
+			$titelm = getset("xmlfile/paged/options/$pbtmp/display", ucfirst($pbtmp));
 			$pbelm = "milestone";
 			$pbsel = "&pbtype={$pbtmp}";
 		};

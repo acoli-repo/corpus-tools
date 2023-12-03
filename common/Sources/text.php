@@ -26,7 +26,7 @@
 	$title = $ttxml->title();
 
 	// on "paged" display, determine what to show
-	$_GET['pbtype'] = getset('xmlfile/paged/element');
+	if ( !$_GET['pbtype'] ) $_GET['pbtype'] = getset('xmlfile/paged/element');
 	if ( !$_GET['pbtype'] || $_GET['pbtype'] == "pb" ) { 
 		$pbelm = "pb";
 		$titelm = "Page";

@@ -142,12 +142,18 @@
 				$maintext .= "<a $tst href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\"><div class=thumbnail><img src='$tni' title=\"$ttxml->xmlid:$pnr\"/><br>$pnr</a></div>";
 			} else {
 				if ( $username ) $editlnk = "<a style='font-size: smaller; color: #aaaaaa' target=edit href='index.php?action=elmedit&cid=$fileid&tid=$pid'>edit</a> ";
-				$maintext .= "<p>$editlnk<a $tst href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=pb\">$pnr</a>";
+				$maintext .= "<p>$editlnk<a $tst href=\"index.php?action=file&cid=$fileid&pageid=$pid&pbtype=$pbsel\">$pnr</a>";
 				# (esp for non-pb) see if there is a title to display
 				if ( $titelm && $node[$titelm] ) $maintext .= " ".$node[$titelm];
 				else if ( $titxp ) {
-					$titnode = $node->xpath($titxp);
-					if ( $titnode ) $maintext .= " ".current($titnode)->asXML();
+					$tmp = $node->xpath($titxp);
+					if ($tmp) {
+						$titnode = current($tmp);
+						foreach ( $titnode->xpath(".//note") as $noten ) {
+							unset($noten[0]);
+						};
+						$maintext .= " ".$titnode->asXML();
+					};
 				};
 			};
 		};
