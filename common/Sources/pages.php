@@ -11,7 +11,7 @@
 	$fileid = $_GET['cid'] or $fileid = $_GET['id'];
 	
 	$pbsel = $_GET['pbtype'] or $pbsel = $_GET['type'];
-	if ( !$pbsel ) { 
+	if ( !$pbsel || $pbsel == "pb" ) { 
 		$pbelm = "pb";
 		$titelm = "Page";
 		$pbtype = "pb";
