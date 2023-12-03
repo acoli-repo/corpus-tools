@@ -831,7 +831,7 @@
 		  $tot  = strlen($haystack);
 		  try {
 		  	$pos = strpos(strrev($haystack), strrev($needle), $tot-$offset );
-		  } catch ( Exception $e) { $pos = -1; unset($e); }
+		  } catch ( \Throwable $e) { $pos = -1; unset($e); }
 		  
 		  if ( !$pos || $pos == -1 )
 		  	return 0; 
