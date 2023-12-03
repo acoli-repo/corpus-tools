@@ -829,7 +829,9 @@
 	if (!function_exists("rstrpos")) {
 	   function rstrpos($haystack,$needle,$offset=0) {
 		  $tot  = strlen($haystack);
-		  $pos = strpos(strrev($haystack), strrev($needle), $tot-$offset );
+		  try {
+		  	$pos = strpos(strrev($haystack), strrev($needle), $tot-$offset );
+		  } catch ( Exception $e) { $pos = -1; unset($e); }
 		  
 		  if ( !$pos || $pos == -1 )
 		  	return 0; 
