@@ -692,7 +692,7 @@ class TTXML
 			$tmp = $this->rawtext;
 			$tokpos = strpos($tmp, "id=\"$tokid\""); 
 			$tokbef = $tokpos;
-			for ( $i=0; $i<$size; $i++ ) $tokbef = rstrpos($tmp, "<tok ", $tokbef-1);
+			for ( $i=0; $i<$size; $i++ ) $tokbef = rstrpos($tmp, "<tok ", int($tokbef)-1);
 			if ( !$tokbef ) $tokbef = strpos($tmp, "<tok ");
 			$tokaft = $tokpos+1;
 			for ( $i=0; $i<$size+1; $i++ ) $tokaft = strpos($tmp, "<tok ", $tokaft+1); 

@@ -832,7 +832,7 @@
 		  $pos = strpos(strrev($haystack), strrev($needle), $tot-$offset );
 		  
 		  if ( !$pos || $pos == -1 )
-		  	return ""; 
+		  	return -1; 
 		  else {
 		  	$pos = $tot - $pos - strlen($needle);
 		  	return $pos;
