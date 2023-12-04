@@ -437,9 +437,11 @@ function toggletn (tag) { // Show or hide empty elements
 	if ( showtag[tag] ) {
 		showtag[tag] = false;
 		if ( but != null ) but.removeAttribute('active');
+		document.getElementById('mtxt').setAttribute('tag-'+tag, 0)
 	} else {
 		showtag[tag] = true;
 		if ( but != null ) but.setAttribute('active', 1);
+		document.getElementById('mtxt').setAttribute('tag-'+tag, 1)
 	};
 	document.cookie = 'toggle-'+tag+'='+showtag[tag];
 	if ( tag == 'colors' ) {

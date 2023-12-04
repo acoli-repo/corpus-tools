@@ -759,8 +759,7 @@
 		
 		$focusform = $settings['xmlfile']['focusform'] or $focusform = "nform";
 		# Show the context
-		$maintext .= "<hr><div id=mtxt>".$editxml."</div>
-		<hr><input type=submit value=\"Save\">
+		$maintext .= "<hr><input type=submit value=\"Save\">
 		<!-- <button onClick=\"window.open('index.php?action=file&cid=$fileid', '_self');\">Cancel</button> -->
 		<a href='index.php?action=file&cid=$fileid'>Cancel</a>
 		<script language=Javascript>
@@ -768,6 +767,8 @@
 			highlight('$tokid',  '#ffee88');
 		</script>
 		&bull; <a href='index.php?action=wordinfo&cid=$fileid&tid=$tokid'>Token Details</a>
+		
+		<hr><h3>Context</h3><div id=mtxt>".$editxml."</div>
 		
 		</form>
 		$tagbuilder
