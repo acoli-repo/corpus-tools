@@ -922,8 +922,8 @@ class TTXML
 	}
 
 	function viewswitch($initial = true, $withself = false ) {
-		global $settings; global $username; global $action; global $xml; 
-		if ( !$ttxml->xml ) return false;
+		global $settings; global $username; global $action;  
+		if ( !$this->xml ) return false;
 
 		if ( !$viewopts['text'] ) $viewopts['text'] = "Text view"; // Unless otherwise defined, always use Text view
 		
@@ -935,7 +935,7 @@ class TTXML
 				$viewopts['block:'.$lvl] = "{$lvltxt} view";
 			}; 
 		}; 
-
+		
 		foreach ( $settings['views'] as $key => $item ) {	
 			
 			# Check whether we should do this
