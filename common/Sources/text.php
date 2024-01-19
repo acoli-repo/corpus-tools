@@ -672,6 +672,11 @@
 			$maintext .= "</ul>";
 		
 		};
+
+		# What does this do?
+		if ( file_exists("Sources/textview.php") ) {
+			require("Sources/textview.php");
+		};
 		
 		if ( file_exists("Resources/filelist.xml") ) {
 			$fxml = getxmlrec("Resources/filelist.xml", $xmlid, "file");
