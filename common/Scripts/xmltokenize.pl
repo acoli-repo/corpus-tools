@@ -569,6 +569,10 @@ if ( $sentsplit != 2 ) {
 	$teitext = $tagtxt;
 };
 
+	if ( $debug ) {
+		print "\n\n----------------\nBEFORE SENTENCES\n----------------\n$teitext----------------\n";
+	};
+
 if ( $sentsplit ) {
 	# Now - split into sentences; 
 	if ( $addbreaks ) { $lb = "\n"; };
