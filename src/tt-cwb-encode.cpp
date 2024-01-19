@@ -532,7 +532,11 @@ void treatfile ( string filename ) {
 				};
 				
 				string toka; string tokb;
+				string wlist = "";
 				if ( it->node().attribute(toklistatt.c_str()) ) {
+					wlist = it->node().attribute(toklistatt.c_str()).value();
+				};
+				if ( wlist != "" ) {
 					// For empty node that have a @sameAs="#w-3 #w-7" type of content
 					string wlist = it->node().attribute(toklistatt.c_str()).value();
 					toka = wlist.substr(1,wlist.find(" ")-1);

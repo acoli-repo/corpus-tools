@@ -966,7 +966,7 @@ class TTXML
 		};
 
 		// Add the download link
-		if ( $action != "text" && $settings['download']['always'] ) {
+		if ( $action != "text" && getset('download/always') ) {
 			if ( !is_array($settings['download']) || ( ( $settings['download']['admin'] != "1" || $username ) && $settings['download']['disabled'] != "1" ) ) {
 				$dltit = "Download XML";
 				if ( is_array($settings['download']) && $settings['download']['title'] ) $dltit = $settings['download']['title'];
