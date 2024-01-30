@@ -83,7 +83,7 @@ use XML::LibXML;
 		foreach $ddnode ( $ttnode->findnodes("./dtok") ) {
 			$dcnt++;
 			if ( $debug ) { print "\n  - $dcnt\t".$ddnode->getAttribute('form'); };
-			if ( $ddnode->getAttribute('id') eq '' || $override ) { $ddnode->setAttribute('id', "d-$tokid-$dcnt"); };
+			if ( $ddnode->getAttribute('id') eq '' || $ddnode->getAttribute('id') eq 'torenew' || $override ) { $ddnode->setAttribute('id', "d-$tokid-$dcnt"); };
 		};
 		$dcnt = 0;
 		foreach $mnode ( $ttnode->findnodes("./m") ) {
