@@ -228,9 +228,10 @@
 		# None
 		$maintext .= "<p><input checked type=radio name=header value='empty' onChange='metachoose(this);'> Leave empty";
 
-		# Use a template
-		if ( $settings['xmltemplates'] ) {
-			while ( list ( $key, $item ) = each ( $settings['xmltemplates'] ) ) {
+		# Use a template 
+		# TODO: This is clearly never used - should this be removed?
+		if ( getset('xmltemplates') ) {
+			foreach ( $settings['xmltemplates'] as $key => $val ) {
 				$templatelist .= "<option value='$key'>{$item['display']}</option>";
 			};
 			$maintext .= "<p><input type=radio name=header value='template' onChange='metachoose(this);'> Use a template
