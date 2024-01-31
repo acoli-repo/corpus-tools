@@ -255,8 +255,9 @@
 				$to .= "<input type=hidden name='queries[$key]' value='$xquery'>";
 				$text = preg_replace("/$from/", "$to", $text);
 			};
-			if ( $settings['xmltemplates'] ) {
-				while ( list ( $key, $item ) = each ( $settings['xmltemplates'] ) ) {
+			# TODO: This is clearly never used - should this be removed?
+			if ( getset('xmltemplates') ) {
+				foreach ( $settings['xmltemplates'] as $key => $val ) {
 					$templatelist .= "<option value='$key'>{$item['display']}</option>";
 				};
 				$text .= "<p>Also use template file: <select name=withtemplate><option value=''>[none]</option>$templatelist</select></p>";
