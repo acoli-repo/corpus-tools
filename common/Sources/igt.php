@@ -91,7 +91,7 @@
 		foreach ( array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']) as $patttag ) {
 			$pattname = $patttag['display'];
 			$pattlvl = $patttag['lvl'] or $pattlvl = $patttag['key'];
-			if ( $patttag['igt'] && $sent->xpath(".//tok[@$pattlvl]") ) {
+			if ( $patttag['igt'] && ( $patttag['inherit'] || $patttag['compute'] || $sent->xpath(".//tok[@$pattlvl]") ) ) {
 				$thiscolor = $patttag['color'] or $thiscolor = $colors[$con++];
 				$maintext .= "<br><span style='color: $thiscolor' title='$pattlvl'>$pattname</span>";
 				$doatts[$pattlvl] = $thiscolor;
