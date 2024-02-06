@@ -88,11 +88,11 @@
 		$maintext .= "<table id=$sid><tr><td style='border-right: 1px solid #bbaabb;' valign=top>";
 		$maintext .= "<div class='floatbox' id='$sid' style='padding-right: 5px;'>{%$wordlvl}";
 		$doatts = array(); $con = 0;
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $patttag ) {
+		foreach ( array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']) as $patttag ) {
 			$pattname = $patttag['display'];
 			$pattlvl = $patttag['lvl'] or $pattlvl = $patttag['key'];
-			if ( $patttag['igtcolor'] && $sent->xpath(".//tok[@$pattlvl]") ) {
-				$thiscolor = $patttag['igtcolor'] or $thiscolor = $colors[$con++];
+			if ( $patttag['igt'] && $sent->xpath(".//tok[@$pattlvl]") ) {
+				$thiscolor = $patttag['color'] or $thiscolor = $colors[$con++];
 				$maintext .= "<br><span style='color: $thiscolor' title='$pattlvl'>$pattname</span>";
 				$doatts[$pattlvl] = $thiscolor;
 			} else {
@@ -112,7 +112,8 @@
 			$tokid = $tok['id'];
 			$maintext .= "<div class=floatbox id='$sid' style='text-align: center;'>".$tok->asXML();
 			foreach ( $doatts as $pattlvl => $thiscolor ) {
-				$val = $tok[$pattlvl]."" or $val = "-";
+				// $val = $tok[$pattlvl]."" or $val = "-";
+				$val = forminherit($tok, $pattlvl);
 				$maintext .= "<br><span style='color: $thiscolor'>$val</span>";
 			};
 			if ( $morphed ) {
