@@ -1028,6 +1028,7 @@ function forminherit ( tok, fld ) {
 		};
 		return tok.getAttribute(fld);
 	};
+	
 	// If this is a substraction - calculate both and substract
 	var substract = formdef[fld]['subtract'];
 	var inheritfrom = formdef[fld]['inherit'];
@@ -1042,6 +1043,7 @@ function forminherit ( tok, fld ) {
 		};
 		return difffrm;
 	};
+	
 	// When transliterating, find the form and transliterate
 	var transfrom = formdef[fld]['transliterate'];
 	if ( transfrom != undefined ) {
@@ -1054,6 +1056,22 @@ function forminherit ( tok, fld ) {
 		};
 		return transform;
 	};
+
+	// When we have a function to calculate this field, run it
+	var compute = formdef[fld]['compute'];
+	if ( compute != undefined ) {
+		tmp = compute.split(':');
+		funcname = tmp[0];
+		fromfld = tmp[1];
+		if ( typeof(fromfld) != 'string' ) { fromfld = 'form'; };
+		var fromform = forminherit(tok, fromfld);
+		var transform = window[funcname](tok, fromform);
+
+		if ( transform ) {
+			return transform;
+		};
+	};
+		
 	// If there is a form to inherit from, display that
 	if ( inheritfrom != undefined ) {
 		return forminherit(tok, inheritfrom);
