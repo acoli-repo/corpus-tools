@@ -149,6 +149,7 @@ function showtokinfo(evt, element, poselm) {
 } 
 
 function infotable (elmnode) {
+	// Calculate all the row we need to show for this "token"
 	var inforows = '';
 	if ( !attributelist.length ) {
 		if ( formdef ) {
@@ -167,12 +168,15 @@ function infotable (elmnode) {
 		var attdef = false;
 		if ( formdef[att] ) attdef = formdef[att];
 		else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] ) attdef = tagdef[att];
-		if ( elmnode.getAttribute(att) && attdef && !attdef['noshow'] && ( !attdef['admin'] || attdef['admin'] == "0" || username ) ) {
+		var rowval = elmnode.getAttribute(att);
+		console.log(attdef);
+		if ( attdef['compute'] || attdef['transcribe'] ) rowval = forminherit(elmnode, att);
+		if ( rowval && attdef && !attdef['noshow'] && ( !attdef['admin'] || attdef['admin'] == "0" || username ) ) {
 			shownrows = 1;
-			var rowval = elmnode.getAttribute(att);
 			var atttype = '';
 			if ( typeof(formdef) != "undefined" && formdef && formdef[att] && formdef[att]['type'] ) atttype = formdef[att]['type'];
 			if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] && tagdef[att]['type'] ) atttype = tagdef[att]['type'];
+			// Calculate if we need to display this better
 			if ( atttype == 'pos' && typeof(treatpos) == 'function' ) { rowval = treatpos(elmnode, att, 'full'); }
 				else if ( atttype == 'udfeats' && typeof(treatfeats) == 'function' ) { rowval = treatfeats(elmnode, att, 'full'); }
 				else if ( atttype == 'ref' && typeof(treatref) == 'function' ) { rowval = treatref(elmnode, att, 'full'); }
