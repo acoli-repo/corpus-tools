@@ -753,9 +753,13 @@ function settokform(type, max=100) {
 			opre += match;
 		}
 		
-		if ( type != "" && type != "pform" ) { // pform is the innerHTML
+		let ftype = type; // Allow 'setform' to overrule the chosen form (in case of multiple different forms to show pe IGT)
+		if ( tok.getAttribute('setform') ) {
+			ftype = tok.getAttribute('setform');
+		};
+		if ( ftype != "" && ftype != "pform" ) { // pform is the innerHTML
 
-			var thisform = forminherit(tok,type);
+			var thisform = forminherit(tok,ftype);
 			if ( thisform == '--' ) { thisform = "<ee/>"; };
 			if ( thisform.search(/<[pcl]b/) > -1 ) {
 				tok.innerHTML = thisform; // In calculated forms, the breaks might still be inside a non-pform

@@ -114,8 +114,13 @@
 			$tokid = $tok['id'];
 			$maintext .= "<div class=floatbox id='$sid' style='text-align: center;'>".$tok->asXML();
 			foreach ( $doatts as $pattlvl => $thiscolor ) {
-				// $val = $tok[$pattlvl]."" or $val = "-";
-				$val = forminherit($tok, $pattlvl);
+				if ( $settings['xmlfile']['pattributes']['forms'][$pattlvl]['compute'] ) {
+					$tokcp = new SimpleXMLElement($tok->asXML());
+					$tokcp['setform'] = $pattlvl;
+					$val = $tokcp->asXML();
+				} else {
+					$val = forminherit($tok, $pattlvl);
+				};
 				$ptit = $attarr[$pattlvl]['display'];
 				$maintext .= "<br><span style='color: $thiscolor' title='$ptit'>$val</span>";
 			};
@@ -162,6 +167,9 @@
 				setForm('$showform');
 			</script>
 			";
+	if ( $tocompute ) {
+		$maintext .= "<script></script>";
+	};
 	$maintext .= $ttxml->viewswitch();
 	# $maintext .= "<a href='index.php?action=file&cid=$cid&jmp=$sentid'>{%to text mode}</a> $options</p><br>";
 
