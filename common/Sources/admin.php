@@ -179,7 +179,7 @@
 	
 	} else {
 	
-		if ( $settings['permissions']['groups'] )  $grouprec = $settings['permissions']['groups'][$user['group'].""];
+		if ( getset('permissions/groups') )  $grouprec = $settings['permissions']['groups'][$user['group'].""];
 		$adminmenulist = array (
 				"upload" => "upload/manage files",
 				"pageedit" => "edit HTML files",
