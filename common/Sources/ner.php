@@ -958,7 +958,10 @@
 			if ( $links ) {
 				$maintext .= "<p><h2>{%External links}</h2><table>";
 				foreach ( $links as $key => $val ) {
-					if ( substr($val['target'],0,4) == "http" ) $maintext .= "<tr><th>{%{$val['type']}}<td><a href='{$val['target']}' target=info>{%{$val['target']}}</a>";
+					if ( substr($val['target'],0,4) == "http" ) {
+						$linktitle = $val['display'] or $linktitle = "{%{$val['target']}}";
+						$maintext .= "<tr><th>{%{$val['type']}}<td><a href='{$val['target']}' target=info>$linktitle</a>";
+					};
 				};
 				$maintext .= "</table>";
 			};
