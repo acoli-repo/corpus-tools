@@ -1071,9 +1071,7 @@ function forminherit ( tok, fld ) {
 		var fromform = forminherit(tok, fromfld);
 		var transform = window[funcname](tok, fromform);
 
-		if ( transform ) {
-			return transform;
-		};
+		return transform;
 	};
 		
 	// If there is a form to inherit from, display that

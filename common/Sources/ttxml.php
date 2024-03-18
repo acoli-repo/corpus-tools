@@ -937,6 +937,7 @@ class TTXML
 		}; 
 		
 		foreach ( $settings['views'] as $key => $item ) {	
+			if ( !is_array($item) ) continue;
 			
 			# Check whether we should do this
 			$dothis = 1;
