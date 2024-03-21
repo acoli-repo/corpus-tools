@@ -31,6 +31,7 @@
 		
 		if ( $_GET['nexturl'] ) {
 			$nexturl = str_replace('newid', $newid, $_GET['nexturl']);
+			$nexturl = str_replace('torenew', $newid, $nexturl);
 		} else if ( $newid && $newtype == "tok" ) {
 			$nexturl = "index.php?action=tokedit&cid=$cardid&tid=$newid";
 		} else if ( $newid ) {

@@ -26,6 +26,7 @@
 		$nodetype = $_GET['node']; # or $nodetype = "tok";
 		
 		$tmpid = " id=\"torenew\" ";
+		$ntid = "torenew";
 		
 		if ( $nodetype == "par" ) {
 			$newnode = "<sb$tmpid/>";
@@ -140,7 +141,7 @@
 		$maintext .= "<p>Added ".htmlentities($newnode)." $nodepos $tokid"; 
 		
 		if ( $goto ) $newurl = "&nexturl=$goto";
-		$nexturl = "index.php?action=renumber&cid=$fileid&tid=$tmpid&dir=$nodedir$newurl";
+		$nexturl = "index.php?action=renumber&cid=$fileid&tid=$ntid&dir=$nodedir$newurl";
 					
 		saveMyXML($file, $fileid);
 				
