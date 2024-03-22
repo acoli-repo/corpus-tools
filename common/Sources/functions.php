@@ -173,6 +173,14 @@
 		return $showxml;
 	};
 
+	function xmlprotect( $string, $type = "inner" ) {
+		$string = str_replacE("&", "&amp;", $string);
+		$string = str_replacE("<", "&lt;", $string);
+		$string = str_replacE(">", "&gt;", $string);
+		
+		return $string;
+	};
+
 	function xpathrun ( $text, $xml, $filename = "" ) {
 		global $action, $act;
 		# Fill in variable from XPath queries

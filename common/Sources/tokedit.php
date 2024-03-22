@@ -191,6 +191,8 @@
 		$xmlword = $token->asXML(); 
 		$xmlword = preg_replace("/<\/?d?tok[^>]*>/", "", $xmlword); // Remove all dtoks from the raw XML - will be edited separately
 		$xmlword = preg_replace("/<\/?m(?=[ >])[^>]*>/", "", $xmlword); // Remove all morphological elements from the raw XML - will be edited separately
+		$xmlword = str_replace("&lt;", "&amp;lt;", $xmlword); // Protect <
+		$xmlword = str_replace("&gt;", "&amp;gt;", $xmlword); // Protect >
 		$xmlword = str_replace("'", "&#039;", $xmlword); // Protect quotes
 		$maintext .= "<tr><td>pform<td>Transcription (Inner XML)<td><input size=60 name=word id='word' value='$xmlword'>";
 
