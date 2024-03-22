@@ -87,9 +87,11 @@
 			if ( strpos($imgsrc, "http" ) === false ) $imgsrc = "Facsimile/$imgsrc";
 		
 			$bb = explode ( " ", $token['bbox'] );
-			$cropwidth = $bb[2]-$bb[0] + 10;
-			$cropheight = $bb[3]-$bb[1] + 10; 
-
+			if ( $bb ) {
+				$cropwidth = $bb[2]-$bb[0] + 10;
+				$cropheight = $bb[3]-$bb[1] + 10; 
+			};
+			
 			list($imgwidth, $imgheight, $imgtype, $imgattr) = getImageSize($imgsrc);
 
 			$divwidth = 300;
