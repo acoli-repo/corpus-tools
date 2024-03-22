@@ -87,7 +87,7 @@
 			if ( strpos($imgsrc, "http" ) === false ) $imgsrc = "Facsimile/$imgsrc";
 		
 			$bb = explode ( " ", $token['bbox'] );
-			if ( $bb ) {
+			if ( is_array($bb) ) {
 				$cropwidth = $bb[2]-$bb[0] + 10;
 				$cropheight = $bb[3]-$bb[1] + 10; 
 			};
