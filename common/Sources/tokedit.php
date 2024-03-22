@@ -90,28 +90,30 @@
 			if ( is_array($bb) && count($bb) == 4 ) {
 				$cropwidth = $bb[2]-$bb[0] + 10;
 				$cropheight = $bb[3]-$bb[1] + 10; 
+
+				list($imgwidth, $imgheight, $imgtype, $imgattr) = getImageSize($imgsrc);
+
+				$divwidth = 300;
+				$divheight = $divwidth*($cropheight/$cropwidth);
+				if ( $divheight > 150 ) {
+					$divheight = 120;
+					$divwidth = $divheight*($cropwidth/$cropheight);
+				};
+				$imgscale = $divwidth/$cropwidth;
+				$setwidth = $imgscale*$imgwidth;
+				$setheight = $imgscale*$imgheight;
+				$topoffset = ($bb[1]-5)*$imgscale;
+				$leftoffset = ($bb[0]-5)*$imgscale;
+				
+				// Add the data of the line
+				$bboxpart = "<div style='float: right;'><div style=' width: {$divwidth}px; height: {$divheight}px; overflow: hidden; margin: 3px;'>
+					<img style='width: {$setwidth}px; height: {$setheight}px; margin-top: -{$topoffset}px; margin-left: -{$leftoffset}px;' src='$imgsrc'/>
+					</div>
+					<p style='text-align: center; margin-top: -2px;'><a href='index.php?action=elmedit&tid=$tokid&cid=$fileid'>edit</a><p>			
+					</div>";
+
 			};
 			
-			list($imgwidth, $imgheight, $imgtype, $imgattr) = getImageSize($imgsrc);
-
-			$divwidth = 300;
-			$divheight = $divwidth*($cropheight/$cropwidth);
-			if ( $divheight > 150 ) {
-				$divheight = 120;
-				$divwidth = $divheight*($cropwidth/$cropheight);
-			};
-			$imgscale = $divwidth/$cropwidth;
-			$setwidth = $imgscale*$imgwidth;
-			$setheight = $imgscale*$imgheight;
-			$topoffset = ($bb[1]-5)*$imgscale;
-			$leftoffset = ($bb[0]-5)*$imgscale;
-				
-			// Add the data of the line
-			$bboxpart = "<div style='float: right;'><div style=' width: {$divwidth}px; height: {$divheight}px; overflow: hidden; margin: 3px;'>
-				<img style='width: {$setwidth}px; height: {$setheight}px; margin-top: -{$topoffset}px; margin-left: -{$leftoffset}px;' src='$imgsrc'/>
-				</div>
-				<p style='text-align: center; margin-top: -2px;'><a href='index.php?action=elmedit&tid=$tokid&cid=$fileid'>edit</a><p>			
-				</div>";
  		};
 
 		$multisep = $settings['cqp']['multiseperator'] or $multisep = ",";
