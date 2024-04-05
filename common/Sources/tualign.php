@@ -5,7 +5,7 @@
 	if ( $_GET['debug'] && $username ) {
 		$debug = 1;
 		$debuglnk = "&debug=1";
-	};
+	} else { $debug = 0; };
 
 	# Check we have a PSQL DB
 	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
@@ -267,7 +267,9 @@
 		$resxml = simplexml_load_string($res);
 		
 		if ( $debug ) {
+			$maintext .= "<div class='debug' style='background-color: #eeeeee;'>";
 			$maintext .= "<code>$cmd</cmd><hr>".showxml($resxml);
+			$maintext .= "</div>";			
 		};
 		
 		$totres = count($resxml->xpath("/results/*"));

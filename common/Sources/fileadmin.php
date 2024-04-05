@@ -75,6 +75,17 @@
 			<td><i>Not used $rest
 			";
 	};
+	if ( !$views['stats'] ) {
+		if ( file_exists('cqp/word.corpus') ) { $rest = " - default option"; } else { $rest = " - Not available, corpus not yet indexed"; };
+		$maintext .= "<tr><td><a href='index.php?action=stats&cid=$ttxml->fileid'>go</a>
+			<th>Statistics
+			<td><i>Not used $rest
+			";
+		$maintext .= "<tr><td><a href='index.php?action=wordcloud&cid=$ttxml->fileid'>go</a>
+			<th>Word cloud
+			<td><i>Not used $rest
+			";
+	};
 	$maintext .= "<tr><td><a href='index.php?action=header&act=rawview&cid=$ttxml->fileid'>go</a>
 		<th>teiHeader view
 		<td><i>Admin-only option
@@ -85,23 +96,30 @@
 	
 	$maintext .= "<table>";
 	if ( !$views['wavesurfer'] ) {
-		if ( $ttxml->xpath("//") ) { $rest = " - default option"; } else { $rest = " - Not available, no media node"; };
+		if ( $ttxml->xpath("//media") ) { $rest = " - default option"; } else { $rest = " - Not available, no media node"; };
 		$maintext .= "<tr><td><a href='index.php?action=wavesurfer&cid=$ttxml->fileid'>go</a>
 			<th>Wavesurfer view<td>Audio-Aligned
 			<td><i>Not explicitly defined $rest
 			";
 	};
 	if ( !$views['lineview'] ) {
-		if ( $ttxml->xpath("////lb[@bbox]") ) { $rest = " - default option"; } else { $rest = " - Not available, no lines with @bbox (Manuscripts only)"; };
+		if ( $ttxml->xpath("//lb[@bbox]") ) { $rest = " - default option"; } else { $rest = " - Not available, no lines with @bbox (Manuscripts only)"; };
 		$maintext .= "<tr><td><a href='index.php?action=lineview&cid=$ttxml->fileid'>go</a>
 			<th>Manuscript line view<td>Facsimile-Aligned
 			<td><i>Not explicitly defined $rest
 			";
 	};
 	if ( !$views['facsview'] ) {
-		if ( $ttxml->xpath("////lb[@bbox]") ) { $rest = " - default option"; } else { $rest = " - Not available, no tok with @bbox"; };
+		if ( $ttxml->xpath("//lb[@bbox]") ) { $rest = " - default option"; } else { $rest = " - Not available, no tok with @bbox"; };
 		$maintext .= "<tr><td><a href='index.php?action=facsview&cid=$ttxml->fileid'>go</a>
 			<th>Facsimile view<td>Facsimile-Aligned
+			<td><i>Not explicitly defined $rest
+			";
+	};
+	if ( !$views['tualign'] ) {
+		if ( $ttxml->xpath("//*[@tuid]") ) { $rest = " - default option"; } else { $rest = " - Not available, no elements with a @tuid"; };
+		$maintext .= "<tr><td><a href='index.php?action=tualign&cid=$ttxml->fileid'>go</a>
+			<th>Translation Unit view<td>Translation-Aligned
 			<td><i>Not explicitly defined $rest
 			";
 	};

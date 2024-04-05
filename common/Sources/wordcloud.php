@@ -5,6 +5,8 @@
 	if ( !$_POST ) $_POST = $_GET;
 
 	$ttcqp = findapp("tt-cqp");
+	
+	
 
 	$showform = $_POST['show'] or $showform = $_POST['defaults']['wordcloud']['show'] or $showform = 'word';
 	$rest = $_POST['rest'] or $rest = $settings['defaults']['wordcloud']['rest'];
@@ -163,5 +165,11 @@
 
 	</script>
 	";
+	
+	if ( $_GET['cid'] || $_GET['id'] ) {
+		require_once ("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		$maintext .= "<hr>".$ttxml->viewswitch();
+	};
 	
 ?>
