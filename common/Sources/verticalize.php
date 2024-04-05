@@ -18,6 +18,9 @@
 
 	if ( $act == "edit" && $username ) $editable = true;
 
+	if ( !$settings['xmlfile']['pattributes']['forms']['pform'] ) {
+		$settings['xmlfile']['pattributes']['forms']['pform'] = array("display" => "Base Form (innerXML)");
+	};
 
 	if ( $act == "save" && $username ) {
 		foreach ( $_POST as $key => $val ) {
@@ -56,7 +59,7 @@
 			";
 		};
 		$maintext .= "<tr><td colspan=10>
-				<p><input type=checkbox name=inherit value='1'> Show inhereted forms
+				<p><input type=checkbox name=inherit value='1'> Show inherited forms
 				<hr>";	
 		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
 			$maintext .= "<tr>
@@ -178,7 +181,7 @@
 						if ( $fld == "pform" ) $val = htmlentities($node->asXML()); // TODO: This is ... not ideal, better solution?
 						else $val = $node[$fld]; 
 						$nid = $node['id'];
-						$maintext .= "<td><input name='{$fld}[{$nid}]' value=\"$val\">";
+						$maintext .= "<td><input name='{$fld}[{$nid}]' value=\"$val\" onkeyup=\"changed();\">";
 					};
 
 					# Show dtoks
@@ -197,7 +200,7 @@
 							else $val = $dnode[$fld];
 							$nid = $dnode['id'];
 					
-							$maintext .= "<td><input name='{$fld}[{$nid}]' value=\"$val\">";
+							$maintext .= "<td><input name='{$fld}[{$nid}]' value=\"$val\" onkeyup=\"changed();\">";
 						};
 					};		
 				};
@@ -212,7 +215,20 @@
 			$maintext .= "<hr>";
 
 			// Add a session logout tester
-			$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
+			$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>
+				<script>
+					const beforeUnloadHandler = (event) => {
+					  // Recommended
+					  event.preventDefault();
+
+					  // Included for legacy support, e.g. Chrome/Edge < 119
+					  event.returnValue = true;
+					};
+
+					function changed() {
+						window.addEventListener(\"beforeunload\", beforeUnloadHandler);
+					};
+				</script>";
 			
 		
 			if ( $_GET['show'] == "all" ) $maintext .= "<a href='index.php?action=$action&cid=$fileid&form=$showform&show='>show only tagged tokens</a>";

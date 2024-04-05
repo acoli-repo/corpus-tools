@@ -137,7 +137,7 @@ use XML::LibXML;
 			if ( !$tmp ) { $tmp = $tok->findnodes("./preceding::s[1]"); }; # This should always fire
 			if ( $tmp ) { 
 				$sid = $tmp->item(0)->getAttribute("id");
-				if ( 1==1 ) { print "$tokid => $sid"; };
+				# if ( $debug ) { print "\nSentence: $tokid => $sid"; };
 				$s2tok{$sid} .= "#$tokid ";
 			} else {
 				if ( $debug ) { print "\nNo sent found for $tokid: ".$tok->parentNode->toString; }; exit;
