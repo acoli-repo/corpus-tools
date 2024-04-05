@@ -123,7 +123,7 @@
 		};	
 		
 		if ( count($editfields) ) $maxfld = floor((1000-5) / count($editfields)); # discount 5 for the CID and stuff
-		$max = $_POST['max'] or $max = $_GET['max'] or $max = 100;
+		$max = $_POST['max'] or $max = $_GET['max'];
 		if ( $maxfld && ( $maxfld < $max || $max == 0 ) ) $max = $maxfld; # discount 5 for the CID and stuff
 		$start = $_POST['start'] or $start = $_GET['start'] or $start = 1;
 		$start--;
@@ -213,7 +213,7 @@
 				};
 			};	
 			$maintext .= "</table>";
-			if ( $totres > $max ) {
+			if ( $totres > $max && $max > 0 ) {
 				$st = $start + 1; $et = min($max+$start, $totres);
 				$maintext .= "<p>Showing entries $st - $et of $totres";
 				if ( $start > 0 ) {
@@ -226,7 +226,7 @@
 				};
 			}; 
 			
-			if ( $editable ) $maintext .= "<p><input type=submit value=Save></form>";
+			if ( $editable && count($editfields) ) $maintext .= "<p><input type=submit value=Save></form>";
 			
 			if ( $username ) {
 				$maintext .= "\n\n<div style='display: none'><form id=fff action='' method=post>";
