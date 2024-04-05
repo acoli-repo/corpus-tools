@@ -16,6 +16,7 @@
 			"txt" => array ( 'mime' => 'text/txt', 'show' => 1 ),
 			"htm" => array ( 'mime' => 'text/html', 'show' => 1 ),
 			"html" => array ( 'mime' => 'text/html', 'show' => 1 ),
+			"json" => array ( 'mime' => 'application/json', 'show' => 1, 'pre' => 1 ),
 			"doc" => array ( 'mime' => 'application/msword',  
 				'helpers' => array ( 'textutil' => '-stdout -convert html {}' ), 
 			),
@@ -28,9 +29,9 @@
 		);
 	
 	# Determine the raw filename
-	if ( $_GET['cid'] ) {
+	if ( $_GET['cid'] || $_GET['id'] ) {
 		require_once ("$ttroot/common/Sources/ttxml.php");
-		$ttxml = new TTXML($_GET['cid'], true);
+		$ttxml = new TTXML();
 		$ttheader .= "<h2>".$ttxml->title()."</h2>"; 
 		$ttheader .= $ttxml->tableheader(); 
 		$orgnode = current($ttxml->xpath("//note[@n=\"orgfile\"]"));
@@ -60,9 +61,11 @@
 				$cmd = str_replace("{}", $filename, $cmd);
 				$rawtxt = shell_exec($cmd);
 			};
-		} else {
+		} else if ( $_GET['raw'] ) {
 			$rawtxt = file_get_contents($filename);
 		};
+		
+		if ( $filetype[$extention]['pre'] ) $rawtxt = "<pre>$rawtxt</pre>"; 
 		
 		if ( !$rawtxt ) $rawtxt = "Raw document (type $extention) cannot be displayed";
 		
@@ -71,9 +74,22 @@
 		$tmp = file_get_contents($filename);
 
 		$enc = $orgnode['encoding'] or $enc = "UTF-8";
-		$tmp = htmlentities($tmp, ENT_QUOTES, $enc);
-		$rawtxt = "<pre>$tmp</pre>";
-
+		if ( $extention == "json" ) {
+			$rawtxt = "
+				<script src=\"https://code.jquery.com/jquery-3.3.1.min.js\"></script>
+			  <script src=\"https://abodelot.github.io/jquery.json-viewer/json-viewer/jquery.json-viewer.js\"></script>
+			  <link href=\"https://abodelot.github.io/jquery.json-viewer/json-viewer/jquery.json-viewer.css\" type=\"text/css\" rel=\"stylesheet\">
+			<div style='display: none;' id=\"json\">$tmp</div>
+			<pre id=\"json-view\"></pre>
+			<script>
+				var jsonData = JSON.parse(document.getElementById('json').innerText);				
+				$('#json-view').jsonViewer(jsonData);
+			</script>";
+		} else {
+			$tmp = htmlentities($tmp, ENT_QUOTES, $enc);
+			$rawtxt = "<pre>$tmp</pre>";
+		};
+		
 	} else if ( file_exists($filename.".Z") ) {
 		# compressed file
 		$filename .= ".Z";
@@ -82,6 +98,7 @@
 		$rawtxt = "<pre>".htmlentities($rawtxt)."</pre>";
 
 	} else {
+		$nofile = 1;
 		$rawtxt = "No such file : $filename";
 	};
 	
@@ -98,6 +115,12 @@
 		if ( $filetype[$extention]['mime'] ) { header("Content-Type: ".$filetype[$extention]['mime']); }
 		header("Content-Disposition: attachment; filename=\"$shortfile\"");
 		print $rawtxt; exit;
+	} else if ( $nofile ) {
+		$maintext .= "<h1>Raw source input file</h1>
+			$ttheader
+			<p>Filename: $filename</p>
+			<p><i>File does not exist</p>
+			";
 	} else {
 		# Show the raw source in-line
 		if ( $settings['scripts']['showorg']['dl'] && file_exists($filename) ) { $filename = "<a href='$filename'>$filename</a>"; };
