@@ -158,6 +158,7 @@
 		foreach ( $ttxml->xpath("//text//tok") as $tok ) {
 			foreach ( $tok->attributes() as $ak => $av ) {
 				$acnts[$ak]++;
+				if ( !$vcnts[$ak] ) $vcnts[$ak] = array();
 				$vcnts[$ak][$av]++;
 			};
 		};
