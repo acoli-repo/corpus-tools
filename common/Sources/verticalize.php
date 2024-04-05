@@ -73,8 +73,7 @@
 		$maintext .= "<tr><td colspan=10>Start at token: <input name='start' value='1' size=4>";	
 		$maintext .= "<tr><td colspan=10>Tokens per page: <select name='max'>
 			<option value=100 selected>100</option>
-			<option value=250>250</option>
-			<option value=500>500</option>
+			<option value=max>Max</option>
 			</select> <i>(browser restriction make editing more than 1000 items at a time impossible)</i>";	
 		
 		$maintext .= "<tr><td colspan=10><hr>";	
@@ -124,6 +123,7 @@
 		};	
 		
 		$max = $_POST['max'] or $max = $_GET['max'] or $max = 100;
+		if ( $max == "max" && count($editfields) ) $max = floor(1000 / count($editfields));
 		$start = $_POST['start'] or $start = $_GET['start'] or $start = 1;
 		$start--;
 		
