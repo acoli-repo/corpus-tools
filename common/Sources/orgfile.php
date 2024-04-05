@@ -40,7 +40,7 @@
 	} else {
 		$filename = $_GET['id'];
 		
-		if ( !file_exists($filename) ) $filename = str_replace(".xml", ".txt");
+		if ( !file_exists($filename) ) $filename = str_replace(".xml", ".txt", $filename );
 	};
 
 
