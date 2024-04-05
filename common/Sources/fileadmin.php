@@ -157,8 +157,8 @@
 			<tr><td><td><th>Count<th>CQP";
 		foreach ( $ttxml->xpath("//text//tok") as $tok ) {
 			foreach ( $tok->attributes() as $ak => $av ) {
-				$acnts{$ak}++;
-				$vcnts{$ak}{$av}++;
+				$acnts[$ak]++;
+				$vcnts[$ak][$av]++;
 			};
 		};
 		foreach ( $acnts as $an => $cnt ) {
