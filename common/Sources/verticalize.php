@@ -142,7 +142,7 @@
 			<input type=hidden name=cid value='$fileid'>";
 		};
 		
-		
+		$formcnt = 0;
 		$maintext .= "<hr>
 			<table>
 			<tr><td>";
@@ -159,6 +159,7 @@
 		};
 		
 			$result = $xml->xpath($xquery); 
+			$totres = count($result);
 			foreach ( $result as $node ) {
 				$cnt++;
 				if ( $start && $cnt <= $start ) { continue; };
@@ -182,6 +183,7 @@
 						else $val = $node[$fld]; 
 						$nid = $node['id'];
 						$maintext .= "<td><input name='{$fld}[{$nid}]' value=\"$val\" onkeyup=\"changed();\">";
+						$formcnt++;
 					};
 
 					# Show dtoks
@@ -201,6 +203,7 @@
 							$nid = $dnode['id'];
 					
 							$maintext .= "<td><input name='{$fld}[{$nid}]' value=\"$val\" onkeyup=\"changed();\">";
+							$formcnt++;
 						};
 					};		
 				};
@@ -209,9 +212,40 @@
 				};
 			};	
 			$maintext .= "</table>";
+			if ( $totres > $max ) {
+				$st = $start + 1; $et = min($max+$start, $totres);
+				$maintext .= "<p>Showing entries $st - $et of $totres";
+				if ( $start > 0 ) {
+					$ns = max(0, $start-$max);
+					$maintext .= " &bull; <a onclick='startfrom($ns);'>previous</a>";
+				};
+				if ( $start+$max < $totres ) {
+					$ns = min($totres, $start+$max+1);
+					$maintext .= " &bull; <a onclick='startfrom($ns);'>next</a>";
+				};
+			}; 
 			
 			if ( $editable ) $maintext .= "<p><input type=submit value=Save></form>";
 			
+			if ( $username ) {
+				$maintext .= "\n\n<div style='display: none'><form id=fff action='' method=post>";
+				foreach ( $_POST as $key => $val ) {
+					if ( $key == "edit" || $key == "view" ) continue;
+					if ( is_array($val) ) fatal("What?? - array in $key");
+					$maintext .= "<input type=hidden name='$key' id='fff-$key' value='$val'>";
+				}; 
+				foreach ( $editfields as $key ) {
+					$maintext .= "<input type=hidden name='edit[$key]' value='1'>";
+				};
+				foreach ( $showfields as $key ) {
+					$maintext .= "<input type=hidden name='view[$key]' value='1'>";
+				};
+				if ( !$_POST['start'] && $_POST['start'] != "0" ) {
+					$maintext .= "<input type=hidden name='start' id='fff-start' value='0'>";
+				}
+				$maintext .= "</form></div>";
+			};
+				
 			$maintext .= "<hr>";
 
 			// Add a session logout tester
@@ -227,6 +261,10 @@
 
 					function changed() {
 						window.addEventListener(\"beforeunload\", beforeUnloadHandler);
+					};
+					function startfrom(n) {
+						document.getElementById('fff-start').value = n;
+						document.getElementById('fff').submit();
 					};
 				</script>";
 			
