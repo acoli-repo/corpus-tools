@@ -159,7 +159,7 @@
 			foreach ( $tok->attributes() as $ak => $av ) {
 				$acnts[$ak]++;
 				if ( !$vcnts[$ak] ) $vcnts[$ak] = array();
-				$vcnts[$ak][$av]++;
+				$vcnts[$ak][$av.""]++;
 			};
 		};
 		foreach ( $acnts as $an => $cnt ) {
