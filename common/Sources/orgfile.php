@@ -60,6 +60,8 @@
 				$cmd = str_replace("{}", $filename, $cmd);
 				$rawtxt = shell_exec($cmd);
 			};
+		} else {
+			$rawtxt = file_get_contents($filename);
 		};
 		
 		if ( !$rawtxt ) $rawtxt = "Raw document (type $extention) cannot be displayed";
