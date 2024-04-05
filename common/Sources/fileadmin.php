@@ -140,7 +140,7 @@
 			<tr><td><th>Count<th>XMLFile<th>CQP";
 	foreach ( $ttxml->xpath("//text//*") as $node ) {
 		$nn = str_replace("tei_", "", $node->getName());
-		$ncnts{$nn}++;
+		$ncnts[$nn]++;
 	};
 	foreach ( $ncnts as $nn => $cnt ) {
 		if ( $nn == "tok" ) {
