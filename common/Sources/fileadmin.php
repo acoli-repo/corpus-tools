@@ -35,7 +35,15 @@
 	$views = getset("views");
 	foreach ( $views as $key => $val ) {
 		$rest = "Available";
-		if ( is_array($val) )
+		if ( preg_match("/(.*?)\&/", $key, $matches) ) {
+			$skey = $matches[1]; 
+			if ( !$views[$skey] ) {
+				$views[$skey] = 1;
+			};
+		};
+		if ( !is_array($val) ) continue;
+		if ( $val['xpcond'] && !$ttxml->xpath($val['xpcond']) ) $rest = "<i>Not avaiable - file not matching {$val['xpcond']}";
+		if ( $val['xprest'] && $ttxml->xpath($val['xprest']) ) $rest = "<i>Not avaiable - file matching {$val['xprest']}";
 		$maintext .= "<tr><td><a href='index.php?action=$key&cid=$ttxml->fileid'>go</th>
 			<th>{$val['display']}
 			<td>$rest
@@ -48,14 +56,14 @@
 			";
 	};
 	if ( !$views['deptree'] ) {
-		if ( $ttxml->xpath("//tok[@head]") && $ttxml->xpath("//s") ) { $rest = " - default option"; } else { $rest = " - Not available, no heads and/or sentences"; };
+		if ( $ttxml->xpath("//tok[@head]") && $ttxml->xpath("//s") ) { $rest = " - active by adding to settings"; } else { $rest = " - Not available, no heads and/or sentences"; };
 		$maintext .= "<tr><td><a href='index.php?action=deptree&cid=$ttxml->fileid'>go</a>
 			<th>Dependency view
 			<td><i>Not used $rest
 			";
 	};
 	if ( !$views['block'] ) {
-		if ( $ttxml->xpath("//s") ) { $rest = " - default option"; } else { $rest = " - Not available, no sentences"; };
+		if ( $ttxml->xpath("//s") ) { $rest = " - active by adding to settings"; } else { $rest = " - Not available, no sentences"; };
 		$maintext .= "<tr><td><a href='index.php?action=block&cid=$ttxml->fileid'>go</a>
 			<th>Sentence view
 			<td><i>Not used $rest
@@ -69,14 +77,14 @@
 			";
 	};
 	if ( !$views['orgfile'] ) {
-		if ( $ttxml->xpath("//note[@n=\"orgfile\"]") || $ttxml->xpath("//orgfile") ) { $rest = " - default option"; } else { $rest = " - Not available, no orgfile define"; };
+		if ( $ttxml->xpath("//note[@n=\"orgfile\"]") || $ttxml->xpath("//orgfile") ) { $rest = " - Admin only option"; } else { $rest = " - Not available, no orgfile defined"; };
 		$maintext .= "<tr><td><a href='index.php?action=orgfile&cid=$ttxml->fileid'>go</a>
 			<th>Original file viewer
-			<td><i>Not used $rest
+			<td><i>$rest
 			";
 	};
 	if ( !$views['stats'] ) {
-		if ( file_exists('cqp/word.corpus') ) { $rest = " - default option"; } else { $rest = " - Not available, corpus not yet indexed"; };
+		if ( file_exists('cqp/word.corpus') ) { $rest = " - activate by adding to settings"; } else { $rest = " - Not available, corpus not yet indexed"; };
 		$maintext .= "<tr><td><a href='index.php?action=stats&cid=$ttxml->fileid'>go</a>
 			<th>Statistics
 			<td><i>Not used $rest
@@ -110,14 +118,14 @@
 			";
 	};
 	if ( !$views['facsview'] ) {
-		if ( $ttxml->xpath("//lb[@bbox]") ) { $rest = " - default option"; } else { $rest = " - Not available, no tok with @bbox"; };
+		if ( $ttxml->xpath("//lb[@bbox]") ) { $rest = " - activate by adding to settings"; } else { $rest = " - Not available, no tok with @bbox"; };
 		$maintext .= "<tr><td><a href='index.php?action=facsview&cid=$ttxml->fileid'>go</a>
 			<th>Facsimile view<td>Facsimile-Aligned
 			<td><i>Not explicitly defined $rest
 			";
 	};
 	if ( !$views['tualign'] ) {
-		if ( $ttxml->xpath("//*[@tuid]") ) { $rest = " - default option"; } else { $rest = " - Not available, no elements with a @tuid"; };
+		if ( $ttxml->xpath("//*[@tuid]") ) { $rest = " - activate by adding to settings"; } else { $rest = " - Not available, no elements with a @tuid"; };
 		$maintext .= "<tr><td><a href='index.php?action=tualign&cid=$ttxml->fileid'>go</a>
 			<th>Translation Unit view<td>Translation-Aligned
 			<td><i>Not explicitly defined $rest
@@ -126,5 +134,39 @@
 
 	$maintext .= "</table>";
 
+	## Analyze the XML file
+	$maintext .= "<hr><h2>XML Analysis</h2>";
+	$maintext .= "<h3>XML Nodes</h3><table>
+			<tr><td><th>Count<th>XMLFile<th>CQP";
+	foreach ( $ttxml->xpath("//text//*") as $node ) {
+		$nn = str_replace("tei_", "", $node->getName());
+		$ncnts{$nn}++;
+	};
+	foreach ( $ncnts as $nn => $cnt ) {
+		if ( $nn == "tok" ) {
+			$xmlt = "token"; $cqpt = "word";
+		} else {
+			$xmlt = getset("xmlfile/sattributes/$nn/display", "<i>Not in XML Settings</i>");
+			$cqpt = getset("cqp/sattributes/$nn/key", "<i>Not in CQP</i>");
+		};
+		$maintext .= "<tr><th>$nn<td>$cnt<td>$xmlt<td>$cqpt";
+	};
+	$maintext .= "</table>";
+	if ( $ncnts['tok'] ) {
+		$maintext .= "<h3>Token Attributes</h3><table>
+			<tr><td><td><th>Count<th>CQP";
+		foreach ( $ttxml->xpath("//text//tok") as $tok ) {
+			foreach ( $tok->attributes() as $ak => $av ) {
+				$acnts{$ak}++;
+				$vcnts{$ak}{$av}++;
+			};
+		};
+		foreach ( $acnts as $an => $cnt ) {
+			$at = getset("xmlfile/pattributes/forms/$an/display") or $at = getset("xmlfile/pattributes/tags/$an/display", "<i>Not in XML Settings</i>");
+			$cqpt = getset("cqp/pattributes/$an/key", "<i>Not in CQP</i>");
+			$maintext .= "<tr><td>$an<th>$at<td>$cnt<td>$cqpt";
+		};
+		$maintext .= "</table>";
+	};
 
 ?>
