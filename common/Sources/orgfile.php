@@ -119,7 +119,7 @@
 		$maintext .= "<h1>Raw source input file</h1>
 			$ttheader
 			<p>Filename: $filename</p>
-			<p><i>File does not exist</p>
+			<p><i>File does not exist</i></p>
 			";
 	} else {
 		# Show the raw source in-line
@@ -135,5 +135,6 @@
 
 	};		
 		
+	$maintext .= "<hr>".$ttxml->viewswitch();
 	
 ?>

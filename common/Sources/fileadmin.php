@@ -28,7 +28,7 @@
 		</table>
 		";
 
-	$maintext .= "<h2>File Views</h2>";
+	$maintext .= "<hr><h2>File Views</h2>";
 	$defview = getset("defaults/fileview", "text");
 	$maintext .= "<p>Default file view: $defview<p><table>";
 	

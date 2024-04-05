@@ -1002,6 +1002,8 @@ class TTXML
 		if ( $initial."" == "select" ) {
 				$views = "<option value='' disabled selected>[{%select}]</option>";
 		};
+
+		if ( $username ) $viewopts['fileadmin'] = "<span class='adminpart'>File admin</a>";
 			
 		$jmp = $_GET['jmp'] or $jmp = $_GET['tid'];
 		$jmp = preg_replace("/ .*/", "", $jmp);
