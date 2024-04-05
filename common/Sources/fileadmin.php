@@ -35,7 +35,7 @@
 	$views = getset("views");
 	foreach ( $views as $key => $val ) {
 		$rest = "Available";
-		if ( is_object($val) )
+		if ( is_array($val) )
 		$maintext .= "<tr><td><a href='index.php?action=$key&cid=$ttxml->fileid'>go</th>
 			<th>{$val['display']}
 			<td>$rest
