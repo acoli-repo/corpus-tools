@@ -137,7 +137,7 @@
 	## Analyze the XML file
 	$maintext .= "<hr><h2>XML Analysis</h2>";
 	$maintext .= "<h3>XML Nodes</h3><table>
-			<tr><td><th>Count<th>XMLFile<th>CQP";
+			<tr><td><th>Count<th>XMLFile Settings<th>CQP";
 	foreach ( $ttxml->xpath("//text//*") as $node ) {
 		$nn = str_replace("tei_", "", $node->getName());
 		$ncnts[$nn]++;
@@ -146,15 +146,15 @@
 		if ( $nn == "tok" ) {
 			$xmlt = "token"; $cqpt = "word";
 		} else {
-			$xmlt = getset("xmlfile/sattributes/$nn/display", "<i>Not in XML Settings</i>");
-			$cqpt = getset("cqp/sattributes/$nn/key", "<i>Not in CQP</i>");
+			$xmlt = getset("xmlfile/sattributes/$nn/display", "<i style='color: #aaaaaa;'>Not in /xmlfile</i>");
+			$cqpt = getset("cqp/sattributes/$nn/key", "<i style='color: #aaaaaa;'>Not in /cqp</i>");
 		};
-		$maintext .= "<tr><th>$nn<td>$cnt<td>$xmlt<td>$cqpt";
+		$maintext .= "<tr><th>$nn<td style='padding-left: 15px; padding-right: 8px; text-align: right;'>$cnt<td>$xmlt<td>$cqpt";
 	};
 	$maintext .= "</table>";
 	if ( $ncnts['tok'] ) {
-		$maintext .= "<h3>Token Attributes</h3><table>
-			<tr><td><td><th>Count<th>CQP";
+		$maintext .= "<p><h3>Token Attributes</h3><table>
+			<tr><td><th>XMLFile Settings<th>Count<th>CQP";
 		foreach ( $ttxml->xpath("//text//tok") as $tok ) {
 			foreach ( $tok->attributes() as $ak => $av ) {
 				$acnts[$ak]++;
@@ -163,9 +163,10 @@
 			};
 		};
 		foreach ( $acnts as $an => $cnt ) {
-			$at = getset("xmlfile/pattributes/forms/$an/display") or $at = getset("xmlfile/pattributes/tags/$an/display", "<i>Not in XML Settings</i>");
-			$cqpt = getset("cqp/pattributes/$an/key", "<i>Not in CQP</i>");
-			$maintext .= "<tr><td>$an<th>$at<td>$cnt<td>$cqpt";
+			$ad = getset("xmlfile/pattributes/forms/$an") or $ad = getset("xmlfile/pattributes/tags/$an");
+			if ( $ad ) { $at = $ad['display'] or $at = $an; } else $at = "<i style='color: #aaaaaa;'>Not in /xmlfile</i>";
+			$cqpt = getset("cqp/pattributes/$an/key", "<i style='color: #aaaaaa;'>Not in /cqp</i>");
+			$maintext .= "<tr><td>$an<th>$at<td style='padding-left: 15px; padding-right: 8px; text-align: right;'>$cnt<td>$cqpt";
 		};
 		$maintext .= "</table>";
 	};

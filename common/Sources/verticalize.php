@@ -226,7 +226,7 @@
 				};
 			}; 
 			
-			if ( $editable && count($editfields) ) $maintext .= "<p><input type=submit value=Save></form>";
+			if ( $editable && count($editfields) ) $maintext .= "<p><input type=submit value=Save  onClick=\"changed = false;\"></form>";
 			
 			if ( $username ) {
 				$maintext .= "\n\n<div style='display: none'><form id=fff action='' method=post>";
