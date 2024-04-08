@@ -38,6 +38,38 @@
 		</table>
 		";
 
+	if ( $settings['scripts'] ) {
+
+		$maintext .= "
+		<h2>Custom scripts</h2><table>";
+
+		foreach ( $settings['scripts'] as $id => $item ) {
+			// See if this script is applicable
+			$avai = "Applicable";
+			if ( $item['recond'] && !preg_match("/{$item['recond']}/", $editxml ) ) { $avai = "<i>Not applicable: not matching {$item['recond']}</i>"; };
+			if ( $item['rerest'] && preg_match("/{$item['rerest']}/", $editxml ) ) { $avai = "<i>Not applicable: matching {$item['rerest']}</i>"; };;
+			if ( $item['xpcond'] && !$xml->xpath($item['xpcond']) )  { $avai = "<i>Not applicable: not matching {$item['xpcond']}</i>"; };
+			if ( $item['xprest'] && $xml->xpath($item['xprest']) )  { $avai = "<i>Not applicable: matching {$item['xprest']}</i>"; };
+			if ( $item['filerest'] ||  $item['filecond'] ) {
+				$filerest = $item['filerest'];
+				$filerest = preg_replace("/\[fn\]/", $ttxml->filename, $filerest);
+				$filerest = preg_replace("/\[id\]/", $ttxml->xmlid, $filerest);
+			};
+			if ( $item['filecond'] && !file_exists($filerest) )  { $avai = "<i>Not applicable: not matching {$item['filecond']}</i>"; };;
+			if ( $item['filerest'] && file_exists($filerest) )  { $avai = "<i>Not applicable:  matching {$item['filerest']}</i>"; };
+			
+			if ( $item['type'] == "php" ) {
+				$url = $item['action'];
+				$url = str_replace("[id]", $fileid, $url );
+				$url = str_replace("[fn]", $filename, $url );
+				$maintext .= "<tr><td><a href='$url'>go</a><th>$id<td>{$item['display']}<td>$avai";
+			} else 
+				$maintext .= "<tr><td><a href='index.php?action=runscript&script=$id&file=$fileid'>go</a><th>$id<td>{$item['display']}<td>$avai";
+		};
+		$maintext .= "</table>";
+	
+	};
+
 	$maintext .= "<hr><h2>File Views</h2>";
 	$defview = getset("defaults/fileview", "text");
 	$maintext .= "<p>Default file view: $defview<p><table>";
