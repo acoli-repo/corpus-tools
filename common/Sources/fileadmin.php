@@ -14,7 +14,7 @@
 	$maintext .= "<h2>Edit modules</h2>
 		<table>
 		<tr><td><a href='index.php?action=header&act=edit&cid=$ttxml->fileid'>go</a><th>Header edit<td>Edit metadata in an HTML form table
-		<tr><td><a href='index.php?action=block&cid=$ttxml->fileid'>go</a><th>Verticalized view<td>Edit multiple tokens in an HTML form table
+		<tr><td><a href='index.php?action=verticalize&act=&cid=$ttxml->fileid'>go</a><th>Verticalized view<td>Edit multiple tokens in an HTML form table
 		<tr><td><a href='index.php?action=xmllayout&cid=$ttxml->fileid'>go</a><th>XML Layour editor<td>View/edit the XML layout of the file
 		<tr><td><a href='index.php?action=backups&cid=$ttxml->fileid'>go</a><th>Back-ups<td>View/restore the backups of this file
 		<tr><td><a href='index.php?action=rawedit&cid=$ttxml->fileid'>go</a><th>Raw Edit<td>Edit raw XML

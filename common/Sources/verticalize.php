@@ -108,9 +108,12 @@
 			<h2>XML File: $fileid</h2>
 			<h3>$title</h3>";
 		
-		if ( $_POST['view'] ) {
-			$showfields = array_keys($_POST['view']);
-			if ( $_POST['edit'] ) $editfields = array_keys($_POST['edit']);
+		if ( $_POST['view'] ) $_SESSION['vert-view'] = $_POST['view'];
+		if ( $_POST['edit'] ) $_SESSION['vert-edit'] = $_POST['edit'];
+		
+		if ( $_SESSION['vert-view'] ) {
+			$showfields = array_keys($_SESSION['vert-view']);
+			if ( $_SESSION['vert-edit'] ) $editfields = array_keys($_SESSION['vert-edit']);
 			else $editfields = array();
 			# foreach ( $editfields as $fld ) if ( !in_array($fld, $showfields) ) array_push($showfields,$fld);
 		} else {
@@ -269,12 +272,8 @@
 					};
 				</script>";
 			
-		
-			if ( $_GET['show'] == "all" ) $maintext .= "<a href='index.php?action=$action&cid=$fileid&form=$showform&show='>show only tagged tokens</a>";
-			else $maintext .= "<a href='index.php?action=$action&cid=$fileid&form=$showform&show=all'>show all tokens</a>";
-			$maintext .= " &bull; <a href='index.php?action=file&cid=$fileid'>back to view mode</a>";
-			$maintext .= " &bull; <a href='index.php?action=$action&act=raw&cid=$fileid'>verticalized XML</a>";
-			$maintext .= " &bull; <a href='index.php?action=$action&act=define&cid=$fileid'>define columns</a>";
+			$maintext .= "<a href='index.php?action=$action&act=define&cid=$fileid'>Define columns</a>";
+			$maintext .= " &bull; ".$ttxml->viewswitch();
 
 	};
 	
