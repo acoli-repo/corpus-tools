@@ -122,7 +122,8 @@
 			if ( $editable ) {
 				$toedit = $_GET['editfields'] or $toedit = "nform,lemma,pos";
 				$editfields = explode ( ",", $toedit );
-			};
+			} else $editfields = array();
+
 		};	
 		
 		if ( count($editfields) ) $maxfld = floor((1000-5) / count($editfields)); # discount 5 for the CID and stuff
