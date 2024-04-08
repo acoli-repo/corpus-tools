@@ -704,10 +704,10 @@
 			$maintext .= "<li><a href='index.php?action=tokenize&id=$fileid&display=tok'>Tokenize the text</a> (will introduce token nodes into the XML)</li>";
 		};
 		
-		if ( glob("backups/$xmlid-*") ) { 
-			$maintext .= "<li><a href='index.php?action=backups&cid=$fileid'>Recover a previous version of this file</a>
-				<br> Last change to this file: <b>$fdate</b>";
-		};
+// 		if ( glob("backups/$xmlid-*") ) { 
+// 			$maintext .= "<li><a href='index.php?action=backups&cid=$fileid'>Recover a previous version of this file</a>
+// 				<br> Last change to this file: <b>$fdate</b>";
+// 		};
 		
 		if ( strstr($editxml, "<tok") ) {
 			if ( $_GET['pageid'] ) $pnr = "&pageid=".$_GET['pageid'];

@@ -16,9 +16,19 @@
 		<tr><td><a href='index.php?action=header&act=edit&cid=$ttxml->fileid'>go</a><th>Header edit<td>Edit metadata in an HTML form table
 		<tr><td><a href='index.php?action=verticalize&act=&cid=$ttxml->fileid'>go</a><th>Verticalized view<td>Edit multiple tokens in an HTML form table
 		<tr><td><a href='index.php?action=xmllayout&cid=$ttxml->fileid'>go</a><th>XML Layour editor<td>View/edit the XML layout of the file
-		<tr><td><a href='index.php?action=backups&cid=$ttxml->fileid'>go</a><th>Back-ups<td>View/restore the backups of this file
 		<tr><td><a href='index.php?action=rawedit&cid=$ttxml->fileid'>go</a><th>Raw Edit<td>Edit raw XML
+		<tr><td><a href='index.php?action=files&act=mv&id=$ttxml->fileid'>go</a><th>Manage file<td>Rename or delete this file
+		<tr><td><a href='index.php?action=backups&cid=$ttxml->fileid'>go</a><th>Back-ups<td>View/restore the backups of this file
 		";
+	if ( $bufs = glob("backups/$xmlid-*") ) { 
+		$tmp = filemtime(end($bufs));
+		$fdate = strftime("%d %h %Y", $tmp);
+		$maintext .= "<br> &nbsp; - ".count($bufs)." backup files - most recent: <b>$fdate</b>";
+	} else {
+		$maintext .= "<br> &nbsp; - <i>No backups available</i>";
+	};
+
+
 	if ( !$ttxml->xpath("//tok") ) {
 		$maintext .= "		<tr><td><a href='index.php?action=tokenize&cid=$ttxml->fileid'>go</a><th>Tokenize<td>Split XML into tokens";
 	} else {
