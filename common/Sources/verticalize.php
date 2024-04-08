@@ -141,7 +141,7 @@
 		};
 
 		if ( $debug ) $maintext .= "<p>XQuery: $xquery<hr>";
-		if ( !$_SESSION['vert-view'] ) $maintext .= "<p><a href='index.php?action=$action&act=define'>define columns</a>";
+		if ( !$_SESSION['vert-view'] ) $maintext .= "<p><a href='index.php?action=$action&cid=$ttxml->fileid&act=define'>define columns</a>";
 
 		if ( $editable ) {
 			$maintext .= "<form action='index.php?action=$action&act=save&cid=$fileid' method=post>
