@@ -42,8 +42,9 @@
 		
 	} else if ( $act == "define" ) {
 
-		$maintext .= "<h1>Define columns</h1>
-			<p>You can select below which column to display in the verticalized view.
+		$maintext .= "<h2>Verticalized Corpus View</h2><h1>Define columns</h1>";
+		$maintext .= $ttxml->tableheader();
+		$maintext .= "<p>You can select below which column to display in the verticalized view.
 			
 			<form action='index.php?action=$action&act=edit&cid=$fileid' method=post>
 				<table>
