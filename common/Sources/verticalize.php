@@ -13,8 +13,7 @@
 	
 	if ( !$xml ) { fatal ("Failing to read/parse $fileid"); };
 
-	$result = $xml->xpath("//title"); 
-	$title = $result[0];
+	$title = $ttxml->title();
 
 	if ( $act == "edit" && $username ) $editable = true;
 
@@ -42,7 +41,7 @@
 		
 	} else if ( $act == "define" ) {
 
-		$maintext .= "<h2>Verticalized Corpus View</h2><h1>Define columns</h1>";
+		$maintext .= "<h2>Verticalized Corpus View</h2><h1>Define columns</h1><h2>$title</h2>";
 		$maintext .= $ttxml->tableheader();
 		$maintext .= "<p>You can select below which column to display in the verticalized view.
 			
@@ -105,9 +104,8 @@
 
 
 	} else {
-		$maintext .= "<h1>Verticalized Corpus View</h1>
-			<h2>XML File: $fileid</h2>
-			<h3>$title</h3>";
+		$maintext .= "<h2>Verticalized Corpus View</h2>
+			<h1>$title</h1>".$ttxml->tableheader();
 		
 		if ( $_POST['view'] ) $_SESSION['vert-view'] = $_POST['view'];
 		if ( $_POST['edit'] ) $_SESSION['vert-edit'] = $_POST['edit'];
@@ -150,7 +148,7 @@
 		};
 		
 		$formcnt = 0;
-		$maintext .= "<hr>
+		$maintext .= "
 			<table>
 			<tr><td>";
 		foreach ( $showfields as $fld ) {
