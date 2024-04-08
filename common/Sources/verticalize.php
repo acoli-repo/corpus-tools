@@ -111,10 +111,10 @@
 		if ( $_POST['view'] ) $_SESSION['vert-view'] = $_POST['view'];
 		if ( $_POST['edit'] ) $_SESSION['vert-edit'] = $_POST['edit'];
 		
+		$editfields = array();
 		if ( $_SESSION['vert-view'] ) {
 			$showfields = array_keys($_SESSION['vert-view']);
 			if ( $_SESSION['vert-edit'] ) $editfields = array_keys($_SESSION['vert-edit']);
-			else $editfields = array();
 			# foreach ( $editfields as $fld ) if ( !in_array($fld, $showfields) ) array_push($showfields,$fld);
 		} else {
 			$toshow = $_GET['showfields'] or $toshow = $settings['xmlfile']['vertfields'] or $toshow = "pform,nform";
@@ -122,7 +122,7 @@
 			if ( $editable ) {
 				$toedit = $_GET['editfields'] or $toedit = "nform,lemma,pos";
 				$editfields = explode ( ",", $toedit );
-			} else $editfields = array();
+			}; 
 
 		};	
 		
@@ -141,6 +141,7 @@
 		};
 
 		if ( $debug ) $maintext .= "<p>XQuery: $xquery<hr>";
+		if ( !$_SESSION['vert-view'] ) $maintext .= "<p><a href='index.php?action=$action&act=define'>define columns</a>";
 
 		if ( $editable ) {
 			$maintext .= "<form action='index.php?action=$action&act=save&cid=$fileid' method=post>
