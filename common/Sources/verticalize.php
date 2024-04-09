@@ -126,7 +126,7 @@
 		};	
 		
 		if ( count($editfields) ) {
-			if ( $username ) $editable == 1;
+			if ( $username ) $editable = 1;
 			$maxfld = floor((1000-5) / count($editfields)); # discount 5 for the CID and stuff
 		};
 		$max = $_POST['max'] or $max = $_GET['max'];
