@@ -113,8 +113,7 @@
 		$editfields = array();
 		if ( $_SESSION['vert-view'] ) {
 			$showfields = array_keys($_SESSION['vert-view']);
-			if ( $_SESSION['vert-edit'] ) {
-				$editfields = array_keys($_SESSION['vert-edit']);
+			if ( $_SESSION['vert-edit'] ) $editfields = array_keys($_SESSION['vert-edit']);
 			# foreach ( $editfields as $fld ) if ( !in_array($fld, $showfields) ) array_push($showfields,$fld);
 		} else {
 			$toshow = $_GET['showfields'] or $toshow = $settings['xmlfile']['vertfields'] or $toshow = "pform,nform";
