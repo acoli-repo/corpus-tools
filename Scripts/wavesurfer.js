@@ -291,7 +291,11 @@ function changeutt (frm) {
 			var newline = document.createTextNode("\n\t");
 			llu.parentNode.insertBefore(utt, llu.nextSibling);
 			llu.parentNode.insertBefore(newline, llu.nextSibling);
-			uttid = llu.getAttribute('id') + "-1";
+			uttid = ''; let newcnt = 1;
+			while ( !uttid || document.getElementById(uttid) ) {
+				uttid = llu.getAttribute('id') + "-" + newcnt;
+				newcnt++;
+			};
 		} else {
 			var newline = document.createTextNode("\n\t");
 			mtxt.firstChild.appendChild(newline);
@@ -646,7 +650,7 @@ function sortutt() {
 	};
 	
 	var oldsort = new Array();
-	for ( uttid in uttarray ) {
+	for ( let uttid in uttarray ) {
 		oldsort[uttid] = uttarray[uttid].getAttribute("start");
 	}
 
