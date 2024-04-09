@@ -40,7 +40,7 @@
 
 	if ( $settings['scripts'] ) {
 
-		$maintext .= "
+		$maintext .= "<hr>
 		<h2>Custom scripts</h2><table>";
 
 		foreach ( $settings['scripts'] as $id => $item ) {

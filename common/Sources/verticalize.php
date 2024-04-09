@@ -113,7 +113,8 @@
 		$editfields = array();
 		if ( $_SESSION['vert-view'] ) {
 			$showfields = array_keys($_SESSION['vert-view']);
-			if ( $_SESSION['vert-edit'] ) $editfields = array_keys($_SESSION['vert-edit']);
+			if ( $_SESSION['vert-edit'] ) {
+				$editfields = array_keys($_SESSION['vert-edit']);
 			# foreach ( $editfields as $fld ) if ( !in_array($fld, $showfields) ) array_push($showfields,$fld);
 		} else {
 			$toshow = $_GET['showfields'] or $toshow = $settings['xmlfile']['vertfields'] or $toshow = "pform,nform";
@@ -125,7 +126,10 @@
 
 		};	
 		
-		if ( count($editfields) ) $maxfld = floor((1000-5) / count($editfields)); # discount 5 for the CID and stuff
+		if ( count($editfields) ) {
+			if ( $username ) $editable == 1;
+			$maxfld = floor((1000-5) / count($editfields)); # discount 5 for the CID and stuff
+		};
 		$max = $_POST['max'] or $max = $_GET['max'];
 		if ( $maxfld && ( $maxfld < $max || $max == 0 ) ) $max = $maxfld; # discount 5 for the CID and stuff
 		$start = $_POST['start'] or $start = $_GET['start'] or $start = 1;
