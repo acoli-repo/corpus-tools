@@ -306,6 +306,7 @@ class TTXML
 		
 			$header = file_get_contents($tplfile);
 			$tableheader .= xpathrun($header, $this->xml);
+			
 		} else {
 			
 			if ( $tpl == "" ) $tpl = "short";
@@ -372,6 +373,10 @@ class TTXML
 			$sep = "";
 			if ( $username && $settings['teiheader'] ) {
 				$moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid' class=adminpart>edit header data</a>";
+					$sep = "&bull;";
+			};
+			if ( $username  ) {
+				$moreopts .= " $sep <a href='index.php?action=fileadmin&cid=$this->fileid' class=adminpart>file admin</a>";
 					$sep = "&bull;";
 			};
 			foreach ( $headeroptions as $key => $item ) {

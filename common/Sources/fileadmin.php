@@ -70,6 +70,31 @@
 	
 	};
 
+	$anns = glob("Annotations/*_$ttxml->fileid");
+	if ( $anns ) {
+		$maintext .= "<hr>
+		<h2>Annotation files</h2><table>";
+		foreach ( $anns as $key => $val ) {
+			if ( preg_match("/Annotations\/((.+)_(.+))/", $val, $matches ) ) {
+				$file = $matches[1];
+				$type = $matches[2];
+				$xmlid = $matches[3];
+				if ( $tmp = getset("annotations/$type") ) {
+					$name = $tmp['display'];
+				} else {
+					$name = $type;
+					$desc = "<i>Undefined annotation type</i>";
+				};
+				$maintext .= "<tr>";
+				if ( $user['permissions'] == 'admin' )	$maintext .= "<td><a href='index.php?action=adminedit&id=$file&folder=Annotations'>raw</a>";
+				$maintext .= "<td><a href='index.php?action=annotation&type=$type&cid=$xmlid'>go</a>
+						<th>$name<td>$file<td>$desc";
+			};
+		};
+		$maintext .= "</table>";
+	};
+
+
 	$maintext .= "<hr><h2>File Views</h2>";
 	$defview = getset("defaults/fileview", "text");
 	$maintext .= "<p>Default file view: $defview<p><table>";
