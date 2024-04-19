@@ -168,7 +168,10 @@
 								
 				@$result = $xml->xpath("//tok[@id='$tokid'] | //dtok[@id='$tokid']"); 
 				$token = $result[0];
-				if ( !$token ) { $maintext .= " ! token $tokid not found"; next; };
+				if ( !$token ) { 
+					## We cannot edit a token if we cannot find it
+					$maintext .= " ! token $tokid not found"; continue; 
+				};
 				
 				# Now check if this is the right token
 				$orgform = $_POST['orgform'][$fid][$tokid];

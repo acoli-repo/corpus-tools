@@ -899,9 +899,11 @@
 		$maintext .= "\n<hr>\n\n<p><form action='index.php?action=download' id=cqlform name=cqlform method=post>
 			<input type=hidden name=cql value='$cqlu' $chareqfn></form>";
 			
-		if ( $username && !$fileonly && ( $user['permissions'] == "admin" || $settings['defaults']['cqpedit'] == 1 ) ) {
+		if ( $username && !$fileonly  ) {
 
- 			if ( $minmatchlength > 1 && !$targetmatch ) {
+			if ( !$user['permissions'] == "admin" && !$settings['defaults']['cqpedit'] == 1 ) {
+	 			$maintext .= "(Multiedit is only allowed for admin users in this corpus)";
+ 			} if ( $minmatchlength > 1 && !$targetmatch ) {
 	 			$maintext .= "(Query cannot be used for multi-token edit since all results span more than one word)";
  			} else if ( !$nomatch ) {
 
@@ -910,7 +912,7 @@
 
 					";
 			};
-		};
+		} 
 
 		if ( !$fileonly && !$nomatch ) $maintext .= "
 			<a onclick=\"document.cqlform.action = 'index.php?action=$action&act=download'; document.cqlform.submit();\">{%Download results}</a>

@@ -288,7 +288,7 @@
 			$buname = preg_replace ( "/\.xml/", "-$date.xml", $filename );
 			$buname = preg_replace ( "/.*\//", "", $buname );
 			if ( !file_exists("backups") ) { mkdir("backups"); };
-			if ( !file_exists("backups/$buname") ) {
+			if ( !file_exists("backups/$buname") && $tofile && $buname ) {
 				copy ( "$tofile", "backups/$buname");
 			};
 			file_put_contents($tfile, $tlist->asXML());
