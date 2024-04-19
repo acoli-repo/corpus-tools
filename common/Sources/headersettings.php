@@ -156,8 +156,8 @@
 			if ( !$fielddefs ) fatal("No such field: $fid");
 		};
 
-		$defdesc = current($defaults->xpath($fielddefs['xpath'])); 
-		if ( !$defdesc ) {
+		if ( $tmp = $defaults->xpath($fielddefs['xpath']) ) {
+			$defdesc = current($tmp); 
 			$defdesc = "<span style='color: #ff9999'>Non-standard field</span>"; 
 				$nonstandard = "<p><i>\"Non-standard field\" in the table above does not mean the field does not follow the TEI standard, it merely means it does no appear on the <a href='index.php?action=metadata'>list of recommended fields</a> kept in TEITOK to improve compatibility between projects</i></p>
 				<script language=Javascript>
