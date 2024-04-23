@@ -183,7 +183,20 @@
 		$cqp->exec($cqpquery);
 
 		$cqp->exec("show -cpos");
-		$cqp->exec("set Context 10 words");
+		$context = getset('cqp/kwicdata/context', 10);
+		$cqp->exec("set Context $context words");
+		
+		if ( is_array($settings['cqp']['kwicdata']) ) {
+// 			foreach ( $settings['cqp']['kwicdata'] as $key => $val ) {
+// 				$moresel .= ", match $key";
+// 			};
+			# $prs = "text_year, text_place";
+			$prs = join(', ', array_keys($settings['cqp']['kwicdata']));
+			if ( $moreflds = getset('cqp/kwicdata/dlflds') ) {
+				$prs .= ", $moreflds";
+			};
+			$cqp->exec("set PrintStructures '$prs'");
+		};
 
 		$cqpquery = "cat Matches";
 		$results = $cqp->exec($cqpquery);
