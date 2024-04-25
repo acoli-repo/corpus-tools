@@ -561,11 +561,16 @@
 	};
 
 	## Log into logfile
-	function actionlog ( $txt, $action='' ) {
+	function actionlog ( $txt, $action='', $admin = false ) {
 		global $username, $setting;
 		
-		$logfile = $settings['log']['errorlog'];
+		$logfile = getset('defaults/log/actionlog');
+		if ( !$logfile ) $logfile = getset('defaults/log/errorlog');
+		if ( !$logfile ) $logfile = getset('log/actionlog');
+		if ( !$logfile ) $logfile = getset('log/errorlog');
+		
 		if (!$logfile) { return -1; };
+		if ( $admin && !$username ) { return -1; };
 		
 		if ( !$username ) $username  = "guest";
 		if ( !$action ) $action  = $_GET['action'];

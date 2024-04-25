@@ -96,6 +96,7 @@
 		$newxml = preg_replace("/(<text .*?<\/text>|<text>.*?<\/text>|<text[^>]*\/>)/smi", $newtext, $ttxml->xml->asXML());
 		$outputxml = simplexml_load_string($newxml);
 		if ( !$outputxml ) fatal("Ended up with invalid XML - refusing to save"); 
+		actionlog("saved changes to  $ttxml->fileid");
 
 		saveMyXML ( $newxml, $ttxml->fileid );
 		$nexturl = urlencode("index.php?action=$action&cid=$ttxml->filename");
@@ -148,6 +149,7 @@
 				<br><span style='color: red'>Editing here may modify the content of your transcription, Avoid using after tokenization.</span>";
 		};
 		if ( $editmsg ) {
+			actionlog("started to edit $ttxml->fileid");
 			$editable = "contenteditable"; $setedit = "true"; $editmsg .= "<hr>";
 			$editbuts = "
 				<div style='height: 12px; width: 100%; font-size: 10px; color: #999999; vertical-align: bottom; margin-top: 5px;' id=pospath></div>
