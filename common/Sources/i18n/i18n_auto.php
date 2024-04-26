@@ -247,6 +247,7 @@
 		"index" => "index",
 		"anonymized" => "anonymized",
 		"No results" => "No results",
+		"Stored queries" => "Stored queries",
 		"Grouping Query" => "Grouping Query",
 		"Query Comparison" => "Query Comparison",
 		"Keywords" => "Keywords",

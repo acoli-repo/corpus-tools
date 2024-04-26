@@ -73,9 +73,13 @@
 		
 		if ( $_SESSION['myqueries'] || file_exists("Users/cql_$useridtxt.xml") ) $more .= "<p><a href='index.php?action=multisearch&act=stored'>{%Stored CQL queries}</a>";
 		if ( file_exists("Users/ann_$useridtxt.xml") ) $more .= "<p><a href='index.php?action=classify'>{%Custom annotation}</a>";
+		if ( file_exists("Users/$qfldr/queries.xml") ) $more .= "<p><a href='index.php?action=querymng'>{%Stored queries}</a>";
+
 		
 		if ( $user['shared'] ) $more .= "<p><i>Shared user - changes should be made in the shared folder</i>"; 
 		else $more .= "<p><a href='index.php?action=$action&act=pwdchange'>Change password</a>";
+
+
 
 		$maintext .= "
 		
