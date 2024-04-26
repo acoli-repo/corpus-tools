@@ -73,6 +73,8 @@
 		
 		if ( $_SESSION['myqueries'] || file_exists("Users/cql_$useridtxt.xml") ) $more .= "<p><a href='index.php?action=multisearch&act=stored'>{%Stored CQL queries}</a>";
 		if ( file_exists("Users/ann_$useridtxt.xml") ) $more .= "<p><a href='index.php?action=classify'>{%Custom annotation}</a>";
+
+		$qfldr = preg_replace("/[^a-z0-9]/", "", strtolower($userid));
 		if ( file_exists("Users/$qfldr/queries.xml") ) $more .= "<p><a href='index.php?action=querymng'>{%Stored queries}</a>";
 
 		
