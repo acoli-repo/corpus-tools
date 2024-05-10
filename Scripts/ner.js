@@ -14,9 +14,15 @@ if ( !tokinfo ) {
 };
 
 if ( jmp ) { 
-	var it = document.getElementById(jmp);
-	it.style['backgroundColor'] = '#ffffbb'; 
-	it.scrollIntoView(true); 
+	var jids = jmp.split(" ");
+	for ( var a = 0; a<jids.length; a++ ) {
+		var jid = jids[a];
+		var it = document.getElementById(jid);
+		it.style['backgroundColor'] = '#ffffbb'; 
+		if ( a == 0 ) {
+			it.scrollIntoView(true); 
+		};
+	};
 }; // TODO: this should depend on jmp
 
 var nercolor;
