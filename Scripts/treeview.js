@@ -119,9 +119,16 @@ function drawsvg(elm, divid = null, opts = {} ) {
 	putchildren(elm, svg, rootlvl);
 	
 	// highlight any nodes if asked
-	if ( typeof(jmp) != 'undefined' && toks[jmp] ) {
-		toks[jmp].setAttribute('fill', '#aa2200');
-		toks[jmp].setAttribute('font-weight', 'bold');
+	if ( typeof(jmp) != 'undefined' ) {
+		var jids = jmp.split(" ");
+		for ( var a = 0; a<jids.length; a++ ) {
+			var jid = jids[a];
+			console.log(jid);
+			if ( toks[jid] ) {
+				toks[jid].setAttribute('fill', '#aa2200');
+				toks[jid].setAttribute('font-weight', 'bold');
+			};
+		};
 	};
 	
 	// do initial placement

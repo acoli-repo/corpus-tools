@@ -223,6 +223,7 @@
 		$fileid = $ttxml->fileid;
 
 		$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
+		$jmpfull = $jmp;
 		$jmp = preg_replace("/ .*/", "", $jmp);
 		if ( !$sid && $jmp ) {
 			$sid =	current($ttxml->xpath("//s[.//tok[@id='$jmp']]/@id"));
@@ -378,7 +379,7 @@ window.addEventListener(\"beforeunload\", function (e) {
 				## Pre-click the buttons based on global view options
 			}; 
 
-			$morejs .= "var hpos = '$hpos'; var jmp = '$jmp'; drawsvg(tree); $paction";
+			$morejs .= "var hpos = '$hpos'; var jmp = '$jmpfull'; drawsvg(tree); $paction";
 		};
 		
 		if ( $username && $act == "edit" ) {
