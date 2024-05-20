@@ -631,10 +631,10 @@
 				if ( $showstyle == "context" && $showsubstyle && $showsubstyle != "tok"  ) {
 					$expand = "--expand=$showsubstyle";
 				} else if ( $showstyle == "context" ) {
-					$context = $_POST['tokcnt'] or $context = $_GET['tokcnt'] or $context = $settings['cqp']['defaults']['context'] or $context = '30';
+					$context = $_POST['tokcnt'] or $context = $_GET['tokcnt'] or $context = getset('cqp/defaults/context', '30');
 					$expand = "--context=$context";
 				} else {
-					$context = $_POST['context'] or $context = $_GET['context'] or $context = $settings['cqp']['defaults']['kwic'] or $context = '5';
+					$context = $_POST['context'] or $context = $_GET['context'] or $context = getset('cqp/defaults/kwic', '5');
 					$expand = "--context=$context ";
 				};
 
