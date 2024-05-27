@@ -5,19 +5,19 @@
 	// Settings for the corpus are read from settings.xml
 	// (c) Maarten Janssen, 2015-2016
 
-	$fileview = $settings['defaults']['fileview'] or $fileview = "file";
+	$fileview = getset('defaults/fileview', "file");
 
-	if ( $act == "advanced" || $settings['defaults']['qb'] == "direct" ) $showdirect = true;
+	if ( $act == "advanced" || getset('defaults/qb') == "direct" ) $showdirect = true;
 
 	include ("$ttroot/common/Sources/cwcqp.php");
 
 	if ( $act == "select" ) $_SESSION['subc-'.$foldername] = "";
 	
 	# Determine which form to search on by default
-	$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
+	$wordfld = getset('cqp/wordfld', "word");
 
 	$registryfolder = getset("cqp/defaults/registry", "cqp");
-	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
+	$cqpcorpus = getset('cqp/corpus', "tt-".$foldername);
 	if ( $settings['cqp']['subcorpora'] ) {
 		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = "";
 		if ( !$subcorpus ) {

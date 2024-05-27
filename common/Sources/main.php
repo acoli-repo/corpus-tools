@@ -13,7 +13,7 @@
 	// Load the settings.xml file (via PHP)
 	include("$ttroot/common/Sources/settings.php");
 	
-	if ( !$hprot )  if ( isSecure() || ( is_array($settings['defaults']['base']) &&  $settings['defaults']['base']['protocol'] == "https" ) ) {
+	if ( !$hprot )  if ( isSecure() || getset('defaults/base/protocol') == "https"  ) {
 		# TODO : should this not specify HTTPS?
 		header('HTTP/1.0 200 OK'); ## Hard code this as NOT an error page! 
 		$hprot = "https";
@@ -26,12 +26,13 @@
 	// Parse the URL if it is not just index.php
 	$phpself = $_SERVER['SCRIPT_NAME'];
 	$urireq = $_SERVER['REQUEST_URI'];
-	if ( $settings['defaults']['base']['ttroot'] && $settings['defaults']['base']['foldername'] ) $basefldr = $settings['defaults']['base']['ttroot'].$settings['defaults']['base']['foldername']."/";
+	if ( getset('defaults/base/ttroot') && getset('defaults/base/foldername') ) $basefldr = getset('defaults/base/ttroot').getset('defaults/base/foldername'); # $settings['defaults']['base']['ttroot'].$settings['defaults']['base']['foldername']."/";
 	else $basefldr = str_replace("index.php", "", $phpself);
 	if ( substr($urireq, 0, strlen($basefldr)) == $basefldr) {
 		$basereq = substr($urireq, strlen($basefldr));
-		if ( preg_match("/^(...?)\/(.*)$/", $basereq, $matches) 
-			&& is_array($settings['languages']) && $settings['languages']['options'][$matches[1]] # Only allow defined langs via the URL
+		preg_match("/^(...?)\/(.*)$/", $basereq, $matches);	
+		$langlist = getset('languages/options/'.$matches[1]);
+		if ( $matches && $langlist # Only allow defined langs via the URL
 		) { 
 			$basereq = $matches[2]; $urllang = $matches[1];
 		};
@@ -101,17 +102,17 @@
 
 
 	# Determine which language to use
-	$deflang = $settings['languages']['default'] or $deflang = "en";
+	$deflang = getset('languages/default',  "en");
 	if ( $_GET['lang'] ) $lang = $_GET['lang'];
 	else if ( $urllang ) {
 		$lang = $urllang;
 	} else if ( $_SESSION['lang'] ) $lang = $_SESSION['lang'];
 	else $lang = $deflang;
-	if ( is_array($settings['languages']) && !$settings['languages']['prefixed'] ) $_SESSION['lang'] = $lang;
+	if ( getset('languages/prefixed') ) $_SESSION['lang'] = $lang;
 	
 	# Determine the base URL and the root folder
 	if ( !$baseurl )
-	if ( $settings['defaults']['base']['url'] ) {
+	if ( getset('defaults/base/url') ) {
 		$baseurl = str_replace('{$corpusfolder}', $foldername, $settings['defaults']['base']['url']);
 	} else if ( $basefldr ) {
 		$baseurl = $basefldr;
@@ -124,20 +125,15 @@
 	# Set the base META tag when asked
 	$rooturl = str_replace("{project}", $foldername, $baseurl);
 	$rooturl = str_replace("{lang}", $lang, $rooturl);
-	if ( $settings['defaults']['base']['meta'] ) {
+	if ( getset('defaults/base/meta') ) {
 		$moresmarty['baseurl'] = $rooturl;
 	}; 
 
 	// Determine where to get the Javascript files from
-	if ( $settings['defaults']['base']['javascript'] ) {
-		$jsurl = $settings['defaults']['base']['javascript'];
-	} else {
-		$jsurl = "$hprot://www.teitok.org/Scripts";
-	};
+	$jsurl = getset('defaults/base/javascript', "$hprot://www.teitok.org/Scripts");
 	
 	// Determine the main XML content 
-	$mtxtelement = "//text";
-	if ( is_array($settings['xmlfile']) && $settings['xmlfile']['xpath'] ) $mtxtelement = $settings['xmlfile']['xpath'];
+	$mtxtelement = getset('xmlfile/xpath', "//text");
 	
 	// Determine the locale
 	$langloc = current($settingsxml->xpath("//languages/options/item[@key=\"$lang\"]/@locale"));
