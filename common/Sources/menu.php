@@ -3,7 +3,7 @@
 	// Maarten Janssen, 2015
 	// Default items: {%Home}, {%Search}, {%About}, {%!help}
 
-	if ( is_array($settings['languages']['options']) && count($settings['languages']['options']) > 1 ) {
+	if ( is_array($settings['languages']) && is_array($settings['languages']['options']) && count($settings['languages']['options']) > 1 ) {
 		$sep = "";
 		foreach ( $settings['languages']['options'] as $key => $item ) {
 			if ( $item['menu'] == "" ) continue;
@@ -24,7 +24,7 @@
 		} else $menu .= "<div stle='margin-top: 0px; margin-bottom: 20px;'>$langstxt</div>";	
 	};
 
-	if ( $settings['menu']['name'] ) {
+	if ( is_array($settings['menu']) && $settings['menu']['name'] ) {
 		if ( $settings['menu']['name'] == "[title]" )
 			$menu .= "<p class='title'>{%{$settings['defaults']['title']['display']}}</p>";
 		else if ( $settings['menu']['name'] == "[short]" )
@@ -32,11 +32,10 @@
 		else $menu .= "<p class='title'>{%{$settings['menu']['name']}}</p>";
 	};
 
-	if ( $settings['menu']['title'] == "none" ) $nomentit = 1; # Do nothing
-	else if ( $settings['menu']['title'] ) {
-		$menutitle = $settings['menu']['title'];
-		if ( $menutitle == "[title]" ) $menutitle = $settings['defaults']['title']['display'];
-		$menutitle = "{%$menutitle}";
+	if ( getset('menu/title') == "none" ) $nomentit = 1; # Do nothing
+	else if ( getset('menu/title') ) {
+		$menutitle = getset('menu/title');
+		if ( $menutitle == "[title]" ) $menutitle = getset('defaults/title/display', "{%$menutitle}");
 		if ( $settings['menu']['link'] ) $menutitle = "<a href='{$settings['menu']['link']}'>$menutitle</a>";
 		if ( $settings['menu']['title'] != "[none]" ) $menu .= "<p class='header'>$menutitle</p>";
 	} else $menu .= "<p>{%Main Menu}</p>";
@@ -103,7 +102,7 @@
   		$tmp = ""; if ( $action == "admin" ) $tmp = "class=\"selected\""; 
   		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=admin' $tmp>Admin</a></ul>";
   		$menu .= "<ul style='text-align: left'><li><a target=help href='http://www.teitok.org/index.php?action=help'>Help</a></ul>";
-		if ( ( file_exists("$bindir/tt-cqp") && $settings["cqp"] ) || $settings["defaults"]["tt-cqp"] ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=classify'>Custom annotation</a></ul>"; 
+		if ( ( file_exists("$bindir/tt-cqp") && $settings["cqp"] ) || getset("defaults/tt-cqp") ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=classify'>Custom annotation</a></ul>"; 
   		# if ( count(scandir("pagetrans")) > 2 && !$settings['menu']['itemlist']['pagetrans'] ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=pagetrans'>Page-by-Page</a></ul>"; 
   		$tmp = ""; if ( $action == "files" ) $tmp = "class=\"selected\""; 
   		if ( is_dir("xmlfiles") ) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
@@ -115,7 +114,8 @@
   		
 	} else if ( $_SESSION['extid'] ) {
 
-		if ( ! $settings['permissions']['shibboleth'] ) $settings['permissions']['shibboleth'] = array ( "display" => "visitor" ); # Always allow Shibboleth login
+		if ( !is_array($settings['permissions']) ) $settings['permissions'] = array();
+		if ( ! getset('permissions/shibboleth') ) $settings['permissions']['shibboleth'] = array ( "display" => "visitor" ); # Always allow Shibboleth login
 		foreach ( $_SESSION['extid'] as $key => $val ) { 
 		if ( is_array($settings['permissions'][$key]) ) { 
 			$tmp = $settings['permissions'][$key];
@@ -132,10 +132,10 @@
 				$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action={$func['key']}' $tmp>{%{$func['display']}}</a></ul>";
 			};
 		}; }; 
-		if ( !$idtype && !$settings['menu']['nologin'] ) {
+		if ( !$idtype && !getset('menu/nologin') ) {
 	  		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=login'><i>Login</i></a></ul>";
 		};
-	} else if ( !$settings['menu']['nologin']  ){
+	} else if ( !getset('menu/nologin')  ){
 		$shortuserid = "guest";
   		$tmp = ""; if ( $action == "login" ) $tmp = "class=\"selected\""; 
   		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=login' $tmp>Login</a></ul>";
