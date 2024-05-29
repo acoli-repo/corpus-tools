@@ -79,7 +79,9 @@
 		foreach ( $cqpcols as $col ) {
 			$colname = pattname($col); 
 			$coldef = $settings['cqp']['pattributes'][$col];
-			$morec = ""; if ( $coldef['multisep'] ) $morec .= ", 'multisep': '{$coldef['multisep']}'";
+			$morec = ""; 
+			if ( $coldef['multisep'] ) $morec .= ", 'multisep': '{$coldef['multisep']}'";
+			if ( $coldef['multiseparator'] ) $morec .= ", 'multisep': '{$coldef['multiseparator']}'";
 	
 			$jsnames .= "pattname['$col'] = { 'values': '{$coldef['values']}', 'display': '{%$colname}' $morec }; ";
 			if ( !$colname ) $colname = "[$col]";
@@ -178,7 +180,7 @@
 				foreach ( explode ( "\0", $tmp ) as $kva ) { 
 					if ( $kva ) {
 						if ( $coldef['values'] == "multi" ) {
-							$mvsep = $coldef['mvsep'] or $mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+							$mvsep = $coldef['mvsep'] or $mvsep = $settings['cqp']['multiseparator'] or $mvsep = $settings['cqp']['multisep'] or $mvsep = ",";
 							$kvl = explode ( $mvsep, $kva );
 						} else {
 							$kvl = array ( $kva );
@@ -230,7 +232,9 @@
 				if (  !is_array($xatt) ) continue; # Avoiding errors in new PHP version
 				if (  $xatt['admin'] && !$username ) continue;
 				if ( !$xatt['display'] || !$xatt['key'] || !is_array($xatt) ) continue;
-				$morec = ""; if ( $xatt['multisep'] ) $morec .= ", 'multisep': '{$xatt['multisep']}'";
+				$morec = ""; 
+				if ( $xatt['multisep'] ) $morec .= ", 'multisep': '{$xatt['multisep']}'";
+				if ( $xatt['multiseparator'] ) $morec .= ", 'multisep': '{$xatt['multiseparator']}'";
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}' $morec}; ";
 			};
 		};
@@ -242,7 +246,8 @@
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";
 			};
 		};
-		if (  $settings['cqp']['multiseperator'] ) $prescript .= "var mvsep = '{$settings['cqp']['multiseperator']}'; ";
+		if (  $settings['cqp']['multiseparator'] ) $prescript .= "var mvsep = '{$settings['cqp']['multiseparator']}'; ";
+		if (  $settings['cqp']['multisep'] ) $prescript .= "var mvsep = '{$settings['cqp']['multisep']}'; ";
 
 		// Pass i18n to Javascript
 		$prescript .= "var pattname = [];\n var jstrans = []; var fldtypes= []; fldtypes['multi'] = [];\n$jsnames";
@@ -391,7 +396,7 @@
 							$kvl = array ( $kva );
 							if ( $kva ) {
 								if ( $item['values'] == "multi" ) {
-									$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+									$mvsep = $settings['cqp']['multiseparator'] or $mvsep = $settings['cqp']['multisep'] or $mvsep = ",";
 									$kvl = explode ( $mvsep, $kva );
 								} else {
 									$kvl = array ( $kva );
@@ -460,7 +465,7 @@
 						foreach ( explode ( "\0", $tmp ) as $kva ) { 
 							if ( $kva ) {
 								if ( $item['values'] == "multi" ) {
-									$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+									$mvsep = $settings['cqp']['multiseprator'] or $mvsep = $settings['cqp']['multisep'] or $mvsep = ",";
 									$kvl = explode ( $mvsep, $kva );
 								} else {
 									$kvl = array ( $kva );
