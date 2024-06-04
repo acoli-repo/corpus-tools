@@ -445,14 +445,15 @@
 
 		# Deal with any stand-off annotation attributes (errors, etc.)
 		if ( is_array ( $settings['cqp']['annotations']))
-		foreach ( $settings['cqp']['annotations'] as $xkey => $xatts ) {
+		foreach ( $settings['cqp']['annotations'] as $xlvl => $xatts ) {
 			if ( !$xatts['display'] || ( $xatts['admin'] && !$username ) ) continue;
 			if ( $xatts['admin'] ) $adms = " class=adminpart";
 			$querytext .= "$hr<div$adms><h3>{%{$xatts['display']}}</h3><table  class=qbt >"; $hr = "<hr>";
 			foreach ( $xatts as $key => $item ) {
-				if ( !is_object($item) && !is_array($item)) { // We only want to show real children
+				if ( !is_object($item) && !is_array($item) ) {
 					continue;
 				};
+				$xkey = "{$xatts['key']}_$key";
 				$val = $item['long']."" or $val = $item['display']."";
 				if ( $item['type'] == "group" ) { 
 					$querytext .= "<tr><td>&nbsp;<tr><td colspan=2 style='text-align: center; color: #992000; font-size: 10pt; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa;'>{%$val}";
