@@ -81,7 +81,7 @@
 					if ( $nerid ) { $idlist[$nerid] = 1; }; # use form if no ID is present
 					if ( !$nerid ) { $nerid = $node['lemma']; }; # use form if no ID is present
 					$name = makexml($node);
-					$name = preg_replace("/<[^>]+>/", "", $name);
+					$name = trim(preg_replace("/<[^>]+>/", "", $name));
 					if ( $settings['xmlfile']['nospace'] == "2" ) $name = $name = preg_replace("/<\/tok>/", " ", $name);
 					if ( !$nerid ) { $nerid = $name; }; # use form if no ID is present
 					$nerid = trim($nerid);
