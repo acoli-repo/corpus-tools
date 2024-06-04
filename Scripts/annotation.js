@@ -56,9 +56,10 @@ function markout ( seg, withinfo ) {
 	newrow += '</table>';
 	var txt = newrow;
 	if ( withinfo )  { 
-		showinfo ( tokid, txt ); 
-		// Scroll to view
+		// Scroll to view (first - so that the position gets correct)
 		document.getElementById(tokid).scrollIntoView();
+		
+		showinfo ( tokid, txt ); 
 	};
 
 	for ( var i=0; i<array.length; i++ ) {
@@ -186,11 +187,11 @@ function offset(elem) {
 	var x = elem.offsetLeft;
 	var y = elem.offsetTop;
 
-	if ( typeof(x) == "undefined" ) {
+	bbr = elem.getBoundingClientRect();
+	if ( bbr.x ) {
 
-		bbr = elem.getBoundingClientRect();
-		x = bbr.left + window.pageXOffset;
-		y = bbr.top + window.pageYOffset;
+		x = bbr.x + window.pageXOffset;
+		y = bbr.y + window.pageYOffset;
 
 	} else {
 
@@ -309,7 +310,7 @@ function makespan( event ) {
 	tokdata += '</table>';
 
 	var mtch = document.evaluate("//tr[@toklist = '"+idlist.trim().replace(/#/g, '')+"']", document, null, XPathResult.ANY_TYPE, null); 
-	var mitm = mtch.iterateNext(); console.log(mitm);
+	var mitm = mtch.iterateNext(); // console.log(mitm);
 	if ( mitm ) { 
 		tokdata += '<h3>Existing annotations</h3><table><tr>';
 			for ( var ak in interp ) {

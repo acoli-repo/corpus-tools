@@ -10,6 +10,7 @@
 			$act = "select";
 		};
 	};
+	check_folder("Annotations");
 
 	if ( $_GET['cid'] ) {
 		require ("$ttroot/common/Sources/ttxml.php");
@@ -32,7 +33,11 @@
 	};
 	
 	if ( $annotation && $user['permissions'] == "admin" && !file_exists("Annotations/{$annotation}_def.xml") ) { 
-		$act = "define";
+		if ( $act == "savedef" ) {
+		} else {
+			print "Shifting from : $act ".$_GET['act'].$_POST['act'];
+			$act = "define"; 
+		};
 	};
 
 	# Read the annotation definition
@@ -369,20 +374,23 @@
 		};
 		
 	} else if ( $act == "savedef" ) {
-		
+
 		check_login();
 		
 		# Save the definition file
 		$annotation = $_GET['annotation']; # Hard code in case we switched in the meantime
 
-		$newandef = simplexml_load_string("<interpGrp id=\"{$annotation}\" name=\"{$_POST['name']}\" keepxml=\"1\">
-			<desc>{$_POST['desc']}</desc>
-			</interpGrp>");
+		if ( $andef ) 
+			$newandef = $andef;
+		else
+			$newandef = simplexml_load_string("<interpGrp id=\"{$annotation}\" name=\"{$_POST['name']}\" keepxml=\"1\">
+				<desc>{$_POST['desc']}</desc>
+				</interpGrp>");
 		foreach ( $_POST['grp'] as $key => $grpdef ) {
-			if ( $key."" == "new" || !$grpdef['key'] ) continue;
+			if ( $key."" == "new" || !$grpdef['key'] ) continue; # If we are generating a new def file, we do not handle fields yet
 			$grpfld = $newandef->addChild("interp");
-			foreach ( $grpdef as $key => $val ) {
-				$grpfld[$key] = $val;
+			foreach ( $grpdef as $key2 => $val ) {
+				$grpfld[$key2] = $val;
 			};
 			foreach ( $grpdef['values'] as $key2 => $val2 ) {
 				if ( $key2."" == "new" || !$val2['value'] ) continue;
