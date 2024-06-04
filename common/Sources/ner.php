@@ -92,7 +92,7 @@
 			if (is_array($idnames)) {
 				ksort($idnames);
 				foreach ( $idnames as $nerid => $val ) {
-					$vallist = array_keys($val); natsort($vallist);
+					$vallist = array_keys($val); natcasesort($vallist);
 					$name = join("<br/>", $vallist);
 					if ( substr($nerid, 0, 4) == "http") $idtxt = "<a href='$nerid'>$nerid</a>";
 					else if ( substr($nerid, 0, 1) == "#" ) {
