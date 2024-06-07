@@ -48,6 +48,105 @@
 			};
 			exit;
 		
+		} else if ( $act == "merge" && $sentid ) {
+		
+		    
+			$sent = current($xml->xpath("//*[@id='$sentid']")); 
+			$stxt = sentbyid($ttxml->fileid, $sentid);
+			$prevxp = "./preceding::$stype"."[1]";
+			$prev = current($sent->xpath($prevxp));
+			$psid = $prev['id'].'';
+			if ( !$prev ) { 
+				fatal("No element &lt;$stype&gt; on the left of $sentid - $prevxp");
+			};
+			$ptxt = sentbyid($ttxml->fileid, $psid);
+
+			$ppar = current($prev->xpath("parent::*"));
+			$spar = current($sent->xpath("parent::*"));
+		    $pdom = dom_import_simplexml($ppar);
+
+			if ( $sent->xpath(".//tok") && $prev->xpath(".//tok") ) {
+				if ( $ppar != $spar ) {
+					fatal("Sentences are not siblings - unable to merge");
+				};
+			};
+
+			$stf = $sent->getName();
+			foreach ( $sent->attributes() as $key => $val ) {
+				$pval =  trim($prev[$key]);
+				$op[$key] = $pval;
+				$sval =  trim($sent[$key]);
+				if ( $sval != ""  ) {
+					if ( $key == "id" && $pval != "" ) continue;
+					$nval = $sval;
+					$lnk = " + ";
+					if ( $key == "corresp" || $key == "sameAs" ) $lnk = " "; 
+					if ( $pval != "" && $sval != $pval ) $nval = $pval . $lnk . $sval;
+					$prev[$key] = $nval;
+				};
+			};
+
+			if ( $_GET['confirm'] ) {
+
+				$pdom = dom_import_simplexml($prev);
+				$sdom = dom_import_simplexml($sent);
+				$sch = $sdom->hasChildNodes();
+				$pch = $pdom->hasChildNodes();
+				if ( ( $sch && !$pch ) || ( !$sch && $pch ) ) {
+					print "<p>Resolving emptys mismatch";
+					# We cannot have one s with and one without children - move everything out
+					foreach ( $pdom->childNodes as $child ) {
+						dom_insert_after($child, $pdom);
+					};
+					# We cannot have one s with and one without children - move everything out
+					foreach ( $sdom->childNodes as $child ) {
+						dom_insert_after($child, $sdom);
+					};
+				};			
+				
+				if ( $sch && $pch ) {
+					print "<p>With children: ".count($sdom->childNodes)." - moving inside";
+					$pnext = $pdom->nextSibling;
+					while ( $pnext && $pnext != $sdom ) {
+						# print htmlentities($pnext->ownerDocument->saveXML($pnext))."<hr>";
+						$pdom->appendChild($pnext);	
+						$pnext = $pdom->nextSibling;
+					};
+					while ( $sdom->hasChildNodes() ) {
+						$child = $sdom->childNodes->item(0);
+						# print htmlentities($child->ownerDocument->saveXML($child))."<hr>";
+						$pdom->appendChild($child);	
+					};
+				} else {
+					print "Without children";
+					// If both are empty, we don't need to do anything
+				};
+				$sdom->parentNode->removeChild($sdom);					
+				
+				print "<hr>";
+				$ppar = current($prev->xpath("parent::*"));
+				$ttxml->save();
+				print "<p>Correctly merged - reloading
+					<script>top.location = 'index.php?action=$action&cid=$ttxml->fileid&sid=$psid'</script>";
+				
+			} else { 
+				$maintext .= "<h1>Merge $sentname</h1>";
+			
+				$maintext .= "<p>New sentence: <div id=mtxt>".$ptxt." ".$stxt."</div>";
+
+				// Show all the defined attributes
+				$maintext .= "<hr><table>
+					<tr><th>Attribute<th>Field name<th>Merged value<th>$sentname 1<th>$sentname 2";
+				foreach ( $prev->attributes() as $key => $val ) {
+					$atv = $prev[$key]; 
+					$atn = $sentatts[$stf][$key]['display'] or $atn = "<i>Undefined</i>";
+					$maintext .= "<tr><th>$key<td>$atn<td>$atv<td> {$op[$key]} <td>{$sent[$key]}";
+				};
+				$maintext .= "</table>";
+			
+				$maintext .= "<hr><p><a href='index.php?action=$action&act=merge&confirm=1&cid=$ttxml->fileid&sid=$sentid'>confirm merge</a>";
+			};
+					
 		} else if ( $sentid == "multi" ) {
 		
 				
@@ -213,14 +312,31 @@
 			$result = $xml->xpath($mtxtelement); 
 			$txtxml = $result[0]; 
 
+			// Should this work for other blocks as well?
+			if ( $stype == "s" ) {
+				$mergelink = "<a href='index.php?action=$action&act=merge&cid=$ttxml->fileid&sid=$sentid'>merge left</a>";
+			;}
+
 			$maintext .= "</table>
-				<p><input type=submit value=Save>
+				<p><input type=submit value=Save> $mergelink
 				</form>
-				<hr><p>Click <a href='index.php?action=$action&cid=$ttxml->fileid&sid=multi'>here</a> to edit multiple sentences";
+				<hr><p>Click <a href='index.php?action=$action&cid=$ttxml->fileid&sid=multi'>here</a> to edit multiple sentences
+				&bull;
+				<a href='index.php?action=block&elm=$stype&cid=$ttxml->fileid&sid=$sentid'>cancel</a> 
+				";
 		};
 		
 	} else {
 		print "Oops"; exit;
 	};
+
+	function dom_insert_after( $insert_dom,  $target_dom) 
+	{
+		if ($target_dom->nextSibling) {
+			return $target_dom->parentNode->insertBefore($insert_dom, $target_dom->nextSibling);
+		} else {
+			return $target_dom->parentNode->appendChild($insert_dom);
+		}
+	}
 	
 ?>
