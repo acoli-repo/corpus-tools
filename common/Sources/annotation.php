@@ -269,7 +269,10 @@
 			else if ( getset("xmlfile/pattributes/forms/$key/inherit") ) $sattlist[$key] = "inherit";
 		};
 		
-		$maintext .= "<pre>&lt;text id=\"$ttxml->fileid\" nodeatt=\"$typeatt\"&gt;\n";
+		$maintext .= "
+			<p><button id='boton2' onclick=\"download('#div-text')\">Download</button> - click on a line to edit the content
+			<hr>
+			<pre id='div-text'>&lt;text id=\"$ttxml->xmlid\" nodeatt=\"$typeatt\"&gt;\n";
 		foreach ( $toklist as $tok ) {
 			$form = $tok['form'] or $form = $tok."";
 			$tid = $tok['id']."";
@@ -279,7 +282,7 @@
 					if ( $key == "corresp" ) continue;
 					$atts .= " $key=\"$val\"";
 				};
-				$maintext .= "<span onclick=\"window.open('index.php?action=$action&act=redit&cid=$ttxml->fileid&sid=$aid', 'edit');\">&lt;{$tmp[0]} $atts&gt;</span>\n";
+				$maintext .= "<span onclick=\"window.open('index.php?action=$action&act=redit&cid=$ttxml->fileid&sid=$aid', 'edit');\">&lt;{$tmp[0]}$atts&gt;</span>\n";
 			};
 			$maintext .= "<span onclick=\"window.open('index.php?action=tokedit&cid=$ttxml->fileid&tid=$tid', 'edit');\">$form\t$tid";
 			foreach ( $sattlist as $key => $val ) {
@@ -292,7 +295,31 @@
 				$maintext .= "&lt;/{$tmp[0]}&gt;&lt;--id=\"{$tmp[1]}\"--&gt;\n";
 			};
 		};
-		$maintext .= "&lt;/text&gt;</pre>";
+		$maintext .= "&lt;/text&gt;</pre>
+		<hr><button id='boton1' onclick=\"download('#div-text')\">Download</button> <a href='index.php?action=$action&cid=$ttxml->fileid&annotation=$annotation'>back</a>
+			<script>
+			function copiar(filename, text) {
+			  var element = document.createElement('a');
+			  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+			  element.setAttribute('download', filename);
+
+			  element.style.display = 'none';
+			  document.body.appendChild(element);
+
+			  element.click();
+
+			  document.body.removeChild(element);
+			}
+
+			// Start file download.
+			function download(id) {
+			  // Generate download of .txt file with some content
+			  var text = document.querySelector(id);
+			  var filename = '$ttxml->xmlid.$annotation.txt';
+
+			  copiar(filename, text.textContent);
+			};
+		 </script>";
 
 	} else if ( $fileid && $act == "redit" ) {
 
