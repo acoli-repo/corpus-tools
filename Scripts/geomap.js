@@ -61,7 +61,7 @@
 	
 	var cqlset = cql.split('%7C%7C');
 
-	if ( typeof cluster != "undefined" ) {
+	if ( typeof cluster != "undefined" && cluster != 0 ) {
  		// var markers = L.markerClusterGroup();
  		// countCluster gives back a counting object
  		var markers;

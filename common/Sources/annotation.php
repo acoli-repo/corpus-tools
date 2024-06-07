@@ -222,14 +222,86 @@
 			print "Changes save. Reloading. 
 				<script language=Javascript>top.location='index.php?action=$action&cid=$fileid&annotation=$annotation'</script>"; 
 
+	} else if ( $fileid && $act == "vert" ) {
+
+		$maintext .= "<h2>Verticalized view</h2>";
+
+		$typeatt = "type";
+		foreach ( $andef->xpath("//interp") as $grp ) {
+			if ( $grp['colored'] ) $typeatt = $grp['key']."";
+		};
+		
+		$edges = array(); $spans = array();
+		foreach ( $anxml->xpath("//span") as $span ) {
+			$aid = $span['id']."";
+			$spans[$aid] = $span;
+			$toklist = explode ( " ", str_replace("#", "", $span['corresp'] ));
+			$t1 = $toklist[0]."";
+			$t2 = end($toklist)."";
+			$type = $span[$typeatt] or $type = $annotation or $type = "ann";
+			$type = preg_replace("/[^a-z0-9]/", "", strtolower($type)); 
+			if ( $type == "" ) $type = "ann";
+			if ( preg_match("/^[0-9]/", $type) ) $type = "ann$type";
+			if ( !$edges[$t1] ) {
+				$edges[$t1] = array();
+				$edges[$t1]['start'] = array();
+				$edges[$t1]['end']  = array();
+			};
+			if ( !$edges[$t2] ) {
+				$edges[$t2] = array();
+				$edges[$t2]['start'] = array();
+				$edges[$t2]['end']  = array();
+			};
+			array_push($edges[$t1]['start'], array($type, $aid, $t1) );
+			array_push($edges[$t2]['end'], array($type, $aid, $t2) );
+		}; 
+
+		$toklist = $ttxml->toklist($ttxml->xml);
+
+		$attlist = getset("cqp/pattributes", array());
+		$sattlist = array();
+		foreach ( $attlist as $key => $val ) {
+			if ( $key == "id" || $key == "form" ) continue;
+			$sattlist[$key] = "form";
+			if ( getset("xmlfile/pattributes/tags/$key") ) $sattlist[$key] = "tag";
+			else if ( getset("xmlfile/pattributes/forms/$key/inherit") ) $sattlist[$key] = "inherit";
+		};
+		
+		$maintext .= "<pre>&lt;text id=\"$ttxml->fileid\" nodeatt=\"$typeatt\"&gt;\n";
+		foreach ( $toklist as $tok ) {
+			$form = $tok['form'] or $form = $tok."";
+			$tid = $tok['id']."";
+			foreach ( $edges[$tid]['start'] as $tmp ) {	
+				$atts = ""; $aid = $tmp[1]."";
+				foreach ( $spans[$aid]->attributes() as $key => $val ) {
+					if ( $key == "corresp" ) continue;
+					$atts .= " $key=\"$val\"";
+				};
+				$maintext .= "&lt;{$tmp[0]} $atts&gt;\n";
+			};
+			$maintext .= "$form\t$tid";
+			foreach ( $sattlist as $key => $val ) {
+				if ( $val == "inherit" ) $aval = forminherit($tok, $key);
+				else $aval = $tok[$key];
+				$maintext .= "\t$aval";
+			}
+			$maintext .= "\n";
+			foreach ( $edges[$tid]['end'] as $tmp ) {
+				$maintext .= "&lt;/{$tmp[0]}&gt;&lt;--id=\"{$tmp[1]}\"--&gt;\n";
+			};
+		};
+		$maintext .= "&lt;/text&gt;</pre>";
+
 	} else if ( $fileid && $act == "redit" ) {
 
 		check_login();
 
 		$sid = $_GET['sid'];
 
+		if ( !$sid ) fatal("No span selected");	
 		$result = $anxml->xpath("//span[@id=\"$sid\"]"); 
-		$segnode = $result[0];		
+		$segnode = $result[0];	
+		if ( !$segnode ) fatal("No such span: $sid");	
 		$result = $segnode->xpath(".."); 
 		$filenode = $result[0];		
 		$toklist = explode ( " ", str_replace("#", "", $segnode['corresp'] ));
@@ -367,7 +439,8 @@
 				&bull;
 				<a href='index.php?action=$action&annotation=$annotation&act=&&cid=$fileid'>{%text view}</a>
 				";
-			if ( $user['permissions'] == "admin" ) $maintext .= "				&bull;
+			if ( $user['permissions'] == "admin" ) $maintext .= "
+							&bull;
 				<a href='index.php?action=$action&act=define&annotation=$annotation' class=adminpart>{%edit definitions}</a>
 				";
 
@@ -608,6 +681,8 @@
 			# TODO: there should be a GUI for making the definitions...
 			if ( $user['permissions'] == "admin" ) $rawedit = "				&bull;
 				<a href='index.php?action=$action&act=define&annotation=$annotation' class=adminpart>{%edit definitions}</a>
+							&bull;
+				<a href='index.php?action=$action&act=vert&annotation=$annotation&cid={$_GET['cid']}' class=adminpart>{%verticalized view}</a>
 				";
 	
 		# Allow for form switch buttons when so desired

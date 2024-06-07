@@ -499,7 +499,14 @@ class TTXML
 		return $xmltxt;
 	}
 
-	
+	function toklist ( $elm ) {
+		$toklist = array();
+		foreach ( $elm->xpath(".//tok[not(dtok)] | //dtok") as $tok ) {
+			array_push($toklist, $tok);
+		};
+		return $toklist;
+	}
+		
 	function elm2id ( $elm ) {
 		global $settings;
 		$att = getset('xmlfile/paged/att', "n");

@@ -17,6 +17,7 @@
 		"edit definitions" => "edit definitions",
 		"show as list" => "show as list",
 		"edit raw XML file" => "edit raw XML file",
+		"verticalized view" => "verticalized view",
 		"Text" => "Text",
 		"Annotations" => "Annotations",
 		"Select a file" => "Select a file",

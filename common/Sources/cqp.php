@@ -220,7 +220,7 @@
 			</form>";
 
 		if ( $_POST['query'] ) {
-			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+			$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
 			$cqp = new CQP();
 			$cqp->unsafe = 1; // Run in unsafe mode (for now)
 			$cqp->exec($cqpcorpus); // Select the corpus
