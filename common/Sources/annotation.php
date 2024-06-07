@@ -224,6 +224,8 @@
 
 	} else if ( $fileid && $act == "vert" ) {
 
+		check_login();
+
 		$maintext .= "<h2>Verticalized view</h2>";
 
 		$typeatt = "type";
@@ -277,13 +279,13 @@
 					if ( $key == "corresp" ) continue;
 					$atts .= " $key=\"$val\"";
 				};
-				$maintext .= "&lt;{$tmp[0]} $atts&gt;\n";
+				$maintext .= "<span onclick=\"window.open('index.php?action=$action&act=redit&cid=$ttxml->fileid&sid=$aid', 'edit');\">&lt;{$tmp[0]} $atts&gt;</span>\n";
 			};
-			$maintext .= "$form\t$tid";
+			$maintext .= "<span onclick=\"window.open('index.php?action=tokedit&cid=$ttxml->fileid&tid=$tid', 'edit');\">$form\t$tid";
 			foreach ( $sattlist as $key => $val ) {
 				if ( $val == "inherit" ) $aval = forminherit($tok, $key);
 				else $aval = $tok[$key];
-				$maintext .= "\t$aval";
+				$maintext .= "</span>\t$aval";
 			}
 			$maintext .= "\n";
 			foreach ( $edges[$tid]['end'] as $tmp ) {
