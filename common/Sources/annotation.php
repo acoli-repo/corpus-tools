@@ -315,7 +315,7 @@
 			function download(id) {
 			  // Generate download of .txt file with some content
 			  var text = document.querySelector(id);
-			  var filename = '$ttxml->xmlid.$annotation.txt';
+			  var filename = '$ttxml->xmlid.$annotation.vrt';
 
 			  copiar(filename, text.textContent);
 			};
