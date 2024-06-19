@@ -212,7 +212,8 @@
 	
 		if ( !$_POST ) $_POST = $_GET;
 		$maintext .= "<h1>Raw CQL Query</h1>
-			<p>Below you can type in a sequence of CQL queries for the CQP processor, and the interface will display the final result.
+			<p>Below you can type in a sequence of CQL queries for the CQP processor, and the interface will display the final result. 
+				Due to the way CQP is called, <i>cat</i> cannot be used, use <i>tabulate</i> instead.
 		
 			<form action='index.php?action=$action&act=$act' method=post>
 				<textarea autocomplete=\"on\" style='width: 100%; height: 200px;' name=query>{$_POST['query']}</textarea>

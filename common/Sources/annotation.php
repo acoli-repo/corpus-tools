@@ -222,6 +222,7 @@
 			print "Changes save. Reloading. 
 				<script language=Javascript>top.location='index.php?action=$action&cid=$fileid&annotation=$annotation'</script>"; 
 
+
 	} else if ( $fileid && $act == "vert" ) {
 
 		check_login();
@@ -269,10 +270,19 @@
 			else if ( getset("xmlfile/pattributes/forms/$key/inherit") ) $sattlist[$key] = "inherit";
 		};
 		
+		$nl = "\n";
+		if ( $_GET['style'] == "inline" ) $nl = "";
 		$maintext .= "
 			<p><button id='boton2' onclick=\"download('#div-text')\">Download</button> - click on a line to edit the content
 			<hr>
-			<pre id='div-text'>&lt;text id=\"$ttxml->xmlid\" nodeatt=\"$typeatt\"&gt;\n";
+			<style>
+			pre .token { color: #888888; }
+			pre .tag { font-weight: bold; }
+			</style>";
+		if ( $_GET['style'] == "inline" ) 
+			$maintext .= "<div id='mtxt'>&lt;text id=\"$ttxml->xmlid\" nodeatt=\"$typeatt\"&gt;";
+		else
+			$maintext .= "<pre id='div-text'>&lt;text id=\"$ttxml->xmlid\" nodeatt=\"$typeatt\"&gt;\n";
 		foreach ( $toklist as $tok ) {
 			$form = $tok['form'] or $form = $tok."";
 			$tid = $tok['id']."";
@@ -282,17 +292,21 @@
 					if ( $key == "corresp" ) continue;
 					$atts .= " $key=\"$val\"";
 				};
-				$maintext .= "<span onclick=\"window.open('index.php?action=$action&act=redit&cid=$ttxml->fileid&sid=$aid', 'edit');\">&lt;{$tmp[0]}$atts&gt;</span>\n";
+				$maintext .= "<span class='tag' onclick=\"window.open('index.php?action=$action&act=redit&cid=$ttxml->fileid&sid=$aid', 'edit');\">&lt;{$tmp[0]}$atts&gt;</span>$nl";
 			};
-			$maintext .= "<span onclick=\"window.open('index.php?action=tokedit&cid=$ttxml->fileid&tid=$tid', 'edit');\">$form\t$tid";
-			foreach ( $sattlist as $key => $val ) {
-				if ( $val == "inherit" ) $aval = forminherit($tok, $key);
-				else $aval = $tok[$key];
-				$maintext .= "</span>\t$aval";
-			}
-			$maintext .= "\n";
+			if ( $_GET['style'] == "inline" ) { 
+				$maintext .= "<span class='token' onclick=\"window.open('index.php?action=tokedit&cid=$ttxml->fileid&tid=$tid', 'edit');\">$form</span> ";
+			} else {
+				$maintext .= "<span class='token' onclick=\"window.open('index.php?action=tokedit&cid=$ttxml->fileid&tid=$tid', 'edit');\">$form\t$tid";
+				foreach ( $sattlist as $key => $val ) {
+					if ( $val == "inherit" ) $aval = forminherit($tok, $key);
+					else $aval = $tok[$key];
+					$maintext .= "\t$aval";
+				}
+				$maintext .= "</span>$nl";
+			};
 			foreach ( $edges[$tid]['end'] as $tmp ) {
-				$maintext .= "&lt;/{$tmp[0]}&gt;&lt;--id=\"{$tmp[1]}\"--&gt;\n";
+				$maintext .= "<span  class='tag'>&lt;/{$tmp[0]}&gt;&lt;--id=\"{$tmp[1]}\"--&gt;</span>$nl";
 			};
 		};
 		$maintext .= "&lt;/text&gt;</pre>
@@ -320,6 +334,11 @@
 			  copiar(filename, text.textContent);
 			};
 		 </script>";
+		if ( $_GET['style'] == "inline" ) {
+			$newstyle = ""; $newtxt = "VRT";
+		} else { $newstyle = "inline"; $newtxt = "inline"; };
+		$maintext .= " &bull; <a href='index.php?action=$action&act=$act&cid=$ttxml->fileid&annotation=$annotation&style=$newstyle'>switch to $newtxt view</a>";
+
 
 	} else if ( $fileid && $act == "redit" ) {
 
