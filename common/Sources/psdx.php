@@ -20,7 +20,7 @@
 		};
 	};
 		
-	if ( $act == 'query' ) {
+	if ( $act == 'query' && ( file_exists("cqp/s_id.avs") || getset("qlis/nobtql") )  ) {
 	
 		print "Reloading to BTQL
 			<script language=Javascript>window.location='index.php?action=btql&type=PSDX&query={$_GET['query']}'</script>
