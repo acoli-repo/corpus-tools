@@ -79,7 +79,7 @@ void treatfile ( string filename ) {
 	if ( debug > 2 ) {	cout << "-- Trying: " << filename << endl;  };
 
 	if ( filename.find(extension) == -1 ) { 
-        if ( debug > 0 ) { cout << "  Skipping non-XML file: " << filename << endl; };
+        if ( debug > 0 ) { cout << "  Skipping file - not matching " << extension << ": " << filename << endl; };
 		return; 
 	}; // We can only treat XML files and assume those always end on .xml
 

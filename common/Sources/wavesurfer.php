@@ -3,7 +3,7 @@
 	require("$ttroot/common/Sources/ttxml.php");
 	
 	# Determine if we need to cut out part of the text based on audio
-	if ( $settings['defaults']['media']['type'] == "inline" ) {
+	if ( getset('defaults/media/type') == "inline" && getset('xmlfile/speech/paged') !== "inherit") ) {
 		$settings['xmlfile']['paged'] = array ( 
 			"element" => "media",
 			"display" => "audio file",
@@ -28,7 +28,11 @@
 		<h1>".$ttxml->title()."</h1>";
 	// $maintext .= $ttxml->tableheader();
 	
-	$utttag = strtoupper($_GET["utt"]) or $utttag = $settings['xmlfile']['defaults']['speechturn'] or $utttag = "u"; // Make it possible to use <p> instead of <u>
+	$utttag = strtoupper($_GET["utt"]) or $utttag = getset('xmlfile/defaults/speechturn', "U"); // Make it possible to use <p> instead of <u>
+	$alttag = strtoupper($_GET["alt"]) or $alttag = getset('xmlfile/speech/highlight', $utttag);
+	$showsubtitles = $_GET["subtitles"] or $showsubtitles = getset('xmlfile/speech/showsubtitles', 0);
+    $showspeaker =  $_GET["speaker"] or  $showspeaker = geset('xmlfile/speech/showspeaker', 0);
+
  	$tmp = "//".strtolower($utttag)."[not(@id)]"; // print $tmp; exit;
 	if ( $username && $ttxml->xpath($tmp) ) {
 		$maintext .= "<p class=wrong>The waveform function will not work properly since the XML file has not been (properly) numbered -
@@ -60,7 +64,8 @@
 				<p><i><a href='$videourl'>{%Video fragment for this text}</a></i></p>
 			</video>";
 	};
-	if ( $audiourl == "" ) fatal ("XML file $fileid has no media element providing a URL to the sound file");
+	# TODO : when can there be a missing audio URL?
+	if ( $audiourl == "" && 1 != 2 ) fatal ("XML file $fileid has no media element providing a URL to the sound file");
 
 	if ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['element'] == "media" ) {
 		$pagenav = $ttxml->pagenav;
@@ -258,9 +263,11 @@
 			var tid = '$ttxml->fileid'; 
 			var	jmp = '$jmp';
 			var	fldr = '$fldr';
-			var alttag = '$utttag';
+			var alttag = '$alttag';
 			var utttag = '$utttag';
 			var setedit = $setedit;
+			var speaker = $showspeaker;
+			var subtitles = $showsubtitles;
 			$spectjs
 			</script>";
 

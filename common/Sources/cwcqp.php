@@ -88,14 +88,16 @@ class CQP
 		
 		$env = array(); # $env = array('some_option' => 'aeiou');
 
-		$this->prcs = proc_open($cqpapp.' -r '.$registryfolder.' -c', $descriptorspec, $this->pipes, '-c', $env); # This should be -c
+		$this->prcs = proc_open($cqpapp.' -r '.$registryfolder.' -c', $descriptorspec, $this->pipes, null, $env);
 		ignore_user_abort(true); # Continue even if user terminates connection
 		foreach ($this->pipes as $pipe) {
 			stream_set_blocking($pipe, false);
 		};
 
-        if ( !is_resource($this->prcs) && $username ) {
-        	fatal("Failed to open CWB - please check on the server: ".$cqpapp.' -r '.$registryfolder.' -c');
+        if ( !is_resource($this->prcs) ) {
+        	$prm = substr(sprintf('%o', fileperms($cqpapp)), -4);
+        	if ( $username ) fatal("Failed to open CWB - please check on the server: ".$cqpapp.' -r '.$registryfolder.' -c : ');
+        	else fatal("Due to an error, searching is currently not available");
         };
 		
 		$version = fread($this->pipes[1], 4096); # Read the version number;

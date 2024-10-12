@@ -82,7 +82,7 @@
 	if ( !file_exists(SMARTY_DIR . 'Smarty.class.php') ) {
 		if ( $username ) {
 			print "Smarty engine not installed or not found. Please install Smarty or indicate where it can be found - assuming ".SMARTY_DIR; exit; // fatal() puts this into a loop
-		} else print "This site is currently down due to technical problems";
+		} else print "This site is currently down due to technical problems with the Smarty template engine";
 	};
 	include(SMARTY_DIR . 'Smarty.class.php');
 
