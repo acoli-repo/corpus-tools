@@ -3,7 +3,7 @@
 	require("$ttroot/common/Sources/ttxml.php");
 	
 	# Determine if we need to cut out part of the text based on audio
-	if ( getset('defaults/media/type') == "inline" && getset('xmlfile/speech/paged') !== "inherit") ) {
+	if ( getset('defaults/media/type') == "inline" && getset('xmlfile/speech/paged') !== "inherit" ) {
 		$settings['xmlfile']['paged'] = array ( 
 			"element" => "media",
 			"display" => "audio file",
