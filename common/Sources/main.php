@@ -173,9 +173,10 @@
 	if ( $template == "print" ) $printable = true;
 
 	// create smarty object
-	$smarty = new Smarty\Smarty;
-	if ( !$smarty ) { 
-		smarty = new Smarty;
+	if (class_exists('Smarty')) {
+		$smarty = new Smarty;
+	} else {
+		$smarty = new Smarty\Smarty;
 	};
 
 	
