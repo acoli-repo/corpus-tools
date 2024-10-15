@@ -723,7 +723,7 @@ class TTXML
 	function page ( $pagid = "", $opts = "" ) {
 		global $action; global $settings; global $pbtype;
 		
-		# $editxml = $this->rawtext; # We might have white-trimmed the XML
+		# This gives an error if there is no XML
 		$editxml = $this->xml->asXML();
 		$tmp = $this->xml->xpath($xp);
 		if ( $tmp ) $page = current($tmp); 

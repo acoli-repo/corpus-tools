@@ -359,7 +359,7 @@
 	function getlangfile ( $ffid, $common = false, $flang = null, $options = null ) {
 		global $lang; global $settings; global $getlangfile_lastfile;  global $getlangfile_lastfolder;  global $ttroot; global $username, $action, $sharedfolder;
 		if ( $flang === null ) $flang = $lang; $html = "";
-		$deflang = $settings['languages']['default'] or $deflang = "en";
+		$deflang = getset('languages/default',  "en");
 		
 		$tryfolders = array ( "Pages", "$sharedfolder/Pages", "$ttroot/common/Pages");
 		$trypages = array ( "{$ffid}-$flang", "{$ffid}", "{$ffid}-$deflang" );

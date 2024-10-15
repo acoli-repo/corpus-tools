@@ -173,7 +173,10 @@
 	if ( $template == "print" ) $printable = true;
 
 	// create smarty object
-	$smarty = new Smarty;
+	$smarty = new Smarty\Smarty;
+	if ( !$smarty ) { 
+		smarty = new Smarty;
+	};
 
 	
 	# Some settings that used to be flexible, but now fixed
