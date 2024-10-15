@@ -313,6 +313,7 @@ class TTXML
 		
 			$tableheader .= "<table>";
 			foreach ( $settings['teiheader'] as $key => $val ) {
+				if ( !is_object($val) ) continue;
 				$disp = $val['display'] or $disp = $key;
 				if ( $val['type'] == "sep" ) {
 					$tableheader .= "<tr><th colspan=2>{%$disp}";
