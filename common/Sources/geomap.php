@@ -8,6 +8,7 @@
 $geofld = getset('geomap/cqp/geo', "geo");
 $geoplace = getset('geomap/cqp/place', "place");
 $ftit = getset('geomap/cqp/title', "id");
+$geosep = getset('geomap/separator', ' ')
 
 $docname = getset('geomap/documents',  "documents");
 $pagtit = getset('geomap/title', "Document Map");
@@ -65,7 +66,7 @@ if ( $act == "xml" ) {
 		if ( preg_match( "/^=(.*)$/", $geodesc, $matches ) ) $desc = $matches[1];
 		else $desc = current($geonode->xpath($geodesc))."";  
 	
-		list ( $lat, $lng ) = explode ( " ", $geo );
+		list ( $lat, $lng ) = explode ( $geosep, $geo );
 		$maintext .= "<li>$place"; if ( $desc ) $maintext .= ": $desc";
 		
 		$descs[$geo] .= "<p>$desc</p>"; $desctxt = $descs[$geo];
@@ -299,7 +300,7 @@ if ( $act == "xml" ) {
 		$sep = ""; 
 		foreach ( explode ( "\n", $results ) as $line ) {	
 			list ( $geo, $cid, $cnt ) = explode ( "\t", $line );
-			list ( $lat, $lng ) = explode ( " ", $geo );
+			list ( $lat, $lng ) = explode ( $geosep, $geo );
 			$name = $names[$geo];
 			$name = htmlentities($name, ENT_QUOTES);
 			$lat = preg_replace("/,.*/", "", $lat);
@@ -325,7 +326,7 @@ if ( $act == "xml" ) {
 	
 	if ( $settings['geomap']['zoom'] ) $moresettings .= "var defzoom = {$settings['geomap']['zoom']};";
 	if ( $settings['geomap']['startpos'] ) {
-		list ( $lat, $lng ) = explode ( " ", $settings['geomap']['startpos'] );
+		list ( $lat, $lng ) = explode ( $geosep, $settings['geomap']['startpos'] );
 		$moresettings .= " var defpos = {lat: $lat, lng: $lng };";
 	};
 
