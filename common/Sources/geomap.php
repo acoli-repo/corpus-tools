@@ -5,23 +5,25 @@
 # Consisting of lat and lng separated by a space
 # (c) Maarten Janssen, 2016
   
-$geofld = $settings['geomap']['cqp']['geo'] or $geofld = "geo";
-$geoplace = $settings['geomap']['cqp']['place'] or $geoplace = "place";
-$ftit = $settings['geomap']['cqp']['title'] or $ftit = "id";
+$geofld = getset('geomap/cqp/geo', "geo");
+$geoplace = getset('geomap/cqp/place', "place");
+$ftit = getset('geomap/cqp/title', "id");
 
-$docname = $settings['geomap']['documents'] or $docname = "documents";
-$pagtit = $settings['geomap']['title'] or $pagtit = "Document Map";
+$docname = getset('geomap/documents',  "documents");
+$pagtit = getset('geomap/title', "Document Map");
 
-$apikey = $settings['geomap']['apikey'];  
+$apikey = getset('geomap/apikey');  
 
 $collist = array( 'blue', 'red', 'purple', 'violet', 'pink', 'orange-dark', 'orange', 'blue-dark', 'cyan', 'green-dark', 'green', 'green-light', 'black' );
 
-$markertype = $_GET['marker'] or $markertype = $settings['geomap']['markertype'];
+$markertype = $_GET['marker'] or $markertype = getset('geomap/markertype');
 
-if ( $markertype == "pie" || $markertype == "cluster"  ) 
+if ( $markertype == "pie" || $markertype == "cluster"  ) {
+	if ( !is_array($settings['geomap']) ) $settings['geomap'] = array();
 	$settings['geomap']['cluster'] = 1; 
+};
   
-if ( $settings['geomap']['cluster'] ) {
+if ( getset('geomap/cluster') ) {
 	$cluster = "	    
 		<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css\"/>
 	    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.Default.css\"/>
@@ -315,7 +317,10 @@ if ( $act == "xml" ) {
 			};
 		};
 	};
-	$pointlist = join(", ", array_values($jsonpoints)); 
+	$pointlist = "";
+	if ( is_array($jsonpoints) ) {
+		$pointlist = join(", ", array_values($jsonpoints)); 
+	};
     $jsondata .= "[ $pointlist ]";
 	
 	if ( $settings['geomap']['zoom'] ) $moresettings .= "var defzoom = {$settings['geomap']['zoom']};";
