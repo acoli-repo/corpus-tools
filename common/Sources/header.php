@@ -127,15 +127,16 @@
 						
 			$xval = str_replace('"', '&quot;', $to.""); # $to->asXML()
 			$xval = str_replace("'", '&#039;', $xval);
+			$defval = $headerfield['default'];
 
 			$qnum++; $additem = "";
 			# TODO : the "type" is wrong I think
 			if ( ( $headerfield['type'] == "select" || $headerfield['input'] == "select"  ) && $headerfield['options'] ) {
 				$optionlist = ""; $somesel = 0;
-				if ( !$xval ) $optionlist = "<option value='' selected>[{%select}]</option>"; 
+				if ( !$xval && !$defval ) $optionlist = "<option value='' selected>[{%select}]</option>"; 
 				foreach ( $headerfield['options'] as $kva ) { 
 					$kvatxt = $kva['display'] or $kvatxt = $kva['key'];
-					if ( $xval == $kva ) { $sel = "selected"; $somesel = 1; } else $sel = ""; 
+					if ( $xval == $kva || ( !$xval && $kva['key'] == $defval ) ) { $sel = "selected"; $somesel = 1; } else $sel = ""; 
 					$optionlist .= "<option value='{$kva['key']}' $sel>{$kvatxt}</option>"; 
 				};
 				if ( $xval && !$somesel ) $optionlist .= "<option value='$xval' selected>$xval</option>"; 

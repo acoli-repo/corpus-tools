@@ -23,6 +23,7 @@
 		$res = shell_exec($cmd);
 		if ( preg_match("/NEWID: ([^ ]+)(.*)/", $res, $matches) ) {
 			$newid = $matches[1]; $newtype = $matches[2];
+			if ( substr($newid,0,2) == 'w-' ) $newtype = "tok";
 			$maintext .= "<p>New ID: $newid / $newtype";
 		} else {
 			$maintext .= "<p>No new ID: $res";

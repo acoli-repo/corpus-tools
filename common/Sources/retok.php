@@ -51,7 +51,7 @@
 			$nodepos = $_GET['pos'];
 		} else {
 			## By default, insert a token with no written form
-			$newnode = "<tok><ee/></tok>";
+			$newnode = "<tok$tmpid><ee/></tok>";
 		};
 		
 		$nodetype = substr($tokid,0,1);
@@ -142,7 +142,7 @@
 		
 		if ( $goto ) $newurl = "&nexturl=$goto";
 		$nexturl = "index.php?action=renumber&cid=$fileid&tid=$ntid&dir=$nodedir$newurl";
-					
+		
 		saveMyXML($file, $fileid);
 				
 		$maintext .= "<hr><p>Your tok has been inserted - reloading to <a href='$nexturl'>the edit page</a>";

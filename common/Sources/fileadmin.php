@@ -100,6 +100,7 @@
 	$maintext .= "<p>Default file view: $defview<p><table>";
 	
 	$views = getset("views");
+	if ( !is_array($views) ) $views = array();
 	foreach ( $views as $key => $val ) {
 		$rest = "Available";
 		if ( preg_match("/(.*?)\&/", $key, $matches) ) {

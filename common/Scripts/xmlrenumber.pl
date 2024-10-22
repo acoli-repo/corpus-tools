@@ -77,6 +77,10 @@ use XML::LibXML;
 			if ( $debug ) { print "\nRenumbering to w-$cnt"; };
 			$ttnode->setAttribute('id', "w-$cnt");
 			$cnt++;
+		} elsif ( $ttnode->getAttribute('id') eq 'torenew' ) {	
+			print "\nNEWID: w-$cnt"; 
+			$ttnode->setAttribute('id', "w-$cnt");
+			$cnt++;
 		};
 		$dcnt = 0; $tokid = $ttnode->getAttribute("id"); $tokid =~ s/w-//;
 		if ( $debug ) { print "\n- $cnt\t".$ttnode->textContent; };
