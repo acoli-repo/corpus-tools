@@ -8,7 +8,7 @@
 $geofld = getset('geomap/cqp/geo', "geo");
 $geoplace = getset('geomap/cqp/place', "place");
 $ftit = getset('geomap/cqp/title', "id");
-$geosep = getset('geomap/separator', ' ')
+$geosep = getset('geomap/separator', ' ');
 
 $docname = getset('geomap/documents',  "documents");
 $pagtit = getset('geomap/title', "Document Map");
