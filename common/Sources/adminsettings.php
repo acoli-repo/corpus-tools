@@ -99,7 +99,7 @@
 		
 		if ( $sharedfolder ) {
 			$sharedxml = simplexml_load_string(file_get_contents("$sharedfolder/Resources/settings.xml"));
-			$sharednode = current($sharedxml->xpath($xpath));
+			if ( is_object($sharedxml) ) $sharednode = current($sharedxml->xpath($xpath));
 			$sharedval = $sharednode."";
 			$defval = $sharedval;
 			if ( $sharedval ) {
@@ -462,7 +462,7 @@
 				$txtcol = "#888888"; $thcol = "#d2d2ff";
 				if ( $sharedfolder )  {
 					$xpath = makexpath($valnode)."/@$key";
-					$sharednode = current($sharedxml->xpath($xpath));
+					if ( is_object($sharedxml) ) $sharednode = current($sharedxml->xpath($xpath));
 				} 
 				if ( $sharednode ) {
 					$itemtxt = "shared: ".$sharednode;

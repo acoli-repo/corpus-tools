@@ -46,6 +46,7 @@
 		replacenode($tmp, $qrec->asXML());
 		unset($qrec[0]);
 	
+		if ( !is_object($qlist) ) fatal("Failed to publish query $id");
 		file_put_contents($qfn, $qlist->asXML()); 
 		file_put_contents("Resources/queries.xml", $glqs->asXML()); 
 		print "<p>Query published<script>top.location='index.php?action=$action&type={$qrec['ql']}';</script>";
@@ -57,6 +58,7 @@
 
 		$id = $_GET['id'];
 		$qrec = current($qlist->xpath("//query[@id=\"$id\"]"));
+		if ( !is_object($qrec) ) fatal("No such query: $id");
 		$qrec['name'] = $_POST['name'];
 		$qq = $qrec->q;
 		if ( $qq ) $qq[0] = $_POST['query'];
@@ -78,6 +80,7 @@
 
 		if ($qrec) unset($qrec[0]);
 	
+		if ( !is_object($qlist) ) fatal("Failed to delete query $id");
 		file_put_contents($qfn, $qlist->asXML()); 
 		print "<p>Query saved<script>top.location='index.php?action=$action&type={$qrec['ql']}';</script>";
 		exit;

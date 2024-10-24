@@ -10,7 +10,7 @@
 
 	$binvals = array ( "cqp",  "add", "noshow", "nosearch", "noedit", "i18n" );
 	
-	if ( $settings['teiheader']['recqp'] && ( $act == "save" || $act == "toggle") ) $recqpact = "&act=recqp"; 
+	if ( getset('teiheader/recqp') && ( $act == "save" || $act == "toggle") ) $recqpact = "&act=recqp"; 
 	
 	if ( $act == "toggle" ) {
 
