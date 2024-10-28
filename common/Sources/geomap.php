@@ -315,8 +315,15 @@ if ( $act == "xml" ) {
 					$cnttxt .= $sep."$mset:$mdoc:$mcnt"; $sep = ","; 
 				};
 				$jsonpoints[$geo] = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$name\", \"cnt\": \"$cnttxt\" }";
+			} else if ( $username && $line ) {
+				$cid2 = str_replace('xmlfiles/', '', $cid);
+				$geowrong .= "<tr><td>$cid2<td><a target=edit href='index.php?action=header&act=edit&cid=$cid2&amp;tpl=edit'>$geo</a>";
 			};
 		};
+		if ( $geowrong ) {
+			$bottomtext .= "<HR><p class=warning>Warning: the following GEO coordinates are not in correct format: (expecting \"NUM{$geosep}NUM\")</p> <table>$geowrong</table>";
+		};
+		
 	};
 	$pointlist = "";
 	if ( is_array($jsonpoints) ) {
@@ -324,9 +331,14 @@ if ( $act == "xml" ) {
 	};
     $jsondata .= "[ $pointlist ]";
 	
-	if ( $settings['geomap']['zoom'] ) $moresettings .= "var defzoom = {$settings['geomap']['zoom']};";
-	if ( $settings['geomap']['startpos'] ) {
-		list ( $lat, $lng ) = explode ( $geosep, $settings['geomap']['startpos'] );
+	if ( getset('geomap/zoom') ) $moresettings .= "var defzoom = {$settings['geomap']['zoom']};";
+	if ( getset('geomap/startpos') != '' ) {
+		list ( $lat, $lng ) = explode ( $geosep, getset('geomap/startpos') );
+		if ( !$lng ) {
+			$msg = "A configuration error has occurred";
+			if ( $username ) $msg = "Default position not correctly defined (expecting \"NUM{$geosep}NUM\"): ".getset('geomap/startpos');
+			fatal($msg);
+		};
 		$moresettings .= " var defpos = {lat: $lat, lng: $lng };";
 	};
 
@@ -379,6 +391,7 @@ if ( $act == "xml" ) {
 	</script>
 	<hr> 
 	$bottomactions
+	$bottomtext
 	";
 	
 	
