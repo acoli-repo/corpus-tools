@@ -39,6 +39,7 @@
 	// Use start positions or set temporary position to fit-to-screen later 
 	var startpos;
 	if ( typeof defpos == "undefined" ) { 
+		if ( doclist.length == 0 ) doclist = [ { lat: "50.0874654", lng: "14.4212535"} ];
 		startpos = { lat: doclist[0].lat, lng: doclist[0].lng }; 
 	} else { startpos = defpos; };
 	var startzoom ; 

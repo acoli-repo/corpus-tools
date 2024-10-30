@@ -66,6 +66,7 @@
 		"Select Subcorpus" => "Select Subcorpus",
 		"Word Distribution" => "Word Distribution",
 		"Words by" => "Words by",
+		"Global Data" => "Global Data",
 		"Corpus Search" => "Corpus Search",
 		"instances per million tokens" => "instances per million tokens",
 		"over whole corpus" => "over whole corpus",

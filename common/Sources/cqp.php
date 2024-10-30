@@ -245,10 +245,11 @@
 		if ( file_exists("Page/distributetext.html") ) $maintext .= getlangfile("distributetext");
 
 		$corpid = strtolower($cqpcorpus);
-		$showlist = $settings['cqp']['distribute']
-			or $showlist = $settings['cqp']['sattributes']['text'];
+		$showlist = getset('cqp/distribute')
+			or $showlist = getset('cqp/sattributes/text', array());
 		foreach ( $showlist as $key => $val1 ) {
-			$val = $settings['cqp']['sattributes']['text'][$key];
+			$val = getset("cqp/sattributes/text/$key");
+			if ( !is_array($val) ) continue;
 			if ( strpos($key, '_') !== false ) { $xkey = $key; } else { $xkey = "text_$key"; };
 			if ( $val['type'] != "select" && $val['type'] != "kselect" && strpos($key, '_') === false ) continue;
 
@@ -280,6 +281,31 @@
 		$maintext .= "<h1>{%Word Distribution}</h1>";
 		if ( file_exists("Page/distributetext.html") ) $maintext .= getlangfile("distributetext");
 
+		if ( !getset('cqp/distribute/noheader') ) {
+			$maintext .= "<h2>{%Global Data}</h2>";
+			
+			$typefld = getset('cqp/distribute/typefld', 'form');
+			
+			$maintext .= "<table class=restable>";
+			$rawsize = hrnum(filesize("cqp/word.corpus")/4);
+			$maintext .= "<tr><th title='Total number of tokens in the corpus'>Token count<td style='text-align: right'>$rawsize";
+			$lexsize = hrnum(filesize("cqp/$typefld.lexicon.idx")/4);
+			$maintext .= "<tr><th title='Number of different values in $typefld'>Type count<td style='text-align: right'>$lexsize";
+			if ( file_exists("cqp/lemma.lexicon.idx") ) {
+				$lemsize = hrnum(filesize("cqp/lemma.lexicon.idx")/4);
+				$maintext .= "<tr><th title='Number of different values in lemma'>Lemma count<td style='text-align: right'>$lemsize";
+			};
+			$docsize = hrnum(filesize("cqp/text.rng")/8);
+			$maintext .= "<tr><th title='Number of indexed documents'>Document count<td style='text-align: right'>$docsize";
+			if ( file_exists("cqp/s.rng") ) {
+				$ssize = hrnum(filesize("cqp/s.rng")/8);
+				if ( $ssize ) $maintext .= "<tr><th title='Number of s regions'>Sentence count<td style='text-align: right'>$ssize";
+			};
+			$maintext .= "</table>";
+	
+		};
+
+
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
@@ -288,10 +314,11 @@
 		$cqpquery = "Matches = $cql";
 		$results = $cqp->exec($cqpquery);
 
-		$showlist = $settings['cqp']['distribute']
-			or $showlist = $settings['cqp']['sattributes']['text'];
+		$showlist = getset('cqp/distribute')
+			or $showlist = getset('cqp/sattributes/text', array());
 		foreach ( $showlist as $key => $val1 ) {
-			$val = $settings['cqp']['sattributes']['text'][$key];
+			$val = getset("cqp/sattributes/text/$key");
+			if ( !is_array($val) ) continue;
 			if ( strpos($key, '_') !== false ) { $xkey = $key; } else { $xkey = "text_$key"; };
 			if ( $val['type'] != "select" && $val['type'] != "kselect" && strpos($key, '_') === false ) continue;
 			$cqpquery = "group Matches matchend $xkey";

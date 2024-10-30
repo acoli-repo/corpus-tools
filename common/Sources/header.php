@@ -104,6 +104,7 @@
 			
 		$qnum = 0;
 		foreach ( $settings['teiheader'] as $headerfield ) {
+			if ( !is_array($headerfield) ) continue;
 			$xquery = $headerfield['xpath'] or $xquery = $headerfield['key'];
 			
 			$desc = $headerfield['description'];

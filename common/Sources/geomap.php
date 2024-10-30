@@ -43,6 +43,12 @@ if ( getset('geomap/cluster') ) {
 	";
 };
 
+$tilelayer = getset( 'geomap/osmlayer', "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png");
+$moresettings .= "var tilelayer = '$tilelayer';";
+if ( $settings['geomap']['osmlayertit'] ) $moresettings .= "var tiletit = '{$settings['geomap']['osmlayertit']}'; ";
+if ( $settings['geomap']['osmlayerid'] ) $moresettings .= "var tileid = '{$settings['geomap']['osmlayerid']}'; ";
+
+
 if ( $act == "xml" ) {
 
 	require ("$ttroot/common/Sources/ttxml.php");
@@ -57,12 +63,18 @@ if ( $act == "xml" ) {
 
 	$maintext .= "<h1>{%Geographical Locations}</h1>";
 	$maintext .= $ttxml->tableheader();
+
+	if ( $username ) {
+		$maintext .= "\n\n<!-- \nGEOXP: $geoxp \nGEOLL: $geoll \nGEONAME: $geoname \nGEODEC: $geodesc \nGEOID: $geoid -->\n\n";
+	};
 	
 	$ners = array(); $locs = array();
 	foreach ( $ttxml->xpath($geoxp) as $geonode ) {
 	
 		$geo = current($geonode->xpath($geoll))."";  
 		if ( !$geo ) continue;
+		
+		$geonode['class'] = 'nername';
 		
 		if ( $geoname == "." ) $place = strip_tags($geonode->asXML());
 		else $place = current($geonode->xpath($geoname)).""; 
@@ -78,12 +90,13 @@ if ( $act == "xml" ) {
 		if ( !$locs[$geo] ) $locs[$geo] = array();
 		array_push( $locs[$geo], array( "loc" => $place, "id" => $id, "nerid" => $nerid ) );
 
+		list ( $lat, $lng ) = explode ( $geosep, $geo );
 		$descs[$geo] .= "<p>$desc</p>"; $desctxt = $descs[$geo];
 		if ( $lng != "" && $lat != "" ) $jsonpoints[$geo] = "{ \"id\": \"$id\", \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
 
 	};
 	
-	$namelist = "<h2>Locations</h2><div>";
+	$namelist = "";
 	foreach ( $ners as $place => $dats ) {
 		
 		$ids = array();
@@ -107,11 +120,19 @@ if ( $act == "xml" ) {
 
 	// Draw the actual map
 	$maintext  .= "
+	<style>	
+		.taboff  { border: 1px solid #888888; background-color: #eeeeee; text-align: center; cursor: pointer; color: #992200; width: 50%; }
+		.tabon  { border: 1px solid #888888; background-color: #66ff66; text-align: center; width: 50%; }
+		.nername { color: #55bb66; }
+	</style>
 	<table style='width: 100%'>
 		<tr>
-			<td style='width: 60%'><div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
-			<td style='width: 20%; vertical-align: top;'><div id=\"mtxt\">$editxml</div>
-			<td style='width: 20%; vertical-align: top;'>$namelist
+			<td style='width: 50%'><div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px; vertical-align: top;'></div>
+			<td style='width: 50%; vertical-align: top;'>
+				<table style='width: 100%; height: 30px;'><tr><td class='tabon' onclick=\"viewswitch(this);\" id='mtxt-but'>Text</td><td class='taboff' onclick=\"viewswitch(this);\" id='namelist-but'>Locations</td></tr></table>
+				<div id=\"mtxt\" style='width: 100%; height: 500px;  vertical-align: top; overflow-y: scroll;' >$editxml</div>
+				<div style='display:none; width: 100%;  height: 500px; overflow-y: scroll;' vertical-align: top; id=namelist>$namelist</td>
+			</td>
 		</tr>
 	</table>
 	<script>
@@ -126,11 +147,29 @@ if ( $act == "xml" ) {
 	<script src=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js\"></script>
 	<script>
 	  initMap();
+	  function viewswitch(but) {
+	  	id = but.getAttribute('id').replace('-but', '');
+	  	document.getElementById('mtxt-but').className = 'taboff';
+	  	document.getElementById('namelist-but').className = 'taboff';
+	  	but.className = 'tabon';
+	  	document.getElementById('mtxt').style.display = 'none';
+	  	document.getElementById('namelist').style.display = 'none';
+	  	document.getElementById(id).style.display = 'block';
+	  };
 	  function hlpl(id) { 
 	  	mrkr = markera[id];
-	  	console.log(mrkr); mrkr.fire('click');
+	  	mrkr.fire('click');
 	  };
-	  console.log(markera);
+	  nameList = document.getElementsByClassName('nername');
+	  for ( var a=0; a<nameList.length; a++ ) {
+	  	var nere = nameList[a];
+	  	var mid = nere.getAttribute('id');
+	  		nere.onmouseover = function () {
+	  			mid = this.getAttribute('id');
+		  		mrkr = markera[mid];
+		  		mrkr.fire('click');
+	  		};
+	  };
 	</script>
 	<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%Text view}</a></p>";
 	
@@ -396,9 +435,6 @@ if ( $act == "xml" ) {
 	$moresettings .= "var cql='".urlencode($_GET['cql'])."';";
 		
 	// Draw the actual map 
-	if ( $settings['geomap']['osmlayer'] ) $moresettings .= "var tilelayer = '{$settings['geomap']['osmlayer']}'; ";
-	if ( $settings['geomap']['osmlayertit'] ) $moresettings .= "var tiletit = '{$settings['geomap']['osmlayertit']}'; ";
-	if ( $settings['geomap']['osmlayerid'] ) $moresettings .= "var tileid = '{$settings['geomap']['osmlayerid']}'; ";
 
 	if ( $direct ) { $bottomactions .= $bsep."<a href='$direct'>{%Direct URL}</a>"; $bsep = " &bull; "; };
 

@@ -522,7 +522,7 @@
 			<p>Checking if record exists
 			";
 		
-		$nerrec = current($nerxml->xpath($xp));
+		if ( $xp && $nerxml) $nerrec = current($nerxml->xpath($xp));
 		if ( $nerrec ) {
 			$nerrecid = $nerrec['id'];
 			$maintext .= showxml($nerrec);
