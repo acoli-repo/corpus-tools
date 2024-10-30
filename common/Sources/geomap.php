@@ -45,8 +45,18 @@ if ( getset('geomap/cluster') ) {
 
 $tilelayer = getset( 'geomap/osmlayer', "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png");
 $moresettings .= "var tilelayer = '$tilelayer';";
-if ( $settings['geomap']['osmlayertit'] ) $moresettings .= "var tiletit = '{$settings['geomap']['osmlayertit']}'; ";
+if ( $osmtit = getset('/osmlayertit') ) $moresettings .= "var tiletit = '$osmtit'; ";
 if ( $settings['geomap']['osmlayerid'] ) $moresettings .= "var tileid = '{$settings['geomap']['osmlayerid']}'; ";
+if ( getset('geomap/zoom') ) $moresettings .= "var defzoom = {$settings['geomap']['zoom']};";
+if ( getset('geomap/startpos') != '' ) {
+	list ( $lat, $lng ) = explode ( $geosep, getset('geomap/startpos') );
+	if ( !$lng ) {
+		$msg = "A configuration error has occurred";
+		if ( $username ) $msg = "Default position not correctly defined (expecting \"NUM{$geosep}NUM\"): ".getset('geomap/startpos');
+		fatal($msg);
+	};
+	$moresettings .= " var defpos = {lat: $lat, lng: $lng };";
+};
 
 
 if ( $act == "xml" ) {
@@ -92,11 +102,19 @@ if ( $act == "xml" ) {
 
 		list ( $lat, $lng ) = explode ( $geosep, $geo );
 		$descs[$geo] .= "<p>$desc</p>"; $desctxt = $descs[$geo];
-		if ( $lng != "" && $lat != "" ) $jsonpoints[$geo] = "{ \"id\": \"$id\", \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
-
-	};
+		if ( $lng != "" && $lat != "" ) {
+			if ( $idlist[$geo] && $idlist[$geo] != "" ) { 
+				$idlist[$geo] = $idlist[$geo].$geosep.$id;
+			} else {
+				$idlist[$geo] = $id;
+			};
+			$jsonpoints[$geo] = "{ \"id\": \"{$idlist[$geo]}\", \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
+		};
+	}; 
 	
-	$namelist = "";
+	ksort($ners);
+	$namelist = "<div style='font-size: large'>";
+
 	foreach ( $ners as $place => $dats ) {
 		
 		$ids = array();
@@ -109,7 +127,7 @@ if ( $act == "xml" ) {
 		}; $nerid = join(" ", $ids);
 		
 		list ( $lat, $lng ) = explode ( $geosep, $geo );
-		$namelist .= "<a onmouseover=\"hlpl('$id')\" href=\"index.php?action=ner&cid=$fileid&jmp=$nerid\" target=ner>$place</a><br/>"; if ( $desc ) $maintext .= ": $desc";
+		$namelist .= "<a onmouseover=\"hlpl('$nerid')\" href=\"index.php?action=ner&cid=$fileid&jmp=$nerid\" target=ner>$place</a><br/>"; if ( $desc ) $maintext .= ": $desc";
 		
 	};
 	$namelist .= "</div>";
@@ -130,14 +148,13 @@ if ( $act == "xml" ) {
 			<td style='width: 50%'><div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px; vertical-align: top;'></div>
 			<td style='width: 50%; vertical-align: top;'>
 				<table style='width: 100%; height: 30px;'><tr><td class='tabon' onclick=\"viewswitch(this);\" id='mtxt-but'>Text</td><td class='taboff' onclick=\"viewswitch(this);\" id='namelist-but'>Locations</td></tr></table>
-				<div id=\"mtxt\" style='width: 100%; height: 500px;  vertical-align: top; overflow-y: scroll;' >$editxml</div>
-				<div style='display:none; width: 100%;  height: 500px; overflow-y: scroll;' vertical-align: top; id=namelist>$namelist</td>
+				<div id=\"mtxt\" style='width: 100%; height: 550px;  vertical-align: top; overflow-y: scroll;' >$editxml</div>
+				<div style='display:none; width: 100%;  height: 550px; overflow-y: scroll;' vertical-align: top; id=namelist>$namelist</td>
 			</td>
 		</tr>
 	</table>
 	<script>
 	  $moresettings
-	  var defzoom = 8;
 	  var jsondata = '$jsondata';
 	  var doctxt = '{%$docname}';
 	  var cql = '';
@@ -160,13 +177,24 @@ if ( $act == "xml" ) {
 	  	mrkr = markera[id];
 	  	mrkr.fire('click');
 	  };
+	  var doclist = JSON.parse(jsondata);
+	  var mid2mids = [];
+	  for ( var a=0; a<doclist.length; a++ ) {
+	  	  tmp = doclist[a];
+	  	  mids = tmp.id;
+	  	  mida = mids.split(' ');
+		  for ( var b=0; b<mida.length; b++ ) {
+	  		mid = mida[b];
+	  		mid2mids[mid] = mids;
+	  	  };
+	  };
 	  nameList = document.getElementsByClassName('nername');
 	  for ( var a=0; a<nameList.length; a++ ) {
 	  	var nere = nameList[a];
 	  	var mid = nere.getAttribute('id');
 	  		nere.onmouseover = function () {
 	  			mid = this.getAttribute('id');
-		  		mrkr = markera[mid];
+		  		mrkr = markera[mid2mids[mid]];
 		  		mrkr.fire('click');
 	  		};
 	  };
@@ -411,16 +439,6 @@ if ( $act == "xml" ) {
 	};
     $jsondata .= "[ $pointlist ]";
 	
-	if ( getset('geomap/zoom') ) $moresettings .= "var defzoom = {$settings['geomap']['zoom']};";
-	if ( getset('geomap/startpos') != '' ) {
-		list ( $lat, $lng ) = explode ( $geosep, getset('geomap/startpos') );
-		if ( !$lng ) {
-			$msg = "A configuration error has occurred";
-			if ( $username ) $msg = "Default position not correctly defined (expecting \"NUM{$geosep}NUM\"): ".getset('geomap/startpos');
-			fatal($msg);
-		};
-		$moresettings .= " var defpos = {lat: $lat, lng: $lng };";
-	};
 
 	$fileheader = getlangfile("geomaptext", "edit");
 	
