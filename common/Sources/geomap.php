@@ -49,49 +49,90 @@ if ( $act == "xml" ) {
 	$ttxml = new TTXML($cid, false);
 	$fileid = $ttxml->fileid;
 	
-	$geoxp = $settings['geomap']['xml']['node'] or $geoxp = "//*[geo]";
-	$geoll = $settings['geomap']['xml']['geo'] or $geoll = "./geo";
-	$geoname = $settings['geomap']['xml']['name'] or $geoname = "./name";
-	$geodesc = $settings['geomap']['xml']['desc'] or $geodesc = "./desc";
+	$geoxp = getset('geomap/xml/node',  "//*[geo]");
+	$geoll = getset('geomap/xml/geo', "./geo");
+	$geoname = getset('geomap/xml/name',  "./name");
+	$geodesc = getset('geomap/xml/desc', "./desc");
+	$geoid = getset('geomap/xml/id', "./@id");
 
 	$maintext .= "<h1>{%Geographical Locations}</h1>";
 	$maintext .= $ttxml->tableheader();
 	
-	$maintext .= "<ul>";
+	$ners = array(); $locs = array();
 	foreach ( $ttxml->xpath($geoxp) as $geonode ) {
-
+	
 		$geo = current($geonode->xpath($geoll))."";  
-		$place = current($geonode->xpath($geoname)).""; 
+		if ( !$geo ) continue;
 		
+		if ( $geoname == "." ) $place = strip_tags($geonode->asXML());
+		else $place = current($geonode->xpath($geoname)).""; 
+		$id = current($geonode->xpath($geoid))."";  
+		$nerid = current($geonode->xpath("./@nerid"))."" or $nerid = $id;  
+
 		if ( preg_match( "/^=(.*)$/", $geodesc, $matches ) ) $desc = $matches[1];
 		else $desc = current($geonode->xpath($geodesc))."";  
-	
-		list ( $lat, $lng ) = explode ( $geosep, $geo );
-		$maintext .= "<li>$place"; if ( $desc ) $maintext .= ": $desc";
-		
+
+		if ( !$ners[$place] ) $ners[$place] = array();
+		array_push( $ners[$place], array( "geo" => $geo, "id" => $id, "nerid" => $nerid, "desc" => $geodesc ) );
+
+		if ( !$locs[$geo] ) $locs[$geo] = array();
+		array_push( $locs[$geo], array( "loc" => $place, "id" => $id, "nerid" => $nerid ) );
+
 		$descs[$geo] .= "<p>$desc</p>"; $desctxt = $descs[$geo];
-		if ( $lng != "" && $lat != "" ) $jsonpoints[$geo] = "{ \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
+		if ( $lng != "" && $lat != "" ) $jsonpoints[$geo] = "{ \"id\": \"$id\", \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
+
+	};
+	
+	$namelist = "<h2>Locations</h2><div>";
+	foreach ( $ners as $place => $dats ) {
+		
+		$ids = array();
+		$descs = array();
+		foreach ( $dats as $dat ) {	
+			$geo = $dat['geo'];
+			$geodesc = $dat['desc'];
+			array_push($ids, $dat['nerid']);
+			array_push($descs, $dat['desc']);
+		}; $nerid = join(" ", $ids);
+		
+		list ( $lat, $lng ) = explode ( $geosep, $geo );
+		$namelist .= "<a onmouseover=\"hlpl('$id')\" href=\"index.php?action=ner&cid=$fileid&jmp=$nerid\" target=ner>$place</a><br/>"; if ( $desc ) $maintext .= ": $desc";
 		
 	};
-	$maintext .= "</ul>";
+	$namelist .= "</div>";
+	if ( !is_array($jsonpoints) ) $jsonpoints = array();
 	$jsondata = "[ ".join(", ", array_values($jsonpoints))." ]";
+
+	$editxml = $ttxml->asXML();
 
 	// Draw the actual map
 	$maintext  .= "
-	<div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
+	<table style='width: 100%'>
+		<tr>
+			<td style='width: 60%'><div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px;'></div>
+			<td style='width: 20%; vertical-align: top;'><div id=\"mtxt\">$editxml</div>
+			<td style='width: 20%; vertical-align: top;'>$namelist
+		</tr>
+	</table>
 	<script>
 	  $moresettings
 	  var defzoom = 8;
 	  var jsondata = '$jsondata';
 	  var doctxt = '{%$docname}';
+	  var cql = '';
 	</script>
 	<script src=\"$jsurl/geomap.js\"></script>
 	<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css\"/>
 	<script src=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js\"></script>
 	<script>
 	  initMap();
+	  function hlpl(id) { 
+	  	mrkr = markera[id];
+	  	console.log(mrkr); mrkr.fire('click');
+	  };
+	  console.log(markera);
 	</script>
-	<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%back to view}</a></p>";
+	<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%Text view}</a></p>";
 	
 } else if ( $act == "view" ) {
 
@@ -321,7 +362,7 @@ if ( $act == "xml" ) {
 			};
 		};
 		if ( $geowrong ) {
-			$bottomtext .= "<HR><p class=warning>Warning: the following GEO coordinates are not in correct format: (expecting \"NUM{$geosep}NUM\")</p> <table>$geowrong</table>";
+			$bottomtext .= "<HR><p class='warning'>Warning: the following GEO coordinates are not in correct format: (expecting \"NUM{$geosep}NUM\")</p> <table>$geowrong</table>";
 		};
 		
 	};

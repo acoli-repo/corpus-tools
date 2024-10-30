@@ -3,6 +3,7 @@
 
   // jsondata format: [ { "lat": lat, "lng": lng, "location": placename, "cnt": nr of docs } ]
   var map; var sublist = ['a', 'b', 'c'];
+  var markera = [];
   if ( typeof tilelayer == "undefined" ) {
 		// MapBox is no longer free - choose one from http://leaflet-extras.github.io/leaflet-providers/preview/index.html
 		tilelayer = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'; 
@@ -111,6 +112,7 @@
 		// coordinates need to be string for CQP match
 		var lat = doc.lat; if ( typeof lat == "string" ) { lat = parseFloat(lat); }; 
 		var lng = doc.lng; if ( typeof lng == "string" ) { lng = parseFloat(lng); }; 
+		var mid = doc.id; 
 		var npos = { lat: lat, lng: lng };
 
 		var contentString = doc.cid;
@@ -183,9 +185,10 @@
 			};
 
 			marker[i] = L.circleMarker([npos.lat, npos.lng], {color: mcol, weight: 1}).addTo(map).bindPopup(htmltxt);
-			marker[i].setRadius(5);
 		};
-
+		if ( mid ) {
+			markera[mid] = marker[i];
+		};
 	};
 	if ( typeof cluster != "undefined" ) {
 		map.addLayer(markers);
