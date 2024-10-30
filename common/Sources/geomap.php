@@ -113,7 +113,7 @@ if ( $act == "xml" ) {
 	}; 
 	
 	ksort($ners);
-	$namelist = "<div style='font-size: large'>";
+	$namelist = "<div style='font-size: large'><ul>";
 
 	foreach ( $ners as $place => $dats ) {
 		
@@ -127,10 +127,10 @@ if ( $act == "xml" ) {
 		}; $nerid = join(" ", $ids);
 		
 		list ( $lat, $lng ) = explode ( $geosep, $geo );
-		$namelist .= "<a onmouseover=\"hlpl('$nerid')\" href=\"index.php?action=ner&cid=$fileid&jmp=$nerid\" target=ner>$place</a><br/>"; if ( $desc ) $maintext .= ": $desc";
+		$namelist .= "<li><a onmouseover=\"hlpl('$nerid')\" href=\"index.php?action=ner&cid=$fileid&jmp=$nerid\" target=ner>$place</a>"; if ( $desc ) $maintext .= ": $desc";
 		
 	};
-	$namelist .= "</div>";
+	$namelist .= "</ul></div>";
 	if ( !is_array($jsonpoints) ) $jsonpoints = array();
 	$jsondata = "[ ".join(", ", array_values($jsonpoints))." ]";
 
@@ -143,10 +143,10 @@ if ( $act == "xml" ) {
 		.tabon  { border: 1px solid #888888; background-color: #66ff66; text-align: center; width: 50%; }
 		.nername { color: #55bb66; }
 	</style>
-	<table style='width: 100%'>
+	<table style='width: 100%;'>
 		<tr>
 			<td style='width: 50%'><div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px; vertical-align: top;'></div>
-			<td style='width: 50%; vertical-align: top;'>
+			<td style='width: 50%; vertical-align: top; padding: 5px;'>
 				<table style='width: 100%; height: 30px;'><tr><td class='tabon' onclick=\"viewswitch(this);\" id='mtxt-but'>Text</td><td class='taboff' onclick=\"viewswitch(this);\" id='namelist-but'>Locations</td></tr></table>
 				<div id=\"mtxt\" style='width: 100%; height: 550px;  vertical-align: top; overflow-y: scroll;' >$editxml</div>
 				<div style='display:none; width: 100%;  height: 550px; overflow-y: scroll;' vertical-align: top; id=namelist>$namelist</td>
