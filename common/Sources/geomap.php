@@ -71,7 +71,8 @@ if ( $act == "xml" ) {
 	$geodesc = getset('geomap/xml/desc', "./desc");
 	$geoid = getset('geomap/xml/id', "./@id");
 
-	$maintext .= "<h1>{%Geographical Locations}</h1>";
+	$maintext .= "<h2>{%Geographical Locations}</h2>";
+	$maintext .= "<h1>".$ttxml->title()."</h1>";
 	$maintext .= $ttxml->tableheader();
 
 	if ( $username ) {
