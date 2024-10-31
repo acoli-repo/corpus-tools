@@ -79,7 +79,7 @@ if ( $act == "xml" ) {
 		$maintext .= "\n\n<!-- \nGEOXP: $geoxp \nGEOLL: $geoll \nGEONAME: $geoname \nGEODEC: $geodesc \nGEOID: $geoid -->\n\n";
 	};
 	
-	$ners = array(); $locs = array();
+	$ners = array(); $locs = array(); $poly = array();
 	foreach ( $ttxml->xpath($geoxp) as $geonode ) {
 	
 		$geo = current($geonode->xpath($geoll))."";  
@@ -110,8 +110,21 @@ if ( $act == "xml" ) {
 				$idlist[$geo] = $id;
 			};
 			$jsonpoints[$geo] = "{ \"id\": \"{$idlist[$geo]}\", \"lat\": \"$lat\", \"lng\": \"$lng\", \"location\": \"$place\", \"cnt\": 1, \"desc\": \"$desctxt\" }";
+
+			if ( $geonode['path'] ) {
+				$pathnum = (int)$geonode['path'];
+				$poly[$pathnum] = "[$lat, $lng]";
+			};
+
 		};
+		
 	}; 
+	
+	if ( count($poly) ) {
+		ksort($poly);
+		$pathpoints = join(", ", $poly);
+		$postactions .= "var pathLine = L.polyline([$pathpoints], {color: '#bb9966'}).addTo(map)";
+	};
 	
 	ksort($ners);
 	$namelist = "<div style='font-size: large'><ul>";
@@ -199,6 +212,7 @@ if ( $act == "xml" ) {
 		  		mrkr.fire('click');
 	  		};
 	  };
+	  $postactions
 	</script>
 	<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%Text view}</a></p>";
 	
