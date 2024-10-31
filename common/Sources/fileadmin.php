@@ -199,6 +199,13 @@
 			<td><i>Not explicitly defined $rest
 			";
 	};
+	if ( !$views['geomap'] ) {
+		if ( $ttxml->xpath("//*[@geo]") ) { $rest = " - activate by adding to settings"; } else { $rest = " - Not available, no elements with a @geo"; };
+		$maintext .= "<tr><td><a href='index.php?action=geomap&act=xml&cid=$ttxml->fileid'>go</a>
+			<th>Geolocation view view<td>Mapped geolocations
+			<td><i>Not explicitly defined $rest
+			";
+	};
 
 	$maintext .= "</table>";
 
