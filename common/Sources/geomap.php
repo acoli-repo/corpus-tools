@@ -47,16 +47,6 @@ $tilelayer = getset( 'geomap/osmlayer', "https://{s}.basemaps.cartocdn.com/raste
 $moresettings .= "var tilelayer = '$tilelayer';";
 if ( $osmtit = getset('/osmlayertit') ) $moresettings .= "var tiletit = '$osmtit'; ";
 if ( $settings['geomap']['osmlayerid'] ) $moresettings .= "var tileid = '{$settings['geomap']['osmlayerid']}'; ";
-if ( getset('geomap/zoom') ) $moresettings .= "var defzoom = {$settings['geomap']['zoom']};";
-if ( getset('geomap/startpos') != '' ) {
-	list ( $lat, $lng ) = explode ( $geosep, getset('geomap/startpos') );
-	if ( !$lng ) {
-		$msg = "A configuration error has occurred";
-		if ( $username ) $msg = "Default position not correctly defined (expecting \"NUM{$geosep}NUM\"): ".getset('geomap/startpos');
-		fatal($msg);
-	};
-	$moresettings .= " var defpos = {lat: $lat, lng: $lng };";
-};
 
 
 if ( $act == "xml" ) {
@@ -213,6 +203,12 @@ if ( $act == "xml" ) {
 	  		};
 	  };
 	  $postactions
+	  
+	  // Zoom in to markers
+	  var markerv = Object.keys(markera).map(function(v) { return markera[v]; }); // Turn hash into arrary
+	  var group = new L.featureGroup(markerv); // group the markers
+	  map.fitBounds(group.getBounds()); // bind the map
+	  
 	</script>
 	<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%Text view}</a></p>";
 	
@@ -453,6 +449,17 @@ if ( $act == "xml" ) {
 		$pointlist = join(", ", array_values($jsonpoints)); 
 	};
     $jsondata .= "[ $pointlist ]";
+
+	if ( getset('geomap/zoom') ) $moresettings .= "var defzoom = {$settings['geomap']['zoom']};";
+	if ( getset('geomap/startpos') != '' ) {
+		list ( $lat, $lng ) = explode ( $geosep, getset('geomap/startpos') );
+		if ( !$lng ) {
+			$msg = "A configuration error has occurred";
+			if ( $username ) $msg = "Default position not correctly defined (expecting \"NUM{$geosep}NUM\"): ".getset('geomap/startpos');
+			fatal($msg);
+		};
+		$moresettings .= " var defpos = {lat: $lat, lng: $lng };";
+	};
 	
 
 	$fileheader = getlangfile("geomaptext", "edit");
