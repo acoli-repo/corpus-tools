@@ -7,11 +7,11 @@
 
 	$brtit = getset("defaults/browser/title", "Document Browser");
 
-	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-	$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+	$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
+	$cqpfolder = getset('cqp/cqpfolder',  "cqp");
 
-	$faction = $action; $saction = $action;
-	if ( $settings['cqp']['subcorpora'] ) {
+	$faction = $action; $saction = $action; $gaction = $action;
+	if ( getset('cqp/subcorpora') != "" ) {
 		if ( $act == "select" ) $_SESSION['subc-'.$foldername] = "";
 		if ( $_GET['subc'] ) $_SESSION['subc-'.$foldername] = $_GET['subc'];
 		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = "";
@@ -20,8 +20,8 @@
 			$act = "select";
 			$cqpcorpus = "";
 		} else {
-			if ( is_array($settings['cqp']['subcorpora']) && is_array($settings['cqp']['subcorpora'][$subfolder]) ) {
-				$subcorpusname = $settings['cqp']['subcorpora'][$subfolder]['display'];
+			if ( getset("cqp/subcorpora/$subfolder") != "" ) {
+				$subcorpusname = getset("cqp/subcorpora/$subfolder/display", "{%subc-$subcorpus}");
 			};
 			if ( !$subcorpusname ) $subcorpusname = "{%subc-$subcorpus}";
 			
@@ -44,19 +44,19 @@
 
 	$maintext .= "<h1>{%$brtit}</h1>";
 
-	$titlefld = $settings['cqp']['titlefld'];
+	$titlefld = getset('cqp/titlefld');
 	if ( !$titlefld )
-		if ( $settings['cqp']['sattributes']['text']['title'] ) $titlefld = "text_title"; else $titlefld = "text_id";
+		if ( getset('cqp/sattributes/text/title') != "" ) $titlefld = "text_title"; else $titlefld = "text_id";
 
 
-	if ( $settings['defaults']['locale'] ) $localebit = ", '{$settings['defaults']['locale']}'";
-	$docname = $settings['defaults']['browser']['documents'] or $docname = "documents";
+	if ( getset('defaults/locale') != "" ) $localebit = ", '{$settings['defaults']['locale']}'";
+	$docname = getset('defaults/browser/documents', "documents");
 
 	# Create the selected options
 	$sep = " :: "; foreach ( $_GET['q'] as $rp ) {
 		list ( $fld, $val ) = explode(":", $rp);
-		$valtxt = $val; $fldtxt = $settings['cqp']['sattributes']['text'][$fld]['display'] or $fldtxt = $fld;
-		if ( $settings['cqp']['sattributes']['text'][$fld]['translate'] ) $valtxt = "{%$fld-$valtxt}";
+		$valtxt = $val; $fldtxt = getset("cqp/sattributes/text/$fld/display", $fld);
+		if ( getset("cqp/sattributes/text/$fld/translate") != "" ) $valtxt = "{%$fld-$valtxt}";
 		$sels .= "<div class='selbox' title='$fldtxt'><span rst=\"$rp\" onclick='del(this);' class='x'>x</span> $valtxt</div>";
 		$val = preg_quote($val);
 		$cqlrest .= $sep."match.text_$fld = \"$val\""; $sep = " & ";
@@ -150,7 +150,7 @@
 			};
 			</script>
 			";
-	if ( $settings['defaults']['browser']['select'] == "menu" ) {
+	if ( getset('defaults/browser/select') == "menu" ) {
 		$subsel = "menu"; $all = 1;
 	};
 	if ( $_GET['all'] || $_GET['show'] == "all" ) $all = 1;
@@ -164,7 +164,7 @@
 		$maintext .= "<p>{%!documents}$subpath<hr><ul>";
 		# $maintext .= getlangfile("subc-select");
 	
-		$fullcorp = strtolower($settings['cqp']['corpus']);
+		$fullcorp = strtolower(getset('cqp/corpus'));
 		foreach ( $corps as $corpid => $corpdata ) {
 			$corpname = $corpdata['name'];	
 			$corpfld = $corpf[$corpid];
@@ -181,7 +181,7 @@
 		};
 
 		include ("$ttroot/common/Sources/cwcqp.php");
-		$item = $settings['cqp']['sattributes']['text'][$class];
+		$item = getset("cqp/sattributes/text/$class", array());
 		$cat = $item['display'];
 
 		$cqp = new CQP();
@@ -198,7 +198,7 @@
 	# Deal with subselection style
 	if ( $subsel == "menu" ) {
 		# Make the menu bar options
-		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
+		foreach ( getset('cqp/sattributes/text', array()) as $key => $item ) {
 			if ( !is_array($item) || ( $item['type'] != "select" && !$item['browse'] ) ) continue;
 			if ( $item['admin'] && !$username ) continue;
 			$xkey = "text_$key"; 
@@ -210,7 +210,7 @@
 				list ( $kva, $kcnt ) = explode("\t", $line ); unset($kvl);
 				if ( $kva != "" && $kva != "_" ) {
 					if ( $item['values'] == "multi" ) {
-						$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+						$mvsep = getset('cqp/multiseperator', ",");
 						$kvl = explode ( $mvsep, $kva );
 					} else {
 						$kvl = array ( $kva );
@@ -248,11 +248,11 @@
 
 		$cnt = $cqp->exec("size Matches"); $size = $cnt;
 
-		$max = $_GET['max'] or $max = 100;
+		$max = $_GET['max'] or $max = getset('defaults/tablemax', 100);
 		$start = $_GET['start'] or $start = 0;
 		$stop = $start + $max;
 		if ( $_GET['show'] ) $morel = "&show={$_GET['show']}";
-		if ( $size > $max || $start > 0 ) {
+		if ( ( $size > $max && $max != 0 ) || $start > 0 ) {
 			$next = $stop; $beg = $start + 1; $prev = max(0, $start - $max);
 			if ( $start > 0 ) $bnav .= " <a href='index.php?action=$saction&class=$class&val=$oval&start=$prev$morel'>{%previous}</a> ";
 			if ( $size > $max ) $bnav .= " <a href='index.php?action=$saction&class=$class&val=$oval&start=$next$morel'>{%next}</a> ";
@@ -265,9 +265,9 @@
 
 
 		if ( $cnt > 0 ) {
-			if ( $settings['defaults']['browser']['style'] == "table" || $settings['defaults']['browser']['style'] == "facs" ) {
+			if ( getset('defaults/browser/style') == "table" || getset('defaults/browser/style') == "facs" ) {
 				$acnt = $bcnt = 0;
-				foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
+				foreach ( getset('cqp/sattributes/text', array()) as $key => $item ) {
 					if ( $key == $class ) continue;
 					if ( !is_array($item) ) continue; # Only do real children
 					if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
@@ -280,13 +280,13 @@
 						# Ignore items that are not to be shown
 					} else if ( $key != "id" ) {
 						$moreatts .= ", match $xkey";
-						$moreth .= "<th>{%$val}";
+						$moreth .= "<th id='{$val}col'>{%$val}";
 						$atttik[$bcnt] = $key; $bcnt++;
 						$atttit[$acnt] = $val;
 						$acnt++;
 					};
 				}; 
-				if ( $settings['defaults']['browser']['style'] == "facs" && $settings['cqp']['pattributes']['facs'] ) {
+				if ( getset('defaults/browser/style') == "facs" && getset('cqp/pattributes/facs') != "" ) {
 					$withfacs = 1;
 					$moreatts .= ", match facs";
 				};
@@ -302,14 +302,13 @@
 // 				if ( $stop < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$stop'; document.resubmit.submit();\">{%next}</a>";
 				$maintext .= $nav;
 
-				if ( $settings['defaults']['browser']['style'] == "facs" ) {
+				if ( getset('defaults/browser/style') == "facs" ) {
 					$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
 						<table id=facstable>";
 				} else { 
 					$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
-						<table><tr><th>ID$moreth";
+						<table data-sortable id=thistable><thead><tr><th id='idcol'>ID$moreth</thead><tbody>";
 				};
-				if ( !$settings['defaults']['browser']['title'] ) $settings['defaults']['browser']['title'] = "title";
 				foreach ( $resarr as $line ) {
 					$fatts = explode ( "\t", $line ); $fid = array_shift($fatts);
 					if ( !$fid ) continue; # Skip empty rows
@@ -322,13 +321,13 @@
 					foreach ( $fatts as $key => $fatt ) {
 						if ( $key == $class ) continue;
 						$attit = $atttik[$key];
-						if ( $attit == $settings['defaults']['browser']['title'] ) {
+						if ( $attit == getset('defaults/browser/title', 'title') ) {
 							$titelm = $fatt;
 							# TODO: This was here for a reason - why did we want to delete this? Only in facs?
-							if ( $settings['defaults']['browser']['style'] == "facs" ) unset($fatts[$key]);
+							if ( getset('defaults/browser/style') == "facs" ) unset($fatts[$key]);
 						};
-						$tmp = $settings['cqp']['sattributes']['text'][$attit]['type'];
-						if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" || $settings['cqp']['sattributes']['text'][$attit]['translate'] ) {
+						$tmp = getset("cqp/sattributes/text/$attit/type");
+						if ( getset("cqp/sattributes/text/$attit/type") == "kselect" || getset("cqp/sattributes/text/$attit/translate") != "" ) {
 							if ( $settings['cqp']['sattributes']['text'][$attit]['values'] == "multi" ) {
 								$fatts[$key] = ""; $sep = "";
 								foreach ( explode(",", $fatt) as $fattp ) { $fatts[$key] .= "$sep{%$attit-$fattp}"; $sep = ", "; };
@@ -353,7 +352,25 @@
 						$maintext .= "<tr><td><a href='index.php?action=file&cid={$fid}'>{$fidtxt}</a><td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>".join ( "<td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>", $fatts );
 					};
 				};
-				$maintext .= "</table>";
+				$maintext .= "</tbody></table>";
+				$locale = getset('defaults/base/locale', 'en');
+				if ( getset('defaults/browser/style') == "table" ) {
+					$maintext .= "
+		<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
+		<script src='//cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js'></script>
+		<script src='https://cdn.datatables.net/plug-ins/1.13.1/sorting/intl.js'></script>
+		<script src='https://cdn.datatables.net/plug-ins/1.13.1/i18n/cs.json'></script>
+		<link rel=\"stylesheet\" href=\"//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css\">
+		<script>
+$(document).ready(function () {
+  $.fn.dataTable.ext.order.intl('idcol');
+  $('#thistable').DataTable({locale: '$locale', responsive: true, 'lengthMenu': [ [10, 25, 100, -1], [10, 25, 100, 'All'] ], 'pageLength': $max});
+  $('.dataTables_length').addClass('bs-select');
+});
+		
+		</script>
+					";
+				};
 
 			} else {
 				$maintext .= "<p>$path
@@ -482,6 +499,7 @@
 		
 		$maintext .= "$doctitle
 			<hr><ul id=sortlist>";
+			
 		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
 
 			if ( !is_array($item) ) continue;
