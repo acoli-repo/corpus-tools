@@ -86,7 +86,8 @@
 	} else {
 
 		$nowsfld = array("head", "deps", "deprel"); // Fields to ignore for context
-		foreach ( $settings['cqp']['pattributes'] as $key => $kva ) { 
+		$patta = getset('cqp/pattributes', array());
+		foreach ( $patta as $key => $kva ) { 
 			if ( in_array($key, $nowsfld) ) continue;
 			$options .= "<option value='$key'>{%{$kva['display']}}</option>";
 		};

@@ -21,13 +21,13 @@
 	};
 
 	$type = $_POST['type'] or $type = $_GET['type']; 
-	$typedef = $settings['files'][$type];
+	$typedef = getset('files/$type', array());
 
 	if ( $act == "save" ) {
 
 		if ( !$type ) fatal ("POST data incorrectly set");
 
-		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed for upload");
+		$target_folder = getset('files/$type/folder'); if ( !$target_folder ) fatal ("Filetype not allowed for upload");
 		
 		if ( $typedef['subfolders'] && $_POST['subfolder'] )  {
 			$target_folder .= "/".str_replace(".", "", $_POST['subfolder']);
@@ -136,8 +136,8 @@
 
 		$type = $_GET['type'];
 		if ( !$type ) fatal ("Filetype incorrectly set");
-		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed to delete");
-		$deltype = $settings['files'][$type]['delete'] or $deltype = $settings['files']['delete'];
+		$target_folder = getset('files/$type/folder'); if ( !$target_folder ) fatal ("Filetype not allowed to delete");
+		$deltype = getset('files/$type/delete') or $deltype = getset('files/delete');
 		if ( $deltype == "none" || ( $deltype == "sudo" && $user['permissions'] != "admin" ) )  fatal ("Filetype not allowed to delete");
 
 		# Check if this is not in Resources
@@ -175,7 +175,7 @@
 
 		$type = $_GET['type'];
 		if ( !$type ) fatal ("Filetype incorrectly set");
-		$target_folder = $settings['files'][$type]['folder']; if ( !$target_folder ) fatal ("Filetype not allowed for download");
+		$target_folder = getset('files/$type/folder'); if ( !$target_folder ) fatal ("Filetype not allowed for download");
 
 		# Check if this is not in Resources
 		$filename = $_GET['file'];
@@ -301,7 +301,7 @@
 			$files = glob($glob, GLOB_BRACE);
 		};
 
-		if ( !$settings['files']['nodropzone'] && !$_GET['nodropzone'] ) {
+		if ( getset('files/nodropzone') == '' && !$_GET['nodropzone'] ) {
 			// Dropzone.js
 
 			if ( $type == "facsimile" ) {
@@ -311,7 +311,7 @@
 			} else if ( $type == "video" ) {
 				$capture = "capture: \"camcorder\",";
 			};
-			if ( $debug || $_GET['simple'] || $settings['files']['fallback'] ) { $capture .= " forceFallback: true,"; };
+			if ( $debug || $_GET['simple'] || getset('files/fallback') != '' ) { $capture .= " forceFallback: true,"; };
 			$maintext .= "
 				<script src=\"https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.2.0/dropzone.js\"></script>
 				<style type=\"text/css\"> @import url(\"https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.2.0/dropzone.css\");</style>
@@ -384,7 +384,7 @@
 		$maintext .= "<table cellpadding='5px'>
 				";
 
-		$blessed = explode(",", $settings['files']['blessed'] );
+		$blessed = explode(",", getset('files/blessed') );
 		foreach ( $files as $line ) {
 			$fn = preg_replace("/.*\//", "", $line);
 			$ffn = str_replace("xmlfiles/", "", $line);
@@ -404,7 +404,7 @@
 				$maintext .= "<tr><td><a href='$baseurl$line' target=file>view</a>
 				<td> <a href='index.php?action=$action&act=download&type={$typedef['folder']}&file=$ffn' target=file>download</a>
 				<td> {$ffn} <td align=right>".human_filesize(filesize($line));
-				$deltype = $settings['files'][$type]['delete'] or $deltype = $settings['files']['delete'];
+				$deltype = getset('files/$type/delete') or $deltype = getset('files/delete');
 				if ( $deltype != "none" && ( $deltype != "sudo" || $user['permissions'] == "admin" ) )  $maintext .= "<td><a href='index.php?action=$action&act=delete&type=$type&file=$line'>delete</a>";
 				if ( in_array($typedef['folder'], $blessed) && $user['permissions'] == "admin" ) {
 					$maintext .= "<td><a href='index.php?action=adminedit&folder={$typedef['folder']}&id=$fn'>raw edit</a>";

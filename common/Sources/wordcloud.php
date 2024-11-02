@@ -9,13 +9,13 @@
 	
 
 	$showform = $_POST['show'] or $showform = $_POST['defaults']['wordcloud']['show'] or $showform = 'word';
-	$rest = $_POST['rest'] or $rest = $settings['defaults']['wordcloud']['rest'];
-	$font = $_POST['font'] or $font = $settings['defaults']['wordcloud']['font'] or $font = "Impact";
+	$rest = $_POST['rest'] or $rest = getset('defaults/wordcloud/rest');
+	$font = $_POST['font'] or $font = getset('defaults/wordcloud/font', "Impact");
 	$max = $_POST['max'] or $max = 250;
-	$titfld = $settings['defaults']['wordcloud']['title'] or $titfld = $settings['cqp']['title'] or $titfld = "text_id";
+	$titfld = getset('defaults/wordcloud/title') or $titfld = getset('cqp/title', "text_id");
 
-	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
-	if ( $settings['cqp']['subcorpora'] ) {
+	$cqpcorpus = getset('cqp/corpus', "tt-".$foldername);
+	if ( getset('cqp/subcorpora') != '' ) {
 		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername];
 		if ( !$subcorpus ) {
 			fatal("No subcorpus selected");
@@ -29,7 +29,7 @@
 		$corpusfolder = $cqpfolder;
 	} else {
 		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['cqpfolder'];
+		$cqpfolder = getset('cqp/cqpfolder', 'cqp');
 	};
 	// Do not allow searches while the corpus is being rebuilt...
 	if ( file_exists("tmp/recqp.pid") ) {
@@ -92,7 +92,7 @@
 			$doclist = "<i>all</i>"; 
 	};
 	
-	foreach ( $settings['cqp']['pattributes'] as $key => $pat ) {
+	foreach ( getset('cqp/pattributes', array()) as $key => $pat ) {
 		$pattname = pattname($key);
 		if ( $key == $showform ) $sel = "selected"; else $sel = "";
 		if ( $pattname && ( !$pat['admin'] || $username ) ) $textoptions .= "<option value='$key' $sel>{%$pattname}</option>";

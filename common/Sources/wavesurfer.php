@@ -1,7 +1,9 @@
 <?php
 
+	if ( !$_GET['cid'] && !$_GET['id'] ) fatal('No XML file selected');
+
 	require("$ttroot/common/Sources/ttxml.php");
-	
+
 	# Determine if we need to cut out part of the text based on audio
 	if ( getset('defaults/media/type') == "inline" && getset('xmlfile/speech/paged') !== "inherit" ) {
 		$settings['xmlfile']['paged'] = array ( 
@@ -20,7 +22,7 @@
 	$ttxml = new TTXML("", false);
 	$fileid = $ttxml->fileid;
 	
-	$editxml = $ttxml->asXML();
+	if ( is_object($editxml) ) $editxml = $ttxml->asXML();
 	
 	if ( $act == "edit" ) $editmode = " - <span class=adminpart>Edit mode</span>";
 	$maintext .= "
@@ -45,11 +47,11 @@
 	
 	$audiourl = $ttxml->audiourl; $fldr = "Audio";
 	$videourl = $ttxml->videourl; 
-	if ( $settings['defaults']['media']['type'] == "inline" ) {
+	if ( getset('defaults/media/type') == "inline" ) {
 		if ( preg_match("/<media [^<>]+>/", $editxml, $matches) ) {
 			$mediaxml = $matches[0];
 			if ( preg_match("/url=\"([^\"]+)\"/", $mediaxml, $matches) ) { $audiourl = $matches[1]; };
-			$mediabaseurl =  $settings['defaults']['media']['baseurl'] or $mediabaseurl =  $settings['defaults']['base']['media'] or $mediabaseurl = "Audio";
+			$mediabaseurl =  getset('defaults/media/baseurl') or $mediabaseurl =  getset('defaults/base/media', "Audio");
 			if ( $audiourl != "" ) {
 				if ( !strstr($audiourl, 'http') ) {
 					if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
@@ -67,7 +69,7 @@
 	# TODO : when can there be a missing audio URL?
 	if ( $audiourl == "" && 1 != 2 ) fatal ("XML file $fileid has no media element providing a URL to the sound file");
 
-	if ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['element'] == "media" ) {
+	if ( getset('xmlfile/paged/element') == "media" ) {
 		$pagenav = $ttxml->pagenav;
 	};
 
@@ -86,7 +88,7 @@
 		$nofile = 1;			
 	};
 	
-	if ( $settings['defaults']['media']['spectogram'] ) {
+	if ( getset('defaults/media/spectogram') != "" ) {
 		# TODO: this does not work yet - the spectrogram shows, but is not the same width
 		$spectjs = "var spect = 1;";
 		$spectelm = "<div id=\"wave-spectrogram\"></div>";
@@ -173,9 +175,9 @@
 
 		};
 	
-		if ( $settings['defaults']['media']['skipempty'] ) {
+		if ( getset('defaults/media/skipempty') != '' ) {
 			$jmpbuts .= "<p id='tostart' style='display: none;'><a onclick='jumpinit();'><i class=\"material-icons\" style='font-size: 18px; vertical-align:middle;'>play_arrow</i> {%play from start of transcription}</a></p>";
-			$mintime = $settings['defaults']['media']['skipempty'] * 1;
+			$mintime = getset('defaults/media/skipempty') * 1;
 			$morescript .= "<script language=Javascript>
 				wavesurfer.on('ready', function () {
 					var first = getElementByXpath(\"//*[@start]/@start\");

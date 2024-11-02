@@ -20,12 +20,13 @@
 	$teilist = xmlflatten($tagxml);
 	
 	# See if and when we need to 
-	if ( $settings['xmlfile']['divs'] == "always" ) { 
+	$diva = getset('xmlfile/divs');
+	if ( $diva == "always" ) { 
 		$largexml = 1; 
-	} else if ( $settings['xmlfile']['divs'] == "never"  ) { 
+	} else if ( $diva == "never"  ) { 
 		$largexml = 0;
 	} else {
-		$xp = $settings['xmlfile']['divs']; 
+		$xp = $diva; 
 		if ( substr($xp,0,1) == "/" ) {
 			if ( $ttxml->xpath($xp) ) $largexml = 1;
 		} else {
@@ -183,7 +184,7 @@
 		$att = $_GET['att'];
 		$xpath = "//$mtxtelement//$nn";
 
-		$nname = $settings['xmlfile']['sattributes'][$nn]['display'];
+		$nname = getset("xmlfile/sattributes/$nn/display");
 		if ( $nname ) $ntit = " ($nname)";
 		$nxml = current($tagxml->xpath("//item[@key=\"$nn\"]"));
 
@@ -576,7 +577,7 @@
 		foreach ( $teilist[$nn]['atts'] as $key => $val ) {
 			$attlist[$key] = $val;
 		};
-		foreach ( $settings['xmlfile']['sattributes'][$nn] as $key => $val ) {
+		foreach ( getset("xmlfile/sattributes/$nn", arry()) as $key => $val ) {
 			if ( !is_array($val) ) continue;
 			$attlist[$key] = $val;
 		};
