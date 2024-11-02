@@ -22,7 +22,8 @@
 	$ttxml = new TTXML("", false);
 	$fileid = $ttxml->fileid;
 	
-	if ( is_object($editxml) ) $editxml = $ttxml->asXML();
+	# if ( is_object($editxml) ) 
+		$editxml = $ttxml->asXML();
 	
 	if ( $act == "edit" ) $editmode = " - <span class=adminpart>Edit mode</span>";
 	$maintext .= "
