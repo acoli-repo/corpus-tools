@@ -200,9 +200,16 @@
 			";
 	};
 	if ( !$views['geomap'] ) {
-		if ( $ttxml->xpath("//*[@geo]") ) { $rest = " - activate by adding to settings"; } else { $rest = " - Not available, no elements with a @geo"; };
+		if ( $ttxml->xpath("//text//*[@geo]") ) { $rest = " - activate by adding to settings"; } else { $rest = " - Not available, no text-level elements with a @geo"; };
 		$maintext .= "<tr><td><a href='index.php?action=geomap&act=xml&cid=$ttxml->fileid'>go</a>
-			<th>Geolocation view view<td>Mapped geolocations
+			<th>Geolocation view<td>Geolocations
+			<td><i>Not explicitly defined $rest
+			";
+	};
+	if ( !$views['igt'] ) {
+		if ( $ttxml->xpath("//text//s") ) { $rest = " - activate by adding to settings"; } else { $rest = " - Not available, no tokens with an m"; };
+		$maintext .= "<tr><td><a href='index.php?action=igt&act=xml&cid=$ttxml->fileid'>go</a>
+			<th>Interlinear glossed view<td>Glosses
 			<td><i>Not explicitly defined $rest
 			";
 	};

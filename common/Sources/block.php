@@ -15,21 +15,21 @@
 	if ( $stype == "1" ) $stype = "s";
 
 	// When so indicated, load the external PSDX file so we can link to existing trees
-	if ( $settings['psdx'] && file_exists( "Annotations/$xmlid.psdx") ) {
+	if ( getset('psdx') != "" && file_exists( "Annotations/$xmlid.psdx") ) {
 		$psdx = simplexml_load_file("Annotations/$xmlid.psdx", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 	};
 	
-	$blockdef = $settings['xmlfile']['sattributes'][$stype];
+	$blockdef = getset("xmlfile/sattributes/$stype", array());
 	$defdef = array ( "s" => "Sentence", "p" => "Paragraph", ); 
 
 	// Set a default writing direction when defined
-	$dirxpath = $settings['xmlfile']['direction'];
+	$dirxpath = getset('xmlfile/direction');
 	if ( $dirxpath ) {
 		$textdir = current($xml->xpath($dirxpath));
 	};
 	if ( $textdir ) {
 		$dircss = "direction: $textdir";
-	} else if ( $settings['xmlfile']['basedirection'] ) {
+	} else if ( getset('xmlfile/basedirection') != "" ) {
 		$dircss = "direction: {$settings['xmlfile']['basedirection']}";
 	};
 		
@@ -104,7 +104,7 @@
 			<div style='padding-left: $pl;'>
 			<div style='$dircss'>$stxt</div>
 			<div class=blockdata>";
-		foreach ( $settings['xmlfile']['sattributes'][$stype] as $item ) {
+		foreach ( getset("xmlfile/sattributes/$stype", array()) as $item ) {
 			if ( !is_array($item) ) continue;
 			$key = $item['key'];
 			if ( $item['noshow'] ) continue;
@@ -124,9 +124,9 @@
 	$tmp = $ttxml->viewopts();
 	$viewoptions = $tmp['view']; $showoptions = $tmp['show'];
 
-				$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
-				$jsontags = array2json($settings['xmlfile']['pattributes']['tags']);
-				$jsontrans = array2json($settings['transliteration']);
+				$jsonforms = array2json(getset('xmlfile/pattributes/forms', array()));
+				$jsontags = array2json(getset('xmlfile/pattributes/tags', array()));
+				$jsontrans = array2json(getset('transliteration', array()));
 
 				if ( $tagstxt ) $showoptions .= "<p>{%Tags}: $tagstxt ";
 

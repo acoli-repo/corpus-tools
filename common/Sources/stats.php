@@ -6,7 +6,7 @@
 	if ( !is_dir("cqp") ) fatal("This corpus has not yet been indexed");
 
 	include ("$ttroot/common/Sources/cwcqp.php");
-	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+	$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
 	$cqp = new CQP();
 	$cqp->exec($cqpcorpus); // Select the corpus
 
@@ -14,7 +14,7 @@
 	
 	$maintext .= "<h1>{%Statistics}</h1>";
 	
-	if ( !$settings['cqp']['stats'] ) {
+	if ( getset('cqp/stats') == "" ) {
 		$settings['cqp']['stats'] = array ( 	
 					array ( "var" => "tokcnt",  "cql" => "[]", "type" => "size", "display" => "Token count" ),
 					array ( "var" => "formtypes",  "cql" => "group Tokcnt match form", "type" => "count", "display" => "Token types" ),
@@ -42,7 +42,7 @@
 		$perpage = $_GET['pergpage'] or $perpage = 30;
 		$stop = $start+$perpage;
 
-		if ( $settings['cqp']['titlefld'] ) $txtcql = ", match {$settings['cqp']['titlefld']}";
+		if ( getset('cqp/titlefld') != "" ) $txtcql = ", match {$settings['cqp']['titlefld']}";
 		$tids = explode("\n", $cqp->exec("tabulate Matches $start $stop match text_id $txtcql"));
 
 		$sep = "";
@@ -138,7 +138,8 @@
 	};
 	
 	$maintext .= "</table>";
-	$maintext .= "<hr><p><a href='index.php?action=text&cid=$cid'>{%Text view}</a>";
+	# $maintext .= "<hr><p><a href='index.php?action=text&cid=$cid'>{%Text view}</a>";
+	$maintext .= "<hr>".$ttxml->viewswitch();
 
 function evalmath($equation) {
 	global $vars; 

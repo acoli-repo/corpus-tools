@@ -20,7 +20,7 @@ $collist = array( 'blue', 'red', 'purple', 'violet', 'pink', 'orange-dark', 'ora
 $markertype = $_GET['marker'] or $markertype = getset('geomap/markertype');
 
 if ( $markertype == "pie" || $markertype == "cluster"  ) {
-	if ( !is_array($settings['geomap']) ) $settings['geomap'] = array();
+	if ( !is_array(getset('geomap')) ) $settings['geomap'] = array();
 	$settings['geomap']['cluster'] = 1; 
 };
   
@@ -46,7 +46,7 @@ if ( getset('geomap/cluster') ) {
 $tilelayer = getset( 'geomap/osmlayer', "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png");
 $moresettings .= "var tilelayer = '$tilelayer';";
 if ( $osmtit = getset('/osmlayertit') ) $moresettings .= "var tiletit = '$osmtit'; ";
-if ( $settings['geomap']['osmlayerid'] ) $moresettings .= "var tileid = '{$settings['geomap']['osmlayerid']}'; ";
+if ( getset('geomap/osmlayerid') != "" ) $moresettings .= "var tileid = '{$settings['geomap']['osmlayerid']}'; ";
 
 
 if ( $act == "xml" ) {
@@ -117,7 +117,6 @@ if ( $act == "xml" ) {
 	};
 	
 	ksort($ners);
-	$namelist = "<div style='font-size: large'><ul>";
 
 	foreach ( $ners as $place => $dats ) {
 		
@@ -131,10 +130,12 @@ if ( $act == "xml" ) {
 		}; $nerid = join(" ", $ids);
 		
 		list ( $lat, $lng ) = explode ( $geosep, $geo );
-		$namelist .= "<li><a onmouseover=\"hlpl('$nerid')\" href=\"index.php?action=ner&cid=$fileid&jmp=$nerid\" target=ner>$place</a>"; if ( $desc ) $maintext .= ": $desc";
+		$nameitems .= "<li><a onmouseover=\"hlpl('$nerid')\" href=\"index.php?action=ner&cid=$fileid&jmp=$nerid\" target=ner>$place</a>"; if ( $desc ) $maintext .= ": $desc";
 		
 	};
-	$namelist .= "</ul></div>";
+	if ( $nameitems ) $namelist = "<div style='font-size: large'><ul>$nameitems</ul></div>";
+	else $namelist = "<p><i>{%No identified place names in this document}</i>";
+	
 	if ( !is_array($jsonpoints) ) $jsonpoints = array();
 	$jsondata = "[ ".join(", ", array_values($jsonpoints))." ]";
 
@@ -151,7 +152,7 @@ if ( $act == "xml" ) {
 		<tr>
 			<td style='width: 50%'><div id=\"mapdiv\" class=\"mapdiv\" style='width: 100%; height: 600px; vertical-align: top;'></div>
 			<td style='width: 50%; vertical-align: top; padding: 5px;'>
-				<table style='width: 100%; height: 30px;'><tr><td class='tabon' onclick=\"viewswitch(this);\" id='mtxt-but'>Text</td><td class='taboff' onclick=\"viewswitch(this);\" id='namelist-but'>Locations</td></tr></table>
+				<table style='width: 100%; height: 30px;'><tr><td class='tabon' onclick=\"viewswitch(this);\" id='mtxt-but'>{%Text}</td><td class='taboff' onclick=\"viewswitch(this);\" id='namelist-but'>{%Locations}</td></tr></table>
 				<div id=\"mtxt\" style='width: 100%; height: 550px;  vertical-align: top; overflow-y: scroll;' >$editxml</div>
 				<div style='display:none; width: 100%;  height: 550px; overflow-y: scroll;' vertical-align: top; id=namelist>$namelist</td>
 			</td>
@@ -209,8 +210,9 @@ if ( $act == "xml" ) {
 	  var group = new L.featureGroup(markerv); // group the markers
 	  map.fitBounds(group.getBounds()); // bind the map
 	  
-	</script>
-	<hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%Text view}</a></p>";
+	</script>";
+	# <hr><p><a href='index.php?action=file&cid=".$ttxml->fileid."'>{%Text view}</a></p>";
+	$maintext .= "<hr>".$ttxml->viewswitch();
 	
 } else if ( $act == "view" ) {
 
@@ -221,7 +223,7 @@ if ( $act == "xml" ) {
 	};
 
 	include ("$ttroot/common/Sources/cwcqp.php");
-	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+	$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
   
 	$cqp = new CQP();
 	$cqp->exec($cqpcorpus); // Select the corpus
@@ -326,7 +328,7 @@ if ( $act == "xml" ) {
 	};
 	
 	include ("$ttroot/common/Sources/cwcqp.php");
-	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+	$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
   
 	$cqp = new CQP();
 	$cqp->exec($cqpcorpus); // Select the corpus
@@ -464,7 +466,7 @@ if ( $act == "xml" ) {
 
 	$fileheader = getlangfile("geomaptext", "edit");
 	
-	if ( $settings['geomap']['areas'] ) {
+	if ( getset('geomap/areas') != "" ) {
 		$areaswitch = "<p>{%Jump to}: "; $sep = "";
 		foreach ( $settings['geomap']['areas'] as $area ) {
 			$areaswitch .= " $sep <a onclick=\"zoomto('{$area['startpos']}', '{$area['zoom']}')\">{%{$area['display']}}</a> ";

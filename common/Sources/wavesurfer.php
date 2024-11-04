@@ -19,11 +19,10 @@
 		unset($settings['xmlfiles']['paged']);
 	};
 
-	$ttxml = new TTXML("", false);
+	$ttxml = new TTXML("", true); # This should give an error if the XML cannot be read
 	$fileid = $ttxml->fileid;
 	
-	# if ( is_object($editxml) ) 
-		$editxml = $ttxml->asXML();
+	$editxml = $ttxml->asXML();
 	
 	if ( $act == "edit" ) $editmode = " - <span class=adminpart>Edit mode</span>";
 	$maintext .= "
@@ -242,7 +241,8 @@
 				aceeditor.getSession().setMode(\"ace/mode/xml\");
 			</script>";
 			
-		$maintext .= "<hr><a href='index.php?action=text&cid=$ttxml->fileid'>{%Text view}</a>";
+		# $maintext .= "<hr><a href='index.php?action=text&cid=$ttxml->fileid'>{%Text view}</a>";
+		$maintext .= "<hr>".$ttxml->viewswitch();
 	
 		if ( $username && $act != "edit" ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&cid=$ttxml->fileid'>Edit transcripion</a>";
 		if ( $username ) $maintext .= " &bull;  <a onClick='toelan(this);'>Export as ELAN</a>";

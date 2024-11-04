@@ -13,8 +13,7 @@
 		);
 
 	if ( $_GET['view'] ) $viewaction = $_GET['view'];
-	else if ( $settings['defaults']['fileview'] ) $viewaction = $settings['defaults']['fileview'];
-	else $viewaction = "text";
+	else $viewaction = getset('defaults/fileview', "text");
 
 	$action = $viewaction;
 	if ( file_exists("Sources/$viewaction.php") ) $viewphp = "Sources/$viewaction.php";

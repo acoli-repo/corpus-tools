@@ -1,6 +1,6 @@
 <?php
 
-	if ( !$settings['align'] && is_array( $settings['defaults']['align']) ) $settings['align'] = $settings['defaults']['align'];
+	if ( getset('align') == "" && is_array( getset('defaults/align')) ) $settings['align'] = $settings['defaults']['align'];
 
 	if ( $_GET['debug'] && $username ) {
 		$debug = 1;
@@ -8,12 +8,12 @@
 	} else { $debug = 0; };
 
 	# Check we have a PSQL DB
-	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
+	$cqpcorpus = getset('cqp/corpus', "tt-".$foldername);
 	$db = strtolower(str_replace("-", "_", $cqpcorpus)); # Manatee corpus name
 	$dbconn = pg_connect("host=localhost dbname=$db user=www password=localpwd");
 
-	$tuidatt = $_GET['tuidatt'] or $tuidatt = $settings['align']['tuidatt'] or $tuidatt = "tuid";
-	$tuidtit = $_GET['tuidtit'] or $tuidtit = $settings['align']['display']; 
+	$tuidatt = $_GET['tuidatt'] or $tuidatt = getset('align/tuidatt', "tuid");
+	$tuidtit = $_GET['tuidtit'] or $tuidtit = getset('align/display'); 
 	if ( !$tuidtit ) if ( $tuidatt == "tuid" ) $tuidtit = "Translation unit"; else if ( $tuidatt = "appid" ) $tuidtit = "Apparatus unit"; else $tuidtit = "Alignment unit";
 
 	$maintext .= "<h1>{%{$tuidtit}s}</h1>";
@@ -26,7 +26,7 @@
 		# Works on a single level - default is <p>
 
 		
-		$lvl = $_GET['lvl'] or $lvl = $settings['align']['level'] or $lvl = "p";
+		$lvl = $_GET['lvl'] or $lvl = getset('align/level', "p");
 		$lvltxt = getset("cqp/sattributes/$lvl/element", $lvl);
 
 		$maintext .= "<h2>Selected Files</h2>
@@ -50,13 +50,11 @@
 		foreach ( $files as $cid => $ttxml ) {
 			$filetit = $ttxml->title("short") or $filetit = $ttxml->fileid;
 			$moreheader = "";
-			if ( is_array($settings['align']) && is_array($settings['align']['fields']) ) {
-				foreach ( $settings['align']['fields'] as $fld ) {
-					$xp = $fld['xpath']."";
-					$tmp = $ttxml->xpath($xp);
-					if ( $tmp ) {
-						$moreheader .= "<p title='{$fld['display']}'>".current($tmp)."</p>";
-					};
+			foreach ( getset('align/fields', array()) as $fld ) {
+				$xp = $fld['xpath']."";
+				$tmp = $ttxml->xpath($xp);
+				if ( $tmp ) {
+					$moreheader .= "<p title='{$fld['display']}'>".current($tmp)."</p>";
 				};
 			};
 			$maintext .= "<th id=\"tr-$cid\"><h3><a href='index.php?action=file&cid=$ttxml->fileid'>$filetit</a></h3>$moreheader</th>";
@@ -98,7 +96,7 @@
 			
 			$tuid = $_GET['appid'] or $tuid = $_GET['tuid'];
 			$jmp = $_GET['jmp'];
-			$tuidatt = $_GET['tuidatt'] or $tuidatt = $settings['align']['tuidatt'] or $tuidatt = "tuid";
+			$tuidatt = $_GET['tuidatt'] or $tuidatt = getset('align/tuidatt', "tuid");
 		
 			require_once("$ttroot/common/Sources/ttxml.php");
 
@@ -215,9 +213,9 @@
 	} else if ( $_GET['tuid'] && $dbconn && $_GET['type'] != "xml" ) {
 		
 		# Align a single TU across all files
-		$lvl = $_GET['lvl'] or $lvl = $settings['align']['level'] or $lvl = "p";
-		$base = $settings['align']['cqp'] or $base = "lang";
-		$basetxt = $settings['cqp']['sattributes']['text'][$base]['display'] or $basetxt = "<i>".ucfirst($base)."</i>";
+		$lvl = $_GET['lvl'] or $lvl = getset('align/level', "p");
+		$base = getset('align/cqp', "lang");
+		$basetxt = getset("cqp/sattributes/text/$base/display", "<i>".ucfirst($base)."</i>");
 		$seg = $lvl;
 		$tuid = $_GET['tuid'];
 		$query = "SELECT * FROM $seg 
@@ -227,7 +225,7 @@
 		if ( $debug ) $maintext .= "<p>CQL Query: $query";
 		$result = pg_query($query);
 	
-		if ( pg_num_rows($result) ) {
+		if ( $result && pg_num_rows($result) ) {
 			$maintext .= "<p>
 				<style>.highlight { background-color: #ffeeaa; }</style>
 						<h2>Results</h2>
@@ -320,10 +318,10 @@
 			$maintext .= "<li><a href='index.php?action=$action&tuid=$tuid'>$tuid</a>";
 		};
 
-	} else if ( $act == "align" && $settings['align']['group'] && !$_GET['group'] ) {
+	} else if ( $act == "align" && getset('align/group') != "" && !$_GET['group'] ) {
 	
-		$groupfld = $settings['align']['group'];
-		if ( !is_array($settings['cqp']['sattributes']['text'][$groupfld]) ) {
+		$groupfld = getset('align/group');
+		if ( !is_array(getset("cqp/sattributes/text/$groupfld")) ) {
 			if ( $username ) fatal("Not defined in settings: cqp/text_{$groupfld}");
 			else fatal("An error occurred");
 		};

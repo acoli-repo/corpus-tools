@@ -30,7 +30,7 @@ class TTXML
 		global $xmlfolder; global $baseurl; global $settings; global $username;
 		
 		if ( !isset($this->noparse) ) 
-			if ( $settings['defaults'] && $settings['defaults']['noparse'] ) $this->noparse = true;
+			if ( getset('defaults/noparse') != "" ) $this->noparse = true;
 			else $this->noparse = false;
 		
 		# Use $_GET to find the file
@@ -56,7 +56,7 @@ class TTXML
 		};
 	
 		if ( !file_exists("$xmlfolder/$fileid") ) {
-			if ( $settings['xmlfile']['fullpath'] ) {
+			if ( getset('xmlfile/fullpath') != "" ) {
 				if ( $fatal ) fatal("No such XML File: $this->fileid"); 
 				else return -1;
 			};
@@ -102,15 +102,15 @@ class TTXML
 		global $settings;
 		if (!$this->xml) return "";
 		if ( !$this->title ) {
-			if ( $settings['xmlfile']['title'] == "[id]" ) {
+			if ( getset('xmlfile/title') == "[id]" ) {
 				$this->title = $this->xmlid;
 			} else {
-				$titlexp = $settings['xmlfile'][$type]."" or $titlexp = $settings['xmlfile']['title']."" or $titlexp = "//title";
+				$titlexp = getset("xmlfile/$type")."" or $titlexp = getset('xmlfile/title', "//title");
 				$result = $this->xml->xpath($titlexp); 
 				$this->title = $result[0];
 			};
 			if ( $this->title == "" ) {
-				if (  $settings['xmlfile']['title'] ) $this->title = "<i>{%Without Title}</i>";
+				if ( getset('xmlfile/title') != "" ) $this->title = "<i>{%Without Title}</i>";
 				else $this->title = $this->xmlid;
 			};
 		};
@@ -138,7 +138,7 @@ class TTXML
 		// Create necessary data for the view mode
 		global $settings; global $jsurl;
 		# Build the attribute names	
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/forms') as $key => $item ) {
 			if ( $username || !$item['admin'] ) {
 				if ( $key != "pform" ) { 
 					if ( !$item['admin'] || $username ) $attlisttxt .= $alsep."\"$key\""; $alsep = ",";
@@ -146,16 +146,16 @@ class TTXML
 				};
 			};
 		};
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/tags') as $key => $item ) {
 			if ( !$item['admin'] || $username ) {
 				$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
 				$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 			};
 		};
-		if ( $settings['xmlfile']['mtokform'] ) $attnamelist .= "\nvar mtokform = true;";
-		$allatts = array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']);
+		if ( getset('xmlfile/mtokform') != "" ) $attnamelist .= "\nvar mtokform = true;";
+		$allatts = array_merge(getset('xmlfile/pattributes/forms'), getset('xmlfile/pattributes/tags'));
 		$jsonforms = array2json($allatts);
-		$jsontrans = array2json($settings['transliteration']);
+		$jsontrans = array2json(getset('transliteration'));
 		$header = "
 			<script language=Javascript src=\"$jsurl/tokview.js\"></script>
 			<div id='tokinfo' style='display: block; position: absolute; z-index: 3;'></div>
@@ -193,9 +193,9 @@ class TTXML
 		};
 			
 		libxml_use_internal_errors(true);
-		if ( $settings['xmlfile']['nospace'] || preg_match("/<text[^>]+xml:space=\"remove\"/", $this->rawtext) ) {
+		if ( getset('xmlfile/nospace') != "" || preg_match("/<text[^>]+xml:space=\"remove\"/", $this->rawtext) ) {
 			$this->xml = simplexml_load_string($this->rawtext, null, LIBXML_NOBLANKS);
-			$this->nospace = $settings['xmlfile']['nospace'];
+			$this->nospace = getset('xmlfile/nospace');
 			if ( $this->nospace ) 
 			if ( preg_match("/join=\"right\"/", $this->rawtext) ) {
 				$this->nospace = 2;
@@ -245,7 +245,7 @@ class TTXML
 		} else {
 			$mediaxp = "//recording//media";
 		};
-		$mediabaseurl =  $settings['defaults']['media']['baseurl'] or $mediabaseurl =  $settings['defaults']['base']['media'] or $mediabaseurl = "Audio";
+		$mediabaseurl =  getset('defaults/media/baseurl') or $mediabaseurl =  getset('defaults/base/media', "Audio");
 		foreach ( $this->xml->xpath($mediaxp) as $medianode ) {
 			$mimetype = $medianode['mimeType'] or $mimetype = $medianode['mimetype'] or $mimetype = mime_content_type($medianode['url']."");
 			list ( $mtype, $mform ) = explode ( '/', $mimetype );
@@ -276,7 +276,7 @@ class TTXML
 		};		
 		
 		// If we have pseudonimization rules, pseudonimize the text
-		if ( $settings['anonymization'] && !$settings['anonymization']['manual'] ) {
+		if ( getset('anonymization') != "" && getset('anonymization/manual') == "" ) {
 			$this->pseudo();
 		};	
 			
@@ -312,7 +312,7 @@ class TTXML
 			if ( $tpl == "" ) $tpl = "short";
 		
 			$tableheader .= "<table>";
-			foreach ( $settings['teiheader'] as $key => $val ) {
+			foreach ( getset('teiheader', array() ) as $key => $val ) {
 				if ( !is_array($val) ) continue;
 				$disp = $val['display'] or $disp = $key;
 				if ( $val['type'] == "sep" ) {
@@ -331,7 +331,7 @@ class TTXML
 					if ( $popup && $val['nopopup'] ) continue;
 					if ( in_array($tpl, explode(",", $val['show'])) || ( !$val['show'] && $tpl == "long" ) ) {
 						if ( $val['lang'] && $val['lang'] != $lang ) continue;
-						if ( $settings['teiheader'][$key]['type'] == "xml" ) $hval = $xval->asXML();
+						if ( getset("teiheader/$key/type") == "xml" ) $hval = $xval->asXML();
 						else if ( preg_match("/@[^\/]+$/", $val['xpath']) ) $hval = "".$xval;
 						else if ( is_object($xval) ) $hval = preg_replace( "/^<[^>]+>|<[^>]+>$/", "", $xval->asXML());
 						else $hval = $xval;
@@ -349,9 +349,9 @@ class TTXML
 									$hval = "<a href='$tmp' cid=\"$hval\"  onmouseover=\"showdocinfo(this)\" onmouseout=\"hidetokinfo()\">$hval</a>";
 								} else $hval = "<a href='$tmp'>$hval</a>";
 						};
-						if ( $settings['teiheader'][$key]['options'][$hval]['display'] ) 
-							$hval = $settings['teiheader'][$key]['options'][$hval]['display'];
-						if ( $settings['teiheader'][$key]['i18n'] ) 
+						if ( getset("teiheader/$key/options/$hval/display") != "" ) 
+							$hval = getset("teiheader/$key/options/$hval/display");
+						if ( getset("teiheader/$key/i18n") ) 
 							$hval = "{%$hval}";
 						if ($hval != "" && $hval != "{%}") $tableheader .= "<tr><th>{%$disp}<td>$hval";
 					} else {
@@ -366,13 +366,13 @@ class TTXML
 		# Show alternative header views
 		if ( $showbottom ) {
 			if ( !$_GET['cid'] && !$_GET['id'] ) $cidurl = "&cid=$this->fileid";
-			$headeroptions = $settings['xmlfile']['teiHeader'] or $headeroptions = array (
+			$headeroptions = getset('xmlfile/teiHeader') or $headeroptions = array (
 				'' => array ( "display" => "less header data" ),
 				'long' => array ( "display" => "more header data" ), # {%more header data}
 				'edit' => array ( "display" => "edit header data", "edit" => 1 ), # {%edit header data}
 				);
 			$sep = "";
-			if ( $username && $settings['teiheader'] ) {
+			if ( $username && getset('teiheader') != "" ) {
 				$moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid' class=adminpart>edit header data</a>";
 					$sep = "&bull;";
 			};
@@ -393,7 +393,7 @@ class TTXML
 				};
 				$tpl = $key;
 				if ( $item['edit'] ) {
-					if ($username && !$settings['teiheader'] ) $moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=$tpl' class=adminpart>{%{$item['display']}}</a>";
+					if ($username && getset('teiheader') == "" ) $moreopts .= " $sep <a href='index.php?action=header&act=edit&cid=$this->fileid&tpl=$tpl' class=adminpart>{%{$item['display']}}</a>";
 					$sep = "&bull;";
 				} else if ( $item['admin'] ) {
 					if ($username) $moreopts .= " $sep <a href='index.php?action={$_GET['action']}&cid=$this->fileid&tpl=$tpl$edittxt' class=adminpart>{%{$item['display']}}</a>";
@@ -437,7 +437,7 @@ class TTXML
 			else $cql = "Matches = <text> [] :: match.text_id=\"$fileid\"";
 			
 			require("$ttroot/common/Sources/cwcqp.php");
-			$cqpcorpus = strtoupper($settings['cqp']['corpus'].$subcorpus); # a CQP corpus name ALWAYS is in all-caps
+			$cqpcorpus = strtoupper(getset('cqp/corpus', "TT").$subcorpus); # a CQP corpus name ALWAYS is in all-caps
 			$cqpfolder = "cqp";
 			$cqp = new CQP();
 			$cqp->exec($cqpcorpus); // Select the corpus
@@ -459,7 +459,7 @@ class TTXML
 			};
 		};
 
-		if ( getset('xmlfile/restriction') && !$this->xml->xpath($settings['xmlfile']['restriction']) && !$username ) { 
+		if ( getset('xmlfile/restriction') && !$this->xml->xpath(getset('xmlfile/restriction') ) && !$username ) { 
 			$tokid = $_GET['jmp'] or $tokid = $_GET['tid'] or $tokid = 'w-1';
 			# Take only the first one
 			$tokid = preg_replace("/ .*/", "", $tokid);
@@ -468,7 +468,7 @@ class TTXML
 		} else if ( !$whole && ( getset('xmlfile/paged/type') == "xp" || $_GET['pagetype'] == "xp" ) ) {
 			$xmltxt = $this->xppage();
 		} else if ( !$whole && ( $_GET['paged'] 
-				|| ( is_array($settings['xmlfile']) && ( $settings['xmlfile']['paged'] || is_array($settings['xmlfile']['paged']) ) )
+				||  getset('xmlfile/paged') != "" 
 				|| $_GET['pbtype'] 
 				) ) {
 			$xmltxt = $this->page();
@@ -522,7 +522,7 @@ class TTXML
 		if ( !$pagid ) $pagid = $_GET['pageid'];
 		$jmp =  $_GET['jmp'] or $jmp = $_GET['tid'];
 		$jmp = preg_replace("/ .*/", "", $jmp);
-		$pbelm = $_GET['pbelm'] or $pbelm = $settings['xmlfile']['paged']['element'];
+		$pbelm = $_GET['pbelm'] or $pbelm = getset('xmlfile/paged/element');
 		
 		if ( $pagid ) { 
 			$xp = "//*[@id='$pagid']";
@@ -570,7 +570,7 @@ class TTXML
 		$folioname = getset('xmlfile/paged/display', "page");
 		if ( getset('xmlfile/paged/i18n') ) $folioname = "{%$folioname}";
 
-		if ( $action == "text" || $action == "file" || $settings['xmlfile']['paged']['index'] ) $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
+		if ( $action == "text" || $action == "file" || getset('xmlfile/paged/index') ) $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
 		if ( $befpag[$bp] ) {
 			$tmp = min(count($befpag)-1, $bp+$max*2); $npag1 = $befpag[$tmp]; $bid = $idxpag['id'];
 			$bnum1 = $this->elm2id($npag1);
@@ -602,7 +602,7 @@ class TTXML
 				$tmp = $tocnode; $sep = "";
 				while ( $tmp && $tmp->getName() != "toc") {
 					$levelname = $tmp['display-'.$lang] or $levelname = $tmp['display'] or $levelname = $tmp['n'] ;
-					if ( $settings['xmlfile']['toc']['i18n'] ) $levelname = "{%$levelname}";
+					if ( getset('xmlfile/toc/i18n') != "" ) $levelname = "{%$levelname}";
 					$tocnav = "<a href='index.php?action=pages&cid=$this->xmlid&appid={$tmp['appid']}'>$levelname</a> $sep $tocnav";
 					$tmp = current($tmp->xpath("..")); $sep = ">";
 				};		
@@ -612,7 +612,7 @@ class TTXML
 
 		if ( $page && getset('xmlfile/paged/header') ) {
 			$pageinfo = "<center><table>";
-			foreach ( $settings['xmlfile']['paged']['header'] as $kk => $vv ) {
+			foreach ( getset('xmlfile/paged/header', array()) as $kk => $vv ) {
 				$vval = $page[$kk];
 				if ( $vv['type'] == "url" ) { 	
 					$vname = $vv['name'] or $vname = $vval; 
@@ -692,8 +692,7 @@ class TTXML
 			$sent = $tmp[0];
 			$editxml = $sent->asXML();
 			$context = "<div id=mtxt>".$editxml."</div>";
-			if ( is_array($settings['xmlfile']['sattributes']) ) 
-			foreach ( $settings['xmlfile']['sattributes'] as $key => $val ) {
+			foreach ( getset('xmlfile/sattributes', array()) as $key => $val ) {
 				if ( $val['color'] ) $style = " style=\"color: {$val['color']}\" ";
 				if ( $sent[$key] ) $context .= "<p title=\"{$val['display']}\" $style>$sent[$key]</p>";
 			};
@@ -732,15 +731,14 @@ class TTXML
 		# Return the xml for a page (or other element) of the text
 		
 		// Determine what element to use
-		# if ( $settings['xmlfile']['paged'] == 2) $me = "you";
+		# ['xmlfile']['paged'] == 2) $me = "you";
 		
 		if ( !is_array($opts) ) $opts = array();
 		
 		if ( $opts['pbtype'] || $opts['elm'] ) $pbtmp = $opts['pbtype'] or $pbtmp = $opts['elm'];
-		else if ( $_GET['action'] == "appalign" ) $pbtmp = $_GET['pbtype'] or $pbtmp = $settings['appid']['baseview'];
+		else if ( $_GET['action'] == "appalign" ) $pbtmp = $_GET['pbtype'] or $pbtmp = getset('appid/baseview');
 		else if ( $_GET['pbtype'] ) $pbtmp = $_GET['pbtype'];
-		else if ( is_array($settings['xmlfile']['paged']) ) $pbtmp = $settings['xmlfile']['paged']['element'];
-		else $pbtmp = "pb";
+		else $pbtmp = getset('xmlfile/paged/element', "pb");
 		
 		// Determine kind of page to cut out
 		$pbatt = "n";
@@ -763,19 +761,19 @@ class TTXML
 		} else if ( $this->is_closed($pbtmp) ) {  // Generic closed element
 			$pbtype = $pbtmp;
 			$pbelm = $pbtmp;
-		} else if ( $settings['xmlfile']['milestones'][$pbtmp] ) {  // Custom-defined milestone
+		} else if ( getset("xmlfile/milestones/$pbtmp") != "" ) {  // Custom-defined milestone
 			$elm = $pbtmp;
 			$pbtype = "milestone[@type=\"$elm\"]";
-			$titelm = $settings['xmlfile']['milestones'][$pbtmp]['display'] or $titelm = ucfirst($elm);
+			$titelm = getset("xmlfile/milestones/$pbtmp/display", ucfirst($elm));
 			$titelm = "{%$titelm}";
 			$foliotxt = $titelm;
 			$pbelm = "milestone";
 			$pbsel = "&pbtype={$pbtmp}";
-		} else if ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['closed'] ) {  // Custom-defined XML node
-			$pbtype = $settings['xmlfile']['paged']['element'] or $pbtype = $pbtmp;
-			$titelm = $settings['xmlfile']['paged']['display'] or $titelm = ucfirst($pbtmp);
+		} else if ( is_array(getset('xmlfile/paged')) && getset('xmlfile/paged/closed') != "" ) {  // Custom-defined XML node
+			$pbtype = getset('xmlfile/paged/element', $pbtmp);
+			$titelm = getset('xmlfile/paged/display', ucfirst($pbtmp));
 			$pbelm = $pbtype;
-			$pbatt = $settings['xmlfile']['paged']['att'] or $pbatt = "n";
+			$pbatt = getset('xmlfile/paged/att', "n");
 		} else {  // Generic milestone
 			$pbtype = "milestone[@type=\"{$pbtmp}\"]";
 			$titelm = getset("xmlfile/paged/options/$pbtmp/display", ucfirst($pbtmp));

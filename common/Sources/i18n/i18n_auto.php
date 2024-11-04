@@ -105,6 +105,8 @@
 		"Facsimile Search" => "Facsimile Search",
 		"Search Query" => "Search Query",
 		"Geographical Locations" => "Geographical Locations",
+		"No identified place names in this document" => "No identified place names in this document",
+		"Locations" => "Locations",
 		"show all" => "show all",
 		"Documents from" => "Documents from",
 		"No results found" => "No results found",
