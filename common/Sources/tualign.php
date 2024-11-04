@@ -225,7 +225,10 @@
 		if ( $debug ) $maintext .= "<p>CQL Query: $query";
 		$result = pg_query($query);
 	
-		if ( $result && pg_num_rows($result) ) {
+		if ( !$result ) {
+			if ( $username ) $maintext .= "<p>The following query failed, please check CQP settings: <pre>".htmlentities($query)."</pre>";
+			fatal("An error has occurred");
+		} else if ( pg_num_rows($result) ) {
 			$maintext .= "<p>
 				<style>.highlight { background-color: #ffeeaa; }</style>
 						<h2>Results</h2>
