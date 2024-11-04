@@ -81,6 +81,7 @@
 			list ( $word, $size ) = explode ( "\t", $line);
 			$word = str_replace("\\", "\\\\", $word);
 			$word = str_replace("'", "\'", $word);
+			$word = html_entity_decode($word);
 			if ( $size) $wordlist .= " { text:'$word', size: $size},\n";
 			if ( $cnt++ > $max ) break;
 		};

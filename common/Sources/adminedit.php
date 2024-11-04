@@ -7,7 +7,7 @@
 	check_login("admin");
 	$id = $_GET['id'];
 	$blessed = array("Annotations", "Resources", "xdxf", "templates");
-	if ( $settings['files']['blessed'] ) {
+	if ( getset('files/blessed') != "" ) {
 		foreach ( explode(",", $settings['files']['blessed']) as $tmp ) array_push($blessed, $tmp);
 	};
 

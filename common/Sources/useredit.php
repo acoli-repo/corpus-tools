@@ -81,8 +81,8 @@
 			 $chpwd = "(unchanged when left empty)";
 		};
 		
-		if ( $settings['permissions']['groups'] ) {
-			foreach ( $settings['permissions']['groups']  as $key => $val ) {
+		if ( getset('permissions/groups') != "" ) {
+			foreach ( getset('permissions/groups', array())  as $key => $val ) {
 				$seld = ""; if ( $usr['group'] == $key ) $seld = "selected";
 				$tmp = $val['display'] or $tmp = $key;
 				$grouplist .= "<option value='$key'>$tmp</option>";

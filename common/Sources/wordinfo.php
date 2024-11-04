@@ -15,10 +15,10 @@
 	
 	$node = current($ttxml->xpath("//*[@id=\"$tid\"]"));
 
-	$cqlbase = $settings['cqp']['cqlbase'] or $cqlbase = "index.php?action=cqp&cql=";
+	$cqlbase = getset('cqp/cqlbase',  "index.php?action=cqp&cql=");
 	
 	$maintext .= "<tr><th>{%Attributes}<td><table>";
-	$tags = array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']);
+	$tags = array_merge(getset('xmlfile/pattributes/forms', array()), getset('xmlfile/pattributes/tags', array()));
 	foreach ( $tags as $key => $item ) {
 		if ( $item['admin'] && !$username ) continue;
 		$form = forminherit($node, $key);

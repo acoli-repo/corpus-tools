@@ -71,19 +71,19 @@
 	
 
 		# Check if all form inherit properly
-		if ( !$settings['cqp'] || !$settings['cqp']['pattributes'] ) {
+		if ( getset('cqp/pattributes') == '' ) {
 			$maintext .= "<p class=warn>No CQP export has been defined, your corpus will not become searchable.";
 		}
 		
 		# Check if all form inherit properly
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $val ) {
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $val ) {
 			if ( $key == "pform" || $key == "form" ) continue; # <pform> and @form inherit automiatically
 			if ( !$val['inherit'] ) $maintext .= "<p class=wrong>$key ({$val['display']}) is not inheriting";
-			else if ( !$settings['xmlfile']['pattributes']['forms'][$val['inherit']] ) $maintext .= "<p class=wrong>$key ({$val['display']}) inherits from @{$val['inherit']}, which does not exist";
+			else if ( !getset("xmlfile/pattributes/forms/{$val['inherit']}") ) $maintext .= "<p class=wrong>$key ({$val['display']}) inherits from @{$val['inherit']}, which does not exist";
 		};
 		
 		# Check that there is an i18n file for each interface language
-		foreach ( $settings['languages']['options'] as $key => $val ) {
+		foreach ( getset('languages/options', array()) as $key => $val ) {
 			if ( $key == "en" ) continue;
 			if ( !file_exists("$ttroot/common/Sources/i18n/i18n_$key.php") && !file_exists("Sources/i18n_$key.php") ) 
 				$maintext .= "<p>There is no localization file for {$val['display']} ($key) - <a href='index.php?action=i18n&act=makephp&lid=$key'>you should create one</a>";
@@ -100,7 +100,7 @@
 		};
 		
 		# Check that the new teiHeader settings are used
-		if ( !$settings['teiheader'] ) {
+		if ( getset('teiheader') == '') {
 			if ( file_exists("Resources/teiHeader.tpl") ) $maintext .= "<p class=warn>Since version 2.5 TEITOK keeps the metadata in the settings file instead of a metadata template. You should go to the <a href='index.php?action=metadata'>settings</a> section to convert to the new format";
 			$maintext .= "<p class=warn>No editable metadata have been defined for this corpus";
 		};
@@ -113,17 +113,17 @@
 		};
 		
 		# Check some inconsistent setings files
-		if ( $tmp && !$settings['cqp']['sattributes']['text'] ) {
+		if ( $tmp && getset('cqp/sattributes/text') == '' ) {
 			# <text> needs to exist
 			$maintext .= "<p class=wrong>Your CQP settings does not contain a section for the text; almost all metadata are text-level so you should add a text level</p>";
 		};
-		$tmp = $settings['cqp']['defaults']['subtype'];
-		if ( $tmp && !$settings['cqp']['sattributes'][$tmp] ) {
+		$tmp = getset('cqp/defaults/subtype');
+		if ( $tmp && getset("cqp/sattributes/$tmp") == "" ) {
 			# Default Context view needs to exist
 			$maintext .= "<p class=wrong>Your default CQP context is set to $tmp, but there is no such level defined in the CQP settings</p>";
 		};
-		$tmp = $settings['cqp']['defaults']['context'];
-		if ( $tmp && !$settings['cqp']['sattributes'][$tmp] ) {
+		$tmp = getset('cqp/defaults/context');
+		if ( $tmp && getset("cqp/sattributes/$tmp") == '' ) {
 			# Default Context view needs to exist
 			if ( !preg_match("/^\d+$/", $tmp) ) $maintext .= "<p class=wrong>Your default CQP context is set to $tmp, but there is no such level defined in the CQP settings</p>";
 		};
@@ -134,9 +134,9 @@
 	
 		check_login("admin");
 	
-		if ( $foldername != $settings['defaults']['base']['foldername'] ) {
-			$projtit = $settings['defaults']['title']['display'] or $projtit = "<i>Not always used</i>";
-			$burl = $settings['defaults']['base']['url'] or $burl = "<i>Not always used</i>";
+		if ( $foldername != getset('defaults/base/foldername') ) {
+			$projtit = getset('defaults/title/display', "<i>Not always used</i>");
+			$burl = getset("defaults/base/url", "<i>Not always used</i>");
 			$maintext .= "<h1>Check Settings</h1>
 				<p>The folder where this project is located ($foldername) does not correspond to the
 					folder specified in the settings ({$settings['defaults']['base']['foldername']}). This is typically due to the fact that
@@ -179,7 +179,7 @@
 	
 	} else {
 	
-		if ( getset('permissions/groups') )  $grouprec = $settings['permissions']['groups'][$user['group'].""];
+		if ( getset('permissions/groups') != '' )  $grouprec = getset("permissions/groups/{$user['group']}");
 		$adminmenulist = array (
 				"upload" => "upload/manage files",
 				"pageedit" => "edit HTML files",
@@ -195,11 +195,10 @@
 			<ul>";
 
 		if ( allowedforme("create") ) {
-			#if ( $settings['xmltemplates'] || file_exists("Resources/xmltemplate.xml" ) ) $maintext .= "<li><a href='index.php?action=create'>create new XML from template</a>"; else 
 			$maintext .= "<li><a href='index.php?action=create'>create new XML file</a>";
 		};
 
-		if ( $settings['cqp']['corpus'] && allowedforme("recqp") ) {
+		if ( getset('cqp/corpus') && allowedforme("recqp") ) {
 			$maintext .= "<li><a href='index.php?action=recqp'>(re)generate the CQP corpus</a> (or only 
 				<a href='index.php?action=recqp&check=1'>check</a> the status)";
 			# if ( $user['permissions'] == "admin" ) { 
@@ -214,7 +213,7 @@
 		};
 			
 				
-		if ( $settings['neotag'] && allowedforme("neotag") ) {
+		if ( getset('neotag') != "" && allowedforme("neotag") ) {
 				$maintext .= "<li>  <a href='index.php?action=neotag'>check or update</a> the NeoTag parameter set(s)";
 		};
 		if ( ( file_exists("Resources/tagset.xml") ) && allowedforme("tagset") ) {
@@ -228,7 +227,7 @@
 			$maintext .= "<li><a href='index.php?action=adminedit'>edit resource files</a>";
 		};
 		
-		if ( $settings['teiheader'] ) {
+		if ( getset('teiheader') != "" ) {
 						$maintext .= "<li><a href='index.php?action=headersettings'>teiHeader (metadata) definitions</a>";
 		};		
 		
@@ -238,8 +237,7 @@
 // 		if ( file_exists("Facsimile" ) && allowedforme("images") )
 // 			$maintext .= "<li><a href='index.php?action=images&act=check'>check facsimile images</a>";
 
-		if ( is_array($settings['menu']['admin']) )
-		foreach ( $settings['menu']['admin'] as $key => $item ) { 	
+		foreach ( getset('menu/admin', array()) as $key => $item ) { 	
 			$link = "{$tlpr}index.php?action=$key";
 			if ( allowedforme($key) && $item['display'] )
 				$maintext .= "<li><a href='$link'>".$item['display']."</a>";
@@ -271,7 +269,7 @@
 			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
 
 			$scopts['http']['timeout'] = 3; // Set short timeout here to avoid hanging
-			if ( $settings['defaults']['base']['proxy'] ) $scopts['http']['proxy'] = $settings['defaults']['base']['proxy'];
+			if ( getset('defaults/base/proxy') != "" ) $scopts['http']['proxy'] = $settings['defaults']['base']['proxy'];
 			$ctx = stream_context_create($scopts);	
 			$latesturl = "http://www.teitok.org/latest.php?url={$_SERVER['HTTP_HOST']}".preg_replace("/\/index\.php.*/", "", $_SERVER['REQUEST_URI'])."&version={$version['version']}";
 			$tmpf = file_get_contents($latesturl, false, $ctx);
@@ -292,7 +290,7 @@
 		
 	function allowedforme ( $checkaction ) {
 		global $user, $settings, $publicactions;
-		if ( getset('permissions/groups') ) $grouprec = $settings['permissions']['groups'][$user['group']];
+		if ( getset('permissions/groups') ) $grouprec = getset("permissions/groups/{$user['group']}");
 		if ( $user['permissions'] == "admin" 
 				|| !$grouprec['actions'] 
 				|| in_array($checkaction, explode(",",$grouprec['actions']) ) 
