@@ -21,7 +21,7 @@
 	};
 
 	$type = $_POST['type'] or $type = $_GET['type']; 
-	$typedef = getset('files/$type', array());
+	$typedef = getset("files/$type", array());
 
 	if ( $act == "save" ) {
 
