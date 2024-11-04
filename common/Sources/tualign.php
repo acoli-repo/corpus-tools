@@ -227,7 +227,7 @@
 	
 		if ( !$result ) {
 			if ( $username ) $maintext .= "<p>The following query failed, please check CQP settings: <pre>".htmlentities($query)."</pre>";
-			fatal("An error has occurred");
+			else fatal("An error has occurred");
 		} else if ( pg_num_rows($result) ) {
 			$maintext .= "<p>
 				<style>.highlight { background-color: #ffeeaa; }</style>
