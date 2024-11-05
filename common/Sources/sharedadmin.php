@@ -367,7 +367,7 @@
 			};
 			
 			// TODO: Can we update via the GUI?
-			if ( $user['permissions'] == "admin" && is_writable($ttroot) && !$uptodate ) {
+			if ( $user['permissions'] == "admin" && is_writable($ttroot) && !$uptodate && $latest['version'] ) {
 				$maintext .= "<li> <a href='index.php?action=$action&act=update'>update TEITOK version to {$latest['version']}</a>";
 			};
 		};

@@ -226,7 +226,7 @@
 		$result = pg_query($query);
 	
 		if ( !$result ) {
-			if ( $username ) $maintext .= "<p>The following query failed, please check CQP settings: <pre>".htmlentities($query)."</pre>";
+			if ( $username ) $maintext .= "<p>The following query failed, please check that the PostGres database exists and the necessary fields are defined: <pre>".htmlentities($query)."</pre>";
 			else fatal("An error has occurred");
 		} else if ( pg_num_rows($result) ) {
 			$maintext .= "<p>

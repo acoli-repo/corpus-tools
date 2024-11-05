@@ -27,7 +27,7 @@
 
 		if ( !$type ) fatal ("POST data incorrectly set");
 
-		$target_folder = getset('files/$type/folder'); if ( !$target_folder ) fatal ("Filetype not allowed for upload");
+		$target_folder = getset("files/$type/folder"); if ( !$target_folder ) fatal ("Filetype not allowed for upload");
 		
 		if ( $typedef['subfolders'] && $_POST['subfolder'] )  {
 			$target_folder .= "/".str_replace(".", "", $_POST['subfolder']);
@@ -136,8 +136,8 @@
 
 		$type = $_GET['type'];
 		if ( !$type ) fatal ("Filetype incorrectly set");
-		$target_folder = getset('files/$type/folder'); if ( !$target_folder ) fatal ("Filetype not allowed to delete");
-		$deltype = getset('files/$type/delete') or $deltype = getset('files/delete');
+		$target_folder = getset("files/$type/folder"); if ( !$target_folder ) fatal ("Filetype not allowed to delete");
+		$deltype = getset("files/$type/delete") or $deltype = getset('files/delete');
 		if ( $deltype == "none" || ( $deltype == "sudo" && $user['permissions'] != "admin" ) )  fatal ("Filetype not allowed to delete");
 
 		# Check if this is not in Resources
@@ -175,7 +175,7 @@
 
 		$type = $_GET['type'];
 		if ( !$type ) fatal ("Filetype incorrectly set");
-		$target_folder = getset('files/$type/folder'); if ( !$target_folder ) fatal ("Filetype not allowed for download");
+		$target_folder = getset("files/$type/folder"); if ( !$target_folder ) fatal ("Filetype not allowed for download");
 
 		# Check if this is not in Resources
 		$filename = $_GET['file'];
@@ -404,7 +404,7 @@
 				$maintext .= "<tr><td><a href='$baseurl$line' target=file>view</a>
 				<td> <a href='index.php?action=$action&act=download&type={$typedef['folder']}&file=$ffn' target=file>download</a>
 				<td> {$ffn} <td align=right>".human_filesize(filesize($line));
-				$deltype = getset('files/$type/delete') or $deltype = getset('files/delete');
+				$deltype = getset("files/$type/delete") or $deltype = getset('files/delete');
 				if ( $deltype != "none" && ( $deltype != "sudo" || $user['permissions'] == "admin" ) )  $maintext .= "<td><a href='index.php?action=$action&act=delete&type=$type&file=$line'>delete</a>";
 				if ( in_array($typedef['folder'], $blessed) && $user['permissions'] == "admin" ) {
 					$maintext .= "<td><a href='index.php?action=adminedit&folder={$typedef['folder']}&id=$fn'>raw edit</a>";
