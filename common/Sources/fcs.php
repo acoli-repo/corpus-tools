@@ -113,7 +113,7 @@
 					$folder = $corp->url."";
 					$id = preg_replace("/.*\//", "", $folder);
 					$lang = $corp->lang."";
-					$corplist[$id] = array("folder" => $folder, "title" => $title, "reg" => "$folder/cqp", "lang" => $lang);
+					$corplist[$id] = array("folder" => $folder, "title" => $title, "reg" => "../$folder/cqp", "lang" => $lang);
 				};
 			};
 
@@ -129,7 +129,7 @@
 		} else {
 		
 			$folder = "."; $title = getset("defaults/title/display"); $lang = getset("defaults/lang");
-			$corp = array( "folder" => $folder, "title" => $title, "lang" => $lang, "reg" => "cqp" );
+			$corp = array( "folder" => $folder, "title" => $title, "lang" => $lang, "reg" => "cqp", "id" => getset("cqp/corpus") );
 			$results = searchcorpus($corp);
 			$corpusurl = "httpx://{$_SERVER['SERVER_NAME']}{$_SERVER['SCRIPT_NAME']}";
 			makerecs($results);
@@ -180,11 +180,14 @@
 		
 		$reg = $corp['reg'] or $reg = $corp['folder']."/cqp";
 		$cqpcorpus = strtoupper($corp['id']);
-		$reg = getcwd()."/../$reg";
+		$reg = getcwd()."/$reg";
 
 		$cqp = new CQP($reg);
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
+
+// 		print_r($corp); print "<p>Corpus: $cqpcorpus, Query: $cql, CAT: $cat";
+// 		 exit;
 
 		$cqp->exec($cql);
 		$size = $cqp->exec("size Matches");
