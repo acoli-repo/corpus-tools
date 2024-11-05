@@ -146,6 +146,7 @@
 		$miniuri = preg_replace("/^.*$tmp/", "", $_SERVER['REQUEST_URI']);
 		if ( preg_match("/\/iiif\//", $tmp, $matches ) ) $action = "iiif";
 		else if ( preg_match("/([^\/]+)\.(html|php)/", $_SERVER['REQUEST_URI'], $matches ) ) $action = $matches[1];
+		else if ( preg_match("/\/([^.\/]+)$/", $_SERVER['PATH_INFO'], $matches ) ) $action = $matches[1];
 		else if ( preg_match("/^([^\/]+)\/([^\/]+\.xml)$/", $basereq, $matches ) ) {
 			$action = $matches[1]; $_GET['cid'] = $matches[2];
 		} else if ( preg_match("/\//", $miniuri, $matches ) && !preg_match("/index\.php/", $miniuri) ) {

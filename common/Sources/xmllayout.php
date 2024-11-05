@@ -577,7 +577,7 @@
 		foreach ( $teilist[$nn]['atts'] as $key => $val ) {
 			$attlist[$key] = $val;
 		};
-		foreach ( getset("xmlfile/sattributes/$nn", arry()) as $key => $val ) {
+		foreach ( getset("xmlfile/sattributes/$nn", array()) as $key => $val ) {
 			if ( !is_array($val) ) continue;
 			$attlist[$key] = $val;
 		};
