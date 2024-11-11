@@ -17,13 +17,13 @@
 
 	if ( $act == "edit" && $username ) $editable = true;
 
-	if ( !$settings['xmlfile']['pattributes']['forms']['pform'] ) {
+	if ( getset('xmlfile/pattributes/forms/pform') == '' ) {
 		$settings['xmlfile']['pattributes']['forms']['pform'] = array("display" => "Base Form (innerXML)");
 	};
 
 	if ( $act == "save" && $username ) {
 		foreach ( $_POST as $key => $val ) {
-			if ( $settings['xmlfile']['pattributes']['forms'][$key] || $settings['xmlfile']['pattributes']['tags'][$key] || $key == "pform" ) {
+			if ( getset("xmlfile/pattributes/forms/$key") != "" || getset("xmlfile/pattributes/tags/$key") != "" || $key == "pform" ) {
 				foreach ( $val as $wid => $nval ) {
 					$result = $xml->xpath("//*[@id='$wid']"); 
 					$stoken = $result[0]; # print_r($token); exit;
@@ -49,7 +49,7 @@
 				<table>
 				<tr><th>Edit<th>View<th>Column name";
 		
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 			if ( $key == "pform" ) $editform = ""; // Turned off editing of pfrom in verticalized view since it deletes internal nodes (or gets complicated)
 			else $editform = "<input type=checkbox name='edit[$key]' value=1> ";
 			$maintext .= "<tr>
@@ -61,7 +61,7 @@
 		$maintext .= "<tr><td colspan=10>
 				<p><input type=checkbox name=inherit value='1'> Show inherited forms
 				<hr>";	
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 			$maintext .= "<tr>
 				<td><input type=checkbox name='edit[$key]' value=1> 
 				<td><input type=checkbox name='view[$key]' value=1> 
@@ -116,7 +116,7 @@
 			if ( $_SESSION['vert-edit'] ) $editfields = array_keys($_SESSION['vert-edit']);
 			# foreach ( $editfields as $fld ) if ( !in_array($fld, $showfields) ) array_push($showfields,$fld);
 		} else {
-			$toshow = $_GET['showfields'] or $toshow = $settings['xmlfile']['vertfields'] or $toshow = "pform,nform";
+			$toshow = $_GET['showfields'] or $toshow = getset('xmlfile/vertfields', "pform,nform");
 			$showfields = explode ( ",", $toshow );
 			if ( $editable ) {
 				$toedit = $_GET['editfields'] or $toedit = "nform,lemma,pos";
@@ -155,14 +155,14 @@
 			<table>
 			<tr><td>";
 		foreach ( $showfields as $fld ) {
-			$tittxt = $settings['xmlfile']['pattributes']['forms'][$fld]['display'] or 
-			$tittxt = $settings['xmlfile']['pattributes']['tags'][$fld]['display']; 
+			$tittxt = getset("xmlfile/pattributes/forms/$fld/display") or 
+			$tittxt = getset("xmlfile/pattributes/tags/$fld/display"); 
 			$maintext .= "<th>$tittxt";
 		};
 		if ( $username && is_array($editfields) ) foreach ( $editfields as $fld ) {
 			if ( $fld == "pform" ) continue;
-			$tittxt = $settings['xmlfile']['pattributes']['forms'][$fld]['display'] or 
-			$tittxt = $settings['xmlfile']['pattributes']['tags'][$fld]['display']; 
+			$tittxt = getset("xmlfile/pattributes/forms/$fld/display") or 
+			$tittxt = getset("xmlfile/pattributes/tags/$fld/display"); 
 			$maintext .= "<th>$tittxt";
 		};
 		
@@ -178,8 +178,8 @@
 							$val = $node->asXML();
 						} else $val = $node[$fld];
 						
-						if ( $val == "" && ( $_POST['inherit'] || $_GET['inherit'] ) && $settings['xmlfile']['pattributes']['forms'] ) $val = forminherit($node, $fld);
-						$coldir = $settings['xmlfile']['pattributes']['forms'][$fld]['direction'];
+						if ( $val == "" && ( $_POST['inherit'] || $_GET['inherit'] ) && getset('xmlfile/pattributes/forms') != "" ) $val = forminherit($node, $fld);
+						$coldir = getset("xmlfile/pattributes/forms/$fld/direction");
 						if ( $coldir ) $colstyle = " style='direction: $coldir; padding-right: 10px;'"; else $colstyle = "";
 						
 						$maintext .= "<td$colstyle>$val";
@@ -201,7 +201,7 @@
 						foreach ( $showfields as $fld ) {
 							if ( $fld == "pform" ) $val = $dnode['form']; # dnodes do not have an innerHTML
 							else $val = $dnode[$fld];
-							if ( $val == "" && $_POST['inherit']  && $settings['xmlfile']['pattributes']['forms'] ) $val = forminherit($dnode, $fld);
+							if ( $val == "" && $_POST['inherit']  && getset('xmlfile/pattributes/forms') != '' ) $val = forminherit($dnode, $fld);
 							$maintext .= "<td>$val";
 						};
 						foreach ( $editfields as $fld ) {

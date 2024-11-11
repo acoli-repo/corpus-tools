@@ -6,7 +6,7 @@
 	$cntcols = 1; $headrow = 'false';
 	$ttcqp = findapp("tt-cqp");
 
-	if ( $_GET['cwb'] || $settings['cqp']['ttcqp'] == "0" ) $usecwb = 1;
+	if ( $_GET['cwb'] || getset('cqp/ttcqp') == "0" ) $usecwb = 1; # tt-cqp is no longer supported
 
 	if ( $act == "cql" ) {
 
@@ -47,9 +47,9 @@
 				} else {
 					# Fallback without tt-cqp
 					require_once ("$ttroot/common/Sources/cwcqp.php");
-					$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
-					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-					$cqpfolder = $settings['cqp']['searchfolder'];
+					$registryfolder = getset('cqp/defaults/registry', "cqp");
+					$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
+					$cqpfolder = getset('cqp/searchfolder', 'xmlfiles');
 					if  ( !$corpusfolder ) $corpusfolder = "cqp";
 					# Check whether the registry file exists
 					if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
@@ -74,8 +74,9 @@
 
 		} else if ( $_GET['cql'] or $_POST['cql'] ) {
 
-			if ( $settings['cqp']['defaults']['registry'] ){
-				$reg = " --cqlfolder={$settings['cqp']['defaults']['registry']}";
+			if ( getset('cqp/defaults/registry') != '' ){
+				$registryfolder = getset('cqp/defaults/registry', "cqp");
+				$reg = " --cqlfolder={$registryfolder}";
 			};
 
 			$cql = $_POST['cql'] or $cql = $_GET['cql'] or $cql = "[]";
@@ -109,9 +110,9 @@
 				$fld = $_POST['fld'] or $fld = "word";
 				$fldname = pattname($fld);
 
-				if ( $settings['cqp']['frequency']['refcorpus'] ) {
-					$refcorpus = $settings['cqp']['frequency']['refcorpus'];
-					$refcorpustxt = $settings['cqp']['frequency']['refcorpus'] or $refcorpustxt = $refcorpus;
+				if ( getset('cqp/frequency/refcorpus') != "" ) {
+					$refcorpus = getset('cqp/frequency/refcorpus');
+					$refcorpustxt = getset('cqp/frequency/refcorpustext', $refcorpus);
 				} else {
 					$refcorpus = $cqpcorpus;
 					$refcorpustxt = "(internal)";
@@ -158,9 +159,9 @@
 					$json = shell_exec($cmd);
 				} else {
 					require_once ("$ttroot/common/Sources/cwcqp.php");
-					$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
-					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-					$cqpfolder = $settings['cqp']['searchfolder'];
+					$registryfolder = getset('cqp/defaults/registry',  "cqp");
+					$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
+					$cqpfolder = getset('cqp/searchfolder');
 					if  ( !$corpusfolder ) $corpusfolder = "cqp";
 					# Check whether the registry file exists
 					if ( !file_exists($registryfolder.strtolower($cqpcorpus)) && file_exists("/usr/local/share/cwb/registry/".strtolower($cqpcorpus)) ) {
@@ -225,9 +226,9 @@
 					// TODO: resolve/improve this fallback
 
 					include ("$ttroot/common/Sources/cwcqp.php");
-					$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
-					$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
-					if ( $settings['cqp']['subcorpora'] ) {
+					$registryfolder = getset('cqp/defaults/registry', "cqp");
+					$cqpcorpus = getset('cqp/corpus', "tt-".$foldername);
+					if ( getset('cqp/subcorpora') != "" ) {
 						$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername];
 						if ( !$subcorpus ) {
 							fatal("No subcorpus selected");
@@ -241,7 +242,7 @@
 						$maintext .= $subcorpustit;
 					} else {
 						$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
-						$cqpfolder = $settings['cqp']['cqpfolder'];
+						$cqpfolder = getset('cqp/cqpfolder', "cqp");
 					};
 
 					# Check whether the registry file exists
@@ -264,7 +265,7 @@
 					$totcnt = $cqp->exec("size Matches");
 					$cqpresults = $cqp->exec($grquery);
 					
-					if ( !$settings['cqp']['nowpm'] ) {
+					if ( getset('cqp/nowpm') == "" ) {
 						# Determine what to use as reference query
 						if ( preg_match("/(.+?) (:: .+)/", $cql, $matches) ) {
 							$qp['local'] = $matches[1]; $qp['global'] = $matches[2];
@@ -396,7 +397,7 @@
 
 	if ( $json ) {
 
-		if ( is_array($settings['geomap']) ) $apikey = $settings['geomap']['apikey']; # Use our key when no other key is defined
+		if ( is_array(getset('geomap')) ) $apikey = getset('geomap/apikey'); # Use our key when no other key is defined
 
 		if ( ( $mainfld == "text_geo" || $fldi[0]['var'] == "geo" ) && $apikey  ) { $moregs .= "<option value='geomap'>{%Map Chart}</option><option value='geochart'>{%Geo Chart}</option>"; $morel = ", 'map', 'geochart'";  $moreo = ", 'mapsApiKey': '$apikey'"; };
 
