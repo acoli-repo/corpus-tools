@@ -852,7 +852,7 @@ class TTXML
 		$bidx = rstrpos($editxml, "<$pbelm ", $pidx-1); 
 		if ( !$bidx || $bidx == -1 ) { 
 			$bidx = strpos($editxml, "<text", 0); 
-			if ( $action == "text" || $action == "file" || ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['index'] ) ) $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
+			if ( $action == "text" || $action == "file" || getset('xmlfile/paged/index') != '' ) $bnav = "<a href='index.php?action=pages&cid=$this->fileid$pbsel'>{%index}</a>";
 		} else {
 			$tmp = substr($editxml, $bidx, 150 ); 
 			if ( preg_match("/id=\"(.*?)\"/", $tmp, $matches ) ) { $bpid = $matches[1]; };
@@ -890,13 +890,13 @@ class TTXML
 		$this->facsimg = $img;
 		
 		if ( $titelm ) $foliotxt = $titelm;
-		else if ( $settings['xmlfile']['paged']['display'] ) $foliotxt = $settings['xmlfile']['paged']['display'];
+		else if ( getset('xmlfile/paged/display') ) $foliotxt = getset('xmlfile/paged/display');
 		else if ( $pbelm == "pb" ) $foliotxt = "Folio";
-		if ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['i18n'] ) $foliotxt = "{%$foliotxt}";
+		if ( getset('xmlfile/paged/i18n') != '' ) $foliotxt = "{%$foliotxt}";
 
-		if ( $page && is_array($settings['xmlfile']['paged']) &&  $settings['xmlfile']['paged']['header'] ) {
+		if ( $page &&  getset('xmlfile/paged/header') != '' ) {
 			$pageinfo = "<center><table>";
-			foreach ( $settings['xmlfile']['paged']['header'] as $kk => $vv ) {
+			foreach ( getset('xmlfile/paged/header', array()) as $kk => $vv ) {
 				$vval = $page[$kk];
 				if ( $vv['type'] == "url" ) { 	
 					$vname = $vv['name'] or $vname = $vval; 
@@ -939,7 +939,7 @@ class TTXML
 		if ( !$viewopts['text'] ) $viewopts['text'] = "Text view"; // Unless otherwise defined, always use Text view
 		
 		// Add the sattribute levels
-		if ( !$settings['views'] ) foreach ( $settings['xmlfile']['sattributes'] as $key => $item ) {	
+		if ( getset('views') == '' ) foreach ( getset('xmlfile/sattributes', array()) as $key => $item ) {	
 			$lvl = $item['level'];	
 			if ( strstr($this->rawtext, "<$key ") ) {
 				$lvltxt = $item['display'] or $lvltxt = "Sentence";
@@ -947,7 +947,7 @@ class TTXML
 			}; 
 		}; 
 		
-		foreach ( $settings['views'] as $key => $item ) {	
+		foreach ( getset('views', array()) as $key => $item ) {	
 			if ( !is_array($item) ) continue;
 			
 			# Check whether we should do this
@@ -979,16 +979,16 @@ class TTXML
 
 		// Add the download link
 		if ( $action != "text" && getset('download/always') ) {
-			if ( !is_array($settings['download']) || ( ( $settings['download']['admin'] != "1" || $username ) && $settings['download']['disabled'] != "1" ) ) {
+			if ( !is_array(getset('download')) || ( ( getset('download/admin') != "1" || $username ) && getset('download/disabled') != "1" ) ) {
 				$dltit = "Download XML";
-				if ( is_array($settings['download']) && $settings['download']['title'] ) $dltit = $settings['download']['title'];
+				if ( getset('download/title') != '' ) $dltit = getset('download/title');
 				$viewopts['getxml:xml'] = $dltit;
 			};
 		};
 						
 		// Add the annotation levels
-		if ( $settings['annotations'] ) {
-			foreach ( $settings['annotations'] as $key => $val ) {
+		if ( getset('annotations') != '' ) {
+			foreach ( getset('annotations', array()) as $key => $val ) {
 				if ( $val['type'] == "standoff" &&  ( !$val['admin'] || $username ) ) {
 					if ( file_exists("Annotations/{$key}_$this->xmlid.xml") ) $viewopts['annotation'] = $val['display'];
 					else $viewopts['annotation'] = "Create ".$val['display'];
@@ -1001,12 +1001,12 @@ class TTXML
 		}; 
 		
 		// TODO: Check that this does not get too slow
-		if ( !$settings['views'] && $this->xml && $this->xml->xpath("//lb[@bbox]") ) {
-			$lvltxt = $settings['views']['lineview']['display'] or $lvltxt = "Manuscript line";
+		if ( getset('views') == '' && $this->xml && $this->xml->xpath("//lb[@bbox]") ) {
+			$lvltxt = getset('views/lineview/display', "Manuscript line");
 			$viewopts['lineview'] = "{$lvltxt} view";
 		};
-		if ( !$settings['views'] && $this->xml->xpath("//tok[@bbox]") ) {
-			$lvltxt = $settings['views']['facsview']['display'] or $lvltxt = "Facsimile";
+		if ( getset('views') == '' && $this->xml->xpath("//tok[@bbox]") ) {
+			$lvltxt = getset('views/facsview/display', "Facsimile");
 			$viewopts['facsview'] = "{$lvltxt}";
 		};
 		
@@ -1067,9 +1067,9 @@ class TTXML
 	var $pseudo = array ( ); var $pseudodone = array(); var $caserules = array ();
 	function pseudo() {
 		global $settings;
-		if ( $settings['anonymization'] ) {
-			foreach ( $settings['anonymization']['values'] as $key => $val ) $this->pseudo[$key] = explode(",", $val['vals']); 
-			foreach ( $settings['anonymization']['caserules'] as $key => $val ) $this->caserules[$key] = $val; 
+		if ( getset('anonymization') != '' ) {
+			foreach ( getset('anonymization/values', array()) as $key => $val ) $this->pseudo[$key] = explode(",", $val['vals']); 
+			foreach ( getset('anonymization/caserules', array()) as $key => $val ) $this->caserules[$key] = $val; 
 		};
 		foreach ( $this->xml->xpath("//anon") as $anon ) {
 			$deanon = $this->deanon($anon);
@@ -1079,7 +1079,7 @@ class TTXML
 	function viewopts() {
 		global $settings, $username, $editxml;
 		#Build the view options
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 			$formcol = $item['color'];
 			# Only show forms that are not admin-only
 			if ( $username || !$item['admin'] ) {
@@ -1095,7 +1095,7 @@ class TTXML
 				};
 			};
 		}; 
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 			$val = $item['display'];
 			if ( preg_match("/ $key=/", $editxml) ) {
 				if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
@@ -1140,7 +1140,7 @@ class TTXML
 					$option = array_pop($options)."";
 					if ( is_array($this->pseudo[$option]) ) {
 						$deanon = array_pop($this->pseudo[$option]);
-						$name = $settings['anonymization']['values']["$option"]['display'];
+						$name = getset("anonymization/values/$option/display");
 					};
 				};
 			};
