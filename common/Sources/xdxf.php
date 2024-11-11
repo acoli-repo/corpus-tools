@@ -5,14 +5,14 @@
 		
 	$did = $_GET['did'] OR $did = $_SESSION['did'];
 	if ( $did == "exit" ) { unset($_SESSION['did']); $did = ""; };
-	$xdxfdir = $settings['xdxf']['folder'] or $xdxfdir = "Resources";	
+	$xdxfdir = getset('xdxf/folder', "Resources");	
 	check_folder($xdxfdir);
 	
-	if ( $settings['xdxf'] ) {
+	if ( getset('xdxf') != '' ) {
 		if ( $did ) { 
-			$dict = $settings['xdxf'][$did];
-		} else if ( count($settings['xdxf']) == 1 ) {	
-			$dict = array_shift($settings['xdxf']);
+			$dict = getset("xdxf/$did");
+		} else if ( count(getset('xdxf', array())) == 1 ) {	
+			$dict = array_shift(getset('xdxf', array()));
 			$did = $dict['key'];
 		};
 		$dictfile = $dict['filename'];
@@ -21,7 +21,7 @@
 	} else {
 		 $dictfile = "dict.xml";
 	};
-	foreach ( $settings['xdxf'] as $key => $val ) {
+	foreach ( getset('xdxf', array()) as $key => $val ) {
 		if ( !$dict[$key] ) $dict[$key] = $val;
 	};
 	if ( !$username && $dict['admin'] ) fatal("No access to this dictionary");
@@ -67,10 +67,10 @@
 	} else if ( !$dictfile ) {
 		// Ask to choose a dictionary if there is more than one in the settings
 		
-		if ( $settings['xdxf'] ) {
+		if ( getset('xdxf') != "" ) {
 			$maintext .= "<h1>{%Dictionary Reader}</h1>
 				<p>{%Select a dictionary}";
-			foreach ( $settings['xdxf'] as $key => $dict ) {
+			foreach ( getset('xdxf', array()) as $key => $dict ) {
 				$amp = ""; if ( $dict['admin'] ) $amp = "class='adminpart'"; 
 				if ( is_array($dict) && ($username || !$dict['admin']) ) $maintext .= "<p><a href='index.php?action=$action&did=$key' $amp>{$dict['title']}</a>";
 			};
@@ -91,7 +91,7 @@
 
 		# Reload the filename
 		$did = $_POST['did'];
-		$filename = $settings['xdxf'][$did]['filename'];
+		$filename = getset("xdxf/$did/filename");
 		if ( !$filename ) fatal("something went wrong - unable to load data for $did");
 		
 		$file = file_get_contents("$xdxfdir/$filename"); 
@@ -159,8 +159,8 @@
 			if ( !$result ) {
 				if ( $dict['defentry'] ) {
 					$editxml =  $dict['defentry'];
-				} else if ( $settings['xdxf']['defentry'] ) {
-					$editxml = $settings['xdxf']['defentry'];
+				} else if ( getset('xdxf/defentry') ) {
+					$editxml = getset('xdxf/defentry');
 				} else if ( file_exists("$xdxfdir/xdxf-entry.xml") ) {
 					$editxml = file_get_contents("$xdxfdir/xdxf-entry.xml");
 				} else {
@@ -329,7 +329,7 @@
 	} else {
 		
 		$cssfile = $dict['css'] or $cssfile = "dict.css";
-		$sharedroot = $settings['defaults']['shared']['url'];
+		$sharedroot = getset('defaults/shared/url');
 		if ( file_exists("$xdxfdir/$cssfile") ) {
 			$maintext .= "\n<style type=\"text/css\"> @import url(\"$xdxfdir/$cssfile\"); </style>\n";
 		} else if ( file_exists("$sharedfolder/Resources/$cssfile") ) {
@@ -483,7 +483,7 @@
 					if ( $count == 1 ) $id = $arid; 
 				};
 				# TODO: sort seems to only distroy the right order
-				if ( $settings['xdxf']['sort'] ) {
+				if ( getset('xdxf/sort') ) {
 					natcasesort($sortarray);
 				};
 				$maintext .= join ( "\n", $sortarray );
@@ -519,7 +519,7 @@
 					$tmp = $xpath->query($posxpath, $entry); if ($tmp) $arp = $tmp->item(0)->textContent;
 				
 					include ("$ttroot/common/Sources/cwcqp.php");
-					$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+					$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
   
 					$cqp = new CQP();
 					$cqp->exec($cqpcorpus); // Select the corpus
@@ -585,7 +585,7 @@
 				<a href='index.php?action=$action&act=list'>list entries</a>
 				</div>
 				";
-		} else if ( count($settings['xdxf']) > 1 ) {
+		} else if ( count(getset('xdxf', array())) > 1 ) {
 			$maintext .= "<hr>
 				<p>
 				<a href='index.php?action=$action&did=exit'>switch dictionary</a>

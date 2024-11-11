@@ -231,10 +231,10 @@
 		};
 
 		// Check whether XML::LibXML is installed
-		$cmd = "perl -e 'use XML::LibXML; use HTML::Entities; print \"works\";'";
+		$cmd = "perl -e 'use XML::LibXML; use HTML::Entities; use Encode qw(decode encode); use POSIX qw(strftime); use Getopt::Long; print \"works\";'";
 		$test = shell_exec($cmd);
 		if ( $test != "works" ) {
-			$maintext .= "<p class=warn> For most external scripts, TEITOK requires the Perl modules XML::LibXML and HTML::Entities to be installed, which it is not.";
+			$maintext .= "<p class=warn> For most external scripts, TEITOK requires the Perl modules XML::LibXML, HTML::Entities, Encode, Getopt::Long, and POSIX to be installed, which it is not.";
 			$perlerror = 1;
 		};
 		if ( !$perlerror ) {

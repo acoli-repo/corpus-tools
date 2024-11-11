@@ -9,12 +9,12 @@
 		if ( !$xmlid ) $xmlid = $_GET['xmlid'] or $xmlid = $_SESSION['xmlid'];
 		
 		# Use the one defined xmlreader definition if there is exactly one
-		if ( !$xmlid && $settings['xmlreader'] && count($settings['xmlreader']) == 1 ) {
-			$tmp = current($settings['xmlreader']);
+		if ( !$xmlid && getset('xmlreader') != "" && count(getset('xmlreader', array())) == 1 ) {
+			$tmp = current(getset('xmlreader'));
 			$xmlid = $tmp['key'];
 		};
 		
-		$xrset = $settings['xmlreader'][$xmlid];
+		$xrset = getset("xmlreader/$xmlid");
 	
 		if ( !$xrset ) 
 			if ( $xmlid ) fatal("No settings have been defined for $xmlid");
@@ -85,7 +85,7 @@
 
 	if ( !$xmlfile ) {
 	
-		if ( $settings['xmlreader'] ) {
+		if ( getset('xmlreader') != "" ) {
 			# Select from the xmlreader settings
 		} else {
 			fatal("This function can only be called as a helper function");
@@ -392,9 +392,9 @@
 			$cql = "<text> [] :: match.text_$cqpfld=\"$recid\"";
 
 			include ("$ttroot/common/Sources/cwcqp.php");
-			$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
-			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-			$cqpfolder = $settings['cqp']['searchfolder'];
+			$registryfolder = getset('cqp/defaults/registry', "cqp");
+			$cqpcorpus = strtoupper(getset('cqp/corpus', 'TT')); # a CQP corpus name ALWAYS is in all-caps
+			$cqpfolder = getset('cqp/earchfolder', 'xmlfiles');
 			$cqp = new CQP();
 			$cqp->exec($cqpcorpus); // Select the corpus
 			$cqp->exec("set PrettyPrint off");

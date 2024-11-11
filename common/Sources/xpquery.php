@@ -38,13 +38,13 @@
 	
 	} else {
 	
-		$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
+		$jsonforms = array2json(getset('xmlfile/pattributes/forms', array()));
 		#Build the view options	
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 			$attlisttxt .= $alsep."\"$key\""; $alsep = ",";
 			$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 		};
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 			$attlisttxt .= $alsep."\"$key\""; $alsep = ",";		
 			$attnamelist .= "\nattributenames['$key'] = \"{%".$item['display']."}\"; ";
 		};
@@ -59,7 +59,7 @@
 	
 		foreach ( $results->children() as $resnode ) {
 			$resx = $resnode->asXML();
-			if ( ( $settings['xmlfile']['paged'] || ( $settings['xmlfile']['restriction'] && !$this->xml->xpath($settings['xmlfile']['restriction']) ) ) && !$username ) {
+			if ( ( getset('xmlfile/paged') != '' || ( getset('xmlfile/restriction') != "" && !$this->xml->xpath(getset('xmlfile/restriction')) ) ) && !$username ) {
 				// Prevent this function from being used to get a larger context in restricted XML files
 				$resx = substr($resx, 0, 1000);
 			};
