@@ -27,13 +27,13 @@
 
 			<form action='' method=post id=querybuilder name=querybuilder onsubmit=\"updatequery(); return false;\">";
 			
-		if ( $settings['cqp']['sattributes'] ) { $querytext .= "<table class=qbt cellpadding=5><tr><td valign=top style='border-right: 1px solid #cccccc;'>
+		if ( getset('cqp/sattributes') != '' ) { $querytext .= "<table class=qbt cellpadding=5><tr><td valign=top style='border-right: 1px solid #cccccc;'>
 			
 			<input id='toklist' style='display: none;'>
 			<div id='cqltoks'></div>
 			<h3>{%Text Search}</h3>"; };	
 
-		if ( $settings['cqp']['searchmethod'] == "word" && $act == "direct" ) {
+		if ( getset('cqp/searchmethod') == "word" && $act == "direct" ) {
 			$wdef = "checked";
 			$stmp = "<script language=Javascript>switchtype('st', 'word');</script>";
 		} else { $cdef = "checked"; };
@@ -51,9 +51,9 @@
 			};
 		};
 
-	if ( is_array($settings['input']) && $settings['input']['replace'] ) {
+	if ( getset('input/replace') != '' ) {
 		$chareqjs .= "<p>{%Special characters}: "; $sep = "";
-		foreach ( $settings['input']['replace'] as $key => $item ) {
+		foreach ( getset('input/replace', array()) as $key => $item ) {
 			$val = $item['value'];
 			$chareqjs .= "$sep $key = $val"; 
 			$charlist .= "ces['$key'] = '$val';";
@@ -78,7 +78,7 @@
 		// define the word search		
 		foreach ( $cqpcols as $col ) {
 			$colname = pattname($col); 
-			$coldef = $settings['cqp']['pattributes'][$col];
+			$coldef = getset("cqp/pattributes/$col");
 			$morec = ""; 
 			if ( $coldef['multisep'] ) $morec .= ", 'multisep': '{$coldef['multisep']}'";
 			if ( $coldef['multiseparator'] ) $morec .= ", 'multisep': '{$coldef['multiseparator']}'";
@@ -180,13 +180,13 @@
 				foreach ( explode ( "\0", $tmp ) as $kva ) { 
 					if ( $kva ) {
 						if ( $coldef['values'] == "multi" ) {
-							$mvsep = $coldef['mvsep'] or $mvsep = $settings['cqp']['multiseparator'] or $mvsep = $settings['cqp']['multisep'] or $mvsep = ",";
+							$mvsep = $coldef['mvsep'] or $mvsep = getset('cqp/multiseparator') or $mvsep = getset('cqp/multisep', ",");
 							$kvl = explode ( $mvsep, $kva );
 						} else {
 							$kvl = array ( $kva );
 						}
 						
-						$colopts = $settings['xmlfile']['pattributes']['tags'][$col];
+						$colopts = getset("xmlfile/pattributes/tag/$col");
 						foreach ( $kvl as $kval ) {
 							$kval = trim($kval);
 							if ( $colopts['options'][$kval] ) {
@@ -215,7 +215,7 @@
 			
 		foreach ( $cqpcols as $col ) {
 			$colname = pattname($col);
-			if ( $settings['cqp']['pattributes'][$col]['admin'] == "1" ) {
+			if ( getset("cqp/pattributes/$col/admin") == "1" ) {
 				$fieldlisttxt .= "<tr><th span='row'>$col<td class=adminpart>{%$colname}</tr>";				
 			} else {
 				$fieldlisttxt .= "<tr><th span='row'>$col<td>{%$colname}</tr>";
@@ -227,7 +227,7 @@
 		};
 
 		// name the sattributes
-		foreach ( $settings['cqp']['sattributes'] as $lvl ) {
+		foreach ( getset('cqp/sattributes', array()) as $lvl ) {
 			foreach ( $lvl as $xid => $xatt ) {
 				if (  !is_array($xatt) ) continue; # Avoiding errors in new PHP version
 				if (  $xatt['admin'] && !$username ) continue;
@@ -238,7 +238,7 @@
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}' $morec}; ";
 			};
 		};
-		foreach ( $settings['cqp']['annotations'] as $lvl ) {
+		foreach ( getset('cqp/annotations', array()) as $lvl ) {
 			foreach ( $lvl as $xatt ) {
 				if ( !is_array($xatt) ) continue;
 				if ( $xatt['admin'] && !$username ) continue;
@@ -246,8 +246,8 @@
 				$jsnames .= "pattname['{$lvl['key']}_{$xatt['key']}'] = {'values': '{$xatt['values']}', 'display': '{%{$xatt['display']}}'}; ";
 			};
 		};
-		if (  $settings['cqp']['multiseparator'] ) $prescript .= "var mvsep = '{$settings['cqp']['multiseparator']}'; ";
-		if (  $settings['cqp']['multisep'] ) $prescript .= "var mvsep = '{$settings['cqp']['multisep']}'; ";
+		if (  getset('cqp/multiseparator') != '' ) $prescript .= "var mvsep = '{$settings['cqp']['multiseparator']}'; ";
+		if (  getset('cqp/multisep') != '' ) $prescript .= "var mvsep = '{$settings['cqp']['multisep']}'; ";
 
 		// Pass i18n to Javascript
 		$prescript .= "var pattname = [];\n var jstrans = []; var fldtypes= []; fldtypes['multi'] = [];\n$jsnames";
@@ -320,7 +320,6 @@
 		};		
 		
 		$cntlist1 = array ( 3,4,5,6,7 ); # Context length options
-		# $defcnt = $settings['cqp']['defaults']['kwic'] or $defcnt = '5';
 		$defcnt = getset('cqp/defaults/kwic', '5');
 		foreach ( $cntlist1 as $key ) { 
 			if ( $key == $defcnt ) $sel = "selected"; else $sel = "";
@@ -361,8 +360,7 @@
 		$querytext .= "\n\t<td valign=top>";  $hr = "";
 
 		# Deal with any additional level attributes (sentence, utterance)
-		if ( is_array ( $settings['cqp']['sattributes']))
-		foreach ( $settings['cqp']['sattributes'] as $xatts ) {
+		foreach ( getset('cqp/sattributes', array()) as $xatts ) {
 			if ( $xatts['partial'] ) {
 				# A "partial" region we want to offer as within option
 				$rname = $xatts['regionname'] or $rname = $xatts['level'];
@@ -396,7 +394,7 @@
 							$kvl = array ( $kva );
 							if ( $kva ) {
 								if ( $item['values'] == "multi" ) {
-									$mvsep = $settings['cqp']['multiseparator'] or $mvsep = $settings['cqp']['multisep'] or $mvsep = ",";
+									$mvsep = getset('cqp/multiseparator') or $mvsep = getset('cqp/multisep', ",");
 									$kvl = explode ( $mvsep, $kva );
 								} else {
 									$kvl = array ( $kva );
@@ -444,8 +442,7 @@
 		if ( $regwithtext ) $querytext .= "<hr><p>{%Search within}: <select name='within' id='within'><option value='text'>{%Text}</option>$regwithtext</select>";
 
 		# Deal with any stand-off annotation attributes (errors, etc.)
-		if ( is_array ( $settings['cqp']['annotations']))
-		foreach ( $settings['cqp']['annotations'] as $xlvl => $xatts ) {
+		foreach ( getset('cqp/annotations', array()) as $xlvl => $xatts ) {
 			if ( !$xatts['display'] || ( $xatts['admin'] && !$username ) ) continue;
 			if ( $xatts['admin'] ) $adms = " class=adminpart";
 			$querytext .= "$hr<div$adms><h3>{%{$xatts['display']}}</h3><table  class=qbt >"; $hr = "<hr>";
@@ -467,7 +464,7 @@
 						foreach ( explode ( "\0", $tmp ) as $kva ) { 
 							if ( $kva ) {
 								if ( $item['values'] == "multi" ) {
-									$mvsep = $settings['cqp']['multiseprator'] or $mvsep = $settings['cqp']['multisep'] or $mvsep = ",";
+									$mvsep = getset('cqp/multiseprator') or $mvsep = getset('cqp/multisep', ",");
 									$kvl = explode ( $mvsep, $kva );
 								} else {
 									$kvl = array ( $kva );
@@ -521,16 +518,16 @@
 		} else $searchmake = "{%Create query}"; 
 		$querytext .= "<p><input type=submit value=\"$searchmake\"> <a onClick=\"document.getElementById('qbframe').style.display = 'none';\">{%cancel}</a> |  <a href=\"index.php?action=querybuilderhelp\" target=help>{%help}</a> $qselect</form>";
 	
-		if ( $settings['cqp']['longbox'] ) $settings['cqp']['boxtype'] = "textarea"; // Legacy option
+		if ( getset('cqp/longbox') != '' ) $settings['cqp']['boxtype'] = "textarea"; // Legacy option
 		$optionoption = " | <a onClick=\"showcql();\" title=\"{%visualize your CQL query}\">{%visualize}</a> ";
-		$boxtype = $_GET['boxtype'] or $boxtype = $settings['cqp']['boxtype'];
+		$boxtype = $_GET['boxtype'] or $boxtype = getset('cqp/boxtype');
 		$cqlu = str_replace("'", "&#039;", $cql);
 		if ( $boxtype == "textarea" ) {
 			$cqlbox = "<textarea id='cqlfld' name=cql value='$cqlu' style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
 		} else if ( $boxtype == "pegdiv" ) {
 			$optionoption = "";
 			$pattlist = "'word', 'id', "; // word and id are always defined
-			foreach ( $settings['cqp']['pattributes'] as $key => $val ) {
+			foreach ( getset('cqp/pattributes', array()) as $key => $val ) {
 				$pattlist .= "'$key', ";
 			};
 			$regionlist = "'text', "; // text_id is always defined
@@ -538,7 +535,7 @@
 			$defregname['text'] = "Document"; $defregname['s'] = "Sentences"; 
 			$defregname['u'] = "Utterance"; $defregname['l'] = "Verse line"; 
 			$defregname['lb'] = "Manuscript line"; $defregname['pb'] = "Page"; 
-			foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
+			foreach ( getset('cqp/sattributes', array()) as $key => $val ) {
 				$regionlist .= "'$key', ";
 				$regname = $val['name'] or $regname = $defregname[$key];
 				if ( $regname ) $regionnames .= "'$key': '{$val['name']}', ";
