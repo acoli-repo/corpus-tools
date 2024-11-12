@@ -18,7 +18,7 @@
 
 	$registryfolder = getset("cqp/defaults/registry", "cqp");
 	$cqpcorpus = getset('cqp/corpus', "tt-".$foldername);
-	if ( $settings['cqp']['subcorpora'] ) {
+	if ( getset('cqp/subcorpora') != '' ) {
 		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = "";
 		if ( !$subcorpus ) {
 			if ( file_exists("Sources/subselect.php") || file_exists("$sharedfolder/Sources/subselect.php")  ) {
@@ -45,10 +45,7 @@
 				$cqpcorpus = "";
 			}
 			$cqpfolder = "cqp/$subfolder";
-			if ( is_array($settings['cqp']['subcorpora']) && is_array($settings['cqp']['subcorpora'][$subfolder]) ) {
-				$subcorpusname = $settings['cqp']['subcorpora'][$subfolder]['display'];
-			};
-			if ( !$subcorpusname ) $subcorpusname = $subfolder;
+			$subcorpusname = getset("cqp/subcorpora/$subfolder/display", $subfolder);
 			if ( !$corpusname ) $corpusname = "Subcorpus $subcorpusname";
 			$subsellink = "index.php?action=$action&act=select";
 			if ( file_exists("Sources/subselect.php") || file_exists("$sharedfolder/Sources/subselect.php") ) $subsellink = "index.php?action=subselect";
@@ -58,7 +55,7 @@
 		};
 	} else {
 		$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+		$cqpfolder = getset('cqp/cqpfolder', "cqp");
 	};
 	
 	// Do not allow searches while the corpus is being rebuilt...
@@ -88,25 +85,22 @@
 	};
 	
 	# Old sattributes did not have <text> inside
-	if ( !is_array($settings['cqp']['sattributes']['text']) ) {
-		$settings['cqp']['sattributes']['text'] = $settings['cqp']['sattributes'];
+	if ( !is_array(getset('cqp/sattributes/text')) ) {
+		$settings['cqp']['sattributes']['text'] = getset('cqp/sattributes');
 		$settings['cqp']['sattributes']['text']['display'] = "Document search";
 		$settings['cqp']['sattributes']['text']['key'] = "text";
 		$settings['cqp']['sattributes']['text']['level'] = "text";
 	};
 
-	if ( is_array($settings['cqp']['sattributes'] ) ) {
-		foreach ( $settings['cqp']['sattributes'] as $key => $satt ) {
-			if ( $satt['audio'] ) {
-				$audioelm = $key;
-				$moresel = ", match {$key}_audio";
-				$offset = 1;
-			};
+	foreach ( getset('cqp/sattributes', array()) as $key => $satt ) {
+		if ( $satt['audio'] ) {
+			$audioelm = $key;
+			$moresel = ", match {$key}_audio";
+			$offset = 1;
 		};
 	};
-	
-	if ( is_array($settings['cqp']['kwicdata']))
-	 foreach ( $settings['cqp']['kwicdata'] as $key => $val ) {
+
+	foreach ( getset('cqp/kwicdata', array()) as $key => $val ) {
 		$moresel .= ", match $key";
 	};
 
@@ -159,7 +153,7 @@
 			<tr><th>Subcorpus<th>Token size</th></tr>";
 		$maintext .= getlangfile("subc-select");
 	
-		$fullcorp = strtolower($settings['cqp']['corpus']);
+		$fullcorp = strtolower(getset('cqp/corpus'));
 		foreach ( $corps as $corpid => $corpname ) {	
 			$corpfld = $corpf[$corpid];
 			$rawsize = hrnum(filesize("$corpfld/word.corpus")/4);
@@ -186,12 +180,8 @@
 		$context = getset('cqp/kwicdata/context', 10);
 		$cqp->exec("set Context $context words");
 		
-		if ( is_array($settings['cqp']['kwicdata']) ) {
-// 			foreach ( $settings['cqp']['kwicdata'] as $key => $val ) {
-// 				$moresel .= ", match $key";
-// 			};
-			# $prs = "text_year, text_place";
-			$prs = join(', ', array_keys($settings['cqp']['kwicdata']));
+		if ( is_array(getset('cqp/kwicdata')) ) {
+			$prs = join(', ', array_keys(getset('cqp/kwicdata', array())));
 			if ( $moreflds = getset('cqp/kwicdata/dlflds') ) {
 				$prs .= ", $moreflds";
 			};
@@ -267,7 +257,7 @@
 			foreach ( explode("\n", $results) as $line ) {
 				list ( $cnt, $cvl ) = explode ( "\t", $line );
 
-				if ( $key == "project" ) $cvlt = $settings['projects'][$cvl]['name'];
+				if ( $key == "project" ) $cvlt = getset("projects/$cvl/name");
 				else if ( $val['type'] == "kselect" || $val['translate'] ) $cvlt = "{%$key-$cvl}";
 				else $cvlt = $cvl;
 				if ( $cvl && !$val['noshow'] ) $maintext .= "<tr><th span='row'>$cvlt<td style='text-align: right; padding-left: 10px;'>".number_format($cnt);
@@ -334,7 +324,7 @@
 			foreach ( explode("\n", $results) as $line ) {
 				list ( $cvl, $cnt ) = explode ( "\t", $line );
 
-				if ( $key == "project" ) $cvlt = $settings['projects'][$cvl]['name'];
+				if ( $key == "project" ) $cvlt = getset("projects/$cvl/name");
 				else if ( $val['type'] == "kselect" || $val['translate'] ) $cvlt = "{%$key-$cvl}";
 				else $cvlt = $cvl;
 				if ( $cvl && !$val['noshow'] ) $maintext .= "<tr><th span='row'>$cvlt<td style='text-align: right; padding-left: 10px;'>".number_format($cnt);
@@ -374,7 +364,7 @@
 			foreach ( explode ( " ", $simple ) as $swrd ) {
 				$swrd = preg_replace("/(?!\.\])\*/", ".*", $swrd);
 				if ( $contrs[$swrd] ) {
-					if ( $settings['cqp']['dtoks'] == "contr" ) {
+					if ( getset('cqp/dtoks') == "contr" ) {
 						# Use the dtok region, which can be extended to more options easily
 						$cql .= "( [$wordfld=\"$swrd\"] | <contr_$wordfld=\"$swrd\"> []+ </contr_$wordfld> ) ";
 					} else {
@@ -383,7 +373,7 @@
 						foreach ( $contrs[$swrd] as $spart ) {
 							$spps = ""; $plst = explode(",", $spart);
 							foreach ( $plst as $i => $spp ) {
-								if ( $settings['cqp']['dtoks'] == "strict" && count($plst) > 1 ) $drest = " & id=\"d-.*-".($i+1)."\" "; else $drest = "";
+								if ( getset('cqp/dtoks') == "strict" && count($plst) > 1 ) $drest = " & id=\"d-.*-".($i+1)."\" "; else $drest = "";
 								$spps .= "[$wordfld=\"$spp\" $drest ] ";
 							};					
 							$sparts .= $sep." $spps ";
@@ -538,7 +528,7 @@
 			# Document searches
 
 			$acnt = $bcnt = 0;
-			foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
+			foreach ( getset('cqp/sattributes/text', array()) as $key => $item ) {
 				if ( !is_array($item) ) continue;
 				if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
 				$val = $item['display']; # $val = $item['long'] or
@@ -589,11 +579,11 @@
 				# Translate the columns where needed
 				foreach ( $fatts as $key => $fatt ) {
 					$attit = $atttik[$key];
-					$tmp = $settings['cqp']['sattributes']['text'][$attit]['type'];
-					if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" ||
-						 $settings['cqp']['sattributes']['text'][$attit]['translate']
+					$tmp = getset("cqp/sattributes/text/$attit/type", array());
+					if ( $tmp['type'] == "kselect" ||
+						 $tmp['translate']
 						 ) {
-						if ( $settings['cqp']['sattributes']['text'][$attit]['values'] == "multi" ) {
+						if ( getset("cqp/sattributes/text/$attit/values") == "multi" ) {
 							$fatts[$key] = ""; $sep = "";
 							foreach ( explode(",", $fatt) as $fattp ) { $fatts[$key] .= "$sep{%$attit-$fattp}"; $sep = ", "; };
 						} else $fatts[$key] = "{%$attit-$fatt}";
@@ -607,7 +597,7 @@
 
 			# Text searches
 				
-			if ( !$settings['cqp']['noipm'] ) {
+			if ( !getset('cqp/noipm') ) {
 				$corpsize = $cqp->exec("All = []; size All;");			
 				if ( preg_match("/^[^:;]+ :: ([^;:]+)$/", $cql, $matches) ) {
 					$globals = $matches[1];
@@ -650,8 +640,8 @@
 						<script language=Javascript>top.location='index.php?action=admin&act=configcheck';</script>";
 					exit;					
 				} else {
-					if ( $settings['cqp']['sattributes']['s'] ) $showsubstyle = "s";
-					else if ( $settings['cqp']['sattributes']['p'] ) $showsubstyle = "p";
+					if ( getset('cqp/sattributes/s') != '' ) $showsubstyle = "s";
+					else if ( getset('cqp/sattributes/p') != '' ) $showsubstyle = "p";
 					else $showstyle = "kwic";
 				};
 			};
@@ -695,7 +685,7 @@
 					if ( preg_match("/start=\"([^\"]*)\"/", $resxml, $matches ) ) $strt = $matches[1]; else $strt = 0;
 					if ( preg_match("/end=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1]; else $stp = 0;
 					// Determine where the playbutton is hosted
-					if ( $settings['defaults']['playbutton'] ) $playimg = $settings['defaults']['playbutton'];
+					if ( getset('defaults/playbutton') ) $playimg = getset('defaults/playbutton');
 					else  if ( file_exists("$sharedfolder/Images/playbutton.gif") ) $playimg = "$sharedurl/Images/playbutton.gif";
 					else  if ( file_exists("Images/playbutton.gif") ) $playimg = "Images/playbutton.gif";
 					else $playimg = "$hprot://www.teitok.org/Images/playbutton.gif";
@@ -736,7 +726,7 @@
 				# Somehow, the XML fragment is too long sometimes, repaired that here for now
 				$resxml = preg_replace ( "/<$/", "", $resxml);
 
-				if ( $settings['xmlfile']['basedirection'] == "rtl" ) {
+				if ( getset('xmlfile/basedirection') == "rtl" ) {
 					$direc = " style='direction: rtl;'";
 					$tba = " align=right";
 					$lca = "left"; $rca = "right";
@@ -761,25 +751,24 @@
 					if ( preg_match("/d-.*-1/", $m2t ) ) $moreactions .= "\nhllist('$m2t', 'r-$i', '#ffffff'); ";
 				};
 
-				if ( $settings['cqp']['kwicdata'] ) {
+				if ( getset('cqp/kwicdata') ) {
 					$metainfo = ""; $idx = $offset+4;
-					foreach ( $settings['cqp']['kwicdata'] as $key => $val ) {
+					foreach ( getset('cqp/kwicdata', array()) as $key => $val ) {
 						$attit = pattname($key); 
 						$attval = $resultarray[$idx]; $idx++;
 						if ( $attval == "_" ) $attval = "";
 						list ( $kds, $kda ) = explode("_", $key); 
-						if ( $settings['cqp']['sattributes'][$kds][$kda]['translate'] ) $attval = "{%$kda-$attval}";
+						if ( getset("cqp/sattributes/$kds/$kda/translate") ) $attval = "{%$kda-$attval}";
 						$style = ""; if ( $val['color'] ) $style = " style=\"color: {$val['color']}\"";
 						$metainfo .= "<td title='{%$attit}' class='kwic_$key' $style>$attval</a>";
 					};
 				};
 				
-				if ( $showstyle == "context" && $showsubstyle && $settings['cqp']['sattributes'][$showsubstyle]['contextatts'] ) {
+				if ( $showstyle == "context" && $showsubstyle && getset("cqp/sattributes/$showsubstyle/contextatts") ) {
 					$cdata = "";
-					$catts = explode(",", $settings['cqp']['sattributes'][$showsubstyle]['contextatts']);
+					$catts = explode(",", getset("cqp/sattributes/$showsubstyle/contextatts". array()));
 					foreach ( $catts as $catt ) {
-						$color = $settings['cqp']['sattributes'][$showsubstyle][$catt]['color'] or
-							$color = $settings['xmlfile']['sattributes'][$showsubstyle][$catt]['color'];
+						$color = getset("cqp/sattributes/$showsubstyle/$catt/color", getset("xmlfile/sattributes/$showsubstyle/$catt/color"));
 						if ( preg_match("/<$showsubstyle [^<>]+$catt=\"([^\"]+)\"/", $rawxml, $matches ) ) {
 							$cval = $matches[1];
 							$cdata .= "<div style='color: $color' att=$catt>$cval</div>";
@@ -801,7 +790,7 @@
 
 			#Build the view options
 			$attnamelist = "var attributenames = [];";
-			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 				$formcol = $item['color'];
 				# Only show forms that are not admin-only
 				if ( $username || !$item['admin'] ) {
@@ -817,7 +806,7 @@
 					};
 				};
 			};
-			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 				$val = $item['display'];
 				if ( preg_match("/ $key=/", $editxml) ) {
 					if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
@@ -839,14 +828,14 @@
 			# Only show text options if there is more than one form to show
 			if ( $fbc > 1 ) $viewoptions .= "<p>{%Text}: $formbuts"; // <button id='but-all' onClick=\"setbut(this['id']); setALL()\">{%Combined}</button>
 
-				$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
-				$jsontrans = array2json($settings['transliteration']);
+				$jsonforms = array2json(getset('xmlfile/pattributes/forms', array()));
+				$jsontrans = array2json(getset('transliteration', array()));
 
 				if ( $tagstxt ) $showoptions .= "<p>{%Tags}: $tagstxt ";
 
 	// Load the tagset 
-	$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
-	$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
+	$settingsdefs .= "\n\t\tvar formdef = ".array2json(getset('xmlfile/pattributes/forms', array())).";";
+	$settingsdefs .= "\n\t\tvar tagdef = ".array2json(getset('xmlfile/pattributes/tags', array())).";";
 	require_once ( "$ttroot/common/Sources/tttags.php" );
 	$tttags = new TTTAGS($tagsetfile, false);
 	if ( is_array($tttags->tagset) && $tttags->tagset['positions'] ) {
@@ -942,7 +931,7 @@
 			
 		if ( $username && !$fileonly  ) {
 
-			if ( !$user['permissions'] == "admin" && !$settings['defaults']['cqpedit'] == 1 ) {
+			if ( !$user['permissions'] == "admin" && getset('defaults/cqpedit') != 1 ) {
 	 			$maintext .= "(Multiedit is only allowed for admin users in this corpus)";
  			} if ( $minmatchlength > 1 && !$targetmatch ) {
 	 			$maintext .= "(Query cannot be used for multi-token edit since all results span more than one word)";
@@ -1000,7 +989,7 @@
 
 
 			# Frequency distribution
-			foreach ( $settings['cqp']['frequency'] as $key => $val ) {
+			foreach ( getset('cqp/frequency', array()) as $key => $val ) {
 				if ( !is_array($val) || $val['type'] == "group" ) continue; # Skip attributes and separator TODO: keep separators in pulldown?
 				if ( ( !$fileonly || preg_match("/text_/", $val['key']) ) ) {
 					$display = $val['long'] or $display = $val['display'];
@@ -1011,7 +1000,7 @@
 				};
 			};
 			if ( !$fileonly && $minmatchlength == 1 )
-			 foreach ( $settings['cqp']['pattributes'] as $key => $att ) {
+			 foreach ( getset('cqp/pattributes', array()) as $key => $att ) {
 				if ( ( $att['nosearch'] || $att['freq'] == "no" || ( $att['admin'] && !$username ) ) && $att['freq'] != "yes" ) continue; # Skip non-searchable fields (unless explicitly freqable)
 				if ( $freqlist[$key] ) continue; # Skip attributes already listed explicitly
 				$pattname = pattname($key);
@@ -1019,7 +1008,7 @@
 				$collopts .= "<option value=\"$key\">{%$pattname}</option>";
 				$freqopts .= "<option value=\"$key\">{%$pattname}</option>";
 			};
-			foreach ( $settings['cqp']['sattributes'] as $lvl => $tmp ) {
+			foreach ( getset('cqp/sattributes', array()) as $lvl => $tmp ) {
 				if ( !is_array($tmp) ) continue; # Skip non-items
 				if ( !$tmp['display'] && ( is_array($val) && $val['freq'] != "yes" ) ) continue; # Skip non-searchable levels (unless explicitly freqable)
 				foreach ( $tmp as $key => $val ) {

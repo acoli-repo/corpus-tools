@@ -129,7 +129,7 @@
 
 		$toktype = $token->getName();
 		if ( $toktype != "tok" ) $slnk = "&elm=$toktype";
-		else if ( $settings['xmlfile']['paged']  ) {
+		else if ( getset('xmlfile/paged') != ''  ) {
 			$tokpos = strpos($file, "id=\"$tokid\"");
 			$pbef = rstrpos($file, "<pb", $tokpos) or $pbef = strpos($file, "<pb");
 			$tmp = substr($file, $pbef, 20); if ( preg_match("/<pb n=\"(.*?)\"/", $tmp, $matches) ) {
@@ -140,7 +140,7 @@
 		
 		if ( $_POST['next'] ) $nextaction = $_POST['next'];
 		if ( !$nextaction ) { // Somehow we need to decide what the best action after saving is...
-			if ( $settings['defaults']['popup'] ) $nextaction = "tokview";
+			if ( getset('defaults/popup') != '' ) $nextaction = "tokview";
 			else $nextaction = "file";
 		};
 		$maintext .= "<hr><p>Your text has been modified - reloading";

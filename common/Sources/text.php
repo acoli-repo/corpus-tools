@@ -46,7 +46,7 @@
 		$foliotxt = $titelm;
 		$pbelm = "milestone";
 		$pbsel = "&pbtype={$elm}";
-	} else if ( is_array($settings['xmlfile']['paged']) && $settings['xmlfile']['paged']['closed'] ) {
+	} else if ( getset('xmlfile/paged/closed') != '' ) {
 		$pbtype = $_GET['pbtype'];
 		$titelm = getset('xmlfile/paged/display', ucfirst($_GET['type']));
 		$pbelm = $_GET['pbtype'];
@@ -60,7 +60,7 @@
 
 	// TODO: move this to ttxml
 	# In paged texts, always jump to a page
-	if ( $settings['xmlfile']['paged'] && !$_GET['page'] && !$_GET['pageid'] && !$_GET['div'] ) {
+	if ( getset('xmlfile/paged') != '' && !$_GET['page'] && !$_GET['pageid'] && !$_GET['div'] ) {
 		# We will by default jump to the page containing the tok we are looking for
 		# IF there are multiple tokens, jump to the first one
 		$tokids = $_GET['tid'] or $tokids = $_GET['jmp'];
@@ -127,7 +127,7 @@
 	// Show a header above files that are only partially shown (to users) 
 	if ( $restricted && $username ) { 
 		$pagenav .= "<p class=adminpart>This text is only show partially to visitors due to copyright restrictions; 	
-			to liberate this file, set ".$settings['xmlfile']['restriction']." in the header<hr>";
+			to liberate this file, set ".getset('xmlfile/restriction')." in the header<hr>";
 	};
 	
 	# Change any <desc> into i18n elements
@@ -137,17 +137,17 @@
 	if ( file_exists("Pages/csslegenda.html") ) $customcss = file_get_contents("Pages/csslegenda.html");
 
 	// <note> is ambiguous in TEITOK - make <note> into rollover notes optional
-	if ( $settings['xmlfile']['textnotes'] ) {
+	if ( getset('xmlfile/textnotes') != '' ) {
 		// for the correct order, abuse attnamelist 
 		$attnamelist .= "\n				var floatnotes = false;";
 	} else {
 		$attnamelist .= "\n				var floatnotes = true;";
 	};
 
-	if ( $settings['xmlfile']['mtokform'] ) $attnamelist .= "\nvar mtokform = true;";
+	if ( getset('xmlfile/mtokform') != '' ) $attnamelist .= "\nvar mtokform = true;";
 
 	# Define which view to show
-	$defaultview = $settings['xmlfile']['defaultview'];
+	$defaultview = getset('xmlfile/defaultview');
 	// Calculate where to start from settings and cookies
 	$tagoptlist = array ( "interpret", "colors", "images", 'pb', 'lb', 'ee', 'milestone' );
 	$setviews = explode(",", $_GET['setviews']);
@@ -160,38 +160,38 @@
 	};
 	
 	# Define some global view options
-	if ( $settings['xmlfile']['autonumber'] == "1" ) {
+	if ( getset('xmlfile/autonumber') == "1" ) {
 		$postjsactions .= "\n				var autonumber = 1;";
 	};
-	if ( $settings['xmlfile']['adminfacs'] == "1" && !$username ) {
+	if ( getset('xmlfile/adminfacs') == "1" && !$username ) {
 		$prejsactions .= "\n				var nofacs = 1;";
 	};
-	if ( $settings['xmlfile']['nogaps'] == "1" ) {
+	if ( getset('xmlfile/nogaps') == "1" ) {
 		$postjsactions .= "\n				var nogaps = 1;";
 	};	
 
 	# empty tags are working horribly in browsers - change
 	$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
 
-	foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+	foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 		$val = $item['direction'];
 		if ( $val )	{
 			 $fdlist .= "\n				formdir['$key'] = '$val';";
 		};
 	};
 	if ( $fdlist ) { $postjsactions .= "\n				var formdir = [];$fdlist"; };
-	$lablist = $_COOKIE['labels'] or $lablist = $settings['xmlfile']['defaultlabels'];
+	$lablist = $_COOKIE['labels'] or $lablist = getset('xmlfile/defaultlabels');
 	if ( $lablist ) {
 		$labarray = explode(",", $lablist);
 	};
-	$showform = $_COOKIE['showform'] or $showform = $settings['xmlfile']['defaultform'];
-	if ( !$settings['xmlfile']['pattributes']['forms'][$showform] ) $showform = "form";
+	$showform = $_COOKIE['showform'] or $showform = getset('xmlfile/defaultform');
+	if ( getset("xmlfile/pattributes/forms/$showform") == "" ) $showform = "form"; // default to form if showform does not exist
 				
 	$maintext .= "<div id=footnotediv style='display: none;'>This is where the footnotes go.</div>";
 
 	
 	# Build the view options	
-	$viewforms = $settings['xmlfile']['pattributes']['forms'];
+	$viewforms = getset('xmlfile/pattributes/forms');
 	if ( !$viewforms ) $viewforms = array(); # If you do not have any view forms, this generates an error
 	if ( !$viewforms['pform'] ) $viewforms = array ( "pform" => array ("display" => "Transcription")) + $viewforms; # We always need a pform view
 	foreach ( $viewforms as $key => $item ) {
@@ -213,7 +213,7 @@
 	};
 	# Check whether we HAVE the form to show - or switch back
 	if ( !strstr($editxml, " $showform=") 
-		&& !$settings['xmlfile']['pattributes']['forms'][$showform]['subtract']
+		&& getset("xmlfile/pattributes/forms/$showform/subtract") == ""
 		) { $showform = $bestform;};
 	
 	
@@ -247,7 +247,7 @@
 	
 	
 	# Deal with conditional styling
-	foreach ( $settings['xmlfile']['styles'] as $key => $item ) {
+	foreach ( getset('xmlfile/styles', array()) as $key => $item ) {
 		if ( $item['recond'] && !preg_match("/{$item['recond']}/", $editxml ) ) continue;
 		if ( $item['rerest'] && preg_match("/{$item['rerest']}/", $editxml ) ) continue;
 		if ( $item['xpcond'] && !$xml->xpath($item['xpcond']) ) continue;
@@ -263,7 +263,7 @@
 		$showoptions .= " <button id='btn-tag-images' title='{%show facsimile images}' onClick=\"toggletn('images');\">{%Images}</button> ";
 	};
 					
-	foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+	foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 		$val = $item['display'];
 		if ( preg_match("/ $key=/", $editxml) ) {
 			if ( is_array($labarray) && in_array($key, $labarray) ) $active = " active=\"1\""; else $active = "";
@@ -288,22 +288,22 @@
 		$postjsactions .= "\n				setbut('but-pal');";
 	};
 	// Set a default writing direction when defined
-	$dirxpath = $settings['xmlfile']['direction'];
+	$dirxpath = getset('xmlfile/direction');
 	if ( $dirxpath ) {
 		$textdir = current($xml->xpath($dirxpath));
 	};
 	if ( $textdir ) {
 		// Defined in the teiHeader for mixed-writing corpora
 		$attnamelist .= "\n				setbd('".$textdir."');";
-	} else if ( $settings['xmlfile']['basedirection'] ) {
+	} else if ( getset('xmlfile/basedirection') != "" ) {
 		// Defined in the settings
-		$attnamelist .= "\n				setbd('".$settings['xmlfile']['basedirection']."');";
+		$attnamelist .= "\n				setbd('".getset('xmlfile/basedirection')."');";
 	};
 
 	# See if there is a sound to display
 	# TODO: defaults/base/@media is deprecated
-	$mediabaseurl =  $settings['defaults']['media']['baseurl'] or $mediabaseurl =  $settings['defaults']['base']['media'] or $mediabaseurl = "Audio";
-	if ( $settings['defaults']['media']['type'] == "inline" ) {
+	$mediabaseurl =  getset('defaults/media/baseurl', getset('defaults/base/media', "Audio"));
+	if ( getset('defaults/media/type') == "inline" ) {
 		$prejsactions .= "\t\tvar inlinemedia = true; var mediabaseurl = '$mediabaseurl';";
 		# Only treat media in the teiHeader here if we want things inline
 		$mediaxp = "//teiHeader//media"; 
@@ -312,18 +312,18 @@
 	};
 	$result = $xml->xpath("//teiHeader//media"); 
 	if ( $result ) {
-		if ( $settings['defaults']['playbutton'] ) $prejsactions .= "\t\tvar playimg1 = '{$settings['defaults']['playbutton']}';";
+		if ( getset('defaults/playbutton') != '' ) $prejsactions .= "\t\tvar playimg1 = '{$settings['defaults']['playbutton']}';";
 		foreach ( $result as $medianode ) {
 			list ( $mtype, $mform ) = explode ( '/', $medianode['mimeType'] );
 			if ( !$mtype ) $mtype = "audio";
 			if ( $mtype == "audio" ) {
 				# Determine the URL of the audio fragment
 				$audiourl = $medianode['url'];
-				if ( $settings['defaults']['media']['baseurl'] ) {
-					$audiourl = $settings['defaults']['media']['baseurl'].$audiourl;
-				} else if ( $settings['defaults']['base']['media'] ) {
+				if ( getset('defaults/media/baseurl') != '' ) {
+					$audiourl = getset('defaults/media/baseurl', '').$audiourl;
+				} else if ( getset('defaults/base/media') != '' ) {
 					## Deprecated
-					$audiourl = $settings['defaults']['base']['media'].$audiourl;
+					$audiourl = getset('defaults/base/media').$audiourl;
 				} else if ( !strstr($audiourl, 'http') ) {
 					if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
 					else $audiourl = $baseurl."Audio/$audiourl"; 
@@ -374,7 +374,7 @@
 		# Define the audio button even for inline media nodes
 		$result = $xml->xpath("//media"); 
 		if ( $result ) {
-			if ( $settings['defaults']['playbutton'] ) $prejsactions .= "\t\tvar playimg1 = '{$settings['defaults']['playbutton']}';";
+			if ( getset('defaults/playbutton') != '' ) $prejsactions .= "\t\tvar playimg1 = '{$settings['defaults']['playbutton']}';";
 			foreach ( $result as $medianode ) {
 				list ( $mtype, $mform ) = explode ( '/', $medianode['mimeType'] );
 				if ( !$mtype ) $mtype = "audio";
@@ -456,7 +456,7 @@
 				the tokenization link from the bottom of the page</i></div>
 				<hr>";
 			
-			if ( $settings['xmlfile']['linebreaks'] && !strpos($editxml, "</p>") ) {
+			if ( getset('xmlfile/linebreaks') != '' && !strpos($editxml, "</p>") ) {
 				// Interpret linebreaks as <br/> - they will get interpreted in tokenization
 				$editxml = preg_replace("/\n/", "<br/>", $editxml);
 			};
@@ -467,7 +467,7 @@
 	};
 
 	$atthl = $_POST['atthl'] or $atthl = $_GET['atthl'];
-	$hlcol = $_POST['hlcol'] or $hlcol = $_GET['hlcol'] or $hlcol = $settings['defaults']['highlight']['color'] or $hlcol = "#ffffaa"; 
+	$hlcol = $_POST['hlcol'] or $hlcol = $_GET['hlcol'] or $hlcol = getset('defaults/highlight/color', "#ffffaa"); 
 	if ( preg_match("/^[0-9a-f]+$/", $hlcol) ) $hlcol = "#".$hlcol; 
 	if ( $atthl ) {
 		list ( $att, $val ) = explode ( ":", $atthl );
@@ -484,7 +484,7 @@
 		// In case we have a (set of) CQL query - first load the results
 		$collist = array( '#fff2a8', '#ffb7b7', '#a8d1ff', '#d1a8ff', '#d1ffa8', '#b7ffb7', '#b7b7ff', '#ffd4b7', 'cyan', 'green-dark', 'green', 'green-light', 'black' );
 		include ("$ttroot/common/Sources/cwcqp.php");
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
   
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
@@ -537,17 +537,17 @@
 		$pagenav .= "<p style='text-align: center;'><span style=' font-weight: bold;'>$jmpname</span> $applink</p>";
 	};
 
-	$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
-	foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $val ) {
+	$settingsdefs .= "\n\t\tvar formdef = ".array2json(getset('xmlfile/pattributes/forms', array())).";";
+	foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $val ) {
 		if ( $val['i18n'] && is_array($val['options']) ) {
 			foreach ( $val['options'] as $key2 => $val2 ) {
 				$settings['xmlfile']['pattributes']['tags'][$key]['options'][$key2]['display'] = "{%{$val2['display']}}";
 			};
 		}
 	};
-	$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
-	if ( $settings['defaults']['wordinfo'] ) $settingsdefs .= "\n\t\tvar wordinfo = true;";
-	$jsontrans = array2json($settings['transliteration']);
+	$settingsdefs .= "\n\t\tvar tagdef = ".array2json(getset('xmlfile/pattributes/tags', array())).";";
+	if ( getset('defaults/wordinfo') != '' ) $settingsdefs .= "\n\t\tvar wordinfo = true;";
+	$jsontrans = array2json(getset('transliteration', array()));
 				
 	$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'] or $highlights = $_GET['sid'];	
 
@@ -616,18 +616,17 @@
 	};
 	
 	$sep = "<hr style='clear: both; margin-top: 10px;'><p>";
-	if ( !is_array($settings['download']) || ( ( $settings['download']['admin'] != "1" || $username ) && $settings['download']['disabled'] != "1" ) ) {
-		$dltit = "Download XML";
-		if ( is_array($settings['download']) && $settings['download']['title'] ) $dltit = $settings['download']['title'];
+	if ( !is_array(getset('download')) || ( ( getset('download/admin') != "1" || $username ) && getset('download/disabled') != "1" ) ) {
+		$dltit = getset('download/title', "Download XML");
 		$maintext .= "$sep<a href='index.php?action=getxml&cid=$fileid'>{%$dltit}</a> &bull; ";
 		$sep = "";
 	};
-	if ( !is_array($settings['download']) || $settings['download']['disabled'] != "1" ) {
+	if ( !is_array(getset('download')) || getset('download/disabled') != "1" ) {
 		$maintext .= "$sep<a onClick='exporttxt();' style='cursor: pointer;'>{%Download text}</a>
 		"; $sep = " &bull; ";
 	};
 	
-	if ( $settings['xmlfile']['search'] ) {
+	if ( getset('xmlfile/search') != '' ) {
 		$maintext .= "$sep<a href='index.php?action=multisearch&cid=$fileid'>{%Search inside}</a>
 		"; $sep = " &bull; ";
 	};

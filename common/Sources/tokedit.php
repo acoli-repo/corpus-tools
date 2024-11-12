@@ -10,7 +10,7 @@
 	$tokid = $_POST['tid'] or $tokid = $_GET['tid'];
 	$tokid = preg_replace("/r-\d+_/", "", $tokid); // for row-driven ids
 
-	$partform = $settings['xmlfile']['formpart'] or $partform = "form"; // 
+	$partform = getset('xmlfile/formpart', "form"); 
 	
 	if ( !strstr( $fileid, '.xml') ) { $fileid .= ".xml"; };
 	
@@ -58,9 +58,9 @@
 	if ( $title == "" ) $title = "<i>{%Without Title}</i>";
 
 	// Allow replacing special symbols by simple ASCII sequences
-	if ( $settings['input'] && $settings['input']['replace'] ) {
+	if ( getset('input/replace') != '' ) {
 		$chareqjs .= "<p>{%Special characters}: "; $sep = "";
-		foreach ( $settings['input']['replace'] as $key => $item ) {
+		foreach ( getset('input/replace', array()) as $key => $item ) {
 			$val = $item['value'];
 			$chareqjs .= "$sep $key = $val"; 
 			$charlist .= "ces['$key'] = '$val';";
@@ -116,8 +116,8 @@
 			
  		};
 
-		$multisep = $settings['cqp']['multiseperator'] or $multisep = ",";
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $item ) {
+		$multisep = getset('cqp/multiseperator', ",");
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $item ) {
 			if ( $item['inherit'] ) $inherits .= "\n				inherit['{$item['key']}'] = '{$item['inherit']}';";
 		};
 		$maintext .= "<h1>Edit Token</h1>
@@ -201,7 +201,7 @@
 		unset($leftatts['id']);
 
 		// Show all the defined forms and make them editable
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 			unset($leftatts[$key]);
 			$atv = $token[$key]; 
 			$val = $item['display'];
@@ -214,7 +214,7 @@
 		
 		$maintext .= "<tr><td colspan=10><hr>";
 		// Show all the defined tags
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 		
 			unset($leftatts[$key]);
 		
@@ -224,9 +224,9 @@
 		
 			# Check whether this is a multi-value field
 			$multival = 0; 
-			if ( $item['values'] == "multi" || $settings['cqp']['pattributes'][$key]['values'] == "multi" ) {
+			if ( $item['values'] == "multi" || getset("cqp/pattributes/$key/values") == "multi" ) {
 				$multival = 1;
-				if (!$item['multisep']) $item['multisep'] = $settings['cqp']['pattributes'][$key]['multisep'] or $item['multisep'] = $multisep;
+				if (!$item['multisep']) $item['multisep'] = getset("cqp/pattributes/$key/multisep", $multisep);
 			};
 		
 			$atv = $token[$key]; 
@@ -463,10 +463,10 @@
 				<input type=hidden name='dtok[$did]' size=70 value='$rawdxml'>
 				<table>
 				";
-			if ( $settings['xmlfile']['formpart'] ) {
+			if ( getset('xmlfile/formpart') != '' ) {
 					$maintext .= "<tr><td>formpart<td>Part of token $tagform<td><input size=60 name=datts[$did:formpart] id='fformpart' value='{$dtoken['formpart']}'>";
 			};
-			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 				$atv = $dtoken[$key]; 
 				$val = $item['display'];
 				if ( $key != "pform" ) {
@@ -474,7 +474,7 @@
 					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=datts[$did:$key] id='f$key' value='$atv'>";
 				};
 			};
-			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 				$atv = $dtoken[$key]; 
 				$val = $item['display'];
 				if ( $key != "pform" ) {
@@ -516,7 +516,7 @@
 		
 
 		// Show all the Morphemes
-		if ( is_array($settings['annotations']) && $settings['annotations']['m'] ) {
+		if ( getset('annotations/m') != '' ) {
 			$result2 = $token->xpath("m"); $dtk = 0;
 			foreach ( $result2 as $dtoken ) {
 				$did = $dtoken['id']; $dtk++; 
@@ -533,7 +533,7 @@
 					<input type=hidden name='dtok[$did]' size=70 value='$rawdxml'>
 					<table>
 					";
-				foreach ( $settings['annotations']['m'] as $key => $item ) {
+				foreach ( getset('annotations/m', array()) as $key => $item ) {
 					if ( !is_array($item) ) continue;
 					$atv = $dtoken[$key]; 
 					$val = $item['display'];
@@ -584,7 +584,7 @@
 		$totform = preg_replace("/[|]./", "", $totform);
 
 		# Check if the join of all @formpart of the dtoks equals the @form of the tok (when using formpart)
-		if ( $totform != "" && $totform != forminherit($token, $tagform) && $settings['xmlfile']['formpart'] ) { 
+		if ( $totform != "" && $totform != forminherit($token, $tagform) && getset('xmlfile/formpart') != '' ) { 
 			$maintext .= "<hr><p style='background-color: #ffaaaa; padding: 5px; font-weight: bold'>
 				The join of the @formpart of the &lt;dtok&gt; does not match the @$tagform of the &lt;tok&gt; - consider revising
 				</p>";
@@ -613,7 +613,7 @@
 			);
 			if ( $etype = getset("xmlfile/editable") ) {
 				if ( $etype == "replace" ) $editables = array(); # Remove default items
-				foreach ( $settings['xmlfile']['sattributes'] as $sk => $satt ) {
+				foreach ( getset('xmlfile/sattributes', array()) as $sk => $satt ) {
 					if ( $satt['etype'] == "empty" || $satt['editable'] ) {
 						$editables[$sk] = array();
 						$editables[$sk]['place'] = $satt['place'];
@@ -693,7 +693,7 @@
 				<table>";
 			
 			// Show all the defined forms and make them editable
-			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 				$atv = $mtok[$key]; 
 				$val = $item['display'];
 				if ( $key != "pform" && !$item['noedit'] ) { // the raw XML is not an attribute, and some attribute are set to be non-editable
@@ -701,7 +701,7 @@
 					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=matts[$mtokid:$key] id='f$key' value='$atv' $chareqfn>";
 				};
 			};
-			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 				$atv = $mtok[$key]; 
 				$val = $item['display'];
 				if ( $key != "pform" ) {
@@ -763,7 +763,7 @@
 		# empty tags are working horribly in browsers - change
 		$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
 		
-		$focusform = $settings['xmlfile']['focusform'] or $focusform = "nform";
+		$focusform = getset('xmlfile/focusform', "nform");
 		# Show the context
 		$maintext .= "<hr><input type=submit value=\"Save\">
 		<!-- <button onClick=\"window.open('index.php?action=file&cid=$fileid', '_self');\">Cancel</button> -->

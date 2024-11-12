@@ -14,7 +14,7 @@
 	};
 
 	# Check whether registry file matches our corpus
-	$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "$thisdir/cqp";
+	$registryfolder = getset('cqp/defaults/registry', "$thisdir/cqp");
 
 	# Unless we have a recqp.pl script, we need tt-cwb-encode
 	if ( !file_exists("Scripts/recqp.pl") && !file_exists("$sharedfolder/Scripts/recqp.pl") ) {
@@ -22,7 +22,7 @@
 		if ( !$tmp ) fatal("Regenerating the CQP index relies on tt-cwb-encode, which is not installed on your server - $tmp");
 	};
 	
-	$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
+	$cqpcorpus = getset('cqp/corpus', "tt-".$foldername);
 	$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
 	
 	$cqpfolder = "cqp";
@@ -39,7 +39,7 @@
 		$cqpcorpus = strtoupper($cqpcorpus."-$subc");
 		$cqpfolder = "cqp/$subc";
 		$forc = " (for $subc) ";
-	} else if ( !$_GET['check'] && $settings['cqp']['subcorpora'] == "only" ) {
+	} else if ( !$_GET['check'] && getset('cqp/subcorpora') == "only" ) {
 		fatal("Regeneration should be done always for a specific subcorpus in this project");
 	};
 	
@@ -118,7 +118,7 @@
 
 		if ( $setfile ) {
 			$setfile = " --setfile='$setfile'";
-		} else if (  $sharedsettings['cqp'] && !$settings['cqp']['noshare'] ) {
+		} else if (  $sharedsettings['cqp'] && getset('cqp/noshare') == '' ) {
 			$merged = makesettings($settings);
 			if ( $merged ) {
 				file_put_contents("tmp/cqpsettings.xml", $merged->asXML());
@@ -127,7 +127,7 @@
 						and are based on a compiled settings file tmp/cqpsettings.xml</p>";
 			};
 		};
-		if ( !$cqpfolder ) 		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+		if ( !$cqpfolder ) 		$cqpfolder = getset('cqp/cqpfolder', "cqp");
 		
 		if ( ( file_exists("cqp/$subc/word.corpus")	&& !is_writable("cqp/$subc/word.corpus") ) || !is_writable("cqp") ) 
 			fatal("The permissions on the CQP files prevent the system from writing them");		
@@ -136,7 +136,7 @@
 		else if ( file_exists("$sharedfolder/Scripts/recqp.pl") ) $scriptname = "$sharedfolder/Scripts/recqp.pl"; 
 		else $scriptname = "$ttroot/common/Scripts/recqp.pl";	
 		$maintext .= "
-			<p>Currently, the CQP Corpus called {$settings['cqp']['corpus']} is regenerated based on the current
+			<p>Currently, the CQP Corpus called $cqpcorpus is regenerated based on the current
 				content of the XML files in ($cqpfolder).
 			
 			$combtxt
@@ -210,19 +210,20 @@
 		# Create the script to regenerate the corpus and reload
 	
 		ob_end_flush();
-		$cqpcorpus = $settings['cqp']['corpus'];
-		$cqpfolder = $settings['cqp']['searchfolder'];
-		$cqpcols = array_keys($settings['cqp']['pattributes']);
+		$cqpcorpus = getset('cqp/corpus');
+		$cqpfolder = getset('cqp/searchfolder');
+		$cqpcols = array_keys(getset('cqp/pattributes', array()));
 
-	if ( !is_array($settings['cqp']['sattributes']['text']) ) { 
-		$settings['cqp']['sattributes']['text'] = $settings['cqp']['sattributes'];
+	## force a text level if it is not defined
+	if ( !is_array(getset('cqp/sattributes/text')) ) { 
+		$settings['cqp']['sattributes']['text'] = getset('cqp/sattributes');
 		$settings['cqp']['sattributes']['text']['display'] = "Document search";
 		$settings['cqp']['sattributes']['text']['key'] = "text";
 		$settings['cqp']['sattributes']['text']['level'] = "text";
 	};	
 		
 		# We always need the ID of the text;
-		if ( !$settings['cqp']['sattributes']['text']['key'] ) 
+		if ( getset('cqp/sattributes/text/key') == '' ) 
 			$settings['cqp']['sattributes']['text']['key'] = 'text';		
 		
 		$script = "open FILE, \">tmp/recqp.pid\";";
@@ -245,7 +246,7 @@
 		if ( $cqpfolder == "" ) $cqpfolder = "**";
 	
 		$ttencode = findapp("tt-cwb-encode");
-		if ( !$settings['cqp']['verticalize'] && $ttencode ) {
+		if ( getset('cqp/verticalize') == '' && $ttencode ) {
 			# Verticalize using the verticalize C++ application
 			# For simplicity, we do htmldecoding externally in Perl
 			$maintext .= "<p>Using tt-cwb-encode";
@@ -256,17 +257,17 @@
 			$script .= "\n`$cmd`;";
 		} else {
 			if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot/common"; };
-			if ( $settings['cqp']['verticalize']['type'] != "xslt" && file_exists("Resources/verticalize.xslt") ) {
+			if ( getset('cqp/verticalize/type') != "xslt" && file_exists("Resources/verticalize.xslt") ) {
 				# This should become a perl script or something - for which nothing is needed
 				$maintext .= "<p>Using verticalize";
 				$cmd = "$ttroot/bin/verticalize | perl $scrt/common/Scripts/htmldecode.pl > $thisdir/cqp/corpus.vrt";
 			} else {
 				$maintext .= "<p>Using XSLT";
-				$xsltfile = $settings['cqp']['verticalize']['cmd'] or $xsltfile = "$thisdir/Resources/verticalize.xslt";
+				$xsltfile = getset('cqp/verticalize/cmd', "$thisdir/Resources/verticalize.xslt");
 			
 				# Verticalize using the verticalization XSLT transformation
 				$cmd = "/usr/bin/which xsltproc"; 
-				$pxslt = $settings['bin']['xsltproc']['path'];
+				$pxslt = getset('bin/xsltproc/path');
 				if ( !$pxslt ) {
 					$pxslt = shell_exec($cmd); 
 					if ( $pxslt == "" ) { print "<p>Error: xsltproc not found - no response from `$cmd`"; exit; };
@@ -288,7 +289,7 @@
 			# Encode the corpus with all the required fields
 			$cmd = "export PATH=$PATH:$bindir; /usr/bin/which cwb-encode"; $pxenc = chop(shell_exec($cmd)); if ( !$pxenc ) { print "<p>Error: cwb-encode not found"; exit; };
 			foreach ( $cqpcols as $val ) { $poscols .= " -P $val "; };
-			foreach ( $settings['cqp']['sattributes'] as $xatt ) {
+			foreach ( getset('cqp/sattributes', array()) as $xatt ) {
 				$xkey = $xatt['key'];
 				$pattlist .= " -S $xkey:0+id";
 				foreach ( $xatt as $key => $val ) { 

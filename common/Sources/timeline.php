@@ -4,11 +4,11 @@
 
 // Place the defined events
 //   {id: 'cole', content: 'Inicio del cole', start: fakedate("2020-09-17"), minzoom: 0, maxzoom: 1},
-foreach ( $settings['timeline']['events'] as $key => $val ) {
+foreach ( getset('timeline/events', array()) as $key => $val ) {
 	$startend = "start: '{$val['start']}'"; if ( $val['end'] ) $startend .= ", end: '{$val['end']}'";
 	$datelist .= "\t{id: '$key', content: '{$val['display']}', $startend, minzoom: '{$val['minzoom']}', maxzoom: '{$val['maxzoom']}'},\n";
 };
-if ( $settings['timeline']['xml'] ) {
+if ( getset('timeline/xml') != '' ) {
 	$xmlfile = "Resources/{$settings['timeline']['xml']}"; if ( substr($xmlfile, -4) != ".xml" ) $xmlfile .= ".xml";
 	$eventxml = simplexml_load_file($xmlfile);
 	if ( $eventxml )
@@ -22,7 +22,7 @@ if ( $settings['timeline']['xml'] ) {
 };
 
 $id = $_GET['id'];
-if ( $id && $settings['timeline']['events'][$id] ) {
+if ( $id && getset("timeline/events/$id") != "" ) {
 	$framestart = "new Date(\"{$settings['timeline']['events'][$id]['start']}\")";
 	$frameend = "new Date(\"{$settings['timeline']['events'][$id]['end']}\")";
 	$morescript .= "timeline.setSelection(['$id']);\n";
@@ -32,25 +32,25 @@ if ( $id && $settings['timeline']['events'][$id] ) {
 	$frameend = "new Date(\"{$settings['timeline']['end']}\")";
 };
 
-if (  $settings['timeline']['cqpevent'] ) {
+if (  getset('timeline/cqpevent') != '' ) {
 	$morescript .= "var cqpfld = '{$settings['timeline']['cqpevent']}';\n";
 };
-if (  $settings['timeline']['cqpdate'] ) {
+if (  getset('timeline/cqpdate') != '' ) {
 		include ("$ttroot/common/Sources/cwcqp.php");
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+		$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = getset('cqp/cqpfolder', "cqp");
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
 
-		$cqpdate = $settings['timeline']['cqpdate'];
+		$cqpdate = getset('timeline/cqpdate');
 		$cqpquery = "Matches = <$cqpdate> []";
 		$results = $cqp->exec($cqpquery); 
 		$rescnt = $cqp->exec("size Matches"); 
 
-		$titlefld = $settings['cqp']['titlefld'];
+		$titlefld = getset('cqp/titlefld');
 		if ( !$titlefld )
-			if ( $settings['cqp']['sattributes']['text']['title'] ) $titlefld = "text_title"; else $titlefld = "text_id";
+			if ( getset('cqp/sattributes/text/title') != '' ) $titlefld = "text_title"; else $titlefld = "text_id";
 		
 		if ( $rescnt ) { 
 		
@@ -71,7 +71,7 @@ if (  $settings['timeline']['cqpdate'] ) {
 		};
 };
 
-$modtitle = $settings['timeline']['title'] or $modtitle = "Interactive Timeline";	
+$modtitle = getset('timeline/title', "Interactive Timeline");	
 
 $maintext .= "
 <h1>{%$modtitle}</h1>
@@ -105,8 +105,8 @@ $morescript
 }
 </style>";
 
-if ( $username && $settings['timeline']['xml'] ) {
-	$xmlfile = str_replace(".xml", "", $settings['timeline']['xml']);
+if ( $username && getset('timeline/xml') != '' ) {
+	$xmlfile = str_replace(".xml", "", getset('timeline/xml'));
 	if ( !file_exists("Resources/$xmlfiles-entry.xml") ) 
 		file_put_contents("Resources/$xmlfiles-entry.xml", "<event>
 	<start list=\"1\">Start date</start>
