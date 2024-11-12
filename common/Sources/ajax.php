@@ -11,8 +11,8 @@
 	if ( $_GET['cqp'] || $cqptype[$_GET['data']] ) {
 		# Lookup all occurrences
 		include ("$ttroot/common/Sources/cwcqp.php");
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+		$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = getset('cqp/cqpfolder', "cqp");
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
@@ -30,7 +30,7 @@
 		$results = $cqp->exec($cqpquery); 
 	
 		$acnt = $bcnt = 0;
-		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
+		foreach ( getset('cqp/sattributes/text', array()) as $key => $item ) {
 			if ( $key == $class ) continue;
 			if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
 			$val = $item['display']; # $val = $item['long'] or
@@ -48,7 +48,7 @@
 				$acnt++;
 			};
 		}; 
-		if ( $settings['defaults']['browser']['style'] == "facs" && $settings['cqp']['pattributes']['facs'] ) {
+		if ( getset('defaults/browser/style') == "facs" && getset('cqp/pattributesfacs') != '' ) {
 			$withfacs = 1;
 			$moreatts .= ", match facs";
 		};  
@@ -64,14 +64,14 @@
 		};
 		if ( $start > 0 ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$before'; document.resubmit.submit();\">{%previous}</a>";
 		if ( $stop < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$stop'; document.resubmit.submit();\">{%next}</a>";
-		if ( $settings['defaults']['browser']['style'] == "facs" ) {
+		if ( getset('defaults/browser/style') == "facs" ) {
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
 				<table id=facstable>";
 		} else { 
 			$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
 				<table><tr><th>ID$moreth";
 		};
-		if ( !$settings['defaults']['browser']['title'] ) $settings['defaults']['browser']['title'] = "title";
+		if ( getset('defaults/browser/title') == '' ) $settings['defaults']['browser']['title'] = "title";
 		foreach ( $resarr as $line ) {
 			$fatts = explode ( "\t", $line ); $fid = array_shift($fatts);
 			if ( !$fid ) continue; # Skip empty rows
@@ -84,13 +84,13 @@
 			foreach ( $fatts as $key => $fatt ) {
 				if ( $key == $class ) continue;
 				$attit = $atttik[$key];
-				if ( $attit == $settings['defaults']['browser']['title'] ) {
+				if ( $attit == getset('defaults/browser/title') ) {
 					$titelm = $fatt;
 					unset($fatts[$key]);
 				};
-				$tmp = $settings['cqp']['sattributes']['text'][$attit]['type'];
-				if ( $settings['cqp']['sattributes']['text'][$attit]['type'] == "kselect" || $settings['cqp']['sattributes']['text'][$attit]['translate'] ) {
-					if ( $settings['cqp']['sattributes']['text'][$attit]['values'] == "multi" ) {
+				$tmp = getset("cqp/sattributes/text/$attit/type");
+				if ( getset("cqp/sattributes/text/$attit/type") == "kselect" || getset("cqp/sattributes/text/$attit/translate") != '' ) {
+					if ( getset("cqp/sattributes/text/$attit/values") == "multi" ) {
 						$fatts[$key] = ""; $sep = "";
 						foreach ( explode(",", $fatt) as $fattp ) { $fatts[$key] .= "$sep{%$attit-$fattp}"; $sep = ", "; };
 					} else $fatts[$key] = "{%$attit-$fatt}";
