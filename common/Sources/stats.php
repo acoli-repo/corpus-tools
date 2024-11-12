@@ -64,7 +64,7 @@
 
 	if ( !$cid ) {
 		$maintext .= "<tr><th>{%Document}";
-		foreach ( $settings['cqp']['stats'] as $key => $val ) {
+		foreach ( getset('cqp/stats', array()) as $key => $val ) {
 			if ( !$val['display'] || !is_array($val) ) continue;		
 			$maintext .= "<th title='$tit'>{%{$val['display']}}";
 		};
@@ -75,11 +75,11 @@
 	foreach ( $tids as $txtid ) {
 		if ( !$txtid ) continue;		
 		list ( $txtid, $txttit ) = explode("\t", $txtid );
-		if ( !$txttit || $settings['cqp']['titlefld'] == "text_id" ) $txttit = preg_replace("/^.*\//", "", $txtid);
+		if ( !$txttit || getset('cqp/titlefld') == "text_id" ) $txttit = preg_replace("/^.*\//", "", $txtid);
 		$tmp = preg_replace("/^xmlfiles\//", "", $txtid);
 		if ( !$cid ) $maintext .= "<tr><th><a href='index.php?action=file&cid=$tmp'>$txttit</a>";
 
-		foreach ( $settings['cqp']['stats'] as $key => $val ) {
+		foreach ( getset('cqp/stats', array()) as $key => $val ) {
 			if ( !$val['display'] || !is_array($val) ) continue;		
 			$varname = $val['var'];
 			$cql = $val['cql'];
@@ -107,9 +107,9 @@
 		};
 	}
 		
-	if ( !$cid && $settings['cqp']['stats']['total'] || $_GET['total'] ) {
+	if ( !$cid && getset('cqp/stats/total') != '' || $_GET['total'] ) {
 		$maintext .= "<td><td colspan=20></td></tr><tr><th>{%TOTAL}";
-		foreach ( $settings['cqp']['stats'] as $key => $val ) {
+		foreach ( getset('cqp/stats', array()) as $key => $val ) {
 			if ( !$val['display'] || !is_array($val) ) continue;		
 			$varname = $val['var'];
 			$cql = $val['cql'];

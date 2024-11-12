@@ -25,10 +25,10 @@
 		$pbtype = "milestone";
 	};
 	
-	if ( ( is_array($settings['xmlfile']['toc']) && $settings['xmlfile']['toc']['file'] ) || file_exists("Resources/toc.xml") ) {
+	if ( ( getset('xmlfile/toc/file') != '' ) || file_exists("Resources/toc.xml") ) {
 		
 		$tocfile = "Resources/toc.xml";
-		if ( is_array($settings['xmlfile']['toc']) && $settings['xmlfile']['toc']['file'] ) $tocfile = $settings['xmlfile']['toc']['file'];
+		if ( getset('xmlfile/toc/file') != '' ) $tocfile = getset('xmlfile/toc/file');
 		$tocxml = simplexml_load_file($tocfile);
 		// Read the appids in the XML
 		foreach ( $ttxml->xpath("//*[@appid]") as $appnode ) $appidlist[$appnode['appid'].""] = $appnode['id']."";
@@ -77,15 +77,15 @@
 				</style>
 				";	
 
-	} else if ( $settings['xmlfile']['toc'] ) {
+	} else if ( getset('xmlfile/toc') != '' ) {
 
-		$tocdef = $settings['xmlfile']['toc'];
+		$tocdef = getset('xmlfile/toc');
 		if ( $tocdef['xp'] ) $tocxp = $tocdef['xp']; else $tocxp = "//teiHeader/toc";
 		if ( $ttxml->xpath($tocxp) ) {
 			$tocdef = xmlflatten(current($ttxml->xpath($tocxp)));
 		};
 
-		$tocname = $settings['xmlfile']['toc']['display'] or $tocname = "Table of Contents"; # {%Table of Contents}
+		$tocname = getset('xmlfile/toc/display', "Table of Contents"); # {%Table of Contents}
 		$tocname = "{%$tocname}";
 		$maintext .= "<h2>$tocname</h2>";
 		$maintext .= "<div id='toc'>".makesub($ttxml->xml, 0)."</div>\n";
@@ -134,7 +134,7 @@
 			$pid = $node['id'] or $pid = "[$cnt]";
 			$pnr = $node['n'] or $pnr = "[$cnt]";
 			$tst = ""; if ( $node['empty'] ) $tst = "style='opacity: 0.2;' title='{%empty}'";
-			if ( $settings['defaults']['thumbnails'] && $pbelm == "pb" ) {
+			if ( getset('defaults/thumbnails') != '' && $pbelm == "pb" ) {
 				$tni = $node['facs']; 
 				$tnn = "$ttxml->xmlid/$ttxml->xmlid"."_$pnr.jpg";
 				if ( $tni && file_exists("Thumbnails/$tni") ) $tni = "Thumbnails/$tni";
@@ -160,8 +160,8 @@
 		};
 		$maintext .= "</td>";
 	};
-	if ( !$settings['xmlfile']['index'] ) $settings['xmlfile']['index'] = array ( "chapter" => array ( "display" => "Chapter List" ));
-	foreach ( $settings['xmlfile']['index'] as $key => $val ) {
+	if ( getset('xmlfile/index') == '' ) $settings['xmlfile']['index'] = array ( "chapter" => array ( "display" => "Chapter List" ));
+	foreach ( getset('xmlfile/index', array()) as $key => $val ) {
 		$pbatt = $val['att'] or $pbatt = "n";
 		if ( $val['div'] || $val['xpath'] ) {
 			if ( $val['xpath'] ) $divxp = $val['xpath'];
@@ -235,7 +235,7 @@
 		foreach ( $node->children() as $chld ) {
 			$nodename = $chld['display'];
 			$nodenum = $chld['n'];
-			if ( $settings['xmlfile']['toc']['id18n'] ) $nodename = "{%$nodename}";
+			if ( getset('xmlfile/toc/i18n') != '' ) $nodename = "{%$nodename}";
 			if ( $nodenum ) {
 				$leaf = "nolist";
 				$nodename = "$nodenum. $nodename";
