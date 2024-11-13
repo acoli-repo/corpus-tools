@@ -3,16 +3,15 @@
 	# Name-oriented document view and name index
 	# Maarten Janssen, 2020
 
-	$viewname = $settings['xmlfile']['ner']['title'] or $viewname = "Named Entity View";
-	$correspatt = $settings['xmlfile']['ner']['corresp'] or $correspatt = "corresp";
+	$viewname = getset('xmlfile/ner/title', "Named Entity View");
+	$correspatt = getset('xmlfile/ner/corresp', "corresp"); # Corrspondence attribute
 	
 	if ( !$_GET['cid'] ) $_GET['cid']  = $_GET['id'];
-	$nertitle = $settings['xmlfile']['ner']['title'] or $nertitle = "Named Entities";
-	$neritemname = $settings['xmlfile']['ner']['item'] or $neritemname = "entity";
+	$nertitle = getset('xmlfile/ner/title', "Named Entities"); # Same as viewname??
+	$neritemname = getset('xmlfile/ner/item', "entity"); # Name of an entity
 
-	$nerlist = $settings['xmlfile']['ner']['tags'] 
-		or 
-		$nerlist = array(
+	$nerlist = getset('xmlfile/ner/tags', 
+		array(
 			"placename" => array ( "display" => "Place Name", "cqp" => "place", "node" => "place", "elm" => "placeName", "nerid" => "ref" ), 
 			"persname" => array ( "display" => "Person Name", "cqp" => "person", "node" => "person", "elm" => "persName", "nerid" => "ref" ), 
 			"orgname" => array ( "display" => "Organization Name", "cqp" => "org", "node" => "org", "elm" => "orgName", "nerid" => "ref" ),
@@ -22,7 +21,7 @@
 			// "num" => array ( "display" => "Number", "cqp" => "num", "elm" => "num", "nerid" => "none" ),
 			// "date" => array ( "display" => "Date", "cqp" => "date", "elm" => "date", "nerid" => "none" ),
 			// "unit" => array ( "display" => "Unit", "cqp" => "unit", "elm" => "unit", "nerid" => "none" ),
-			);
+			));
 	$nerjson = array2json($nerlist);
 	
 	$nn2rn = array (
@@ -41,9 +40,9 @@
 		"placeName" => "place",
 	);
 
-	// Load the tagset 
-	if ( $settings['xmlfile']['ner']['tagset'] != "none" ) {
-		$tagsetfile = $settings['xmlfile']['ner']['tagset'] or $tagsetfile = "tagset-ner.xml";
+	// Load the tagset (for the NER type tag)
+	if ( getset('xmlfile/ner/tagset') != "none" ) {
+		$tagsetfile = getset('xmlfile/ner/tagset', "tagset-ner.xml");
 		require ( "$ttroot/common/Sources/tttags.php" );
 		$tttags = new TTTAGS($tagsetfile, false);
 		if ( is_array($tttags->tagset) && $tttags->tagset['positions'] ) {
@@ -53,7 +52,7 @@
 		};
 	};
 
-	$nerfile = $settings['xmlfile']['ner']['nerfile'] or $nerfile = "ner.xml";
+	$nerfile = getset('xmlfile/ner/nerfile', "ner.xml"); # NER file
 	$nerbase = $nerfile;
 	if ( strpos($nerfile, "/") == false ) $nerfile = "Resources/$nerfile";
 	if ( file_exists($nerfile) ) $nerxml = simplexml_load_file($nerfile); 
@@ -82,7 +81,7 @@
 					if ( !$nerid ) { $nerid = $node['lemma']; }; # use form if no ID is present
 					$name = makexml($node);
 					$name = trim(preg_replace("/<[^>]+>/", "", $name));
-					if ( $settings['xmlfile']['nospace'] == "2" ) $name = $name = preg_replace("/<\/tok>/", " ", $name);
+					if ( getset('xmlfile/nospace') == "2" ) $name = $name = preg_replace("/<\/tok>/", " ", $name);
 					if ( !$nerid ) { $nerid = $name; }; # use form if no ID is present
 					$nerid = trim($nerid);
 					$idnames[$nerid.""][$name.""]++;
@@ -148,7 +147,7 @@
 		} else {
 			$etype = $nerrec->getName()."";
 		};
-		foreach ( $settings['xmlfile']['ner']['tags'] as $tmp ) {
+		foreach ( getset('xmlfile/ner/tags', array()) as $tmp ) {
 			if ( $tmp['elm']."" == $etype || $tmp['node']."" == $etype ) $nerdef = $tmp;
 		};
 
@@ -307,8 +306,8 @@
 			$etype = $nodetype;
 		};
 		
-		foreach ( $settings['xmlfile']['ner']['tags'] as $tmp ) if ( $tmp['elm'] == $etype ) $nerdef = $tmp;
-		$sattdef = $settings['xmlfile']['sattributes'][$etype];
+		foreach ( getset('xmlfile/ner/tags', array()) as $tmp ) if ( $tmp['elm'] == $etype ) $nerdef = $tmp;
+		$sattdef = getset("xmlfile/sattributes/$etype");
 
 		if ( !$ename ) $ename = $sattdef['display'];
 		
@@ -464,7 +463,7 @@
 		print "Adding NER nodes";
 		foreach ( $_POST['sels'] as $key => $val ) {
 			$nertype = $_POST['type'][$key];
-			$nernode = $settings['xmlfile']['ner']['tags'][$nertype]['elm'];
+			$nernode = getset("xmlfile/ner/tags/$nertype/elm");
 			$toklist = $_POST['toks'][$key];
 			print "<hr>$key: {$_POST['toks'][$key]} = $nernode  / {$_POST[$correspatt][$key]}</hr>";
 			$newner = addparentnode($ttxml->xml, $toklist , $nernode);
@@ -675,7 +674,7 @@
 			<table>
 			<tr><th>Add<th>Text<th>NER reference<th>NER record";
 		$opts = " .//name "; $paropts = " .//ancestor::name "; 
-		foreach ( $settings['xmlfile']['ner']['tags'] as $key=>$tag ) {
+		foreach ( getset('xmlfile/ner/tags', array()) as $key=>$tag ) {
 			$opts .= " | .//{$tag['elm']}"; 
 			$paropts .= " | .//ancestor::{$tag['elm']} "; 
 		};
@@ -708,7 +707,7 @@
 					if ( $tmp ) { 
 						$parelm = $tmp->getName();
 						$parname = " ($parelm)";
-						foreach ( $settings['xmlfile']['ner']['tags'] as $tmp ) if ( $tmp['elm'] == $parelm ) $pardef = $tmp;
+						foreach ( getset('xmlfile/ner/tags', array()) as $tmp ) if ( $tmp['elm'] == $parelm ) $pardef = $tmp;
 						if ( $_GET['show'] == "all" ) {
 							$style = "style=\"opacity: 0.3; background-color: {$pardef['color']};\""; 
 						} else {
@@ -802,7 +801,7 @@
 // 					};
 // 				};
 				
-				$snippetelm = $settings['xmlfile']['ner']['snippet'] or $snippetelm = "label";
+				$snippetelm = getset('xmlfile/ner/snippet', "label");
 				$snippetxml = current($nernode->xpath(".//$snippetelm"));
 				if ( $snippetxml ) $snippettxt .= "<tr><td colspan=2>".makexml($snippetxml)."</td></tr>";
 				$snippettxt .= "</table>";
@@ -839,8 +838,8 @@
 
 		if ( $username ) {
 			$optlist = "";
-			if ( $settings['xmlfile']['ner']['tags'] ) {
-				foreach ( $settings['xmlfile']['ner']['tags'] as $key => $tag ) {
+			if ( getset('xmlfile/ner/tags') != '' ) {
+				foreach ( getset('xmlfile/ner/tags', array()) as $key => $tag ) {
 					$optlist .= "<option value='$key'>{$tag['display']}</option>";
 				};
 			} else $optlist = "<option value='term'>term</option><option value='placeName'>placeName</option><option value='persName'>persName</option><option value='orgName'>orgName</option>";
@@ -916,7 +915,7 @@
 		<p>Type of $neritemname: <b>$nername</b>";
 
 		
-		$snippetelm = $settings['xmlfile']['ner']['snippet'] or $snippetelm = "gloss";
+		$snippetelm = getset('xmlfile/ner/snippet', "gloss");
 		$snippetxml = current($nernode->xpath(".//$snippetelm"));
 		if ( $snippetxml ) $maintext .= "<div style='padding: 10px; border: 1px solid #aaaaaa;'>".$snippetxml->asXML()."</div>";
 
@@ -988,8 +987,8 @@
 	
 		# Lookup all occurrences
 		include ("$ttroot/common/Sources/cwcqp.php");
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+		$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = getset('cqp/cqpfolder', "cqp");
 
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
@@ -1009,7 +1008,7 @@
 			$results = $cqp->exec("tabulate Matches match, matchend, match text_id, match id $defcol");
 			$xidxcmd = findapp("tt-cwb-xidx");
 
-			$csize = $settings['xmlfile']['ner']['context'] or $csize = 0;
+			$csize = getset('xmlfile/ner/context', 0);
 			if ( $csize) {
 				$expand = "--context=$csize";			
 			};
@@ -1048,12 +1047,12 @@
 		# List of types of NER we have
 		$nername = $nerlist[$type]['display'];
 		$neratt = $nerlist[$type]['cqp'];
-		$nerform = $settings['xmlfile']['ner']['form'] or $nerform = "form";
+		$nerform = getset('xmlfile/ner/form', "form");
 		$maintext .= "<h2>{%$nertitle}</h2><h1>{%$nername}</h1>";
 
 		include ("$ttroot/common/Sources/cwcqp.php");
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+		$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = getset('cqp/cqpfolder', "cqp");
 
 		# Sanity check
 
@@ -1096,15 +1095,15 @@
 		# Get the list of all existing NER from the CQP corpus
 		global $settings, $ttroot;
 		include ("$ttroot/common/Sources/cwcqp.php");
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+		$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = getset('cqp/cqpfolder', "cqp");
 
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
 		
 		$resarr	= array();
-		foreach ( $settings['xmlfile']['ner']['tags'] as $key => $tag ) {
+		foreach ( getset('xmlfile/ner/tags', array()) as $key => $tag ) {
 			if ( ( $key == $type || $type == "all" ) && $tag['cqp'] ) {
 				$cqpelm = $tag['cqp']."";
 				$cqp->exec("Matches = <$cqpelm> []+ </$cqpelm>");
