@@ -1,6 +1,6 @@
 <?php
 
-	if ( getset('align') == "" && is_array( getset('defaults/align')) ) $settings['align'] = $settings['defaults']['align'];
+	if ( getset('align') == "" && is_array( getset('defaults/align')) ) $settings['align'] = getset('defaults/align');
 
 	if ( $_GET['debug'] && $username ) {
 		$debug = 1;
@@ -328,7 +328,7 @@
 			if ( $username ) fatal("Not defined in settings: cqp/text_{$groupfld}");
 			else fatal("An error occurred");
 		};
-		$groupname = $settings['cqp']['sattributes']['text'][$groupfld]['display'];
+		$groupname = getset("cqp/sattributes/text/$groupfld/display");
 
 		$maintext .= "<p>Select a $groupname:</p>";
 		if ( file_exists("cqp/text_{$groupfld}.avs") ) {
@@ -344,21 +344,19 @@
 		};
 		$maintext .= "</ul>";
 
-	} else if ( $act == "align" && $settings['align']['group'] ) {
+	} else if ( $act == "align" && getset('align/group') != '' ) {
 
-		$groupfld = $settings['align']['group'];
-		$groupname = $settings['cqp']['sattributes']['text'][$groupfld]['display'];
+		$groupfld = getset('align/group');
+		$groupname = getset("cqp/sattributes/text/$groupfld/display");
 		$group = $_GET['group'];
 		if ( $group )
 	 		$maintext .= "<h2>$groupname = <b>$group</b></h2><p>Select one or more versions to align:</p>";
 		else $maintext .= "<p>Select one or more files to align:</p>";
 				
-		if ( is_array($settings['align']['fields'] ) ) {
-			foreach ( $settings['align']['fields'] as $key => $fld ) {
-				$morefld .= ", match text_{$key}";
-				$moreth .= "<th id='col-$key' data-sortable-type=\"alpha\">{$fld['display']}</th>";
-			};
-		};		
+		foreach ( getset('align/fields', array()) as $key => $fld ) {
+			$morefld .= ", match text_{$key}";
+			$moreth .= "<th id='col-$key' data-sortable-type=\"alpha\">{$fld['display']}</th>";
+		};
 				
 		$maintext .= "<form action=\"index.php?action=$action&act=files\" method=post>
 				<input type=hidden name=action value='$action'>
@@ -412,7 +410,7 @@
 		sort($fns);
 		foreach ( $fns as $fn ) {
 			$fn = str_replacE("xmlfiles/", "", $fn);
-			$filerest = str_replace("/", "\\/", $settings['align']['filerest']);
+			$filerest = str_replace("/", "\\/", getset('align/filerest'));
 			if ( $filerest && !preg_match("/$filerest/", $fn) ) continue;
 			if ( $fn ) $maintext .= "<p><input type=checkbox name=ids[$fn] value='1'> <a class=black href='index.php?action=$action&cid=$fn'>$fn</a>";
 		};
@@ -442,7 +440,7 @@
 
 		$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'];	
 
-		$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
+		$settingsdefs .= "\n\t\tvar formdef = ".array2json(getset('xmlfile/pattributes/forms', array())).";";
 			
 		$maintext .= "
 			<style>.tu { color: blue; font-size: x-small; };</style>
@@ -517,8 +515,8 @@
 			
 			<p>You can also start by selecting <a href='index.php?action=$action&act=align'>align</a> on one or more texts.";
 		
-		$base = $settings['align']['cqp'] or $base = "lang";
-		$basetxt = $settings['cqp']['sattributes']['text'][$base]['display'];
+		$base = getset('align/cqp', "lang");
+		$basetxt = getset("cqp/sattributes/text/$base/display");
 		if ( !file_exists("cqp/text_$base.avs") ) {
 			if ( $username ) fatal("Base does not exist in CQP corpus: text_$base");
 			else fatal("Parallel search is currently not available for this corpus");
@@ -544,7 +542,7 @@
 			$defset .= "setOption(document.getElementById('tsel$i'), '$tg'); ";
 		};
 
-		$lvl = $_GET['lvl'] or $lvl = $settings['align']['level'] or $lvl = "p";
+		$lvl = $_GET['lvl'] or $lvl = getset('align/level', "p");
 
 		if ( !$_POST ) $_POST = $_GET;
 
@@ -599,7 +597,7 @@
 		<p><input type=submit value=Search>
 		</form>
 		";
-		$base = $settings['align']['cqp'] or $base = "lang";
+		$base = getset('align/cqp', "lang");
 	
 		if ( $_POST['source'] && $_POST['squery'] ) {		
 		
