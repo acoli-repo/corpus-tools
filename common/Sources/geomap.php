@@ -139,6 +139,8 @@ if ( $act == "xml" ) {
 	if ( !is_array($jsonpoints) ) $jsonpoints = array();
 	$jsondata = "[ ".join(", ", array_values($jsonpoints))." ]";
 
+	if ( !$ttxml ) fatal("Failed to load XML file");
+
 	$editxml = $ttxml->asXML();
 
 	// Draw the actual map
