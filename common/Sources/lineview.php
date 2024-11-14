@@ -12,7 +12,7 @@
 	$tmp = explode(" ", $highl);
 	$tid = $tmp[0];	
 
-	if ( $settings['xmlfile']['basedirection'] ) $morestyle .= "direction: {$settings['xmlfile']['basedirection']}";
+	if ( getset('xmlfile/basedirection') != '' ) $morestyle .= "direction: {$settings['xmlfile']['basedirection']}";
 
 	if ( $act == "save" ) {
 		foreach ( $_POST['bbox'] as $key => $bbox ) {
@@ -32,7 +32,7 @@
 
 	} else {
 	
-		if ( $settings['xmlfile']['l'] == "nolb" || $_GET['elm'] == "lb" ) $onlylb = 1;
+		if ( getset('xmlfile/l') == "nolb" || $_GET['elm'] == "lb" ) $onlylb = 1;
 	
 		$maintext .= "<h2>{%Facsimile Lines}</h2>";
 		$maintext .= "<h1>".$ttxml->title()."</h1>";
@@ -110,10 +110,10 @@
 				
 		} else {
 		
-			$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
-			$jsontrans = array2json($settings['transliteration']);
+			$jsonforms = array2json(getset('xmlfile/pattributes/forms', array()));
+			$jsontrans = array2json(getset('transliteration', array()));
 			#Build the view options	
-			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 				$formcol = $item['color'];
 				# Only show forms that are not admin-only
 				if ( $username || !$item['admin'] ) {	
@@ -129,7 +129,7 @@
 					};
 				};
 			};
-			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 				$val = $item['display'];
 				if ( preg_match("/ $key=/", $editxml) || 1==1 ) { // TODO: should this see if the tag occurs? 
 					if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
