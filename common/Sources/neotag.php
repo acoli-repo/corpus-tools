@@ -3,14 +3,14 @@
 	// Read the neotag settings file to check the vocabulary (and other things)
 	$paramsfile = $_GET['params'];
 	if ( $paramsfile ) {
-		foreach ( $settings['neotag']['parameters'] as $item ) {
+		foreach ( getset('neotag/parameters', array()) as $item ) {
 			if ( $item['params'] == $paramsfile ) $params = $item;
 		};
-	} else if ( !is_array($settings['neotag']) || !is_array($settings['neotag']['parameters']) || count($settings['neotag']['parameters']) == 0 ) {
+	} else if ( !is_array(getset('neotag/parameters')) || count(getset('neotag/parameters', array())) == 0 ) {
 		print "<p>No neotag parameter settings - reloading to settings
 			<script language=Javascript>top.location='index.php?action=adminsettings&section=neotag&showunused=1'</script>"; exit;
-	} else if ( count($settings['neotag']['parameters']) == 1 ) {
-		$params = array_shift($settings['neotag']['parameters']);
+	} else if ( count(getset('neotag/parameters', array())) == 1 ) {
+		$params = array_shift(getset('neotag/parameters', array()));
 		$paramsfile = $params['params'];
 	};	
 	
@@ -39,7 +39,7 @@
 			<table>
 			<tr><td><th>Filename<th>Restriction<th>Last Update";
 		
-		foreach ( $settings['neotag']['parameters'] as $key => $item ) {
+		foreach ( getset('neotag/parameters', array()) as $key => $item ) {
 			
 			$lines = shell_exec("head {$item['params']}");
 			if ( preg_match ("/created=\"(.*?)\"/", $lines, $matches ) ) $lastupdate = $matches[1];
@@ -94,7 +94,7 @@
 						<tr><th>Count<th>Form<th>Tag<th>XML";
 					foreach ( $tmp as $key => $val ) {
 						$tmp2 = $val->xpath("ancestor::item"); $form = $tmp2[0]['key'];
-						if ( $settings['tagset']['tagtype']['positions'] ) {
+						if ( getset('tagset/tagtype/positions') != '' ) {
 							$tagval = "<a href=\"index.php?action=tagset&act=analyze&tag={$val['key']}\">{$val['key']}</a>";
 						} else $tagval = $val['key'];
 						$lcql = urlencode("[word=\"$form\" & pos=\"{$val['key']}\"] $restfiles ");
@@ -106,7 +106,7 @@
 						<tr><th>Count<th>Form<th>Tag<th>XML";
 					foreach ( $tmp as $key => $val ) {
 						$tmp2 = $val->xpath("ancestor::item"); $form = $tmp2[0]['key'];
-						if ( $settings['tagset']['tagtype']['positions'] ) {
+						if ( getset('tagset/tagtype/positions') != '' ) {
 							$tagval = "";  $sep = ""; $lcql = "";
 							foreach ( explode ( ".", $val['key'] ) as $pp ) {
 								$tagval .= "$sep<a href=\"index.php?action=tagset&act=analyze&tag=$pp\">$pp</a>";
@@ -146,8 +146,7 @@
 		if ( !file_exists($cid) ) { fatal ( "File does not exist: $cid" ); };
 		
 		if ( !$bindir ) $bindir = "/usr/local/bin";
-		$exec = "$bindir/neotagxml";
-		if ( is_array($settings['bin']) && $settings['bin']['neotag'] ) $exec = $settings['bin']['neotag'];
+		$exec = getset('bin/neotag', "$bindir/neotagxml");
 		
 		if ( $params['pid'] ) $moreopt .= " --pid='{$params['pid']}'";
 		if ( $params['tagsrc'] ) $moreopt .= " --tagsrc";
@@ -174,7 +173,8 @@
 		// Update this settings file
 		check_login();
 		
-		$exec = $settings['bin']['neotagtrain'] or $exec = "$bindir/neotagtrain";
+		if ( !$bindir ) $bindir = "/usr/local/bin";
+		$exec = getset('bin/neotagtrain', "$bindir/neotagtrain");
 		
 		if ( $params['pid'] ) $pid = "--pid='{$params['pid']}'";
 		if ( !$settingsxml->xpath("//neotag") && $sharedsettings['neotag'] )  $pid .= " --settings=$sharedfolder/Resources/settings.xml";
@@ -188,7 +188,7 @@
 		" ;
 			$maintext .= "<hr><p><a href='index.php?action=$action&params=$paramsfile'>Back to parameter definitions</a>";
 	
-	} else if ( $act == "tagcheck" && $settings['tagset']["positions"] ) {
+	} else if ( $act == "tagcheck" && getset('tagset/positions') != '' ) {
 	
 		// Position-based tagset check
 		check_login();
@@ -208,14 +208,14 @@
 		$sortarray = array();
 		foreach ( $paramsxml->xpath("//tags/item") as $tok ) {
 			$mfs = $tok["key"]."";
-			$mainpos = $mfs[0]; $status = ""; $interpret = $settings['tagset']['positions'][$mainpos]['display'].";";
+			$mainpos = $mfs[0]; $status = ""; $interpret = getset("tagset/positions/$mainpos/display").";";
 			for ( $i = 1; $i<strlen($mfs); $i++ ) {
 				$let = $mfs[$i];
-				if ( !$settings['tagset']['positions'][$mainpos] ) $status .= "Invalid main POS $mainpos; ";
-				if ( !$settings['tagset']['positions'][$mainpos][$i][$let] ) {
+				if ( getset("tagset/positions/$mainpos") == '' ) $status .= "Invalid main POS $mainpos; ";
+				if ( getset("tagset/positions/$mainpos/$i/$let") == '' ) {
 					$status .= "Invalid $let in position $i for $mainpos; ";
 					$interpret .= "?;";
-				} else { $interpret .= $settings['tagset']['positions'][$mainpos][$i][$let]['display'].";"; };
+				} else { $interpret .= getset("tagset/positions/$mainpos/$i/$let/display").";"; };
 			}; if ( !$status ) { $status = "<span style='color: #009900'>(ok)</span>"; };
 			$interpret = preg_replace( "/;+$/", "", $interpret );
 			$interpret = preg_replace( "/;;+/", ";", $interpret );
@@ -252,12 +252,12 @@
 			};
 			
 			$maintext .= "<hr><p><a href='index.php?action=$action&params=$paramsfile&act=lexicon'>Search lexicon for this parameter set</a>";
-			if ( $params['training'] && ( file_exists("$bindir/neotagtrain") || $settings['neotag']['exec'] )  ) {
+			if ( $params['training'] && ( file_exists("$bindir/neotagtrain") || getset('neotag/exec') != '' )  ) {
 				$maintext .= "<p><a href='index.php?action=$action&params=$paramsfile&act=update'>Update this parameter set</a>";
 			};
 			$maintext .= "<p><a href='index.php?action=adminsettings&section=neotag'>Go to the NeoTag settings section</a>";
-			if ( is_array( $settings['tagset']) && $settings['tagset']["positions"]  ) $maintext .= "<p><a href='index.php?action=$action&params=$paramsfile&act=tagcheck'>Check tagset consistency for this parameter set</a>";
-			if ( is_array($settings['neotag']) && is_array($settings['neotag']['parameters']) && count($settings['neotag']['parameters']) > 1  ) $maintext .= "<p><a href='index.php?action=$action'>Switch parameter set</a>";
+			if ( getset('tagset/positions') != ''  ) $maintext .= "<p><a href='index.php?action=$action&params=$paramsfile&act=tagcheck'>Check tagset consistency for this parameter set</a>";
+			if ( is_array(getset('neotag/parameters')) && count(getset('neotag/parameters', array())) > 1  ) $maintext .= "<p><a href='index.php?action=$action'>Switch parameter set</a>";
 			
 	};
 

@@ -12,7 +12,7 @@
 		$perlapp = findapp("perl");
 		$maintext .= "<h1>Running NLP Tagger/Parser</h1>";
 		
-		if ( !$settings['parser']['notokenize'] && strpos($ttxml->rawtext, "</tok>") === false ) {
+		if ( getset('parser/notokenize') == '' && strpos($ttxml->rawtext, "</tok>") === false ) {
 			$cmd = "$perlapp $ttroot/common/Scripts/xmltokenize.pl --mtxtelm=$mtxtelm --filename='xmlfiles/$ttxml->filename' ";
 			$maintext .= "<h2>Tokenizing</h2>";
 			$result = shell_exec("$cmd");
@@ -21,10 +21,10 @@
 		};
 		
 		if ( $_GET['pid'] ) {
-			$prm = $settings['parser']['parameters'][$_GET['pid']];
+			$prm = getset("parser/parameters/{$_GET['pid']}");
 			$pid = $_GET['pid'];
-		} else if ($settings['parser']['parameters']) {
-			foreach ( $settings['parser']['parameters'] as $key => $tmp ) {
+		} else if ( getset('parser/parameters') != '' ) {
+			foreach ( getset('parser/parameters', array()) as $key => $tmp ) {
 				$xp = $tmp['restriction']; 
 				if ( $ttxml->xpath($xp) ) {
 					$prm = $tmp; $pid = $key; last;
@@ -40,8 +40,8 @@
 			};
 		};
 		
-		if ( !$settings['parser']['nosegment'] ) $morecmd = " --killsent";
-		if ( $settings['parser']['textpath'] ) $morecmd .= " --xpath='{$settings['parser']['textpath']}'"; 
+		if ( getset('parser/nosegment') == '' ) $morecmd = " --killsent";
+		if ( getset('parser/textpath') != '' ) $morecmd .= " --xpath='{$settings['parser']['textpath']}'"; 
 
 		$cmd = "$perlapp $ttroot/common/Scripts/runparser.pl --verbose --model={$prm['model']} --filename=xmlfiles/$ttxml->filename $morecmd";
 			
@@ -65,18 +65,16 @@
 		
 		$maintext .= "<h2>Current Settings</h2>";
 		$prms = array();
-		if ( is_array($settings['parser']['parameters']) ) $prms += $settings['parser']['parameters']; 
+		if ( is_array(getset('parser/parameters')) ) $prms += $settings['parser']['parameters']; 
 		# Legacy UDPIPE settings
-		if ( is_array($settings['udpipe']['parameters']) ) {
-			foreach ( $settings['udpipe']['parameters'] as $prm ) {
-				$prm['parser'] = "udpipe";
-				$prm['model'] = $prm['params']; unset($prm['params']);
-			};
-			$prms += $settings['udpipe']['parameters']; 
-			$maintext .= "<p class=warning>UDPIPE parameters are discontinued - please change to more general parser settings";
+		foreach ( getset('udpipe/parameters', array()) as $prm ) {
+			$prm['parser'] = "udpipe";
+			$prm['model'] = $prm['params']; unset($prm['params']);
 		};
+		// $prms += getset('udpipe/parameters'); 
+		$maintext .= "<p class=warning>UDPIPE parameters are discontinued - please change to more general parser settings";
 		foreach ( $prms as $prm ) {
-			if ( !$prm['name'] ) $prm['parser'] = $settings['parser']['parser'];
+			if ( !$prm['name'] ) $prm['parser'] = getset('parser/parser');
 			$maintext .= "<pre>".print_r($prm, 1)."</pre>";
 		};		
 	

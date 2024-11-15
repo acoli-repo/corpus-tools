@@ -4,7 +4,7 @@
 	// requires the ORCID API enabled for some user, with the public and private key copied to settings.xml
 	// (c) Maarten Janssen, 2018
 
-	if ( !$settings['permissions']['orcid']['public'] || !$settings['permissions']['orcid']['private'] ) {
+	if ( getset('permissions/orcid/public') == '' || getset('permissions/orcid/private') == '' ) {
 		print "ORCID identification not set-up yet for this server"; exit;
 	};
 
@@ -20,8 +20,7 @@
 
 	};
 
-	$redirecturl = $settings['permissions']['orcid']['redirect'] 
-		or $redirecturl = "https://{$_SERVER['SERVER_NAME']}{$baseurl}index.php?action=orcid";
+	$redirecturl = getset('permissions/orcid/redirect', "https://{$_SERVER['SERVER_NAME']}{$baseurl}index.php?action=orcid");
 	
 	if ( $_SESSION['extid']['orcid'] ) {
 

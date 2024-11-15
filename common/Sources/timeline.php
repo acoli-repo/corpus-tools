@@ -9,7 +9,7 @@ foreach ( getset('timeline/events', array()) as $key => $val ) {
 	$datelist .= "\t{id: '$key', content: '{$val['display']}', $startend, minzoom: '{$val['minzoom']}', maxzoom: '{$val['maxzoom']}'},\n";
 };
 if ( getset('timeline/xml') != '' ) {
-	$xmlfile = "Resources/{$settings['timeline']['xml']}"; if ( substr($xmlfile, -4) != ".xml" ) $xmlfile .= ".xml";
+	$xmlfile = "Resources/".getset('timeline/xml'); if ( substr($xmlfile, -4) != ".xml" ) $xmlfile .= ".xml";
 	$eventxml = simplexml_load_file($xmlfile);
 	if ( $eventxml )
 	foreach ( $eventxml->children() as $event ) {
@@ -23,17 +23,17 @@ if ( getset('timeline/xml') != '' ) {
 
 $id = $_GET['id'];
 if ( $id && getset("timeline/events/$id") != "" ) {
-	$framestart = "new Date(\"{$settings['timeline']['events'][$id]['start']}\")";
-	$frameend = "new Date(\"{$settings['timeline']['events'][$id]['end']}\")";
+	$framestart = "new Date(\"".getset("timeline/events/$id/start")."\")";
+	$frameend = "new Date(\"".getset("timeline/events/$id/end")."\")";
 	$morescript .= "timeline.setSelection(['$id']);\n";
 	$infotxt = getlangfile("timeline_$id");
 } else {
-	$framestart = "new Date(\"{$settings['timeline']['start']}\")";
-	$frameend = "new Date(\"{$settings['timeline']['end']}\")";
+	$framestart = "new Date(\"".getset("timeline/start")."\")";
+	$frameend = "new Date(\"".getset("timeline/end")."\")";
 };
 
 if (  getset('timeline/cqpevent') != '' ) {
-	$morescript .= "var cqpfld = '{$settings['timeline']['cqpevent']}';\n";
+	$morescript .= "var cqpfld = '".getset("timeline/cqpevent")."';\n";
 };
 if (  getset('timeline/cqpdate') != '' ) {
 		include ("$ttroot/common/Sources/cwcqp.php");
