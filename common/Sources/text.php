@@ -633,7 +633,7 @@
 	
 	if ( $audiobit ) {
 		if ( $username ) $maintext .= " $sep <a href='index.php?action=audiomanage&cid=$fileid'>Audio management</a>";
-		if ( !is_array(!$settings['views']) || !$settings['views']['wavesurfer'] ) $maintext .= " &bull; <a href='index.php?action=wavesurfer&cid=$fileid'>{%Waveform view}</a>";
+		if ( !is_array(!getset('views')) || getset('views/wavesurfer') == '' ) $maintext .= " &bull; <a href='index.php?action=wavesurfer&cid=$fileid'>{%Waveform view}</a>";
 	};
 	
 	// TODO: do a viewswitch in ttxml
@@ -642,12 +642,12 @@
 	if ( $username ) {
 		$maintext .= "<hr><div class=adminpart><h3>Admin options</h3>";
 		
-		if ( $settings['scripts'] ) {
+		if ( getset('scripts') != '' ) {
 	
 			$maintext .= "
 			<p>Custom actions:<ul>";
 	
-			foreach ( $settings['scripts'] as $id => $item ) {
+			foreach ( getset('scripts', array()) as $id => $item ) {
 				// See if thsi script is applicable
 				if ( $item['recond'] && !preg_match("/{$item['recond']}/", $editxml ) ) continue;
 				if ( $item['rerest'] && preg_match("/{$item['rerest']}/", $editxml ) ) continue;
@@ -688,7 +688,7 @@
 				$maintext .= "<h3>XML File Repository</h3>
 				<table>";
 				foreach ( $frec as $showf => $val ) {
-					$showh = $settings['filelist']['fields'][$showf]['display'] or $showh = $showf;
+					$showh = getset("filelist/fields/$showf/display", $showf);
 
 					$maintext .= "<tr><th>$showh<td>$val";
 				};
@@ -718,12 +718,10 @@
 		
 		# Check if we can run the parser/neotag
 		# TODO: This should be changed to the NLP pipeline and/or the API
-		if ( $settings['parser'] ) {
-			if ( $settings['parser']['xprest'] ) {
-				if ( $ttxml->xpath($settings['parser']['xprest']) ) {
-					$doparser = 1;
-					$parsername = $settings['parser']['name'];
-				};
+		if ( getset('parser/xprest') != '' ) {
+			if ( $ttxml->xpath(getset('parser/xprest')) ) {
+				$doparser = 1;
+				$parsername = getset('parser/name');
 			};
 		} else {
 		};
@@ -731,7 +729,7 @@
 			if ( !$parsername ) $parsername = "parser";
 			$maintext .= "<li><a href='index.php?action=parser&cid=$fileid'>Run $parsername</a>";
 		};
-		if ( $settings['neotag'] && !strstr($editxml, "pos=") && strstr($editxml, "<tok") ) {
+		if ( getset('neotag') != '' && !strstr($editxml, "pos=") && strstr($editxml, "<tok") ) {
 			$maintext .= "<li><a href='index.php?action=neotag&act=tag&pid=auto&cid=xmlfiles/$fileid'>(Pre)tag this text with POS (and lemma)</a>";
 		};
 		

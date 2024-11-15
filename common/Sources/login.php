@@ -1,4 +1,4 @@
-a<?php
+<?php
 	// Script to login to TEITOK
 	// (c) Maarten Janssen, 2015
 
