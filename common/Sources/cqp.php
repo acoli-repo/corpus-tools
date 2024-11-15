@@ -580,7 +580,7 @@
 				foreach ( $fatts as $key => $fatt ) {
 					$attit = $atttik[$key];
 					$tmp = getset("cqp/sattributes/text/$attit/type", array());
-					if ( $tmp['type'] == "kselect" ||
+					if ( is_array($tmp) && $tmp['type'] == "kselect" ||
 						 $tmp['translate']
 						 ) {
 						if ( getset("cqp/sattributes/text/$attit/values") == "multi" ) {
