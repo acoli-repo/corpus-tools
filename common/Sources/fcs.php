@@ -17,6 +17,13 @@
 
 	$http = "http";
 					
+	$checkshared = preg_replace("/.*\/([^\/]+)\/?/", "\\1", getenv('TT_SHARED'));
+	if ( $checkshared != $foldername ) { 
+		$isshared = false;
+	} else {
+		$isshared = true;
+	};
+
 	
 	header("Content-type: text/xml");
 	
@@ -93,12 +100,6 @@
 
 		include ("$ttroot/common/Sources/cwcqp.php");
 
-		$checkshared = preg_replace("/.*\/([^\/]+)\/?/", "\\1", getenv('TT_SHARED'));
-		if ( $checkshared != $foldername ) { 
-			$isshared = false;
-		} else {
-			$isshared = true;
-		};
 	
 		# Cycle through the corpora
 		$totcnt = 0;
@@ -141,7 +142,46 @@
 		
 		
 		exit;
-		
+	
+	} else {
+
+		$host = $_SERVER['SERVER_NAME'];
+		if ( $isshared ) {
+			$database = getset("fcs/endpoint", "TEITOK FCS endpoint");
+			$corpname = getset("fcs/title", "Our TEITOK corpora");
+			$corpdesc = getset("fcs/desc", "Various corpora in the TEITOK format");
+		} else {
+			$database = "TEITOK FCS endpoint";
+			$corpname = getset('defaults/title/display', 'Our TEITOK corpus');
+			$corpdesc = getset('defaults/title/desc', "Corpus in the TEITOK format");
+		};
+		print "<sruResponse:explainResponse xmlns:sruResponse=\"http://docs.oasis-open.org/ns/search-ws/sruResponse\">
+  <sruResponse:version>$version</sruResponse:version>
+  <sruResponse:record>
+    <sruResponse:recordSchema>http://explain.z3950.org/dtd/2.0/</sruResponse:recordSchema>
+    <sruResponse:recordXMLEscaping>xml</sruResponse:recordXMLEscaping>
+    <sruResponse:recordData>
+      <zr:explain xmlns:zr=\"http://explain.z3950.org/dtd/2.0/\">
+        <zr:serverInfo protocol=\"SRU\" transport=\"http\" version=\"2.0\">
+          <zr:host>$host</zr:host>
+          <zr:port>80</zr:port>
+          <zr:database>$database</zr:database>
+        </zr:serverInfo>
+        <zr:databaseInfo>
+          <zr:title lang=\"en\" primary=\"true\">$corpname</zr:title>
+          <zr:description lang=\"en\" primary=\"true\">$corpdesc</zr:description>
+        </zr:databaseInfo>
+        <zr:schemaInfo>
+          <zr:schema identifier=\"http://clarin.eu/fcs/resource\" name=\"fcs\">
+            <zr:title lang=\"en\" primary=\"true\">CLARIN Federated Content Search</zr:title>
+          </zr:schema>
+        </zr:schemaInfo>
+      </zr:explain>
+    </sruResponse:recordData>
+  </sruResponse:record>
+</sruResponse:explainResponse>";
+		exit;
+	
 	};
 	
 	function makerecs( $results ) {

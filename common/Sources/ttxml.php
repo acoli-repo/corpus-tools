@@ -424,6 +424,8 @@ class TTXML
 	function asXML( $whole = false ) {
 		global $mtxtelement; global $settings; global $username; global $ttroot;
 		
+		if ( !$this->xml ) fatal("No XML file has been loaded");
+		
 		if ( $_GET['page'] == "all" ) $whole = 1;
 		
 		if ( $this->noparse ) {
