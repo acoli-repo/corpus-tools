@@ -49,7 +49,7 @@ if ( $osmtit = getset('/osmlayertit') ) $moresettings .= "var tiletit = '$osmtit
 if ( getset('geomap/osmlayerid') != "" ) $moresettings .= "var tileid = '{$settings['geomap']['osmlayerid']}'; ";
 
 
-if ( $act == "xml" ) {
+if ( $act == "xml" || ( $act == "" && ( $_GET['cid'] || $_GET['id'] ) ) {
 
 	require ("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML($cid, false);
