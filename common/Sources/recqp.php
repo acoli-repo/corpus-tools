@@ -97,9 +97,14 @@
 		};
 		
 		$cursize = hrnum(filesize("cqp/$subc/word.corpus")/4);
+		$dcnt = hrnum(filesize("cqp/$subc/text.rng")/4);
+		$corpcnt = "<p>Current size: $$cursize tokens in $dcnt documents";
+		
 		$maintext .= "<p>The current status of the process can be read below. 
 		
 		$corpname
+		
+		$corpcnt
 		
 		$proctxt			
 			<p> - Last regeneration$forc: $lastupdate
@@ -177,6 +182,10 @@
 			<p>Click <a href='index.php?action=recqp&subc=$subc'>here</a> to regenerate again
 			
 				<hr><pre>$logtxt</pre>";
+
+		$cursize = hrnum(filesize("cqp/$subc/word.corpus")/4);
+		$dcnt = hrnum(filesize("cqp/$subc/text.rng")/4);
+		$maintext .= "<p>Current size: $cursize tokens in $dcnt documents";
 		
 		if ( preg_match("/--settings='([^']+)'/", $logtxt, $matches) ) {
 			$sf = $matches[1]; 
