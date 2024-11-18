@@ -79,6 +79,7 @@
 		foreach ( $cqpcols as $col ) {
 			$colname = pattname($col); 
 			$coldef = getset("cqp/pattributes/$col");
+			if ( $coldef == "" ) continue;
 			$morec = ""; 
 			if ( $coldef['multisep'] ) $morec .= ", 'multisep': '{$coldef['multisep']}'";
 			if ( $coldef['multiseparator'] ) $morec .= ", 'multisep': '{$coldef['multiseparator']}'";
