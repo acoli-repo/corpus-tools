@@ -14,6 +14,9 @@ should be submitted there. There is also a fork of the repository on [GitHub](ht
 is kept synchronised on a daily basis, so the repository can be cloned from there as well. Some conversion tools
 that are related to the TEITOK format are kept in a separate repository [teitok-tools](https://github.com/ufal/teitok-tools).
 
+TEITOK is intended to be installed on a web server. However, we also provide TEITOK for local installation using Docker, either
+in the Docker folder in this repository, or via the [Docker Hub](https://hub.docker.com/repository/docker/maartenpt/teitok/general).
+
 ## License
 
 (c) 2015- Maarten Janssen
