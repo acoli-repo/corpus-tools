@@ -38,7 +38,8 @@ a default username and password in the shared project:
 You now have a fully working TEITOK environment in a Docker container, where you can create
 TEITOK projects in `Admin > server-wide settings > Create new project`
 
-The Dockerized TEITOK can be used as a publicly accessible server or as a local testing or
+The Dockerized TEITOK can be used as a publicly accessible server or as a local server
+without public access. When used locally, it is typically meant either for testing or as a
 portable environment for use in places where no internet access is available. When used
 for local development, it is easy to later copy the files or entire projects to a 
 web server where TEITOK is installed.
