@@ -43,7 +43,7 @@
 				$display = $sq['name'] or $display = $sq['display'] or $display = $cql;
 				if ( $ttcqp && !$usecwb ) {
 					$cmd = "echo 'Matches = {$sq['cql']}; size Matches $fld;'| $ttcqp";
-					$num = shell_exec($cmd); $num = chop($num) + 0;
+					$num = shell_exec($cmd); $num = intval(chop($num)) + 0;
 				} else {
 					# Fallback without tt-cqp
 					require_once ("$ttroot/common/Sources/cwcqp.php");

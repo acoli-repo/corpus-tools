@@ -190,7 +190,7 @@
 						$colopts = getset("xmlfile/pattributes/tag/$col");
 						foreach ( $kvl as $kval ) {
 							$kval = trim($kval);
-							if ( $colopts['options'][$kval] ) {
+							if ( is_array($colopts) && $colopts['options'] && $colopts['options'][$kval] ) {
 								$ktxt = $colopts['options'][$kval]['display'];
 								if ( $colopts['i18n'] ) $ktxt = "{%$ktxt}";
 							} else if ( $item['type'] == "kselect" ||  $coldef['translate'] ) $ktxt = "{%$key-$kval}"; 

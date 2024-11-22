@@ -1021,6 +1021,10 @@ if ( typeof(document.onmouseover) !== 'function' ) {
 				if ( !osh ) osh = poselement.getBBox()['height'];
 				tokinfo.style.top = ( foffset.top + osh + 5 ) + 'px';
 			};
+			
+			if ( typeof treeclick === "function" ) {
+				treeclick(tokid);
+			};
 		};
 	};
 	function highLight(elmid) { 

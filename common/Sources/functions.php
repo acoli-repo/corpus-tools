@@ -412,6 +412,7 @@
 		if ( file_exists("/usr/local/bin/$appname") ) return "/usr/local/bin/$appname"; // For most everythibng else
 
 		$which = shell_exec("which  $appname");
+		if ( !strpos($which, " not found") !== false ) return "";
 		if ( $which ) return trim($which);
 	
 		return $appname;

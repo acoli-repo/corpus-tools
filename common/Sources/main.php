@@ -7,7 +7,9 @@
 	error_reporting(E_ERROR | E_PARSE);
 	session_start();
 
-	if ( $ttroot == "" ) $ttroot = "..";
+	if ( $ttroot == "" ) {
+		$ttroot = getenv('TT_ROOT') or $ttroot = "..";
+	};
 	include ( "$ttroot/common/Sources/functions.php" ); # Global functions
 
 	// Load the settings.xml file (via PHP)

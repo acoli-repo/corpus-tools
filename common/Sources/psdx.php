@@ -109,6 +109,14 @@
 						if ( nlink ) { window.open(nlink, '_self'); };
 				   };
 				};
+				
+				function treeclick(elm) { 
+					var id = elm.getAttribute('nodeid');
+					if ( treeedit ) {
+						// handle tree edit						
+					};
+					console.log(id);
+				};
 			</script>";
 	
 	$maintext .= "<hr><p><a href='index.php?action=$action&cid=$ttxml->fileid&'>{%Sentence list}</a> &bull; ".$ttxml->viewswitch();

@@ -36,7 +36,11 @@ function clickEvent(evt) {
     	} else if ( typeof(wordinfo) != null && typeof(wordinfo) != 'undefined' && jumpid ) {
     		window.open('index.php?action=wordinfo&cid='+jumpid+'&tid='+element.getAttribute('id'), '_self');
     	};
-    };
+    } else if ( element.tagName == "text" ) {
+		if ( typeof treeclick === "function" ) {
+			treeclick(element);
+		};
+	};
 };
 
 function mouseOut(evt) {
@@ -169,7 +173,7 @@ function infotable (elmnode) {
 		if ( formdef[att] ) attdef = formdef[att];
 		else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] ) attdef = tagdef[att];
 		var rowval = elmnode.getAttribute(att);
-		console.log(attdef);
+		// console.log(attdef);
 		if ( attdef['compute'] || attdef['transcribe'] ) rowval = forminherit(elmnode, att);
 		if ( rowval && attdef && !attdef['noshow'] && ( !attdef['admin'] || attdef['admin'] == "0" || username ) ) {
 			shownrows = 1;
