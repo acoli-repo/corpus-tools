@@ -66,8 +66,6 @@
 		$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
 	
 
-		$json = psdx2tree($forest);
-
 		if ( $_GET['jmp'] ) {
 			$jmp = $_GET['jmp'];
 			$maintext .= "<script>
@@ -83,21 +81,126 @@
 
 		$setopts = array2json($_SESSION['options']);
 		
+		$treexml = $forest->asXML();
+		if ( $act == "treeedit" ) {
+			check_login();
+			if ( !is_writable($psdxfile)  ) {
+				fatal ("File Annotations/$cid.psdx is not writable - please contact admin"); 
+			};
+			
+			$file = file_get_contents($psdxfile);
+			$forestxml = simplexml_load_string($file, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
+			if ( !$forestxml ) { fatal ("Failed to load PSDX file: Annotations/$cid.psdx"); }; # print "Node not found: <hr>//forest[@id=\"$treeid\"]//*[@id=\"$nid\"]<hr>".htmlentities($forestxml->asXML()); exit; };
+	
+			$result = $forestxml->xpath("//forest[@id=\"$treeid\"]"); 
+			$forest = $result[0]; 
+	
+			$maintext .= "
+				<h2>Edit Tree</h2>
+				<p>Select an eTree in the tree, and select the buttons to move it around.</p><hr>
+				<hr>
+				<div style='display: block' id=editbuttons>
+					<p>Actions on the selected node:
+					<p>
+						<button id='moveup' disabled onClick='moveup()'>Move out of parent</button>
+						<button id='moveleft' disabled onClick='moveleft()'>Move to previous tree</button>
+						<button id='moveright' disabled onClick='moveright()'>Move to next tree</button>
+						<button id='movedown' disabled onClick='movedown()'>Insert parent node</button>
+						<button id='insert' disabled onClick='insertempty()'>Insert empty child node</button>
+					 - <span id='changetag' style='display: none;'>Change nodename: <input id=tagtxt> <button id='tagchange' onClick='tagchange()'>Change</button></span>
+					<p>
+						<button id='source' onClick='togglesource()'>Show XML</button>
+						<button id='update' style='display: none;' onClick='updatefromraw()'>Update</button>
+						<button id='undo' disabled onClick='undo()'>Undo</button>
+						<button id='save' disabled onClick='savetree()'>Save</button>
+				</div>
+				<form style='display: none;' action='index.php?action=$action&act=treesave' id=submitxml name=submitxml method=post>
+					<h2>Raw XML Edit</h2>
+					<p>Below you can edit the raw XML when needed. Click the <i>Update</i> button to apply the changes.
+					<input type=hidden name='cid' value='$cid'>
+					<input type=hidden name='treeid' value='$treeid'>
+				</form>
+				<script language=Javascript src=\"$jsurl/psdx.js\"></script>
+				<script language=Javascript>
+				var username = '';
+				var cid = '$cid';
+				function treeclick(elm) { 
+					var id = elm.getAttribute('nodeid');
+					// handle tree edit		
+					nodeClick(id);				
+					console.log(id);
+				};
+				</script>
+				
+				<script language=Javascript src=\"$jsurl/psdxedit.js\"></script>
+			";
+		};	
 		$maintext .= "<div id=svgdiv></div>
 
+			<textarea id=treexml style='display: none'>$treexml</textarea>
 			<script language=\"Javascript\" src=\"$jsurl/tokedit.js\"></script>
 			<script language=\"Javascript\" src=\"$jsurl/tokview.js\"></script>
 			<script language=\"Javascript\" src=\"$jsurl/deptree.js\"></script>
 			<script language=\"Javascript\" src=\"$jsurl/treeview.js\"></script>
 			<script>
+				parser = new DOMParser();
+			    const ispunct = new RegExp(`^[!?(){}.,:;]+$`);
+				var treetxt = document.getElementById('treexml').value;
+				var selnode = '';
+				var psdxTree = parser.parseFromString(treetxt,\"text/xml\");
+				var treexml = psdxTree;
+				var jsonTree = psdx2tree(psdxTree.firstChild);
+				
+				NodeList.prototype.forEach = Array.prototype.forEach;
+				
+				function psdx2tree(node) {
+					if ( !node ) return;
+					if ( node.nodeType != 1 ) return;
+					var label = '';
+					if ( node.hasAttribute('Label') ) label = node.getAttribute('Label') 
+					else 
+						if ( node.hasAttribute('Text') ) label = node.getAttribute('Text') 
+					else 
+						if ( node.hasAttribute('Notext') ) label = node.getAttribute('Notext') 
+					else 
+						if ( node.hasAttribute('NoText') ) label = node.getAttribute('NoText') 
+					;
+										
+					tokid = node.getAttribute('tokid'); if ( !tokid ) tokid = '';
+					nodeid = node.getAttribute('id'); if ( !nodeid ) nodeid = '';
+					var json = { 'label': label, 'nodeid': nodeid, 'tokid': tokid };
+
+					if ( node.hasChildNodes() ) {
+						json['children'] = [];
+						var children = node.childNodes;
+						children.forEach(function(item){
+							itemjson = psdx2tree(item);
+							if ( itemjson ) json['children'].push(itemjson);
+						});	
+
+					};
+					if ( ispunct.test(label) ) json['ispunct'] = 1;
+
+				
+					return json;
+				};
+				
+				function renewtree() {
+					treetxt = document.getElementById('treexml').value;
+					var psdxTree = parser.parseFromString(treetxt,\"text/xml\");
+					var tree = psdx2tree(psdxTree.firstChild);
+					
+					tree['options'] = {};
+					tree['options']['type'] = 'constituency';
+					document.getElementById('tokinfo').style['z-index'] = 3000;
+					drawsvg(tree, 'svgdiv');
+				};
+
 				$settingsdefs
-				var tree = $json;
+				var tree = {};
 				var treeid = '$ttxml->xmlid-$sid';
 				var options = $setopts;
-				tree['options'] = {};
-				tree['options']['type'] = 'constituency';
-				document.getElementById('tokinfo').style['z-index'] = 3000;
-				drawsvg(tree, 'svgdiv');
+				renewtree();
 
 				document.onkeydown = function(evt) {
 					evt = evt || window.event;
@@ -110,16 +213,10 @@
 				   };
 				};
 				
-				function treeclick(elm) { 
-					var id = elm.getAttribute('nodeid');
-					if ( treeedit ) {
-						// handle tree edit						
-					};
-					console.log(id);
-				};
+				
 			</script>";
 	
-	$maintext .= "<hr><p><a href='index.php?action=$action&cid=$ttxml->fileid&'>{%Sentence list}</a> &bull; ".$ttxml->viewswitch();
+		$maintext .= "<hr><p><a href='index.php?action=$action&cid=$ttxml->fileid&'>{%Sentence list}</a> &bull; ".$ttxml->viewswitch();
 
 	} else if ( $psdxfile ) {
 
@@ -161,26 +258,5 @@
 
 	};
 	
-	function psdx2tree($node) {
-	
-		$label = $node['Label'] or $label = $node['Text'] or $label = $node['Notext'] or $label = $node['NoText'];
-		
-		if ( count($node->children()) ) {
-			$children = ", \"children\": [";
-			$sep = "";
-			foreach ( $node->children() as $child ) {
-				$children .= "$sep ".psdx2tree($child);
-				$sep = ",";
-			};
-			$children .= "]";
-		};
-		
-		if ( in_array( $label, str_split("!?(){}.,:;") )  ) $children .= ", \"ispunct\": 1"; 
-		
-		# $nodeid = $node['tokid'] or $nodeid = $node['id'];
-		$json = "{ \"label\": \"$label\", \"nodeid\": \"{$node['id']}\", \"tokid\": \"{$node['tokid']}\" $children }";
-	
-		return $json;
-	};
 
 ?>

@@ -11,11 +11,11 @@
 	$cid = $ttxml->xmlid;
 	
 	$morphelm = $_GET['melm'] or $morphelm = $_POST['melm'] or $morphelm = "m";
-	$layername = $settings['annotations'][$morphelm]['display'];
-	$sentelm = $_GET['selm'] or $sentelm = $settings['annotations'][$morphelm]['selm'] or $sentelm = "s";
+	$layername = getset("annotations/$morphelm/display");
+	$sentelm = $_GET['selm'] or $sentelm = getset("annotations/$morphelm/selm", "s");
 
 
-	$wordlvl = $settings['annotations'][$morphelm]['word']['display'] or $wordlvl = "Word";
+	$wordlvl = getset("annotations/$morphelm/word/display", "Word");
 	$morphann = current($ttxml->xpath("//spanGrp[@type=\"$morphelm\"]"));
 	$annfile = "Annotations/{$morphelm}_$cid.xml"; 
 	if ( !$morphann && file_exists($annfile) ) {
@@ -29,7 +29,7 @@
 	$maintext .= $ttxml->tableheader(); 
 
 			#Build the view options	
-			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 				$formcol = $item['color'];
 				# Only show forms that are not admin-only
 				if ( $username || !$item['admin'] ) {	
@@ -45,7 +45,7 @@
 					};
 				};
 			};
-			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 				$val = $item['display'];
 				if ( preg_match("/ $key=/", $editxml) ) {
 					if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
@@ -60,10 +60,10 @@
 					unset($labarray[$akey]);
 				};
 			};
-			$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
-			$jsontrans = array2json($settings['transliteration']);
+			$jsonforms = array2json(getset('xmlfile/pattributes/forms'));
+			$jsontrans = array2json(getset('transliteration'));
 
-	$hlcol = $_POST['hlcol'] or $hlcol = $_GET['hlcol'] or $hlcol = $settings['defaults']['highlight']['color'] or $hlcol = "#ffffaa"; 
+	$hlcol = $_POST['hlcol'] or $hlcol = $_GET['hlcol'] or $hlcol = getset('defaults/highlight/color', "#ffffaa"); 
 	$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'];	
 
 	$maintext .= "
@@ -89,7 +89,7 @@
 		$maintext .= "<div class='floatbox' id='$sid' style='padding-right: 5px;'>{%$wordlvl}";
 		$doatts = array(); $attarr = array(); 
 		$con = 0;
-		foreach ( array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']) as $patttag ) {
+		foreach ( array_merge(getset('xmlfile/pattributes/forms', array()), getset('xmlfile/pattributes/tags', array())) as $patttag ) {
 			$pattname = $patttag['display'];
 			$pattlvl = $patttag['lvl'] or $pattlvl = $patttag['key'];
 			if ( $patttag['igt'] && ( $patttag['inherit'] || $patttag['compute'] || $sent->xpath(".//tok[@$pattlvl]") ) ) {
@@ -103,7 +103,7 @@
 		};
 		if ( $morphed ) {
 			$maintext .= "<hr><table style='margin: 0;'>";
-			foreach ( $settings['annotations'][$morphelm] as $item ) {
+			foreach ( getset("annotations/$morphelm", array()) as $item ) {
 				if (is_array($item)) $maintext .= "<tr><td style='color:{$item['color']};'>".$item['display'];
 			};
 			$maintext .= "</table>";
@@ -114,7 +114,7 @@
 			$tokid = $tok['id'];
 			$maintext .= "<div class=floatbox id='$sid' style='text-align: center;'>".$tok->asXML();
 			foreach ( $doatts as $pattlvl => $thiscolor ) {
-				if ( $settings['xmlfile']['pattributes']['forms'][$pattlvl]['compute'] ) {
+				if ( getset("xmlfile/pattributes/forms/$pattlvl/compute") != "" ) {
 					$tokcp = new SimpleXMLElement($tok->asXML());
 					$tokcp['setform'] = $pattlvl;
 					$val = $tokcp->asXML();
@@ -126,7 +126,7 @@
 			};
 			if ( $morphed ) {
 				$maintext .= "<hr><table style='margin: 0;'>";
-				foreach ( $settings['annotations'][$morphelm] as $item ) {
+				foreach ( getset("annotations/$morphelm", array()) as $item ) {
 					$maintext .= "<tr>";
 					$morphs = $tok->xpath(".//$morphelm");
 					if ( !$morphs && $morphann ) { $morphs = $morphann->xpath(".//span[@corresp=\"#$tokid\"]"); };
@@ -140,7 +140,7 @@
 			};
 			$maintext .= "</div>";		
 		};
-		foreach ( $settings['xmlfile']['sattributes']['s'] as $item ) {
+		foreach ( getset('xmlfile/sattributes/s', array()) as $item ) {
 			if ( is_array($item) ) 
 		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>{$item['short']}</td><td style='padding-left: 5px; color: {$item['color']}'> ".$sent[$item['key']]."</td>";
 		};

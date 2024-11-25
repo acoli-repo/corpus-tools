@@ -15,10 +15,8 @@
 	
 	$settings = xmlflatten($settingsxml);
 
-	if ( !is_array($settings['defaults']) ) $settings['defaults'] = array();
-
 	$sharedfolder = "";
-	if ( is_array($settings['defaults']['shared']) ) $sharedfolder = $settings['defaults']['shared']['folder'];
+	$sharedfolder = getset('defaults/shared/folder');
 	
 	if ( $sharedfolder && !is_dir($sharedfolder) ) $sharedfolder = ""; # In case there are wrong local settnigs
 	if ( !$sharedfolder ) $sharedfolder = getenv("TT_SHARED"); 
@@ -60,19 +58,13 @@
 	# Define where to get the JS libraries from - and in which version (if not defined in the settings)
 
 	# TinyMCE WYSIWYG editor
-	$tinymceurl = "https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.6/tinymce.min.js";
-	if (  is_array($settings['defaults']) &&  is_array($settings['defaults']['src'])  ) 
-		$tinymceurl = $settings['defaults']['src']['tinymce'];
+	$tinymceurl = getset('defaults/src/tinymce', "https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.6/tinymce.min.js");
 	if ( $tinymceurl == "local" ) $tinymceurl = "$jsurl/tinymce/tinymce.min.js";
 
 	# ACE code editor (XML)
-	$aceurl = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js";
-	if (  is_array($settings['defaults']) &&  is_array($settings['defaults']['src'])  ) 
-		$aceurl = $settings['defaults']['src']['ace'];
+	$aceurl = getset('defaults/src/ace', "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js");
 	if ( $aceurl == "local" ) $aceurl = "$jsurl/ace/ace.js";
 
-	$bindir = "/usr/local/bin";
-	if (  is_array($settings['defaults']) &&  is_array($settings['defaults']['base'])  ) 
-		$bindir = $settings['defaults']['base']['bin'];
+	$bindir = getset('defaults/base/bin', "/usr/local/bin");
 	
 ?>

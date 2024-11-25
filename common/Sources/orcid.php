@@ -49,8 +49,8 @@
 		// header("Accept: application/json");
 		$url = 'https://orcid.org/oauth/token';
 		$data = array(
-			'client_id' => "{$settings['permissions']['orcid']['public']}", 
-			'client_secret' => "{$settings['permissions']['orcid']['private']}",
+			'client_id' => getset('permissions/orcid/public'), 
+			'client_secret' => getset('permissions/orcid/private'),
 			'grant_type' => 'authorization_code',
 			"redirect_uri" => "$redirecturl",
 			"code" => "{$_GET['code']}"
@@ -112,8 +112,8 @@
 
 		$url = 'https://orcid.org/oauth/token';
 		$data = array(
-			'client_id' => "{$settings['permissions']['orcid']['public']}", 
-			'client_secret' => "{$settings['permissions']['orcid']['private']}",
+			'client_id' => getset('permissions/orcid/public'), 
+			'client_secret' => getset('permissions/orcid/private'),
 			'scope' => '/read-public',
 			'grant_type' => 'client_credentials',
 			);
@@ -171,10 +171,12 @@
 		};
 		
 	} else {
+	
+		$publicid = getset('permissions/orcid/public');
 		$maintext .= "
 		<p>For advanced corpus access, you can login using your ORCID account.
 		
-		<p><button id=\"connect-orcid-button\" onclick=\"openORCID()\"><img id=\"orcid-id-logo\" src=\"https://orcid.org/sites/default/files/images/orcid_24x24.png\" width='24' height='24' alt=\"ORCID logo\"/>Create or Connect your ORCID iD</button>
+		<p><button id=\"connect-orcid-button\" onclick=\"openORCID($publicid)\"><img id=\"orcid-id-logo\" src=\"https://orcid.org/sites/default/files/images/orcid_24x24.png\" width='24' height='24' alt=\"ORCID logo\"/>Create or Connect your ORCID iD</button>
 
 		<p>\"<a href='orcid.org'>ORCID</a> provides a persistent digital identifier that distinguishes you from other researchers.\"</p>
 
@@ -182,7 +184,7 @@
 		var oauthWindow;
 
 		function openORCID() {
-			var oauthWindow = window.open(\"https://orcid.org/oauth/authorize?client_id={$settings['permissions']['orcid']['public']}&response_type=code&scope=/authenticate&redirect_uri=$redirecturl\", \"_blank\", \"toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500\");
+			var oauthWindow = window.open(\"https://orcid.org/oauth/authorize?client_id={}&response_type=code&scope=/authenticate&redirect_uri=$redirecturl\", \"_blank\", \"toolbar=no, scrollbars=yes, width=500, height=600, top=500, left=500\");
 		}
 		</script>
 

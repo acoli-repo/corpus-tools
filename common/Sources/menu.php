@@ -3,13 +3,13 @@
 	// Maarten Janssen, 2015
 	// Default items: {%Home}, {%Search}, {%About}, {%!help}
 
-	if ( is_array($settings['languages']) && is_array($settings['languages']['options']) && count($settings['languages']['options']) > 1 ) {
+	if (  count(getset('languages/options', array())) > 1 ) {
 		$sep = "";
-		foreach ( $settings['languages']['options'] as $key => $item ) {
+		foreach ( getset('languages/options', array()) as $key => $item ) {
 			if ( $item['menu'] == "" ) continue;
 			if ( $key == $lang ) $langstxt .= "<span class=langon>$sep{$item['menu']}</span>";
 			else {
-				if ( $settings['languages']['prefixed'] ) {
+				if ( getset('languages/prefixed') != '' ) {
 					$langurl = "$rooturl$key/index.php?".$_SERVER['QUERY_STRING'];
 				} else {
 					if ( preg_match("/\?/", $_SERVER['REQUEST_URI']) ) $ss = "&"; else $ss = "?";
@@ -19,25 +19,26 @@
 			};
 			$sep = " | ";
 		};
-		if ( $settings['languages']['position'] ) {
-			$smarty->assign($settings['languages']['position'], $langstxt);
+		if ( getset('languages/position') != '' ) {
+			$smarty->assign(getset('languages/position'), $langstxt);
 		} else $menu .= "<div stle='margin-top: 0px; margin-bottom: 20px;'>$langstxt</div>";	
 	};
 
-	if ( is_array($settings['menu']) && $settings['menu']['name'] ) {
-		if ( $settings['menu']['name'] == "[title]" )
-			$menu .= "<p class='title'>{%{$settings['defaults']['title']['display']}}</p>";
-		else if ( $settings['menu']['name'] == "[short]" )
-			$menu .= "<p class='title'>{%{$settings['defaults']['title']['short']}}</p>";
-		else $menu .= "<p class='title'>{%{$settings['menu']['name']}}</p>";
+	$menname = getset('menu/name');
+	if ( $menname  != '' ) {
+		if ( $menname == "[title]" )
+			$menu .= "<p class='title'>{%".getset('defaults/title/display')."}</p>";
+		else if ( $menname == "[short]" )
+			$menu .= "<p class='title'>{%".getset('defaults/title/short', getset('defaults/title/display'))."}</p>";
+		else $menu .= "<p class='title'>{%$menname}</p>";
 	};
 
 	if ( getset('menu/title') == "none" ) $nomentit = 1; # Do nothing
 	else if ( getset('menu/title') ) {
 		$menutitle = getset('menu/title');
 		if ( $menutitle == "[title]" ) $menutitle = getset('defaults/title/display', "{%$menutitle}");
-		if ( $settings['menu']['link'] ) $menutitle = "<a href='{$settings['menu']['link']}'>$menutitle</a>";
-		if ( $settings['menu']['title'] != "[none]" ) $menu .= "<p class='header'>$menutitle</p>";
+		if ( getset('menu/link') != '' ) $menutitle = "<a href='".getset('menu/link')."'>$menutitle</a>";
+		if ( getset('menu/title') != "[none]" ) $menu .= "<p class='header'>$menutitle</p>";
 	} else $menu .= "<p>{%Main Menu}</p>";
 	
     $menu .= "<ul style='text-align: left'>";
@@ -47,7 +48,7 @@
     		$settings['menu']['itemlist'][$key] = $val;
     	};
         	
-    foreach ( $settings['menu']['itemlist'] as $key => $item ) { 
+    foreach ( getset('menu/itemlist', array()) as $key => $item ) { 
 		$scl = $scli = $trgt = $link = "";
     	if ( !is_array($item) ) continue; # Skip attributes
     	# For shared menu item
@@ -102,8 +103,7 @@
   		$tmp = ""; if ( $action == "admin" ) $tmp = "class=\"selected\""; 
   		$menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=admin' $tmp>Admin</a></ul>";
   		$menu .= "<ul style='text-align: left'><li><a target=help href='http://www.teitok.org/index.php?action=help'>Help</a></ul>";
-		if ( ( file_exists("$bindir/tt-cqp") && $settings["cqp"] ) || getset("defaults/tt-cqp") ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=classify'>Custom annotation</a></ul>"; 
-  		# if ( count(scandir("pagetrans")) > 2 && !$settings['menu']['itemlist']['pagetrans'] ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=pagetrans'>Page-by-Page</a></ul>"; 
+		if ( ( file_exists("$bindir/tt-cqp") && getset("cqp") != '' ) || getset("defaults/tt-cqp") ) $menu .= "<ul style='text-align: left'><li><a href='index.php?action=classify'>Custom annotation</a></ul>"; 
   		$tmp = ""; if ( $action == "files" ) $tmp = "class=\"selected\""; 
   		if ( is_dir("xmlfiles") ) $menu .= "<ul style='text-align: left'><li><a href='{$tlpr}index.php?action=files' $tmp>XML Files</a></ul>";
 		$qfldr = preg_replace("/[^a-z0-9]/", "", strtolower($username));

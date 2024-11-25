@@ -113,7 +113,7 @@
 		if ( $elm['bbox']  ) {
 		
 			# Establish the @facs of this bbox
- 			$pb = current($elm->xpath("./preceding::pb"));
+ 			$pb = current($elm->xpath("./preceding::pb[1]"));
 			if ( $pb ) {
 			
 			$imgsrc = $pb['facs'];

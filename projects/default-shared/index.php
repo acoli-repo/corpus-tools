@@ -1,7 +1,9 @@
 <?php
 
 	// define where the TEITOK common files can be found
-	$ttroot = getenv('TT_ROOT') or "..";
+	$ttroot = getenv('TT_ROOT') ;
+	if ( !$ttroot ) if ( is_dir("/home/git/TEITOK") ) $ttroot = "/home/git/TEITOK";
+		else $ttroot = ".."; 
 
 	// define which time-zone to use (obligatory for date in PHP)
 	date_default_timezone_set('UTC');
