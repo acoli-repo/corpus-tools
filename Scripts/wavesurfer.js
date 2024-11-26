@@ -21,6 +21,7 @@ var pointa = 0;
 var pointe = 0;
 var currregion;
 var tok2utt = [];
+var tok2elm = [];
 var toklist = [];
 var editmode;
 var downpoint;
@@ -40,7 +41,6 @@ if ( typeof(alttag) == "undefined" ) { // use default no alttag
 	if ( document.evaluate("//tok[@start]", waveform, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null) ) alttag = "TOK";
 	else alttag = utttag;
 };
-console.log(alttag);
 
 var uttxp = "//" + utttag;
 var altxp = "//" + alttag;
@@ -220,9 +220,9 @@ function clickEvent(evt) {
 		};
 	} else if ( element.tagName == "TOK" ) {
 		// We are clicking on a token that is not in <u> (empty u)
-		uttid = tok2utt[element.getAttribute('id')];
+		tokid = element.getAttribute('id');
+		uttid = tok2utt[tokid];
 		var uttreg = regionarray[uttid];
-		console.log(uttreg);
 		if ( uttreg.start && (!editmode || evt.altKey) ) {
 			pointa = uttreg.start; pointe = uttreg.end;
 			currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.05)'});
@@ -233,10 +233,11 @@ function clickEvent(evt) {
 			evt.preventDefault();
 		} else if ( editmode && evt.altKey && currregion.start && currregion.end ) {
 			// For an utterance that does not yet have a region, set it to current region
+			uttelm = tok2elm[tokid];
 			uttreg.start = currregion.start;
 			uttreg.end = currregion.end;
-			element.setAttribute("start", currregion.start);
-			element.setAttribute("end", currregion.end);
+			uttelm.setAttribute("start", currregion.start);
+			uttelm.setAttribute("end", currregion.end);
 			evt.preventDefault();
 		};
 	} else if ( element.tagName == "CANVAS" || element.tagName == "REGION" ) {
@@ -495,6 +496,7 @@ wavesurfer.on('ready', function () {
 			for ( var j=0; j < corrarr.length; j++ ){ 
 				tokid = corrarr[j];
 				tok2utt[tokid] = uttid;
+				tok2elm[tokid] = utt;
 			};
 		};
 		
@@ -787,7 +789,10 @@ function mtxtSelect(evt) {
 	var node;
 	if  ( evt.type == "click" ) node = evt.target;
 	else node = window.getSelection().focusNode.parentNode;
+	console.log('mtxtSelect');
+	console.log(node);
 	if ( !node ) return; // Prevent errors
+	var orgnode = node;
 
 	var pospath = ""; var sep = ""; var uttid = "";
 	while ( node.tagName != "DIV" ) {
@@ -804,8 +809,10 @@ function mtxtSelect(evt) {
 	};
 	document.getElementById('pospath').innerHTML = pospath;
 	
-	if ( !uttid ) {
-		console.log(uttid);
+	if ( !uttid && tok2utt[orgnode.getAttribute('id')] ) {
+		uttid = tok2utt[orgnode.getAttribute('id')];
+		if ( editmode ) return;
+	} else if ( !uttid ) {
 		// If we are not in an utterance, we should not be able to edit
 		alert('Only text inside an utterance can be modified in waveform view');
 		mtxt.blur();
