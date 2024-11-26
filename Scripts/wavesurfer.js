@@ -20,15 +20,27 @@ var loaded = false;
 var pointa = 0;
 var pointe = 0;
 var currregion;
+var tok2utt = [];
+var toklist = [];
 var editmode;
 var downpoint;
 var downtype;
 var lastdown;
 var modified = false;
 
+
+if ( typeof(refatt) == "undefined" ) { // use utttag where predefined
+	var refatt = "sameAs";
+};
 if ( typeof(utttag) == "undefined" ) { // use utttag where predefined
 	var utttag = "U";
 };
+if ( typeof(alttag) == "undefined" ) { // use default no alttag
+	var alttag;
+	if ( document.evaluate("//tok[@start]", waveform, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null) ) alttag = "TOK";
+	else alttag = utttag;
+};
+console.log(alttag);
 
 var uttxp = "//" + utttag;
 var altxp = "//" + alttag;
@@ -206,7 +218,28 @@ function clickEvent(evt) {
 			element.setAttribute("end", currregion.end);
 			evt.preventDefault();
 		};
-	} else if ( ( element.tagName == "CANVAS" || element.tagName == "REGION" ) ) {
+	} else if ( element.tagName == "TOK" ) {
+		// We are clicking on a token that is not in <u> (empty u)
+		uttid = tok2utt[element.getAttribute('id')];
+		var uttreg = regionarray[uttid];
+		console.log(uttreg);
+		if ( uttreg.start && (!editmode || evt.altKey) ) {
+			pointa = uttreg.start; pointe = uttreg.end;
+			currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.05)'});
+			if ( uttreg.id == lastreg ) regionOff(regionarray[lastreg]); //regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+
+			currregion.id = uttreg.id; // set the ID so we know we do now want to create a new utterance
+			currregion.play();
+			evt.preventDefault();
+		} else if ( editmode && evt.altKey && currregion.start && currregion.end ) {
+			// For an utterance that does not yet have a region, set it to current region
+			uttreg.start = currregion.start;
+			uttreg.end = currregion.end;
+			element.setAttribute("start", currregion.start);
+			element.setAttribute("end", currregion.end);
+			evt.preventDefault();
+		};
+	} else if ( element.tagName == "CANVAS" || element.tagName == "REGION" ) {
 		// We are clicking in the wavesurfer
 		if ( evt.shiftKey ) {
 			pointa = wavesurfer.getCurrentTime(); 
@@ -245,7 +278,7 @@ function mouseOut(evt) {
 
 function regionOut(evt) { 
 	// Hide the last roll-over region, when the waveform moves out of it (if there is one)
-	if (lastutt) lastutt.style.backgroundColor = "";
+	if ( lastutt ) unhlRegion(lastutt);
 	if ( regionarray[lastreg] ) regionOff(regionarray[lastreg]); //regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
 }
 
@@ -316,7 +349,6 @@ function changeutt (frm) {
 	utt.setAttribute('start', v.start.value);
 	utt.setAttribute('end', v.end.value);
 	utt.setAttribute('who', v.who.value);
-	
 	
 	// Now add the XML inside
 	var newHTML = v.transcription.value;
@@ -457,6 +489,15 @@ wavesurfer.on('ready', function () {
 		var stop = utt.getAttribute("end")*1;
 		uttarray[uttid] = utt; 
 		
+		var corrtoks = utt.getAttribute(refatt);
+		if ( corrtoks ) {
+			corrarr = corrtoks.replaceAll('#', '').split(' ');
+			for ( var j=0; j < corrarr.length; j++ ){ 
+				tokid = corrarr[j];
+				tok2utt[tokid] = uttid;
+			};
+		};
+		
 		var newregion = wavesurfer.addRegion({
 			start: start, // time in seconds
 			end: stop, // time in seconds
@@ -466,6 +507,14 @@ wavesurfer.on('ready', function () {
 		});
 		newregion.id = utt.getAttribute('id');
 		regionarray[uttid] = newregion;
+	};
+	
+	if ( Object.keys(tok2utt).length > 0 ) {
+		var mtch = document.evaluate("//text//tok", waveform, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+		for ( var i=0 ; i < mtch.snapshotLength; i++ ) {
+			tok = mtch.snapshotItem(i);
+			toklist[tok.getAttribute('id')] = tok;
+		};
 	};
 
 
@@ -559,17 +608,42 @@ function aligntranscription (region, e) {
 	};
 		
 	// Highlight the utterance (and unhighlight the previous one)
-	if (lastutt) lastutt.style.backgroundColor = "";
-	selutt.style.backgroundColor = "#ddffdd";
+	if ( lastutt ) unhlRegion(lastutt);
+	hlRegion(selutt);
 	lastutt = selutt;
 	
 	// Scroll to the utterance
 	scrollToElementD(selutt);
 	
-
 };
 
+function hlRegion( uttelm ) {
+	var corrtoks = uttelm.getAttribute(refatt);
+	if ( corrtoks && !uttelm.hasChildNodes() ) {
+		corrarr = corrtoks.replaceAll('#', '').split(' ');
+		for ( var j=0; j < corrarr.length; j++ ){ 
+			tokid = corrarr[j];
+			tok = toklist[tokid];
+			tok.style.backgroundColor = "#ddffdd";
+		};
+	} else {
+		uttelm.style.backgroundColor = "#ddffdd";
+	};
+};
 
+function unhlRegion( uttelm ) {
+	var corrtoks = uttelm.getAttribute(refatt);
+	if ( corrtoks && !uttelm.hasChildNodes() ) {
+		corrarr = corrtoks.replaceAll('#', '').split(' ');
+		for ( var j=0; j < corrarr.length; j++ ){ 
+			tokid = corrarr[j];
+			tok = toklist[tokid];
+			tok.style.backgroundColor = "";
+		};
+	} else {
+		uttelm.style.backgroundColor = "";
+	};
+};
 
 function regionClick (uttreg, e) {
 	if ( e.altKey ) {

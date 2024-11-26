@@ -31,7 +31,8 @@
 	// $maintext .= $ttxml->tableheader();
 	
 	$utttag = strtoupper($_GET["utt"]) or $utttag = getset('xmlfile/defaults/speechturn', "U"); // Make it possible to use <p> instead of <u>
-	$alttag = strtoupper($_GET["alt"]) or $alttag = getset('xmlfile/speech/highlight', $utttag);
+	$alttag = strtoupper($_GET["alt"]) or $alttag = getset('xmlfile/speech/highlight');
+	if ( !$alttag ) if ( $ttxml->xpath("//tok[@start]") ) $alttag = "TOK"; else $alttag = $utttag;
 	$showsubtitles = $_GET["subtitles"] or $showsubtitles = getset('xmlfile/speech/showsubtitles', 0);
     $showspeaker =  $_GET["speaker"] or  $showspeaker = getset('xmlfile/speech/showspeaker', 0);
 
