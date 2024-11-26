@@ -31,6 +31,7 @@ if ( typeof(utttag) == "undefined" ) { // use utttag where predefined
 };
 
 var uttxp = "//" + utttag;
+var altxp = "//" + alttag;
 
 window.onbeforeunload = function warnUsers() {
 	if (modified) {
@@ -191,8 +192,9 @@ function clickEvent(evt) {
 		var uttreg = regionarray[uttid];
 		if ( uttreg.start && (!editmode || evt.altKey) ) {
 			pointa = uttreg.start; pointe = uttreg.end;
-			currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.15)'});
-			if ( uttreg.id == lastreg ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+			currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.05)'});
+			if ( uttreg.id == lastreg ) regionOff(regionarray[lastreg]); //regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+
 			currregion.id = uttreg.id; // set the ID so we know we do now want to create a new utterance
 			currregion.play();
 			evt.preventDefault();
@@ -228,7 +230,7 @@ function mouseEvent(evt) {
 	if ( element.parentNode && element.parentNode.parentNode && element.parentNode.parentNode.tagName == utttag ) { element = element.parentNode.parentNode; };
 
 	if ( element.tagName == utttag && !wavesurfer.isPlaying() ) {
-		if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+		if ( regionarray[lastreg] ) regionOff(regionarray[lastreg])
 		lastreg = element.getAttribute('id');
 		reg = regionarray[lastreg];
 		if ( reg.id != currregion.id ) { reg.update({color: 'hsla(120, 100%, 50%, 0.1)'}); };
@@ -238,13 +240,13 @@ function mouseEvent(evt) {
 
 function mouseOut(evt) { 
 	// Hide the last roll-over region (if there is one), unless the sound is playing (otherwise the two out function interfere)
-	if ( regionarray[lastreg]  && !wavesurfer.isPlaying()  ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+	if ( regionarray[lastreg]  && !wavesurfer.isPlaying()  ) regionOff(regionarray[lastreg]); //regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
 }
 
 function regionOut(evt) { 
 	// Hide the last roll-over region, when the waveform moves out of it (if there is one)
 	if (lastutt) lastutt.style.backgroundColor = "";
-	if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+	if ( regionarray[lastreg] ) regionOff(regionarray[lastreg]); //regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
 }
 
 
@@ -291,11 +293,7 @@ function changeutt (frm) {
 			var newline = document.createTextNode("\n\t");
 			llu.parentNode.insertBefore(utt, llu.nextSibling);
 			llu.parentNode.insertBefore(newline, llu.nextSibling);
-			uttid = ''; let newcnt = 1;
-			while ( !uttid || document.getElementById(uttid) ) {
-				uttid = llu.getAttribute('id') + "-" + newcnt;
-				newcnt++;
-			};
+			uttid = llu.getAttribute('id') + "-1";
 		} else {
 			var newline = document.createTextNode("\n\t");
 			mtxt.firstChild.appendChild(newline);
@@ -337,6 +335,14 @@ function changeutt (frm) {
 	return false;
 };
 
+function regionOn(region){
+	region.update({color: 'hsla(120, 100%, 50%, 0.1)'});
+	if(subtitles) region.element.textContent = region.attributes.label;
+}
+function regionOff(region){
+        region.update({color: 'hsla(0, 0%, 0%, 0)'});
+        region.element.textContent = '';
+}
 
 var minimap; var zoomregion;
 var uttarray = Array();
@@ -366,6 +372,9 @@ if ( mediaElt ) {
 		],
 	});
 	wavesurfer.load(mediaElt, peaks);
+} else if ( typeof(soundfile) == 'undefined' |  soundfile == '' ) {
+	document.querySelector('#loading').textContent = 'Missing audio file';
+	noaudio();
 } else if ( typeof(spect) != 'undefined' ) {
 	var wavesurfer = WaveSurfer.create({
 		container: document.querySelector('#waveform'),
@@ -426,7 +435,7 @@ wavesurfer.on('ready', function () {
 	document.getElementById('waveblock').style.visibility = 'visible';
 
 	// Load some optional arguments from the PHP
-	if ( typeof(alttag) == "string" ) utttag = alttag;
+	//if ( typeof(alttag) == "string" ) utttag = alttag;
 	if ( typeof(setedit) == "boolean" ) editmode = setedit;
 	
 	if ( editmode ) {
@@ -438,7 +447,7 @@ wavesurfer.on('ready', function () {
 	loaded = true;
 
 
-	// Load the utterances
+	// Load the utterances (played regions)
 	var mtch = document.evaluate(uttxp, waveform, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 	for ( var i=0 ; i < mtch.snapshotLength; i++ ) {
 		utt = mtch.snapshotItem(i);
@@ -459,6 +468,31 @@ wavesurfer.on('ready', function () {
 		regionarray[uttid] = newregion;
 	};
 
+
+	// Load highlighted refions (tokens)
+	var mtchalt = document.evaluate(altxp, waveform, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        for ( var i=0 ; i < mtchalt.snapshotLength; i++ ) {
+                alt = mtchalt.snapshotItem(i);
+                var altid = alt.getAttribute("id");
+                if ( altid == "" ) altid = "alt" + i;
+                var start = alt.getAttribute("start")*1;
+                var stop = alt.getAttribute("end")*1;
+                uttarray[altid] = alt;
+
+                var newregion = wavesurfer.addRegion({
+                        start: start, // time in seconds
+                        end: stop, // time in seconds
+                        drag: false,
+                        resize: false,
+                        color: 'hsla(0, 0%, 0%, 0)',
+			attributes: {
+				label: alt.textContent
+			}
+                });
+		
+		newregion.id = alt.getAttribute('id');
+                regionarray[altid] = newregion;
+        };
 	
 	// Now, resize the mtxt to fill the whole space below the wavesurfer element
 	var setheight = window.innerHeight - mtxt.offsetTop - 5;
@@ -514,15 +548,14 @@ wavesurfer.on('error', errordo);
 var lastutt;
 function aligntranscription (region, e) {
 	var idx = region.id;
-	
 	var selutt = uttarray[idx];
 	if ( !selutt ) return;
 
 	// Highlight the region we just entered
 	if ( idx != currregion.id ) {
-		if ( regionarray[lastreg] ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+		if ( regionarray[lastreg] ) regionOff(regionarray[lastreg]);
 		lastreg = region.id;
-		if ( region.id != currregion.id ) region.update({color: 'hsla(120, 100%, 50%, 0.1)'});
+		if ( region.id != currregion.id ) regionOn(region);
 	};
 		
 	// Highlight the utterance (and unhighlight the previous one)
@@ -544,7 +577,8 @@ function regionClick (uttreg, e) {
 		// Highlight the region itself
 		pointa = uttreg.start; pointe = uttreg.end;
 		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.15)'});
-		if ( uttreg.id == lastreg ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+		if ( uttreg.id == lastreg ) regionOff(regionarray[lastreg]);
+
 		currregion.id = uttreg.id; // set the ID so we know we do now want to create a new utterance
 
 		var selutt = uttarray[uttreg.id];
@@ -650,7 +684,7 @@ function sortutt() {
 	};
 	
 	var oldsort = new Array();
-	for ( let uttid in uttarray ) {
+	for ( uttid in uttarray ) {
 		oldsort[uttid] = uttarray[uttid].getAttribute("start");
 	}
 
@@ -710,6 +744,7 @@ function mtxtSelect(evt) {
 		pointa = uttreg.start; pointe = uttreg.end;
 		currregion.update({start: pointa, end: pointe, color: 'rgba(255, 0, 0, 0.15)'});
 		if ( uttreg.id == lastreg ) regionarray[lastreg].update({color: 'hsla(0, 0%, 0%, 0)'});
+		
 		currregion.id = uttreg.id; // set the ID so we know we do now want to create a new utterance
 		if ( !wavesurfer.isPlaying() ) wavesurfer.seekAndCenter(pointa / wavesurfer.getDuration());
 	};
@@ -754,8 +789,16 @@ function errordo(msg) {
 	if ( msg == "Error decoding audiobuffer" ) {
 		document.getElementById('loading').innerHTML = '<h2>Error</h2><p>The sound file could not be loaded'; 
 		if ( username ) document.getElementById('loading').innerHTML += '<p class="adminpart">Please verify the provided URL is correct: <a href="'+soundfile+'">'+soundfile+'</a>. <br/>If it not correct, please correct it in the <a href="index.php?action=rawedit&full=1&cid='+tid+'">raw xml</a> or in the header edit function</p>';
+		noaudio();
 	};
 };
+
+function noaudio(){
+        document.getElementById('waveblock').style.display = 'none';
+        document.getElementById('fullmtxt').style.visibility = 'visible';
+        document.getElementById('mtxt').style.height = 'auto';
+        document.getElementById('mtxt').style.overflow = 'auto';
+}
 
 var slotlist = new Array();
 function toelan(elm) {

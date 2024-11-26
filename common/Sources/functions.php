@@ -13,7 +13,7 @@
 			if ( $allowme ) return;
 		};
 
-		if ( is_array($settings['permissions']) && is_array($settings['permissions']['groups']) ) $grouprec = $settings['permissions']['groups'][$user['group'].""];
+		if ( is_array(getset('permissions/groups')) ) $grouprec = getset("permissions/groups/{$user['group']}");
 				
 		if ( $user['permissions'] == "admin" ) return; # Always allow admin
 		if ( $action == "user" && $username ) return; # Always allow people to see their user profile (and logout)
@@ -22,7 +22,7 @@
 		
 		if ( is_array($_SESSION['extid']) ) { // Check whether we are logged in with an appropriate external ID
 			foreach ( $_SESSION['extid'] as $idtype => $val ) {
-				$extfunc = $settings['permissions'][$idtype]['functions'];
+				$extfunc = getset("permissions/$idtype/functions");
 				if ( is_array($extfunc) && in_array($action, array_keys($extfunc)) ) return; // allowed for extid users
 			};
 		};
@@ -396,7 +396,7 @@
 
 	function usettcqp() {
 		if ( !findapp("tt-cqp") ) return false;
-		if ( $_GET['cwb'] || $settings['cqp']['ttcqp'] == "0" ) return false;
+		if ( $_GET['cwb'] || getset('cqp/ttcqp') == "0" ) return false;
 
 		return true; # This should prob. stop being the default
 	};
@@ -404,7 +404,7 @@
 	function findapp ( $appname ) {
 		global $bindir; global $settings;
 		
-		if ( is_array($settings['bin']) && $settings['bin'][$appname] ) return $settings['bin'][$appname];
+		if ( getset("bin/$appname") != "" ) return getset("bin/$appname");
 		
 		if ( $bindir && file_exists("$bindir/$appname") ) return "$bindir/$appname";
 
@@ -512,7 +512,7 @@
 
 	function namespacemake ( $text ) {
 		global $settings;
-		if ( is_array($settings['xmlfile']) && $settings['xmlfile']['protect'] ) $protects = explode(",", $settings['xmlfile']['protect']);
+		if ( getset('xmlfile/protect') != "" ) $protects = explode(",", getset('xmlfile/protect'));
 		else $protects = array ( "head", "opener", "address", "div", "option", "image", "body" );
 		# prefix HTML element in XML with xml namespace
 		foreach ( $protects as $tagname ) {
@@ -545,7 +545,7 @@
 	function messagelog ( $txt ) {
 		global $settings;
 		
-		if ( is_array( $settings['log']['errorlog']) ) $logfile = $settings['log']['errorlog']['filename'];
+		if ( is_array( getset('log/errorlog')) ) $logfile = getset('log/errorlog/filename');
 		else return -1;
 		
 		$ip = $_SERVER['REMOTE_ADDR'];
@@ -781,7 +781,7 @@
 	function forminherit ( $node, $form, $rich = false ) {
 		# Calculate inherited form
 		global $settings;
-		if ( $settings['xmlfile']['inherit'] == "default" ) {
+		if ( getset('xmlfile/inherit') == "default" ) {
 			$inheritlist = array ('form', 'fform', 'nform', 'dform');
 			array_reverse($inheritlist);
 			foreach ( $inheritlist as $try ) {
@@ -794,12 +794,12 @@
 					if ( $rich ) return "<span class='p-$try'>".$node[$try]."</span>";
 					else return $node[$try];
 				};
-				$trfrom = $settings['xmlfile']['pattributes']['forms'][$try]['transliterate'];
-				if ( $trfrom && $settings['transliteration'] ) {
+				$trfrom = getset("xmlfile/pattributes/forms/$try/transliterate");
+				if ( $trfrom && getset('transliteration') ) {
 					return transliterate(forminherit($node, $trfrom));
 				};
 
-				$try = $settings['xmlfile']['pattributes']['forms'][$try]['inherit'];
+				$try = getset("xmlfile/pattributes/forms/$try/inherit");
 			};
 		};
 		return "$node";
@@ -807,9 +807,9 @@
 
 	function transliterate ( $text ) {
 		global $settings;
-		if ( !is_array($settings['transliteration']) ) return $text;
+		if ( !is_array(getset('transliteration')) ) return $text;
 				
-		foreach ( $settings['transliteration'] as $key => $item ) {
+		foreach ( getset('transliteration', array()) as $key => $item ) {
 			$from = $item['from'];
 			$translitstr[$from] = $item['to'];
 		};
@@ -942,24 +942,24 @@
 	function pattsett ( $key ) {
 		global $settings, $wordfld;
 		if ( $key == "word" && $wordfld ) $key = $wordfld;
-		$val = $settings['xmlfile']['pattributes']['forms'][$key];
+		$val = getset("xmlfile/pattributes/forms/$key");
 		if ( $val != "" ) return $val;
-		$val = $settings['xmlfile']['pattributes']['tags'][$key];
+		$val = getset("xmlfile/pattributes/tags/$key");
 		if ( $val != "" ) return $val;
 
 		# Now try without the text_ or such
 		if ( preg_match ("/^(.*)_(.*?)$/", $key, $matches ) ) {
 			$key2 = $matches[2]; $keytype = $matches[1];
-			$val = $settings['cqp']['sattributes'][$key2];
+			$val = getset("cqp/sattributes/$key2");
 			if ( $val != "" ) return $val;
-			$val = $settings['cqp']['sattributes'][$keytype][$key2];
+			$val = getset("cqp/sattributes/$keytype/$key2");
 			if ( $val != "" ) return $val;
 		};
 	};
 
 	function pattname ( $key, $dolang = true ) {
 		global $settings, $wordfld;
-		$cqpattname = $settings['cqp']['pattributes'][$key]['display'];
+		$cqpattname = getset("cqp/pattributes/$key/display");
 		if ( $cqpattname ) return $cqpattname;
 		$pattfld = pattsett($key);
 		if ( $pattfld ) {
@@ -1125,7 +1125,7 @@
 		
 		# For implicit content nodes, add the content
 		$nn = $node->getName();
-		$corresp = $opts['corresp'] or $corresp = $settings['cqp']['sattributes'][$nn]['toklist'] or $corresp="sameAs";
+		$corresp = $opts['corresp'] or $corresp = getset("cqp/sattributes/$nn/toklist", "sameAs");
 		$corrlist = $node[$corresp] or $corrlist = $node[strtolower($corresp)];
 		if ( !$node->xpath(".//tok") && $corrlist ) {
 			$toklist = explode(" ", $corrlist);
@@ -1162,17 +1162,17 @@
 		$merged = new SimpleXMLElement("<ttsettings/>");
 		$cqp = $merged->addChild("cqp");
 		$patts = $cqp->addChild("pattributes");
-		foreach ( $settings['cqp'] as $key => $val ) {
+		foreach ( getset('cqp', array()) as $key => $val ) {
 			if ( !is_array($val) ) { $cqp[$key] = $val; };
 		};
-		foreach ( $settings['cqp']['pattributes'] as $key => $val ) {
+		foreach ( getset('cqp/pattributes', array()) as $key => $val ) {
 			$item = $patts->addChild("item");
 			foreach ( $val as $key2 => $val2 ) {
 				$item[$key2] = $val2;
 			};
 		};
 		$satts = $cqp->addChild("sattributes");
-		foreach ( $settings['cqp']['sattributes'] as $key => $val ) {
+		foreach ( getset('cqp/sattributes', array()) as $key => $val ) {
 			$item = $satts->addChild("item");
 			foreach ( $val as $key2 => $val2 ) {
 				if ( is_array($val2) ) {
@@ -1186,7 +1186,7 @@
 			};
 		};
 		$anns = $cqp->addChild("annotations");
-		foreach ( $settings['cqp']['annotations'] as $key => $val ) {
+		foreach ( getset('cqp/annotations', array()) as $key => $val ) {
 			$item = $anns->addChild("item");
 			foreach ( $val as $key2 => $val2 ) {
 				if ( is_array($val2) ) {
@@ -1202,18 +1202,18 @@
 		# We need to also copy the xmlfile for the inheritance
 		$xmlf = $merged->addChild("xmlfile");
 		$patts = $xmlf->addChild("pattributes");
-		foreach ( $settings['xmlfile'] as $key => $val ) {
+		foreach ( getset('xmlfile', array()) as $key => $val ) {
 			if ( !is_array($val) ) { $xmlf[$key] = $val; };
 		};
 		$forms = $patts->addChild("forms");
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $val ) {
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $val ) {
 			$item = $forms->addChild("item");
 			foreach ( $val as $key2 => $val2 ) {
 				$item[$key2] = $val2;
 			};
 		};
 		$tags = $patts->addChild("tags");
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $val ) {
+		foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $val ) {
 			$item = $tags->addChild("item");
 			foreach ( $val as $key2 => $val2 ) {
 				if ( !is_array($val2) ) # To account for <options>
@@ -1221,7 +1221,7 @@
 			};
 		};
 		$satts = $xmlf->addChild("sattributes");
-		foreach ( $settings['xmlfile']['sattributes'] as $key => $val ) {
+		foreach ( getset('xmlfile/sattributes', array()) as $key => $val ) {
 			$item = $satts->addChild("item");
 			foreach ( $val as $key2 => $val2 ) {
 				if ( is_array($val2) ) {
@@ -1235,15 +1235,15 @@
 			};
 		};
 		# And we need to copy the base for the URL
-		if ( $settings['defaults']['base']['url'] ) {
+		if ( getset('defaults/base/url') != '' ) {
 			$deff = $merged->addChild("defaults");
 			$basef = $deff->addChild("base");
-			$basef["url"] = $settings['defaults']['base']['url'];
+			$basef["url"] = getset('defaults/base/url');
 		};
-		if ( $settings['defaults']['query'] ) {
+		if ( getset('defaults/query') != '' ) {
 			if ( !$deff ) $deff = $merged->addChild("defaults");
 			$queryf = $deff->addChild("query");
-			foreach ( $settings['defaults']['query'] as $key => $val ) {
+			foreach ( getset('defaults/query', array()) as $key => $val ) {
 				if ( is_array($val) ) {
 					# Handle query definitions
 				} else {
@@ -1283,7 +1283,7 @@
 	function sentbyid($text, $eid, $lvl = "s") {
 		# Use an explicit list of sentence IDs 
 		global $settings;
-		$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
+		$cqpcorpus = getset('cqp/corpus', "tt-".$foldername);
 		$cqpcorpus = strtoupper($cqpcorpus);
 		$cqpfolder = "cqp";
 		
