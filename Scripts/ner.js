@@ -70,9 +70,6 @@ for ( var i=0; i<Object.keys(nerlist).length; i++) {
 	};
 };
 
-function hidetokinfo(elm) {
-	hideinfo(elm);
-};
 
 function doclick(elm) {
 	var ttype = elm.nodeName.toLowerCase();
@@ -88,6 +85,9 @@ function doclick(elm) {
 	if ( newurl ) { window.open(newurl, '_self'); };
 };
 
+function hidetokinfo(elm) {
+	hideinfo(elm);
+};
 function hideinfo(showelement) {
 	if ( document.getElementById('tokinfo') ) {
 		document.getElementById('tokinfo').style.display = 'none';

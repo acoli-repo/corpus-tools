@@ -81,7 +81,6 @@ function exporttxt () {
 };
 
 function setspaces() {
-		console.log('adding spaces');
 	if ( typeof(nospace) != "undefined" && nospace == 2 ) {
 		// if the corpus has no spaces, and join="right", add spaces
 		var toks = mtxt.getElementsByTagName("tok");
@@ -93,7 +92,6 @@ function setspaces() {
 				tok.parentNode.insertBefore(spacenode, tok.nextSibling);
 			};
 		};
-		console.log(mtxt);
 	};
 };
 
@@ -284,7 +282,6 @@ function formify () {
 			mediaelm.setAttribute('id', 'track');
 			mediaelm.setAttribute('controls', true);
 			mediaelm.ontimeupdate = function(){ checkstop(); };			
-			console.log(mediaelm);
 			
 			if ( it.parentNode.nodeName == "tok" || it.parentNode.nodeName == "TOK" ) {
 				// We need to place this next to the tok - so go on to grandparent iff tok
@@ -501,7 +498,6 @@ function shownodes(tag) {
 	var pnr = 0;
 	for ( var a = 0; a<nodes.length; a++ ) {
 		var node = nodes[a];
-		console.log(node);
 		if ( showtag[tag] ) {
 			tagname = tag;
 			node.title = '<milestone>';
@@ -1082,7 +1078,6 @@ function forminherit ( tok, fld ) {
 };
 
 function transliterate ( form ) {
-	console.log(form);
 	if ( typeof(transl) != 'object' ) { console.log('no transliteration'); return form; };
 	if ( transt.length == 0 ) { // Make an array out of the object on the first call
 		for ( var a in transl ) {

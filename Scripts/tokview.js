@@ -50,6 +50,9 @@ function mouseOut(evt) {
 	};
 };
 
+function hideinfo(elm) {
+	hidetokinfo(elm);
+};
 function hidetokinfo() {
 	
 	if ( document.getElementById('tokinfo') ) {

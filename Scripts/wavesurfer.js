@@ -950,3 +950,16 @@ function toelan(elm) {
 	// elm.click();
 	// window.URL.revokeObjectURL(url);
 };
+
+function hidetokinfo(elm) {
+	hideinfo(elm);
+};
+function hideinfo(showelement) {
+	if ( document.getElementById('tokinfo') ) {
+		document.getElementById('tokinfo').style.display = 'none';
+	};
+	if ( typeof(hlbar) != "undefined" && typeof(facsdiv) != "undefined" ) {
+		hlbar.style.display = 'none';
+		var tmp = facsdiv.getElementsByClassName('hlbar'+hln);
+	};
+};
