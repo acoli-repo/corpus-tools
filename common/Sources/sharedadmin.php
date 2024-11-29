@@ -36,7 +36,7 @@
 			fatal("Failed to copy index from $ttroot/projects/default-shared/ to $projectfolder");
 		};
 
-		if ( $settings['xmlreader']['corplist'] && $_POST['corplist'] && $_POST['corplist']['name'] ) {
+		if ( getset('xmlreader/corplist') != '' && $_POST['corplist'] && $_POST['corplist']['name'] ) {
 			$tmp = file_get_contents("Resources/corplist.xml");
 			if ( !$tmp ) $tmp = "<corplist></corplist>";
 			$corpxml = simplexml_load_string($tmp);
@@ -86,10 +86,10 @@
 	} else if ( $act == "list" ) {
 	
 		$maintext .= "<h1>Local Project List</h1><table>";
-		$guessroot = $settings['defaults']['apacheroot'] or $guessroot = $settings['defaults']['base']['apacheroot'] or $guessroot = preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']);
+		$guessroot = getset('defaults/apacheroot') or $guessroot = getset('defaults/base/apacheroot', preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']));
 		
 		$tmp = scandir($guessroot);
-		$rootbase = $settings['defaults']['base']['httproot'] or $rootbase = str_replace($_SERVER['DOCUMENT_ROOT'], "", $guessroot);
+		$rootbase = getset('defaults/base/httproot', str_replace($_SERVER['DOCUMENT_ROOT'], "", $guessroot));
 		// $maintext .= "<p>$guessroot - $rootbase</p>";
 		$cmd = "find -L $guessroot -name 'settings.xml' -not -path '*/xmlfiles' -not -path '*/..' -not -path '*/..'"; $tmp = shell_exec($cmd); $setfiles = explode("\n", $tmp);
 		# $setfiles = rglob("$guessroot/*settings.xml");
@@ -122,9 +122,9 @@
 				$optlist .= "<option value='$valkey'>$valtxt</option>";
 			};
 		};
-		$guessroot = $settings['defaults']['apacheroot'] or $guessroot = preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']);
+		$guessroot = getset('defaults/apacheroot', preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']));
 
-		if ( $settings['xmlreader']['corplist'] && file_exists("Resources/corplist-entry.xml")) {
+		if ( getset('xmlreader/corplist') != '' && file_exists("Resources/corplist-entry.xml")) {
 			$tmp = file_get_contents("Resources/corplist-entry.xml");
 			$corpexml = simplexml_load_string($tmp);
 			$corpusentry = "<p><table><tr><th colspan=2>Corpus List Entry";
@@ -259,7 +259,7 @@
 
 	} else if ( $act == "usercopy" ) {
 
-		$guessroot = $settings['defaults']['apacheroot'] or $guessroot = preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']);
+		$guessroot = getset('defaults/apacheroot', preg_replace("/\/[^\/]+\/index\.php.*/", "", $_SERVER['SCRIPT_FILENAME']));
 		if ( $_POST['from'] ) {
 			list ( $ff, $email ) = explode(":", $_POST['from']);
 			$tf = $_POST['to'];
@@ -351,7 +351,7 @@
 			$footer .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
 
 			$scopts['http']['timeout'] = 3; // Set short timeout here to avoid hanging
-			if ( $settings['defaults']['base']['proxy'] ) $scopts['http']['proxy'] = $settings['defaults']['base']['proxy'];
+			if ( getset('defaults/base/proxy') != '' ) $scopts['http']['proxy'] = getset('defaults/base/proxy');
 			$ctx = stream_context_create($scopts);	
 			$latesturl = "http://www.teitok.org/latest.php?url={$_SERVER['HTTP_HOST']}".preg_replace("/\/index\.php.*/", "", $_SERVER['REQUEST_URI'])."&version={$version['version']}";
 			$tmpf = file_get_contents($latesturl, false, $ctx);

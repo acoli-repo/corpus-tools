@@ -85,7 +85,7 @@
 			</script>";
 
 		$maintext .= "<a onClick=\"doqueries('index.php?action=visualize&act=compare');\">{%Compare queries}</a>";
-		if ( $settings['geomap'] ) {
+		if ( getset('geomap') != '' ) {
 			if ( $subtit ) $cqptit = "&cqptit=".urlencode($subtit);
 			$maintext .= " - <a onClick=\"doqueries('index.php?action=geomap');\">{%Visualize on the map}</a>";
 		};
@@ -106,10 +106,10 @@
 				$cqltxt = urlencode($sq['cql']);
 				$querylist .= "<tr><td><a href=\"index.php?action=$action&act=storedit&cql=$cqltxt\">{%edit}</a><td><a onClick=\"addquery('$cqltxt', '$name')\">{%use}</a><td>$name<td><span style='color: #cccccc'>$cql</span>";
 			};
-			if ( $settings['cqp']['queries'] ) $querylist .= "<tr><td colspan=4><hr>";
+			if ( getset('cqp/queries') != '' ) $querylist .= "<tr><td colspan=4><hr>";
 		};
 		// From the settings
-		foreach ( $settings['cqp']['queries'] as $sq ) {
+		foreach ( getset('cqp/queries', array()) as $sq ) {
 			$cql = $sq['cql']; $cqltxt = str_replace('"', "&quot;", $cql);
 			$name = $sq['name'] or $name = $sq['display'] or $name = $cql;
 			$querylist .= "<tr><td><td><a onClick=\"addquery('$cqltxt', '$name')\">{%use}</a><td>$name<td><span style='color: #cccccc'>$cql</span>";
@@ -197,7 +197,7 @@
 			$explanation = getlangfile("docsearchtext", true);
 	
 	
-		} else if ( $settings['geomap'] && $act == "map" ) {
+		} else if ( getset('geomap') != '' && $act == "map" ) {
 
 			$pagetit = "Map search"; 
 	
