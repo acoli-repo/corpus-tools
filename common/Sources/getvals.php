@@ -9,15 +9,15 @@
 	$vals = array ();
 	
 	# Lookup which other tags have been used for this form
-	if ( $settings['neotag']['lexicon'] ) {
+	if ( getset('neotag/lexicon') != '' ) {
 		# Get the data from where they are said to be
 		print "Lexicon...";
-	} else if ( $settings['cqp'] ) {
+	} else if ( getset('cqp') != '' ) {
 		include ("$ttroot/common/Sources/cwcqp.php");
 		if ( $akey == "form" ) $akey = "word";
 		# If we don't know where to find a lexicon, ask CQP
 		$cqp = new CQP();
-		$cqp->exec($settings['cqp']['corpus']); // Select the corpus
+		$cqp->exec(getset('cqp/corpus', "tt-".$foldername)); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
 		$cqp->exec("Matches = [$akey=\"$aval\"]");
 		$res = $cqp->exec("group Matches match $att");
@@ -37,8 +37,8 @@
 			\"lookup\":\"$akey\", 
 			\"val\":\"$aval\", 
 			\"options\":[";
-		$valopts = $settings['xmlfile']['pattributes']['tags'][$att]['options'];
-		if ( $settings['xmlfile']['pattributes']['tags'][$att]['type'] == "pos") {
+		$valopts = getset("xmlfile/pattributes/tags/$att/options");
+		if ( getset("xmlfile/pattributes/tags/$att/type") == "pos") {
 			require("$ttroot/common/Sources/tttags.php");
 			$tttags = new TTTAGS("", false); $tagfld = 1;
 		};

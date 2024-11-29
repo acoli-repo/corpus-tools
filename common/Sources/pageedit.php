@@ -5,7 +5,7 @@
 	check_login();
 	check_folder("Pages");
 	$id = $_GET['id'];
-	$deflang = $settings['languages']['default'] or $deflang = "en";
+	$deflang = getset('languages/default', "en");
 
 	$filedescs = array (
 		"home" => "Homepage - first page to show upon entry",
@@ -63,7 +63,7 @@
 			$filename .= ".html";
 		};
 		$fflang = $_GET['pagelang']; 
-		$defaultlang = $settings['languages']['default'] or $defaultlang = "en";
+		$defaultlang = getset('languages/default', "en");
 		if ( $fflang ) {
 			$filename = "$ffid-$fflang.$ffext";
 		} else if ( preg_match("/(.*)-(.*)/", $fflang, $matches  ) ) { 
@@ -141,7 +141,7 @@
 		} else $fflang = $_GET['pagelang'];
 		
 		$sep = "";
-		foreach ( $settings['languages']['options'] as $key => $langset ) {
+		foreach ( getset('languages/options', array()) as $key => $langset ) {
 			$display = $langset['name'] or $display = $key; 
 			if ( $key == $fflang ) {
 				$othertxt .= "$sep<b><u>$display</u></b>";
@@ -262,7 +262,7 @@
 				</form>
 				";
 				
-			$blesar = explode(",", $settings['files']['blessed'] );
+			$blesar = explode(",", getset('files/blessed') );
 			if ( in_array("Pages", $blesar) ) $maintext .= "<hr><p><a href='index.php?action=$action&id=$id&raw=1&pagelang=$fflang'>edit raw HTML</a>";
 				
 		};
@@ -306,8 +306,7 @@
 
 		# Now - see if there are pages that still need a translation
 		foreach ( $donepags as $ffid => $tmp ) {
-			if ( is_array($settings['languages']['options']) )
-			foreach ( $settings['languages']['options'] as $key => $item ) {
+			foreach ( getset('languages/options', array()) as $key => $item ) {
 				$ktxt = $item['name'] or $ktxt = $key;
 				# if ( $key == $deflang ) { $key = ""; };
 				if ( !$tmp[$key] && ($key != $deflang || !$tmp[""]) && $ffid && $ktxt != $deflang ) {

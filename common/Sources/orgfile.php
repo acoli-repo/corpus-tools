@@ -6,11 +6,7 @@
 	check_login();
 	
 	# See if a base folder is set
-	if ( $settings['defaults']['originalsfolder'] ) { 
-		$basefolder = $settings['defaults']['originalsfolder'];
-	} else {
-		$basefolder = "";
-	};
+	$basefolder = getset('defaults/originalsfolder');
 	
 	$filetype = array ( 
 			"txt" => array ( 'mime' => 'text/txt', 'show' => 1 ),
@@ -123,7 +119,7 @@
 			";
 	} else {
 		# Show the raw source in-line
-		if ( $settings['scripts']['showorg']['dl'] && file_exists($filename) ) { $filename = "<a href='$filename'>$filename</a>"; };
+		if ( getset('scripts/showorg/dl') != '' && file_exists($filename) ) { $filename = "<a href='$filename'>$filename</a>"; };
 		$maintext .= "<h1>Raw source input file</h1>
 			$ttheader
 			<p>Filename: $filename</p>
@@ -135,6 +131,6 @@
 
 	};		
 		
-	$maintext .= "<hr>".$ttxml->viewswitch();
+	if ( $ttxml ) $maintext .= "<hr>".$ttxml->viewswitch();
 	
 ?>

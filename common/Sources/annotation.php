@@ -3,8 +3,8 @@
 	$colorlist = array ( "#ff9999", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#ff9999", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#ff9999", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66", "#99ff99", "#9999ff", "#66ffff", "#ff66ff", "#ffff66");
 	
 	if ( !$annotation ) {
-		if ( is_array($settings['annotations']) && count($settings['annotations']) == 1 ) {
-			$annotation = join(";", array_keys($settings['annotations']));
+		if ( count(getset('annotations', array())) == 1 ) {
+			$annotation = join(";", array_keys(getset('annotations', array())));
 		} else if ( !$act ) {
 			// Redirect to annotation selection
 			$act = "select";
@@ -28,7 +28,7 @@
 		};
 
 		$maintext .= "<h2 title=\"$filename\">".$ttxml->title()."</h2>"; 
-		if ($annotation) $maintext .= "<h1>{%{$settings['annotations'][$annotation]['display']}}</h1>";
+		if ($annotation) $maintext .= "<h1>{%".getset("annotations/$annotation/display")."}</h1>";
 
 	};
 	
@@ -44,7 +44,7 @@
 	if ( $annotation && file_exists("Annotations/{$annotation}_def.xml") ) {
 	
 		$andef = simplexml_load_file("Annotations/{$annotation}_def.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
-		if ( ( !$settings['annotations'][$annotation] || $settings['annotations'][$annotation]['admin'] ) && !$username )  {
+		if ( ( getset("annotations/$annotation") == '' || getset("annotations/$annotation/admin") != '' ) && !$username )  {
 			fatal ( "Annotation data for <i>{$andef['name']}</i> are not publicly accessible" );
 		};
 		if ( !$andef ) {
@@ -63,7 +63,7 @@
 		$anxml = simplexml_load_string($antxt, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
 		
 		$result = $andef->xpath("//interp"); 
-		if ( $andef['keepxml'] || $settings['annotation']['keepxml'] ) { $keepxml = 1; } else { $keepxml = 0; };
+		if ( $andef['keepxml'] || getset('annotation/keepxml') != '' ) { $keepxml = 1; } else { $keepxml = 0; };
 		$moreactions .= "var keepxml = $keepxml; var interp = []; var codetrans = [];\n"; 
 		foreach ( $result as $tmp ) { 
 			$tagset[$tmp['key'].''] = $tmp;
@@ -535,11 +535,12 @@
 	} else if ( $act == "define" ) {
 	
 		check_login();
+		$sodispl = getset("annotations/$annotation/display");
 		$maintext .= "<h2>Define a stand-off annotation</h2>
-			<h1>{$settings['annotations'][$annotation]['display']}</h1>";
+			<h1>$sodispl</h1>";
 
 		if ( !$andef ) {
-			$andef = simplexml_load_string("<interpGrp id=\"$annotation\" name=\"{$settings['annotations'][$annotation]['display']}\" keepxml=\"1\">
+			$andef = simplexml_load_string("<interpGrp id=\"$annotation\" name=\"$sodispl\" keepxml=\"1\">
 	<desc/>
 	</interpGrp>");
 			$newxml = 1;
@@ -548,7 +549,7 @@
 		# Edit the definitions
 		$maintext .= "<form action='index.php?action=$action&act=savedef&annotation=$annotation' method=post>
 			<table>
-			<tr><th>ID<td>$annotation = {$settings['annotations'][$annotation]['display']}
+			<tr><th>ID<td>$annotation = $sodispl
 			<tr><th>Name<td><input size=80 name=name value=\"{$andef['name']}\">
 			<tr><th>Description<td><textarea style='width:100%; height: 40px;' name=desc>".htmlentities($andef->desc)."</textarea>
 			</table>
@@ -642,7 +643,7 @@
 		$maintext .= "<h1>Select a stand-off annotation</h1>
 			<table>";
 		
-		foreach ( $settings['annotations'] as $key => $ann ) {
+		foreach ( getset('annotations', array()) as $key => $ann ) {
 			$display = $ann['display'] or $display = $key;
 			$maintext .= "<tr><td><a href='index.php?action=$action&cid=$ttxml->xmlid&annotation=$key'>select</a><td>$display";
 			$somedone = 1;
@@ -734,9 +735,9 @@
 				";
 	
 		# Allow for form switch buttons when so desired
-		if ( $settings['annotations'][$annotation]['formswitch'] ) {	
+		if ( getset("annotations/$annotation/formswitch") != '' ) {	
 			$editxml = $cleaned;
-			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 				$formcol = $item['color'];
 				# Only show forms that are not admin-only
 				if ( $username || !$item['admin'] ) {	
@@ -754,8 +755,8 @@
 			};
 			if ( $fbc > 1 ) $formbutsdiv = "<div>{%Text}: $formbuts</div><hr>
 				<script language=Javascript src='$jsurl/tokedit.js'></script>";
-				$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
-				foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+				$jsonforms = array2json(getset('xmlfile/pattributes/forms', array()));
+				foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 					$formcol = $item['color'];
 					# Only show forms that are not admin-only
 					if ( $username || !$item['admin'] ) {	

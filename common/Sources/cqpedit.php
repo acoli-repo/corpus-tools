@@ -41,13 +41,13 @@
 				<table>";
 		
 		$settings['cqp']['pattributes']['form'] = array ( "key" => "form" ); 
-		foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
+		foreach ( getset('cqp/pattributes', array()) as $key => $item ) {
 			if ( $key == "pform" ) $editform = ""; // Turned off editing of pfrom in verticalized view since it deletes internal nodes (or gets complicated)
 			else {
 				$editform = "<input type=checkbox name='fld[$key]' value=1> ";
 				$display = $item['display'] 
-					or $display = $settings['xmlfile']['pattributes']['forms'][$key]['display'] 
-					or $display = $settings['xmlfile']['pattributes']['tags'][$key]['display'] 
+					or $display = getset("xmlfile/pattributes/forms/$key/display")
+					or $display = getset("xmlfile/pattributes/tags/$key/display") 
 					or $display = $key;
 				$maintext .= "<tr>
 					<td>$editform
@@ -70,7 +70,7 @@
 			</form>
 			";
 		
-	} else if ( $_POST['selected'] && $settings['cqp']['defaults']['background'] ) {
+	} else if ( $_POST['selected'] && getset('cqp/defaults/background') ) {
 	
 		# Run the actual changes in a background Perl script
 		$pid = time();
@@ -187,7 +187,7 @@
 				foreach ( $changes as $chkey => $chval ) {
 					# $maintext .= "<p>   - setting $chkey to $chval";
 					$inherited = 0;
-					if ( $_POST['lineedit'] && $settings['xmlfile']['pattributes']['forms'] ) {
+					if ( $_POST['lineedit'] && getset('xmlfile/pattributes/forms') ) {
 						# Check that this is not an inherited value
 						if ( $chval == forminherit($token, $chkey) ) {
 							$inherited = 1;
@@ -254,7 +254,7 @@
 			# $maintext .= "<tr><td>XML<td>Raw XML value<td><input size=60 name=word id='word' value='$xmlword'>";
 
 			// Show all the defined forms
-			foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 				$atv = $token[$key]; 
 				$val = $item['display'];
 				if ( $key != "pform" && !$item['noedit'] ) {
@@ -263,7 +263,7 @@
 				};
 			};
 			$maintext .= "<tr><td colspan=10><hr>";
-			foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+			foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 				$atv = $token[$key]; 
 				$val = $item['display'];
 				if ( $item['noedit'] ) {
@@ -317,7 +317,7 @@
 		};
 
 		$cqp = new CQP();
-		$cqp->exec($settings['cqp']['corpus']); // Select the corpus
+		$cqp->exec(getset('cqp/corpus', "tt-$foldername")); // Select the corpus
 		$cqp->exec("set PrettyPrint off");
 		
 		$cqpquery = "Matches = $cql";
@@ -379,9 +379,9 @@
 		if ( $lineedit ) {
 			$maintext .= "<tr><th>File ID<th style='text-align: right'>Left context<th style='text-align: center'>Match<th>Right context";
 			foreach ( $_POST['fld'] as $fld => $tmp ) {
-				$fldname = $settings['xmlfile']['pattributes']['forms'][$fld]['display']
+				$fldname = getset("xmlfile/pattributes/forms/$fld/display")
 				or 
-				$fldname = $settings['xmlfile']['pattributes']['tags'][$fld]['display']
+				$fldname = getset("xmlfile/pattributes/tags/$fld/display")
 				or 
 				$fldname = $fld;				
 				$maintext .= "<th>".$fldname;

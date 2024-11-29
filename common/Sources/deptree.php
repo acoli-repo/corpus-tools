@@ -3,7 +3,7 @@
 	# Visualization of dependency trees
 	# (c) Maarten Janssen, 2016
 	
-	$deplabels = $settings['deptree'];
+	$deplabels = getset('deptree', array());
 	if ( $deplabels['rooted'] ) $rooted = 1; 
 	if ( !$deplabels['labels'] ) {
 		$deptreexml = simplexml_load_file("$ttroot/common/Resources/deptree.xml");
@@ -13,7 +13,7 @@
 	$flddeprel = $_GET['deprel'] or $flddeprel = "deprel";
 	$fldhead = $_GET['head'] or $fldhead = "head";
 
-	$stlist = $settings['xmlfile']['sattributes']['s']['status']['options'];
+	$stlist = getset('xmlfile/sattributes/s/status/options');
 	if ( !$stlist )	$stlist = array ( 
 		"auto" => array("display" => "automatically assigned"),
 		"corrected" => array("display" => "manually corrected"),
@@ -39,11 +39,11 @@
 	$sid = $_GET['sid'] or $sid = $_GET['sentence'];
 	$cid = $ttxml->fileid;
 
-	if ( $settings['xmlfile']['basedirection'] ) {
+	if ( getset('xmlfile/basedirection') != '' ) {
 		// Defined in the settings
-		$textdir = "dir='{$settings['xmlfile']['basedirection']}'";
+		$textdir = "dir='".getset('xmlfile/basedirection')."'";
 	} else {
-		$dirxpath = $settings['xmlfile']['direction'];
+		$dirxpath = getset('xmlfile/direction');
 		if ( $dirxpath ) {
 			$tdval = current($ttxml->xpath($dirxpath));
 		};
@@ -110,7 +110,7 @@
 		<form action='index.php?action=$action&cid=$ttxml->fileid&sid=$sid&act=changesent' method=post>
 		<table>";
 
-		foreach ( $settings['xmlfile']['sattributes']['s'] as $key => $val ) {
+		foreach ( getset('xmlfile/sattributes/s', array()) as $key => $val ) {
 			if ( !is_array($val) || $val['noshow'] || $val['nodeptree'] || $key == "id" ) continue;
 			if ( $val['color'] ) $style = " style=\"color: {$val['color']}\"";
 			$xval = $sent[$key];
@@ -144,9 +144,8 @@
 			print "# newdoc id = $ccid\n";
 			if ( $_GET['sid'] ) $sid = "[@id=\"{$_GET['sid']}\"]";
 
-			$formfld = "form";
-			if ( $settings['udpipe'] && $settings['udpipe']['tagform'] ) $formfld = $settings['udpipe']['tagform'];
-			if ( $settings['xmlfile'] && $settings['xmlfile']['wordfld'] ) $formfld = $settings['xmlfile']['wordfld'];
+			$formfld = getset('udpipe/tagform', "form");
+			if ( getset('xmlfile/wordfld') != '' ) $formfld = getset('xmlfile/wordfld');
 			
 			
 			foreach ( $ttxml->xpath("//s$sid") as $sent ) {
@@ -239,9 +238,9 @@
 		};
 		if ( !$sent ) { fatal("Sentence not found: $sid : "); };
 
-		$puctnsh = $_GET['puctnsh'] or $puctnsh = $_SESSION['puctnsh'] or $puctnsh = $settings['deptree']['showpunct'] or $puctnsh = "without";
+		$puctnsh = $_GET['puctnsh'] or $puctnsh = $_SESSION['puctnsh'] or $puctnsh = getset('deptree/showpunct', "without");
 		$_SESSION['puctnsh'] = $puctnsh;
-		$hpos = $_GET['hpos'] or $hpos = $_SESSION['hpos'] or $hpos = $settings['defaults']['deptree']['hpos'] or $hpos = "branch";
+		$hpos = $_GET['hpos'] or $hpos = $_SESSION['hpos'] or $hpos = getset('defaults/deptree/hpos', "branch");
 		$_SESSION['hpos'] = $hpos;
 
 		if ( $_GET['auto'] ) {
@@ -280,7 +279,7 @@
 		$maintext .= $pagenav;
 
 		if ( $username ) {
-			if ( $settings['xmlfile']['sattributes']['s']['status'] ) {
+			if ( getset('xmlfile/sattributes/s/status') != '' ) {
 				$st = $sent['status']."" or $st = "none";
 				if ( !$_POST ) $oncl = " onclick=\"document.getElementById('statbox').style.display='block';";
 				foreach ( $stlist as $key => $val ) {
@@ -336,8 +335,8 @@ window.addEventListener(\"beforeunload\", function (e) {
 		};
 
 		$maintext .= "<div id='mtxt' mod='$action' $textdir $tokselect style='padding: 10px;'>$xmltxt</div><table>";
-		if ( $settings['xmlfile']['sattributes'] && is_array($settings['xmlfile']['sattributes']['s']) && count($settings['xmlfile']['sattributes']['s']) > 1 && $username ) $maintext .= "<a style='float: right' href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid&act=metaedit'>edit metadata</a>";
-		foreach ( $settings['xmlfile']['sattributes']['s'] as $key => $val ) {
+		if ( count(getset('xmlfile/sattributes/s', array())) > 1 && $username ) $maintext .= "<a style='float: right' href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid&act=metaedit'>edit metadata</a>";
+		foreach ( getset('xmlfile/sattributes/s', array()) as $key => $val ) {
 			if ( !is_array($val) ) continue;
 			if ( $val['noshow'] || $val['nodeptree'] || $key == "id" ) continue;
 			if ( $val['color'] ) $style = " style=\"color: {$val['color']}\"";
@@ -448,7 +447,7 @@ $postaction
 		$filename = $xmlfolder."/".$ttxml->fileid;
 		if ( !file_exists($filename) ) { fatal ( "File does not exist: $filename" ); };
 		
-		$formfld = $settings['udpipe']['tagform'] or $settings['xmlfile']['wordfld'] or $formfld = "form";
+		$formfld = getset('udpipe/tagform', getset('xmlfile/wordfld', "form"));
 		$sep ="";
 		$exec = findapp("udpipe");
 		
@@ -457,7 +456,7 @@ $postaction
 		
 		$model = $_GET['pid'];
 		if ( !$pid ) {
-			foreach ( $settings['udpipe']['parameters'] as $key => $val ) {
+			foreach ( getset('udpipe/parameters', array()) as $key => $val ) {
 				if ( $ttxml->xpath("".$val['restriction']) ) {
 					$pid = $key; $param = $val;
 					break;
@@ -545,7 +544,7 @@ $postaction
 				exit;
 			};
 			
-			if ( $settings['udpipe']['batch'] && $scnt++ > $settings['udpipe']['batch'] ) break;
+			if ( getset('udpipe/batch') != '' && $scnt++ > intval(getset('udpipe/batch')) ) break;
 			
 			// Wait for a second to make sure we do not crash the connection
 			sleep(0.5);
@@ -598,7 +597,7 @@ $postaction
 			$maintext .= "<p>Dependency trees are not available for this text, since the text is not yet parsed with dependency relations.";
 		
 			if ( $username ) {
-				if ( $settings['udpipe'] ) {
+				if ( getset('udpipe') ) {
 					$maintext .= "<p class=adminpart>You can parse the file using your parser definition by
 						clicking <a href='index.php?action=$action&act=parse&id=$ttxml->fileid'>here</a> ";
 				} else {
@@ -639,7 +638,7 @@ $postaction
 	
 			foreach ( $sentlist as $sent ) {
 			
-				if ( $username && $settings['xmlfile']['sattributes']['s']['status'] ) {
+				if ( $username && getset('xmlfile/sattributes/s/status') != '' ) {
 					$st = $sent['status']."" or $st = "none";
 					$stcol = ""; if ( $stlist[$st]['color'] ) $stcol = " color: {$stlist[$st]['color']};";
 					$sttxt = $stlist[$st]['display']; if ( !$sttxt ) $sttxt = $st;

@@ -4,18 +4,14 @@
 	$filename = preg_replace("/.*\//", "", $fileid);
 	if ( preg_match("/([^\/]+)\.xml/", $filename, $matches ) ) $id = $matches[1];
 
-	if ( $settings['download'] && $settings['download']['admin'] == "1" && !$username ) 
+	if ( getset('download/admin') == "1" && !$username ) 
 		{ fatal ("Download of XML files not permitted"); };
 
-	if ( $settings['download'] && $settings['download']['disabled'] == "1" ) 
+	if ( getset('download/disabled') == "1" ) 
 		{ fatal ("Download of XML files not permitted"); };
 
 
-	if ( !$settings['download'] || !$settings['download']['options'] ) {
-		$downloadoptions = array ( "raw" => array ( "cmd" => "cat [fn]", "display" => "raw XML" ) ); 	
-	} else {
-		$downloadoptions = $settings['download']['options'];
-	};
+	$downloadoptions = getset('download/options', array ( "raw" => array ( "cmd" => "cat [fn]", "display" => "raw XML" )) );
 	
 	if ( $_GET['type'] ) $type = $_GET['type'];
 	else if ( count($downloadoptions) == 1 ) $type = array_shift(array_keys($downloadoptions));
@@ -44,7 +40,7 @@
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
 		
-		$dltit = $settings['download']['title'] or $dltit = "Download XML";
+		$dltit = getset('download/title', "Download XML");
 		
 		$maintext .= "<h2>{%$dltit}</h2>
 			<h1>".$ttxml->title()."</h1>

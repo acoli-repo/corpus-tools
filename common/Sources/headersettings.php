@@ -2,7 +2,7 @@
 
 	if ( $user['permissions'] != "admin" ) fatal("Only administrator level users can edit the metadata settings");
 	
-	if ( !$settings['teiheader'] && $act != "makesettings" ) {
+	if ( !getset('teiheader') && $act != "makesettings" ) {
 		fatal("The teiHeader section of the settings is not yet defined. Check your settings first in Admin > Check configuration");
 	};
 
@@ -137,7 +137,7 @@
 		$rows .= "	</teiheader>\n";
 		
 
-		if ( !$settings['teiheader'] ) {
+		if ( !getset('teiheader') ) {
 			$tmp = file_get_contents("Resources/settings.xml");
 			$tmp = str_replace("\n</ttsettings>", "$rows\n</ttsettings>", $tmp);
 
@@ -152,7 +152,7 @@
 
 		$fid =  $_GET['id'];
 		if ( $fid != "_new" ) {
-			$fielddefs = $settings['teiheader'][$fid];
+			$fielddefs = getset("teiheader/$fid");
 			if ( !$fielddefs ) fatal("No such field: $fid");
 		};
 
@@ -270,7 +270,7 @@
 		check_login();
 		if ( !$settingsxml ) { fatal("Failed to load settings.xml");};
 
-		if ( $settings['teiheader']['recqp'] || $_GET['force'] ) {
+		if ( getset('teiheader/recqp') || $_GET['force'] ) {
 			# Rewrite //cqp/sattributes/text
 			$textsettings = current($settingsxml->xpath("//cqp/sattributes/item[@key=\"text\"]"));
 			foreach ( $textsettings->xpath("item") as $tmp ) {
@@ -325,9 +325,9 @@
 		if ( !$defaults ) fatal("Unable to load default teiheader");
 
 		# Read CQP data
-		$cqpdefs = $settings['cqp']['sattributes']['text']; 
+		$cqpdefs = getset('cqp/sattributes/text'); 
 
-		if ( $settings['teiheader']['recqp'] ) $schecked = "checked";
+		if ( getset('teiheader/recqp') ) $schecked = "checked";
 		$maintext .= "<h1>Metadata fields defined in this corpus</h1>
 		
 			<p><form id=toggle action='index.php?action=$action&act=toggle' method=post><input type=checkbox value='1' name='recqp' onChange=\"document.getElementById('toggle').submit()\" $schecked> Overwrite settings for text in <a href='index.php?action=adminsettings&section=cqp'>CQP section</a> based on settings defined here</form></p>
@@ -336,7 +336,7 @@
 			<tr><th>Field ID<th>Display Name<th>Description (<i>Default for this XPath</i>)<th>Options<th>Views";
 			if ( $showxp ) $maintext .= "<th>XPath query";
 			
-		foreach ( $settings['teiheader'] as $headerfield ) {
+		foreach ( getset('teiheader', array()) as $headerfield ) {
 			if ( !is_array($headerfield) ) continue;
 
 			if ( $headerfield['type'] == "sep" ) {
@@ -350,11 +350,11 @@
 			$defdesc = current($defaults->xpath($xquery)); 
 			if ( !$defdesc ) {
 				$defdesc = "<span style='color: #ff9999'>Non-standard field</span>";
-				$nonstandard = "<p><i>\"Non-standard field\" in the table above does not mean the field does not follow the TEI standard, it merely means it does no appear on the <a href='index.php?action=metadata'>list of recommended fields</a> kept in TEITOK to improve compatibility between projects</p>";	
-		};
+				$nonstandard = "<p><i>\"Non-standard field\" in the table above does not mean the field does not follow the TEI standard, it merely means it does no appear on the <a href='index.php?action=metadata'>list of recommended fields</a> kept in TEITOK to improve compatibility between projects</i></p>";	
+ 			};
 	
 			if ( $desc ) {
-				$desc .= "<br><i>$defdesc</i>";
+				$desc .= "<br><i>$desc</i>";
 			} else $desc = "<i>$defdesc</i>";	
 
 			$hops = ""; $sep = ""; $cqp = "";
@@ -402,7 +402,7 @@
 		$maintext .= "<hr><p><a href='index.php?action=$action&id=_new'>add new metadata field</a> &bull; <a href='index.php?action=metadata'>view recommended metadata fields</a>
 						$nonstandard 
 			";
-		if ( !$settings['teiheader']['recqp'] ) $maintext .= "&bull; <a href='index.php?action=$action&act=recqp&force=1'>overwrite text-level settings in CQP</a>";			
+		if ( !getset('teiheader/recqp') ) $maintext .= "&bull; <a href='index.php?action=$action&act=recqp&force=1'>overwrite text-level settings in CQP</a>";			
 		
 		# Show the views
 		$maintext .= "<h2>Views</h2>";
@@ -414,7 +414,7 @@
 		};
 		$maintext .= "</table>";
 		if ( !$views['short'] ) $maintext .= "<p class=warning>Nothing defined for short view - nothing will be shown above the text";
-		if ( !$settings['teiheader']['recqp'] ) {
+		if ( !getset('teiheader/recqp') ) {
 			if ( $resttxt ) $maintext .= "<h2>Non-used CQP fields</h2>$resttxt";
 			if ( $cqpwarn ) $maintext .= "<h2>CQP field mismatches</h2>$cqpwarn";
 		};

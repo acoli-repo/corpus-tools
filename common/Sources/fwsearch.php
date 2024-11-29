@@ -12,7 +12,7 @@
 	
 	$cql = $_POST['cql'];
 	
-	if ( $settings['cqp']['longbox'] or $_GET['longbox'] ) 
+	if ( getset('cqp/longbox') != '' or $_GET['longbox'] ) 
 		$cqlbox = "<textarea name=cql style='width: 600px;  height: 25px;' $chareqfn>$cql</textarea> ";
 	else 
 		$cqlbox = "<input name=cql value='$cql' style='width: 600px;'/> ";
@@ -30,7 +30,7 @@
 
 		include ("$ttroot/common/Sources/cwcqp.php");
 
-		$outfolder = $settings['cqp']['folder'] or $outfolder = "cqp";
+		$outfolder = getset('cqp/folder', "cqp");
 
 		// This version of CQP relies on XIDX - check whether program and file exist
 		$xidxcmd = findapp('tt-cwb-xidx');
@@ -41,12 +41,12 @@
 		};
 
 		# Determine which form to search on by default 
-		$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
+		$wordfld = getset('cqp/wordfld', "word");
 
-		$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+		$registryfolder = getset('cqp/defaults/registry', "cqp");
 
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['searchfolder'];
+		$cqpcorpus = strtoupper(getset('cqp/corpus', 'tt-'.$foldername)); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = getset('cqp/searchfolder', 'xmlfiles');
 		$cqpcols = array();
 
 		$cqp = new CQP();

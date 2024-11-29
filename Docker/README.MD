@@ -11,7 +11,8 @@ recommended.
 To use TEITOK in a docker instance, the first thing to do is to install Docker on your 
 computer. The easiest way is to install [Docker Desktop](https://docs.docker.com/desktop/).
 
-Once you have Docker installed, download the Dockfile from this Git and place it in a 
+Once you have Docker installed, copy the Dockfile of your choice 
+(there are several version for different Linux distros) from this Git as `Dockerfile` in a 
 directory on your computer. Then go in the Terminal to that folder, and build the docker image:
 
 ``docker build -t teitok-docker .``

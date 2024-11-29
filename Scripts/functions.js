@@ -57,3 +57,20 @@ function hideinfo() {
 	if ( typeof(window.posttok) === 'function' ) { posttok('out', null, tokid); }; // if needed, run post scripts, pe to highlight the token elsewhere
 };
 
+// Show HTML on the tokinfo popup
+function showinfo( evt, poselm, html ) {
+
+	var shownrows = 0;
+	var tokinfo = document.getElementById('tokinfo');
+	if ( !tokinfo ) {
+		var tokinfo = document.createElement(\"div\"); 
+		tokinfo.setAttribute('id', 'tokinfo');
+		document.body.appendChild(tokinfo);
+	};
+	tokinfo.innerHTML = html;
+	if ( html )  { tokinfo.style.display = 'block'; };
+	var foffset = offset(poselm);
+	tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
+	tokinfo.style.top = ( foffset.top + element.offsetHeight + tibel ) + 'px';
+ 
+}; 

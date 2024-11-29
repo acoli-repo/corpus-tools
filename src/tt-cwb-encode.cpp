@@ -93,6 +93,10 @@ string calcform ( pugi::xml_node node, string fld ) {
 // Write CWB network style
 void write_network_number ( int towrite, FILE *stream ) {
 	int i = htonl(towrite);
+	if ( stream == NULL ) { 
+		if ( debug > 0 ) { cout << " - error: stream does not exist " << endl; };
+		return; 
+	};
 	fwrite(&i, 4, 1, stream);
 	// fflush(stream); // This does not seem to be needed, and slows down the process
 };
@@ -216,7 +220,7 @@ void treatnode ( pugi::xpath_node node ) {
 	node.node().print(oss);
 	std::string xmltxt = oss.str();
 	int xmlpos2 = xmlpos1 + xmltxt.length();
-	if ( debug > 4 ) { cout << " - writing range (xidx): " << xmlpos1 << " - " << xmlpos2 << endl; };
+	if ( debug > 4 ) { cout << " - writing word range (xidx): " << xmlpos1 << " - " << xmlpos2 << endl; };
 	write_network_number(xmlpos1, files["xidx"]["rng"]);
 	write_network_number(xmlpos2, files["xidx"]["rng"]);
 
@@ -334,6 +338,7 @@ void treatfile ( string filename ) {
 			id_pos[tokid] = tokcnt;
 
 			treatnode(node);
+			if ( debug > 10 ) { cout << "Done with node, next" << endl; };
 			nodelist.push_back(node);
 
 		};

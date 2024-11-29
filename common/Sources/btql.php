@@ -5,7 +5,7 @@
 	};
 
 	# Check whether we have sentences in our corpus
-	if ( ( !is_array($settings['qlis']) || !$settings['qlis']['nosent'] ) && !file_exists("cqp/s_id.avs") ) {
+	if ( ( getset('qlis/nosent') == '' ) && !file_exists("cqp/s_id.avs") ) {
 		if ( $username ) fatal("The corpus has no sentences, which tree search relies on");
 		else fatal("Tree search is currently not available for this corpus");
 	};
@@ -37,13 +37,13 @@
 		various tree query languages.";
 	$syntax['BTQL'] = "index.php?action=btql-text";
 		
-	$fldr = $_GET['folder'] or $fldr = $settings['defaults']['udxp']['folder'] or $fldr = "udxp";
+	$fldr = $_GET['folder'] or $fldr = getset('defaults/udxp/folder', "udxp");
 	$show = $_POST['show'] or $show = "text";
 
 	$start = $_POST['start'] or $start = 0;
 	$max = $_POST['perpage'] or $max = 50;
 
-	if (is_array($settings['qlis'])) $tqs = array_keys($settings['qlis']);
+	if (is_array(getset('qlis'))) $tqs = array_keys(getset('qlis'));
 	else $tqs = array ( "BTQL", "UDAPI", "CQL" , "PML-TQ" ); 
 	
 	if ( !is_array($tqs) ) {
@@ -111,7 +111,7 @@
 	};
 
 	#Build the view options
-	foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+	foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 		$formcol = $item['color'];
 		# Only show forms that are not admin-only
 		if ( $username || !$item['admin'] ) {
@@ -125,7 +125,7 @@
 			};
 		};
 	};
-	foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+	foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 		$val = $item['display'];
 		if ( preg_match("/ $key=/", $editxml) ) {
 			if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
@@ -152,16 +152,16 @@
 
 	# Document selection list	
 	if ( !$corpusfolder ) $corpusfolder = "cqp";
-	$cqpatts = $settings['cqp']['sattributes'];
+	$cqpatts = getset('cqp/sattributes');
 	$docsel .= "<h3>Metadata Restrictions</h3>
 		<table>";
 		
 	# Deal with old-style pattributes as xattribute
 	# Deal with any additional level attributes (sentence, utterance)
-	foreach ( $settings['cqp']['sattributes'] as $xatts ) {
+	foreach ( getset('cqp/sattributes', array()) as $xatts ) {
 		if ( !$xatts['display'] ) continue; 
 		$lvl = $xatts['key']; $sep = "";
-		if ( $lvl != "text" && !$settings['cqli']['sattributes'][$lvl] ) continue; # Only do some levels
+		if ( $lvl != "text" && getset("cqli/sattributes/$lvl") == '' ) continue; # Only do some levels
 		$lvltit = $xatts['name'] or $lvltit = $xatts['display'];
 		$metarows .= $sep."'$lvl'"; $sep = ", ";
 		$docsel .= "$hr<tr id='meta-$lvl'><th>$lvltit</th><td style='padding: 0;'><table style='margin: 0;'>"; $hr = "<hr>";
@@ -181,7 +181,7 @@
 					foreach ( explode ( "\0", $tmp ) as $kva ) { 
 						if ( $kva ) {
 							if ( $item['values'] == "multi" ) {
-								$mvsep = $settings['cqp']['multiseperator'] or $mvsep = ",";
+								$mvsep = getset('cqp/multiseperator', ",");
 								$kvl = explode ( $mvsep, $kva );
 							} else {
 								$kvl = array ( $kva );
@@ -224,11 +224,11 @@
 	# rollover defs for tokens in results
 	$showform = $_POST['showform'] or $showform = $_GET['showform'] or $showform = 'form';
 	if ( $showform == "word" ) $showform = $wordfld;
-	$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
-	$jsontrans = array2json($settings['transliteration']);
+	$jsonforms = array2json(getset('xmlfile/pattributes/forms', array()));
+	$jsontrans = array2json(getset('transliteration', array()));
 	// Load the tagset 
-	$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
-	$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
+	$settingsdefs .= "\n\t\tvar formdef = ".array2json(getset('xmlfile/pattributes/forms', array())).";";
+	$settingsdefs .= "\n\t\tvar tagdef = ".array2json(getset('xmlfile/pattributes/tags', array())).";";
 	$sep = ""; foreach ( $metas as $key => $val ) { $metaa .= $sep."'$key': ['".join("', '", $val)."']"; $sep = ", "; };
 	$settingsdefs .= "\n\t\tvar metas = { $metaa };";
 	require_once ( "$ttroot/common/Sources/tttags.php" );
@@ -244,9 +244,9 @@
 	if ( $qbformtxt ) $qblink = " &bull; <a id=qblink onClick='showqb();'>Query Builder</a>";
 	
 	# Determine what to do with trees	
-	$treex = $settings['defaults']['treex'] or $treex = "deptree";
-	$treet = $settings['defaults']['treet'] or $treet = "tree";
-	if ( !$settings['defaults']['treex'] && !file_exists("cqp/head.avs") ) {
+	$treex = getset('defaults/treex', "deptree");
+	$treet = getset('defaults/treet', "tree");
+	if ( !getset('defaults/treex') && !file_exists("cqp/head.avs") ) {
 		$treex = "file"; $treet = "sentence";
 	};
 	$maintext .= "<h1>Tree Query</h1>
