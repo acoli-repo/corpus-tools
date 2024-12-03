@@ -38,12 +38,12 @@
 		</table>
 		";
 
-	if ( $settings['scripts'] ) {
+	if ( getset('scripts') ) {
 
 		$maintext .= "<hr>
 		<h2>Custom scripts</h2><table>";
 
-		foreach ( $settings['scripts'] as $id => $item ) {
+		foreach ( getset('scripts', array()) as $id => $item ) {
 			// See if this script is applicable
 			$avai = "Applicable";
 			if ( $item['recond'] && !preg_match("/{$item['recond']}/", $editxml ) ) { $avai = "<i>Not applicable: not matching {$item['recond']}</i>"; };

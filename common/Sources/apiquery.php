@@ -9,7 +9,7 @@
 	$qrtype = $_POST['type'];
 	$format = $_POST['format'] or $format = "json";
 	$output = $_POST['output'] or $output = "xml";
-	$lvl = $_POST['lvl'] or $lvl = $settings['cqp']['sent'] or $lvl = "s";
+	$lvl = $_POST['lvl'] or $lvl = getset('cqp/sent', "s");
 	
 	if ( !$qid ) {
 		$rnd = rand();
@@ -26,7 +26,7 @@
 	$max = $_POST['perpage'] or $max = 100;
 	if ( $max != "all" ) $end = $start + $max;
 
-	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps and cannot be provided by API
+	$cqpcorpus = strtoupper(getset('cqp/corpus', "tt-$foldername")); # a CQP corpus name ALWAYS is in all-caps and cannot be provided by API
 	$subcorpus = $_POST['subcorpus'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = $_GET['subc']; 
 	if ( $subcorpus ) {
 		$cqpcorpus = strtoupper("$cqpcorpus-$subcorpus"); # a CQP corpus name ALWAYS is in all-caps
@@ -281,8 +281,8 @@
 		header('Content-Type: text/plain; charset=utf-8');
 
 		if ( !$cqpcorpus ) {
-			$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
-			if ( $settings['cqp']['subcorpora'] ) {
+			$cqpcorpus = getset('cqp/corpus', "tt-".$foldername);
+			if ( getset('cqp/subcorpora') ) {
 				if ( !$subcorpus ) {
 					fatal("No subcorpus selected");
 				};
@@ -291,7 +291,7 @@
 				$subcorpustit = "<h2>$corpusname</h2>";
 			} else {
 				$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
-				$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+				$cqpfolder = getset('cqp/cqpfolder', "cqp");
 			};
 		};
 		$cqpr = array();

@@ -21,12 +21,12 @@
 		
 		include ("$ttroot/common/Sources/cwcqp.php");
 
-		$baselevel = $_POST['level'] or $baselevel = $settings['collation']['baselevel'] or $baselevel = "l";
+		$baselevel = $_POST['level'] or $baselevel = getset('collation/baselevel', "l");
 		
 		$appid = $_POST['appid'];
 		
 		# See if we can find a TOC index for this collation
-		if ( $_GET['from'] && $settings['xmlfile']['toc'] ) {
+		if ( $_GET['from'] && getset('xmlfile/toc') ) {
 			
 			# Read the XML of the from file
 			require ("$ttroot/common/Sources/ttxml.php");
@@ -34,7 +34,7 @@
 			if ( $ttxml->xml ) {
 		
 				# Get the name of the item from the TOC
-				$tocdef = $settings['xmlfile']['toc'];
+				$tocdef = getset('xmlfile/toc');
 				if ( $tocdef['xp'] ) $tocxp = $tocdef['xp']; else $tocxp = "//teiHeader/toc";
 				if ( $ttxml->xpath($tocxp) ) {
 					$tocdef = xmlflatten(current($ttxml->xpath($tocxp)));
@@ -44,7 +44,7 @@
 				$appnode = current($ttxml->xpath($levxp));
 				# Overrule the base level if we know what the node is (and we have that level in CQP)		
 				$tmp = $appnode->getName();
-				if ( $settings['cqp']['sattributes'][$tmp] ) $baselevel = $tmp;
+				if ( getset("cqp/sattributes/$tmp") ) $baselevel = $tmp;
 
 				# Check if the appid is in the TOC itself
 				$leaf = array_values(array_slice($tocdef, -1))[0];
@@ -78,7 +78,7 @@
 		$cql = "<".$baselevel."_appid=\"$appid\"> [];";
 		
 		$maintext .= "<h2>{%Collation on}: $appidtxt</h2>$subtit<hr>";
-		$outfolder = $settings['cqp']['cqpfolder'] or $outfolder = "cqp";
+		$outfolder = getset('cqp/cqpfolder', "cqp");
 
 		// This version of CQP relies on XIDX - check whether program and file exist
 		$xidxcmd = findapp('tt-cwb-xidx');
@@ -91,12 +91,12 @@
 		# print htmlentities($cql); exit;
 
 		# Determine which form to search on by default 
-		$wordfld = $settings['cqp']['wordfld'] or $wordfld = "word";
+		$wordfld = getset('cqp/wordfld', "word");
 
-		$registryfolder = $settings['cqp']['defaults']['registry'] or $registryfolder = "cqp";
+		$registryfolder = getset('cqp/defaults/registry', "cqp");
 
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['searchfolder'];
+		$cqpcorpus = strtoupper(getset('cqp/corpus', "tt-$foldername")); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = getset('cqp/searchfolder');
 		$cqpcols = array();
 
 		$cqp = new CQP();
@@ -204,12 +204,12 @@
 
 	} else {
 	
-		if ( !$settings['collation'] ) fatal("No definitions for collation");
+		if ( !getset('collation') ) fatal("No definitions for collation");
 	
 		$maintext .= "
 			<form action='index.php?action=$action&act=cqp' method=post>
 			<table>";
-		foreach ( $settings['collation'] as $key => $val ) {
+		foreach ( getset('collation', array()) as $key => $val ) {
 			if ( $val['display'] == "" || !is_array($val) ) continue;
 			$keytxt = $val['display'];
 			if ( $val['type'] == "select" ) {

@@ -231,7 +231,7 @@
 		# Use a template 
 		# TODO: This is clearly never used - should this be removed?
 		if ( getset('xmltemplates') ) {
-			foreach ( $settings['xmltemplates'] as $key => $val ) {
+			foreach ( getset('xmltemplates', array()) as $key => $val ) {
 				$templatelist .= "<option value='$key'>{$item['display']}</option>";
 			};
 			$maintext .= "<p><input type=radio name=header value='template' onChange='metachoose(this);'> Use a template
@@ -257,7 +257,7 @@
 			};
 			# TODO: This is clearly never used - should this be removed?
 			if ( getset('xmltemplates') ) {
-				foreach ( $settings['xmltemplates'] as $key => $val ) {
+				foreach ( getset('xmltemplates', array()) as $key => $val ) {
 					$templatelist .= "<option value='$key'>{$item['display']}</option>";
 				};
 				$text .= "<p>Also use template file: <select name=withtemplate><option value=''>[none]</option>$templatelist</select></p>";
@@ -282,7 +282,7 @@
 		$maintext .= "</div>";
 
 		# If we have sound files defined, also allow starting from a sound-file
-		if ( $settings['files']['audio'] ) {
+		if ( getset('files/audio') != '' ) {
 			$maintext .= "<p><input type=radio name=header value='audio' onChange='metachoose(this);'> Transcribe from a sound file";
 		};
 
@@ -368,7 +368,7 @@
 			</script>";
 			
 		if ( !file_exists("Resources/teiHeader-edit.tpl") ) $warnings .= "<li>You do not have a teiHeader template defined for editing; using such a template allows you to easily edit the metadata in an HTML form. You can create an edit template <a href='index.php?action=headermake'>here</a>";
-		if ( !$settings['xmltemplates'] ) $warnings .= "<li>You do not have an XML template defined; using such a template allows you to have your teiHeader pre-filled with data about concerning project, institute, etc. You can create an XML template <a href='index.php?action=templatemake'>here</a>";
+		if ( getset('xmltemplates') == '' ) $warnings .= "<li>You do not have an XML template defined; using such a template allows you to have your teiHeader pre-filled with data about concerning project, institute, etc. You can create an XML template <a href='index.php?action=templatemake'>here</a>";
 		if ( $warnings ) $maintext .= "<hr><h2>Provide more options</h2><ul>$warnings</ul>";
 		
 	};

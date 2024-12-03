@@ -36,8 +36,8 @@
 			<table>";
 
 
-		if ( $settings['xmlfile']['sattributes'][$etype] ) {
-			foreach ( $settings['xmlfile']['sattributes'][$etype] as $key => $item ) {
+		if ( getset("xmlfile/sattributes/$etype") ) {
+			foreach ( getset("xmlfile/sattributes/$etype", array()) as $key => $item ) {
 				if ( $key == "implicit" ) $implicit[$etype] = 1;
 				if ( !is_array($item) ) continue;
 				$itemtxt = $item['display'];

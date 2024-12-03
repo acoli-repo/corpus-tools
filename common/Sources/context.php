@@ -6,17 +6,17 @@
 	$cid = $_GET['cid']; $tid = $_GET['tid']; $pos = $_GET['pos'];
 
 	# Deal with settings
-	$format = $_GET['format'] or $format = $settings['context']['format'] or $format = "html";
-	if ( isset($_GET['hls']) ) $hls = $_GET['hls']; else if ( isset($settings['context']['hls']) ) $hls = $settings['context']['hls']; else $hls = "1";
-	if ( isset($_GET['header']) ) $withheader = $_GET['header']; else if ( isset($settings['context']['header']) ) $withheader = $settings['context']['header']; else $withheader = 1;
-	if ( isset($_GET['wordh']) ) $withword = $_GET['wordh']; else if ( isset($settings['context']['wordheader']) ) $withword = $settings['context']['wordheader']; else $withword = 0; # Whether to display the word itself
-	$context = $_GET['context'] or $context = $settings['context']['context'] or $context = "s";
+	$format = $_GET['format'] or $format = getset('context/format', "html");
+	if ( isset($_GET['hls']) ) $hls = $_GET['hls']; else $hls = getset('context/hls', "1");
+	if ( isset($_GET['header']) ) $withheader = $_GET['header']; else $withheader = getset('context/header', 1);
+	if ( isset($_GET['wordh']) ) $withword = $_GET['wordh']; else  $withword = getset('context/wordheader', 0); # Whether to display the word itself
+	$context = $_GET['context'] or $context = getset('context/context', "s");
 	
 	if ( $_GET['type'] == "sent" ) {
 	
 		$resxml = sentbyid($cid, $tid);
 	
-	} else if ( $settings['context']['method'] == "xml"  ) {
+	} else if ( getset('context/method') == "xml"  ) {
 	
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
@@ -24,7 +24,7 @@
 		$node = current($ttxml->xpath($xp));
 		$resxml = makexml($node);
 	
-	} else if ( $settings['context']['method'] == "xpath" || $_GET['type'] == "xpath" ) {
+	} else if ( getset('context/method') == "xpath" || $_GET['type'] == "xpath" ) {
 
 		$app = findapp("tt-xpath");
 		if ( !$app ) fatal ("This function relies on tt-xpath, which is not installed on the server");
@@ -44,7 +44,7 @@
 			
 	} else {
 	
-		if ( intval($context) == 0 && is_array($settings['cqp']['sattributes']) && !$settings['cqp']['sattributes'][$context] ) {
+		if ( intval($context) == 0 && is_array(getset('cqp/sattributes')) && !getset("cqp/sattributes/$context") ) {
 			if ( $username ) fatal("Context set to $context, which is not a CQP level in this corpus. Please correct in settings.xml//context");
 			$context = 5;
 		};      
@@ -55,11 +55,11 @@
 		if ( $leftpos == "" ) $leftpos = $pos;
 		if ( $rightpos == "" ) $rightpos = $pos;
 
-		if ( $settings['context']['nopos'] ) { $pos = $leftpos = $rightpos = ""; }; # Ignore POS if indexes might differ
+		if ( getset('context/nopos') ) { $pos = $leftpos = $rightpos = ""; }; # Ignore POS if indexes might differ
 
 		$fileid = "xmlfiles/$cid.xml"; 
 		$outfolder = "cqp";
-		if ( $settings['cqp']['subcorpora'] && preg_match("/(^[^\/]+)\//", $cid, $matches) ) {
+		if ( getset('cqp/subcorpora') && preg_match("/(^[^\/]+)\//", $cid, $matches) ) {
 			$subfolder = $matches[1];
 			$outfolder .= "/$subfolder";
 			$subcorpus = "-$subfolder";
@@ -71,7 +71,7 @@
 			if ( $tid ) {
 				# lookup the position in CQP
 				include ("$ttroot/common/Sources/cwcqp.php");
-				$cqpcorpus = strtoupper($settings['cqp']['corpus'].$subcorpus); # a CQP corpus name ALWAYS is in all-caps
+				$cqpcorpus = strtoupper(getset('cqp/corpus').$subcorpus); # a CQP corpus name ALWAYS is in all-caps
 				$cqp = new CQP();
 				$cqp->exec($cqpcorpus); // Select the corpus
 				$cqp->exec("set PrettyPrint off");
@@ -94,7 +94,7 @@
 		# If we do not have a tid, look it up (so that we can highlight the word)
 		if ( !$tid ) {
 			include ("$ttroot/common/Sources/cwcqp.php");
-			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+			$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
 			$cqp = new CQP();
 			$cqp->exec($cqpcorpus); // Select the corpus
 			$cqp->exec("set PrettyPrint off");
@@ -131,7 +131,7 @@
 		$resxml = str_replace(" id=\"$tdid\"", " hl=\"2\" id=\"$tdid\"", $resxml);
 	};
 
-	$headtext = $settings['context']['link'] or $headtext = "View TEITOK document";
+	$headtext = getset('context/link', "View TEITOK document");
 	if ( $withheader ) {
 		if ( $withlang ) $headtext = lgMsg("{%headtext}"); 
 		$cidx = $cid; if ( substr($cidx, -4) != ".xml" ) $cidx .= ".xml";
@@ -151,7 +151,7 @@
 	} else {
 		$resxml = preg_replace("/<tok /", "<tok onmouseover=\"window.showtokinfo(this)\" onmouseout=\"window.hidetokinfo();\" ", $resxml );
 
-		$alltags = array_merge($settings['xmlfile']['pattributes']['forms'], $settings['xmlfile']['pattributes']['tags']);
+		$alltags = array_merge(getset('xmlfile/pattributes/forms', array()), getset('xmlfile/pattributes/tags', array()));
 		$tagdef = array2json($alltags); 
 
 		if ( $withword ) $wordheader = "var innery += '<tr><th colspan=2>'+elm.innerHTML;";

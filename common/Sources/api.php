@@ -6,7 +6,7 @@
 	if ( strpos($_SERVER['HTTP_USER_AGENT'], "curl/") !== false ) $cmdln = true;
 	if ( strpos($_SERVER['HTTP_USER_AGENT'], "wget/") !== false ) $cmdln = true;
 
-	if ( !$toolroot ) $toolroot = $settings['defaults']['base']['tools'];
+	if ( !$toolroot ) $toolroot = getset('defaults/base/tools');
 	if ( !$toolroot ||  !file_exists("$toolroot/Scripts/conllu2teitok.pl") ) {
 		$toolroot = str_replace("Scripts/conllu2teitok.pl", "", shell_exec("locate conllu2teitok.pl"));
 	};
@@ -74,9 +74,9 @@
 	} else if ( $act == "download" ) {
 	
 		# Check whether download is barred
-		if ( $settings['download'] && $settings['download']['admin'] == "1" ) 
+		if (  getset('download/admin') == "1" ) 
 			$username = check_token();
-		if ( $settings['download'] && $settings['download']['disabled'] == "1" ) 
+		if ( getset('download/disabled') == "1" ) 
 			{ fatal ("Download of files not permitted"); };
 
 		$format = $_GET['format'];
@@ -112,7 +112,7 @@
 			unlink($tmp);
 		} else if ( $format == "tcf" ) {
 			$tmp = "tmp/".time().".tcf";
-			$lang = $_GET['lang'] or $lang = $settings['defaults']['lang'];
+			$lang = $_GET['lang'] or $lang = getset('defaults/lang');
 			shell_exec("perl $toolroot/Scripts/teitok2tcf.pl --lang=$lang --file=$cid --output=$tmp");
 			header('Content-Type: text/plain; charset=utf-8');
 			header("Content-Disposition: attachment; filename=\"$baseid.tcf\"");
@@ -230,8 +230,8 @@
 			exit;
 		} else if ( $type == "CQL" ) {
 			if ( !$cqpcorpus ) {
-				$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
-				if ( $settings['cqp']['subcorpora'] ) {
+				$cqpcorpus = getset('cqp/corpus', "tt-".$foldername);
+				if ( getset('cqp/subcorpora') ) {
 					if ( !$subcorpus ) {
 						fatal("No subcorpus selected");
 					};
@@ -240,12 +240,12 @@
 					$subcorpustit = "<h2>$corpusname</h2>";
 				} else {
 					$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
-					$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
+					$cqpfolder = getset('cqp/cqpfolder', "cqp");
 				};
 			};
 			$elm = "text"; if ( preg_match("/^([a-z0-9]+)_([a-z0-9]+)$/", $query, $matches ) ) {
 				$elm = $matches[1];
-				$tmp = $settings['cqp']['sattributes'][$elm]['id']; 
+				$tmp = getset("cqp/sattributes/$elm/id"); 
 				if ( $elm != "text" && $tmp ) { $elmid = ", match ".$elm."_id"; };
 			};
 			$cmd = "echo 'Matches = <$elm> []; tabulate Matches match text_id, match $query $elmid' | cqp -r cqp -c -D $cqpcorpus";
@@ -539,7 +539,7 @@
 		if ( $task != "" ) {
 			$nlplang = $_GET['lang'];
 			if ( !$nlplang ) { 
-				try { $nlplang = $settings['defaults']['lang']; } catch (Error $e) { };
+				try { $nlplang = getset('defaults/lang'); } catch (Error $e) { };
 			};
 			if ( !$nlplang ) {
 				print '{"error": "no language provided NLP processing - aborted after tokenisation"}'; exit;

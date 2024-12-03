@@ -7,7 +7,7 @@
 	
 	if ( !$_GET['cid'] ) $_GET['cid'] = $_POST['fileid'];	
 
-	if ( $settings['xmlfile']['basedirection'] ) $morestyle .= "direction: {$settings['xmlfile']['basedirection']}";
+	if ( getset('xmlfile/basedirection') ) $morestyle .= "direction: ".getset('xmlfile/basedirection');
 
 	if ( $_GET['cid'] ) {
 		require ("$ttroot/common/Sources/ttxml.php");
@@ -152,7 +152,7 @@
 		
 			# Convert document specific codes
 			if ( $_POST['convert'] ) {
-				foreach ( $settings['input']['replace'] as $key => $item ) {
+				foreach ( getset('input/replace', array()) as $key => $item ) {
 					$pagebody = str_replace($key, $item['value'], $pagebody);
 				};
 			};
@@ -254,11 +254,11 @@
 				ß to ſ. In the page-by-page transcription, you can have those all be replaced when you convert your
 				pre-TEI document to TEI, or you can have them be replaced as you type. Below is the list 
 				of character conversionscurrently defined in this project.";
-		if ( !$settings['input']['replace'] )  $maintext .= "<p><i>No conversions defined yet</i>";
+		if ( !getset('input/replace') )  $maintext .= "<p><i>No conversions defined yet</i>";
 		else {
 			$maintext .= "<table>
 			<tr><th>Source<th>Target";
-			foreach ( $settings['input']['replace'] as $key => $item ) {
+			foreach ( getset('input/replace', array()) as $key => $item ) {
 				$val = $item['value'];
 				$chareqjs .= "$sep $key = $val"; 
 				$charlist .= "ces['$key'] = '$val';";
@@ -623,7 +623,7 @@
 			if ( !strstr("http", $pagexml['facs']) && !file_exists("Facsimile/{$pagexml['facs']}") ) {
 				# TODO: create an upload button to upload the facs
 				
-				if ( $settings['files']['facs']['folder'] == "Facsimile" ) {
+				if ( getset('files/facs/folder') == "Facsimile" ) {
 					$imgfld = "<h2>Facsimile Image missing</h2>
 						<p>Please upload a facsimile image ({$pagexml['facs']})</p>
 						</form>
@@ -668,7 +668,7 @@
 			};
 
 
-			foreach ( $settings['input']['replace'] as $key => $item ) {
+			foreach ( getset('input/replace', array()) as $key => $item ) {
 				$val = $item['value'];
 				$chareqjs .= "$sep $key = $val"; 
 				$charlist .= "ces['$key'] = '$val';";

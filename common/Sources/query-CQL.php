@@ -3,8 +3,8 @@
 	function queryCQL( $query, $qid ) {
 		global $settings;
 		
-		$cqpcorpus = $settings['cqp']['corpus'] or $cqpcorpus = "tt-".$foldername;
-		if ( $settings['cqp']['subcorpora'] ) {
+		$cqpcorpus = getset('cqp/corpus', "tt-".$foldername);
+		if ( getset('cqp/subcorpora') ) {
 			$subcorpus = $_SESSION['subc'] or $subcorpus = $_GET['subc'];
 			if ( !$subcorpus ) {
 				fatal("No subcorpus selected");
@@ -17,8 +17,8 @@
 			$subfolder = "/$subcorpus";
 		} else {
 			$cqpcorpus = strtoupper($cqpcorpus); # a CQP corpus name ALWAYS is in all-caps
-			$cqpfolder = $settings['cqp']['cqpfolder'] or $cqpfolder = "cqp";
-			$corpusname = $settings['cqp']['name'] or $corpusname = $cqpcorpus;
+			$cqpfolder = getset('cqp/cqpfolder', "cqp");
+			$corpusname = getset('cqp/name', $cqpcorpus);
 		};
 
 		$lockn = rand(100,100000);

@@ -74,7 +74,7 @@
 
 		
 		require ( "$ttroot/common/Sources/cwcqp.php" );
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+		$cqpcorpus = strtoupper(getset('cqp/corpus', "tt-$foldername")); # a CQP corpus name ALWAYS is in all-caps
 		$cqp = new CQP();
 		$cqp->exec($cqpcorpus); // Select the corpus
 		$size = $cqp->exec("set PrettyPrint off");
@@ -120,7 +120,7 @@
 
 		} else {
 			require ( "$ttroot/common/Sources/cwcqp.php" );
-			$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+			$cqpcorpus = strtoupper(getset('cqp/corpus', "tt-$foldername")); # a CQP corpus name ALWAYS is in all-caps
 			$cqp = new CQP();
 			$cqp->exec($cqpcorpus); // Select the corpus
 			$cqpquery = "Matches = <text> []";
@@ -129,7 +129,7 @@
 			
 			# Make a pull-down of the document when no doc id is selected, or a field when there are too many
 			if ( $size < 100 ) {
-				if ( $settings['cqp']['sattributes']['text']['title'] ) $tits = ", match text_title";
+				if ( getset('cqp/sattributes/text/title') ) $tits = ", match text_title";
 				$results = $cqp->exec('tabulate Matches match text_id'.$tits);
 				$cqp->close();
 			
@@ -170,14 +170,14 @@
 				<div name='wordsearch' id='wordsearch' style='display: none;'><table>";
 				
 		$cqpcols = array();
-		foreach ( $settings['cqp']['pattributes'] as $key => $item ) {
+		foreach ( getset('cqp/pattributes', array()) as $key => $item ) {
 			if ( $username || !$item['admin'] ) array_push($cqpcols, $key); 
 		}; 
 		foreach ( $cqpcols as $col ) {
 			$colname = pattname($col);
 			if ( !$colname ) $colname = "[$col]";
 			$tstyle = ""; 
-			$coldef = $settings['cqp']['pattributes'][$col];
+			$coldef = getset("cqp/pattributes/$col");
 			if ( $coldef['admin'] == "1" ) {
 				$tstyle = " class=adminpart";
 				if ( !$username ) { continue; };
@@ -232,7 +232,7 @@
 			
 		foreach ( $cqpcols as $col ) {
 			$colname = pattname($col);
-			if ( $settings['cqp']['pattributes'][$col]['admin'] == "1" ) {
+			if ( getset("cqp/pattributes/$col/admin") == "1" ) {
 				$maintext .= "<tr><th>$col<td class=adminpart>{%$colname}</tr>";				
 			} else {
 				$maintext .= "<tr><th>$col<td>{%$colname}</tr>";

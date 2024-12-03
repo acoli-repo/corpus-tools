@@ -8,7 +8,7 @@
 	$editxml = $ttxml->xml->asXML();
 
 	#Build the view options	
-	foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+	foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 		$formcol = $item['color'];
 		# Only show forms that are not admin-only
 		if ( $username || !$item['admin'] ) {
@@ -27,7 +27,7 @@
 	};
 	# Check whether we HAVE the form to show - or switch back
 	if ( !strstr($editxml, " $showform=") 
-		&& !$settings['xmlfile']['pattributes']['forms'][$showform]['subtract']
+		&& !getset("xmlfile/pattributes/forms/$showform/subtract")
 		) { $showform = $bestform;};
 	
 	
@@ -54,9 +54,9 @@
 	if ( !$username ) $noadmin = "(?![^>]*admin=\"1\")";
 	
 
-	$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
-	$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
-	if ( strstr("interpret", $settings['xmlfile']['defaultview']) != -1 ) $settingsdefs .= "var interpret = true;";
+	$settingsdefs .= "\n\t\tvar formdef = ".array2json(getset('xmlfile/pattributes/forms', array())).";";
+	$settingsdefs .= "\n\t\tvar tagdef = ".array2json(getset('xmlfile/pattributes/tags', array())).";";
+	if ( strstr("interpret", getset('xmlfile/defaultview')) != -1 ) $settingsdefs .= "var interpret = true;";
 	$header = $ttxml->tableheader("pageflow,long", false);
 	$viewsels = $ttxml->viewswitch("select");
 	
