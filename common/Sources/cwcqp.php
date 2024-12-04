@@ -175,6 +175,7 @@ class CQP
 		fwrite($this->pipes[0], "exit;");
 		fclose($this->pipes[0]);
 		fclose($this->pipes[1]);
+        proc_terminate($this->prcs);
 	    $return_value = proc_close($this->prcs);
 	}
 
@@ -182,7 +183,6 @@ class CQP
 		if ( $this->beta_version > 0 ) $beta = ".".$this->beta_version;
 		return $this->major_version.'.'.$this->minor_version.$beta;
 	}
-		    
     
 }
 

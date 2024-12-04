@@ -301,4 +301,7 @@
 	// display the Smarty page
 	$smarty->display("$template.tpl");
 
+	// check if we have a CQP proc open, and if so, close it
+	if ( is_object($cqp) ) { $cqp->close(); };
+
 ?>
