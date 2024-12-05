@@ -17,7 +17,7 @@
 	$maintext .= "<script language=Javascript src=\"$jsurl/appalign.js\"></script>";
 
 	#Build the view options
-	foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+	foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 		$formcol = $item['color'];
 		# Only show forms that are not admin-only
 		if ( $username || !$item['admin'] ) {
@@ -31,7 +31,7 @@
 			};
 		};
 	};
-	foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+	foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 		$val = $item['display'];
 		if ( preg_match("/ $key=/", $editxml) ) {
 			if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";
@@ -59,8 +59,8 @@
 		$sep = " - ";
 	};
 	
-		$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
-		$jsontrans = array2json($settings['transliteration']);
+		$jsonforms = array2json(getset('xmlfile/pattributes/forms', array()));
+		$jsontrans = array2json(getset('transliteration', array()));
 
 		if ( $tagstxt ) $showoptions .= "<p>{%Tags}: $tagstxt ";
 
@@ -68,17 +68,15 @@
 			$viewoptions $showoptions <hr>";
 
 	
-	
-	# if ( ( $settings['appid']['rows'] && $_GET['rows'] != "0" ) || $_GET['rows'] == "1" ) ) $rows = 1;
 	$rows = 1; 
 	
 	if ( $rows ) {
 		
-		if ( !is_array($settings['appid']) ) fatal("No definitions for apparatus");
+		if ( !is_array(getset('appid')) ) fatal("No definitions for apparatus");
 		
-		$ptype = $_GET['pbtype'] or $ptype = $settings['appid']['baseview'] or $ptype = "pb";
+		$ptype = $_GET['pbtype'] or $ptype = getset('appid/baseview', "pb");
 		# Display the parts aligned by row
-		$nums = array_keys($settings['appid']['numbering']);
+		$nums = array_keys(getset('appid/numbering', array()));
  		$i=0; while ( $i < count($nums) && $nums[$i] != $ptype ) { $i++; }; 
  		$i++; $ctype = $nums[$i]; 
  
@@ -134,7 +132,7 @@
 		};
 		$maintext .= "</table>";
 		
-		if ( $ptype != $settings['appid']['baseview'] ) $maintext .= "<hr><p><a href='index.php?action=$action&appid={$_GET['appid']}&id=$ids'>back</a>";
+		if ( $ptype != getset('appid/baseview') ) $maintext .= "<hr><p><a href='index.php?action=$action&appid={$_GET['appid']}&id=$ids'>back</a>";
 		
 	} else {
 	

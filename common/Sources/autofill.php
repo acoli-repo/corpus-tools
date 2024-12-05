@@ -7,7 +7,7 @@
 	$ttxml = new TTXML();
 
 	include ("$ttroot/common/Sources/cwcqp.php");
-	$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
+	$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
   
 	$cqp = new CQP();
 	$cqp->exec($cqpcorpus); // Select the corpus
@@ -150,7 +150,7 @@
 	} else {
 		# Select what to fill, and from what
 		
-		foreach ( $settings['cqp']['pattributes'] as $key => $val ) {
+		foreach ( getset('cqp/pattributes', array()) as $key => $val ) {
 			$displayname = pattname($key);
 			$condlist .= "<p><input type=checkbox name='from[{$key}]' value='1'> $displayname";
 			$filllist .= "<p><input type=checkbox name='fill[{$key}]' value='1'> $displayname";

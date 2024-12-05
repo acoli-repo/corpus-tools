@@ -26,7 +26,7 @@
 	$editxml = $ttxml->page($_GET['pageid'], $tid);
 
 		#Build the view options	
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 			$formcol = $item['color'];
 			# Only show forms that are not admin-only
 			if ( $username || !$item['admin'] ) {
@@ -45,12 +45,12 @@
 		};
 		# Check whether we HAVE the form to show - or switch back
 		if ( !strstr($editxml, " $showform=") 
-			&& !$settings['xmlfile']['pattributes']['forms'][$showform]['subtract']
+			&& !getset("xmlfile/pattributes/forms/$showform/subtract")
 			) { $showform = $bestform;};
 	
 	if ( $tid ) $hltok = "tokhl('$highl', true);";
 
-		$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
+		$settingsdefs .= "\n\t\tvar formdef = ".array2json(getset('xmlfile/pattributes/forms', array())).";";
 
 	$maintext .= "
 	<script language=Javascript>var imgloaded = 0;</script>

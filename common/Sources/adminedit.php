@@ -8,7 +8,7 @@
 	$id = $_GET['id'];
 	$blessed = array("Annotations", "Resources", "xdxf", "templates");
 	if ( getset('files/blessed') != "" ) {
-		foreach ( explode(",", $settings['files']['blessed']) as $tmp ) array_push($blessed, $tmp);
+		foreach ( explode(",", getset('files/blessed')) as $tmp ) array_push($blessed, $tmp);
 	};
 
 	$filedescs = array (

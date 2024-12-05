@@ -377,11 +377,11 @@
 	if ( $withxml ) {
 		// Make the XML in the results rollover
 	
-		$jsonforms = array2json($settings['xmlfile']['pattributes']['forms']);
-		$jsontrans = array2json($settings['transliteration']);
+		$jsonforms = array2json(getset('xmlfile/pattributes/forms', array()));
+		$jsontrans = array2json(getset('transliteration', array()));
 
 		// Build the view options	
-		foreach ( $settings['xmlfile']['pattributes']['forms'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 			$formcol = $item['color'];
 			# Only show forms that are not admin-only
 			if ( $username || !$item['admin'] ) {	
@@ -397,7 +397,7 @@
 				};
 			};
 		};
-		foreach ( $settings['xmlfile']['pattributes']['tags'] as $key => $item ) {
+		foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
 			$val = $item['display'];
 			if ( preg_match("/ $key=/", $editxml) || 1==1 ) { // TODO: should this see if the tag occurs? 
 				if ( is_array($labarray) && in_array($key, $labarray) ) $bc = "eeeecc"; else $bc = "ffffff";

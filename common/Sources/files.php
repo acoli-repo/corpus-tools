@@ -3,7 +3,7 @@
 	// Not typically very useful for visitors (superceded by browse)
 	// (c) Maarten Janssen, 2015
 
-	if ( $settings['defaults']['nofiles'] ) check_login();
+	if ( getset('defaults/nofiles') ) check_login();
 	if ( !$_POST ) $_POST = $_GET;
 
 	check_folder("xmlfiles");	

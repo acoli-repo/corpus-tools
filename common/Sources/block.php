@@ -30,7 +30,7 @@
 	if ( $textdir ) {
 		$dircss = "direction: $textdir";
 	} else if ( getset('xmlfile/basedirection') != "" ) {
-		$dircss = "direction: {$settings['xmlfile']['basedirection']}";
+		$dircss = "direction: ".getset('xmlfile/basedirection');
 	};
 		
 	$ssel = $_GET['jmp'] or $ssel = $_GET['sel'];

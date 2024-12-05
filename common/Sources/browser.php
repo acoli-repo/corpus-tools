@@ -328,13 +328,13 @@
 						};
 						$tmp = getset("cqp/sattributes/text/$attit/type");
 						if ( getset("cqp/sattributes/text/$attit/type") == "kselect" || getset("cqp/sattributes/text/$attit/translate") != "" ) {
-							if ( $settings['cqp']['sattributes']['text'][$attit]['values'] == "multi" ) {
+							if ( getset("cqp/sattributes/text/$attit/values") == "multi" ) {
 								$fatts[$key] = ""; $sep = "";
 								foreach ( explode(",", $fatt) as $fattp ) { $fatts[$key] .= "$sep{%$attit-$fattp}"; $sep = ", "; };
 							} else $fatts[$key] = "{%$attit-$fatt}";
 						};
 					};
-					if ( $settings['defaults']['browser']['style'] == "facs" ) {
+					if ( getset('defaults/browser/style') == "facs" ) {
 						$facs = array_pop($fatts);
 						$cid = preg_replace("/.*\//", "", $fid);
 						$opttit = $titelm or $opttit = $cid;
@@ -395,7 +395,7 @@ $(document).ready(function () {
 		
 	} else if ( $class ) {
 
-		$item = $settings['cqp']['sattributes']['text'][$class];
+		$item = getset("cqp/sattributes/text/$class");
 		$cat = $item['display'];
 
 		$maintext .= "<p><a href='index.php?action=$faction'>{%!documents}</a>$subpath > {%$cat}
@@ -483,7 +483,7 @@ $(document).ready(function () {
 			foreach ( $vals as $val => $cnt ) {
 				$oval = urlencode($val);
 				if ( $val == "" || $val == "_" ) {
-					if ( !$settings['cqp']['listnone'] ) continue;
+					if ( !getset('cqp/listnone') ) continue;
 					$val = "({%none})";
 				} else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
 				$maintext .= "<li key='$val'><a href='index.php?action=$saction&class=$class&val=$oval'>$val</a></li>";
@@ -500,7 +500,7 @@ $(document).ready(function () {
 		$maintext .= "$doctitle
 			<hr><ul id=sortlist>";
 			
-		foreach ( $settings['cqp']['sattributes']['text'] as $key => $item ) {
+		foreach ( getset('cqp/sattributes/text', array()) as $key => $item ) {
 
 			if ( !is_array($item) ) continue;
 			if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
