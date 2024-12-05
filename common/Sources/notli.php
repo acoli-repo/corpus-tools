@@ -2,7 +2,7 @@
 
 	$type = $_GET['type'];
 
-	$grouprec = $settings['permissions']['groups'][$type];
+	$grouprec = getset("permissions/groups/$type", array());
 		
 	if ( !$username ) {
 		# Not logged in

@@ -41,7 +41,7 @@
 		};
 		
 		if ( getset('parser/nosegment') == '' ) $morecmd = " --killsent";
-		if ( getset('parser/textpath') != '' ) $morecmd .= " --xpath='{$settings['parser']['textpath']}'"; 
+		if ( getset('parser/textpath') != '' ) $morecmd .= " --xpath='".getset('parser/textpath'); 
 
 		$cmd = "$perlapp $ttroot/common/Scripts/runparser.pl --verbose --model={$prm['model']} --filename=xmlfiles/$ttxml->filename $morecmd";
 			
@@ -65,7 +65,7 @@
 		
 		$maintext .= "<h2>Current Settings</h2>";
 		$prms = array();
-		if ( is_array(getset('parser/parameters')) ) $prms += $settings['parser']['parameters']; 
+		if ( is_array(getset('parser/parameters')) ) $prms += getset('parser/parameters'); 
 		# Legacy UDPIPE settings
 		foreach ( getset('udpipe/parameters', array()) as $prm ) {
 			$prm['parser'] = "udpipe";

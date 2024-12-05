@@ -7,7 +7,7 @@
 
 
 	# If not defined in settings, predefine which files go where
-	if ( !$settings['files'] ) {
+	if ( !getset('files') ) {
 		$settings['files'] = array (
 			"facsimile" => array ( "display" => "Facsimile Images", "folder" => "Facsimile", "extension" => "*.jpg", "description" => "Facsimile images of XML pages (best done <a href='index.php?action=images'>here</a>)" ),
 			"image" => array ( "display" => "Site Images", "folder" => "Images", "extension" => "*.jpg,*.png,*.gif,*.jpeg", "description" => "Image files used for the site design" ),
@@ -435,7 +435,7 @@
 
 			<table>";
 
-		foreach ( $settings['files'] as $key => $val ) {
+		foreach ( getset('files', array()) as $key => $val ) {
 			if ( !is_array($val) ) continue; // do not do attributes
 			if ( !$nodef || is_dir($val['folder']) ) {
 				if ( !$val['admin'] || $user['permissions'] == "admin" ) $maintext .= "<tr><td><a href='index.php?action=$action&act=list&type=$key'>{$val['display']}</a><td>{$val['description']}";

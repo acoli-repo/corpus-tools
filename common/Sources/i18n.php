@@ -193,7 +193,7 @@
 		foreach ( $files as $line ) {
 			if ( preg_match("/i18n\_(.*)\.txt/", $line, $matches ) ) {
 				$langcode = $matches[1];
-				$langopt = $settings['languages']['options'][$langcode];
+				$langopt = getset("languages/options/$langcode");
 				if ( $langopt ) {
 					$langtxt = $langopt['name'] or $langtxt = $langopt['menu'];
 					$langtxt = " = $langtxt"; 
@@ -227,12 +227,12 @@
 
 		if ( $files ) $maintext .= "<p><a href='index.php?action=$action&act=view'>view/edit existing language files</a>";
 		
-		foreach ( $settings['languages']['options'] as $key => $val ) {		
+		foreach ( getset('languages/options', array()) as $key => $val ) {		
 			if ( !file_exists("$ttroot/common/Sources/i18n/i18n_$key.php") && !file_exists("Sources/i18n_$key.php") ) {
 				$maintext .= "<p>Missing localization file for $key (<a href='index.php?action=$action&act=makephp&lid=$key'>create</a>)";
 			};		
 		};	 
-		if ( !$settings['languages']['options'][$lang] && !file_exists("$ttroot/common/Sources/i18n/i18n_$lang.php") && !file_exists("Sources/i18n_$lang.php") ) {
+		if ( !getset("languages/options/$lang") && !file_exists("$ttroot/common/Sources/i18n/i18n_$lang.php") && !file_exists("Sources/i18n_$lang.php") ) {
 			$maintext .= "<p>Missing localization file for $lang (<a href='index.php?action=$action&act=makephp&lid=$lang'>create</a>)";
 		};		
 
@@ -242,7 +242,7 @@
 			foreach ( $_SESSION['mistrans'] as $langcode => $txtrec ) {
 				if ( !$langcode ) continue;
 				$maintext .= "<h3>Language: $langcode</h3>";
-				if (!$settings['languages']['options'][$langcode]) $maintext .= "<p style='color: #992000;'>$langcode is not currently a selectable language</p>";
+				if (!getset("languages/options/$langcode") ) $maintext .= "<p style='color: #992000;'>$langcode is not currently a selectable language</p>";
 				$maintext .= "<table>
 					<tr><th>'English' term<th>Translation ($langcode)<th>First encountered on";
 				foreach ( $txtrec as $textel => $furl ) {

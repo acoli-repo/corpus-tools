@@ -114,11 +114,11 @@
   		
 	} else if ( $_SESSION['extid'] ) {
 
-		if ( !is_array($settings['permissions']) ) $settings['permissions'] = array();
+		if ( !is_array(getset('permissions')) ) $settings['permissions'] = array();
 		if ( ! getset('permissions/shibboleth') ) $settings['permissions']['shibboleth'] = array ( "display" => "visitor" ); # Always allow Shibboleth login
 		foreach ( $_SESSION['extid'] as $key => $val ) { 
-		if ( is_array($settings['permissions'][$key]) ) { 
-			$tmp = $settings['permissions'][$key];
+		if ( is_array(getset("permissions/$key") ) ) { 
+			$tmp = getset("permissions/$key");
 			$idtype = $key;
 			$idname = $tmp['display'] or $idname = strtoupper($idtype); 
 			$idaction = $tmp['login'] or $idaction = "extuser"; 

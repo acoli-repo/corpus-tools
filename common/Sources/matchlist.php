@@ -11,7 +11,7 @@
 		if ( is_array($_POST['attlist']) && in_array($col, array_keys($_POST['attlist']) ) ) $chk = "checked"; else $chk = "";
 		$showlist .= " <input type=checkbox name=attlist[$col] value='1' $chk> ".pattname($col);
 	};
-	foreach ( $settings['cqp']['sattributes'] as $lvl ) {
+	foreach ( getset('cqp/sattributes', array()) as $lvl ) {
 		$levdisp = $lvl['display'] or $levdisp = $lvl['key'];
 		$row = "";
 		foreach ( $lvl as $xatt ) {
@@ -54,8 +54,8 @@
 
 	if ( $cql ) {
 
-		$cqpcorpus = strtoupper($settings['cqp']['corpus']); # a CQP corpus name ALWAYS is in all-caps
-		$cqpfolder = $settings['cqp']['searchfolder'];
+		$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
+		$cqpfolder = getset('cqp/searchfolder');
 
 		include ("$ttroot/common/Sources/cwcqp.php");
 

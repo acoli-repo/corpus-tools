@@ -6,7 +6,7 @@
 
 	$thisdir = dirname($_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_NAME']); 
 	$query = $_GET['query'];
-	$cqpfolder = $settings['cqp']['searchfolder'];
+	$cqpfolder = getset('cqp/searchfolder', 'cqp');
 	
 	if ( $_GET['text'] || $_GET['prefix'] ){
 		
@@ -38,7 +38,7 @@
 
 		$query = execsafe($query);
 
-		if ( $settings['bin']['grep'] ) $grepcmd = $settings['bin']['grep'];
+		if ( getset('bin/grep') ) $grepcmd = getset('bin/grep');
 		else {
 			$cmd = "/usr/bin/which grep"; $grepcmd = chop(shell_exec($cmd));
 			if ( !$grepcmd ) { $grepcmd = "grep"; };

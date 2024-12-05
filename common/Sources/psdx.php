@@ -62,8 +62,8 @@
 		$editxml = $tmp->asXML();
 		$maintext .= "<div id=mtxt>$editxml</div> <hr>";
 
-		$settingsdefs .= "\n\t\tvar formdef = ".array2json($settings['xmlfile']['pattributes']['forms']).";";
-		$settingsdefs .= "\n\t\tvar tagdef = ".array2json($settings['xmlfile']['pattributes']['tags']).";";
+		$settingsdefs .= "\n\t\tvar formdef = ".array2json(getset('xmlfile/pattributes/forms', array())).";";
+		$settingsdefs .= "\n\t\tvar tagdef = ".array2json(getset('xmlfile/pattributes/tags', array())).";";
 	
 
 		if ( $_GET['jmp'] ) {
