@@ -14,12 +14,12 @@
 	
 	$tplfile = $_POST['tpl'] or $tplfile = $_GET['tpl'];
 	
-	if ( !$tplfile && !$settings['teiheader'] ) $tplfile = "teiHeader-edit.tpl";
+	if ( !$tplfile && !getset('teiheader') ) $tplfile = "teiHeader-edit.tpl";
 
 	if ( $tplfile ) {	
 		if ( file_exists("Resources/teiHeader-$tplfile.tpl") ) $tplfile = "teiHeader-$tplfile.tpl";
 
-		if ( !file_exists("Resources/$tplfile") && $act != "rawview" && !$settings['teiheader'] ) fatal ("No such header template: $tplfile");
+		if ( !file_exists("Resources/$tplfile") && $act != "rawview" && !getset('teiheader') ) fatal ("No such header template: $tplfile");
 		$text = file_get_contents("Resources/$tplfile");
 		if ( $act != "rawview" ) $maintext .= "<h2>Template: $tplfile</h2>";	
 	};
@@ -89,7 +89,7 @@
 		$maintext .= "<hr><p>".$ttxml->viewswitch();
 	
 	
-	} else if ( $settings['teiheader'] && !$tplfile ) {
+	} else if ( is_array(getset('teiheader')) && !$tplfile ) {
 	
 		# New edit method, to become default
 		$defaults = simplexml_load_file("$ttroot/common/Resources/teiHeader.xml", NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
@@ -103,7 +103,7 @@
 		$text = "<table>";
 			
 		$qnum = 0;
-		foreach ( $settings['teiheader'] as $headerfield ) {
+		foreach ( getset('teiheader', array()) as $headerfield ) {
 			if ( !is_array($headerfield) ) continue;
 			$xquery = $headerfield['xpath'] or $xquery = $headerfield['key'];
 			
