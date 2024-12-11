@@ -1,14 +1,19 @@
 <?php
 	// Main php script of TEITOK
 	// called directly from index.php
-	// Maarten Janssen, 2015
+	// Maarten Janssen, 2015-
 
 	# Lower error reporting
 	error_reporting(E_ERROR | E_PARSE);
 	session_start();
 
 	if ( $ttroot == "" ) {
-		$ttroot = getenv('TT_ROOT') or $ttroot = "..";
+		$ttroot = getenv('TT_ROOT');
+	};
+	if ( $ttroot == "" ) {
+		foreach ( get_included_files() as $tmp ) {
+			if ( preg_match("/main\.php/", $tmp) ) $ttroot = dirname($tmp); # Get the current first include directory if TT_ROOT not defined
+		};
 	};
 	include ( "$ttroot/common/Sources/functions.php" ); # Global functions
 
@@ -41,9 +46,12 @@
 	};
 	
 	# Determine the folder to set a folder-specific user cookie
+	$cwdfldr = realpath(getcwd());
 	$scriptfolder = realpath($_SERVER['SCRIPT_FILENAME']);
 	if ( !$foldername )
-	if ( preg_match("/([^\/]+)\/$/", $basefldr, $matches ) ) {
+	if ( preg_match("/([^\/]+)\/$/", $cwdfldr , $matches ) ) {
+		$foldername = $matches[1];
+	} else if ( preg_match("/([^\/]+)\/$/", $scriptfolder, $matches ) ) {
 		$foldername = $matches[1];
 	} else if ( preg_match("/\/([^\/]*)\/\.\.\/index\.php\//", $scriptfolder, $matches ) ) {
 		$foldername = $matches[1];
@@ -55,7 +63,7 @@
 		$foldername = $scriptfolder;
 		$foldername = preg_replace("/.*\/www\/(html\/)?/", "", $foldername); # For /var/www/html
 		$foldername = preg_replace("/.*\/WebServer\/Documents\//", "", $foldername); # For MacOS
-		$foldername = preg_replace("/\/index\.php.*/", "", $foldername);
+		$foldername = dirname($foldername);
 	}; 
 
 	// Deal with sessions and cookies
