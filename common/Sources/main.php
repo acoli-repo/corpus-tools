@@ -15,6 +15,13 @@
 			if ( preg_match("/main\.php/", $tmp) ) $ttroot = dirname($tmp); # Get the current first include directory if TT_ROOT not defined
 		};
 	};
+	if ( $ttroot == "" ) {
+		if ( is_dir("/home/git/TEITOK") ) {
+			$ttroot = "/home/git/TEITOK";
+		} else {
+			$ttroot = "..";
+		};
+	};
 	include ( "$ttroot/common/Sources/functions.php" ); # Global functions
 
 	// Load the settings.xml file (via PHP)
