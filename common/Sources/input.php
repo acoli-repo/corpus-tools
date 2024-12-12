@@ -22,7 +22,7 @@
 		<tr><td valign=top>On-the-fly conversions
 		<table>
 		<tr><th>Source<th>Target"; $i = 0;
-		foreach ( $settings['input']['replace'] as $key => $item ) {
+		foreach ( getset('input/replace', array()) as $key => $item ) {
 			$val = $item['value'];
 			$chareqjs .= "$sep $key = $val"; 
 			$charlist .= "ces['$key'] = '$val';";
@@ -40,7 +40,7 @@
 		$maintext .= "</table><td valign=top>Textual simplifications
 		<table>
 		<tr><th>Source<th>Target"; $i = 0;
-		foreach ( $settings['input']['simplify'] as $key => $item ) {
+		foreach ( getset('input/simplify', array()) as $key => $item ) {
 			$val = $item['value'];
 			$chareqjs .= "$sep $key = $val"; 
 			$charlist .= "ces['$key'] = '$val';";

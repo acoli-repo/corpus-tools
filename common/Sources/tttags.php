@@ -13,7 +13,7 @@ class TTTAGS
 		global $lang, $sharedfolder, $settings;
 		if ( !$sharedfolder ) $sharedfolder = "xxxxx";
 		if ( !$filename) $filename = "xxxxxxxx";
-		$settingstagset = $settings['tagset'] or $settingstagset = "xxxxxxx";
+		$settingstagset = getset('tagset') or $settingstagset = "xxxxxxx";
 		$attempts = array (
 			$filename, "Resources/$filename",  "$sharedfolder/Resources/$filename", 
 			$settingstagset, "Resources/$settingstagset",  

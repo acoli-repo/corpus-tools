@@ -8,7 +8,8 @@
 	check_login();
 	
 	if ( $_GET['script'] ) {
-		$item = $settings['scripts'][$_GET['script']];
+		$sid = $_GET['script'];
+		$item = getset("scripts/$sid");
 		
 		$filename = $_GET['file'];
 		if ( preg_match("/([^\/]+)\.xml/", $filename, $matches ) ) $id = $matches[1];

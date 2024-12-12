@@ -9,7 +9,7 @@
 	$perlapp = findapp("perl") or $perlapp = "/usr/bin/perl";
 
 	// Character-level tags can be defined within each project, but this is the default list
-	if ( !$settings['defaults']['chartags'] ) $chartags = Array ( "add", "del", "supplied", "expan", "abbr", "hi", "lb", "pb", "cb", "ex" ); 
+	if ( !getset('defaults/chartags') ) $chartags = Array ( "add", "del", "supplied", "expan", "abbr", "hi", "lb", "pb", "cb", "ex" ); 
 	
 	$fileid = $_POST['id'] or $fileid = $_GET['cid'] or $fileid = $_GET['id'];
 	
@@ -21,11 +21,11 @@
 			$mtxtelm = "text";
 		};
 
-		if ( $settings['xmlfile']['linebreaks'] ) { $lbcmd = " --linebreaks "; };
+		if ( getset('xmlfile/linebreaks') ) { $lbcmd = " --linebreaks "; };
 		if ( $_GET['s'] ) { $lbcmd .= " --s={$_GET['s']} "; }; # Sentence split
 
 		$tmp = ""; 
-		if (is_array($settings['defaults']['tokenizer'])) $tmp = $settings['defaults']['tokenizer']['sentences'];
+		if (is_array(getset('defaults/tokenizer'))) $tmp = getset('defaults/tokenizer/sentences');
 		if ( $tmp ) $lbcmd .= " --sent=1";
 
 		# Build the UNIX command

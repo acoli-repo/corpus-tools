@@ -139,7 +139,7 @@
 			$burl = getset("defaults/base/url", "<i>Not always used</i>");
 			$maintext .= "<h1>Check Settings</h1>
 				<p>The folder where this project is located ($foldername) does not correspond to the
-					folder specified in the settings ({$settings['defaults']['base']['foldername']}). This is typically due to the fact that
+					folder specified in the settings (".getset('defaults/base/foldername')."). This is typically due to the fact that
 					you moved your project, copied an existing project to create a new one,
 					 or that you recently updated TEITOK from before version 1.8. 
 					 In all those cases, you are asked to verify the settings below 
@@ -159,7 +159,7 @@
 				
 		$maintext .= "<table>
 			<tr><th>Project name<td><a target=edit href='index.php?action=adminsettings&act=edit&node=/ttsettings/defaults/title/@display'>$projtit</a>
-			<tr><th>Corpus name<td><a target=edit href='index.php?action=adminsettings&act=edit&node=/ttsettings/cqp/@corpus'>{$settings['cqp']['corpus']}</a>
+			<tr><th>Corpus name<td><a target=edit href='index.php?action=adminsettings&act=edit&node=/ttsettings/cqp/@corpus'>".getset('cqp/corpus')."</a>
 			<tr><th>Base URL<td><a target=edit href='index.php?action=adminsettings&act=edit&node=/ttsettings/defaults/base/@url'>{$burl}</a>
 			</table>
 			<form action='index.php?action=adminsettings&act=save' method=post>
@@ -269,7 +269,7 @@
 			$maintext .= "<p style='font-size: small; color: #999999;'>TEITOK version: {$version['version']}, {$version['date']}";	
 
 			$scopts['http']['timeout'] = 3; // Set short timeout here to avoid hanging
-			if ( getset('defaults/base/proxy') != "" ) $scopts['http']['proxy'] = $settings['defaults']['base']['proxy'];
+			if ( getset('defaults/base/proxy') != "" ) $scopts['http']['proxy'] = getset('defaults/base/proxy');
 			$ctx = stream_context_create($scopts);	
 			$latesturl = "http://www.teitok.org/latest.php?url={$_SERVER['HTTP_HOST']}".preg_replace("/\/index\.php.*/", "", $_SERVER['REQUEST_URI'])."&version={$version['version']}";
 			$tmpf = file_get_contents($latesturl, false, $ctx);

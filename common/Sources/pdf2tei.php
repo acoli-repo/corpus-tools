@@ -235,8 +235,8 @@
 				$to .= "<input type=hidden name='queries[$key]' value='$xquery'>";
 				$text = preg_replace("/$from/", "$to", $text);
 			};
-			if ( $settings['xmltemplates'] ) {
-				while ( list ( $key, $item ) = each ( $settings['xmltemplates'] ) ) {
+			if ( getset('xmltemplates') ) {
+				while ( list ( $key, $item ) = each ( getset('xmltemplates', array()) ) ) {
 					$templatelist .= "<option value='$key'>{$item['display']}</option>";
 				};
 				$text .= "<p>Also use template file: <select name=withtemplate><option value=''>[none]</option>$templatelist</select></p>";

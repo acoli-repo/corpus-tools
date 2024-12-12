@@ -49,7 +49,7 @@
 		if ( getset('cqp/sattributes/text/title') != "" ) $titlefld = "text_title"; else $titlefld = "text_id";
 
 
-	if ( getset('defaults/locale') != "" ) $localebit = ", '{$settings['defaults']['locale']}'";
+	if ( getset('defaults/locale') != "" ) $localebit = ", '".getset('defaults/locale')."'";
 	$docname = getset('defaults/browser/documents', "documents");
 
 	# Create the selected options

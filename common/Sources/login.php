@@ -82,7 +82,7 @@
 				};
 						
 				// If we login as admin and have not done set-up properly, go to checksettings		
-				if ( $user['permissions'] == "admin" && $settings['defaults']['checkfolder'] && $foldername != $settings['defaults']['base']['foldername'] && $action != "admin" && $action != "adminsettings" && $action != "error"  && !$debug ) {
+				if ( $user['permissions'] == "admin" && getset('defaults/checkfolder') && $foldername != getset('defaults/base/foldername') && $action != "admin" && $action != "adminsettings" && $action != "error"  && !$debug ) {
 					print "<script language=Javasript>top.location='index.php?action=admin&act=checksettings';</script>";
 					exit;
 				};
@@ -145,7 +145,7 @@
 		};
 				
 		if ( !$_SESSION['extid'] ) {
-			if ( $settings['permissions']['orcid'] && $settings['permissions']['orcid']['public'] && $settings['permissions']['orcid']['private'] ) {
+			if ( getset('permissions/orcid') && getset('permissions/orcid/public') && getset('permissions/orcid/private') ) {
 				$maintext .= "<p>{%Visitor login}:  <a href='index.php?action=orcid'><img src=\"https://orcid.org/sites/default/files/images/orcid_16x16.png\" width=\"16\" height=\"16\" hspace=\"4\" /> ORCID</a>";
 			};
 		};		

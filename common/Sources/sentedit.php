@@ -5,12 +5,13 @@
 
 	check_login();
 
-	$sentatts = $settings['xmlfile']['sattributes'];
+	$sentatts = getset('xmlfile/sattributes');
 
 	$fileid = $_POST['cid'] or $fileid = $_GET['cid'];
 	$sentid = $_POST['sid'] or $sentid = $_GET['sid'];
-	$sentname = $sentatts[$stf]['display'] or $sentname = "Sentence";
 	$stype = $_GET['sentence'] or $stype = $_GET['elm'] or $stype = "s";
+	if ( !is_array($sentatts) || !is_array($sentatts[$stype]) ) fatal("No definitions provided for $stype");
+	$sentname = $sentatts[$stf]['display'] or $sentname = "Sentence";
 
 	if ( $fileid ) { 
 	
