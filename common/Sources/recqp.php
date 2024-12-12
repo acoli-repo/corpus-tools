@@ -98,7 +98,7 @@
 		
 		$cursize = hrnum(filesize("cqp/$subc/word.corpus")/4);
 		$dcnt = hrnum(filesize("cqp/$subc/text.rng")/4);
-		$corpcnt = "<p>Current size: $$cursize tokens in $dcnt documents";
+		$corpcnt = "<p>Current size: $cursize tokens in $dcnt documents";
 		
 		$maintext .= "<p>The current status of the process can be read below. 
 		

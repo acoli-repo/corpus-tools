@@ -172,11 +172,17 @@ class CQP
 	}
 	 
 	public function close() {
-		fwrite($this->pipes[0], "exit;");
-		fclose($this->pipes[0]);
-		fclose($this->pipes[1]);
-        proc_terminate($this->prcs);
-	    $return_value = proc_close($this->prcs);
+		if ( is_resource($this->pipes[0]) ) {
+			fwrite($this->pipes[0], "exit;");
+			fclose($this->pipes[0]);
+			fclose($this->pipes[1]);
+		};
+		if ( is_resource($this->prcs) ) {
+			proc_terminate($this->prcs);
+			return proc_close($this->prcs);
+		} else {
+			return -1;
+		};
 	}
 
     public function version() {

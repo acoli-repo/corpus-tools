@@ -172,7 +172,7 @@
 			";
 			
 		$files = scandir("Resources");
-		sort($files);
+		if (is_array($files)) sort($files);
 		
 		foreach ( $files as $entry ) {
 			if ( preg_match("/i18n_(.*?)\.txt/", $entry, $matches) ) { $filedescs[$entry] = "Internationalization file for {$matches[1]}"; };
