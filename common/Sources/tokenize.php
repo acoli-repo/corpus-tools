@@ -25,8 +25,8 @@
 		if ( $_GET['s'] ) { $lbcmd .= " --s={$_GET['s']} "; }; # Sentence split
 
 		$tmp = ""; 
-		if (is_array(getset('defaults/tokenizer'))) $tmp = getset('defaults/tokenizer/sentences');
-		if ( $tmp ) $lbcmd .= " --sent=1";
+		if ( is_array(getset('defaults/tokenizer')) ) $tmp = getset('defaults/tokenizer/sentences');
+		if ( $tmp != '0' ) $lbcmd .= " --sent=1";
 
 		# Build the UNIX command
 		if ( substr($ttroot,0,1) == "/" ) { $scrt = $ttroot; } else { $scrt = "{$thisdir}/$ttroot"; };
