@@ -27,11 +27,17 @@ class VENV
 	
 	function installmod ( $modules ) {
 		foreach ( explode(",", $modules) as $module ) {
-			$test = shell_exec("import $modules; print(\"test\")");
-			if ( $test == "test" ) continue;
-		
+			if ( $this->checkmod($module) ) continue; # already installed
+			
 			$maintext .= shell_exec("$this->venvdir/bin/pip install $module");
 		};
+	}
+
+	function checkmod ( $module ) {
+		# Check whether a module is installed
+		$test = shell_exec("import $module; print(\"test\")");
+		if ( $test == "test" ) return true;
+		return false;
 	}
 		
 	function version ( ) {
