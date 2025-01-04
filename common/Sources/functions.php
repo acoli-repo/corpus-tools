@@ -584,6 +584,7 @@
 			fwrite($fh, $line);
 			fclose ( $fh );
 		} else print "<!-- error opening log file -->";
+		
 	};
 
 	function sentShow ( $sentid, $text, $headpos, $args ) {
