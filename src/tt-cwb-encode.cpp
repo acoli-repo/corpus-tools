@@ -1046,15 +1046,13 @@ int main(int argc, char *argv[])
 			files[tagname+"_"+formkey]["rng"] = fopen(filename.c_str(), "wb");
 		};
 	};
-	// There always should be a text_id
+	
+	// There always should be a text_id - make it (with all associated things)
 	if ( files.find("text") == files.end() ) {
-			registry << "STRUCTURE text" << endl;
+		registry << endl << "STRUCTURE text" << endl;
 	};
 	if ( files.find("text_id") == files.end() ) {
-			registry << "STRUCTURE text_id" << endl;
-	};
-	
-	if ( streams["text_id"]["avs"] == NULL ) {
+		registry << "STRUCTURE text_id" << endl;
 		if ( debug > 4 ) { cout << "Creating text_id" << endl; };
 		filename = corpusfolder+"/"+"text_id.avs";
 		streams["text_id"]["avs"] = new ofstream(filename.c_str());
