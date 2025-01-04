@@ -1047,10 +1047,10 @@ int main(int argc, char *argv[])
 		};
 	};
 	// There always should be a text_id
-	if ( files["text"] == NULL ) {
+	if ( files.find("text") == files.end() ) {
 			registry << "STRUCTURE text" << endl;
 	};
-	if ( files["text_id"] == NULL ) {
+	if ( files.find("text_id") == files.end() ) {
 			registry << "STRUCTURE text_id" << endl;
 	};
 	
