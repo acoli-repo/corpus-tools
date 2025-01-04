@@ -101,16 +101,16 @@
 				if ( $debug ) $maintext .= "<br>No $pattname";
 			};
 		};
+		foreach ( getset("xmlfile/sattributes/$sentelm", array()) as $item ) {
+			if ( is_array($item) && $item['igt'] ) 
+		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>{$item['short']}</td><td style='padding-left: 5px; color: {$item['color']}'> ".$item['display']."</td>";
+		};
 		if ( $morphed ) {
 			$maintext .= "<hr><table style='margin: 0;'>";
 			foreach ( getset("annotations/$morphelm", array()) as $item ) {
 				if (is_array($item)) $maintext .= "<tr><td style='color:{$item['color']};'>".$item['display'];
 			};
 			$maintext .= "</table>";
-		};
-		foreach ( getset("xmlfile/sattributes/$sentelm", array()) as $item ) {
-			if ( is_array($item) && $item['igt'] ) 
-		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>{$item['short']}</td><td style='padding-left: 5px; color: {$item['color']}'> ".$item['display']."</td>";
 		};
 		$maintext .= "</div><td style='padding-left: 5px;' valign=top>";		
 		
