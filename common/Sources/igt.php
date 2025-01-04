@@ -110,7 +110,7 @@
 		};
 		foreach ( getset("xmlfile/sattributes/$sentelm", array()) as $item ) {
 			if ( is_array($item) && $item['igt'] ) 
-		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>{$item['short']}</td><td style='padding-left: 5px; color: {$item['color']}'> "$item['display']."</td>";
+		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>{$item['short']}</td><td style='padding-left: 5px; color: {$item['color']}'> ".$item['display']."</td>";
 		};
 		$maintext .= "</div><td style='padding-left: 5px;' valign=top>";		
 		
