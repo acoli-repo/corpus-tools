@@ -101,10 +101,6 @@
 				if ( $debug ) $maintext .= "<br>No $pattname";
 			};
 		};
-		foreach ( getset("xmlfile/sattributes/$sentelm", array()) as $item ) {
-			if ( is_array($item) && $item['igt'] ) 
-		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>{$item['short']}</td><td style='padding-left: 5px; color: {$item['color']}'> ".$item['display']."</td>";
-		};
 		if ( $morphed ) {
 			$maintext .= "<hr><table style='margin: 0;'>";
 			foreach ( getset("annotations/$morphelm", array()) as $item ) {
@@ -145,8 +141,10 @@
 			$maintext .= "</div>";		
 		};
 		foreach ( getset("xmlfile/sattributes/$sentelm", array()) as $item ) {
-			if ( is_array($item) && $item['igt'] ) 
-		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>{$item['short']}</td><td style='padding-left: 5px; color: {$item['color']}'> ".$sent[$item['key']]."</td>";
+			if ( is_array($item) && $item['igt'] ) {
+				$stit = $item['short'] or $stit = $item['display'] or $stit = $item['key'];
+		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>$stit</td><td style='padding-left: 5px; color: {$item['color']}'> ".$sent[$item['key']]."</td>";
+		 	};
 		};
 		$maintext .= "</div></table><hr>";
 	};
