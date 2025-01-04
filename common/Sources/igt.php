@@ -141,7 +141,7 @@
 			$maintext .= "</div>";		
 		};
 		foreach ( getset("xmlfile/sattributes/$sentelm", array()) as $item ) {
-			if ( is_array($item) ) 
+			if ( is_array($item) && $item['igt'] ) 
 		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>{$item['short']}</td><td style='padding-left: 5px; color: {$item['color']}'> ".$sent[$item['key']]."</td>";
 		};
 		$maintext .= "</div></table><hr>";
