@@ -1047,7 +1047,7 @@ int main(int argc, char *argv[])
 		};
 	};
 	
-	// There always should be a text_id - make it (with all associated things)
+	// There always should be a text_id - make it (with all associated things) if it is not defined in settings.xml
 	if ( files.find("text") == files.end() ) {
 		registry << endl << "STRUCTURE text" << endl;
 	};
