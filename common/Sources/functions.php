@@ -570,7 +570,7 @@
 		if ( !$logfile ) $logfile = getset('log/actionlog');
 		if ( !$logfile ) $logfile = getset('log/errorlog');
 		
-		if (!$logfile) { return -1; };
+		if ( !$logfile || !is_string($logfile) ) { return -1; };
 		if ( $admin && !$username ) { return -1; };
 		
 		if ( !$username ) $username  = "guest";
