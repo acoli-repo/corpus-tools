@@ -70,6 +70,7 @@
 	
 	};
 
+
 	$anns = glob("Annotations/*_$ttxml->fileid");
 	if ( $anns ) {
 		$maintext .= "<hr>
@@ -252,5 +253,35 @@
 		};
 		$maintext .= "</table>";
 	};
+
+	$maintext .= "<hr><h2>Consistency Checks</h2>";
+	$sd = 0;
+	# Check that the file is valid in all necessary tools
+// 	if ( $xmlwf = findapp("xmlwf") ) {
+// 		$result = shell_exec("$xmlwf $filename");
+// 		print "XMLWF: <pre>$result</pre>"; exit;
+// 	};
+	if ( $prl = findapp("perl") ) {
+ 		$result = shell_exec("use XML::LibXML; \$parser = XML::LibXML->new(); $index = $parser->load_xml(location => \"$filename\")");
+ 		if ( $result ) {
+			$sd = 1;
+ 			$maintext .= "<h1>Perl Error</h1><p>Perl reports an error in the XML file: <pre>$result</pre>"; 
+ 		};
+	};
+	$nonum = $ttxml->xpath("//tok[not(@id)]");
+	$numd = $ttxml->xpath("//tok[@id]");
+	if ( $nonum ) {
+		$sd = 1;
+		if ( $numd ) {
+			$maintext .= "<p>This text has tokens, but not all tokens have an identifier. Unnumbered token(s):"; $nn = 0; 
+			foreach ( $nonum as $nn ) {
+				if ( $cnt++ > 10 ) last;
+				$maintext .= " <i>".$nn."</i>";
+			};
+		} else {
+			$maintext .= "<p>This text has tokens, but has not been renumbered.";
+		};
+	};
+	if ( !$sd ) $maintext .= "<p><i>No issues were detected</i></p>";
 
 ?>
