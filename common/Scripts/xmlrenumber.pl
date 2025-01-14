@@ -11,6 +11,7 @@ use XML::LibXML;
             'xx=s' => \$xx, # custom items to number
             'thisdir=s' => \$thisdir, # determine where we are running from
             'emptyatt=s' => \$emptyatt, # attribute to use for empty sentences
+            'reqsent' => \$reqsent, # require all tokens to be under a sentence (if there are sentences)
             );
 
 	if ( $filename eq '' ) { $filename = shift; };
@@ -144,7 +145,8 @@ use XML::LibXML;
 				# if ( $debug ) { print "\nSentence: $tokid => $sid"; };
 				$s2tok{$sid} .= "#$tokid ";
 			} else {
-				if ( $debug ) { print "\nNo sent found for $tokid: ".$tok->parentNode->toString; }; exit;
+				if ( $debug ) { print "\nNo sent found for $tokid: ".$tok->parentNode->toString; }; 
+				if ( $reqsent ) { exit; };
 			};
 		};
 
