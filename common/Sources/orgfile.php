@@ -55,7 +55,7 @@
 		
 		$vact = $viewers[$extention]['action'];
 		$xmlname = $ttxml->xmlid or $xmlname = preg_replace("/.*([^\/]+?)\?[^.]*/", "\\1", $filename);
-		$rawtxt = "<p>Custom visualization tool: <a href='index.php?action=$vact&id=$filename'>$vact</a></p>";	
+		$rawtxt = "<p>Custom visualization tool: <a href='index.php?action=$vact&id=$xmlname'>$vact</a></p>";	
 
 	} else if ( file_exists($filename) && !$filetype[$extention]['show'] ) {
 		
