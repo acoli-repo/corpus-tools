@@ -86,7 +86,7 @@
 	
 	# Old sattributes did not have <text> inside
 	if ( !is_array(getset('cqp/sattributes/text')) ) {
-		$settings['cqp']['sattributes']['text'] = getset('cqp/sattributes');
+		$settings['cqp']['sattributes']['text'] = array();
 		$settings['cqp']['sattributes']['text']['display'] = "Document search";
 		$settings['cqp']['sattributes']['text']['key'] = "text";
 		$settings['cqp']['sattributes']['text']['level'] = "text";

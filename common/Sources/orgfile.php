@@ -24,6 +24,8 @@
 			),
 		);
 	
+	$viewers = getset("viewers", array());
+	
 	# Determine the raw filename
 	if ( $_GET['cid'] || $_GET['id'] ) {
 		require_once ("$ttroot/common/Sources/ttxml.php");
@@ -86,12 +88,18 @@
 			$rawtxt = "<pre>$tmp</pre>";
 		};
 		
+	} else if ( $viewers[$extention] ) {
+		
+		$vact = $viewers[$extention]['action'];
+		$maintext .= "<h1>Visualizable file</h1><p>User visualization tool: <a href='index.php?action=$vact&id=$basename'>$vact</a></p>";	
+
 	} else if ( file_exists($filename.".Z") ) {
-		# compressed file
-		$filename .= ".Z";
-		$cmd = "/bin/zcat '$filename'";
-		$rawtxt = shell_exec($cmd);
-		$rawtxt = "<pre>".htmlentities($rawtxt)."</pre>";
+
+	   # compressed file
+	   $filename .= ".Z";
+	   $cmd = "/bin/zcat '$filename'";
+	   $rawtxt = shell_exec($cmd);
+	   $rawtxt = "<pre>".htmlentities($rawtxt)."</pre>";
 
 	} else {
 		$nofile = 1;
