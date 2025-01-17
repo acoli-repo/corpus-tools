@@ -51,7 +51,12 @@
 	};
 
 	# Get the raw source file
-	if ( file_exists($filename) && !$filetype[$extention]['show'] ) {
+	if ( $viewers[$extention] ) {
+		
+		$vact = $viewers[$extention]['action'];
+		$rawtxt = "<p>User visualization tool: <a href='index.php?action=$vact&id=$basename'>$vact</a></p>";	
+
+	} else if ( file_exists($filename) && !$filetype[$extention]['show'] ) {
 		
 		if ( is_array($filetype[$extention]['helpers']) ) {
 			foreach ( $filetype[$extention]['helpers'] as $app => $options ) {
@@ -88,11 +93,6 @@
 			$rawtxt = "<pre>$tmp</pre>";
 		};
 		
-	} else if ( $viewers[$extention] ) {
-		
-		$vact = $viewers[$extention]['action'];
-		$maintext .= "<h1>Visualizable file</h1><p>User visualization tool: <a href='index.php?action=$vact&id=$basename'>$vact</a></p>";	
-
 	} else if ( file_exists($filename.".Z") ) {
 
 	   # compressed file
