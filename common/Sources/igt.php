@@ -162,7 +162,7 @@
 		};
 		if ( $audiourl && $sent['start'] && $sent['end'] ) {
 			$strt = $sent['start']; $stp = $sent['end']; 
-			$audiobut = "<img src=\"$playimg\" width=\"14\" height=\"14\" style=\"margin-right: 5px;\" onClick=\"playpart('$audiofile', $strt, $stp, this );\"></img>";
+			$audiobut = "<a onClick=\"playpart('$audiofile', $strt, $stp, this );\">{%play audio}</a>";
 		 	$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>Audio</td><td style='padding-left: 5px; color: {$item['color']}'>$audiobut	</td>";
 		};
 		$maintext .= "</div></table><hr>";

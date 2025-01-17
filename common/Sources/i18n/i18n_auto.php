@@ -121,6 +121,7 @@
 		"starts with" => "starts with",
 		"ends in" => "ends in",
 		"Searchable fields" => "Searchable fields",
+		"play audio" => "play audio",
 		"to text mode" => "to text mode",
 		"Facsimile Lines" => "Facsimile Lines",
 		"Line view" => "Line view",
