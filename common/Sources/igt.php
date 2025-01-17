@@ -157,7 +157,8 @@
 		foreach ( getset("xmlfile/sattributes/$sentelm", array()) as $item ) {
 			if ( is_array($item) && $item['igt'] ) {
 				$stit = $item['short'] or $stit = $item['display'] or $stit = $item['key'];
-		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>$stit</td><td style='padding-left: 5px; color: {$item['color']}'> ".$sent[$item['key']]."</td>";
+				$sval = $sent[$item['key']]."";
+		 		if ( $sval != '' ) $maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>$stit</td><td style='padding-left: 5px; color: {$item['color']}'>$sval</td>";
 		 	};
 		};
 		if ( $audiourl && $sent['start'] && $sent['end'] ) {
