@@ -25,6 +25,20 @@
 	$maintext .= "<h2>$layername</h2>"; 
 	$maintext .= "<h1>".$ttxml->title()."</h1>"; 
 
+	if ( $ttxml->audio ) {
+		// Determine where the playbutton is hosted
+		if ( getset('defaults/playbutton') ) $playimg = getset('defaults/playbutton');
+		else  if ( file_exists("$sharedfolder/Images/playbutton.gif") ) $playimg = "$sharedurl/Images/playbutton.gif";
+		else  if ( file_exists("Images/playbutton.gif") ) $playimg = "Images/playbutton.gif";
+		else $playimg = "$hprot://www.teitok.org/Images/playbutton.gif";
+		$audiourl = "Audio/".$ttxml->audio[0]['url'];
+		$maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>";
+		$maintext .= "<audio id=\"track\" src=\"$audiourl\" controls ontimeupdate=\"checkstop();\">
+							<p><i><a href='$audiourl'>{%Audio}</a></i></p>
+						</audio>
+						"; 
+	};
+
 	# Display the teiHeader data as a table
 	$maintext .= $ttxml->tableheader(); 
 
@@ -145,6 +159,11 @@
 				$stit = $item['short'] or $stit = $item['display'] or $stit = $item['key'];
 		 		$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>$stit</td><td style='padding-left: 5px; color: {$item['color']}'> ".$sent[$item['key']]."</td>";
 		 	};
+		};
+		if ( $audiourl && $sent['start'] && $sent['end'] ) {
+			$strt = $sent['start']; $stp = $sent['end']; 
+			$audiobut = "<img src=\"$playimg\" width=\"14\" height=\"14\" style=\"margin-right: 5px;\" onClick=\"playpart('$audiofile', $strt, $stp, this );\"></img>";
+		 	$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>Audio</td><td style='padding-left: 5px; color: {$item['color']}'>$audiobut	</td>";
 		};
 		$maintext .= "</div></table><hr>";
 	};
