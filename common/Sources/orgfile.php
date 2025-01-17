@@ -54,7 +54,7 @@
 	if ( $viewers[$extention] ) {
 		
 		$vact = $viewers[$extention]['action'];
-		$rawtxt = "<p>User visualization tool: <a href='index.php?action=$vact&id=$basename'>$vact</a></p>";	
+		$rawtxt = "<p>User visualization tool: <a href='index.php?action=$vact&id=$filename'>$vact</a></p>";	
 
 	} else if ( file_exists($filename) && !$filetype[$extention]['show'] ) {
 		
