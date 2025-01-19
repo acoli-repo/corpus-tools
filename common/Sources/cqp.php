@@ -686,7 +686,7 @@
 					if ( preg_match("/end=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1]; else $stp = 0;
 					// Determine where the playbutton is hosted
 					if ( getset('defaults/playbutton') ) $playimg = getset('defaults/playbutton');
-					else  if ( file_exists("$sharedfolder/Images/playbutton.gif") ) $playimg = "$sharedurl/Images/playbutton.gif";
+					else  if ( $sharedurl && file_exists("$sharedfolder/Images/playbutton.gif") ) $playimg = "$sharedurl/Images/playbutton.gif";
 					else  if ( file_exists("Images/playbutton.gif") ) $playimg = "Images/playbutton.gif";
 					else $playimg = "$hprot://www.teitok.org/Images/playbutton.gif";
 					$audiobut = "<td><img src=\"$playimg\" width=\"14\" height=\"14\" style=\"margin-right: 5px;\" onClick=\"playpart('$audiofile', $strt, $stp, this );\"></img></td>";
