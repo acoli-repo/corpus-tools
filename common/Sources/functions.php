@@ -1376,5 +1376,26 @@
 		};
 		return $corps;
 	};
+
+	function showhtml ($file) {
+		global $username;
+		
+		# Create an edit HTML button	
+		if ( $username ) {
+			$baseaction = $_GET['action'] or $baseaction = "home";
+			$editaction = preg_replace("/-[a-z]{2,3}$/", "", $baseaction);
+			$editdate = date ("F d Y H:i:s.", filemtime($file));
+			$lastedit = "<span style='color: #999999'>Last edit: $editdate</span> - ";
+			$page = "<div class='adminpart' style='float: right;'>$lastedit <a href='index.php?action=pageedit&id={$editaction}&pagelang=$lang'>edit page</a></div>";
+		};
+		
+		$html = file_get_contents($file);
+		if ( substr($file, -3) == ".md" ) { $html = md2html($html); };	
+		
+		$page .= $html;
+		
+		return $page;
+	};
+	
 	
 ?>

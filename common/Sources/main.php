@@ -206,13 +206,6 @@
 	if ( !in_array($action, $nohtmlactions)  )
 	if ( file_exists("Sources/menu.php") ) include("Sources/menu.php");
 	else include("$ttroot/common/Sources/menu.php");
-
-	# Create an edit HTML button	
-	if ( $username ) {
-		$baseaction = $_GET['action'] or $baseaction = "home";
-		$editaction = preg_replace("/-[a-z]{2,3}$/", "", $baseaction);
-		$edithtml = "<div class='adminpart' style='float: right;'><a href='index.php?action=pageedit&id={$editaction}&pagelang=$lang'>edit page</a></div>";
-	};
 			
 	# Use the shared template if no local one exists
 	if (  $_GET['template'] == "none" ) {
@@ -230,19 +223,19 @@
 	## Determine which action to perform
 	if ( file_exists( "Pages/$action-$lang.html" ) ) {
 		# Local page - language depedent
-		$maintext = $edithtml.file_get_contents ( "Pages/$action-$lang.html" );
+		$maintext = showhtml ( "Pages/$action-$lang.html" );
 	} else if ( file_exists( "Pages/$action-$lang.md" ) ) {
 		# Local page - no language
-		$maintext = $edithtml.md2html(file_get_contents ( "Pages/$action-$lang.md" ));
+		$maintext = showhtml( "Pages/$action-$lang.md" );
 	} else if ( file_exists( "Pages/$action.html" ) ) {
 		# Local page - no language
-		$maintext = $edithtml.file_get_contents ( "Pages/$action.html" );
+		$maintext = showhtml ( "Pages/$action.html" );
 	} else if ( file_exists( "Pages/$action.md" ) ) {
 		# Local page - no language
-		$maintext = $edithtml.md2html(file_get_contents ( "Pages/$action.md" ));
+		$maintext = showhtml ( "Pages/$action.md" );
 	} else if ( file_exists( "Pages/$action-$deflang.html" ) ) {
 		# Local page - default language
-		$maintext = $edithtml.file_get_contents ( "Pages/$action-$deflang.html" );
+		$maintext = showhtml ( "Pages/$action-$deflang.html" );
 	} else if ( file_exists( "Sources/$action.php" ) ) {
 		# Local script
 		include ( "Sources/$action.php" );
@@ -254,13 +247,13 @@
 		$maintext = $edithtml.file_get_contents (  "$sharedfolder/Pages/$action-$lang.html" );
 	} else if ( $sharedfolder && file_exists( "$sharedfolder/Pages/$action.html" ) ) {
 		# Locally shared page
-		$maintext = $edithtml.file_get_contents (  "$sharedfolder/Pages/$action.html" );
+		$maintext = showhtml (  "$sharedfolder/Pages/$action.html" );
 	} else if ( file_exists( "$ttroot/common/Pages/$action-$lang.html" ) ) {
 		# Common page
-		$maintext = $edithtml.file_get_contents ( "$ttroot/common/Pages/$action-$lang.html" );
+		$maintext = showhtml ( "$ttroot/common/Pages/$action-$lang.html" );
 	} else if ( file_exists( "$ttroot/common/Pages/$action.html" ) ) {
 		# Common page
-		$maintext = $edithtml.file_get_contents ( "$ttroot/common/Pages/$action.html" );
+		$maintext = showhtml ( "$ttroot/common/Pages/$action.html" );
 	} else if ( file_exists( "$ttroot/common/Sources/$action.php" ) ) {
 		# Common script
 		include ( "$ttroot/common/Sources/$action.php" );
