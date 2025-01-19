@@ -682,6 +682,7 @@
 				};
 
 				if ( $audioelm && $audiofile ) {
+					$sharedurl = getset("defaults/base/sharedurl");
 					if ( preg_match("/start=\"([^\"]*)\"/", $resxml, $matches ) ) $strt = $matches[1]; else $strt = 0;
 					if ( preg_match("/end=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1]; else $stp = 0;
 					// Determine where the playbutton is hosted
