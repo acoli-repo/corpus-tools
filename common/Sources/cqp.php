@@ -680,7 +680,7 @@
 				if ( $audiofile && substr($audiofile,0,4) != "http" && !file_exists($audiofile) ) {
 					if ( file_exists("Audio/$audiofile") ) $audiofile = "Audio/$audiofile";
 					else {
-						$maintext .= "<td reason=\"no audio\"></td>";
+						# $maintext .= "<td reason=\"no audio\"></td>";
 						$audiofile = ""; # Remove playable audio if local audio file cannot be found
 					};
 				};
