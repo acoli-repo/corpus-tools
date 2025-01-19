@@ -678,6 +678,7 @@
 
 				if ( $audioelm && $audiofile ) {
 					# Check if the autio exists
+					$missing = 0;
 					if ( $audiofile && substr($audiofile,0,4) != "http" && !file_exists($audiofile) ) {
 						if ( file_exists("Audio/$audiofile") ) $audiofile = "Audio/$audiofile";
 						else {
