@@ -319,6 +319,7 @@
 			if ( $mtype == "audio" ) {
 				# Determine the URL of the audio fragment
 				$audiourl = $medianode['url'];
+				$audiofilename = $audiourl;
 				if ( getset('defaults/media/baseurl') != '' ) {
 					$audiourl = getset('defaults/media/baseurl', '').$audiourl;
 				} else if ( getset('defaults/base/media') != '' ) {
@@ -328,12 +329,17 @@
 					if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
 					else $audiourl = $baseurl."Audio/$audiourl"; 
 				}
+				# Prefix with Audio if needed
+				if ( $audiofilename && substr($audiofilename,0,4) != "http" && !file_exists($audiofilename) ) {
+					if ( file_exists("Audio/$audiofilename") ) $audiofilename = "Audio/$audiofilename";
+					else $missing = "1"; # Remove playable audio if local audio file cannot be found
+				};
 				if ( preg_match ( "/MSIE|Trident/i", $_SERVER['HTTP_USER_AGENT']) ) {	
 					// IE does not do sound - so just put up a warning
 					$audiobit .= "
 							<p><i><a href='$audiourl'>{%Audio}</a></i> - {%Consider using Chrome or Firefox for better audio support}</p>
 						"; 
-				} else {
+				} else if ( !$missing ) {
 					$audiobit .= "<audio id=\"track\" src=\"$audiourl\" controls ontimeupdate=\"checkstop();\">
 							<p><i><a href='$audiourl'>{%Audio}</a></i></p>
 						</audio>
