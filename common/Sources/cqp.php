@@ -676,16 +676,15 @@
 				$m1 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m1 );
 				$m2 = preg_replace("/d-(\d+)-\d+/", "w-\\1", $m2 );
 
-				# Prefix with Audio if needed
-				if ( $audiofile && substr($audiofile,0,4) != "http" && !file_exists($audiofile) ) {
-					if ( file_exists("Audio/$audiofile") ) $audiofile = "Audio/$audiofile";
-					else {
-						# $maintext .= "<td reason=\"no audio\"></td>";
-						$audiofile = ""; # Remove playable audio if local audio file cannot be found
-					};
-				};
-
 				if ( $audioelm && $audiofile ) {
+					# Check if the autio exists
+					if ( $audiofile && substr($audiofile,0,4) != "http" && !file_exists($audiofile) ) {
+						if ( file_exists("Audio/$audiofile") ) $audiofile = "Audio/$audiofile";
+						else {
+							$missing = ""; # Remove playable audio if local audio file cannot be found
+						};
+					};
+
 					$sharedurl = getset("defaults/base/sharedurl");
 					if ( preg_match("/start=\"([^\"]*)\"/", $resxml, $matches ) ) $strt = $matches[1]; else $strt = 0;
 					if ( preg_match("/end=\"([^\"]*)\"/", $resxml, $matches ) ) $stp = $matches[1]; else $stp = 0;
@@ -694,11 +693,16 @@
 					else  if ( $sharedurl && file_exists("$sharedfolder/Images/playbutton.gif") ) $playimg = "$sharedurl/Images/playbutton.gif";
 					else  if ( file_exists("Images/playbutton.gif") ) $playimg = "Images/playbutton.gif";
 					else $playimg = "$hprot://www.teitok.org/Images/playbutton.gif";
-					$audiobut = "<td><img src=\"$playimg\" width=\"14\" height=\"14\" style=\"margin-right: 5px;\" onClick=\"playpart('$audiofile', $strt, $stp, this );\"></img></td>";
+					
+					if ( $missing ) {
+						$audiobut = "<td></td>"; ## Do not display button when there is no audio
+					} else {
+						$audiobut = "<td><img src=\"$playimg\" width=\"14\" height=\"14\" style=\"margin-right: 5px;\" onClick=\"playpart('$audiofile', $strt, $stp, this );\"></img></td>";
 
-					$maintext .= "<script language='Javascript'>var playimg1 = '$playimg';</script>";
-					$maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>";
-					$maintext .= "<div style='display: none;'><audio id=\"track\" src=\"data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA\" controls ontimeupdate=\"checkstop();\"></audio></div>";
+						$maintext .= "<script language='Javascript'>var playimg1 = '$playimg';</script>";
+						$maintext .= "<script language='Javascript' src=\"$jsurl/audiocontrol.js\"></script>";
+						$maintext .= "<div style='display: none;'><audio id=\"track\" src=\"data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA\" controls ontimeupdate=\"checkstop();\"></audio></div>";
+					};
 				};
 
 				# Now, clean the resulting XML in various ways to make it display better
