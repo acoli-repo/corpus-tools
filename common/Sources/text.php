@@ -339,7 +339,9 @@
 					$audiobit .= "
 							<p><i><a href='$audiourl'>{%Audio}</a></i> - {%Consider using Chrome or Firefox for better audio support}</p>
 						"; 
-				} else if ( !$missing ) {
+				} else if ( $missing ) {
+					$audiobit = "<ee/>";
+				} else {
 					$audiobit .= "<audio id=\"track\" src=\"$audiourl\" controls ontimeupdate=\"checkstop();\">
 							<p><i><a href='$audiourl'>{%Audio}</a></i></p>
 						</audio>
