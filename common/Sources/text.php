@@ -329,11 +329,13 @@
 					if ( file_exists($audiourl) ) $audiourl =  "$baseurl/$audiourl"; 
 					else $audiourl = $baseurl."Audio/$audiourl"; 
 				}
+				
 				# Prefix with Audio if needed
 				if ( $audiofilename && substr($audiofilename,0,4) != "http" && !file_exists($audiofilename) ) {
 					if ( file_exists("Audio/$audiofilename") ) $audiofilename = "Audio/$audiofilename";
 					else $missing = "1"; # Remove playable audio if local audio file cannot be found
 				};
+				
 				if ( preg_match ( "/MSIE|Trident/i", $_SERVER['HTTP_USER_AGENT']) ) {	
 					// IE does not do sound - so just put up a warning
 					$audiobit .= "

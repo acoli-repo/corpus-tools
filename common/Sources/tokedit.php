@@ -14,32 +14,19 @@
 	
 	if ( !strstr( $fileid, '.xml') ) { $fileid .= ".xml"; };
 	
-	if ( $fileid ) { 
-	
-		if ( !file_exists("$xmlfolder/$fileid") ) { 
-	
-			$fileid = preg_replace("/^.*\//", "", $fileid);
-			$test = array_merge(glob("$xmlfolder/**/$fileid")); 
-			if ( !$test ) 
-				$test = array_merge(glob("$xmlfolder/$fileid"), glob("$xmlfolder/*/$fileid"), glob("$xmlfolder/*/*/$fileid")); 
-			$temp = array_pop($test); 
-			$fileid = preg_replace("/^".preg_quote($xmlfolder, '/')."\/?/", "", $temp);
-	
-			if ( $fileid == "" ) {
-				fatal("No such XML File: {$oid}"); 
-			};
-		};
-		
-		$file = file_get_contents("$xmlfolder/$fileid"); 
-		$xml = simplexml_load_string($file);
+	require("$ttroot/common/Sources/ttxml.php");
+	$ttxml = new TTXML();
+	$fileid = $ttxml->fileid;
+	$xmlid = $ttxml->xmlid;
+	$xml = $ttxml->xml;
 
-		$result = $xml->xpath("//tok[@id='$tokid']"); 
-		$token = $result[0]; # print_r($token); exit;
-		if ( !$token ) { fatal("Token not found: $tokid"); };
+	$result = $xml->xpath("//tok[@id='$tokid']"); 
+	$token = $result[0]; # print_r($token); exit;
+	if ( !$token ) { fatal("Token not found: $tokid"); };
 
-		$tokform = $token['form'] or $tokform = $token."";
+	$tokform = $token['form'] or $tokform = $token."";
 
-		$rawtok = preg_replace( "/<\/?tok[^>]*>/", "", $token->asXML() );
+	$rawtok = preg_replace( "/<\/?tok[^>]*>/", "", $token->asXML() );
 
 	if ( !$token['id'] || $token->xpath(".//dtok[not(@id)]") ) {
 		$warning = "<div class=warning>There are TOK or DTOK without @id, which will not allow TEITOK 
@@ -82,6 +69,7 @@
 	};			
 
 		if ( $token['bbox'] ) {
+			# This is a token-aligned facsimile transcription
 			$curr = current($token->xpath("./preceding::pb[1]")); 
 			$imgsrc = $curr['facs']; 
 			if ( strpos($imgsrc, "http" ) === false ) $imgsrc = "Facsimile/$imgsrc";
@@ -109,27 +97,52 @@
 				$bboxpart = "<div style='float: right;'><div style=' width: {$divwidth}px; height: {$divheight}px; overflow: hidden; margin: 3px;'>
 					<img style='width: {$setwidth}px; height: {$setheight}px; margin-top: -{$topoffset}px; margin-left: -{$leftoffset}px;' src='$imgsrc'/>
 					</div>
-					<p style='text-align: center; margin-top: -2px;'><a href='index.php?action=elmedit&tid=$tokid&cid=$fileid'>edit</a><p>			
+					<p style='text-align: center; margin-top: -2px;'><a href='index.php?action=elmedit&tid=$tokid&cid=$fileid'>edit</a></p>			
 					</div>";
 
 			};
 			
  		};
+		if ( ( $token['start'] && $token['end'] ) || $token->xpath(".//ancestor::u[@start and @end]") ) {
+			# This is a token-level aligned audio transcription
 
+			$timeoffset = 0;			
+			$audionode = $ttxml->audio;
+			$audiosrc = $audionode[0]['url'];
+			if (  $token['start'] && $token['end'] ) {
+				$spstart = $token['start'] - $timeoffset; $spend =  $token['end']; $splen = $spend - $spstart;
+				$tokplay = "<p style='text-align: center; margin-top: 0px; margin-bottom: 0px;' onclick=\"playpart('', $spstart, $spend);\">play token audio</p>";
+			};
+			$utt = current($token->xpath(".//ancestor::u[@start and @end]"));
+			if ( $utt ) {
+				$utstart = $utt['start'] - $timeoffset; $utend = $utt['end']; $utlen = $utend - $utstart;
+				$uttplay = "<p style='text-align: center; margin-top: 0px;' onclick=\"playpart('', $utstart, $utend);\">play utterance audio</p>";
+			};
+			$sptapart = "<div style='float: right;'><div style='diplay: none;'>
+				<script language='Javascript' src=\"$jsurl/audiocontrol.js\" style='diplay: none;'></script>
+				<audio id=\"track\" src=\"$audiosrc\" controls=\"\" ontimeupdate=\"checkstop();\">
+							<p><i><a href=\"$audiosrc\">Audio</a></i></p>
+						</audio>
+				</div>
+				$tokplay			
+				$uttplay			
+				</div>";
+			
+		};
+		
 		$multisep = getset('cqp/multiseperator', ",");
 		foreach ( getset('xmlfile/pattributes/forms', array()) as $item ) {
 			if ( $item['inherit'] ) $inherits .= "\n				inherit['{$item['key']}'] = '{$item['inherit']}';";
 		};
-		$maintext .= "<h1>Edit Token</h1>
+		$tableheader = 	$ttxml->tableheader();
+		$title = $ttxml->title();
+		$maintext .= "<h2>$ttxml->filename</h2><h1>Edit Token: $tokid</h1>
 		
-				<table>
-				<tr><th span='row'>Filename</th><td>$fileid</td></tr>
-				<tr><th span='row'>Title</th><td>$title</td></tr>
-				</table>
-				<hr>
+				$tableheader
 		
 			<h2>Token value ($tokid): ".$rawtok."</h2>
 			$bboxpart
+			$sptapart
 			$chareqjs
 			<script language=Javascript>
 				var defmultisep = '$multisep';
@@ -785,9 +798,5 @@
 
 		// Add a session logout tester live check
 		$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
-	
-	} else {
-		print "Oops"; exit;
-	};
-	
+		
 ?>
