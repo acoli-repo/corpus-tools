@@ -130,12 +130,18 @@
 			$tokid = $tok['id'];
 			$maintext .= "<div class=floatbox id='$sid' style='text-align: center;'>".$tok->asXML();
 			foreach ( $doatts as $pattlvl => $thiscolor ) {
+				$val = "";
 				if ( getset("xmlfile/pattributes/forms/$pattlvl/compute") != "" ) {
+					# This is a computable form
 					$tokcp = new SimpleXMLElement($tok->asXML());
 					$tokcp['setform'] = $pattlvl;
 					$val = $tokcp->asXML();
-				} else {
+				} else if ( getset("xmlfile/pattributes/forms/$pattlvl") != "" ) {
+					# This is a form - inherit it
 					$val = forminherit($tok, $pattlvl);
+				} else {
+					# This is a tag - do not inherit
+					$val = $tok[$pattlvl] or $val = "&nbsp;";
 				};
 				$ptit = $attarr[$pattlvl]['display'];
 				$maintext .= "<br><span style='color: $thiscolor' title='$ptit'>$val</span>";
@@ -168,7 +174,7 @@
 			$audiobut = "<a onClick=\"playpart('$audiofile', $strt, $stp, this );\">{%play audio}</a>";
 		 	$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>Audio</td><td style='padding-left: 5px; color: {$item['color']}'>$audiobut	</td>";
 		};
-		$maintext .= "</div></table><hr>";
+		$maintext .= "</div><hr>";
 	};
 	$maintext .= "</table></div><hr>
 				<script language=Javascript>			
