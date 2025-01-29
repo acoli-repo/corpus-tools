@@ -41,6 +41,7 @@
 
 	# Display the teiHeader data as a table
 	$maintext .= $ttxml->tableheader(); 
+	$editxml = $ttxml->asXML(); # We are not showing this, but we need it to check for attributes
 
 			#Build the view options	
 			foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
@@ -75,6 +76,7 @@
 				};
 			};
 			$jsonforms = array2json(getset('xmlfile/pattributes/forms'));
+			$jsonforms .= "\n\t\tvar tagdef = ".array2json(getset('xmlfile/pattributes/tags', array())).";";
 			$jsontrans = array2json(getset('transliteration'));
 
 	$hlcol = $_POST['hlcol'] or $hlcol = $_GET['hlcol'] or $hlcol = getset('defaults/highlight/color', "#ffffaa"); 
