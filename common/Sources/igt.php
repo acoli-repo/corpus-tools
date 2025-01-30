@@ -5,7 +5,7 @@
 
 	require ("$ttroot/common/Sources/ttxml.php");
 	
-	$colors = array ('red', 'green', 'blue', 'orange', 'purple', 'pink');
+	$colors = array ('#aa2200', 'green', 'blue', 'orange', 'purple', 'pink');
 	
 	$ttxml = new TTXML();
 	$cid = $ttxml->xmlid;
