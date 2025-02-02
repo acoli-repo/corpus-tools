@@ -77,6 +77,8 @@
 		
 		// define the word search		
 		foreach ( $cqpcols as $col ) {
+			$collex = file_get_contents("$corpusfolder/$col.lexicon");
+			if ( $collex == "" ) continue; # Skip fields that have no values
 			$colname = pattname($col); 
 			$coldef = getset("cqp/pattributes/$col");
 			if ( $coldef == "" ) continue;
@@ -122,13 +124,13 @@
 				};
 				$udflist .= "</table>";
 				$wordsearchtxt .= "<tr id='udv$col'><th span=\"row\"$tstyle>{%$colname}
-									<input type=hidden name=\"matches[$col]\" value='contains'>
-						      <td>			<a onclick=\"document.getElementById('udf$col').style.display='inherit'; document.getElementById('vals[$col]').value=''; document.getElementById('udv$col').style.display='none';\">{%expand}</a>		
-						      <td><input name=vals[$col] id='vals[$col]' size=40 $chareqfn>
-								<tr id='udf$col' style='display: none;'>
-								<th span=\"row\"$tstyle>{%$colname}
-								<td colspan=2>$udflist</div>
-						      	"; # visibility: collapse
+								<input type=hidden name=\"matches[$col]\" value='contains'>
+						  <td>			<a onclick=\"document.getElementById('udf$col').style.display='inherit'; document.getElementById('vals[$col]').value=''; document.getElementById('udv$col').style.display='none';\">{%expand}</a>		
+						  <td><input name=vals[$col] id='vals[$col]' size=40 $chareqfn>
+							<tr id='udf$col' style='display: none;'>
+							<th span=\"row\"$tstyle>{%$colname}
+							<td colspan=2>$udflist</div>
+							"; # visibility: collapse
 			} else if ( $coldef['type'] == "pos" ) {
 				if( !$tagbuilder && file_exists("Resources/tagset.xml") ) {
 					$tagbuilder = "
@@ -204,12 +206,12 @@
 				natcasesort( $optarr ); $optlist = join ( "", $optarr ); $colm = '';
 				if ( $coldef['select'] == "multi" ) { $multiselect = "multiple"; $colm = '[]'; };
 				
-				if ( count($optarr) ) $wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name='vals[$col]$colm' $multiselect><option value=''>[{%select}]</option>$optlist</select>";
-
-			} else 
+				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name='vals[$col]$colm' $multiselect><option value=''>[{%select}]</option>$optlist</select>";
+			} else {
 				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}
-						      <td><select name=\"matches[$col]\"><option value='matches'>{%matches}</option><option value='startswith'>{%starts with}</option><option value='endsin'>{%ends in}</option><option value='contains'>{%contains}</option></select>
-						      <td><input name=vals[$col] size=40 $chareqfn>";
+						  <td><select name=\"matches[$col]\"><option value='matches'>{%matches}</option><option value='startswith'>{%starts with}</option><option value='endsin'>{%ends in}</option><option value='contains'>{%contains}</option></select>
+						  <td><input name=vals[$col] size=40 $chareqfn>";
+			};
 		};
 
 		
