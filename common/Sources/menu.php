@@ -3,6 +3,11 @@
 	// Maarten Janssen, 2015
 	// Default items: {%Home}, {%Search}, {%About}, {%!help}
 
+	$checkshared = preg_replace("/.*\/([^\/]+)\/?/", "\\1", getenv('TT_SHARED'));
+	if ( $checkshared == $foldername ) { 
+		$isshared = 1;
+	};
+
 	if (  count(getset('languages/options', array())) > 1 ) {
 		$sep = "";
 		foreach ( getset('languages/options', array()) as $key => $item ) {
@@ -52,6 +57,9 @@
 		$scl = $scli = $trgt = $link = "";
     	if ( !is_array($item) ) continue; # Skip attributes
     	# For shared menu item
+    	if ( $item['nolocal'] && $isshared ) {
+    		continue; # Skip items that should not be available for the shared project
+    	};
     	if ( $tmp = $item['check'] ) {
     	 if ( ( $tmp == "php" && !file_exists("Sources/$key.php") ) || ( $tmp == "html" && !file_exists("Pages/$key.html") )  || ( !file_exists($tmp) ) ) {
 			if ( $username ) {
