@@ -206,7 +206,7 @@
 				natcasesort( $optarr ); $optlist = join ( "", $optarr ); $colm = '';
 				if ( $coldef['select'] == "multi" ) { $multiselect = "multiple"; $colm = '[]'; };
 				
-				if ( count($optarr) < 2 )
+				if ( count($optarr) > 1 )
 					$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}<td colspan=2><select name='vals[$col]$colm' $multiselect><option value=''>[{%select}]</option>$optlist</select>";
 			} else {
 				$wordsearchtxt .= "<tr><th span=\"row\"$tstyle>{%$colname}
