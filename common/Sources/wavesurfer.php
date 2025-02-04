@@ -250,9 +250,9 @@
 		# $maintext .= "<hr><a href='index.php?action=text&cid=$ttxml->fileid'>{%Text view}</a>";
 		$maintext .= "<hr>".$ttxml->viewswitch();
 	
-		if ( $username && $act != "edit" ) $maintext .= " &bull; <a href='index.php?action=$action&act=edit&cid=$ttxml->fileid'>Edit transcripion</a>";
-		if ( $username ) $maintext .= " &bull;  <a onClick='toelan(this);'>Export as ELAN</a>";
-		if ( $username ) $maintext .= " &bull; <a href='index.php?action=audiomanage&cid=$fileid'>Audio management</a>";
+		if ( $username && $act != "edit" ) $maintext .= " &bull; <a class='adminpart' href='index.php?action=$action&act=edit&cid=$ttxml->fileid'>Edit transcripion</a>";
+		# if ( $username ) $maintext .= " &bull;  <a class='adminpart' onClick='toelan(this);'>Export as ELAN</a>";
+		if ( $username ) $maintext .= " &bull; <a class='adminpart' href='index.php?action=audiomanage&cid=$fileid'>Audio management</a>";
 		$maintext .= " &bull;  <a href='http://www.teitok.org/index.php?action=help&id=wavesurfer' target=help>{%!help}</a>";
 		
 		if ( !$editmsg ) {

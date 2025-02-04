@@ -645,10 +645,10 @@
 		"; $sep = " &bull; ";
 	};
 	
-// 	if ( $audiobit ) {
-// 		if ( $username ) $maintext .= " $sep <a href='index.php?action=audiomanage&cid=$fileid'>Audio management</a>";
-// 		if ( !is_array(!getset('views')) || getset('views/wavesurfer') == '' ) $maintext .= " &bull; <a href='index.php?action=wavesurfer&cid=$fileid'>{%Waveform view}</a>";
-// 	};
+	if ( $audiobit ) {
+		# if ( $username ) $maintext .= " $sep <a href='index.php?action=audiomanage&cid=$fileid'>Audio management</a>";
+		if ( !is_array(getset('views')) || getset('views/wavesurfer') == '' ) $maintext .= " &bull; <a href='index.php?action=wavesurfer&cid=$fileid'>{%Waveform view}</a>";
+	};
 	
 	$maintext .= $ttxml->viewswitch(false);
 		
