@@ -179,6 +179,13 @@
 			<td><i>Not explicitly defined $rest
 			";
 	};
+	if ( !$views['audiomanage'] ) {
+		if ( $ttxml->xpath("//media") ) { $rest = " - default option"; } else { $rest = " - Not available, no media node"; };
+		$maintext .= "<tr><td><a href='index.php?action=audiomanage&cid=$ttxml->fileid'>go</a>
+			<th>Audio management<td>Audio-Aligned
+			<td><i>Admin only option
+			";
+	};
 	if ( !$views['lineview'] ) {
 		if ( $ttxml->xpath("//lb[@bbox]") ) { $rest = " - default option"; } else { $rest = " - Not available, no lines with @bbox (Manuscripts only)"; };
 		$maintext .= "<tr><td><a href='index.php?action=lineview&cid=$ttxml->fileid'>go</a>

@@ -210,3 +210,7 @@ span[status=wrong] { color: red; }
 
 .csscheck { display: none; }
 .listcheck { display: block; }
+
+/* Style TEI tables as HTML tables */
+#mtxt row { display: table-row; }
+#mtxt cell { display: table-cell; }

@@ -137,6 +137,11 @@
 			if ( $strt + $perpage < $rescnt ) { $countrow .= " &bull; <a href='$miniurl&start=".min($rescnt,$strt+$perpage)."'>{%next}</a>"; $sep = " &bull; "; };
 			if ( $countrow ) $countrow = "<p>$countrow</p><hr>";
 
+	if ( $tmp = getset("defaults/topswitch") ) {
+		if ( $tmp == "1" ) $tmp = "Switch visualization";
+		$showoptions .= "<p>{%$tmp}: ".$ttxml->viewswitch(); 
+	};
+
 			$maintext .= "
 					$viewoptions $showoptions						<hr>
 				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
@@ -190,7 +195,7 @@
 				";
 			
 
-	$maintext .= "<hr><p><a href='index.php?action=sentedit&cid=$ttxml->fileid&elm=$stype&sid=multi'>Edit as list</a> &bull; ".$ttxml->viewswitch();
+	$maintext .= "<hr><p>".$ttxml->viewswitch()."  &bull; <a href='index.php?action=sentedit&cid=$ttxml->fileid&elm=$stype&sid=multi' class='adminpart'	>Edit as list</a>";
 	
 
 ?>

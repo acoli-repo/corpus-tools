@@ -410,6 +410,10 @@
 	if ( $viewoptions && $tagoptions ) $viewoptions .= $buttonsep;
 	$viewoptions .= $tagoptions;
 	
+	if ( $tmp = getset("defaults/topswitch") ) {
+		if ( $tmp == "1" ) $tmp = "Switch visualization";
+		$viewoptions .= "<p>{%$tmp}: ".$ttxml->viewswitch(); 
+	};
 	if ( $viewoptions != "" ) {
 		# Show the View options - hidden when Javascript does not fire.
 		if ( $user['permissions'] == "admin" ) $javawarning = "Javascript is not working; <a href='index.php?action=admin&act=configcheck'>check your settings</a> if Javascript is not turned off.";
@@ -641,12 +645,11 @@
 		"; $sep = " &bull; ";
 	};
 	
-	if ( $audiobit ) {
-		if ( $username ) $maintext .= " $sep <a href='index.php?action=audiomanage&cid=$fileid'>Audio management</a>";
-		if ( !is_array(!getset('views')) || getset('views/wavesurfer') == '' ) $maintext .= " &bull; <a href='index.php?action=wavesurfer&cid=$fileid'>{%Waveform view}</a>";
-	};
+// 	if ( $audiobit ) {
+// 		if ( $username ) $maintext .= " $sep <a href='index.php?action=audiomanage&cid=$fileid'>Audio management</a>";
+// 		if ( !is_array(!getset('views')) || getset('views/wavesurfer') == '' ) $maintext .= " &bull; <a href='index.php?action=wavesurfer&cid=$fileid'>{%Waveform view}</a>";
+// 	};
 	
-	// TODO: do a viewswitch in ttxml
 	$maintext .= $ttxml->viewswitch(false);
 		
 	if ( $username ) {

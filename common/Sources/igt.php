@@ -43,6 +43,11 @@
 	$maintext .= $ttxml->tableheader(); 
 	$editxml = $ttxml->asXML(); # We are not showing this, but we need it to check for attributes
 
+	if ( $tmp = getset("defaults/topswitch") ) {
+		if ( $tmp == "1" ) $tmp = "Switch visualization";
+		$maintext .= "<p>{%$tmp}: ".$ttxml->viewswitch(); 
+	};
+
 			#Build the view options	
 			foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 				$formcol = $item['color'];
@@ -174,7 +179,7 @@
 			$audiobut = "<a onClick=\"playpart('$audiofile', $strt, $stp, this );\">{%play audio}</a>";
 		 	$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>Audio</td><td style='padding-left: 5px; color: {$item['color']}'>$audiobut	</td>";
 		};
-		$maintext .= "</div><hr>";
+		$maintext .= "</div><hr class=mainhr>";
 	};
 	$maintext .= "</table></div><hr>
 				<script language=Javascript>			

@@ -67,6 +67,10 @@
 
 		$maintext .= "<h2>{%$nertitle}</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();		
+		if ( $tmp = getset("defaults/topswitch") ) {
+			if ( $tmp == "1" ) $tmp = "Switch visualization";
+			$maintext .= "<p>{%$tmp}: ".$ttxml->viewswitch()."<hr>"; 
+		};
 
 		$maintext .= "<table id='nertable'>";
 		foreach ( $nerlist as $key => $val ) {
@@ -833,6 +837,10 @@
 
 		$maintext .= "<h2>{%$viewname}</h2><h1>".$ttxml->title()."</h1>";
 		$maintext .= $ttxml->tableheader();
+		if ( $tmp = getset("defaults/topswitch") ) {
+			if ( $tmp == "1" ) $tmp = "Switch visualization";
+			$maintext .= "<p>{%$tmp}: ".$ttxml->viewswitch()."<hr>"; 
+		};
 		$editxml = $ttxml->asXML();
 		$maintext .= $ttxml->pagenav;
 

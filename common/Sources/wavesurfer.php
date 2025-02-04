@@ -147,6 +147,11 @@
 		</div>
 
 		";
+
+		if ( $tmp = getset("defaults/topswitch") ) {
+			if ( $tmp == "1" ) $tmp = "Switch visualization";
+			$maintext .= "<p>{%$tmp}: ".$ttxml->viewswitch(); 
+		};
 		
 		$setedit = "false";
 		if ( count($ttxml->xpath("//".strtolower($utttag))) == 0 && $username ) {

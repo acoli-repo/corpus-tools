@@ -175,7 +175,7 @@
 			};
 		};
 	};
-	if ( $action == "index" || $action == "" || $action == "main" ) $action = $settings['defaults']['home'] or $action = "home";
+	if ( $action == "index" || $action == "" || $action == "main" ) $action = getset('defaults/home', "home");
 	$act = $_GET['act'];
 	if ( $_GET['debug'] && $user['permissions'] == "admin" ) $debug = 1;
 	
