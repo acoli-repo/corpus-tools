@@ -238,6 +238,10 @@
 			$sent =	current($ttxml->xpath("//s[@id='$sid']"));
 		};
 		if ( !$sent ) { fatal("Sentence not found: $sid : "); };
+	
+		$tmp = $ttxml->xpath("//text//s");
+		foreach ( $tmp as $i => $s ) { if ( $s['id'] == $sid ) { $idx = $i+1; }; };
+		$scnt = count($tmp);
 
 		$puctnsh = $_GET['puctnsh'] or $puctnsh = $_SESSION['puctnsh'] or $puctnsh = getset('deptree/showpunct', "without");
 		$_SESSION['puctnsh'] = $puctnsh;
@@ -270,8 +274,9 @@
 		};
 		
 		$pagenav = "<table style='width: 100%'><tr> <!-- /<$pbelm [^>]*id=\"{$_GET['pageid']}\"[^>]*n=\"(.*?)\"/ -->
-						<td style='width: 33%' align=left>$bnav
+						<td style='width: 33%' align=left><a href='index.php?action=$action&cid=$ttxml->fileid'>index</a> $bnav
 						<td style='width: 33%' align=center>{%sentence} <a href='index.php?action=file&cid={$ttxml->fileid}&jmp=$sid'>$sid</a>
+						($idx {%of} <a href='index.php?action=$action&cid=$ttxml->fileid'>$scnt</a>)
 						<td style='width: 33%' align=right>$nnav
 						</table>
 						<hr>
