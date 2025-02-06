@@ -934,9 +934,17 @@ class TTXML
 		if ( $_GET['action'] == "appalign" ) return true;
 	}
 
-	function viewswitch($initial = true, $withself = false ) {
+	function viewswitch($style = "initial", $withself = false ) {
 		global $settings; global $username; global $action;  
-		if ( !$this->xml ) return false;
+		if ( !$this->xml ) return false; # Do not return anything if we have no XML file
+		
+		$itmsep = " &bull; ";
+		if ( $style == "top" ) {
+			$withself = true; $initial = true;
+			$itmsep = " &nbsp; ";
+		} else if ( $style == "initial" ) {
+			$initial = true;
+		};
 
 		if ( !$viewopts['text'] ) $viewopts['text'] = "Text view"; // Unless otherwise defined, always use Text view
 		
@@ -1012,18 +1020,19 @@ class TTXML
 			$viewopts['facsview'] = "{$lvltxt}";
 		};
 		
-		if ( $initial."" == "select" ) {
+		if ( $style == "select" ) {
 				$views = "<option value='' disabled selected>[{%select}]</option>";
 		};
 
-		if ( $username ) $viewopts['fileadmin'] = "<span class='adminpart'>File admin</a>";
+		if ( $username && $style == "initial" ) $viewopts['fileadmin'] = "<span class='adminpart'>File admin</a>";
 			
 		$jmp = $_GET['jmp'] or $jmp = $_GET['tid'];
 		$jmp = preg_replace("/ .*/", "", $jmp);
-		$sep = ""; if ( !$initial ) $sep = " &bull; ";
+		$sep = ""; if ( !$initial ) $sep = $itmsep;
 		foreach ( $viewopts as $key => $val ) {
 			list ( $doaction, $dolvl ) = explode ( ":", $key );
-			if ( $action != $doaction || ($dolvl && $dolvl != $_GET['elm']) ) {
+			if ( preg_match("/([1-z0-9A-Z]+)&elm=([1-z0-9A-Z]+)/", $doaction, $matches ) ) { $doaction = $matches[1]; $dolvl = $matches[2]; };
+			if ( $action != $doaction || ($dolvl && $dolvl != $_GET['elm']) || $withself) {
 
 			# Keep the reference to the selected element in the URL
 			$elmref = "";
@@ -1031,17 +1040,25 @@ class TTXML
 			if ( $_GET['sid'] ) $elmref .= "&sid={$_GET['sid']}";
 			if ( $jmp ) $elmref .= "&jmp=$jmp";
 			if ( $dolvl ) $elmref .= "&elm=$dolvl";
-				if ( $initial."" == "select" ) {
+				if ( $style == "select" ) {
 					$views .= $sep."<option value='index.php?action=$doaction&cid=$this->fileid$elmref'>{%$val}</option>";
 					$sep = "\n";
 				} else {
-					$views .= $sep."<a href='index.php?action=$doaction&cid=$this->fileid$elmref'>{%$val}</a>";
-					$sep = " &bull; ";
+					$active = ""; if ( $action == $doaction || ($dolvl && $dolvl = $_GET['elm']) ) { $active = " active"; };
+					$views .= $sep."<span class='switchopt$active'><a href='index.php?action=$doaction&cid=$this->fileid$elmref'>{%$val}</a></span>";
+					$sep = $itmsep."";
 				};
 			};
 		};
 
 		return $views;
+	}
+
+	function topswitch() {
+		if ( $tmp = getset("defaults/topswitch") ) {
+			if ( $tmp == "1" ) $tmp = "Switch visualization";
+			return "<div id=topswitch>{%$tmp}: ".$this->viewswitch("top")."</div><hr>"; 
+		};
 	}
 
 	function makeedit() {

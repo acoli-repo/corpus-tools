@@ -121,6 +121,7 @@
 	$blockname = $blockdef['display'] or $blockname = $defdef[$stype] or $blockname = $stype;
 	$maintext .= "<h2>{%$blockname view}</h2><h1>".$ttxml->title()."</h1>";
 	$maintext .= $ttxml->tableheader();
+	$maintext .= $ttxml->topswitch();
 	$tmp = $ttxml->viewopts();
 	$viewoptions = $tmp['view']; $showoptions = $tmp['show'];
 
@@ -137,11 +138,7 @@
 			if ( $strt + $perpage < $rescnt ) { $countrow .= " &bull; <a href='$miniurl&start=".min($rescnt,$strt+$perpage)."'>{%next}</a>"; $sep = " &bull; "; };
 			if ( $countrow ) $countrow = "<p>$countrow</p><hr>";
 
-	if ( $tmp = getset("defaults/topswitch") ) {
-		if ( $tmp == "1" ) $tmp = "Switch visualization";
-		$showoptions .= "<p>{%$tmp}: ".$ttxml->viewswitch(); 
-	};
-
+		
 			$maintext .= "
 					$viewoptions $showoptions						<hr>
 				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>

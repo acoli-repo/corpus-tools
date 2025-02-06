@@ -11,7 +11,7 @@
 	$cid = $ttxml->xmlid;
 	
 	$morphelm = $_GET['melm'] or $morphelm = $_POST['melm'] or $morphelm = "m";
-	$layername = getset("annotations/$morphelm/display");
+	$layername = getset("annotations/$morphelm/display", "Interlinear glossed text");
 	$sentelm = $_GET['selm'] or $sentelm = getset("annotations/$morphelm/selm", "s");
 
 
@@ -25,6 +25,13 @@
 	$maintext .= "<h2>$layername</h2>"; 
 	$maintext .= "<h1>".$ttxml->title()."</h1>"; 
 
+
+	# Display the teiHeader data as a table
+	$maintext .= $ttxml->tableheader(); 
+	$editxml = $ttxml->asXML(); # We are not showing this, but we need it to check for attributes
+
+	$maintext .= $ttxml->topswitch();
+
 	if ( $ttxml->audio ) {
 		// Determine where the playbutton is hosted
 		if ( getset('defaults/playbutton') ) $playimg = getset('defaults/playbutton');
@@ -37,15 +44,6 @@
 							<p><i><a href='$audiourl'>{%Audio}</a></i></p>
 						</audio>
 						"; 
-	};
-
-	# Display the teiHeader data as a table
-	$maintext .= $ttxml->tableheader(); 
-	$editxml = $ttxml->asXML(); # We are not showing this, but we need it to check for attributes
-
-	if ( $tmp = getset("defaults/topswitch") ) {
-		if ( $tmp == "1" ) $tmp = "Switch visualization";
-		$maintext .= "<p>{%$tmp}: ".$ttxml->viewswitch(); 
 	};
 
 			#Build the view options	

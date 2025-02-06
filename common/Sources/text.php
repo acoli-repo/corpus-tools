@@ -100,7 +100,7 @@
 	};
 
 	if ( $username || $ssouser ) $txtid = $fileid; else $txtid = $xmlid;
-	$maintext .= "<h2>$txtid</h2><h1>$title</h1>";
+	$maintext .= "<h2>{%Text view}</h2><h1>$title</h1>";
 	
 	if ( !$ttxml->xml ) { fatal("Unable to load file"); };
 	
@@ -116,6 +116,7 @@
 	$maintext .= $warnings;
 
 	$maintext .= $ttxml->tableheader();
+	$maintext .= $ttxml->topswitch();
 
 	$editxml = $ttxml->asXML(); # This got lost somehow
 
@@ -410,10 +411,6 @@
 	if ( $viewoptions && $tagoptions ) $viewoptions .= $buttonsep;
 	$viewoptions .= $tagoptions;
 	
-	if ( $tmp = getset("defaults/topswitch") ) {
-		if ( $tmp == "1" ) $tmp = "Switch visualization";
-		$viewoptions .= "<p>{%$tmp}: ".$ttxml->viewswitch(); 
-	};
 	if ( $viewoptions != "" ) {
 		# Show the View options - hidden when Javascript does not fire.
 		if ( $user['permissions'] == "admin" ) $javawarning = "Javascript is not working; <a href='index.php?action=admin&act=configcheck'>check your settings</a> if Javascript is not turned off.";

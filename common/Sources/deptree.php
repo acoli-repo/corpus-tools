@@ -37,7 +37,7 @@
 	$maintext .= $ttxml->viewheader(); 
 	if ( $tmp = getset("defaults/topswitch") ) {
 		if ( $tmp == "1" ) $tmp = "Switch visualization";
-		$maintext .= "<p>{%$tmp}: ".$ttxml->viewswitch()."<hr>"; 
+		$maintext .= "<p>{%$tmp}: ".$ttxml->viewswitch("top")."<hr>"; 
 	};
 
 	$sid = $_GET['sid'] or $sid = $_GET['sentence'];

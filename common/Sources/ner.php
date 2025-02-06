@@ -839,7 +839,7 @@
 		$maintext .= $ttxml->tableheader();
 		if ( $tmp = getset("defaults/topswitch") ) {
 			if ( $tmp == "1" ) $tmp = "Switch visualization";
-			$maintext .= "<p>{%$tmp}: ".$ttxml->viewswitch()."<hr>"; 
+			$maintext .= "<p>{%$tmp}: ".$ttxml->viewswitch("ner")."<hr>"; 
 		};
 		$editxml = $ttxml->asXML();
 		$maintext .= $ttxml->pagenav;

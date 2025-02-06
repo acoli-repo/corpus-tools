@@ -96,6 +96,9 @@
 		$specturl = "<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/plugin/wavesurfer.spectrogram.min.js\"></script>";
 	};
 
+	$maintext .= $ttxml->tableheader(); 
+	$maintext .= $ttxml->topswitch();
+
 	if ( $act == "save" ) {
 	
 		$newtext = $_POST['newval'];
@@ -148,10 +151,6 @@
 
 		";
 
-		if ( $tmp = getset("defaults/topswitch") ) {
-			if ( $tmp == "1" ) $tmp = "Switch visualization";
-			$maintext .= "<p>{%$tmp}: ".$ttxml->viewswitch(); 
-		};
 		
 		$setedit = "false";
 		if ( count($ttxml->xpath("//".strtolower($utttag))) == 0 && $username ) {
