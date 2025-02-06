@@ -28,6 +28,8 @@
 	$maintext .= "
 		<h2>{%Waveform view}$editmode</h2>
 		<h1>".$ttxml->title()."</h1>";
+	$maintext .= $ttxml->tableheader(); 
+	$maintext .= $ttxml->topswitch();
 	// $maintext .= $ttxml->tableheader();
 	
 	$utttag = strtoupper($_GET["utt"]) or $utttag = getset('xmlfile/defaults/speechturn', "U"); // Make it possible to use <p> instead of <u>
@@ -96,8 +98,6 @@
 		$specturl = "<script src=\"//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/4.4.0/plugin/wavesurfer.spectrogram.min.js\"></script>";
 	};
 
-	$maintext .= $ttxml->tableheader(); 
-	$maintext .= $ttxml->topswitch();
 
 	if ( $act == "save" ) {
 	

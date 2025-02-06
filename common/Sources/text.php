@@ -332,6 +332,7 @@
 				}
 				
 				# Prefix with Audio if needed
+				$missing = $medianode['missing'];
 				if ( $audiofilename && substr($audiofilename,0,4) != "http" && !file_exists($audiofilename) ) {
 					if ( file_exists("Audio/$audiofilename") ) $audiofilename = "Audio/$audiofilename";
 					else $missing = "1"; # Remove playable audio if local audio file cannot be found

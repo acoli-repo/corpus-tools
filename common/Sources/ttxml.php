@@ -249,6 +249,12 @@ class TTXML
 		foreach ( $this->xml->xpath($mediaxp) as $medianode ) {
 			$mimetype = $medianode['mimeType'] or $mimetype = $medianode['mimetype'] or $mimetype = mime_content_type($medianode['url']."");
 			list ( $mtype, $mform ) = explode ( '/', $mimetype );
+			$missing = $medianode['missing'];
+			if ( $audiofilename && substr($audiofilename,0,4) != "http" && !file_exists($audiofilename) ) {
+				if ( file_exists("Audio/$audiofilename") ) $audiofilename = "Audio/$audiofilename";
+				else $missing = "1"; # Remove playable audio if local audio file cannot be found
+			};
+			if ( $missing ) continue;
 			if ( $mtype == "video" ) {
 				array_push($this->video, $medianode);
 				if ( $videourl == "" ) $videourl = $medianode['url']; 
