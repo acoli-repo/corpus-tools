@@ -88,6 +88,7 @@
 		"Frequency by" => "Frequency by",
 		"Apply" => "Apply",
 		"Search in document" => "Search in document",
+		"Dependency Tree" => "Dependency Tree",
 		"sentence" => "sentence",
 		"Text view" => "Text view",
 		"Download CoNNL-U" => "Download CoNNL-U",

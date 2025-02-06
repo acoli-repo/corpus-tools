@@ -24,7 +24,7 @@
 	# Define what counts as a token in the dependency graph	
 	$toksel = ".//mtok[not(./dtok)] | .//tok[not(dtok) and not(ancestor::mtok)] | .//dtok[not(ancestor::tok/ancestor::mtok)]";
 	
-	$maintext .= "<h1>Dependency Tree</h1>"; 
+	$maintext .= "<h2>{%Dependency Tree}</h2>"; 
 
 	$treeview = $_GET['view'] or $treeview = $_SESSION['treeview'] or $treeview = "tree";
 	$_SESSION['treeview'] = $treeview;
@@ -32,7 +32,7 @@
 	require ("$ttroot/common/Sources/ttxml.php");
 	$ttxml = new TTXML($cid, true); # TODO: we did keepns before, why? (breaks //s test)
 	
-	$maintext .= "<h2>".$ttxml->title()."</h2>"; 
+	$maintext .= "<h1>".$ttxml->title()."</h1>"; 
 	$maintext .= $ttxml->tableheader(); 
 	$maintext .= $ttxml->topswitch(); 
 	$maintext .= $ttxml->viewheader(); 
