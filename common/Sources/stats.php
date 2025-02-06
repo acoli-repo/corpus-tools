@@ -12,7 +12,6 @@
 
 	$cid = $_GET['cid'] or $cid = $_GET['id'];
 	
-	$maintext .= "<h1>{%Statistics}</h1>";
 	
 	if ( getset('cqp/stats') == "" ) {
 		$settings['cqp']['stats'] = array ( 	
@@ -26,8 +25,11 @@
 		include ("$ttroot/common/Sources/ttxml.php");
 
 		$ttxml = new TTXML($cid);
-		$maintext .= "<h2>".$ttxml->title()."</h2>"; 
+		$maintext .= "<h2>{%Statistics}</h2><h1>".$ttxml->title()."</h1>"; 
 		$maintext .= $ttxml->tableheader(); 
+		$maintext .= $ttxml->topswitch(); 
+	} else {
+		$maintext .= "<h1>{%Statistics}</h1>";
 	};
 	
 	$maintext .= getlangfile("statstext");

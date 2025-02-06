@@ -287,6 +287,7 @@
 		"Speed" => "Speed",
 		"Zoom" => "Zoom",
 		"play from start of transcription" => "play from start of transcription",
+		"Wordcloud" => "Wordcloud",
 		"Word Cloud" => "Word Cloud",
 		"Restriction" => "Restriction",
 		"Redraw" => "Redraw",

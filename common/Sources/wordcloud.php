@@ -40,6 +40,7 @@
 
 	# Calculate the word counts
 	$textid = $_POST['id'] or $textid = $_POST['cid'];
+	$cid = $textid;
 	if ( file_exists("$cqpfolder/text_id.idx") ) {
 		# Default: CQP for this text ID
 		include ("$ttroot/common/Sources/cwcqp.php");
@@ -87,10 +88,12 @@
 		};
 	};	
 	if ( !$doclist ) { 
-		if ( $textid )
+		if ( $textid ) {
 			$doclist = "<i>$textid</i>"; 
-		else 
+			$cid = $textid;
+		} else {
 			$doclist = "<i>all</i>"; 
+		};
 	};
 	
 	foreach ( getset('cqp/pattributes', array()) as $key => $pat ) {
@@ -104,9 +107,19 @@
 	$fwquery = "&rest={$_GET['rest']}";
 	$restt = str_replace('"', "&quot;", $_GET['rest']);
 	
+	if ( $cid ) {
+		include ("$ttroot/common/Sources/ttxml.php");
+
+		$ttxml = new TTXML($cid);
+		$maintext .= "<h2>{%Wordcloud}</h2><h1>".$ttxml->title()."</h1>"; 
+		$maintext .= $ttxml->tableheader(); 
+		$maintext .= $ttxml->topswitch(); 
+	} else {
+		$maintext .= "<h2>$title</h2>
+			<h1>{%Word Cloud}</h1>";
+	};
+	
 	$maintext .= "
-	<h2>$title</h2>
-	<h1>{%Word Cloud}</h1>
 	<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">
 	
 	<div id='settingsbut' onClick=\"this.style.display='none'; document.getElementById('settings').style.display='block'\"><i class=\"material-icons md-48\" style='float: right;'>menu</i></div>

@@ -34,11 +34,8 @@
 	
 	$maintext .= "<h2>".$ttxml->title()."</h2>"; 
 	$maintext .= $ttxml->tableheader(); 
+	$maintext .= $ttxml->topswitch(); 
 	$maintext .= $ttxml->viewheader(); 
-	if ( $tmp = getset("defaults/topswitch") ) {
-		if ( $tmp == "1" ) $tmp = "Switch visualization";
-		$maintext .= "<p>{%$tmp}: ".$ttxml->viewswitch("top")."<hr>"; 
-	};
 
 	$sid = $_GET['sid'] or $sid = $_GET['sentence'];
 	$cid = $ttxml->fileid;

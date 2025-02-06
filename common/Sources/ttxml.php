@@ -1056,7 +1056,7 @@ class TTXML
 
 	function topswitch() {
 		if ( $tmp = getset("defaults/topswitch") ) {
-			if ( $tmp == "1" ) $tmp = "Switch visualization";
+			if ( $tmp == "1" ) $tmp = "Visualization";
 			return "<div id=topswitch>{%$tmp}: ".$this->viewswitch("top")."</div><hr>"; 
 		};
 	}
