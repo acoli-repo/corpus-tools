@@ -59,6 +59,7 @@
 
 
 	if ( $act == "save" && $_POST['sent'] ) {
+		check_login();
 
 		$sent =	current($ttxml->xpath("//s[@id='$sid']"));
 		$newsent = simplexml_load_string($_POST['sent']);
@@ -86,6 +87,7 @@
 
 	} else if ( $act == "autofill" ) {
 
+		check_login();
 		$sent =	current($ttxml->xpath("//s[@id='$sid']"));
 
 		foreach ( $sent->xpath ($toksel) as $tok ) {
@@ -103,6 +105,7 @@
 
 	} else if ( $act == "metaedit" ) {
 
+		check_login();
 		$maintext .= "<h1>Edit Sentence Metadata</h1>";
 		$sent =	current($ttxml->xpath("//s[@id='$sid']"));
 
@@ -120,6 +123,7 @@
 		$maintext .= "</table><hr><p><input type=submit value=Save> &bull; <a href='index.php?action=$action&cid=$ttxml->fileid&sid=$sid'>cancel</a></form>";
 
 	} else if ( $act == "changesent" ) {
+		check_login();
 
 		$sent =	current($ttxml->xpath("//s[@id='$sid']"));
 
@@ -276,7 +280,7 @@
 		$pagenav = "<table style='width: 100%'><tr> <!-- /<$pbelm [^>]*id=\"{$_GET['pageid']}\"[^>]*n=\"(.*?)\"/ -->
 						<td style='width: 33%' align=left><a href='index.php?action=$action&cid=$ttxml->fileid'>index</a> $bnav
 						<td style='width: 33%' align=center>{%sentence} <a href='index.php?action=file&cid={$ttxml->fileid}&jmp=$sid'>$sid</a>
-						($idx {%of} <a href='index.php?action=$action&cid=$ttxml->fileid'>$scnt</a>)
+						($idx {%of} $scnt)
 						<td style='width: 33%' align=right>$nnav
 						</table>
 						<hr>
@@ -295,9 +299,9 @@
 				$sttxt = $stlist[$st]['display'] or $sttxt = $st;
 				$maintext .= "<span style='float: right; text-align: right;' $oncl\">Status: <span status='$st' title='$st'>$sttxt</span></div><div id=statbox style='display: none;'><form action='index.php?action=$action&act=changesent&cid=$ttxml->fileid&sid={$sent['id']}' method=post><select name='sent[status]' onChange='this.parentNode.submit();'>$statsel</select></form></div></span>";
 			};
-			$maintext .= "<p><span id='linktxt'>Click <a href='index.php?action=$action&act=edit&sid=$sid&cid=$cid'>here</a> to edit the dependency tree</a></span>";
+			$maintext .= "<p><span id='linktxt' class=adminpart>Click <a href='index.php?action=$action&act=edit&sid=$sid&cid=$cid'>here</a> to edit the dependency tree</a></span>";
 			if ( $act != "edit" && $sent->xpath(".//tok[not(@$flddeprel)]") && $sent->xpath(".//tok[@upos]") ) {
-				$maintext .= " &bull; <a href='index.php?action=$action&act=autofill&sid=$sid&cid=$cid'>Auto-fill</a> obligatory deprel";
+				$maintext .= " &bull; <span  class=adminpart><a href='index.php?action=$action&act=autofill&sid=$sid&cid=$cid'>Auto-fill</a> obligatory deprel</span>";
 			};
 			if ( $_POST['sent'] ) {
 				$maintext .= " - <span style='color: #cc2000;' onClick=\"document.sentform.action.value = 'save'; scriptedexit=true; document.sentform.submit();\"><b>Click here to save the modified dependencies</b><span>
