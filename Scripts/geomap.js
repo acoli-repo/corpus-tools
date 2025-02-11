@@ -61,6 +61,8 @@
 	var infowindow = []; 
 	var marker = [];
 	
+	if ( typeof(markertype) == 'undefined' ) { var markertype = ''; };
+	if ( typeof(cql) == 'undefined' ) { var cql = ''; };
 	var cqlset = cql.split('%7C%7C');
 
 	if ( typeof cluster != "undefined" && cluster != 0 ) {
@@ -147,8 +149,9 @@
 			};
 			htmltxt = '<div><h2>' + doc.location + '</h2>'+ marktxt +'<p><a href="index.php?action='+viewaction+'&act=view&place=' + doc.location + ' &lat=' + doc.lat + '&lng=' + doc.lng + '&cql=' + cql + '">view ' + doctxt + '</a></p>';
 		};
-
-		if ( typeof cluster != "undefined" ) {
+ 		if ( typeof(markercol) == 'undefined' ) {  markercol = 'blue'; };
+ 
+		if ( typeof cluster !== "undefined" && cluster ) {
 			var myMarker;
 			if ( typeof markertype != "undefined" && markertype == "pie" ) {
 				myMarker = defineIcon(doc);			
@@ -185,7 +188,11 @@
 				var mcol = '#990000';
 			};
 
-			marker[i] = L.circleMarker([npos.lat, npos.lng], {color: mcol, weight: 1}).addTo(map).bindPopup(htmltxt);
+			if ( typeof(radius) == 'number' ) {
+				marker[i] = L.circleMarker([npos.lat, npos.lng], {color: mcol, weight: 1, radius: radius}).addTo(map).bindPopup(htmltxt);
+			} else { 
+				marker[i] = L.circleMarker([npos.lat, npos.lng], {color: mcol, weight: 1}).addTo(map).bindPopup(htmltxt);
+			};
 		};
 		if ( mid ) {
 			markera[mid] = marker[i];
