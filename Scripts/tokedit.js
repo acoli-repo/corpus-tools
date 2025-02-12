@@ -291,7 +291,19 @@ function formify () {
 			};
 		};
 	};
-		
+
+	// Treat all graphics elements
+	var grs = mtxt.getElementsByTagName("graphic");
+	for ( var a = 0; a<grs.length; a++ ) {
+		var gr = grs[a];
+		var src = gr.getAttribute('url');
+		let img = document.createElement('img');
+		gr.parentNode.replaceChild(img, gr);
+		[...gr.attributes].forEach(attr => img.setAttribute(attr.name, attr.value));
+		if ( src.substr(0,4) != 'http' ) { src = 'Graphics/' + src; };
+		img.setAttribute('src', src);
+	};
+	
 	// Treat all pb elements
 	var pbs = mtxt.getElementsByTagName("pb");
 	// there should be no <c_pb> at this point
