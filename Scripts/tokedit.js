@@ -302,6 +302,7 @@ function formify () {
 		[...gr.attributes].forEach(attr => img.setAttribute(attr.name, attr.value));
 		if ( src.substr(0,4) != 'http' ) { src = 'Graphics/' + src; };
 		img.setAttribute('src', src);
+		img.setAttribute('class', 'imgdiv');
 	};
 	
 	// Treat all pb elements
