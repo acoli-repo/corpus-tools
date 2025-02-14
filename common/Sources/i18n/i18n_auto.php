@@ -73,7 +73,6 @@
 		"over subcorpus" => "over subcorpus",
 		"context" => "context",
 		"Download results" => "Download results",
-		"store query" => "store query",
 		"store this query" => "store this query",
 		"Direct URL" => "Direct URL",
 		"stored queries" => "stored queries",

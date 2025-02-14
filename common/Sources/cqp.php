@@ -960,7 +960,7 @@
 		$cqll = str_replace("'", "&#039;", $cql);
 
 		if ( $subtit ) $cqptit = "&cqltit=".urlencode($subtit);
-		#$maintext .= " - <a href='index.php?action=querymng&act=save&cql=".urlencode($cqll)."$cqptit'>{%store query}</a>";
+		if ( $username ) $maintext .= " - <a onclick=\"navigator.clipboard.writeText('index.php?action=$action&cql=".urlencode($cqll)."$cqptit');\" class=adminpart>copy query URL</a>";
 		$qsid = time(); $query = $pattern;
 		if ( $query && !$qid ) $_SESSION['queries'][$qsid] = array("query" => $query, "ql" => $action);
 		$maintext .= " &bull; <a onclick='submitq();'>{%store this query}</a>
