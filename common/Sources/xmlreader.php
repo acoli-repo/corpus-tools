@@ -91,6 +91,29 @@
 			fatal("This function can only be called as a helper function");
 		};
 
+	} else if ( $act == "deactivate" && $id ) {
+	
+		$result = $xml->xpath("//{$recname}[@id='$id']"); 
+		$record = current($result);
+		
+		$record['deactivated'] = $_GET['inactive'];
+
+		# Save a backup copy
+		$date = date("Ymd"); 
+		$buname = "$xmlfile-$date.xml";
+		if ( !file_exists("backups/$buname") ) {
+			copy ( "Resources/$xmlfile.xml", "backups/$buname");
+		};
+	
+		# Now save the actual file
+		file_put_contents("Resources/$xmlfile.xml", $xml->asXML());
+		
+		# Reload to view
+		print "<p>File saved. Reloading.
+			<script language=Javascript>top.location='index.php?action=$action&id={$record['id']}';</script>
+			";
+		exit;
+
 	} else if ( $act == "save" && $id ) {
 
 		check_login();
@@ -245,8 +268,15 @@
 			$maintext .= "<input type=hidden name=newflds[$cn] value=\"$key\">";
 
 		}; 
+		if ( $username ) {
+			if ( $fldrec['deactivated'] ) { 
+				$deactivate = "<a href='index.php?action=$action&annid=$annid&act=deactivate&inactive=0&id=$id'>(re)activate</a>";
+			} else {
+				$deactivate = "<a href='index.php?action=$action&annid=$annid&act=deactivate&inactive=1&id=$id'>deactivate</a>";
+			};
+		};
 		$maintext .= "</table>
-		<p><input type=submit value=Save  onClick=\"runsubmit();\">
+		<p><input type=submit value=Save  onClick=\"runsubmit();\"> $deactivate
 		</form>
 		<script type=\"text/javascript\" src=\"$tinymceurl\"></script>
 		<script type=\"text/javascript\">
@@ -559,11 +589,14 @@
 		$result = array_slice($result,$start,$maxnum);
 		foreach ( $result as $record ) { 
 				
-			if ( $record['deactivated'] ) continue;
+			if ( $record['deactivated'] ) {
+				if ( !$username || !$_GET['deactives'] ) continue;
+				$deactive = 'style="opacity: 0.3;"';
+			} else $deactive = "";
 							
 			$sortkey = current($record->xpath($sort));
 			$id = current($record->xpath("@id"));
-			$tableline = "\n<tr id='$sortkey'><td>";
+			$tableline = "\n<tr id='$sortkey' $deactive><td>";
 			if ( !$xrset["noview"] || $username ) $tableline .= "<a href='index.php?action=$action&id=$id' style='font-size: smaller;'>{%$viewtxt}</a>";
 
 			foreach ( $entryxml->children() as $fldrec ) {
@@ -642,7 +675,12 @@
 				- <a style='color: #aaaaaa' href='index.php?action=$linkaction&act=search'>{%Search}</a>
 				";
 	
-		if ( $username ) $maintext .= " - <a href='index.php?action=$linkaction&act=edit&id=new' class=adminpart>add new $recname</a>";
+		if ( $username ) {
+			$maintext .= " - <a href='index.php?action=$linkaction&act=edit&id=new' class=adminpart>add new $recname</a>";
+			if ( !$_GET['deactives'] ) $maintext .= " - <a href='index.php?action=$linkaction&act=list&deactives=1' class=adminpart>show deactivated items</a>";
+			else $maintext .= " - <a href='index.php?action=$linkaction&act=list&deactives=0' class=adminpart>hide deactivated items</a>";
+		};
+		
 	};
 	
 	function replaceSimpleNode( $orgnode, $dostring ) {	
