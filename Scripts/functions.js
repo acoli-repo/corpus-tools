@@ -61,9 +61,10 @@ function hideinfo() {
 function showinfo( evt, poselm, html ) {
 
 	var shownrows = 0;
+	var tibel = 3;
 	var tokinfo = document.getElementById('tokinfo');
 	if ( !tokinfo ) {
-		var tokinfo = document.createElement(\"div\"); 
+		var tokinfo = document.createElement("div"); 
 		tokinfo.setAttribute('id', 'tokinfo');
 		document.body.appendChild(tokinfo);
 	};
@@ -71,6 +72,6 @@ function showinfo( evt, poselm, html ) {
 	if ( html )  { tokinfo.style.display = 'block'; };
 	var foffset = offset(poselm);
 	tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
-	tokinfo.style.top = ( foffset.top + element.offsetHeight + tibel ) + 'px';
+	tokinfo.style.top = ( foffset.top + poselm.offsetHeight + tibel ) + 'px';
  
 }; 
