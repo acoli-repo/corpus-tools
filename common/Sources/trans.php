@@ -38,6 +38,8 @@
 
 	$editxml = $ttxml->mtxt();
 
+	$jmp = $_GET['jmp'];
+
 	$maintext .= "<table>
 		<tr><th>{%Original}</th><th>{%$transname}$transopts</th></tr>
 		<tr><td id=mtxt valign=top>$editxml</th><td id=trans valign=top></th></tr>
@@ -54,6 +56,18 @@
 			var tratt = '$tratt';
 			var hlcolor = '#ffffaa';
 			var username = '$username';
+			
+			var jmp = '$jmp';
+			if ( jmp ) {
+				jmpelm = document.getElementById(jmp);
+				if ( jmpelm ) {
+					jmpelm.style['background-color'] = hlcolor;
+					jmpelm.style.backgroundColor= hlcolor; 	
+					jmpelm.scrollIntoView(true); 
+				};
+			};
+			
+			// Create the translation and linking
 			var ss = document.getElementById('mtxt').getElementsByTagName(selm);
 			for ( var a = 0; a<ss.length; a++ ) {
 				var s = ss[a];
