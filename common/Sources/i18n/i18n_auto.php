@@ -245,7 +245,6 @@
 		"Waveform view" => "Waveform view",
 		"Translation view" => "Translation view",
 		"Original" => "Original",
-		"Translation" => "Translation",
 		"more header data" => "more header data",
 		"edit header data" => "edit header data",
 		"Due to copyright restrictions, only a fragment of this text is displayed" => "Due to copyright restrictions, only a fragment of this text is displayed",

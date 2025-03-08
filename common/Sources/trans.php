@@ -7,9 +7,29 @@
 	$xml = $ttxml->xml;
 
 	# Show sentence view
-	$stype = $_GET['elm'] or $stype = getset("xmlfile/translation/element", "s");
-	$tratt = $_GET['tr'] or $tratt = getset("xmlfile/translation/attribute", "gloss");
-	$tokatt = $_GET['tok'] or $tokatt = getset("xmlfile/translation/tokattribute", "gloss");
+	$transs = array();
+	foreach ( getset("xmlfile/sattributes") as $lvl => $val ) {
+		foreach ( $val as $key => $val2 ) {
+			if ( !is_array($val2) ) continue;
+			if ( $val2['type'] == "trans" ) {
+				$transs[$lvl.":".$key] = $val2['display'];
+			}
+		};
+	};
+	$transdef = $_GET['trans'];
+	if ( !$transdef || !$transs[$transdef] ) $transdef = array_keys($transs)[0];
+	if ( !$transdef && getset("xmlfile/sattributes/s/gloss") ) $transdef = "s:gloss";
+	if ( !$transdef ) fatal("No translation level defined");
+	list ( $stype, $tratt ) = explode(":", $transdef);
+
+	if ( count($transs) > 1 ) {
+		$transopts = "";
+		foreach ( $transs as $key => $val ) {
+			$transopts .= " - <a href='index.php?action=$action&cid=$fileid&trans=$key'>$val</a>";
+		};
+	};
+
+	$transname = getset("xmlfile/sattributes/$stype/$tratt/display", "Translation");
 
 	$maintext .= "<h2>{%Translation view}</h2><h1>".$ttxml->title()."</h1>";
 	$maintext .= $ttxml->tableheader();
@@ -19,7 +39,7 @@
 	$editxml = $ttxml->mtxt();
 
 	$maintext .= "<table>
-		<tr><th>{%Original}</th><th>{%Translation}</th></tr>
+		<tr><th>{%Original}</th><th>{%$transname}$transopts</th></tr>
 		<tr><td id=mtxt valign=top>$editxml</th><td id=trans valign=top></th></tr>
 		</table>
 		
@@ -32,7 +52,6 @@
 			var selm = '$stype';
 			var cid = '$fileid';
 			var tratt = '$tratt';
-			var tokatt = '$tokatt';
 			var hlcolor = '#ffffaa';
 			var username = '$username';
 			var ss = document.getElementById('mtxt').getElementsByTagName(selm);

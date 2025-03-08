@@ -248,10 +248,14 @@
 							$fattxt .= "<hr><p>The (first) unnumbered element:<div>".htmlentities($sent->asXML())."</div>";
 						};
 					};
-					$maintext .= "\n<tr><td><a href='index.php?action=file&cid=$ttxml->fileid&jmp=$sid'>$sid<td id=mtxt>".makexml($sent);
+					$maintext .= "\n<tr><td><a href='index.php?action=file&cid=$ttxml->fileid&jmp=$sid'>$sid<td id=mtxt class=mtxt sid=\"$sid\">".makexml($sent);
 					foreach ( $doatts as $key2 => $val2 ) {
 						if ( !is_array($val2) ) continue;
 						$atv = $sent[$key2]; 
+						if ( $val2['type'] == "trans" ) {
+							if ( $atv == "" ) $missingtrans = 1;
+							$transfield  = $key2;
+						};
 						$width = $val2['size'] or $width = 35;
 						if ( $binary[$key2] ) {
 							$maintext .= "<td>";
@@ -263,7 +267,7 @@
 							$maintext .= "<td><select name=matts[$sid][$key2] id=\"atts[$sid][$key2]\" value=\"$atv\">{$attopts[$key2]}</select>";
 							$moreaction .= "document.getElementById('atts[$sid][$key2]').value = '$atv';";
 						} else {
-							$maintext .= "<td><input size='$width' name=matts[$sid][$key2] value='$atv'>";
+							$maintext .= "<td><input size='$width' name=matts[$sid][$key2] id=\"$sid-$key2\" value='$atv'>";
 						};
 					};
 				};
@@ -271,12 +275,52 @@
 					$fattxt = str_replace("&xxx", "&xx=".join(',', array_keys($misid)), $fattxt);
 					fatal($fattxt);
 				};
-				$maintext .= "</table><p><input type='submit' value='Save'> <a href='index.php?action=file&cid=$fileid'>cancel</a>
+				if ( $missingtrans && $debug ) { $mislink = " &bull; <a onclick='filltrans();'>auto-fill missing translations</a>"; };
+				$srclang = "auto";
+				$maintext .= "</table><p><input type='submit' value='Save'> <a href='index.php?action=file&cid=$fileid'>cancel</a> $mislink
 					<input type=hidden name=last value='$end'>
 					<input type=hidden name=pp value='$pp'>
 					<input type=hidden name=doatt value='$doatt'>
 					</form>
-					<script language=Javascript>$moreaction</script>";
+					<script language=Javascript>$moreaction</script>
+					<script>
+						var transed = false;
+						function filltrans() {
+							ss = document.getElementsByClassName('mtxt');
+							for ( var a = 0; a<ss.length; a++ ) {
+								var s = ss[a];
+								var sid = s.getAttribute('sid');
+								var text = s.textContent.replace(/\s+/g, ' ');
+								var trbox = document.getElementById(sid+'-$transfield');
+								var trans = trbox.value;
+								if ( text != '' && trans == '' ) {
+									const res = fetch(\"https://libretranslate.com/translate\", {
+										method: \"POST\",
+										body: JSON.stringify({
+											q: text,
+											source: \"$srclang\",
+											target: \"en\",
+											format: \"text\",
+											alternatives: 3,
+											api_key: \"\"
+										}),
+										headers: { \"Content-Type\": \"application/json\" }
+									}).then(response => {
+										if (!response.ok) {
+										  throw new Error('Network response was not ok');
+										}
+										return response.json(); // Parse the JSON response
+									  })
+									  .then(responseData => {
+										console.log('Success:', responseData); // Handle the response data
+									  })
+									  .catch(error => {
+										console.error('Error:', error); // Handle errors
+									  });
+								};
+							};
+						};
+					</script>";
 			};
 			
 			// Add a session logout tester
@@ -321,7 +365,7 @@
 			$maintext .= "</table>
 				<p><input type=submit value=Save> $mergelink
 				</form>
-				<hr><p>Click <a href='index.php?action=$action&cid=$ttxml->fileid&sid=multi'>here</a> to edit multiple sentences
+				<hr><p>Click <a href='index.php?action=$action&cid=$ttxml->fileid&sid=multi&elm=$stype'>here</a> to edit multiple sentences
 				&bull;
 				<a href='index.php?action=block&elm=$stype&cid=$ttxml->fileid&sid=$sentid'>cancel</a> 
 				";
