@@ -12,7 +12,7 @@
 		foreach ( $val as $key => $val2 ) {
 			if ( !is_array($val2) ) continue;
 			if ( $val2['type'] == "trans" ) {
-				$transs[$lvl.":".$key] = $val2['display'];
+				$transs[$lvl.":".$key] = $val2;
 			}
 		};
 	};
@@ -25,7 +25,7 @@
 	if ( count($transs) > 1 ) {
 		$transopts = "";
 		foreach ( $transs as $key => $val ) {
-			$transopts .= " - <a href='index.php?action=$action&cid=$fileid&trans=$key'>$val</a>";
+			if ( $key != "$transdef" && ( !$val['admin'] || $username ) ) $transopts .= " - <a href='index.php?action=$action&cid=$fileid&trans=$key'>{$val['display']}</a>";
 		};
 	};
 
