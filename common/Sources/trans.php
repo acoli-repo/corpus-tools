@@ -16,7 +16,7 @@
 	$maintext .= $ttxml->topswitch();
 	$tmp = $ttxml->viewopts();
 
-	$editxml = $ttxml->asXML();
+	$editxml = $ttxml->mtxt();
 
 	$maintext .= "<table>
 		<tr><th>{%Original}</th><th>{%Translation}</th></tr>
@@ -26,7 +26,8 @@
 		<style>
 			#trans s { text-decoration: none; };
 		</style>
-		<script src='$jsurl/functions.js'></script>
+		<script src='$jsurl/tokview.js'></script>
+		<script src='$jsurl/tokedit.js'></script>
 		<script>
 			var selm = '$stype';
 			var cid = '$fileid';
@@ -41,13 +42,6 @@
 				s.onmouseout = sOut;
 				s.onclick = sClick;
 			};
-			var toks = document.getElementById('mtxt').getElementsByTagName('tok');
-			for ( var a = 0; a<toks.length; a++ ) {
-				var tok = toks[a];
-				tok.onmouseover = tokEvent;
-				tok.onmouseout = tokOut;
-				tok.onclick = tokClick;
-			};
 			var org = document.getElementById('mtxt').innerHTML;
 			var trdiv = document.getElementById('trans');
 			trdiv.innerHTML = org;
@@ -61,6 +55,11 @@
 				s.onmouseover = sEvent;
 				s.onmouseout = sOut;
 				s.onclick = sClick;
+			};
+			var imgs = trdiv.getElementsByTagName('img');
+			for ( var a = 0; a<imgs.length; a++ ) {
+				var img = imgs[a];
+				img.style.display = 'none';
 			};
 			
 			function sEvent() {
@@ -93,18 +92,6 @@
 					trs.style['background-color'] = hlcolor;
 					trs.style.backgroundColor= hlcolor; 	
 				};
-			};
-			function tokEvent() {
-				var gloss = this.getAttribute(tokatt);
-				if ( gloss ) {
-					var table = '<table><tr><th>{%Translation}<td>'+gloss+'</td></tr></table>';
-					showinfo(null, this, table);	
-				};
-			};
-			function tokOut(s) {
-				hideinfo();	
-			};
-			function tokClick(s) {
 			};
 		</script><hr>".$ttxml->viewswitch();
 		

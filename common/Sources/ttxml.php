@@ -656,6 +656,7 @@ class TTXML
 		};	
 		
 		$jsonforms = array2json(getset('xmlfile/pattributes/forms'));
+		$jsontags = array2json(getset('xmlfile/pattributes/tags'));
 		#Build the view options	
 		foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
 			$attlisttxt .= $alsep."\"$key\""; $alsep = ",";
@@ -674,6 +675,7 @@ class TTXML
 			<div id='mtxt'>".$this->asXML()."</div>
 			<script language='Javascript'>
 				var formdef = $jsonforms;
+				var tagdef = $jsontags;
 				var attributelist = Array($attlisttxt);
 				$attnamelist
 				var tid = '".$this->fileid."'; var previd = '{$_GET['tid']}';

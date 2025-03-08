@@ -1222,6 +1222,7 @@ function showdocinfo(showelement) {
 
 function offset(elem) {
 	if(!elem) elem = this;
+	if(typeof(elem) !== 'object') return -1;
 
 	var x = elem.offsetLeft;
 	var y = elem.offsetTop;

@@ -82,12 +82,12 @@ function mouseEvent(evt) {
 	};
 		
 };
-	
+
 function showtokinfo(evt, element, poselm) {
-	var shownrows = 0;
 	var tokinfo = document.getElementById('tokinfo');
 	if ( !tokinfo ) { return -1; };
-	var showelement;
+	var shownrows = 0;
+	var showelement; var html;
 	if ( element.tagName == "GTOK" ) { showelement = element; element = element.parentNode; } else { showelement = element; };
     if ( element.tagName == "TOK" || element.tagName == "DTOK" || element.tagName == "MTOK" ) {
     	var atts = element.attributes;
@@ -112,7 +112,7 @@ function showtokinfo(evt, element, poselm) {
      	tablerows = '<tr><th colspan=2><b>' + textvalue + '</b></th></tr>';
      	shownrows = 1;
 		tablerows += infotable(element);
-    	tokinfo.innerHTML = '<table width=\'100%\'>' + tablerows + '</table>';
+    	html = '<table width=\'100%\'>' + tablerows + '</table>';
     	
     	// now look for dtoks
     	var children = element.childNodes;
@@ -141,17 +141,30 @@ function showtokinfo(evt, element, poselm) {
 			tokinfo.innerHTML += '<hr><table width=\'100%\'>' + tablerows + '</table>';
 		};
 
-		if ( shownrows )  { tokinfo.style.display = 'block'; };
-		var foffset = offset(showelement);
-		if ( typeof(poselm) == "object" ) {
-			var foffset = offset(poselm);
+		if ( shownrows )  { 
+			if ( !poselm ) { poselm = element; };
+			showinfo(poselm, html); 
 		};
+	};
+	
+	if ( typeof(window.posttok) === 'function' ) { posttok('in', evt, tokid); }; // if needed, run post scripts, pe to highlight the token elsewhere
+
+};
+
+function showinfo(element, html) {
+	var tokinfo = document.getElementById('tokinfo');
+	if ( !tokinfo ) { return -1; };
+	
+	tokinfo.style.display = 'block';
+	tokinfo.innerHTML = html;
+	
+	if ( typeof(element) == "object" ) {
+		var foffset = offset(element);
 		tokinfo.style.left = Math.min ( foffset.left, window.innerWidth - tokinfo.offsetWidth + window.pageXOffset ) + 'px'; 
 		tokinfo.style.top = ( foffset.top + element.offsetHeight + tibel ) + 'px';
-
-    };
-    
-	if ( typeof(window.posttok) === 'function' ) { posttok('in', evt, tokid); }; // if needed, run post scripts, pe to highlight the token elsewhere
+	} else {
+		console.log(element);
+	};
  
 } 
 
