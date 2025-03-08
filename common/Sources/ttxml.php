@@ -1050,8 +1050,9 @@ class TTXML
 					$views .= $sep."<option value='index.php?action=$doaction&cid=$this->fileid$elmref'>{%$val}</option>";
 					$sep = "\n";
 				} else {
-					$active = ""; if ( $action == $doaction || ($dolvl && $dolvl = $_GET['elm']) ) { $active = " active"; };
-					$views .= $sep."<span class='switchopt$active'><a href='index.php?action=$doaction&cid=$this->fileid$elmref'>{%$val}</a></span>";
+					$active = ""; if ( $action == $doaction || ($dolvl && $dolvl == $_GET['elm']) ) { $active = " active"; };
+					$adminp = ""; if ( getset("views/$doaction/admin") == "1" ) $adminp = " adminpart";
+					$views .= $sep."<span class='switchopt$active$adminp'><a href='index.php?action=$doaction&cid=$this->fileid$elmref'>{%$val}</a></span>";
 					$sep = $itmsep."";
 				};
 			};

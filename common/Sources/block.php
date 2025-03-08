@@ -154,6 +154,9 @@
 						var orgtoks = new Object();
 						var noimg = true;
 						var tid = '$ttxml->fileid';
+						var hlid = '{$_GET['hlid']}';
+						var jmp = '{$_GET['jmp']}';
+						if ( jmp != '' && hlid == '' ) { hlid = jmp; };
 						var attributelist = Array($attlisttxt);
 						$attnamelist
 						formify();
@@ -186,6 +189,7 @@
 						function getElementByXpath(path) {
 							return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 						}
+						highlight(hlid);
 					</script>
 
 				<script language=Javascript>$moreactions</script>

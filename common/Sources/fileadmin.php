@@ -215,9 +215,16 @@
 			";
 	};
 	if ( !$views['igt'] ) {
-		if ( $ttxml->xpath("//text//s") ) { $rest = " - activate by adding to settings"; } else { $rest = " - Not available, no tokens with an m"; };
+		if ( $ttxml->xpath("//text//s") ) { $rest = " - activate by adding to settings"; } else { $rest = " - Not available, no sentences"; };
 		$maintext .= "<tr><td><a href='index.php?action=igt&act=xml&cid=$ttxml->fileid'>go</a>
 			<th>Interlinear glossed view<td>Glosses
+			<td><i>Not explicitly defined $rest
+			";
+	};
+	if ( !$views['trans'] ) {
+		if ( $ttxml->xpath("//text//s[@gloss or @trans]") || getset("xmlfile/translation")  || getset("xmlfile/sattributes/s/gloss") ) { $rest = " - activate by adding to settings"; } else { $rest = " - Not available, no sentences with a @gloss or @trans"; };
+		$maintext .= "<tr><td><a href='index.php?action=trans&cid=$ttxml->fileid'>go</a>
+			<th>Translation view<td>Sentence translations
 			<td><i>Not explicitly defined $rest
 			";
 	};
