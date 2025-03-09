@@ -812,13 +812,13 @@
 				$snippettxt .= "</table>";
 				if ( $snippettxt == "<table></table>" && $username ) {
 					$snippettxt = "<i>No display data or snippet elm ($snippetelm) in <a href='index.php?action=$action&act=edit&id=$nerid'>$nerid</i>"; 
-					if ( $_GET['debug'] ) $snippettxt .= showxml($nernode);
 				};
 			} else if ( $username ) {
 				$snippettxt = "<i>Missing NER record: $nerid</i>";
 			} else {
 				print "<!-- Node $nerid not found -->";
 			};
+			if ( $_GET['debug'] ) $snippettxt .= showxml($nernode);
 		} else {
 			print "<!-- Error loading NER -->";
 		};
