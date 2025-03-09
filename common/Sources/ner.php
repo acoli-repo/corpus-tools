@@ -459,6 +459,7 @@
 			<input type=submit value='Remove'> <a href='index.php?action=$action&cid=$ttxml->fileid'>cancel</a>
 			</form>";
 
+
 	} else if ( $_GET['cid'] && $act == "multiadd" ) {
 
 		require("$ttroot/common/Sources/ttxml.php");
