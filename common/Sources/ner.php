@@ -818,7 +818,7 @@
 			} else {
 				print "<!-- Node $nerid not found -->";
 			};
-			if ( $_GET['debug'] ) $snippettxt .= showxml($nernode);
+			if ( $_GET['debug'] ) $snippettxt .= "<hr><p>Snippet: $snippeelm <hr>".showxml($nernode);
 		} else {
 			print "<!-- Error loading NER -->";
 		};
