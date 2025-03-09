@@ -105,8 +105,10 @@
 			$mapoptions .= " &bull; <a href='{$_SERVER['REQUEST_URI']}&debug=1' class=adminpart>Debug</a>";
 		};
 		
-		$maintext .= "<h1>Map View</h1>
-	<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css\"
+	$maintext .= "<h2>{%Map view}</h2><h1>".$ttxml->title()."</h1>";
+	$maintext .= $ttxml->tableheader();
+	$maintext .= $ttxml->topswitch();
+		$maintext .= "<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css\"
   integrity=\"sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ==\"
   crossorigin=\"\"/>
 	<script src=\"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js\"

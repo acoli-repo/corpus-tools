@@ -133,6 +133,7 @@
 		"Type" => "Type",
 		"Simple map" => "Simple map",
 		"Overlay map" => "Overlay map",
+		"Map view" => "Map view",
 		"close" => "close",
 		"Home" => "Home",
 		"About" => "About",
