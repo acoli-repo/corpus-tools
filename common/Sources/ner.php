@@ -341,6 +341,7 @@
 				if ( !$atv && $key == $correspatt ) {
 					foreach ( $nerlist as $nertype ) {
 						if ( $nodetype == $nertype['elm'] ) {
+							$selectcrit .= "<span style='color: #bbbbbb;'>{$nertype['display']}: $nerfile://{$nertype['node']}/@{$nertype['elm']}</span>";
 							$neroptions .= "<option value=''>[{$nertype['display']}]</option>";
 							$tmp = array();
 							foreach ( $nerxml->xpath("//{$nertype['node']}") as $neranode ) {
@@ -351,7 +352,7 @@
 						sort($tmp);
 						$neroptions .= join("\n", $tmp);
 					};
-					$maintext .= " <select onchange='fillf(this)'><option>[select]</option>$neroptions</select>
+					$maintext .= " <select onchange='fillf(this)'><option>[select]</option>$neroptions</select> $selectcrit
 					<script>function fillf(sel) { var val = sel.value; document.getElementById('f$correspatt').value = val; };</script>";
 				};
 			};
