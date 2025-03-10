@@ -313,7 +313,7 @@
 		foreach ( getset('xmlfile/ner/tags', array()) as $tmp ) if ( $tmp['elm'] == $etype ) $nerdef = $tmp;
 		$sattdef = getset("xmlfile/sattributes/$etype");
 
-		if ( !$ename ) $ename = $sattdef['display'];
+		if ( !$ename && is_array($sattdef) ) $ename = $sattdef['display'];
 		
 		if ( !$sattdef && $nerxml ) $sattdef = array ( $correspatt => array ("display" => "NER id") );
 		
@@ -338,6 +338,22 @@
 				$atv = $nernode[$key]; 
 				$maintext .= "<tr><th>$key<td>$itemtxt<td><input size=60 name=atts[$key] id='f$key' value='$atv'>";
 				$done[$key] = 1;
+				if ( !$atv && $key == $correspatt ) {
+					foreach ( $nerlist as $nertype ) {
+						if ( $nodetype == $nertype['elm'] ) {
+							$neroptions .= "<option value=''>[{$nertype['display']}]</option>";
+							$tmp = array();
+							foreach ( $nerxml->xpath("//{$nertype['node']}") as $neranode ) {
+								$nername = $neranode->{$nertype['elm']} or $nername = $neranode->name;
+								array_push($tmp, "<option key='$nername' value='{$neranode['id']}'>$nername</option>");
+							};
+						};
+						sort($tmp);
+						$neroptions .= join("\n", $tmp);
+					};
+					$maintext .= " <select onchange='fillf(this)'><option>[select]</option>$neroptions</select>
+					<script>function fillf(sel) { var val = sel.value; document.getElementById('f$correspatt').value = val; };</script>";
+				};
 			};
 		};
 
@@ -357,7 +373,7 @@
 			";
 		else $maintext .= "
 			&bull;
-			<a href=\"index.php?action=$action&act=lookup&cid=$ttxml->fileid&nerid=$nerid\">lookup entity</a>
+			<a href=\"index.php?action=$action&act=lookup&cid=$ttxml->fileid&nerid=$nerid\">lookup entity (WikiData)</a>
 			";
 		
 		$maintext .= "
