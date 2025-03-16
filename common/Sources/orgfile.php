@@ -51,13 +51,13 @@
 	};
 
 	# Get the raw source file
-	if ( $viewers[$extention] ) {
+	if ( $viewers[$extention] && !$_GET['raw'] ) {
 
 		$vact = $viewers[$extention]['action'];
 		$xmlname = $ttxml->xmlid or $xmlname = preg_replace("/.*([^\/]+?)\?[^.]*/", "\\1", $filename);
 		$rawtxt = "<p>Custom visualization tool: <a href='index.php?action=$vact&id=$xmlname'>$vact</a></p>";	
 
-	} else if ( $extention == "pdf" ) {
+	} else if ( $extention == "pdf" && !$_GET['raw']  ) {
 		
 		$rawtxt = "<embed src=\"$filename\" width=\"100%\" height=\"1000px\"  type=\"application/pdf\">";
 
@@ -113,7 +113,7 @@
 	
 
 	# Check if the raw source is HTML
-	if ( !$showable[$extention] )  { $raw = "<p><a href='index.php?action=$action&id=$filename&raw=1' target=html>Download file</a>"; }
+	if ( !$showable[$extention] )  { $raw = "<p><a href='index.php?action=$action&id=$ttxml->fileid&raw=1' target=html>Download file</a>"; }
 	else if ( strstr($rawtxt, "<html") || strstr($rawtxt, "<HTML") )  { $raw = "<p><a href='index.php?action=$action&id=$filename&html=1' target=html>View as HTML file</a>"; };
 	
 	if ( $_GET['html'] ) {
@@ -122,6 +122,7 @@
 	} else if ( $_GET['raw'] ) {
 		# Download the raw file
 		if ( $filetype[$extention]['mime'] ) { header("Content-Type: ".$filetype[$extention]['mime']); }
+		$shortfile = basename($filename);
 		header("Content-Disposition: attachment; filename=\"$shortfile\"");
 		print $rawtxt; exit;
 	} else if ( $nofile ) {

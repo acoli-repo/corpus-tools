@@ -144,11 +144,12 @@
 				$key = "//{$recname}[@id='$id']/$key";
 				$fldval = xpathnode($record, $key); 
 			}
-			if ( $fldrec['type'] == "rte" ) {
+			if ( $fldrec['type'] == "rte" && $fldval ) {
 				$fldtype = $fldval->getName();
 				$trval = html_entity_decode($val);
 				$trval = str_replace("&lt;", "<", $trval);
 				$trval = str_replace("&gt;", ">", $trval);
+				$trval = str_replace("&", "&amp;", $trval);
 				$trval = str_replace("<b/>", "", $trval);
 				$trval = str_replace("<i/>", "", $trval);
 				$val = "<$fldtype>$trval</$fldtype>";
@@ -393,8 +394,8 @@
 				$key = $fldrec->getName();
 			};
 			$val = $fldrec."";
-			$fldval = current($record->xpath($key))."";
-			if ( $fldval == "" ) continue;
+			$fldval = current($record->xpath($key));
+			if ( !$fldval || $fldval->asXML() == "<$key></$key>" ) continue;
 			if ( $fldrec["link"] ) {
 				$linkurl = $fldrec["link"]."";
 				if ( $linkurl == "cid" ) $linkurl = "index.php?action=file&cid=$fldval";
@@ -406,8 +407,9 @@
 				if ( $fldrec["target"] ) $target = $fldrec["target"]; $trgt = "";
 				if ( $target && $target != "none" ) $trgt = " target=\"$target\"";
 				if ( $linkurl != "" ) $fldval = "<a$trgt href='$linkurl'>$fldval</a>";
-			} else if ( strstr($fldval, "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
-			if ( $fldrec['type'] == "xml" || $fldrec['type'] == "rte" ) {
+			} else if ( strstr($fldval."", "http" ) ) $fldval = "<a href='$fldval'>$fldval</a>";
+			
+			if ( $fldval && !is_string($fldval) && ( $fldrec['type'] == "xml" || $fldrec['type'] == "rte" ) ) {
 				if ( !$fldrec['notitle'] ) $maintext .= "<tr><th span='row'>{%$val}</th><td colspan=2>".$fldval->asXML();
 				else $maintext .= "<tr><td colspan=2>".$fldval->asXML();
 			} else $maintext .= "<tr><th span='row'>{%$val}<td>$fldval";
