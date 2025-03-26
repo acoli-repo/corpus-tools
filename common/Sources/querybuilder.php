@@ -118,7 +118,7 @@
 					$uvlist = "";
 					ksort($uv);
 					foreach ( $uv as $uvv => $tmp2 ) $uvlist .= "<option value='$uvv'>$uvv</option>";
-					if ( $uf && $uf != '_' && $uvlist ) $udflist .= "<tr><th span=\"row\"$tstyle>{%$uf}
+					if ( $uf != '' && $uf != '_' && $uvlist ) $udflist .= "<tr><th span=\"row\"$tstyle>{%$uf}
 								  <input type=hidden name=\"matches[$col:$uf]\" value='udfeats'>		
 								  <td><select name=vals[$col:$uf]><option value=''>[{%select}]</option>$uvlist</select>";
 				};
@@ -466,7 +466,7 @@
 						# Read this index file
 						$tmp = file_get_contents("$corpusfolder/$xkey.avs"); unset($optarr); $optarr = array();
 						foreach ( explode ( "\0", $tmp ) as $kva ) { 
-							if ( $kva ) {
+							if ( $kva != '' ) {
 								if ( $item['values'] == "multi" ) {
 									$mvsep = getset('cqp/multiseprator') or $mvsep = getset('cqp/multisep', ",");
 									$kvl = explode ( $mvsep, $kva );

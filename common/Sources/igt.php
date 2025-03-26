@@ -177,9 +177,9 @@
 			$audiobut = "<a onClick=\"playpart('$audiofile', $strt, $stp, this );\">{%play audio}</a>";
 		 	$maintext .= "<tr><td style='border-right: 1px solid #bbaabb; color: {$item['color']}'>Audio</td><td style='padding-left: 5px; color: {$item['color']}'>$audiobut	</td>";
 		};
-		$maintext .= "</div><hr class=mainhr>";
+		$maintext .= "</div><hr class=mainhr></table>";
 	};
-	$maintext .= "</table></div><hr>
+	$maintext .= "</div><hr>
 				<script language=Javascript>			
 				if ( jmps ) { 
 					var jmpar = jmps.split(' ');

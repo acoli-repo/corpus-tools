@@ -32,7 +32,12 @@
 		$maintext .= "<h2>Selected Files</h2>
 			<p>Alignment level: $lvltxt</p>";
 		
-		$ids = array_keys($_POST['ids']) or $ids = explode(",", $_GET['ids']);
+		if ( $_POST['ids'] ) {
+			$ids = array_keys($_POST['ids']);
+		} else {
+			$ids = explode(",", $_GET['ids']);
+		};
+		if ( count($ids) == 0 || ( count($ids) == 1 && $ids[0] == "" ) ) fatal("No files selected");
 		
 		require("$ttroot/common/Sources/ttxml.php");
 		$cids = array();

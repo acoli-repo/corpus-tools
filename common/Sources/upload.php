@@ -390,6 +390,9 @@
 			$ffn = str_replace("xmlfiles/", "", $line);
 			$ffn = preg_replace("/^\//", "", $ffn);
 			list ( $bn, $ext ) = explode(".", $fn);
+			if ( preg_match("/^(.*)\.([^.]+)$/", $fn, $matches ) ) {
+				$bn = $matches[1]; $ext = $matches[2];
+			};
 			if ( is_dir($line) ) {
 				if ( $typedef['subfolders'] ) {
 					if ( !$dirlist ) $dirlist .= "<h3>Subfolders</h3>";

@@ -16,10 +16,16 @@
 			}
 		};
 	};
+	
 	$transdef = $_GET['trans'];
+	if ( !$transdef && $transs ) $transdef = array_pop(array_keys($transs));
 	if ( !$transdef || !$transs[$transdef] ) $transdef = array_keys($transs)[0];
 	if ( !$transdef && getset("xmlfile/sattributes/s/gloss") ) $transdef = "s:gloss";
-	if ( !$transdef ) fatal("No translation level defined");
+	if ( !$transdef ) {
+		if ( $username && !$transs ) fatal("No translation level defined - set @type=trans on at least one element in an sattribute");
+		else if ( $username ) fatal("No translation level selected");
+		else fatal("Translations are not available for this corpus");
+	};
 	list ( $stype, $tratt ) = explode(":", $transdef);
 
 	if ( count($transs) > 1 ) {
@@ -40,7 +46,7 @@
 
 	$jmp = $_GET['jmp'];
 
-	$maintext .= "<table>
+	$maintext .= "<table cellspacing=10>
 		<tr><th>{%Original}</th><th>{%$transname}$transopts</th></tr>
 		<tr><td id=mtxt valign=top>$editxml</th><td id=trans valign=top></th></tr>
 		</table>
