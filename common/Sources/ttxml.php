@@ -103,11 +103,11 @@ class TTXML
 		if (!$this->xml) return "";
 		if ( !$this->title ) {
 			if ( getset('xmlfile/title') == "[id]" ) {
-				$this->title = $this->xmlid;
+				$this->title = trim($this->xmlid);
 			} else {
 				$titlexp = getset("xmlfile/$type")."" or $titlexp = getset('xmlfile/title', "//title");
 				$result = $this->xml->xpath($titlexp); 
-				$this->title = $result[0];
+				$this->title = trim($result[0]);
 			};
 			if ( $this->title == "" ) {
 				if ( getset('xmlfile/title') != "" ) $this->title = "<i>{%Without Title}</i>";
