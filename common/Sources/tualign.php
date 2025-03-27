@@ -9,9 +9,11 @@
 
 	# Check we have a PSQL DB
 	$cqpcorpus = getset('cqp/corpus', "tt-".$foldername);
-	$db = strtolower(str_replace("-", "_", $cqpcorpus)); # Manatee corpus name
-	$dbconn = pg_connect("host=localhost dbname=$db user=www password=localpwd");
-
+	if ( $act != "columns" ) {
+		$db = strtolower(str_replace("-", "_", $cqpcorpus)); # Manatee corpus name
+		$dbconn = pg_connect("host=localhost dbname=$db user=www password=localpwd");
+	};
+	
 	$tuidatt = $_GET['tuidatt'] or $tuidatt = getset('align/tuidatt', "tuid");
 	$tuidtit = $_GET['tuidtit'] or $tuidtit = getset('align/display'); 
 	if ( !$tuidtit ) if ( $tuidatt == "tuid" ) $tuidtit = "Translation unit"; else if ( $tuidatt = "appid" ) $tuidtit = "Apparatus unit"; else $tuidtit = "Alignment unit";
@@ -188,8 +190,10 @@
 					for ( i in versions ) {
 						vx = document.getElementById('mtxt-'+versions[i]);
 						vxb = vx.getBoundingClientRect();
-						van = document.evaluate(xpath, vx, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-						if ( van ) {
+						vans = document.evaluate(xpath, vx, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+						van = null;
+						for  ( var j=0; j<vans.snapshotLength; j++ ) {
+							van = vans.snapshotItem(j);
 							highlight(van);
 						};
 						if ( van && van != element ) {
