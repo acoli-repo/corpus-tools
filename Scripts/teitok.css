@@ -213,8 +213,11 @@ span[status=wrong] { color: red; }
 
 /* Style TEI tables as HTML tables */
 #mtxt row { display: table-row; }
-#mtxt cell { display: table-cell; }
+#mtxt cell { display: table-cell; padding: 5px; }
 
 #topswitch .switchopt { background-color: white; border: 1px solid #aaaaaa; padding: 2px; padding-left: 10px; padding-right: 10px; }
 #topswitch .switchopt a { color: black; font-size: normal;  }
 #topswitch .active { background-color: buttonface; }
+
+/* Explicitly define TEI elements so that the DOM picks up on them */
+ab { display: inline-block; }

@@ -29,7 +29,13 @@
 
 		
 		$lvl = $_GET['lvl'] or $lvl = getset('align/level', "p");
+		$lvlatt = $_GET['lvlatt'] or $lvl = getset('align/levelattribute');
 		$lvltxt = getset("cqp/sattributes/$lvl/element", $lvl);
+		if ( $lvlatt ) {
+			list ( $key, $val ) = explode(":", $lvlatt);
+			$lvlsel = "@$key=\"$val\" and ";
+			$lvltxt .= "[@$key=\"$val\"]";
+		};
 
 		$maintext .= "<h2>Selected Files</h2>
 			<p>Alignment level: $lvltxt</p>";
@@ -51,6 +57,15 @@
 			} else if ( $username ) { $maintext .= "<p class=wrong>Unable to open: $cid"; }
 		}; 
 		if ( !in_array($mid, $cids) ) $mid = $cids[0];
+
+		# Determine in the first text what @tuid correspond to this level
+		$xp = "//".$lvl."[$lvlsel@$tuidatt]";
+		$ttxml = $files[$mid];
+		$tulist = array();
+		foreach ( $ttxml->xpath($xp) as $tu ) {
+			$tuid = $tu[$tuidatt]."";
+			array_push($tulist, $tuid);
+		}; 
 		
 		$maintext .= "<table id=rollovertable data-sortable>
 			 <thead><tr><td>";
@@ -65,15 +80,14 @@
 				};
 			};
 			$maintext .= "<th id=\"tr-$cid\"><h3><a href='index.php?action=file&cid=$ttxml->fileid'>$filetit</a></h3>$moreheader</th>";
-			$xp = "//".$lvl."[@$tuidatt]";
-			foreach ( $ttxml->xpath($xp) as $tu ) {
+			foreach ( $ttxml->xpath("//text//*[@tuid]") as $tu ) {
 				$tuid = $tu[$tuidatt]."";
 				if ( !is_array($tus[$cid][$tuid]) ) $tus[$cid][$tuid] = array();
 				array_push($tus[$cid][$tuid], $tu);
 			}; 
 		};
 		
-		foreach ( $tus[$mid] as $tuid => $tu ) {
+		foreach ( array_unique($tulist) as $tuid ) {
 			$tutxt = str_replace(",", "<br/>", $tuid);
 			$maintext .= "<tr id=\"tr-$tuid\"><td><a href='index.php?action=$action&tuid=$tuid'>$tutxt</a></td>";
 			foreach ( $files as $cid => $ttxml ) {
@@ -85,6 +99,8 @@
 			};
 		};
 		$maintext .= "</table>";
+		# For now, hide notes
+		$maintext .= "<style>note { display: none; }</style>";
 
 	} else if ( $act == "select" && ( $_GET['id'] || $_GET['cid'] ) ) { 
 	
@@ -203,9 +219,15 @@
 						};
 					};
 				};
-				function highlight(element) { 
+				function highlight(element, color='#ffff66') { 
 					hls.push(element);
-					element.style.backgroundColor = '#ffff66';
+					ename = element.nodeName;
+					if ( ename == 'ab' ) {
+						element.setAttribute('style', 'color: ' + color);
+					} else {
+						element.style.backgroundColor = color;
+						element.style['background-color'] = color;
+					};
 				};
 				function unhighlight(element) { 
 					element.style.backgroundColor = null;
