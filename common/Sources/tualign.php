@@ -21,7 +21,7 @@
 	$maintext .= "<h1>{%{$tuidtit}s}</h1>";
 
 
-	if ( $act == "files" ) {
+	if ( $act == "files" || $act == "download" ) {
 	
 		# Make an alignment across selected files
 		# The first one defines the translation units
@@ -36,6 +36,8 @@
 			$lvlsel = "@$key=\"$val\" and ";
 			$lvltxt .= "[@$key=\"$val\"]";
 		};
+
+		$format = $_GET['format'] or $format = "tmx";
 
 		$maintext .= "<h2>Selected Files</h2>
 			<p>Alignment level: $lvltxt</p>";
@@ -57,6 +59,19 @@
 			} else if ( $username ) { $maintext .= "<p class=wrong>Unable to open: $cid"; }
 		}; 
 		if ( !in_array($mid, $cids) ) $mid = $cids[0];
+
+		if ( $act == "download" ) {
+			if ( $format == "tmx" ) {
+				$lvltype = str_replace('"', "&#037;", $lvltxt);
+				$dltxt = "<tmx version=\"1.4\">
+  <header
+    creationtool=\"TEITOK tualign\"
+    datatype=\"PlainText\" segtype=\"$lvltype\"
+    o-tmf=\"TEITOK/XML\"
+    />
+  <body>";
+			};
+		};
 
 		# Determine in the first text what @tuid correspond to this level
 		$xp = "//".$lvl."[$lvlsel@$tuidatt]";
@@ -80,6 +95,11 @@
 				};
 			};
 			$maintext .= "<th id=\"tr-$cid\"><h3><a href='index.php?action=file&cid=$ttxml->fileid'>$filetit</a></h3>$moreheader</th>";
+			$vlang = current($ttxml->xpath("//langUsage/language/@ident"));
+			$langs[$cid] = $vlang;
+			$vid = current($ttxml->xpath("//langUsage/language/@ident"));
+			if ( !$vid ) $vid = $ttxml->xmlid;
+			$vids[$cid] = $vid;
 			foreach ( $ttxml->xpath("//text//*[@tuid]") as $tu ) {
 				$tuid = $tu[$tuidatt]."";
 				if ( !is_array($tus[$cid][$tuid]) ) $tus[$cid][$tuid] = array();
@@ -90,6 +110,11 @@
 		foreach ( array_unique($tulist) as $tuid ) {
 			$tutxt = str_replace(",", "<br/>", $tuid);
 			$maintext .= "<tr id=\"tr-$tuid\"><td><a href='index.php?action=$action&tuid=$tuid'>$tutxt</a></td>";
+			if ( $act == "download" ) {
+				if ( $format == "tmx" ) {
+					$dltxt .= "\n\t<tu id=\"$tuid\">";
+				};
+			};
 			foreach ( $files as $cid => $ttxml ) {
 				$tutxt = ""; $tutot = "";
 				foreach ( $tus[$cid][$tuid] as $tu ) {
@@ -97,11 +122,40 @@
 				};
 				$tutot = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tutot ); # Close empty element to avoid HTML interpretation issues
 				$maintext .= "<td id=\"td-$cid-$tuid\">$tutot</td>";
+				if ( $act == "download" ) {
+					if ( $format == "tmx" ) {
+						$turaw = preg_replace("/<[^<>]+>/", "", $tutot);
+						$vlang = $langs[$cid];
+						$vid = $vids[$cid];
+						$dltxt .= "\n\t\t<tuv creationid=\"$vid\" lang=\"$vlang\">$turaw</tuv>";
+					};
+				};
+			};
+			if ( $act == "download" ) {
+				if ( $format == "tmx" ) {
+					$dltxt .= "\n\t</tu>";
+				};
 			};
 		};
 		$maintext .= "</table>";
 		# For now, hide notes
 		$maintext .= "<style>note { display: none; }</style>";
+
+		if ( $act == "download" ) {
+			if ( $format == "tmx" ) {
+				$dltxt .= "\n</body>\n</tmx>";
+				header("Content-type: text/xml");
+				$dlext = "xml";
+			};
+			header("Content-disposition: attachment; filename=\"$foldername.$dlext\"");
+			print $dltxt; 
+			exit;
+		};
+		
+		$thisurl = $_SERVER['REQUEST_URI'];
+		$dlurl = str_replace("&act=files", "&act=download&format=tmx", $thisurl);
+		$maintext .= "<hr><p><a href='$dlurl'>Download as TMX</a>";
+
 
 	} else if ( $act == "select" && ( $_GET['id'] || $_GET['cid'] ) ) { 
 	
