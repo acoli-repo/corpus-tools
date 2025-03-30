@@ -63,7 +63,7 @@
 		if ( $act == "download" ) {
 			if ( $format == "tmx" ) {
 				$lvltype = str_replace('"', "&#037;", $lvltxt);
-				$dltxt = "<tmx version=\"1.4\">
+				$dltxt = "<tmx version=\"1.0\">
   <header
     creationtool=\"TEITOK tualign\"
     datatype=\"PlainText\" segtype=\"$lvltype\"
@@ -127,7 +127,7 @@
 						$turaw = preg_replace("/<[^<>]+>/", "", $tutot);
 						$vlang = $langs[$cid];
 						$vid = $vids[$cid];
-						$dltxt .= "\n\t\t<tuv creationid=\"$vid\" lang=\"$vlang\">$turaw</tuv>";
+						$dltxt .= "\n\t\t<tuv creationid=\"$vid\" xml:lang=\"$vlang\"><seg>$turaw</seg></tuv>";
 					};
 				};
 			};
@@ -154,7 +154,48 @@
 		
 		$thisurl = $_SERVER['REQUEST_URI'];
 		$dlurl = str_replace("&act=files", "&act=download&format=tmx", $thisurl);
-		$maintext .= "<hr><p><a href='$dlurl'>Download as TMX</a>";
+		$maintext .= "
+			<script>
+				function downloadTableAsCSV(tableId, filename) {
+				  const table = document.getElementById(tableId);
+				  const rows = table.querySelectorAll('tr');
+				  let csv = [];
+				
+				  for (const row of rows) {
+					const rowData = [];
+					const cols = row.querySelectorAll('td, th');
+					
+					for (const col of cols) {
+					  // Clean data and handle commas/quotes
+					  let text = col.textContent || col.innerText;
+					  text = text.replace(/\"/g, '\"\"');
+					  console.log(col);
+					  console.log(text);
+					  if (text.includes(',') || text.includes('\"') || text.includes('\\n')) {
+						text = `\"\${text}\"`;
+					  }
+					  rowData.push(text);
+					}
+					
+					csv.push(rowData.join(','));
+				  }
+				
+				  // Create download link
+				  const csvContent = csv.join('\\n');
+				  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+				  const link = document.createElement('a');
+				  const url = URL.createObjectURL(blob);
+				  
+				  link.setAttribute('href', url);
+				  link.setAttribute('download', filename);
+				  link.style.visibility = 'hidden';
+				  
+				  document.body.appendChild(link);
+				  link.click();
+				  document.body.removeChild(link);
+				}
+			</script>";
+		$maintext .= "<hr><p><a href='$dlurl'>Download as TMX</a> &bull; <a onclick=\"downloadTableAsCSV('rollovertable', '$foldername.csv');\">Download as CSV</a>";
 
 
 	} else if ( $act == "select" && ( $_GET['id'] || $_GET['cid'] ) ) { 
