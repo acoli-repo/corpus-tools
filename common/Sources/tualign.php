@@ -95,6 +95,7 @@
 				foreach ( $tus[$cid][$tuid] as $tu ) {
 					$tutot .= elmcontent($tu);
 				};
+				$tutot = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tutot ); # Close empty element to avoid HTML interpretation issues
 				$maintext .= "<td id=\"td-$cid-$tuid\">$tutot</td>";
 			};
 		};
