@@ -145,7 +145,7 @@
 			if ( $format == "tmx" ) {
 				$dltxt .= "\n</body>\n</tmx>";
 				header("Content-type: text/xml");
-				$dlext = "xml";
+				$dlext = "tmx";
 			};
 			header("Content-disposition: attachment; filename=\"$foldername.$dlext\"");
 			print $dltxt; 
