@@ -132,7 +132,8 @@
 					trs.style.backgroundColor= hlcolor; 	
 				};
 			};
-		</script><hr>".$ttxml->viewswitch();
+		</script>
+		<hr>".$ttxml->viewswitch();
 		
 		
 ?>

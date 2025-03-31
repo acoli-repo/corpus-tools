@@ -29,7 +29,7 @@
 
 		
 		$lvl = $_GET['lvl'] or $lvl = getset('align/level', "p");
-		$lvlatt = $_GET['lvlatt'] or $lvl = getset('align/levelattribute');
+		$lvlatt = $_GET['lvlatt'] or $lvlatt = getset('align/levelattribute');
 		$lvltxt = getset("cqp/sattributes/$lvl/element", $lvl);
 		if ( $lvlatt ) {
 			list ( $key, $val ) = explode(":", $lvlatt);
@@ -82,7 +82,7 @@
 			array_push($tulist, $tuid);
 		}; 
 		
-		$maintext .= "<table id=rollovertable data-sortable>
+		$maintext .= "<div id=mtxt><table id=rollovertable data-sortable>
 			 <thead><tr><td>";
 		foreach ( $files as $cid => $ttxml ) {
 			$filetit = $ttxml->title("short") or $filetit = $ttxml->fileid;
@@ -137,7 +137,7 @@
 				};
 			};
 		};
-		$maintext .= "</table>";
+		$maintext .= "</table></div>";
 		# For now, hide notes
 		$maintext .= "<style>note { display: none; }</style>";
 
