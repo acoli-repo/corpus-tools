@@ -45,12 +45,34 @@
 	
 		$sname = "elements"; if ( $stype =="s" ) $sname = "sentences";
 		$obj = array( "file" => "$xmlid", "type" => $stype, $sname => [] );
+		if ( $ttxml->xpath("//s[@sameAs & not(.//tok)]") ) {
+			foreach ( $ttxml->xpath("//tok") as $tok ) {
+				$tid = $tok['id'].""; 
+				$id2tok[$tid] = $tok;
+			};
+		};
 		foreach ( $result as $sent ) {
 			$sid = $sent['id'].""; 
 			$stxt = elmcontent($sent);
 			$stxt = preg_replace("/<note.*?<\/note>/", "", $stxt);
 			$stxt = preg_replace("/<[^<>]+>/", "", $stxt);
-			array_push( $obj[$sname], array( "id" => $sid, "text" => $stxt ) );
+			$sobj = array( "id" => $sid, "text" => $stxt, "tokens" => [] );
+			$stoks = $sent->xpath(".//tok");
+			if ( count($stoks) == 0 && $sent['sameAs'] ) {
+				$stoks = array();
+				foreach ( explode(" ", $sent['sameAs'] ) as $tid ) {
+					array_push($stoks, $id2tok[$tid]);
+				};
+			};
+			foreach ( $stoks as $tok ) {
+				$tid = $tok['id'].""; 
+				$ttxt = elmcontent($tok);
+				$ttxt = preg_replace("/<note.*?<\/note>/", "", $ttxt);
+				$ttxt = preg_replace("/<[^<>]+>/", "", $ttxt);
+				$tobj = array( "id" => $tid, "text" => $ttxt );
+				array_push( $sobj['tokens'], $tobj );
+			};
+			array_push( $obj[$sname], $sobj );
 		};
 		header('Content-Type: application/json');
 		header("Content-disposition: attachment; filename=\"$xmlid.json\"");
