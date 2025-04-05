@@ -57,6 +57,13 @@
 			$stxt = preg_replace("/<note.*?<\/note>/", "", $stxt);
 			$stxt = preg_replace("/<[^<>]+>/", "", $stxt);
 			$sobj = array( "id" => $sid, "text" => $stxt, "tokens" => [] );
+			foreach ( getset("xmlfile/sattributes/$stype", array()) as $item ) {
+				if ( !is_array($item) ) continue;
+				$key = $item['key'];
+				if ( $item['noshow'] || $key == "id" ) continue;
+				$atv = $sent[$key]."";
+				if ( $atv ) $sobj[$key.""] = $atv;	
+			};
 			$stoks = $sent->xpath(".//tok");
 			if ( count($stoks) == 0 && $sent['sameAs'] ) {
 				$stoks = array();
