@@ -20,7 +20,6 @@
 
 	$maintext .= "<h1>{%{$tuidtit}s}</h1>";
 
-
 	if ( $act == "files" || $act == "download" ) {
 	
 		# Make an alignment across selected files
@@ -42,6 +41,7 @@
 		$maintext .= "<h2>Selected Files</h2>
 			<p>Alignment level: $lvltxt</p>";
 		
+		if ( $_GET['id'] ) $_GET['ids'] = $_GET['id'];
 		if ( $_POST['ids'] ) {
 			$ids = array_keys($_POST['ids']);
 		} else {
@@ -207,9 +207,9 @@
 			
 			if ( !$elm1 ) fatal("No alignment items ($tuidatt) found");
 		
-	} else if ( $act == "columns" && ( $_GET['id'] || $_GET['cid'] || $_POST['files'] ) ) { 
+	} else if ( $act == "columns" && ( $_GET['id'] ||  $_GET['ids'] || $_GET['cid'] || $_POST['files'] ) ) { 
 	
-			$ids = $_GET['id'] or $ids = $_GET['cid'];
+			$ids = $_GET['id'] or $ids = $_GET['ids'] or $ids = $_GET['cid'];
 			$idlist = explode(",", $ids); 
 			if ( $_POST['files'] ) $idlist = array_keys($_POST['files']);
 			
