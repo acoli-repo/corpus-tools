@@ -336,6 +336,26 @@
 					appidshow.innerHTML = '';
 				};
 				</script>";
+			
+		
+		$mainid = $idlist[0];
+		foreach ( $versions[$mainid]->xpath("//*[@tuid]") as $node ) {
+			$nn = $node->getName();
+			$nkey = $nn.":".$node['type'];
+			$display = $node['type'] or $display = $nn."";
+			$aligntypes[$nkey] = array (
+			 	"display" => $display,
+			 	"lvl" => $nn."",
+			);
+			if ( $node['type'] ) {
+				$aligntypes[$nkey]['lvlatt'] = "type:{$node['type']}";
+			};
+		};	
+		$maintext .= "<hr style='clear: both;'><p>View as aligned table by: "; $sep = "";
+		foreach ( $aligntypes as $key => $val ) {
+			$maintext .= "$sep<a href='index.php?action=$action&act=files&ids=$ids&lvl={$val['lvl']}&lvlatt={$val['lvlatt']}'>{$val['display']}</a>";
+			$sep = " &bull; ";
+		};
 		
 	} else if ( $_GET['tuid'] && $dbconn && $_GET['type'] != "xml" ) {
 		
