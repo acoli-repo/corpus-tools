@@ -289,7 +289,7 @@
 		if ( $numd ) {
 			$maintext .= "<p>This text has tokens, but not all tokens have an identifier. Unnumbered token(s):"; $nn = 0; 
 			foreach ( $nonum as $nn ) {
-				if ( $cnt++ > 10 ) last;
+				if ( $cnt++ > 10 ) break;
 				$maintext .= " <i>".$nn."</i>";
 			};
 		} else {
