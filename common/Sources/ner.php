@@ -385,7 +385,7 @@
 		$maintext .= "
 		</form>
 		<!-- <a href='index.php?action=file&cid=$fileid'>Cancel</a> -->
-		<hr><div id=mtxt>".makexml($txtxml)."</div>
+		<hr><div id=mtxt mod='$action'>".makexml($txtxml)."</div>
 		<script language=Javascript>
 			var telm = document.getElementById('$nerid');
 			telm.style.backgroundColor = '#ffffaa';
@@ -757,7 +757,7 @@
 
 		$result = $ttxml->xpath($mtxtelement); 
 		$txtxml = $result[0]; 
-		$maintext .= "<hr><div id=mtxt>".makexml($txtxml)."</div>";
+		$maintext .= "<hr><div id=mtxt mod='$action'>".makexml($txtxml)."</div>";
 
 	} else if ( $_GET['cid'] && $act == "addner" ) {
 
@@ -877,8 +877,8 @@
 				</table>
 				</form></div>
 				";
-			$maintext .= "<div id=mtxt onmouseup='makespan(event);'>$editxml</div>";
-		} else  $maintext .= "<div id=mtxt>".$ttxml->asXML()."</div>";
+			$maintext .= "<div id=mtxt onmouseup='makespan(event);' mod='$action'>$editxml</div>";
+		} else  $maintext .= "<div id=mtxt mod='$action'>".$ttxml->asXML()."</div>";
 		
 		$maintext .= "<hr>".$ttxml->viewswitch();
 		$maintext .= " &bull; <a href='index.php?action=$action&act=list&cid=$ttxml->fileid'>{%List names}</a>";
@@ -1039,7 +1039,7 @@
 			$neridtxt = str_replace("/", "\/", preg_quote($nerid));			
 		};
 		
-		$maintext .= "<div id=mtxt><table cellpadding=2>";
+		$maintext .= "<div id=mtxt mod='$action'><table cellpadding=2>";
 		foreach ( explode("\n", $results) as $resline ) {
 			list ( $leftpos, $rightpos, $fileid, $tokid, $defval ) = explode("\t", $resline);
 			if ( !$fileid ) continue;

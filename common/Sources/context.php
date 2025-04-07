@@ -162,7 +162,7 @@
 			$hlstyle
 			<div id='tokinfo'></div>
 			<img src='http://www.teitok.org/Images/ex-multiedit.png' style='display: none;' onload=\"window.showtokinfo = function(elm) { var tokinfo = document.getElementById('tokinfo'); tokinfo.style.display='block';  var innery = '<table style=\'width: 100%;\'>'; $wordheader var tagdef = $tagdef; for (var key in tagdef) { var tagval = elm.getAttribute(key); if ( tagval ) { innery += '<tr><th>' + tagdef[key].display + '<td>' + tagval; tokinfo.style.top= (elm.offsetTop + elm.offsetHeight + 3) + 'px'; var ttw = document.getElementById('teitokbox').clientWidth;  var leftpos = Math.min(elm.offsetLeft, ttw - tokinfo.offsetWidth); tokinfo.style.left = leftpos + 'px'; }; }; innery += '</table>'; tokinfo.innerHTML = innery; tokinfo.style.visibility = '' }; window.hidetokinfo = function() { var tokinfo = document.getElementById('tokinfo'); tokinfo.style.visibility='hidden'; };\"/>
-			<div id='mtxt'>$resxml</div>
+			<div id='mtxt' module='$action'>$resxml</div>
 			$header
 			</div>
 			";

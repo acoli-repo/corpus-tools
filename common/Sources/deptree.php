@@ -109,7 +109,7 @@
 		$maintext .= "<h1>Edit Sentence Metadata</h1>";
 		$sent =	current($ttxml->xpath("//s[@id='$sid']"));
 
-		$maintext .= "<div id=mtxt>".makexml($sent)."</div>
+		$maintext .= "<div id=mtxt mod='$action'>".makexml($sent)."</div>
 		<hr>
 		<form action='index.php?action=$action&cid=$ttxml->fileid&sid=$sid&act=changesent' method=post>
 		<table>";

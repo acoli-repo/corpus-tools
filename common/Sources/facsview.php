@@ -58,7 +58,7 @@
 	$ttxml->pagenav
 	<img id=facs src='$ttxml->facsimg' style='display: none;' onload='imgloaded=1;'/>
 	<div id=imgdiv style=\"position: relative; float: left; border: 1px solid #660000; background-image: url('$ttxml->facsimg'); background-size: cover; width: 100%;\">
-	<div id=mtxt $editxml</div>
+	<div id=mtxt mod='$action'> $editxml</div>
 	</div>
 	<div style='display: block; position: inline; text-align: right; z-index: 600;'>
 		<!-- <input type=button onClick='togglefs()' value='Fullscreen'/> 

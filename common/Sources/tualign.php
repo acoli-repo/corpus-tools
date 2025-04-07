@@ -82,7 +82,7 @@
 			array_push($tulist, $tuid);
 		}; 
 		
-		$maintext .= "<div id=mtxt><table id=rollovertable data-sortable>
+		$maintext .= "<div id=mtxt  mod='$action'><table id=rollovertable data-sortable>
 			 <thead><tr><td>";
 		foreach ( $files as $cid => $ttxml ) {
 			$filetit = $ttxml->title("short") or $filetit = $ttxml->fileid;
@@ -250,7 +250,7 @@
 
 			$w = 95/(count($versions));
 
-			$maintext .= "<div id=mtxt>";
+			$maintext .= "<div id=mtxt  mod='$action'>";
 			foreach ( $versions as $key => $vxml ) {
 				if ( $tuid ) {
 					$tmp = current($vxml->xml->xpath("//text//*[@$tuidatt=\"$tuid\"]"));
@@ -260,7 +260,7 @@
 				$maintext .= "<div style='float: left; width: {$w}%; padding: 5px;' class='parbox' id='parb-$key'>";
 				$title = $vxml->title();
 				$maintext .= "<p><a href='index.php?action=file&cid=$key'>$title</a></p>";
-				$maintext .= "<div id='mtxt-$key' style=' overflow-y: scroll;' class='mtxt'>$editxml</div>";
+				$maintext .= "<div id='mtxt-$key' style=' overflow-y: scroll;' class='mtxt'  mod='$action'>$editxml</div>";
 				$maintext .= "</div>";
 			};
 			$maintext .= "</div>";
@@ -424,7 +424,7 @@
 		
 		$orgxml = array();
 		$maintext .= "<form action='index.php?action=$action&act=columns' method=post>
-			<div id=mtxt>
+			<div id=mtxt  mod='$action'>
 			<table id=rollovertable data-sortable>
 			 <thead><tr><td><th id='filecol'  data-sortable-type='alpha'>File</th><th>Text</th></tr> </thead><tbody>";
 		foreach ( $resxml->xpath("/results/*") as $resline ) {
@@ -578,7 +578,7 @@
 		$maintext .= "<h2>".$ttxml->title()."</h2>";
 		$maintext .= $ttxml->tableheader();
 
-		$editxml = "<div id=mtxt>".$ttxml->asXML()."</div>";
+		$editxml = "<div id=mtxt  mod='$action'>".$ttxml->asXML()."</div>";
 
 		$maintext .= $ttxml->pagenav;
 		$maintext .= $editxml;

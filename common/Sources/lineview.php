@@ -63,7 +63,7 @@
 				<form action='index.php?action=$action&act=save' method=post>
 				<input type=hidden name=id value=\"{$ttxml->fileid}\">
 				<input type=hidden name=pid value=\"{$pid}\">
-				<table id=mtxt>";
+				<table id=mtxt  mod='$action'>";
 	
 			if ( $debug ) {
 				$maintext .= "<p>Page selection: $pbxpath";
@@ -148,7 +148,7 @@
 			$maintext .= "<img style='display: none;' id='facsimg'/>";
 			$maintext .= "
 				<div id='tokinfo' style='display: block; position: absolute; right: 5px; top: 5px; width: 300px; background-color: #ffffee; border: 1px solid #ffddaa;'></div>
-				<table id=mtxt style='width: 100%;'>";
+				<table id=mtxt  mod='$action' style='width: 100%;'>";
 
 			# Display all the <lb> and/or <l> in this page
 			if ( $onlylb ) $lb = "<lb "; else $lb = "<lb? ";
