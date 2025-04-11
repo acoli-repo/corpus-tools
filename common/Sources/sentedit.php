@@ -156,7 +156,7 @@
 			if ( $doatt ) {
 				$dodef = $sentatts[$stype][$doatt];
 				$doatts = array ( $doatt => $dodef );
-				$drest = " - editing element <span style='font-style:italic' title='$doatt'>{$dodef['display']}</span> (<a href='".modurl("doatt", "")."'>reset</a>)";
+				$drest = " - editing element <span style='font-style:italic' title='$doatt'>{$dodef['display']}</span> (<a href='".modurl("doatt", "")."'>reset</a> - <a href='".modurl("show", "all")."'>show all</a>)";
 				if ( $_GET['show'] == "all" ) {
 					$xrest = "<p>Click <a href='".modurl("show", $doatt)."'>here</a> to show only <span title='$stype' style='font-style:italic'>$sentname</span> 
 						without <span style='font-style:italic' title='$doatt'>{$dodef['display']}</span> 
