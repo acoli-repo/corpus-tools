@@ -577,9 +577,11 @@
 // 	};
 
 	$edituser = $username.$ssouser; # Allow SSO users to click edit
+	$css = $ttxml->css();
 	$maintext .= "
 		<div id='tokinfo'></div>
 		$pagenav
+		$css
 		<div id=mtxt>".$editxml."</div>
 		<script language=Javascript>$prejsactions</script>
 		<script language=Javascript src='$jsurl/getplaintext.js'></script>

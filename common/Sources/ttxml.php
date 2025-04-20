@@ -98,6 +98,20 @@ class TTXML
 		
 	}
 	
+	function css() {
+		# Create a CSS <style> node from the tagsDecl
+		$css = "";
+		foreach ( $this->xml->xpath("//rendition[@scheme='css']") as $rend ) {
+			if ( $rend['selector'] ) {
+				$css .= "{$rend['selector']} { $rend }\n";
+			} else {
+				$css .= $rend."";
+			};
+		};
+		$css = "<style>$css</style>";
+		return $css;
+	}
+	
 	function title( $type = "" ) {
 		global $settings;
 		if (!$this->xml) return "";
