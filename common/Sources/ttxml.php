@@ -102,13 +102,17 @@ class TTXML
 		# Create a CSS <style> node from the tagsDecl
 		$css = "";
 		foreach ( $this->xml->xpath("//rendition[@scheme='css']") as $rend ) {
+			$dom = dom_import_simplexml($rend);
 			if ( $rend['selector'] ) {
 				$css .= "{$rend['selector']} { $rend }\n";
+			} else if ( $dom->getAttribute('xml:id') || $rend['id'] ) {
+				$rid = $dom->getAttribute('xml:id') or $rid = $rend['id'];
+				$css .= ".$rid { $rend }\n";
 			} else {
-				$css .= $rend."";
+				$css .= $rend->asXML()."\n";
 			};
 		};
-		$css = "<style>$css</style>";
+		$css = "<style>\n$css</style>";
 		return $css;
 	}
 	
