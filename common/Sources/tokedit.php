@@ -364,7 +364,7 @@
 				} else if ( $inputtype == "lselect" ) {
 					$fromform = $item['form'] or $fromform = "form";
 					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'> Alternatives: <select name='' onchange=\"document.tagform['atts[{$key}]'].value = this.value;\" onfocus=\"fillfrom(this, '$fromform', '$key');\" onload=\"fillfrom(this, '$fromform', '$key');\"><option value=''>[choose]</option></select>  $lookuplink";					
-				} else if ( $item['input']['link'] ) {
+				} else if ( is_array($item) && $item['input']['link'] ) {
 					if ( $lookuplink ) $sep = " &bull; "; else $sep = "";
 					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name='atts[$key]' id='f$key' value='$atv'> <a onClick=\"settb('$key');\">{%{$item['input']['link']}</a> $sep $lookuplink";
 				} else if ( $item['type'] == "pos" ) {

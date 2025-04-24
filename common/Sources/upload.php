@@ -405,7 +405,7 @@
 				$maintext .= "<tr><td><td style='color: grey'>$ffn (not allowed: $ext - ".join(";", $acar).")";
 			} else {
 				$maintext .= "<tr><td><a href='$baseurl$line' target=file>view</a>
-				<td> <a href='index.php?action=$action&act=download&type={$typedef['folder']}&file=$ffn' target=file>download</a>
+				<td> <a href='index.php?action=$action&act=download&type={$typedef['key']}&file=$ffn' target=file>download</a>
 				<td> {$ffn} <td align=right>".human_filesize(filesize($line));
 				$deltype = getset("files/$type/delete") or $deltype = getset('files/delete');
 				if ( $deltype != "none" && ( $deltype != "sudo" || $user['permissions'] == "admin" ) )  $maintext .= "<td><a href='index.php?action=$action&act=delete&type=$type&file=$line'>delete</a>";
