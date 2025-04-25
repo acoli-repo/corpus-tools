@@ -101,9 +101,13 @@
 			if ( !$vid ) $vid = $ttxml->xmlid;
 			$vids[$cid] = $vid;
 			foreach ( $ttxml->xpath("//text//*[@tuid]") as $tu ) {
-				$tuid = $tu[$tuidatt]."";
-				if ( !is_array($tus[$cid][$tuid]) ) $tus[$cid][$tuid] = array();
-				array_push($tus[$cid][$tuid], $tu);
+				$tuidlist = $tu[$tuidatt]."";
+				$tuarray = explode('|', $tuidlist);
+				$tu['rowcnt'] = count($tuarray);
+				foreach ( $tuarray as $tuid ) {
+					if ( !is_array($tus[$cid][$tuid]) ) $tus[$cid][$tuid] = array();
+					array_push($tus[$cid][$tuid], $tu);
+				};
 			}; 
 		};
 		
@@ -117,11 +121,18 @@
 			};
 			foreach ( $files as $cid => $ttxml ) {
 				$tutxt = ""; $tutot = "";
+				if ( $skiprow[$cid] ) {
+					$skiprow[$cid]--;
+					continue;
+				};
+				$rowspan = 1;
 				foreach ( $tus[$cid][$tuid] as $tu ) {
 					$tutot .= elmcontent($tu);
+					$rowspan = max($rowspan, 1*$tu['rowcnt']);
 				};
+				$skiprow[$cid] = $rowspan - 1;
 				$tutot = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $tutot ); # Close empty element to avoid HTML interpretation issues
-				$maintext .= "<td id=\"td-$cid-$tuid\">$tutot</td>";
+				$maintext .= "<td id=\"td-$cid-$tuid\" rowspan='$rowspan'>$tutot</td>";
 				if ( $act == "download" ) {
 					if ( $format == "tmx" ) {
 						$turaw = preg_replace("/<[^<>]+>/", "", $tutot);
