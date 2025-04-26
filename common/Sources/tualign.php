@@ -340,7 +340,7 @@
 							van = tuid2elm[i][tuid];
 							highlight(van);
 						};
-						if ( van && van != element && 1==2 ) {
+						if ( van && van != element ) {
 							topPos = van.offsetTop;
 							// console.log(orgScroll);
 							vx.scrollTop = topPos - orgScroll;
