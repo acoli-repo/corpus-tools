@@ -78,8 +78,11 @@
 		$ttxml = $files[$mid];
 		$tulist = array();
 		foreach ( $ttxml->xpath($xp) as $tu ) {
-			$tuid = $tu[$tuidatt]."";
-			array_push($tulist, $tuid);
+			$tuidlist = $tu[$tuidatt]."";
+			$tuarray = explode('|', $tuidlist);
+			foreach ( $tuarray as $tuid ) {
+				array_push($tulist, $tuid);
+			};
 		}; 
 		
 		$maintext .= "<div id=mtxt  mod='$action'><table id=rollovertable data-sortable>
@@ -289,14 +292,28 @@
 					console.log(bb);
 					maxheight = maxheight - bb['y'];
 				};
-				console.log(maxheight);
+				// Handle the placement of the versions
+				// Build the mapping from @tuid to nodes
+				tuid2elm = [];
 				for ( i in versions ) {
 					vx = document.getElementById('mtxt-'+versions[i]);
 					if ( vx ) {
 						vx.height = maxheight;
 						vx.style.height = maxheight+'px';
 					};
+					tuid2elm[i] = [];
+					vans = document.evaluate('.//*[@$tuidatt]', vx, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+					van = null;
+					for  ( var j=0; j<vans.snapshotLength; j++ ) {
+						van = vans.snapshotItem(j);
+						tuids = van.getAttribute('$tuidatt').split('|');
+						for  ( var k=0; k<tuids.length; k++ ) {
+							tuid = tuids[k];
+							tuid2elm[i][tuid] = van;
+						};
+					};
 				};
+				console.log(tuid2elm);
 				function mouseEvent(evt) { 
 					element = evt.toElement; 
 					while ( element.parentNode && !element.getAttribute('$tuidatt') ) element = element.parentNode;
@@ -313,13 +330,17 @@
 					for ( i in versions ) {
 						vx = document.getElementById('mtxt-'+versions[i]);
 						vxb = vx.getBoundingClientRect();
-						vans = document.evaluate(xpath, vx, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-						van = null;
-						for  ( var j=0; j<vans.snapshotLength; j++ ) {
-							van = vans.snapshotItem(j);
+						// vans = document.evaluate(xpath, vx, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+ 						van = null;
+						// console.log(alid);
+						tuidarr = alid.split('|');
+						for  ( var j=0; j<tuidarr.length; j++ ) {
+							tuid = tuidarr[j];
+							// console.log(tuid);
+							van = tuid2elm[i][tuid];
 							highlight(van);
 						};
-						if ( van && van != element ) {
+						if ( van && van != element && 1==2 ) {
 							topPos = van.offsetTop;
 							// console.log(orgScroll);
 							vx.scrollTop = topPos - orgScroll;
