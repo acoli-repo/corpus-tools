@@ -309,12 +309,15 @@
 						tuids = van.getAttribute('$tuidatt').split('|');
 						for  ( var k=0; k<tuids.length; k++ ) {
 							tuid = tuids[k];
-							tuid2elm[i][tuid] = van;
+							if ( !tuid2elm[i][tuid] ) tuid2elm[i][tuid] = [];
+							tuid2elm[i][tuid].push(van);
 						};
 					};
 				};
 				console.log(tuid2elm);
-				function mouseEvent(evt) { 
+		
+				function mouseEvent(evt) {
+					// highlight on mouse over 
 					element = evt.toElement; 
 					while ( element.parentNode && !element.getAttribute('$tuidatt') ) element = element.parentNode;
 					if ( typeof(element.getAttribute) != 'function' ) return -1;
@@ -335,13 +338,23 @@
 					orgScroll = element.offsetTop - vo.scrollTop; // element.offsetTop , vob['y'] , vob['height'] , vo.scrollTop
 					// find element in all aligned versions
 					for ( i in versions ) {
+						// Determine the corresponding higlights
 						color = '#ffff66'; j=0;
-						vanlist = hlversion(i, alid, color);
+						vanlist = findalign(i, alid);
+						for ( j in vanlist ) {
+							van = vanlist[j];	
+							highlight(van, color);
+						};
 						while ( vanlist.length == 0 && j<alids.length ) {
 							color = '#ffeedd';
 							j++;
-							vanlist = hlversion(i, alids[j], color);						
+							vanlist = findalign(i, alids[j]);					
+							for ( j in vanlist ) {
+								van = vanlist[j];									
+								highlight(van, color);
+							};
 						};
+
 						// Scroll to have the (first) aligned element valigned to the top
 						van = vanlist[0];
 						if ( van && van != element ) {
@@ -350,7 +363,7 @@
 						};
 					};
 				};
-				function hlversion(i, alid, color='#ffff66') {
+				function findalign(i, alid) {
 					if ( !alid ) return -1;
 					vx = document.getElementById('mtxt-'+versions[i]);
 					vxb = vx.getBoundingClientRect();
@@ -359,10 +372,9 @@
 					tuidarr = alid.split('|');
 					for  ( var j=0; j<tuidarr.length; j++ ) {
 						tuid = tuidarr[j];
-						van = tuid2elm[i][tuid];
-						if ( van ) {
-							vanlist.push(van);
-							highlight(van, color);
+						vans = tuid2elm[i][tuid];
+						if ( vans ) {
+							vanlist.push(...vans);
 						};
 					};
 					return vanlist;
@@ -386,6 +398,7 @@
 					hls = [];
 				};
 				function unhighlight(element) { 
+					if ( !element ) return -1;
 					element.style.backgroundColor = null;
 				};
 				function mouseOut(evt) { 
