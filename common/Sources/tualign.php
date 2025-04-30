@@ -320,34 +320,55 @@
 					if ( typeof(element.getAttribute) != 'function' ) return -1;
 					vo = element;
 					vob = vo.getBoundingClientRect();
-					while ( vo.parentNode && vo.getAttribute('class') != 'mtxt' ) vo = vo.parentNode;
-					alid = element.getAttribute('$tuidatt');
+					alids = [];
+					// Get all @tuid and determine the enclosing <div>
+					while ( vo.parentNode && vo.getAttribute('class') != 'mtxt' ) {
+						alid = vo.getAttribute('$tuidatt');
+						if ( alid ) {
+							alids.push(alid);
+						};
+						vo = vo.parentNode;
+					};
+					alid = alids[0];
 					if ( !alid ) return -1;
 					appidshow.innerHTML = alid;
-					// find element in all aligned versions
 					orgScroll = element.offsetTop - vo.scrollTop; // element.offsetTop , vob['y'] , vob['height'] , vo.scrollTop
-					xpath = './/*[@$tuidatt=\"'+alid+'\"]';
+					// find element in all aligned versions
 					for ( i in versions ) {
-						vx = document.getElementById('mtxt-'+versions[i]);
-						vxb = vx.getBoundingClientRect();
-						// vans = document.evaluate(xpath, vx, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
- 						van = null;
-						// console.log(alid);
-						tuidarr = alid.split('|');
-						for  ( var j=0; j<tuidarr.length; j++ ) {
-							tuid = tuidarr[j];
-							// console.log(tuid);
-							van = tuid2elm[i][tuid];
-							highlight(van);
+						color = '#ffff66'; j=0;
+						vanlist = hlversion(i, alid, color);
+						while ( vanlist.length == 0 && j<alids.length ) {
+							color = '#ffeedd';
+							j++;
+							vanlist = hlversion(i, alids[j], color);						
 						};
+						// Scroll to have the (first) aligned element valigned to the top
+						van = vanlist[0];
 						if ( van && van != element ) {
 							topPos = van.offsetTop;
-							// console.log(orgScroll);
 							vx.scrollTop = topPos - orgScroll;
 						};
 					};
 				};
+				function hlversion(i, alid, color='#ffff66') {
+					if ( !alid ) return -1;
+					vx = document.getElementById('mtxt-'+versions[i]);
+					vxb = vx.getBoundingClientRect();
+					let vanlist = [];
+					van = null;
+					tuidarr = alid.split('|');
+					for  ( var j=0; j<tuidarr.length; j++ ) {
+						tuid = tuidarr[j];
+						van = tuid2elm[i][tuid];
+						if ( van ) {
+							vanlist.push(van);
+							highlight(van, color);
+						};
+					};
+					return vanlist;
+				};
 				function highlight(element, color='#ffff66') { 
+					if ( !element ) return -1;
 					hls.push(element);
 					ename = element.nodeName;
 					if ( ename == 'ab' ) {
@@ -356,6 +377,13 @@
 						element.style.backgroundColor = color;
 						element.style['background-color'] = color;
 					};
+				};
+				function unhall() { 
+					for  ( var j=0; j<hls.length; j++ ) {
+						el = hls[j];
+						unhighlight(el);
+					};
+					hls = [];
 				};
 				function unhighlight(element) { 
 					element.style.backgroundColor = null;
