@@ -20,12 +20,15 @@
 
 	$maintext .= "<h1>{%{$tuidtit}s}</h1>";
 
-	if ( $act == "files" || $act == "download" ) {
+	if ( $act == "files" || $act == "download" || $act == "alignedit" ) {
 	
 		# Make an alignment across selected files
 		# The first one defines the translation units
 		# Works on a single level - default is <p>
 
+		$thisurl = $_SERVER['REQUEST_URI'];
+		$dlurl = str_replace("&act=files", "&act=download&format=tmx", $thisurl);
+		$editurl = str_replace("&act=files", "&act=alignedit", $thisurl);
 		
 		$lvl = $_GET['lvl'] or $lvl = getset('align/level', "p");
 		$lvlatt = $_GET['lvlatt'] or $lvlatt = getset('align/levelattribute');
@@ -71,6 +74,34 @@
     />
   <body>";
 			};
+		} else if ( $act == "alignedit" ) {
+			$showurl = str_replace("&act=alignedit", "&act=files", $thisurl);
+			$maintext .= "
+				<div style='padding-bottom: 5px; color: green;'><a href='$showurl'>x</a> Edit Mode<span id='reattach' style='visibility: hidden;'> - Click on the TUID to realign the highlighted node <span id='raid'></span> - <a onclick='cancel();'>cancel</a></span></div>
+				<script>
+					function cancel () {
+						if ( raactive ) {
+							raactive.classList.remove('hlid');
+						};
+						document.getElementById('reattach').style.visibility = 'hidden';
+						raactive = false;
+					};
+					function reattach (node) {
+						if ( raactive ) {
+							raactive.classList.remove('hlid');
+						};
+						raid = node.getAttribute('sid');
+						node.classList.add('hlid');
+						document.getElementById('reattach').style.visibility = 'visible';
+						raactive = node;
+						document.getElementById('raid').innerHTML = '('+raid+')';
+					};
+				</script>
+				<style>
+					.editable { color: #bbbbbb; }
+					.hlid { color: #ff0000; font-weight: bold; }
+				</style>
+				";
 		};
 
 		# Determine in the first text what @tuid correspond to this level
@@ -87,6 +118,7 @@
 		
 		$maintext .= "<div id=mtxt  mod='$action'><table id=rollovertable data-sortable>
 			 <thead><tr><td>";
+		if ( $username ) $maintext .=  "<span title='Translation Unit ID'>TUID</span>";
 		foreach ( $files as $cid => $ttxml ) {
 			$filetit = $ttxml->title("short") or $filetit = $ttxml->fileid;
 			$moreheader = "";
@@ -114,9 +146,13 @@
 			}; 
 		};
 		
-		foreach ( array_unique($tulist) as $tuid ) {
-			$tutxt = str_replace(",", "<br/>", $tuid);
-			$maintext .= "<tr id=\"tr-$tuid\"><td><a href='index.php?action=$action&tuid=$tuid'>$tutxt</a></td>";
+		foreach ( array_unique($tulist) as $tuids ) {
+			$tutxt = str_replace(",", "<br/>", $tuids);
+			$maintext .= "<tr id=\"tr-$tuid\"><td>"; $sep = "";
+			foreach ( explode(',', $tuids) as $tuid) {
+				$maintext .= "$sep<a onclick=\"tuclick(this)\" tuid='$tuid'>$tutxt</a>";
+				$sep = "<br/>";
+			}
 			if ( $act == "download" ) {
 				if ( $format == "tmx" ) {
 					$dltxt .= "\n\t<tu id=\"$tuid\">";
@@ -130,6 +166,10 @@
 				};
 				$rowspan = 1;
 				foreach ( $tus[$cid][$tuid] as $tu ) {
+					if ( $act == "alignedit" ) {
+						$elid = $tu['id'];
+						$tutot .= " <span sid='$elid' class='editable' onclick='reattach(this)'>[$elid]</span> "; 
+					};
 					$tutot .= elmcontent($tu);
 					$rowspan = max($rowspan, 1*$tu['rowcnt']);
 				};
@@ -166,10 +206,41 @@
 			exit;
 		};
 		
-		$thisurl = $_SERVER['REQUEST_URI'];
-		$dlurl = str_replace("&act=files", "&act=download&format=tmx", $thisurl);
+		$cidlist = array2json(array_keys($files));
 		$maintext .= "
 			<script>
+				let raactive = false;
+				let act = '$act';
+				let cidlist = $cidlist;
+				function getColumnIndexFromDescendant(descendant) {
+				  let cell = descendant.closest('td, th');
+				  if (!cell || !cell.parentNode) return -1;
+				  return Array.from(cell.parentNode.children).indexOf(cell);
+				}
+				function getRowIndex(element) {
+				  // Find the nearest parent <tr>
+				  const tr = element.closest('tr');
+				  // Return the index of the row within its parent <tbody>/<table>
+				  return tr ? tr.rowIndex : -1;
+				}
+				function tuclick(tulink) {
+					tuid = tulink.getAttribute('tuid');
+					if ( raactive ) {
+						raid = raactive.getAttribute('sid');
+						let col = getColumnIndexFromDescendant(raactive); cid = cidlist[col-1];
+						console.log('Linking ' + raid + ' to ' + tuid + ' in ' + cid);
+						if ( getRowIndex(tulink) == getRowIndex(raactive) ) {  
+							console.log('not changed');
+						} else {
+							window.open('index.php?action=$action&act=realign&cid='+cid+'&elid='+raid+'&tuid='+tuid, '_self');
+						};
+						raactive.classList.remove('hlid');
+						document.getElementById('reattach').style.visibility = 'hidden	';
+						raactive = false;
+					} else if ( act != 'alignedit' ) {
+						window.open('index.php?action=tualign&tuid='+tuid, '_self');
+					};
+				};
 				function downloadTableAsCSV(tableId, filename) {
 				  const table = document.getElementById(tableId);
 				  const rows = table.querySelectorAll('tr');
@@ -210,7 +281,33 @@
 				}
 			</script>";
 		$maintext .= "<hr><p><a href='$dlurl'>Download as TMX</a> &bull; <a onclick=\"downloadTableAsCSV('rollovertable', '$foldername.csv');\">Download as CSV</a>";
+		if ( $act != 'alignedit' && $username ) {
+			$maintext .= " &bull; <a href='$editurl' class=adminpart>Edit alignment</a>";
+		}
 
+
+	} else if ( $act == "realign" && $_GET['cid'] && $_GET['elid'] && $_GET['tuid'] ) { 
+	
+		check_login();
+		$cid = $_GET['cid']; $elid = $_GET['elid']; $tuid = $_GET['tuid'];
+		$from = preg_replace("/.*index.php/", "", $_SERVER['HTTP_REFERER']);
+		
+
+		require("$ttroot/common/Sources/ttxml.php");
+		$ttxml = new TTXML();
+		
+		$elm = current($ttxml->xpath("//*[@id=\"$elid\"]"));
+		if ( !$elm ) fatal("No such element : $elid");
+
+		$maintext .= "<p>From: $from - change: {$elm['tuid']} to $tuid";
+
+		$elm['tuid'] = $tuid;
+		
+		$ttxml->save();
+		
+		print "<p>Changes made - reloading
+			<script>top.location='$from';</script>";
+		print showxml($elm);
 
 	} else if ( $act == "select" && ( $_GET['id'] || $_GET['cid'] ) ) { 
 	
