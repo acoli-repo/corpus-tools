@@ -77,24 +77,35 @@
 		} else if ( $act == "alignedit" ) {
 			$showurl = str_replace("&act=alignedit", "&act=files", $thisurl);
 			$maintext .= "
-				<div style='padding-bottom: 5px; color: green;'><a href='$showurl'>x</a> Edit Mode<span id='reattach' style='visibility: hidden;'> - Click on the TUID to realign the highlighted node <span id='raid'></span> - <a onclick='cancel();'>cancel</a></span></div>
+				<div style='position: fixed; padding-left: 10px; margin-left: 80px; top: 10px; right: 10px; background-color: #eeeeee; height: 75px; border: 1px solid #666666; width: 50%;'>
+				<a href='$showurl' style='float: right; padding-right: 2px;'>x </a>
+				<p>Edit Mode <span id=edithow style=' color: green'> - Click on a sentence ID to realign it</span></p>
+				<p style='color: blue'><span id='reattach' style='visibility: hidden;'><span id='raid'></span> <span id='newtuids'></span></span>
+				</span>
+				</div>
 				<script>
 					function cancel () {
 						if ( raactive ) {
 							raactive.classList.remove('hlid');
 						};
 						document.getElementById('reattach').style.visibility = 'hidden';
+						document.getElementById('edithow').innerHTML = ' - Click on a sentence ID to realign it';
 						raactive = false;
+						newtuids = [];
+						document.getElementById('newtuids').innerHTML = '';
 					};
 					function reattach (node) {
+						document.getElementById('edithow').innerHTML = ' - Click on TUIDs to select where to realign the highlighted node';
 						if ( raactive ) {
 							raactive.classList.remove('hlid');
 						};
+						newtuids = [];
 						raid = node.getAttribute('sid');
 						node.classList.add('hlid');
 						document.getElementById('reattach').style.visibility = 'visible';
 						raactive = node;
-						document.getElementById('raid').innerHTML = '('+raid+')';
+						let curtuid = raactive.getAttribute('tuid');
+						document.getElementById('raid').innerHTML = raid + ' = ' + curtuid;
 					};
 				</script>
 				<style>
@@ -168,7 +179,8 @@
 				foreach ( $tus[$cid][$tuid] as $tu ) {
 					if ( $act == "alignedit" ) {
 						$elid = $tu['id'];
-						$tutot .= " <span sid='$elid' class='editable' onclick='reattach(this)'>[$elid]</span> "; 
+						$eltuid = $tu['tuid'];
+						$tutot .= " <span sid='$elid' tuid='$eltuid' class='editable' onclick='reattach(this)'>[$elid]</span> "; 
 					};
 					$tutot .= elmcontent($tu);
 					$rowspan = max($rowspan, 1*$tu['rowcnt']);
@@ -212,6 +224,7 @@
 				let raactive = false;
 				let act = '$act';
 				let cidlist = $cidlist;
+				let newtuids = [];
 				function getColumnIndexFromDescendant(descendant) {
 				  let cell = descendant.closest('td, th');
 				  if (!cell || !cell.parentNode) return -1;
@@ -228,18 +241,23 @@
 					if ( raactive ) {
 						raid = raactive.getAttribute('sid');
 						let col = getColumnIndexFromDescendant(raactive); cid = cidlist[col-1];
-						console.log('Linking ' + raid + ' to ' + tuid + ' in ' + cid);
-						if ( getRowIndex(tulink) == getRowIndex(raactive) ) {  
-							console.log('not changed');
-						} else {
-							window.open('index.php?action=$action&act=realign&cid='+cid+'&elid='+raid+'&tuid='+tuid, '_self');
-						};
-						raactive.classList.remove('hlid');
-						document.getElementById('reattach').style.visibility = 'hidden	';
-						raactive = false;
+						newtuids.push(tuid);
+						document.getElementById('newtuids').innerHTML = ' => ' + newtuids.join('|') + ' - <a onclick=\"applyalign();\">apply</a> - <a onclick=\"cancel();\">cancel</a>';
 					} else if ( act != 'alignedit' ) {
 						window.open('index.php?action=tualign&tuid='+tuid, '_self');
 					};
+				};
+				function applyalign() {
+					let raid = raactive.getAttribute('sid');
+					let curtuid = raactive.getAttribute('tuid');
+					let newtuid = newtuids.join('|');
+					if ( curtuid == newtuid ) {
+						console.log('not changed');
+					} else {
+						console.log('Linking ' + raid + ' to ' + newtuids.join('|') + ' in ' + cid);
+						window.open('index.php?action=$action&act=realign&cid='+cid+'&elid='+raid+'&tuid='+newtuid, '_self');
+					};
+					cancel();
 				};
 				function downloadTableAsCSV(tableId, filename) {
 				  const table = document.getElementById(tableId);
