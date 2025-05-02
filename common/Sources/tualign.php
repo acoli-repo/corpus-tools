@@ -356,8 +356,9 @@
 						};
 
 						// Scroll to have the (first) aligned element valigned to the top
+						vx = document.getElementById('mtxt-'+versions[i]);
 						van = vanlist[0];
-						if ( van && van != element ) {
+						if ( vo != vx && van && van != element ) {
 							topPos = van.offsetTop;
 							vx.scrollTop = topPos - orgScroll;
 						};
@@ -412,6 +413,7 @@
 			
 		
 		$mainid = $idlist[0];
+		if ( $versions[$mainid]->xml )
 		foreach ( $versions[$mainid]->xpath("//*[@tuid]") as $node ) {
 			$nn = $node->getName();
 			$nkey = $nn.":".$node['type'];
