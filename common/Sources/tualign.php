@@ -25,6 +25,8 @@
 		# Make an alignment across selected files
 		# The first one defines the translation units
 		# Works on a single level - default is <p>
+		
+		if ( $act == "alignedit" && !$username ) $act = "files";
 
 		$thisurl = $_SERVER['REQUEST_URI'];
 		$dlurl = str_replace("&act=files", "&act=download&format=tmx", $thisurl);
@@ -77,10 +79,10 @@
 		} else if ( $act == "alignedit" ) {
 			$showurl = str_replace("&act=alignedit", "&act=files", $thisurl);
 			$maintext .= "
-				<div style='position: fixed; padding-left: 10px; margin-left: 80px; top: 10px; right: 10px; background-color: #eeeeee; height: 75px; border: 1px solid #666666; width: 50%;'>
+				<div style='position: fixed; padding-left: 10px; margin-left: 80px; top: 10px; right: 10px; background-color: #ffffee; height: 75px; border: 1px solid #666666; width: 50%;'>
 				<a href='$showurl' style='float: right; padding-right: 2px;'>x </a>
 				<p>Edit Mode <span id=edithow style=' color: green'> - Click on a sentence ID to realign it</span></p>
-				<p style='color: blue'><span id='reattach' style='visibility: hidden;'><span id='raid'></span> <span id='newtuids'></span></span>
+				<p style='color: #000033'><span id='reattach' style='visibility: hidden;'><span id='raid'></span> <span id='newtuids'></span></span>
 				</span>
 				</div>
 				<script>
