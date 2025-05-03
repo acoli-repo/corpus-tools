@@ -76,6 +76,7 @@
     />
   <body>";
 			};
+			
 		} else if ( $act == "alignedit" ) {
 			$showurl = str_replace("&act=alignedit", "&act=files", $thisurl);
 			$maintext .= "
@@ -182,7 +183,7 @@
 					if ( $act == "alignedit" ) {
 						$elid = $tu['id'];
 						$eltuid = $tu['tuid'];
-						$tutot .= " <span sid='$elid' tuid='$eltuid' class='editable' onclick='reattach(this)'>[$elid]</span> "; 
+						$tutot .= " <span sid='$elid' id='$elid@$cid' tuid='$eltuid' class='editable' onclick='reattach(this)'>[$elid]</span> "; 
 					};
 					$tutot .= elmcontent($tu);
 					$rowspan = max($rowspan, 1*$tu['rowcnt']);
@@ -304,6 +305,17 @@
 		if ( $act != 'alignedit' && $username ) {
 			$maintext .= " &bull; <a href='$editurl' class=adminpart>Edit alignment</a>";
 		}
+		
+		if ( $_GET['jmp'] ) {
+			$jid = $_GET['jmp'];
+			$maintext .= "
+				<script>
+					console.log('$jid');
+					let jid = document.getElementById('$jid');
+					jid.scrollIntoView({  behavior: \"smooth\", block: \"center\",  inline: \"nearest\"});;
+				</script>
+			";
+		};
 
 
 	} else if ( $act == "realign" && $_GET['cid'] && $_GET['elid'] && $_GET['tuid'] ) { 
@@ -311,7 +323,10 @@
 		check_login();
 		$cid = $_GET['cid']; $elid = $_GET['elid']; $tuid = $_GET['tuid'];
 		$from = preg_replace("/.*index.php/", "", $_SERVER['HTTP_REFERER']);
-		
+		$jmpid = urlencode($elid)."@".urlencode($cid);
+
+		$from = preg_replace("/&jmp=[^&]*/", "", $from);
+		$from .= "&jmp=$jmpid";
 
 		require("$ttroot/common/Sources/ttxml.php");
 		$ttxml = new TTXML();
