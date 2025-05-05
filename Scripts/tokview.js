@@ -90,8 +90,10 @@ function showtokinfo(evt, element, poselm) {
 	var showelement; var html;
 	if ( element.tagName == "GTOK" ) { showelement = element; element = element.parentNode; } else { showelement = element; };
     if ( element.tagName == "TOK" || element.tagName == "DTOK" || element.tagName == "MTOK" ) {
+    	var done = [];
     	var atts = element.attributes;
     	var tokid = element.getAttribute('id');
+    	done[tokid] = 1
     	tokinfo.setAttribute('tokid', tokid);
     	if ( element.tagName == "DTOK" ) { 
     		textvalue = element.getAttribute('form');
@@ -116,29 +118,33 @@ function showtokinfo(evt, element, poselm) {
     	
     	// now look for dtoks
     	var children = element.childNodes;
-    	var done = [];
     	for ( i=0; i<children.length; i++ ) {
     		var child = children[i];
     		if ( child.tagName == "DTOK" && !done[child.getAttribute('id')] ) {
     			shownrows = 1;
     			done[child.getAttribute('id')] = 1;
-				if ( child.getAttribute('form') != '' && child.getAttribute('form') != null ) { tablerows = '<tr><th colspan=2>' + child.getAttribute('form') + '</th></tr>'; }
+				if ( child.getAttribute('form') != '' && child.getAttribute('form') != null ) { tablerows = '<tr><th colspan=2><b>' + child.getAttribute('form') + '</b></th></tr>'; }
 				else { tablerows = ''; };
 				tablerows += infotable(child);
-				tokinfo.innerHTML += '<hr><table width=\'100%\'>' + tablerows + '</table>';
+				html += '<hr><table width=\'100%\'>' + tablerows + '</table>';
     		}; 
 		};
+		
+    	// now look for parent nodes of type MTOK, NAME
+    	var parent = element; lastparent = null;
+    	if ( typeof(showtypes) == 'undefined' ) showtypes = ['MTOK', 'NAME', 'PERSNAME'];
+    	while ( parent && lastparent != parent && parent.getAttribute('id') ) {
+			if ( showtypes.includes(parent.tagName) && !done[parent.getAttribute('id')] ) { // TODO: this only works for the direct parent
+				shownrows = 1;
+				done[parent.getAttribute('id')] = 1;
+				var form = parent.getAttribute('form');
+				if ( !form ) { form = parent.innerText; };
+				stablerows = sinfotable(parent);
+				if ( stablerows ) html += '<hr><table width=\'100%\'>' + stablerows + '</table>';
+			};
+			lastparent = parent;
+			parent = parent.parentNode;
 
-    	// now look for mtoks
-    	var parent = element.parentNode;
-		if ( parent.tagName == "MTOK" && !done[parent.getAttribute('id')] ) { // TODO: this only works for the direct parent
-			shownrows = 1;
-			done[parent.getAttribute('id')] = 1;
-			var form = parent.getAttribute('form');
-			if ( !form ) { form = parent.innerText; };
-			tablerows = '<tr><th colspan=2>' + form + '</th></tr>';
-			tablerows += infotable(parent);
-			tokinfo.innerHTML += '<hr><table width=\'100%\'>' + tablerows + '</table>';
 		};
 
 		if ( shownrows )  { 
@@ -168,6 +174,35 @@ function showinfo(element, html) {
  
 } 
 
+function sinfotable (elmnode) {
+	// Calculate all the row we need to show for this region node
+	if ( elmnode.tagName == 'MTOK' ) {
+		let inforows = infotable(elmnode); // mtok is a "token"
+		return inforows;
+	};
+	var inforows = '';
+	nodeatts = satts[elmnode.tagName.toLowerCase()];
+	if ( !nodeatts ) return '';
+	if ( nodeatts['info'] ) {
+		var form = elmnode.getAttribute('form');
+		if ( !form ) { form = elmnode.innerText; };
+		inforows = '<tr><th colspan=2><b>' + form + '</b></th></tr>';
+		inforows += '<tr><th style=\'font-size: small;\'>' + nodeatts['info'] + '</th><td>' + nodeatts['display'] + '</td></tr>';
+		for ( let atti in nodeatts ) {
+			if ( nodeatts[atti]['admin'] && !username ) { continue; };
+			if ( nodeatts[atti]['noshow'] ) { continue; };
+			let attkey = nodeatts[atti]['key'];
+			if ( !attkey ) { continue; };
+			rowval = elmnode.getAttribute(attkey);
+			if ( rowval ) {
+				let attname = nodeatts[atti]['display'];
+				inforows += '<tr><th style=\'font-size: small;\'>' + attname + '</th><td>' + rowval + '</td></tr>';
+			};
+		};
+	};
+	return inforows;
+};
+
 function infotable (elmnode) {
 	// Calculate all the row we need to show for this "token"
 	var inforows = '';
@@ -189,7 +224,6 @@ function infotable (elmnode) {
 		if ( formdef[att] ) attdef = formdef[att];
 		else if ( typeof(tagdef) != "undefined" && tagdef && tagdef[att] ) attdef = tagdef[att];
 		var rowval = elmnode.getAttribute(att);
-		// console.log(attdef);
 		if ( attdef['compute'] || attdef['transcribe'] ) rowval = forminherit(elmnode, att);
 		if ( rowval && attdef && !attdef['noshow'] && ( !attdef['admin'] || attdef['admin'] == "0" || username ) ) {
 			shownrows = 1;

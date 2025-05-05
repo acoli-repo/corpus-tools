@@ -560,6 +560,12 @@
 	$settingsdefs .= "\n\t\tvar tagdef = ".array2json(getset('xmlfile/pattributes/tags', array())).";";
 	if ( getset('defaults/wordinfo') != '' ) $settingsdefs .= "\n\t\tvar wordinfo = true;";
 	$jsontrans = array2json(getset('transliteration', array()));
+
+	// Define sattributes to display
+	$satttdefs = getset('xmlfile/sattributes', array());
+	foreach ( $satttdefs as $key => $val ) { $satttdefs[strtolower($key)] = $val; }; // make all satts lc (as well)
+	$satttarr = array2json($satttdefs) or $satttarr = '{}';
+	$settingsdefs .= "\n\t\tvar satts = $satttarr;";
 				
 	$highlights = $_GET['tid'] or $highlights = $_GET['jmp'] or $highlights = $_POST['jmp'] or $highlights = $_GET['sid'];	
 
