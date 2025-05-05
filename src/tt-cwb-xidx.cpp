@@ -133,7 +133,6 @@ int cwb_rng_2_avx(string att, int pos) {
 	file = fopen ( filename.c_str() , "rb" );
 	if ( !file ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
-		return "";
 	};
 	if ( debug > 3 ) { cout << "Getting range for " << pos << " in "  << filename << endl; };
 
@@ -223,7 +222,6 @@ void cwb_expand_rng( int posa, int posb, int *rpos1, int *rpos2, string att ) {
 	file = fopen ( filename.c_str() , "rb" );
 	if ( !file ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
-		return "";
 	};
 	if ( debug > 3 ) { cout << "Getting enclosing range from " << filename << endl; };
 
@@ -245,7 +243,6 @@ void cwb_expand_rng( int posa, int posb, int *rpos1, int *rpos2, string att ) {
 				FILE *file2 = fopen ( filename.c_str() , "rb" );
 				if ( !file2 ) {
 					if ( verbose ) { cout << "Failed to open " << filename << endl; };
-					return "";
 				};
 				*rpos1 = read_network_number(rpos,file2);
 				*rpos2 = read_network_number(rpos+1,file2);
@@ -339,7 +336,6 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 		file = fopen ( filename.c_str() , "rb" );
 		if ( !file ) {
 			if ( verbose ) { cout << "Failed to open " << filename << endl; };
-			return "";
 		};
 		rpos1 = read_network_number(pos1*2,file);
 		rpos2 = read_network_number(pos2*2+1,file);
