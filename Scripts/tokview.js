@@ -182,6 +182,7 @@ function sinfotable (elmnode) {
 	};
 	var inforows = '';
 	nodeatts = satts[elmnode.tagName.toLowerCase()];
+	console.log(nodeatts);
 	if ( !nodeatts ) return '';
 	if ( nodeatts['info'] ) {
 		var form = elmnode.getAttribute('form');
