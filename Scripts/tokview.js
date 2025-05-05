@@ -137,12 +137,14 @@ function showtokinfo(evt, element, poselm) {
     	var parent = element; lastparent = null;
     	if ( !satts['mtok'] ) satts['mtok'] = 1; // Always do MTOK
     	while ( parent && parent.getAttribute('id') ) {
+    		console.log(parent);
 			if ( satts[parent.tagName.toLowerCase()] && !done[parent.getAttribute('id')] ) { 
 				shownrows = 1;
 				done[parent.getAttribute('id')] = 1;
 				var form = parent.getAttribute('form');
 				if ( !form ) { form = parent.innerText; };
 				stablerows = sinfotable(parent);
+    		console.log(stablerows);
 				if ( stablerows ) {
 					html += '<hr><table width=\'100%\'>' + stablerows + '</table>';
 			     	shownrows = 1;
@@ -150,8 +152,8 @@ function showtokinfo(evt, element, poselm) {
 			};
 			lastparent = parent;
 			parent = parent.parentNode;
-
-    		console.log(parent);
+			console.log('next');
+			console.log(parent);
 		};
 
 		if ( shownrows )  { 

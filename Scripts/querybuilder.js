@@ -373,6 +373,7 @@ function updatequery( nodirect = false ) {
 	        } else if ( flds[i].nodeName == "SELECT" ) {
 				if ( typeof(pattname) != 'undefined' && typeof(pattname[pattn]) != 'undefined' 
 								&& pattname[pattn].values == 'multi' ) {
+					if ( typeof(mvsep) == 'undefined' ) var mvsep = pattname[pattn]['multiseparator'];
 					if ( typeof(mvsep) == 'undefined' ) var mvsep = ',';
 					val = '(.*'+mvsep+')?' + val + '('+mvsep+'.*)?';
 				};
