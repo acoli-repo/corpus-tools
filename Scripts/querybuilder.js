@@ -374,6 +374,7 @@ function updatequery( nodirect = false ) {
 				if ( typeof(pattname) != 'undefined' && typeof(pattname[pattn]) != 'undefined' 
 								&& pattname[pattn].values == 'multi' ) {
 					if ( typeof(mvsep) == 'undefined' ) var mvsep = pattname[pattn]['multiseparator'];
+					if ( typeof(mvsep) == 'undefined' ) var mvsep = pattname[pattn]['multisep'];
 					if ( typeof(mvsep) == 'undefined' ) var mvsep = ',';
 					val = '(.*'+mvsep+')?' + val + '('+mvsep+'.*)?';
 				};
@@ -409,6 +410,8 @@ function updatequery( nodirect = false ) {
 			if ( typeof(pattname) != 'undefined' && typeof(pattname[pattn]) != 'undefined' 
 							&& pattname[pattn].values == 'multi' ) {
 				if ( typeof(mvsep) == 'undefined' ) var mvsep = pattname[pattn].multisep;
+				if ( typeof(mvsep) == 'undefined' ) var mvsep = pattname[pattn]['multiseparator'];
+				if ( typeof(mvsep) == 'undefined' ) var mvsep = pattname[pattn]['multisep'];
 				if ( typeof(mvsep) == 'undefined' ) var mvsep = ',';
 				if ( mvsep == '|' ) mvsep = '[|]';
 				val = '(.*'+mvsep+')?(' + val + ')('+mvsep+'.*)?';
