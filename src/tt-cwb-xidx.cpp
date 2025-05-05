@@ -385,6 +385,7 @@ int main (int argc, char *argv[]) {
 				pos2 = atoi(arg2.c_str());
 			} catch( const std::exception& e ) { continue; };
 
+			if ( debug > 0 ) { cout << "Looking for " << pos1 << " - " << pos2 << " in " << xmlfile; };
 			cout << cwb_rng_2_xml ( pos1, pos2 ) << endl;
     	};
 	} else {
