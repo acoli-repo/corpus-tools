@@ -134,7 +134,8 @@ function showtokinfo(evt, element, poselm) {
     	var parent = element; lastparent = null;
     	if ( !satts['mtok'] ) satts['mtok'] = 1; // Always do MTOK
     	while ( parent && lastparent != parent && parent.getAttribute('id') ) {
-			if ( satts[parent.tagName.toLowerCase()] && !done[parent.getAttribute('id')] ) { // TODO: this only works for the direct parent
+    		console.log(parent);
+			if ( satts[parent.tagName.toLowerCase()] && !done[parent.getAttribute('id')] ) { 
 				shownrows = 1;
 				done[parent.getAttribute('id')] = 1;
 				var form = parent.getAttribute('form');
@@ -307,10 +308,6 @@ function highlightbb (elm, hln=0) {
 	orgImg.onload = function(){
 		var imgscale = this.getAttribute("fsize")/this.width;
 		var bb = this.getAttribute('bbox').split(' '); 
-// 		console.log(this.getAttribute("fsize"));
-// 		console.log(imgscale);
-// 		console.log(bb);
-// 		
 		hlbar.style.display = 'block';
 		hlbar.style['background-color'] = '#ffff00';
 		hlbar.style['z-index'] = '100';
