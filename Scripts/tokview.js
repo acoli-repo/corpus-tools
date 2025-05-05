@@ -132,9 +132,9 @@ function showtokinfo(evt, element, poselm) {
 		
     	// now look for parent nodes of type MTOK, NAME
     	var parent = element; lastparent = null;
-    	if ( typeof(showtypes) == 'undefined' ) showtypes = ['MTOK', 'NAME', 'PERSNAME'];
+    	if ( !satts['mtok'] ) satts['mtok'] = 1; // Always do MTOK
     	while ( parent && lastparent != parent && parent.getAttribute('id') ) {
-			if ( showtypes.includes(parent.tagName) && !done[parent.getAttribute('id')] ) { // TODO: this only works for the direct parent
+			if ( satts[parent.tagName.toLowerCase()] && !done[parent.getAttribute('id')] ) { // TODO: this only works for the direct parent
 				shownrows = 1;
 				done[parent.getAttribute('id')] = 1;
 				var form = parent.getAttribute('form');
@@ -177,12 +177,14 @@ function showinfo(element, html) {
 function sinfotable (elmnode) {
 	// Calculate all the row we need to show for this region node
 	if ( elmnode.tagName == 'MTOK' ) {
+		var form = elmnode.getAttribute('form');
+		if ( !form ) { form = elmnode.innerText; };
 		let inforows = infotable(elmnode); // mtok is a "token"
+		inforows = '<tr><th colspan=2><b>' + form + '</b></th></tr>' + inforows;
 		return inforows;
 	};
 	var inforows = '';
 	nodeatts = satts[elmnode.tagName.toLowerCase()];
-	console.log(nodeatts);
 	if ( !nodeatts ) return '';
 	if ( nodeatts['info'] ) {
 		var form = elmnode.getAttribute('form');
