@@ -99,7 +99,7 @@ string cwb_pos_2_val(string att, int pos) {
 
 	filename = cqpfolder + "/" + att + ".corpus";
 	file = fopen ( filename.c_str() , "rb" );
-	if ( !file ) {
+	if ( file == NULL ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
 		return "";
 	};
@@ -109,7 +109,7 @@ string cwb_pos_2_val(string att, int pos) {
 
 	filename = cqpfolder + "/" + att + ".lexicon.idx";
 	file = fopen ( filename.c_str() , "rb" );
-	if ( !file ) {
+	if ( file == NULL ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
 		return "";
 	};
@@ -131,7 +131,7 @@ int cwb_rng_2_avx(string att, int pos) {
 
 	filename = cqpfolder + "/" + att + ".rng";
 	file = fopen ( filename.c_str() , "rb" );
-	if ( !file ) {
+	if ( file == NULL ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
 	};
 	if ( debug > 3 ) { cout << "Getting range for " << pos << " in "  << filename << endl; };
@@ -163,7 +163,7 @@ string cwb_rng_2_val(string att, int pos) {
 
 	filename = cqpfolder + "/" + att + ".avx";
 	file = fopen ( filename.c_str() , "rb" );
-	if ( !file ) {
+	if ( file == NULL ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
 		return "";
 	};
@@ -174,7 +174,7 @@ string cwb_rng_2_val(string att, int pos) {
 
 	filename = cqpfolder + "/" + att + ".avs";
 	file = fopen ( filename.c_str() , "rb" );
-	if ( !file ) {
+	if ( file == NULL ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
 		return "";
 	};
@@ -191,7 +191,7 @@ string cwb_avx_2_val(string att, int rangeidx) {
 
 	filename = cqpfolder + "/" + att + ".avx";
 	file = fopen ( filename.c_str() , "rb" );
-	if ( !file ) {
+	if ( file == NULL ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
 		return "";
 	};
@@ -202,7 +202,7 @@ string cwb_avx_2_val(string att, int rangeidx) {
 
 	filename = cqpfolder + "/" + att + ".avs";
 	file = fopen ( filename.c_str() , "rb" );
-	if ( !file ) {
+	if ( file == NULL ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
 		return "";
 	};
@@ -220,7 +220,7 @@ void cwb_expand_rng( int posa, int posb, int *rpos1, int *rpos2, string att ) {
 
 	filename = cqpfolder + "/" + att + ".rng";
 	file = fopen ( filename.c_str() , "rb" );
-	if ( !file ) {
+	if ( file == NULL ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
 	};
 	if ( debug > 3 ) { cout << "Getting enclosing range from " << filename << endl; };
@@ -241,7 +241,7 @@ void cwb_expand_rng( int posa, int posb, int *rpos1, int *rpos2, string att ) {
 				// Now look in att_xidx.rng to find the XML positions
 				filename = cqpfolder + "/" + att + "_xidx.rng";
 				FILE *file2 = fopen ( filename.c_str() , "rb" );
-				if ( !file2 ) {
+				if ( file2 == NULL ) {
 					if ( verbose ) { cout << "Failed to open " << filename << endl; };
 				};
 				*rpos1 = read_network_number(rpos,file2);
@@ -283,7 +283,7 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 	// xmlfile = cwb_rng_2_val("text_id", pos1); // The old way - too slow
 	filename = cqpfolder + "/text_id.idx";
 	file = fopen ( filename.c_str() , "rb" );
-	if ( file ) {
+	if ( file == NULL ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
 		return "";
 	};
@@ -306,7 +306,7 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 	if ( debug > 2 ) { cout << "Corpus positions " << pos1 << " and " << pos2 << " belong to file " << filename << endl;  };
 
 	file = fopen ( filename.c_str() , "rb" );
-	if ( !file ) {
+	if ( file == NULL ) {
 		if ( verbose ) { cout << "Failed to open " << filename << endl; };
 		return "";
 	};
@@ -334,7 +334,7 @@ string cwb_rng_2_xml(int pos1, int pos2) {
 		if ( debug > 4 ) { cout << "Getting XML for " << pos1 << " - " << pos2 << endl; };
 		filename = cqpfolder + "/xidx.rng";
 		file = fopen ( filename.c_str() , "rb" );
-		if ( !file ) {
+		if ( file == NULL ) {
 			if ( verbose ) { cout << "Failed to open " << filename << endl; };
 		};
 		rpos1 = read_network_number(pos1*2,file);
