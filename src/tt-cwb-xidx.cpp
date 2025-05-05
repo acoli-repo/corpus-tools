@@ -395,6 +395,7 @@ int main (int argc, char *argv[]) {
 		pos1 = atoi(avls[0].c_str());
 		pos2 = atoi(avls[1].c_str());
 
+		if ( debug > 0 ) { cout << "Looking for " << pos1 << " - " << pos2 << " in " << xmlfile; };
 		cout << cwb_rng_2_xml ( pos1, pos2 ) << endl;
 	};
 
