@@ -126,21 +126,27 @@ function showtokinfo(evt, element, poselm) {
 				if ( child.getAttribute('form') != '' && child.getAttribute('form') != null ) { tablerows = '<tr><th colspan=2><b>' + child.getAttribute('form') + '</b></th></tr>'; }
 				else { tablerows = ''; };
 				tablerows += infotable(child);
-				html += '<hr><table width=\'100%\'>' + tablerows + '</table>';
+				if ( tablerows ) {
+			     	shownrows = 1;
+					html += '<hr><table width=\'100%\'>' + tablerows + '</table>';
+				};
     		}; 
 		};
 		
     	// now look for parent nodes of type MTOK, NAME
     	var parent = element; lastparent = null;
     	if ( !satts['mtok'] ) satts['mtok'] = 1; // Always do MTOK
-    	while ( parent && lastparent != parent && parent.getAttribute('id') ) {
+    	while ( parent && parent.getAttribute('id') ) {
 			if ( satts[parent.tagName.toLowerCase()] && !done[parent.getAttribute('id')] ) { 
 				shownrows = 1;
 				done[parent.getAttribute('id')] = 1;
 				var form = parent.getAttribute('form');
 				if ( !form ) { form = parent.innerText; };
 				stablerows = sinfotable(parent);
-				if ( stablerows ) html += '<hr><table width=\'100%\'>' + stablerows + '</table>';
+				if ( stablerows ) {
+					html += '<hr><table width=\'100%\'>' + stablerows + '</table>';
+			     	shownrows = 1;
+				};
 			};
 			lastparent = parent;
 			parent = parent.parentNode;
