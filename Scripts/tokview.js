@@ -134,7 +134,6 @@ function showtokinfo(evt, element, poselm) {
     	var parent = element; lastparent = null;
     	if ( !satts['mtok'] ) satts['mtok'] = 1; // Always do MTOK
     	while ( parent && lastparent != parent && parent.getAttribute('id') ) {
-    		console.log(parent);
 			if ( satts[parent.tagName.toLowerCase()] && !done[parent.getAttribute('id')] ) { 
 				shownrows = 1;
 				done[parent.getAttribute('id')] = 1;
@@ -146,6 +145,7 @@ function showtokinfo(evt, element, poselm) {
 			lastparent = parent;
 			parent = parent.parentNode;
 
+    		console.log(parent);
 		};
 
 		if ( shownrows )  { 
