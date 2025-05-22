@@ -50,6 +50,14 @@ From the [RSTTool Version 3.0 Users Guide by Michael O'Donnell](http://www.wagso
 4. [Statistics](./www.wagsoft.com/RSTTool/section8.html.md)
 5. [The Menus](./www.wagsoft.com/RSTTool/section9.html.md)
 
+Exporting as images:
+
+- Printing to PS via "Structurer"/"Print Diagram" normally works, but these files are hard to post-process. Conversion to PDF will crop it to a single page.
+- Better export to `*.emf` (Windows enhanced MetaFile). These can be opened by Inkscape and further processed as SVG.
+- The rotated view obfuscates RST structure.
+- For exporting an RST tree, you can collapse sub-trees.
+
+
 ## Background on RST
 
 From [Maite Taboada's RST Web Site](https://www.sfu.ca/rst/):
