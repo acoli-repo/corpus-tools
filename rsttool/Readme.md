@@ -54,10 +54,10 @@ From the [RSTTool Version 3.0 Users Guide by Michael O'Donnell](http://www.wagso
 
 From [Maite Taboada's RST Web Site](https://www.sfu.ca/rst/):
 
-1. [Intro to RST](./www.sfu.ca/rst/01intro/intro.html)
-2. [RST Definitions](./www.sfu.ca/rst/01intro/definitions.html)
-3. [Sample Analyses](./www.sfu.ca/rst/02analyses/index.html) (RS3 and PDF)
-4. [RST Bibliography](www.sfu.ca/rst/05bibliographies/index.html) (until 2023)
+1. [Intro to RST](./www.sfu.ca/rst/01intro/intro.md)
+2. [RST Definitions](./www.sfu.ca/rst/01intro/definitions.txt)
+3. [Sample Analyses](https://www.sfu.ca/rst/02analyses/index.html) (RS3 and PDF)
+4. [RST Bibliography](https://www.sfu.ca/rst/05bibliographies/index.html) (until 2023)
 
 ## Content
 

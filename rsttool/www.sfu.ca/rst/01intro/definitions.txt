@@ -1,0 +1,1002 @@
+┌─────────────────────────┐
+│ ●HOME                   │
+├─────────────────────────┤
+│ ●INTRO TO RST           │
+├─────────────────────────┤
+│ ●ANALYSES               │
+├─────────────────────────┤
+│ ●CONFERENCES & JOURNALS │
+├─────────────────────────┤
+│ ●RESEARCH TOPICS        │
+├─────────────────────────┤
+│ ●RESEARCH PROJECTS      │
+├─────────────────────────┤
+│ ●TEXT GENERATION        │
+├─────────────────────────┤
+│ ●BIBLIOGRAPHIES         │
+├─────────────────────────┤
+│ ●TOOLS                  │
+├─────────────────────────┤
+│ ●PAGES IN BASQUE        │
+├─────────────────────────┤
+│ ●PAGES IN FRENCH        │
+├─────────────────────────┤
+│ ●PAGES IN PORTUGUESE    │
+├─────────────────────────┤
+│ ●PAGES IN SPANISH       │
+├─────────────────────────┤
+│ ●E-MAIL LIST            │
+├─────────────────────────┤
+│ ●SITE MAP & SEARCH      │
+└─────────────────────────┘
+[selector]
+[sp] [arrow_do] [sp]
+[large]
+[spacer]
+[small]
+RELATION DEFINITIONS
+title image                                                                                                   
+
+
+                                     vertical    The relations are part of the so called CRST, "Classical RST" as Nick Nicholas
+                                     line        calls it. It has been augmented with four relations defined more recently
+                                                 (Means, Preparation, Unconditional and Unless).
+
+                                                 The basic paper on RST, published in Text 8(3), was derived from an earlier
+                                                 report, ISI-RS-87-190. That report had, along with the relation definitions,
+                                                 one or more examples and some commentary for each relation. Portions of that
+                                                 information are available from the bibliographies section in this website, and
+                                                 an example has also been included for each of the four newer relations
+                                                 mentioned below. Some of the examples are from other sources, including the
+                                                 analyses in other sections of the website. To find these examples, look just
+   arrow                                         below each table of relation definitions.
+   + The RST site
+   + Introduction to RST                         Each element of the definition is implicitly embedded in a constraint formula
+   + Definitions                                 as follows: "It is plausible to the analyst that it was plausible to the author
+                                                 that ... ."
+
+                                                 On terminology in definitions: N stands for nucleus, S for satellite, W for
+                                                 writer (author, speaker) and R for reader (hearer.) For some brevity: in many
+                                                 places, N and S stand for the situations presented by N and S; N and S never
+                                                 stand for the text of N or S. Situation is a broad cover term that ranges over
+                                                 propositions or beliefs, actions whether realized or not, desires to act and
+                                                 approval for another to act. Similarly, positive regard is a broad attitudinal
+                                                 term that ranges over belief, approval of ideas, desire to act, and approval
+                                                 for another to act, all identifiably positive. Positive regard and belief (with
+                                                 its cognates), and plausible above are all degree terms, not binary.
+
+                                                 Notice that the name of the relation does not enter into the use of the
+                                                 definition. Finding good names for all of the relations is difficult or perhaps
+                                                 impossible, so some of the definitions will seem inappropriate for the name;
+                                                 see, for example, Justify.
+
+                                                 The relations are classified into two main types: nucleus-satellite and
+                                                 multinuclear (see the Introduction). They can also be classified according to
+                                                 whether they are Presentational or Subject Matter. Presentational relations are
+                                                 those whose intended effect is to increase some inclination in the reader, such
+                                                 as the desire to act or the degree of positive regard for, belief in, or
+                                                 acceptance of the nucleus. Subject matter relations are those whose intended
+                                                 effect is that the reader recognizes the relation in question.
+
+                                                 In the three tables below, we present the relation name and its definition. By
+                                                 clicking on the relation name, you can see further examples and comments on
+                                                 each relation.
+
+                                                  
+
+                                                 ┌──────────────────────────────────────────────────────────────────────────────┐
+                                                 │                   Definitions of Presentational Relations                    │
+                                                 ├─────────────┬───────────────┬─────────────────────────────┬──────────────────┤
+                                                 │             │  Constraints  │                             │                  │
+                                                 │  Relation   │  on either S  │    Constraints on N + S     │  Intention of W  │
+                                                 │    Name     │     or N      │                             │                  │
+                                                 │             │ individually  │                             │                  │
+                                                 ├─────────────┼───────────────┼─────────────────────────────┼──────────────────┤
+                                                 │             │               │ N and S are in contrast     │                  │
+                                                 │             │               │ (see the Contrast           │                  │
+                                                 │             │               │ relation); because of the   │                  │
+                                                 │             │               │ incompatibility that arises │                  │
+                                                 │             │ on N: W has   │ from the contrast, one      │ R's positive     │
+                                                 │ Antithesis  │ positive      │ cannot have positive regard │ regard for N is  │
+                                                 │             │ regard for N  │ for both of those           │ increased        │
+                                                 │             │               │ situations; comprehending S │                  │
+                                                 │             │               │ and the incompatibility     │                  │
+                                                 │             │               │ between the situations      │                  │
+                                                 │             │               │ increases R's positive      │                  │
+                                                 │             │               │ regard for N                │                  │
+                                                 ├─────────────┼───────────────┼─────────────────────────────┼──────────────────┤
+                                                 │             │ on N: R won't │                             │                  │
+                                                 │             │ comprehend N  │ S increases the ability of  │ R's ability to   │
+                                                 │ Background  │ sufficiently  │ R to comprehend an element  │ comprehend N     │
+                                                 │             │ before        │ in N                        │ increases        │
+                                                 │             │ reading text  │                             │                  │
+                                                 │             │ of S          │                             │                  │
+                                                 ├─────────────┼───────────────┼─────────────────────────────┼──────────────────┤
+                                                 │             │ on N: W has   │ W acknowledges a potential  │                  │
+                                                 │             │ positive      │ or apparent incompatibility │                  │
+                                                 │             │ regard for N  │ between N and S;            │ R's positive     │
+                                                 │ Concession  │ on S: W is    │ recognizing the             │ regard for N is  │
+                                                 │             │ not claiming  │ compatibility between N and │ increased        │
+                                                 │             │ that S does   │ S increases R's positive    │                  │
+                                                 │             │ not hold;     │ regard for N                │                  │
+                                                 ├─────────────┼───────────────┼─────────────────────────────┼──────────────────┤
+                                                 │             │ on N:         │                             │                  │
+                                                 │             │ presents an   │                             │                  │
+                                                 │             │ action by R   │                             │ R's potential    │
+                                                 │             │ (including    │ R comprehending S increases │ ability to       │
+                                                 │ Enablement  │ accepting an  │ R's potential ability to    │ perform the      │
+                                                 │             │ offer),       │ perform the action in N     │ action in N      │
+                                                 │             │ unrealized    │                             │ increases        │
+                                                 │             │ with respect  │                             │                  │
+                                                 │             │ to the        │                             │                  │
+                                                 │             │ context of N  │                             │                  │
+                                                 ├─────────────┼───────────────┼─────────────────────────────┼──────────────────┤
+                                                 │             │ on N: R might │                             │                  │
+                                                 │             │ not believe N │                             │                  │
+                                                 │             │ to a degree   │                             │                  │
+                                                 │             │ satisfactory  │ R's comprehending S         │ R's belief of N  │
+                                                 │ Evidence    │ to W          │ increases R's belief of N   │ is increased     │
+                                                 │             │ on S: R       │                             │                  │
+                                                 │             │ believes S or │                             │                  │
+                                                 │             │ will find it  │                             │                  │
+                                                 │             │ credible      │                             │                  │
+                                                 ├─────────────┼───────────────┼─────────────────────────────┼──────────────────┤
+                                                 │             │               │ R's comprehending S         │ R's readiness to │
+                                                 │ Justify     │ none          │ increases R's readiness to  │ accept W's right │
+                                                 │             │               │ accept W's right to present │ to present N is  │
+                                                 │             │               │ N                           │ increased        │
+                                                 ├─────────────┼───────────────┼─────────────────────────────┼──────────────────┤
+                                                 │             │ on N: N is an │                             │                  │
+                                                 │             │ action in     │                             │                  │
+                                                 │             │ which R is    │                             │                  │
+                                                 │             │ the actor     │                             │ R's desire to    │
+                                                 │             │ (including    │ Comprehending S increases   │ perform action   │
+                                                 │ Motivation  │ accepting an  │ R's desire to perform       │ in N is          │
+                                                 │             │ offer),       │ action in N                 │ increased        │
+                                                 │             │ unrealized    │                             │                  │
+                                                 │             │ with respect  │                             │                  │
+                                                 │             │ to the        │                             │                  │
+                                                 │             │ context of N  │                             │                  │
+                                                 ├─────────────┼───────────────┼─────────────────────────────┼──────────────────┤
+                                                 │             │               │ S precedes N in the text; S │ R is more ready, │
+                                                 │ Preparation │ none          │ tends to make R more ready, │ interested or    │
+                                                 │             │               │ interested or oriented for  │ oriented for     │
+                                                 │             │               │ reading N                   │ reading N        │
+                                                 ├─────────────┼───────────────┼─────────────────────────────┼──────────────────┤
+                                                 │             │               │ on N + S: S restates N,     │                  │
+                                                 │             │               │ where S and N are of        │ R recognizes S   │
+                                                 │ Restatement │ none          │ comparable bulk; N is more  │ as a restatement │
+                                                 │             │               │ central to W's purposes     │ of N             │
+                                                 │             │               │ than S is.                  │                  │
+                                                 ├─────────────┼───────────────┼─────────────────────────────┼──────────────────┤
+                                                 │             │ on N: N must  │ S presents a restatement of │ R recognizes S   │
+                                                 │ Summary     │ be more than  │ the content of N, that is   │ as a shorter     │
+                                                 │             │ one unit      │ shorter in bulk             │ restatement of N │
+                                                 └─────────────┴───────────────┴─────────────────────────────┴──────────────────┘
+                                                 
+                                                         
+
+                                                  
+
+                                                 ┌───────────────────────────────────────────────────────────────────────────────┐
+                                                 │                    Definitions of Subject Matter Relations                    │
+                                                 ├────────────────┬───────────────┬───────────────────────────┬──────────────────┤
+                                                 │                │  Constraints  │                           │                  │
+                                                 │ Relation Name  │  on either S  │   Constraints on N + S    │  Intention of W  │
+                                                 │                │     or N      │                           │                  │
+                                                 │                │ individually  │                           │                  │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │               │ S sets a framework in the │ R recognizes     │
+                                                 │                │ on S: S is    │ subject matter within     │ that S provides  │
+                                                 │ Circumstance   │ not           │ which R is intended to    │ the framework    │
+                                                 │                │ unrealized    │ interpret N               │ for interpreting │
+                                                 │                │               │                           │ N                │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │ on S: S       │                           │                  │
+                                                 │                │ presents a    │                           │                  │
+                                                 │                │ hypothetical, │                           │                  │
+                                                 │                │ future, or    │                           │ R recognizes how │
+                                                 │                │ otherwise     │ Realization of N depends  │ the realization  │
+                                                 │ Condition      │ unrealized    │ on realization of S       │ of N depends on  │
+                                                 │                │ situation     │                           │ the realization  │
+                                                 │                │ (relative to  │                           │ of S             │
+                                                 │                │ the           │                           │                  │
+                                                 │                │ situational   │                           │                  │
+                                                 │                │ context of S) │                           │                  │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │               │ S presents additional     │                  │
+                                                 │                │               │ detail about the          │                  │
+                                                 │                │               │ situation or some element │                  │
+                                                 │                │               │ of subject matter which   │                  │
+                                                 │                │               │ is presented in N or      │                  │
+                                                 │                │               │ inferentially accessible  │ R recognizes S   │
+                                                 │                │               │ in N in one or more of    │ as providing     │
+                                                 │                │               │ the ways listed below. In │ additional       │
+                                                 │                │               │ the list, if N presents   │ detail for N. R  │
+                                                 │ Elaboration    │ none          │ the first member of any   │ identifies the   │
+                                                 │                │               │ pair, then S includes the │ element of       │
+                                                 │                │               │ second:                   │ subject matter   │
+                                                 │                │               │ set :: member             │ for which detail │
+                                                 │                │               │ abstraction :: instance   │ is provided.     │
+                                                 │                │               │ whole :: part             │                  │
+                                                 │                │               │ process :: step           │                  │
+                                                 │                │               │ object :: attribute       │                  │
+                                                 │                │               │ generalization ::         │                  │
+                                                 │                │               │ specific                  │                  │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │               │                           │ R recognizes     │
+                                                 │                │               │ on N + S: S relates N to  │ that S assesses  │
+                                                 │ Evaluation     │ none          │ degree of W's positive    │ N and recognizes │
+                                                 │                │               │ regard toward N.          │ the value it     │
+                                                 │                │               │                           │ assigns          │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │               │                           │ R recognizes     │
+                                                 │                │               │ on N + S: S relates N to  │ that S relates N │
+                                                 │                │               │ a framework of ideas not  │ to a framework   │
+                                                 │ Interpretation │ none          │ involved in N itself and  │ of ideas not     │
+                                                 │                │               │ not concerned with W's    │ involved in the  │
+                                                 │                │               │ positive regard           │ knowledge        │
+                                                 │                │               │                           │ presented in N   │
+                                                 │                │               │                           │ itself           │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │               │                           │ R recognizes     │
+                                                 │                │               │ S presents a method or    │ that the method  │
+                                                 │ Means          │ on N: an      │ instrument which tends to │ or instrument in │
+                                                 │                │ activity      │ make realization of N     │ S tends to make  │
+                                                 │                │               │ more likely               │ realization of N │
+                                                 │                │               │                           │ more likely      │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │               │ S, by means other than    │                  │
+                                                 │                │               │ motivating a volitional   │                  │
+                                                 │                │               │ action, caused N; without │                  │
+                                                 │                │ on N: N is    │ the presentation of S, R  │                  │
+                                                 │ Non-volitional │ not a         │ might not know the        │ R recognizes S   │
+                                                 │ Cause          │ volitional    │ particular cause of the   │ as a cause of N  │
+                                                 │                │ action        │ situation; a presentation │                  │
+                                                 │                │               │ of N is more central than │                  │
+                                                 │                │               │ S to W's purposes in      │                  │
+                                                 │                │               │ putting forth the N-S     │                  │
+                                                 │                │               │ combination.              │                  │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │               │ N caused S; presentation  │                  │
+                                                 │                │ on S: S is    │ of N is more central to   │ R recognizes     │
+                                                 │ Non-volitional │ not a         │ W's purposes in putting   │ that N could     │
+                                                 │ Result         │ volitional    │ forth the N-S combination │ have caused the  │
+                                                 │                │ action        │ than is the presentation  │ situation in S   │
+                                                 │                │               │ of S.                     │                  │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │               │                           │ R recognizes the │
+                                                 │                │ on N: N is an │                           │ dependency       │
+                                                 │                │ unrealized    │                           │ relation of      │
+                                                 │ Otherwise      │ situation     │ realization of N prevents │ prevention       │
+                                                 │                │ on S: S is an │ realization of S          │ between the      │
+                                                 │                │ unrealized    │                           │ realization of N │
+                                                 │                │ situation     │                           │ and the          │
+                                                 │                │               │                           │ realization of S │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │ on N: N is an │                           │ R recognizes     │
+                                                 │                │ activity;     │                           │ that the         │
+                                                 │ Purpose        │ on S: S is a  │ S is to be realized       │ activity in N is │
+                                                 │                │ situation     │ through the activity in N │ initiated in     │
+                                                 │                │ that is       │                           │ order to realize │
+                                                 │                │ unrealized    │                           │ S                │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │ on S: S       │                           │ R recognizes N   │
+                                                 │ Solutionhood   │ presents a    │ N is a solution to the    │ as a solution to │
+                                                 │                │ problem       │ problem presented in S;   │ the problem      │
+                                                 │                │               │                           │ presented in S   │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │ on S: S       │                           │                  │
+                                                 │                │ conceivably   │                           │ R recognizes     │
+                                                 │ Unconditional  │ could affect  │ N does not depend on S    │ that N does not  │
+                                                 │                │ the           │                           │ depend on S      │
+                                                 │                │ realization   │                           │                  │
+                                                 │                │ of N          │                           │                  │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │               │ S affects the realization │ R recognizes     │
+                                                 │                │               │ of N; N is realized       │ that N is        │
+                                                 │ Unless         │ none          │ provided that S is not    │ realized         │
+                                                 │                │               │ realized                  │ provided that S  │
+                                                 │                │               │                           │ is not realized  │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │               │ S could have caused the   │                  │
+                                                 │                │ on N: N is a  │ agent of the volitional   │                  │
+                                                 │                │ volitional    │ action in N to perform    │                  │
+                                                 │                │ action or     │ that action; without the  │                  │
+                                                 │                │ else a        │ presentation of S, R      │ R recognizes S   │
+                                                 │ Volitional     │ situation     │ might not regard the      │ as a cause for   │
+                                                 │ Cause          │ that could    │ action as motivated or    │ the volitional   │
+                                                 │                │ have arisen   │ know the particular       │ action in N      │
+                                                 │                │ from a        │ motivation; N is more     │                  │
+                                                 │                │ volitional    │ central to W's purposes   │                  │
+                                                 │                │ action        │ in putting forth the N-S  │                  │
+                                                 │                │               │ combination than S is.    │                  │
+                                                 ├────────────────┼───────────────┼───────────────────────────┼──────────────────┤
+                                                 │                │ on S: S is a  │                           │                  │
+                                                 │                │ volitional    │                           │                  │
+                                                 │                │ action or a   │ N could have caused S;    │ R recognizes     │
+                                                 │ Volitional     │ situation     │ presentation of N is more │ that N could be  │
+                                                 │ Result         │ that could    │ central to W's purposes   │ a cause for the  │
+                                                 │                │ have arisen   │ than is presentation of   │ action or        │
+                                                 │                │ from a        │ S;                        │ situation in S   │
+                                                 │                │ volitional    │                           │                  │
+                                                 │                │ action        │                           │                  │
+                                                 └────────────────┴───────────────┴───────────────────────────┴──────────────────┘
+
+
+                                                  
+
+                                                 ┌─────────────────────────────────────────────────────────────────────────────┐
+                                                 │                    Definitions of Multinuclear Relations                    │
+                                                 ├──────────────┬──────────────────────────────────────┬───────────────────────┤
+                                                 │   Relation   │    Constraints on each pair of N     │    Intention of W     │
+                                                 │     Name     │                                      │                       │
+                                                 ├──────────────┼──────────────────────────────────────┼───────────────────────┤
+                                                 │              │ The items are conjoined to form a    │ R recognizes that the │
+                                                 │ Conjunction  │ unit in which each item plays a      │ linked items are      │
+                                                 │              │ comparable role                      │ conjoined             │
+                                                 ├──────────────┼──────────────────────────────────────┼───────────────────────┤
+                                                 │              │ No more than two nuclei; the         │                       │
+                                                 │              │ situations in these two nuclei are   │ R recognizes the      │
+                                                 │              │ (a) comprehended as the same in many │ comparability and the │
+                                                 │ Contrast     │ respects (b) comprehended as         │ difference(s) yielded │
+                                                 │              │ differing in a few respects and (c)  │ by the comparison is  │
+                                                 │              │ compared with respect to one or more │ being made            │
+                                                 │              │ of these differences                 │                       │
+                                                 ├──────────────┼──────────────────────────────────────┼───────────────────────┤
+                                                 │              │ An item presents a (not necessarily  │ R recognizes that the │
+                                                 │ Disjunction  │ exclusive) alternative for the other │ linked items are      │
+                                                 │              │ (s)                                  │ alternatives          │
+                                                 ├──────────────┼──────────────────────────────────────┼───────────────────────┤
+                                                 │ Joint        │ None                                 │ none                  │
+                                                 ├──────────────┼──────────────────────────────────────┼───────────────────────┤
+                                                 │              │ An item comparable to others linked  │ R recognizes the      │
+                                                 │ List         │ to it by the List relation           │ comparability of      │
+                                                 │              │                                      │ linked items          │
+                                                 ├──────────────┼──────────────────────────────────────┼───────────────────────┤
+                                                 │              │ An item is primarily a reexpression  │ R recognizes the      │
+                                                 │ Multinuclear │ of one linked to it; the items are   │ reexpression by the   │
+                                                 │ Restatement  │ of comparable importance to the      │ linked items          │
+                                                 │              │ purposes of W                        │                       │
+                                                 ├──────────────┼──────────────────────────────────────┼───────────────────────┤
+                                                 │              │                                      │ R recognizes the      │
+                                                 │ Sequence     │ There is a succession relationship   │ succession            │
+                                                 │              │ between the situations in the nuclei │ relationships among   │
+                                                 │              │                                      │ the nuclei.           │
+                                                 └──────────────┴──────────────────────────────────────┴───────────────────────┘
+
+                                                 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                                 
+                                                  
+
+                                                 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+                                                 │              Examples and Comments on the Presentational Relations                               │
+                                                 ├─────────────┬───────────────────┬────────────────┬───────────────────┬───────────────────────────┤
+                                                 │  Relation   │  All of Example   │  Nuclear Part  │  Satellite Part   │          Comment          │
+                                                 │    Name     │       Text        │                │                   │                           │
+                                                 ├─────────────┼───────────────────┼────────────────┼───────────────────┼───────────────────────────┤
+                                                 │             │ 12) But I don't   │                │                   │                           │
+                                                 │             │ think endorsing a │                │                   │                           │
+                                                 │             │ specific nuclear  │ 13) We should  │                   │                           │
+                                                 │             │ freeze proposal   │ limit our      │                   │                           │
+                                                 │             │ is appropriate    │ involvement in │                   │                           │
+                                                 │             │ for CCC. 13) We   │ defense and    │                   │                           │
+                                                 │             │ should limit our  │ weaponry to    │ 12) But I don't   │ The writer favors one     │
+                                                 │             │ involvement in    │ matters of     │ think endorsing a │ idea and not the other.   │
+                                                 │ Antithesis  │ defense and       │ process, such  │ specific nuclear  │ See the analysis of the   │
+                                                 │             │ weaponry to       │ as exposing    │ freeze proposal   │ Common Cause letter, on   │
+                                                 │             │ matters of        │ the weapons    │ is appropriate    │ this website.             │
+                                                 │             │ process, such as  │ industry's     │ for CCC.          │                           │
+                                                 │             │ exposing the      │ influence on   │                   │                           │
+                                                 │             │ weapons           │ the political  │                   │                           │
+                                                 │             │ industry's        │ process.       │                   │                           │
+                                                 │             │ influence on the  │                │                   │                           │
+                                                 │             │ political         │                │                   │                           │
+                                                 │             │ process.          │                │                   │                           │
+                                                 ├─────────────┼───────────────────┼────────────────┼───────────────────┼───────────────────────────┤
+                                                 │             │ 11A) ZPG's 1985   │                │                   │                           │
+                                                 │             │ Urban Stress      │                │                   │                           │
+                                                 │             │ Test, 11B)        │                │                   │                           │
+                                                 │             │ created after     │                │                   │                           │
+                                                 │             │ months of         │                │                   │                           │
+                                                 │             │ persistent and    │                │ 11A) ZPG's 1985   │                           │
+                                                 │             │ exhaustive        │                │ Urban Stress      │ Background information is │
+                                                 │             │ research, 11A) is │                │ Test, 11B)        │ general information of    │
+                                                 │             │ the nation's      │                │ created after     │ any sort that is likely   │
+                                                 │             │ first survey of   │ 13) The Urban  │ months of         │ to help the reader to     │
+                                                 │             │ how               │ Stress Test    │ persistent and    │ understand the nucleus.   │
+                                                 │             │ population-linked │ translates     │ exhaustive        │ This differs from         │
+                                                 │             │ pressures affect  │ complex,       │ research, 11A) is │ Circumstance, in which    │
+                                                 │             │ U.S. cities. 12)  │ technical data │ the nation's      │ the nucleus and           │
+                                                 │             │ It ranks 184      │ into an        │ first survey of   │ circumstance both refer   │
+                                                 │             │ urban areas on 11 │ easy-to-use    │ how               │ to a single situation.    │
+                                                 │ Background  │ different         │ action tool    │ population-linked │                           │
+                                                 │             │ criteria ranging  │ for concerned  │ pressures affect  │ This is a somewhat        │
+                                                 │             │ from crowding and │ citizens,      │ U.S. cities. 12)  │ unusual case because it   │
+                                                 │             │ birth rates to    │ elected        │ It ranks 184      │ uses Background in the    │
+                                                 │             │ air quality and   │ officials and  │ urban areas on 11 │ middle of a text. The     │
+                                                 │             │ toxic wastes. 13) │ opinion        │ different         │ facts in 11A through 12   │
+                                                 │             │ The Urban Stress  │ leaders.       │ criteria ranging  │ make 13 more              │
+                                                 │             │ Test translates   │                │ from crowding and │ comprehensible. See the   │
+                                                 │             │ complex,          │                │ birth rates to    │ ZPG Fund Raising Letter   │
+                                                 │             │ technical data    │                │ air quality and   │ on this website.          │
+                                                 │             │ into an           │                │ toxic wastes.     │                           │
+                                                 │             │ easy-to-use       │                │                   │                           │
+                                                 │             │ action tool for   │                │                   │                           │
+                                                 │             │ concerned         │                │                   │                           │
+                                                 │             │ citizens, elected │                │                   │                           │
+                                                 │             │ officials and     │                │                   │                           │
+                                                 │             │ opinion leaders.  │                │                   │                           │
+                                                 ├─────────────┼───────────────────┼────────────────┼───────────────────┼───────────────────────────┤
+                                                 │             │                   │                │                   │ Concession can be traced  │
+                                                 │             │                   │                │                   │ back to the consistency   │
+                                                 │             │                   │                │                   │ of the thoughts of the    │
+                                                 │             │                   │                │                   │ writer. Here, the writer  │
+                                                 │             │                   │                │                   │ says that he can          │
+                                                 │             │ 2) Tempting as it │ 3) we          │                   │ recognize that it is      │
+                                                 │             │ may be, 3) we     │ shouldn't      │                   │ tempting to embrace       │
+                                                 │ Concession  │ shouldn't embrace │ embrace every  │ 2) Tempting as it │ (fund) every (this)       │
+                                                 │             │ every popular     │ popular issue  │ may be,           │ popular issue, and yet    │
+                                                 │             │ issue that comes  │ that comes     │                   │ also hold the idea that   │
+                                                 │             │ along.            │ along.         │                   │ such ideas (this idea)    │
+                                                 │             │                   │                │                   │ should not be embraced    │
+                                                 │             │                   │                │                   │ (funded). See the         │
+                                                 │             │                   │                │                   │ analysis of the Common    │
+                                                 │             │                   │                │                   │ Cause letter on this      │
+                                                 │             │                   │                │                   │ website.                  │
+                                                 ├─────────────┼───────────────────┼────────────────┼───────────────────┼───────────────────────────┤
+                                                 │             │ 1. Training on    │                │                   │                           │
+                                                 │             │ jobs: A series of │                │                   │                           │
+                                                 │             │ informative,      │ 1. Training on │                   │                           │
+                                                 │             │ inexpensive       │ jobs: A series │                   │                           │
+                                                 │             │ pamphlets and     │ of             │                   │                           │
+                                                 │             │ books on worker   │ informative,   │                   │                           │
+                                                 │             │ health discusses  │ inexpensive    │                   │                           │
+                                                 │             │ such topics as    │ pamphlets and  │                   │                           │
+                                                 │             │ filing a          │ books on       │                   │ The Enablement relation   │
+                                                 │             │ compensation      │ worker health  │ 6. For a catalog  │ is often used along with  │
+                                                 │             │ claim, ionizing   │ discusses such │ and order form    │ a Motivation relation in  │
+                                                 │ Enablement  │ radiation,        │ topics as      │ write WIOES, 2520 │ advertising. This pair is │
+                                                 │             │ asbestos, and     │ filing a       │ Milvia St.,       │ the only one where RST    │
+                                                 │             │ several           │ compensation   │ Berkeley, CA      │ allows two different      │
+                                                 │             │ occupational      │ claim,         │ 95704.            │ relations to bear on the  │
+                                                 │             │ diseases.         │ ionizing       │                   │ same nucleus.             │
+                                                 │             │ [intervening      │ radiation,     │                   │                           │
+                                                 │             │ material skipped] │ asbestos, and  │                   │                           │
+                                                 │             │ 6. For a catalog  │ several        │                   │                           │
+                                                 │             │ and order form    │ occupational   │                   │                           │
+                                                 │             │ write WIOES, 2520 │ diseases.      │                   │                           │
+                                                 │             │ Milvia St.,       │                │                   │                           │
+                                                 │             │ Berkeley, CA      │                │                   │                           │
+                                                 │             │ 95704.            │                │                   │                           │
+                                                 ├─────────────┼───────────────────┼────────────────┼───────────────────┼───────────────────────────┤
+                                                 │             │ 2) Tempting as it │                │                   │                           │
+                                                 │             │ may be, 3) we     │                │                   │                           │
+                                                 │             │ shouldn't embrace │                │ 4) When we do so, │                           │
+                                                 │             │ every popular     │                │ 5) we use         │                           │
+                                                 │             │ issue that comes  │ 2) Tempting as │ precious, limited │ Units 2 and 3 are in a    │
+                                                 │             │ along. 4) When we │ it may be, 3)  │ resources 6)      │ span that contains        │
+                                                 │             │ do so, 5) we use  │ we shouldn't   │ where other       │ Concession. Units 4-6 are │
+                                                 │ Evidence    │ precious, limited │ embrace every  │ players with      │ a complex item of         │
+                                                 │             │ resources 6)      │ popular issue  │ superior          │ evidence. See the Common  │
+                                                 │             │ where other       │ that comes     │ resources are     │ Cause letter analysis on  │
+                                                 │             │ players with      │ along.         │ already doing an  │ this website.             │
+                                                 │             │ superior          │                │ adequate job.     │                           │
+                                                 │             │ resources are     │                │                   │                           │
+                                                 │             │ already doing an  │                │                   │                           │
+                                                 │             │ adequate job.     │                │                   │                           │
+                                                 ├─────────────┼───────────────────┼────────────────┼───────────────────┼───────────────────────────┤
+                                                 │             │ 10) Let's be      │                │                   │                           │
+                                                 │             │ clear: 11) I      │                │ 11) I personally  │                           │
+                                                 │             │ personally favor  │                │ favor the         │                           │
+                                                 │             │ the initiative    │                │ initiative and    │                           │
+                                                 │             │ and ardently      │                │ ardently support  │                           │
+                                                 │             │ support           │                │ disarmament       │                           │
+                                                 │             │ disarmament       │                │ negotiations to   │                           │
+                                                 │             │ negotiations to   │                │ reduce the risk   │                           │
+                                                 │             │ reduce the risk   │                │ of war. 12) But I │                           │
+                                                 │             │ of war. 12) But I │                │ don't think       │ This is from the analysis │
+                                                 │             │ don't think       │                │ endorsing a       │ of the Common Cause       │
+                                                 │             │ endorsing a       │                │ specific nuclear  │ letter, on this website.  │
+                                                 │             │ specific nuclear  │                │ freeze proposal   │ Unit 10 is establishing   │
+                                                 │ Justify     │ freeze proposal   │ 10) Let's be   │ is appropriate    │ the need to argue a       │
+                                                 │             │ is appropriate    │ clear:         │ for CCC. 13) We   │ second time toward a      │
+                                                 │             │ for CCC. 13) We   │                │ should limit our  │ particular conclusion.    │
+                                                 │             │ should limit our  │                │ involvement in    │ Thus it suggests what the │
+                                                 │             │ involvement in    │                │ defense and       │ basis is of the writer's  │
+                                                 │             │ defense and       │                │ weaponry to       │ right to speak this item. │
+                                                 │             │ weaponry to       │                │ matters of        │                           │
+                                                 │             │ matters of        │                │ process, such as  │                           │
+                                                 │             │ process, such as  │                │ exposing the      │                           │
+                                                 │             │ exposing the      │                │ weapons           │                           │
+                                                 │             │ weapons           │                │ industry's        │                           │
+                                                 │             │ industry's        │                │ influence on the  │                           │
+                                                 │             │ influence on the  │                │ political         │                           │
+                                                 │             │ political         │                │ process.          │                           │
+                                                 │             │ process.          │                │                   │                           │
+                                                 ├─────────────┼───────────────────┼────────────────┼───────────────────┼───────────────────────────┤
+                                                 │             │ 2) Ask for SYNCOM │                │                   │                           │
+                                                 │             │ diskettes, with   │                │                   │ The Motivation relation   │
+                                                 │             │ burnished Ectype  │ 2) Ask for     │                   │ is about action by the    │
+                                                 │             │ coating and       │ SYNCOM         │ 3) As your floppy │ reader. In this           │  
+                                                 │             │ dust-absorbing    │ diskettes,     │ drive writes or   │ advertisement it is       │
+                                                 │ Motivation  │ jacket liners. 3) │ with burnished │ reads, 4) a       │ buying the product. Units │
+                                                 │             │ As your floppy    │ Ectype coating │ Syncom diskette   │ 3-12 give many motivating │
+                                                 │             │ drive writes or   │ and            │ is working four   │ reasons for the action in │
+                                                 │             │ reads, 4) a       │ dust-absorbing │ ways ...          │ unit 2. See the Syncom    │
+                                                 │             │ Syncom diskette   │ jacket liners. │                   │ Floppy Disk Advertisement │
+                                                 │             │ is working four   │                │                   │ on this website.          │
+                                                 │             │ ways ...          │                │                   │                           │
+                                                 ├─────────────┼───────────────────┼────────────────┼───────────────────┼───────────────────────────┤
+                                                 │             │                   │                │                   │ This is from the Bouquets │
+                                                 │             │                   │                │ (a title):        │ text analysis on this     │
+                                                 │ Preparation │ (See the          │ (the body of   │ Bouquets in a     │ website. It is very       │
+                                                 │             │ analysis)         │ the article)   │ basket - with     │ common for titles to be   │
+                                                 │             │                   │                │ living flowers    │ preparatory (and not      │
+                                                 │             │                   │                │                   │ contributory) to a text.  │
+                                                 ├─────────────┼───────────────────┼────────────────┼───────────────────┼───────────────────────────┤
+                                                 │             │                   │                │                   │ There are two versions of │
+                                                 │             │                   │                │                   │ the Restatement relation. │
+                                                 │             │                   │                │                   │ The other one is          │
+                                                 │             │ [Title:] 1. A     │                │                   │ Multinuclear-Restatement. │
+                                                 │             │ WELL GROOMED CAR  │ 1. A WELL      │                   │ They differ because in    │
+                                                 │             │ REFLECTS ITS      │ GROOMED CAR    │ 2. The car you    │ some cases there is a     │
+                                                 │ Restatement │ OWNER 2. The car  │ REFLECTS ITS   │ drive says a lot  │ clear focus on one of the │
+                                                 │             │ you drive says a  │ OWNER          │ about you.        │ two spans, and in other   │
+                                                 │             │ lot about you.    │                │                   │ cases they have closely   │
+                                                 │             │                   │                │                   │ comparable importance in  │
+                                                 │             │                   │                │                   │ the writer's view.        │
+                                                 │             │                   │                │                   │ Restating is used both    │
+                                                 │             │                   │                │                   │ ways.                     │
+                                                 ├─────────────┼───────────────────┼────────────────┼───────────────────┼───────────────────────────┤
+                                                 │             │                   │ The body of a  │ It seems a while  │                           │
+                                                 │             │                   │ long           │ since there's     │                           │
+                                                 │             │                   │ entertaining   │ been a neatly     │                           │
+                                                 │             │                   │ text on        │ worded dispatch   │ There is not enough space │
+                                                 │ Summary     │ ---               │ telegrams had  │ from the field.   │ here for the whole        │
+                                                 │             │                   │ 43 units on    │ (This was         │ example.                  │
+                                                 │             │                   │ the subject,   │ followed by 4     │                           │
+                                                 │             │                   │ followed by    │ units of          │                           │
+                                                 │             │                   │ this summary   │ elaboration.)     │                           │
+                                                 │             │                   │ of 5 units:    │                   │                           │
+                                                 └─────────────┴───────────────────┴────────────────┴───────────────────┴───────────────────────────┘
+                                                       
+
+                                                 ┌─────────────────────────────────────────────────────────────────────────────────────┐
+                                                 │              Examples and Comments on the Subject Matter Relations                  │
+                                                 ├────────────────┬────────────────┬────────────────┬───────────────┬──────────────────┤
+                                                 │ Relation Name  │ All of Example │  Nuclear Part  │   Satellite   │     Comment      │
+                                                 │                │      Text      │                │     Part      │                  │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │                │                │               │ For the          │
+                                                 │                │                │                │               │ Circumstance     │
+                                                 │                │                │                │               │ relation, unlike │
+                                                 │                │ Probably the   │                │               │ Background, the  │
+                                                 │                │ most extreme   │                │               │ nucleus and      │
+                                                 │                │ case of        │ Probably the   │               │ satellite are    │
+                                                 │                │ Visitors Fever │ most extreme   │               │ both about a     │
+                                                 │                │ I have ever    │ case of        │ when I        │ single           │
+                                                 │ Circumstance   │ witnessed was  │ Visitors Fever │ visited       │ situation.       │
+                                                 │                │ a few summers  │ I have ever    │ relatives in  │                  │
+                                                 │                │ ago when I     │ witnessed was  │ the Midwest.  │ This function    │
+                                                 │                │ visited        │ a few summers  │               │ has been         │
+                                                 │                │ relatives in   │ ago            │               │ grammaticized in │
+                                                 │                │ the Midwest.   │                │               │ English in the   │
+                                                 │                │                │                │               │ form of          │
+                                                 │                │                │                │               │ circumstantial   │
+                                                 │                │                │                │               │ hypotactic       │
+                                                 │                │                │                │               │ clauses.         │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │                │                │               │ The Condition    │
+                                                 │                │                │                │               │ relation has     │
+                                                 │                │                │                │               │ been             │
+                                                 │                │ 1. Employees   │                │               │ grammaticized in │
+                                                 │                │ are urged to   │                │               │ English by the   │
+                                                 │                │ complete new   │ 1. Employees   │               │ hypotactic       │
+                                                 │                │ beneficiary    │ are urged to   │               │ conditional      │
+                                                 │                │ designation    │ complete new   │ 2. whenever   │ clause. However, │
+                                                 │                │ forms for      │ beneficiary    │ there is a    │ comparable to    │
+                                                 │ Condition      │ retirement or  │ designation    │ change in     │ all of the other │
+                                                 │                │ life insurance │ forms for      │ marital or    │ RST relations,   │
+                                                 │                │ benefits 2.    │ retirement or  │ family        │ which are        │
+                                                 │                │ whenever there │ life insurance │ status.       │ textual          │
+                                                 │                │ is a change in │ benefits       │               │ relations rather │
+                                                 │                │ marital or     │                │               │ than             │
+                                                 │                │ family status. │                │               │ grammatical,     │
+                                                 │                │                │                │               │ this relation    │
+                                                 │                │                │                │               │ need not be      │
+                                                 │                │                │                │               │ expressed with   │
+                                                 │                │                │                │               │ an if clause.    │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │ 1. City, in    │                │ First         │                  │
+                                                 │                │ Sweden, will   │                │ Satellite: 2. │                  │
+                                                 │                │ be the site of │                │ It is         │                  │
+                                                 │                │ the 1969       │                │ expected that │                  │
+                                                 │                │ International  │                │ some 250      │                  │
+                                                 │                │ Conference on  │                │ linguists     │                  │
+                                                 │                │ Computational  │                │ will attend   │                  │
+                                                 │                │ Linguistics,   │                │ from Asia,    │                  │
+                                                 │                │ September 1-4. │                │ West Europe,  │                  │
+                                                 │                │ 2. It is       │                │ East Europe   │                  │
+                                                 │                │ expected that  │                │ including     │                  │
+                                                 │                │ some 250       │                │ Russia, and   │                  │
+                                                 │                │ linguists will │                │ the United    │                  │
+                                                 │                │ attend from    │                │ States.       │                  │
+                                                 │                │ Asia, West     │                │ Second        │ Of the six       │
+                                                 │                │ Europe, East   │                │ Satellite: 3. │ subtypes of      │
+                                                 │                │ Europe         │                │ The           │ Elaboration in   │
+                                                 │                │ including      │                │ conference    │ the definition,  │
+                                                 │                │ Russia, and    │ 1. City, in    │ will be       │ this example is  │
+                                                 │                │ the United     │ Sweden, will   │ concerned     │ of the object :  │
+                                                 │                │ States. 3. The │ be the site of │ with the      │ attribute        │
+                                                 │                │ conference     │ the 1969       │ application   │ subtype.         │
+                                                 │ Elaboration    │ will be        │ International  │ of            │                  │
+                                                 │                │ concerned with │ Conference on  │ mathematical  │ The subtypes are │
+                                                 │                │ the            │ Computational  │ and computer  │ not treated as   │
+                                                 │                │ application of │ Linguistics,   │ techniques to │ separate         │
+                                                 │                │ mathematical   │ September 1-4. │ the study of  │ relations        │
+                                                 │                │ and computer   │                │ natural       │ because in many  │
+                                                 │                │ techniques to  │                │ languages,    │ cases in text    │
+                                                 │                │ the study of   │                │ the           │ they are not     │
+                                                 │                │ natural        │                │ development   │ distinguishable. │
+                                                 │                │ languages, the │                │ of computer   │                  │
+                                                 │                │ development of │                │ programs as   │                  │
+                                                 │                │ computer       │                │ tools for     │                  │
+                                                 │                │ programs as    │                │ linguistic    │                  │
+                                                 │                │ tools for      │                │ research, and │                  │
+                                                 │                │ linguistic     │                │ the           │                  │
+                                                 │                │ research, and  │                │ application   │                  │
+                                                 │                │ the            │                │ of            │                  │
+                                                 │                │ application of │                │ linguistics   │                  │
+                                                 │                │ linguistics to │                │ to the        │                  │
+                                                 │                │ the            │                │ development   │                  │
+                                                 │                │ development of │                │ of            │                  │
+                                                 │                │ man-machine    │                │ man-machine   │                  │
+                                                 │                │ communication  │                │ communication │                  │
+                                                 │                │ systems.       │                │ systems.      │                  │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │                │                │               │ The              │
+                                                 │                │                │                │               │ Interpretation   │
+                                                 │                │                │                │               │ and Evaluation   │
+                                                 │                │ 1. Features    │                │               │ relations        │
+                                                 │                │ like our       │ 1. Features    │               │ involve          │
+                                                 │                │ uniquely       │ like our       │               │ assessing        │
+                                                 │                │ sealed jacket  │ uniquely       │               │ nuclear material │
+                                                 │                │ and protective │ sealed jacket  │               │ in terms of some │
+                                                 │                │ hub ring make  │ and protective │               │ frame of         │
+                                                 │                │ our discs last │ hub ring make  │ 3. It all     │ reference that   │
+                                                 │                │ longer. 2. And │ our discs last │ adds up to    │ is not part of   │
+                                                 │                │ a soft inner   │ longer. 2. And │ better        │ the subject      │
+                                                 │ Evaluation     │ liner cleans   │ a soft inner   │ performance   │ matter of the    │
+                                                 │                │ the            │ liner cleans   │ and           │ nucleus itself.  │
+                                                 │                │ ultra-smooth   │ the            │ reliability.  │ Evaluation       │
+                                                 │                │ disc surface   │ ultra-smooth   │               │ reflects         │
+                                                 │                │ while in use.  │ disc surface   │               │ positive regard  │
+                                                 │                │ 3. It all adds │ while in use.  │               │ on the part of   │
+                                                 │                │ up to better   │ [These 2 form  │               │ the writer;      │
+                                                 │                │ performance    │ a single span, │               │ Interpretation   │
+                                                 │                │ and            │ using Joint.]  │               │ relates the      │
+                                                 │                │ reliability.   │                │               │ nuclear material │
+                                                 │                │                │                │               │ to any other     │
+                                                 │                │                │                │               │ frame of         │
+                                                 │                │                │                │               │ reference.       │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │ 1. Steep       │                │               │                  │
+                                                 │                │ declines in    │                │               │                  │
+                                                 │                │ capital        │ 1. Steep       │               │                  │
+                                                 │                │ spending       │ declines in    │               │                  │
+                                                 │                │ commitments    │ capital        │               │                  │
+                                                 │                │ and building   │ spending       │               │                  │
+                                                 │                │ permits, along │ commitments    │               │                  │
+                                                 │                │ with a drop in │ and building   │ 2. Such a     │                  │
+                                                 │                │ the money      │ permits, along │ decline is    │                  │
+                                                 │                │ stock pushed   │ with a drop in │ highly        │                  │
+                                                 │ Interpretation │ the leading    │ the money      │ unusual at    │ see Evaluation   │
+                                                 │                │ composite      │ stock pushed   │ this stage in │                  │
+                                                 │                │ index down for │ the leading    │ an expansion. │                  │
+                                                 │                │ the fifth time │ composite      │               │                  │
+                                                 │                │ in the past 11 │ index down for │               │                  │
+                                                 │                │ months... . 2. │ the fifth time │               │                  │
+                                                 │                │ Such a decline │ in the past 11 │               │                  │
+                                                 │                │ is highly      │ months... .    │               │                  │
+                                                 │                │ unusual at     │                │               │                  │
+                                                 │                │ this stage in  │                │               │                  │
+                                                 │                │ an expansion.  │                │               │                  │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │ ... the visual │                │               │ This text is     │
+                                                 │                │ system         │                │               │ part of an       │
+                                                 │                │ resolves       │                │ by applying   │ abstract of an   │
+                                                 │                │ confusion by   │                │ some tricks   │ article on human │
+                                                 │                │ applying some  │ the visual     │ that reflect  │ vision. Here     │
+                                                 │ Means          │ tricks that    │ system         │ a built-in    │ Means represents │
+                                                 │                │ reflect a      │ resolves       │ knowledge of  │ features of a    │
+                                                 │                │ built-in       │ confusion      │ properties of │ method which is  │
+                                                 │                │ knowledge of   │                │ the physical  │ reflected in the │
+                                                 │                │ properties of  │                │ world.        │ design of the    │
+                                                 │                │ the physical   │                │               │ human body.      │
+                                                 │                │ world.         │                │               │                  │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │ 2) REMEMBER    │                │               │ This is from the │
+                                                 │                │ ALL THOSE      │                │ 2) REMEMBER   │ Sparky text      │
+                                                 │                │ VEGETABLES YOU │ 3) MAYBE       │ ALL THOSE     │ analysis on this │
+                                                 │ Non-volitional │ SLIPPED UNDER  │ THAT'S WHY     │ VEGETABLES    │ website. Another │
+                                                 │ Cause          │ THE TABLE? 3)  │ SPARKY LIVED   │ YOU SLIPPED   │ example appears  │
+                                                 │                │ MAYBE THAT'S   │ SO LONG.       │ UNDER THE     │ in the Salvage   │
+                                                 │                │ WHY SPARKY     │                │ TABLE?        │ text.            │
+                                                 │                │ LIVED SO LONG. │                │               │                  │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │ 1. The blast,  │                │               │                  │
+                                                 │                │ the worst      │                │               │                  │
+                                                 │                │ industrial     │                │               │                  │
+                                                 │                │ accident in    │ 1. The blast,  │               │                  │
+                                                 │                │ Mexico's       │ the worst      │               │                  │
+                                                 │                │ history,       │ industrial     │ 2. Several    │ A span           │
+                                                 │                │ destroyed the  │ accident in    │ thousand      │ consisting of 2  │
+                                                 │                │ plant and most │ Mexico's       │ people were   │ and 3 is linked  │
+                                                 │ Non-volitional │ of the         │ history,       │ injured, 3.   │ by               │
+                                                 │ Result         │ surrounding    │ destroyed the  │ and about 300 │ Non-Volitional   │
+                                                 │                │ suburbs. 2.    │ plant and most │ are still in  │ Result to the    │
+                                                 │                │ Several        │ of the         │ hospital.     │ nucleus.         │
+                                                 │                │ thousand       │ surrounding    │               │                  │
+                                                 │                │ people were    │ suburbs.       │               │                  │
+                                                 │                │ injured, 3.    │                │               │                  │
+                                                 │                │ and about 300  │                │               │                  │
+                                                 │                │ are still in   │                │               │                  │
+                                                 │                │ hospital.      │                │               │                  │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │ 1. Project     │                │               │                  │
+                                                 │                │ leaders should │                │               │                  │
+                                                 │                │ submit their   │ 1. Project     │               │ Otherwise can    │
+                                                 │                │ entries for    │ leaders should │ 2. Otherwise  │ also be used to  │
+                                                 │                │ the revised    │ submit their   │ the existing  │ describe         │
+                                                 │ Otherwise      │ brochure       │ entries for    │ entry will be │ patterns of the  │
+                                                 │                │ immediately.   │ the revised    │ used.         │ form: If A then  │
+                                                 │                │ 2. Otherwise   │ brochure       │               │ B otherwise C.   │
+                                                 │                │ the existing   │ immediately.   │               │                  │
+                                                 │                │ entry will be  │                │               │                  │
+                                                 │                │ used.          │                │               │                  │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │ 1. To see      │                │               │                  │
+                                                 │                │ which Syncom   │                │               │                  │
+                                                 │                │ diskette will  │                │               │ Purpose includes │
+                                                 │                │ replace the    │ 2. send for    │               │ both volitional  │
+                                                 │                │ ones you're    │ our free       │ 1. To see     │ and              │
+                                                 │                │ using now, 2.  │ "Flexi-Finder" │ which Syncom  │ non-volitional   │
+                                                 │ Purpose        │ send for our   │ selection      │ diskette will │ cases. See the   │
+                                                 │                │ free           │ guide and the  │ replace the   │ Syncom Floppy    │
+                                                 │                │ "Flexi-Finder" │ name of the    │ ones you're   │ Disk             │
+                                                 │                │ selection      │ supplier       │ using now,    │ Advertisement on │
+                                                 │                │ guide and the  │ nearest you.   │               │ this website.    │
+                                                 │                │ name of the    │                │               │                  │
+                                                 │                │ supplier       │                │               │                  │
+                                                 │                │ nearest you.   │                │               │                  │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │ 1. One         │                │               │ ( from           │
+                                                 │                │ difficulty ... │                │               │ instructions on  │
+                                                 │                │ is with        │                │ 1. One        │ redistributing   │
+                                                 │                │ sleeping bags  │                │ difficulty    │ the filler in a  │
+                                                 │                │ in which down  │                │ ... is with   │ sleeping bag)    │
+                                                 │                │ and feather    │                │ sleeping bags │ The satellite is │
+                                                 │                │ fillers are    │                │ in which down │ 2 units, as      │
+                                                 │                │ used as        │                │ and feather   │ shown. The       │
+                                                 │                │ insulation.    │ 3. You can     │ fillers are   │ nucleus is units │
+                                                 │                │                │ redistribute   │ used as       │ 3-11, partly     │
+                                                 │ Solutionhood   │ 2. This        │ the filler.    │ insulation.   │ shown.           │
+                                                 │                │ insulation has │ ...            │               │ Solutionhood     │
+                                                 │                │ a tendency to  │                │ 2. This       │ covers many      │
+                                                 │                │ slip toward    │                │ insulation    │ sorts of         │
+                                                 │                │ the bottom.    │                │ has a         │ problem-solution │
+                                                 │                │                │                │ tendency to   │ and              │
+                                                 │                │ 3. You can     │                │ slip toward   │ question-answer  │
+                                                 │                │ redistribute   │                │ the bottom.   │ relationships;   │
+                                                 │                │ the filler.    │                │               │ the solution can │
+                                                 │                │ ...            │                │               │ be partial or    │
+                                                 │                │                │                │               │ complete.        │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │ IN NO EVENT    │                │               │                  │
+                                                 │                │ SHALL THE      │                │               │                  │
+                                                 │                │ AUTHOR OR      │ IN NO EVENT    │               │                  │
+                                                 │                │ DISTRIBUTORS   │ SHALL THE      │               │                  │
+                                                 │                │ BE LIABLE TO   │ AUTHOR OR      │               │                  │
+                                                 │                │ ANY PARTY FOR  │ DISTRIBUTORS   │               │                  │
+                                                 │                │ DIRECT,        │ BE LIABLE TO   │               │                  │
+                                                 │                │ INDIRECT,      │ ANY PARTY FOR  │               │                  │
+                                                 │                │ SPECIAL,       │ DIRECT,        │               │                  │
+                                                 │                │ INCIDENTAL, OR │ INDIRECT,      │ EVEN IF THE   │                  │
+                                                 │                │ CONSEQUENTIAL  │ SPECIAL,       │ AUTHOR HAS    │ This is from the │
+                                                 │                │ DAMAGES        │ INCIDENTAL, OR │ BEEN ADVISED  │ Copyright notice │
+                                                 │ Unconditional  │ ARISING OUT OF │ CONSEQUENTIAL  │ OF THE        │ text analysis on │
+                                                 │                │ THE USE OF     │ DAMAGES        │ POSSIBILITY   │ this website.    │
+                                                 │                │ THIS SOFTWARE, │ ARISING OUT OF │ OF SUCH       │                  │
+                                                 │                │ ITS            │ THE USE OF     │ DAMAGE.       │                  │
+                                                 │                │ DOCUMENTATION, │ THIS SOFTWARE, │               │                  │
+                                                 │                │ OR ANY         │ ITS            │               │                  │
+                                                 │                │ DERIVATIVES    │ DOCUMENTATION, │               │                  │
+                                                 │                │ THEREOF, EVEN  │ OR ANY         │               │                  │
+                                                 │                │ IF THE AUTHOR  │ DERIVATIVES    │               │                  │
+                                                 │                │ HAS BEEN       │ THEREOF,       │               │                  │
+                                                 │                │ ADVISED OF THE │                │               │                  │
+                                                 │                │ POSSIBILITY OF │                │               │                  │
+                                                 │                │ SUCH DAMAGE.   │                │               │                  │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │ The following  │                │               │                  │
+                                                 │                │ terms apply to │                │               │                  │
+                                                 │                │ all files      │ The following  │               │ Like the example │
+                                                 │                │ associated     │ terms apply to │ unless        │ of Unconditional │
+                                                 │                │ with the       │ all files      │ explicitly    │ above, this is   │
+                                                 │ Unless         │ software       │ associated     │ disclaimed in │ from the         │
+                                                 │                │ unless         │ with the       │ individual    │ Copyright notice │
+                                                 │                │ explicitly     │ software       │ files.        │ text analysis on │
+                                                 │                │ disclaimed in  │                │               │ this website.    │
+                                                 │                │ individual     │                │               │                  │
+                                                 │                │ files.         │                │               │                  │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │                │                │               │ The analysis     │
+                                                 │                │                │                │               │ forms a span of  │
+                                                 │                │ 6) Thinking    │                │               │ 6) and 7),       │
+                                                 │                │ that perhaps   │ 6) Thinking    │               │ representing the │
+                                                 │                │ the counsel    │ that perhaps   │               │ thoughts that    │
+                                                 │                │ was            │ the counsel    │ 8) one of     │ caused the       │
+                                                 │ Volitional     │ simplistic, 7) │ was            │ them asked,   │ person to ask    │
+                                                 │ Cause          │ coming from an │ simplistic, 7) │ "Are you      │ the question. 8) │
+                                                 │                │ unmarried      │ coming from an │ married?"     │ represents the   │
+                                                 │                │ person, 8) one │ unmarried      │               │ caused action.   │
+                                                 │                │ of them asked, │ person,        │               │ This example is  │
+                                                 │                │ "Are you       │                │               │ from the first   │
+                                                 │                │ married?"      │                │               │ Mother Theresa   │
+                                                 │                │                │                │               │ analysis on this │
+                                                 │                │                │                │               │ website.         │
+                                                 ├────────────────┼────────────────┼────────────────┼───────────────┼──────────────────┤
+                                                 │                │ 1) Farmington  │                │               │                  │
+                                                 │                │ police had to  │                │               │                  │
+                                                 │                │ help control   │ 2) when        │               │                  │
+                                                 │                │ traffic        │ hundreds of    │               │                  │
+                                                 │                │ recently 2)    │ people lined   │               │                  │
+                                                 │                │ when hundreds  │ up to be among │               │                  │
+                                                 │                │ of people      │ the first      │               │ This example is  │
+                                                 │                │ lined up to be │ applying for   │               │ from the         │
+                                                 │                │ among the      │ jobs at the    │               │ not-laziness     │
+                                                 │                │ first applying │ yet-to-open    │ 1) Farmington │ text on this     │
+                                                 │                │ for jobs at    │ Marriott       │ police had to │ website. The     │
+                                                 │ Volitional     │ the            │ Hotel. 3) The  │ help control  │ writer's concern │
+                                                 │ Result         │ yet-to-open    │ hotel's        │ traffic       │ is with the      │
+                                                 │                │ Marriott       │ help-wanted    │ recently      │ unemployed, not  │
+                                                 │                │ Hotel. 3) The  │ announcement - │               │ with traffic     │
+                                                 │                │ hotel's        │ for 300        │               │ control, making  │
+                                                 │                │ help-wanted    │ openings - was │               │ 1) a satellite.  │
+                                                 │                │ announcement - │ a rare         │               │                  │
+                                                 │                │ for 300        │ opportunity    │               │                  │
+                                                 │                │ openings - was │ for many       │               │                  │
+                                                 │                │ a rare         │ unemployed.    │               │                  │
+                                                 │                │ opportunity    │                │               │                  │
+                                                 │                │ for many       │                │               │                  │
+                                                 │                │ unemployed.    │                │               │                  │
+                                                 └────────────────┴────────────────┴────────────────┴───────────────┴──────────────────┘
+
+
+                                                 ┌────────────────────────────────────────────────────────────────────────────────────────┐
+                                                 │                 Examples and Comments on Multinuclear Relations                        │
+                                                 ├──────────────┬───────────────────┬────────────────┬───────────────────┬────────────────┤
+                                                 │   Relation   │    Text of Two    │ Text of First  │  Text of Second   │    Comment     │
+                                                 │     Name     │      Nuclei       │    Nucleus     │      Nucleus      │                │
+                                                 ├──────────────┼───────────────────┼────────────────┼───────────────────┼────────────────┤
+                                                 │              │ Ex #1: 1. This    │                │                   │                │
+                                                 │              │ didn't make me    │                │                   │ The            │
+                                                 │              │ like the story    │                │ 2. nor did I find │ Conjunction    │
+                                                 │              │ any less 2. nor   │                │ it hard to        │ and            │
+                                                 │              │ did I find it     │ 1. This didn't │ follow.           │ Disjunction    │
+                                                 │              │ hard to follow.   │ make me like   │                   │ relations were │
+                                                 │              │                   │ the story any  │                   │ present in the │
+                                                 │              │ Ex #2: 1. Disney  │ less           │                   │ RST tool, but  │
+                                                 │              │ provides great    │                │ 2. and every cast │ not defined    │
+                                                 │ Conjunction  │ access to         │                │ member is ready   │ formally       │
+                                                 │              │ transportation 2. │                │ to provide        │ anywhere. The  │
+                                                 │              │ and every cast    │ 1. Disney      │ detailed          │ definitions    │
+                                                 │              │ member is ready   │ provides great │ directions and    │ and examples   │
+                                                 │              │ to provide        │ access to      │ tips for getting  │ came out of a  │
+                                                 │              │ detailed          │ transportation │ to your desired   │ discussion in  │
+                                                 │              │ directions and    │                │ destination       │ the RST List   │
+                                                 │              │ tips for getting  │                │ quickly.          │ (see archives  │
+                                                 │              │ to your desired   │                │                   │ for Sept-Oct   │
+                                                 │              │ destination       │                │                   │ 2006)          │
+                                                 │              │ quickly.          │                │                   │                │
+                                                 ├──────────────┼───────────────────┼────────────────┼───────────────────┼────────────────┤
+                                                 │              │                   │                │                   │ This relation  │
+                                                 │              │                   │                │                   │ has been       │
+                                                 │              │                   │                │                   │ called Neutral │
+                                                 │              │ 1. Animals heal,  │                │                   │ Contrast to    │
+                                                 │ Contrast     │ 2. but trees      │ 1. Animals     │ 2. but trees      │ reflect the    │
+                                                 │              │ compartmentalize. │ heal,          │ compartmentalize. │ balance of     │
+                                                 │              │                   │                │                   │ nuclearity,    │
+                                                 │              │                   │                │                   │ unlike         │
+                                                 │              │                   │                │                   │ Concession or  │
+                                                 │              │                   │                │                   │ Antithesis.    │
+                                                 ├──────────────┼───────────────────┼────────────────┼───────────────────┼────────────────┤
+                                                 │              │ Ex #1: 1. Most    │                │                   │                │
+                                                 │              │ National Council  │                │                   │                │
+                                                 │              │ members are       │                │                   │                │
+                                                 │              │ themselves        │                │                   │                │
+                                                 │              │ disabled 2. or    │ 1. Most        │                   │                │
+                                                 │              │ are parents of    │ National       │                   │                │
+                                                 │              │ children with     │ Council        │ 2. or are parents │                │
+                                                 │              │ disabilities.     │ members are    │ of children with  │ See note under │
+                                                 │              │                   │ themselves     │ disabilities.     │ "Conjunction". │
+                                                 │              │ Ex #2: In the     │ disabled       │                   │ This relation  │
+                                                 │ Disjunction  │ aerobic phase,    │                │                   │ may be         │
+                                                 │              │ for instance,     │                │                   │ exclusive or   │
+                                                 │              │ lactic acid and   │                │ 2. or metabolized │ inclusive.     │
+                                                 │              │ lactate are still │ 1. but they    │ in the liver      │                │
+                                                 │              │ produced, 1. but  │ are consumed   │                   │                │
+                                                 │              │ they are consumed │ by less active │                   │                │
+                                                 │              │ by less active    │ muscles        │                   │                │
+                                                 │              │ muscles 2. or     │                │                   │                │
+                                                 │              │ metabolized in    │                │                   │                │
+                                                 │              │ the liver and so  │                │                   │                │
+                                                 │              │ do not accumulate │                │                   │                │
+                                                 ├──────────────┼───────────────────┼────────────────┼───────────────────┼────────────────┤
+                                                 │              │ 1. Features like  │                │                   │                │
+                                                 │              │ our uniquely      │                │                   │ See the        │
+                                                 │              │ sealed jacket and │ 1. Features    │                   │ example of     │
+                                                 │              │ protective hub    │ like our       │ 2. And a soft     │ Evaluation     │
+                                                 │              │ ring make our     │ uniquely       │ inner liner       │ above. Joint   │
+                                                 │ Joint        │ discs last        │ sealed jacket  │ cleans the        │ represents the │
+                                                 │              │ longer. 2. And a  │ and protective │ ultra-smooth disc │ lack of a      │
+                                                 │              │ soft inner liner  │ hub ring make  │ surface while in  │ rhetorical     │
+                                                 │              │ cleans the        │ our discs last │ use.              │ relation       │
+                                                 │              │ ultra-smooth disc │ longer.        │                   │ between the    │
+                                                 │              │ surface while in  │                │                   │ nuclei.        │
+                                                 │              │ use.              │                │                   │                │
+                                                 ├──────────────┼───────────────────┼────────────────┼───────────────────┼────────────────┤
+                                                 │              │                   │                │                   │ These are the  │
+                                                 │              │                   │                │                   │ opening lines  │
+                                                 │              │ I am 17 years     │                │                   │ of an essay by │
+                                                 │              │ old. It is        │                │ It is summer, and │ a student.     │
+                                                 │ List         │ summer, and       │ I am 17 years  │ football practice │ They give the  │
+                                                 │              │ football practice │ old.           │ is about to       │ first of a     │
+                                                 │              │ is about to       │                │ begin.            │ larger set of  │
+                                                 │              │ begin.            │                │                   │ background     │
+                                                 │              │                   │                │                   │ facts, in a    │
+                                                 │              │                   │                │                   │ list.          │
+                                                 ├──────────────┼───────────────────┼────────────────┼───────────────────┼────────────────┤
+                                                 │              │                   │                │ Grace is          │                │
+                                                 │              │                   │                │ confident in his  │                │
+                                                 │              │                   │                │ selections in the │                │
+                                                 │              │                   │                │ Miss Alberta and  │ This text,     │
+                                                 │              │                   │                │ Miss Teen Alberta │ about an       │
+                                                 │              │ Background        │ But Grace also │ pageants by       │ unusual beauty │
+                                                 │              │ information:      │ said he was    │ basing his        │ contest, is    │
+                                                 │ Multinuclear │ "Harold Grace of  │ able to see    │ judgment on the   │ from a college │
+                                                 │ Restatement  │ Alberta has been  │ the            │ contestants'      │ newspaper. The │
+                                                 │              │ blind for 15      │ contestants'   │ answers, how they │ restatement is │
+                                                 │              │ years, ... . "    │ true beauty.   │ projected their   │ separated by 2 │
+                                                 │              │                   │                │ voices and their  │ units of       │
+                                                 │              │                   │                │ confidence        │ intervening    │
+                                                 │              │                   │                │ through emphasis  │ material.      │
+                                                 │              │                   │                │ and firmness of   │                │
+                                                 │              │                   │                │ their vocal       │                │
+                                                 │              │                   │                │ deliveries.       │                │
+                                                 ├──────────────┼───────────────────┼────────────────┼───────────────────┼────────────────┤
+                                                 │              │ [from a recipe:]  │                │                   │ Sequence       │
+                                                 │              │ 1. Peel oranges,  │                │                   │ includes both  │
+                                                 │              │ 2. and slice      │                │                   │ presentational │
+                                                 │              │ crosswise. 3.     │                │ 2. and slice      │ sequence, e.g. │
+                                                 │              │ Arrange in a bowl │ 1. Peel        │ crosswise. [The   │ "Secondly,"    │
+                                                 │ Sequence     │ 4. and sprinkle   │ oranges,       │ given text yields │ and also       │
+                                                 │              │ with rum and      │                │ 5 nuclei.]        │ subject matter │
+                                                 │              │ coconut. 5. Chill │                │                   │ sequence, e.g. │
+                                                 │              │ until ready to    │                │                   │ "After that,"  │
+                                                 │              │ serve.            │                │                   │ as in this     │
+                                                 │              │                   │                │                   │ case.          │
+                                                 └──────────────┴───────────────────┴────────────────┴───────────────────┴────────────────┘
+
+
+                                                  
+
+                                                  
+
+                                                 free hit counter code
+
+                                                 arrowgo to top
+
+                                     vertical    ©2005-2025 William C. Mann, Maite Taboada. All rights reserved.
+                                     line                                                                                                               
