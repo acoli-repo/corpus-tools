@@ -1,0 +1,515 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><!-- InstanceBegin template="/Templates/rst2004.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Rhetorical Structure Theory</title>
+<!-- InstanceEndEditable --><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style><!--a:hover{background-color:BFE2F9; }--></style>
+<script language="JavaScript" type="text/JavaScript">
+<!--
+function MM_reloadPage(init) {  //reloads the window if Nav4 resized
+  if (init==true) with (navigator) {if ((appName=="Netscape")&&(parseInt(appVersion)==4)) {
+    document.MM_pgW=innerWidth; document.MM_pgH=innerHeight; onresize=MM_reloadPage; }}
+  else if (innerWidth!=document.MM_pgW || innerHeight!=document.MM_pgH) location.reload();
+}
+MM_reloadPage(true);
+
+function MM_swapImgRestore() { //v3.0
+  var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+
+function MM_findObj(n, d) { //v4.01
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+
+function MM_swapImage() { //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+
+function setActiveStyleSheet(title) {
+   var i, a, main;
+   for(i=0; (a = document.getElementsByTagName("link")[i]); i++) {
+     if(a.getAttribute("rel").indexOf("style") != -1
+        && a.getAttribute("title")) {
+       a.disabled = true;
+       if(a.getAttribute("title") == title) a.disabled = false;
+     }
+   }
+  createCookie("style", title, 365);
+}
+
+function getActiveStyleSheet() {
+var i, a;
+ for(i=0; (a = document.getElementsByTagName("link")[i]); i++) {
+  if(a.getAttribute("rel").indexOf("style") != -1
+  && a.getAttribute("title")
+  && !a.disabled) return a.getAttribute("title");
+  }
+  return null;
+}
+
+function createCookie(name,value,days) {
+  if (days) {
+    var date = new Date();
+    date.setTime(date.getTime()+(days*24*60*60*1000));
+    var expires = "; expires="+date.toGMTString();
+  }
+  else expires = "";
+  document.cookie = name+"="+value+expires+"; path=/";
+}
+
+function readCookie(name) {
+  var nameEQ = name + "=";
+  var ca = document.cookie.split(';');
+  for(var i=0;i < ca.length;i++) {
+    var c = ca[i];
+    while (c.charAt(0)==' ') c = c.substring(1,c.length);
+    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+  }
+  return null;
+}
+
+function getPreferredStyleSheet() {
+  var i, a;
+  for(i=0; (a = document.getElementsByTagName("link")[i]); i++) {
+    if(a.getAttribute("rel").indexOf("style") != -1
+       && a.getAttribute("rel").indexOf("alt") == -1
+       && a.getAttribute("title")
+       ) return a.getAttribute("title");
+  }
+  return null;
+}
+
+function LoadFn() {
+  var cookie = readCookie("style");
+  var title = cookie ? cookie : getPreferredStyleSheet();
+  setActiveStyleSheet(title);
+}
+//-->
+</script>
+<link href="../small.css" rel="stylesheet" type="text/css" title="small">
+<link href="../big.css" rel="stylesheet" type="text/css" title="big">
+<!-- InstanceBeginEditable name="head" --><!-- InstanceEndEditable -->
+</head>
+
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onLoad="MM_preloadImages('../images/null.gif','../images/large_f2.gif','../images/small_f2.gif')">
+<div id="Layer1" style="position:absolute; left:19px; top:92px; width:174px; height:175px; z-index:1">
+  <table width="180" border="0" cellpadding="0" cellspacing="0" bgcolor="#279BF4">
+    <!-- fwtable fwsrc="sample5.png" fwbase="menu.gif" fwstyle="Dreamweaver" fwdocid = "742308039" fwnested="1" -->
+    <tr>
+      <td><table width="190" border="1" cellpadding="2" cellspacing="0" bordercolor="#279BF4" bgcolor="#FFFFFF">
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="http://www.sfu.ca/rst/index.html" class="menu">HOME</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../01intro/index.html" class="menu">INTRO TO RST</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../02analyses/index.html" class="menu">ANALYSES</a></td>
+          </tr>
+          <tr>
+		         <td><img src="../images/white.gif" width="15" height="10"><a href="../02pubs/index.html" class="menu">CONFERENCES &amp; JOURNALS</a></td>
+          </tr>
+		            <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../03research/index.html" class="menu">RESEARCH TOPICS</a></td>
+          </tr>
+		            <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../03projects/index.html" class="menu">RESEARCH PROJECTS</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../04text_generation/index.html" class="menu">TEXT GENERATION</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../05bibliographies/index.html" class="menu">BIBLIOGRAPHIES</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../06tools/index.html" class="menu">TOOLS</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../07basque/index.html" class="menu">PAGES IN BASQUE</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="index.html" class="menu">PAGES IN FRENCH</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../07portuguese/index.html" class="menu">PAGES IN PORTUGUESE</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../08spanish/index.html" class="menu">PAGES IN SPANISH</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../09email_list/index.html" class="menu">E-MAIL LIST</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../10site_map/index.html" class="menu">SITE MAP &amp; SEARCH</a></td>
+          </tr>
+      </table></td>
+      <td width="182" align="right" bgcolor="#279BF4"></td>
+    </tr>
+    <tr>
+      <td height="5"></td>
+      <td height="5"></td>
+    </tr>
+  </table>
+</div>
+<div id="Layer2" style="position:absolute; left:605px; top:13px; width:118px; height:119px; z-index:2" class="textblue">
+  <table border="0" cellpadding="0" cellspacing="0" width="118">
+    <!-- fwtable fwsrc="sample5.png" fwbase="selector.gif" fwstyle="Dreamweaver" fwdocid = "742308039" fwnested="1" -->
+    <tr>
+      <td><img name="selector" src="../images/selector.gif" width="118" height="23" border="0" alt=""></td>
+    </tr>
+    <tr>
+      <td><table border="0" cellpadding="0" cellspacing="0" width="118">
+          <tr>
+            <td><img src="../images/spacer.gif" width="25" height="48" border="0" alt=""></td>
+            <td><img name="arrow_down" src="../images/arrow_down.gif" width="66" height="48" border="0" alt=""></td>
+            <td><img src="../images/spacer.gif" width="27" height="48" border="0" alt=""></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="javascript:setActiveStyleSheet('big')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('large','','../images/large_f2.gif',1)"><img name="large" src="../images/large.gif" width="118" height="23" border="0" alt=""></a></td>
+    </tr>
+    <tr>
+      <td><img src="../images/spacer.gif" width="118" height="2" border="0" alt=""></td>
+    </tr>
+    <tr>
+      <td><a href="javascript:setActiveStyleSheet('small')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('small','','../images/small_f2.gif',1)"><img name="small" src="../images/small.gif" width="118" height="23" border="0" alt=""></a></td>
+    </tr>
+  </table>
+</div>
+<div id="Layer3" style="position:absolute; left:249px; top:160px; width:470px; height:76px; z-index:3">
+  <!-- InstanceBeginEditable name="title" --><p class="titles">    LES D&Eacute;FINITIONS DES RELATIONS DE LA RST
+  </p>
+<!-- InstanceEndEditable --></div>
+<a name="top"></a>
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="760" height="187"><img src="../images/title.gif" alt="title image" width="760" height="187" border="0" usemap="#Map"></td>
+    <td background="../images/background.jpg">&nbsp;</td>
+  </tr>
+</table>
+<br><br>
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="14" rowspan="2">&nbsp;</td>
+    <td width="236" rowspan="2" valign="top"><p>&nbsp;</p>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+	  <p>&nbsp;</p>
+	  <p>&nbsp;</p>
+      <!-- InstanceBeginEditable name="left_links" -->
+      <p class="red">&nbsp;<!-- #BeginLibraryItem "/Library/07french.lbi" --><br>
+          <img src="../images/arrow_left.gif" alt="arrow" width="25" height="45"><span class="textlinks"><br>
++ </span><a href="introduction.html" class="textlinks">Introduction</a><span class="textlinks"><br>
++ <a href="definitions.html" class="textlinks">D&eacute;finitions</a> <br>
++ <a href="rst.html" class="textlinks">RST, Programmes et outiles</a><br>
+</span><br>
+      <!-- #EndLibraryItem --></p>
+    <!-- InstanceEndEditable --></td>
+    <td width="1" valign="top"><img src="../images/b_vert.gif" alt="vertical line" width="1" height="40"></td>
+    <td width="15" rowspan="2">&nbsp;</td>
+    <td valign="top"><!-- InstanceBeginEditable name="text" -->
+      <p class="text">L'ensemble des tableaux ci-dessous pr&eacute;sente les noms des relations de ce que certains appellent la CRST, "la RST Classique". Nous y avons ajout&eacute; quatre relations d&eacute;finies plus r&eacute;cemment.</p>
+      <p class="text">Cliquez sur un nom de relation pour lire la d&eacute;finition sur cette page. Implicitement, chaque &eacute;l&eacute;ment est incorpor&eacute; dans une formule telle que la suivante: "Il est plausible pour l'analyste qu'il &eacute;tait plausible pour l'auteur que... . ."
+      Les tableaux atteints en cliquant sur le nom d'une relation fournissent les d&eacute;finitions de relations pour chaque relation de la CRST. Les relations que nous avons ajout&eacute;es sont M&eacute;thode, Pr&eacute;paration, Inconditionnalit&eacute; et Condition Inverse. </p>
+      <p class="text"><B>Terminologie employ&eacute;e dans les d&eacute;finitions</B></p>
+      <p class="text"><I>N</I> d&eacute;signe le noyau, <I>S</I> le satellite, <I>A</I> l'auteur (r&eacute;dacteur, locuteur) and <I>L</I> le lecteur (interlocuteur). Par souci de concision: &agrave; plusieurs reprises, N et S d&eacute;signent les <I>situations</I> introduites par N et S; N et S ne d&eacute;signent jamais le texte de N ou S. Le sens de <I>Situation</I> est tr&egrave;s vaste, et regroupe les propositions ou les croyances, les actions (r&eacute;alis&eacute;es ou non), les d&eacute;sirs d'agir et l'approbation de l'action de quelqu'un. De m&ecirc;me, <I>appr&eacute;ciation favorable</I> est un terme d&eacute;signant l'"attitude" au sens large, et recouvrant croyance, approbation d'id&eacute;es, la volont&eacute; d'agir et l'approbation de l'action de quelqu'un, que l'on peut identifier comme manifestant une disposition positive. Appr&eacute;ciation favorable, <I>croyance</I> (et apparent&eacute;s), et <I>plausible</I> (cit&eacute; ci-dessus) ne sont pas des bornes binaires, se situent&nbsp; sur un continuum. </p>
+      <p class="text"><span class="text">
+        <!-- beige is F5F5DC -->
+        </span><span class="text">Comme ci-dessus pour les noms, des tableaux pr&eacute;sentent les d&eacute;finitions (conditions que l'observateur doit confirmer) des relations de pr&eacute;sentation, de contenu et des relations multi-nucl&eacute;aires.<BR>
+        </span>
+      </p>
+      <CENTER>
+              </CENTER>
+      <CENTER>
+        <TABLE width=100% border=1 cellPadding=3 cellspacing="0" bgColor=#FFF3F2>
+          <TBODY>
+            <TR>
+              <TD colspan="4" vAlign=center class="text"><div align="center"><B>D&eacute;finitions des relations de Pr&eacute;sentation</B></div></TD>
+            </TR>
+            <TR>
+              <TD vAlign=center class="text"><div align="center"><strong>Nom de la relation</strong></div></TD>
+              <TD vAlign=center class="text"><div align="center"><strong>Contraintes sur S et N s&eacute;par&eacute;ment</strong></div></TD>
+              <TD vAlign=center class="text"><div align="center"><strong>Contraintes sur N + S&nbsp;</strong></div></TD>
+              <TD vAlign=center class="text"><div align="center"><strong>Intention de A</strong></div></TD>
+            </TR>
+            <TR>
+              <TD vAlign=center class="text">Antith&egrave;se (<I>Antithesis</I>)</TD>
+              <TD vAlign=center class="text">sur N: A porte une appr&eacute;ciation favorable sur N</TD>
+              <TD vAlign=center class="text">N et S sont en rapport de contraste (voir la relation de Contraste) ; en raison de l'incompatibilit&eacute; r&eacute;sultant du contraste, on ne peut leur porter &agrave; toutes les deux une appr&eacute;ciation favorable: comprendre S et l'incompatibilit&eacute; entre les situations augmente l'appr&eacute;ciation favorable que L porte &agrave; N</TD>
+              <TD vAlign=center class="text">L'appr&eacute;ciation favorable de L envers N est accrue</TD>
+            </TR>
+            <TR>
+              <TD vAlign=center class="text">Arri&egrave;re-plan (<I>Background</I>)</TD>
+              <TD vAlign=center class="text">sur N : L ne comprendra pas suffisamment N avant d'avoir lu le texte de S</TD>
+              <TD vAlign=center class="text">S accro&icirc;t la capacit&eacute; de L &agrave; comprendre un &eacute;l&eacute;ment de N</TD>
+              <TD vAlign=center class="text">La capacit&eacute; de L &agrave; comprendre N augmente</TD>
+            </TR>
+            <TR>
+              <TD vAlign=center class="text">Concession (<I>Concession</I>)</TD>
+              <TD vAlign=center class="text">sur N: E porte une appr&eacute;ciation&nbsp; favorable sur N&nbsp; <BR>
+  sur S: A ne pr&eacute;tend pas que S n'est pas vrai;&nbsp;</TD>
+              <TD vAlign=center class="text">A a conscience d'une incompatibilit&eacute; potentielle ou apparente entre N et S; reconna&icirc;tre la compatibilit&eacute; entre N et S accro&icirc;t l'appr&eacute;ciation favorable de L sur N</TD>
+              <TD vAlign=center class="text">L'appr&eacute;ciation favorable de L envers N est accrue</TD>
+            </TR>
+            <TR>
+              <TD vAlign=center class="text">D&eacute;monstration (<I>Evidence</I>)</TD>
+              <TD vAlign=center class="text">sur N: L pourrait ne pas croire en N avec suffisamment de force aux yeux de A&nbsp; <BR>
+  sur S: L croit en S ou le trouvera cr&eacute;dible</TD>
+              <TD vAlign=center class="text">Le fait que L comprenne S augmente sa croyance en N</TD>
+              <TD vAlign=center class="text">La croyance de L en N est accrue</TD>
+            </TR>
+            <TR>
+              <TD vAlign=center class="text">Facilitation (<I>Enablement</I>)</TD>
+              <TD vAlign=center class="text">sur N: introduit une action ex&eacute;cutable par L (y compris accepter une offre), non-r&eacute;alis&eacute;e quant au contexte de N</TD>
+              <TD vAlign=center class="text">Le fait que L comprenne S augmente la capacit&eacute; potentielle de L &agrave; accomplir l'action d&eacute;crite dans N</TD>
+              <TD vAlign=center class="text">La capacit&eacute; potentielle de L &agrave; effectuer l'action d&eacute;crite dans N augmente</TD>
+            </TR>
+            <TR>
+              <TD vAlign=center class="text">Justification (<I>Justify</I>)</TD>
+              <TD vAlign=center class="text">Aucune</TD>
+              <TD vAlign=center class="text">Le fait que L comprenne S le rend plus dispos&eacute; &agrave; accepter le droit de E &agrave; pr&eacute;senter N</TD>
+              <TD vAlign=center class="text">La disposition de L &agrave; accepter le droit de E &agrave; pr&eacute;senter N est accrue</TD>
+            </TR>
+            <TR>
+              <TD vAlign=center class="text">Motivation <I>(Motivation)</I></TD>
+              <TD vAlign=center class="text">sur N: N est une action dont L est l'acteur (y compris accepter une offre), non-r&eacute;alis&eacute;e en ce qui concerne le contexte de N&nbsp;</TD>
+              <TD vAlign=center class="text">Le fait que L comprenne S augmente sa volont&eacute; d'accomplir l'action d&eacute;crite dans N</TD>
+              <TD vAlign=center class="text">Le d&eacute;sir de L d'accomplir l'action d&eacute;crite dans N est accru</TD>
+            </TR>
+            <TR>
+              <TD vAlign=center class="text">Pr&eacute;paration <I>(Preparation)</I></TD>
+              <TD vAlign=center class="text">Aucune</TD>
+              <TD vAlign=center class="text">S pr&eacute;c&egrave;de N dans le texte; S permet de placer L dans de meilleurs conditions pour la lecture de N</TD>
+              <TD vAlign=center class="text">L est mieux pr&eacute;par&eacute;, plus int&eacute;ress&eacute; ou mieux dispos&eacute; &agrave; la lecture de N</TD>
+            </TR>
+            <TR>
+              <TD vAlign=center class="text">Reformulation (<I>Restatement</I>)</TD>
+              <TD vAlign=center class="text">Aucune</TD>
+              <TD vAlign=center class="text">sur N + S: S reformule N, lorsque S et N sont de taille comparable; la position de N en relation avec les intentions de A est plus centrale que celle de S</TD>
+              <TD vAlign=center class="text">L reconna&icirc;t en S une reformulation de N</TD>
+            </TR>
+            <TR>
+              <TD vAlign=center class="text">R&eacute;sum&eacute; (<I>Summary</I>)</TD>
+              <TD vAlign=center class="text">sur N: N doit comporter plus d'une unit&eacute;&nbsp;</TD>
+              <TD vAlign=center class="text">S introduit une reformulation, de taille r&eacute;duite, du contenu de N</TD>
+              <TD vAlign=center class="text">L reconna&icirc;t en S une reformulation abr&eacute;g&eacute;e de N</TD>
+            </TR>
+          </TBODY>
+        </TABLE>
+      </CENTER>
+       
+      <CENTER>
+              <p>&nbsp;</p>
+      </CENTER>
+      <CENTER>
+        <TABLE width=100% border=1 cellPadding=3 cellspacing="0" bgColor=#F2FFFF>
+          <TBODY>
+            <TR>
+              <TD colspan="4" vAlign=center class="text"><div align="center"><strong>D&eacute;finitions des relations de Contenu </strong></div></TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text"><div align="center"><strong>Nom de la relation</strong></div></TD>
+              <TD width="25%" vAlign=center class="text"><div align="center"><strong>Contraintes sur S et N s&eacute;par&eacute;ment</strong></div></TD>
+              <TD width="37%" vAlign=center class="text"><div align="center"><strong>Contraintes sur N + S</strong></div></TD>
+              <TD width="26%" vAlign=center class="text"><div align="center"><strong>Intention de A</strong></div></TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">Anti-condition <I>(Otherwise)</I></TD>
+              <TD width="25%" vAlign=center class="text">sur N: N est une situation non-r&eacute;alis&eacute;e&nbsp; <BR>
+  sur S: S est une situation non-r&eacute;alis&eacute;e&nbsp;</TD>
+              <TD width="37%" vAlign=center class="text">La r&eacute;alisation de N emp&ecirc;che celle de S</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t la relation interd&eacute;pendante d'emp&ecirc;chement entre la r&eacute;alisation de N et celle de S</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">But <I>(Purpose)</I></TD>
+              <TD width="25%" vAlign=center class="text">sur N: N est une activit&eacute;;&nbsp; <BR>
+  sur S: S est une situation non-r&eacute;alis&eacute;e&nbsp;</TD>
+              <TD width="37%" vAlign=center class="text">S doit &ecirc;tre r&eacute;alis&eacute; gr&acirc;ce &agrave; l'activit&eacute; d&eacute;crite dans N</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t que l'activit&eacute; d&eacute;crite dans N est amorc&eacute;e afin de r&eacute;aliser S</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">Cause d&eacute;lib&eacute;r&eacute;e <I>(Volitional Cause)</I></TD>
+              <TD width="25%" vAlign=center class="text">sur N: N est une action d&eacute;lib&eacute;r&eacute;e, ou bien une situation qui aurait pu r&eacute;sulter d'une action d&eacute;lib&eacute;r&eacute;e</TD>
+              <TD width="37%" vAlign=center class="text">S peut avoir induit l'ex&eacute;cutant de l'action d&eacute;lib&eacute;r&eacute;e d&eacute;crite dans N &agrave; accomplir celle-ci; sans l'introduction de S, L pourrait ne pas consid&eacute;rer l'action comme motiv&eacute;e ou en conna&icirc;tre le fondement; N est plus important pour les intentions pr&eacute;sidant &agrave; la cr&eacute;ation de la combinaison N+S que ne l'est S.</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t en S la cause de l' action d&eacute;lib&eacute;r&eacute;e d&eacute;crite dans N</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">Cause non d&eacute;lib&eacute;r&eacute;e <I>(Non-volitional Cause)</I></TD>
+              <TD width="25%" vAlign=center class="text">sur N: N n'est pas une action d&eacute;lib&eacute;r&eacute;e</TD>
+              <TD width="37%" vAlign=center class="text">S a caus&eacute; N, autrement qu'en induisant une action d&eacute;lib&eacute;r&eacute;e; sans l'introduction de S, L pourrait ne pas conna&icirc;tre la cause sp&eacute;cifique de la situation; l'introduction de N est plus importante que celle de S pour les intentions pr&eacute;sidant &agrave; la cr&eacute;ation de la combinaison N+S.</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t en S la cause de N</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">Circonstance (<I>Circumstance</I>)</TD>
+              <TD width="25%" vAlign=center class="text">sur S: S n'est pas non-r&eacute;alis&eacute;</TD>
+              <TD width="37%" vAlign=center class="text">S &eacute;tablit un cadre dans "Contenu", &agrave; l'int&eacute;rieur duquel R doit interpr&eacute;ter N&nbsp;</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t que S fournit le cadre permettant d'interpr&eacute;ter N</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">Condition<I> (Condition)</I></TD>
+              <TD width="25%" vAlign=center class="text">sur S: S introduit une situation non-r&eacute;alis&eacute;e (hypoth&eacute;tique, future ou autre) quant au contexte situationnel de S&nbsp;</TD>
+              <TD width="37%" vAlign=center class="text">La r&eacute;alisation de N d&eacute;pend de celle de S</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t en quoi la r&eacute;alisation de N d&eacute;pend de celle de S</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">Condition Inverse<I> (Unless)</I></TD>
+              <TD width="25%" vAlign=center class="text">Aucune</TD>
+              <TD width="37%" vAlign=center class="text">S affecte la r&eacute;alisation de N;&nbsp; <BR>
+  N est r&eacute;alis&eacute; si S ne l'est pas</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t que N est r&eacute;alis&eacute; si S ne l'est pas</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">&Eacute;laboration<I> (Elaboration)</I></TD>
+              <TD width="25%" vAlign=center class="text">Aucune</TD>
+              <TD vAlign=center width="37%"><span class="text">S introduit un d&eacute;tail suppl&eacute;mentaire sur la situation ou un &eacute;l&eacute;ment d&eacute;crit dans N, ou inf&eacute;rable &agrave; partir de celui-ci de l'une ou plusieurs des mani&egrave;res &eacute;num&eacute;r&eacute;es ci-dessous. Dans la liste, si N introduit le premier membre d'une paire, alors S inclut le second:&nbsp; </span>
+           <UL>
+              <LI><span class="text">ensemble : composant&nbsp;
+              </span>
+              <LI><span class="text">abstraction : concr&eacute;tisation&nbsp;
+              </span>
+              <LI><span class="text">tout : partie&nbsp;
+              </span>
+              <LI><span class="text">processus : &eacute;tape&nbsp;
+              </span>
+              <LI><span class="text">objet : attribut&nbsp;
+              </span>
+              <LI class="text">g&eacute;n&eacute;ralisation : d&eacute;tail&nbsp; </LI>
+           </UL></TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t que S ajoute un d&eacute;tail suppl&eacute;mentaire &agrave; N. L identifie l'&eacute;l&eacute;ment de Contenu pour lequel le d&eacute;tail est apport&eacute;.</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">&Eacute;valuation<I> (Evaluation)</I></TD>
+              <TD width="25%" vAlign=center class="text">Aucune</TD>
+              <TD width="37%" vAlign=center class="text">sur N + S: S indique &agrave; quel point A consid&egrave;re favorablement N</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t que S juge N ainsi que la valeur qu'il lui assigne</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">Inconditionnalit&eacute;<I> (Unconditional)</I></TD>
+              <TD width="25%" vAlign=center class="text">sur S: il est concevable que S puisse affecter la r&eacute;alisation de N</TD>
+              <TD width="37%" vAlign=center class="text">N ne d&eacute;pend pas de S</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t que N ne d&eacute;pend pas de S</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">Interpr&eacute;tation<I> (Interpretation)</I></TD>
+              <TD width="25%" vAlign=center class="text">Aucune</TD>
+              <TD width="37%" vAlign=center class="text">sur N + S: S relie N &agrave; un cadre conceptuel, absent de N et que ne concerne pas l'appr&eacute;ciation favorable de A&nbsp;</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t que S relie N &agrave; un cadre conceptuel, absent de la connaissance introduite par N</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">M&eacute;thode<I> (Means)</I></TD>
+              <TD width="25%" vAlign=center class="text">sur N: une activit&eacute;&nbsp;</TD>
+              <TD width="37%" vAlign=center class="text">S introduit une m&eacute;thode ou un instrument permettant de rendre la r&eacute;alisation de N plus probable</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t que la m&eacute;thode ou instrument d&eacute;crit dans S permet de rendre la r&eacute;alisation de N plus probable</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">R&eacute;sultat d&eacute;lib&eacute;r&eacute;<I> (Volitional Result)</I></TD>
+              <TD width="25%" vAlign=center class="text">sur S: S est une action d&eacute;lib&eacute;r&eacute;e, ou bien une situation qui aurait pu r&eacute;sulter d'une action d&eacute;lib&eacute;r&eacute;e&nbsp;</TD>
+              <TD width="37%" vAlign=center class="text">N pourrait avoir caus&eacute; S; la pr&eacute;sentation de N est plus importante pour les buts de R que celle de S;</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t que N pourrait &ecirc;tre la cause de l'action ou la situation d&eacute;crite dans S</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">R&eacute;sultat non-d&eacute;lib&eacute;r&eacute; <I>(Non-volitional Result)</I></TD>
+              <TD width="25%" vAlign=center class="text">sur S: S n'est pas une action d&eacute;lib&eacute;r&eacute;e&nbsp;</TD>
+              <TD width="37%" vAlign=center class="text">N a caus&eacute; S; l'introduction de N est plus importante que celle de S pour les intentions pr&eacute;sidant &agrave; la cr&eacute;ation de la combinaison N+S.</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t que N pourrait avoir caus&eacute; la&nbsp; situation d&eacute;crite dans S</TD>
+            </TR>
+            <TR>
+              <TD width="12%" vAlign=center class="text">Solution<I> (Solutionhood)</I></TD>
+              <TD width="25%" vAlign=center class="text">sur S: S introduit un probl&egrave;me</TD>
+              <TD width="37%" vAlign=center class="text">N est la solution au probl&egrave;me introduit par S</TD>
+              <TD width="26%" vAlign=center class="text">L reconna&icirc;t en N la solution au probl&egrave;me introduit par S</TD>
+            </TR>
+          </TBODY>
+        </TABLE>
+      </CENTER>
+      <span class="text"><BR>
+      &nbsp; <BR>
+      &nbsp;
+      </span>
+      <CENTER>
+              </CENTER>
+      <CENTER>
+        <TABLE width=100% border=1 cellPadding=3 cellspacing="0" bgColor=#ffffcc>
+          <TBODY>
+            <TR>
+              <TD colspan="3" vAlign=center class="text"><div align="center"><strong>D&eacute;finitions des relations multi-nucl&eacute;aires </strong></div></TD>
+            </TR>
+            <TR>
+              <TD width="19%" vAlign=center class="text"><div align="center"><strong>Nom de la relation</strong></div></TD>
+              <TD width="52%" vAlign=center class="text"><div align="center"><strong>Contraintes sur chaque paire de N</strong></div></TD>
+              <TD width="29%" vAlign=center class="text"><div align="center"><strong>Intention de A</strong></div></TD>
+            </TR>
+            <TR>
+              <TD width="19%" vAlign=center class="text">Contraste (<I>Contrast</I>)</TD>
+              <TD width="52%" vAlign=center class="text">Pas plus de deux noyaux; les situations d&eacute;crites dans chacun d'eux sont a) comprises comme identiques sur plusieurs points, b) comprises comme divergeant sur quelques points et c) compar&eacute;es selon l'une ou plusieurs de ces diff&eacute;rences</TD>
+              <TD width="29%" vAlign=center class="text">L reconna&icirc;t la similarit&eacute; et la (les) diff&eacute;rence(s) donn&eacute;es par la comparaison effectu&eacute;e</TD>
+            </TR>
+            <TR>
+              <TD width="19%" vAlign=center class="text">Jonction (<I>Joint</I>)</TD>
+              <TD width="52%" vAlign=center class="text">Aucune</TD>
+              <TD width="29%" vAlign=center class="text">Aucune</TD>
+            </TR>
+            <TR>
+              <TD width="19%" vAlign=center class="text">Liste (<I>List</I>)</TD>
+              <TD width="52%" vAlign=center class="text">Un "item" similaire aux autres et reli&eacute; &agrave; ceux-ci par la relation de Liste</TD>
+              <TD width="29%" vAlign=center class="text">L reconna&icirc;t la similarit&eacute; des "items" reli&eacute;s&nbsp;</TD>
+            </TR>
+            <TR>
+              <TD width="19%" vAlign=center class="text">Reformulation multi-nucl&eacute;aire (<I>Multinuclear restatement</I>)</TD>
+              <TD width="52%" vAlign=center class="text">Un "item" est essentiellement une reformulation de celui qui lui est reli&eacute;; les "items" sont d'importance comparable selon les buts de R</TD>
+              <TD width="29%" vAlign=center class="text">L reconna&icirc;t que le deuxi&egrave;me item est la reformulation du premier</TD>
+            </TR>
+            <TR>
+              <TD width="19%" vAlign=center class="text">S&eacute;quence (<I>Sequence</I>)</TD>
+              <TD width="52%" vAlign=center class="text">Il existe une relation de succession entre les situations d&eacute;crites par les noyaux</TD>
+              <TD width="29%" vAlign=center class="text">L reconna&icirc;t les relations de succession au sein des noyaux&nbsp;</TD>
+            </TR>
+          </TBODY>
+        </TABLE>
+      </CENTER>
+      <P>
+      
+<p>&nbsp;</p>
+   <!-- Start of StatCounter Code -->
+<script type="text/javascript" language="javascript">
+var sc_project=548016; 
+var sc_partition=1; 
+var sc_invisible=1; 
+</script>
+
+<script type="text/javascript" language="javascript" src="http://www.statcounter.com/counter/counter.js"></script><noscript><a href="http://www.statcounter.com/" target="_blank"><img  src="http://c2.statcounter.com/counter.php?sc_project=548016&amp;java=0&amp;invisible=1" alt="free hit counter code" border="0"> </noscript>
+<!-- End of StatCounter Code -->
+    
+    <!-- InstanceEndEditable --></td>
+    <td width="20" rowspan="2">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="1" valign="bottom"><img src="../images/vert_big.gif" alt="vertical line" width="1" height="80"></td>
+    <td height="30" class="text"><br>
+      <img src="../images/top.gif" alt="arrow" width="19" height="8"><a href="#top" class="textlinks">go
+    to top</a><br>    <br>
+    <span class="greysmall">&copy;2005-2025 William C. Mann, Maite
+    Taboada</span>.<span class="greysmall"> All rights reserved.</span><br>
+    <br></td>
+  </tr>
+</table>
+<map name="Map">
+<area shape="rect" coords="19,10,365,83" href="../index.html">
+</map>
+</body>
+<!-- InstanceEnd --></html>

@@ -1,0 +1,870 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><!-- InstanceBegin template="/Templates/rst2004.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Rhetorical Structure Theory</title>
+<!-- InstanceEndEditable --><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style><!--a:hover{background-color:BFE2F9; }--></style>
+<script language="JavaScript" type="text/JavaScript">
+<!--
+function MM_reloadPage(init) {  //reloads the window if Nav4 resized
+  if (init==true) with (navigator) {if ((appName=="Netscape")&&(parseInt(appVersion)==4)) {
+    document.MM_pgW=innerWidth; document.MM_pgH=innerHeight; onresize=MM_reloadPage; }}
+  else if (innerWidth!=document.MM_pgW || innerHeight!=document.MM_pgH) location.reload();
+}
+MM_reloadPage(true);
+
+function MM_swapImgRestore() { //v3.0
+  var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+
+function MM_findObj(n, d) { //v4.01
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+
+function MM_swapImage() { //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+
+function setActiveStyleSheet(title) {
+   var i, a, main;
+   for(i=0; (a = document.getElementsByTagName("link")[i]); i++) {
+     if(a.getAttribute("rel").indexOf("style") != -1
+        && a.getAttribute("title")) {
+       a.disabled = true;
+       if(a.getAttribute("title") == title) a.disabled = false;
+     }
+   }
+  createCookie("style", title, 365);
+}
+
+function getActiveStyleSheet() {
+var i, a;
+ for(i=0; (a = document.getElementsByTagName("link")[i]); i++) {
+  if(a.getAttribute("rel").indexOf("style") != -1
+  && a.getAttribute("title")
+  && !a.disabled) return a.getAttribute("title");
+  }
+  return null;
+}
+
+function createCookie(name,value,days) {
+  if (days) {
+    var date = new Date();
+    date.setTime(date.getTime()+(days*24*60*60*1000));
+    var expires = "; expires="+date.toGMTString();
+  }
+  else expires = "";
+  document.cookie = name+"="+value+expires+"; path=/";
+}
+
+function readCookie(name) {
+  var nameEQ = name + "=";
+  var ca = document.cookie.split(';');
+  for(var i=0;i < ca.length;i++) {
+    var c = ca[i];
+    while (c.charAt(0)==' ') c = c.substring(1,c.length);
+    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+  }
+  return null;
+}
+
+function getPreferredStyleSheet() {
+  var i, a;
+  for(i=0; (a = document.getElementsByTagName("link")[i]); i++) {
+    if(a.getAttribute("rel").indexOf("style") != -1
+       && a.getAttribute("rel").indexOf("alt") == -1
+       && a.getAttribute("title")
+       ) return a.getAttribute("title");
+  }
+  return null;
+}
+
+function LoadFn() {
+  var cookie = readCookie("style");
+  var title = cookie ? cookie : getPreferredStyleSheet();
+  setActiveStyleSheet(title);
+}
+//-->
+</script>
+<link href="../small.css" rel="stylesheet" type="text/css" title="small">
+<link href="../big.css" rel="stylesheet" type="text/css" title="big">
+<!-- InstanceBeginEditable name="head" -->
+<style type="text/css">
+<!--
+.style1 {color: #000000}
+-->
+</style>
+<!-- InstanceEndEditable -->
+</head>
+
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onLoad="MM_preloadImages('../images/null.gif','../images/large_f2.gif','../images/small_f2.gif')">
+<div id="Layer1" style="position:absolute; left:19px; top:92px; width:174px; height:175px; z-index:1">
+  <table width="180" border="0" cellpadding="0" cellspacing="0" bgcolor="#279BF4">
+    <!-- fwtable fwsrc="sample5.png" fwbase="menu.gif" fwstyle="Dreamweaver" fwdocid = "742308039" fwnested="1" -->
+    <tr>
+      <td><table width="190" border="1" cellpadding="2" cellspacing="0" bordercolor="#279BF4" bgcolor="#FFFFFF">
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="http://www.sfu.ca/rst/index.html" class="menu">HOME</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="index.html" class="menu">INTRO TO RST</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../02analyses/index.html" class="menu">ANALYSES</a></td>
+          </tr>
+          <tr>
+		         <td><img src="../images/white.gif" width="15" height="10"><a href="../02pubs/index.html" class="menu">CONFERENCES &amp; JOURNALS</a></td>
+          </tr>
+		            <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../03research/index.html" class="menu">RESEARCH TOPICS</a></td>
+          </tr>
+		            <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../03projects/index.html" class="menu">RESEARCH PROJECTS</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../04text_generation/index.html" class="menu">TEXT GENERATION</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../05bibliographies/index.html" class="menu">BIBLIOGRAPHIES</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../06tools/index.html" class="menu">TOOLS</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../07basque/index.html" class="menu">PAGES IN BASQUE</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../07french/index.html" class="menu">PAGES IN FRENCH</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../07portuguese/index.html" class="menu">PAGES IN PORTUGUESE</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../08spanish/index.html" class="menu">PAGES IN SPANISH</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../09email_list/index.html" class="menu">E-MAIL LIST</a></td>
+          </tr>
+          <tr>
+            <td><img src="../images/white.gif" width="15" height="10"><a href="../10site_map/index.html" class="menu">SITE MAP &amp; SEARCH</a></td>
+          </tr>
+      </table></td>
+      <td width="182" align="right" bgcolor="#279BF4"></td>
+    </tr>
+    <tr>
+      <td height="5"></td>
+      <td height="5"></td>
+    </tr>
+  </table>
+</div>
+<div id="Layer2" style="position:absolute; left:605px; top:13px; width:118px; height:119px; z-index:2" class="textblue">
+  <table border="0" cellpadding="0" cellspacing="0" width="118">
+    <!-- fwtable fwsrc="sample5.png" fwbase="selector.gif" fwstyle="Dreamweaver" fwdocid = "742308039" fwnested="1" -->
+    <tr>
+      <td><img name="selector" src="../images/selector.gif" width="118" height="23" border="0" alt=""></td>
+    </tr>
+    <tr>
+      <td><table border="0" cellpadding="0" cellspacing="0" width="118">
+          <tr>
+            <td><img src="../images/spacer.gif" width="25" height="48" border="0" alt=""></td>
+            <td><img name="arrow_down" src="../images/arrow_down.gif" width="66" height="48" border="0" alt=""></td>
+            <td><img src="../images/spacer.gif" width="27" height="48" border="0" alt=""></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="javascript:setActiveStyleSheet('big')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('large','','../images/large_f2.gif',1)"><img name="large" src="../images/large.gif" width="118" height="23" border="0" alt=""></a></td>
+    </tr>
+    <tr>
+      <td><img src="../images/spacer.gif" width="118" height="2" border="0" alt=""></td>
+    </tr>
+    <tr>
+      <td><a href="javascript:setActiveStyleSheet('small')" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('small','','../images/small_f2.gif',1)"><img name="small" src="../images/small.gif" width="118" height="23" border="0" alt=""></a></td>
+    </tr>
+  </table>
+</div>
+<div id="Layer3" style="position:absolute; left:249px; top:160px; width:470px; height:76px; z-index:3">
+  <!-- InstanceBeginEditable name="title" --><span class="titles">RELATION DEFINITIONS</span><!-- InstanceEndEditable --></div>
+<a name="top"></a>
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="760" height="187"><img src="../images/title.gif" alt="title image" width="760" height="187" border="0" usemap="#Map"></td>
+    <td background="../images/background.jpg">&nbsp;</td>
+  </tr>
+</table>
+<br><br>
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="14" rowspan="2">&nbsp;</td>
+    <td width="236" rowspan="2" valign="top"><p>&nbsp;</p>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+	  <p>&nbsp;</p>
+	  <p>&nbsp;</p>
+      <!-- InstanceBeginEditable name="left_links" --><!-- #BeginLibraryItem "/Library/01rst_intro.lbi" --><br><img src="../images/arrow_left.gif" alt="arrow" width="25" height="45"><span class="textlinks"><br>
++ </span><a href="index.html" class="textlinks">The RST site</a><span class="textlinks"><br>
++ </span><a href="intro.html" class="textlinks">Introduction
+to RST</a><br>
+    <span class="textlinks">+ </span><a href="definitions.html" class="textlinks">Definitions</a><br>
+    <!-- #EndLibraryItem --><br>
+<!-- InstanceEndEditable --></td>
+    <td width="1" valign="top"><img src="../images/b_vert.gif" alt="vertical line" width="1" height="40"></td>
+    <td width="15" rowspan="2">&nbsp;</td>
+    <td valign="top"><!-- InstanceBeginEditable name="text" -->
+      <p class="text">The  relations are part of the so called CRST, "Classical RST" as Nick Nicholas calls it. It has been augmented with four relations defined more recently (Means, Preparation, Unconditional and Unless). </p>
+      <p class="text">        The basic paper on RST, published in <I>Text </I>8(3), was derived from an earlier report, ISI-RS-87-190. That report had, along with the relation definitions, one or more examples and some commentary for each relation. <a href="../05bibliographies/access.html" class="textlinks">Portions of that information</a> are available from the bibliographies section in this website, and an example has also been included for each of the four newer relations mentioned below. Some of the examples are from other sources, including the analyses in other sections of the website. To find these examples, look just below each table of relation definitions. </p>
+      <p class="text"> Each element of the definition is implicitly embedded in a constraint formula as follows: "It is plausible to the analyst that it was plausible to the author that ... ." </p>
+      <p class="text"><B>On terminology in definitions: </B><I>N </I>stands for nucleus, <I>S </I>for satellite, <I>W </I>for writer (author, speaker) and <I>R </I>for reader (hearer.) For some brevity: in many places, N and S stand for the <I>situations </I>presented by N and S; N and S never stand for the text of N or S. <I>Situation </I>is a broad cover term that ranges over propositions or beliefs, actions whether realized or not, desires to act and approval for another to act. Similarly, <I>positive regard </I>is a broad attitudinal term that ranges over belief, approval of ideas, desire to act, and approval for another to act, all identifiably positive. Positive regard and <I>belief </I>(with its cognates), and <I>plausible </I>above are all degree terms, not binary. </p>
+      <P class="text">Notice that the name of the relation <B>does not </B>enter into the use of the definition. Finding good names for all of the relations is difficult or perhaps impossible, so some of the definitions will seem inappropriate for the name; see, for example, Justify. </P>
+      <P class="text">The relations are classified into two main types: nucleus-satellite and multinuclear (see the <a href="../01intro/intro.html" class="textlinks">Introduction</a>). They can also be classified according to whether they are Presentational or Subject Matter. Presentational relations are those whose intended effect is to increase some inclination in the reader, such as the desire to act or the degree of positive regard for, belief in, or acceptance of the nucleus. Subject matter relations are those whose intended effect is that the reader recognizes the relation in question. </P>
+      <P class="text">In the three tables below, we present the relation name and its definition. By clicking on the relation name, you can see further examples and comments on each relation. </P>
+      <P class="text">&nbsp;</P>
+      <TABLE width="100%" border=1 cellPadding=3 cellspacing="0" bgColor=#FFF3F2>
+        <!-- Table 04 Row 01 -->
+        <TBODY>
+          <TR>
+            <TD colspan="4"><div align="center" class="text"><strong>Definitions of Presentational Relations </strong></div></TD>
+          </TR>
+          <TR>
+            <TD width="14%" class="text"><div align="center"><strong>Relation Name </strong></div></TD>
+            <TD width="20%" class="text"><div align="center"><strong>Constraints on either S or N individually </strong></div></TD>
+            <TD width="41%" class="text"><div align="center"><strong>Constraints on N + S </strong></div></TD>
+            <TD width="25%" class="text"><div align="center"><strong>Intention of W </strong></div></TD>
+          </TR>
+          <!-- Table 04 Row 02 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#antithesis" class="textlinks">Antithesis</a></TD>
+            <TD class="text">on N: W has positive regard for N </TD>
+            <TD class="text">N and S are in contrast (see the Contrast relation); because of the incompatibility that arises from the contrast, one cannot have positive regard for both of those situations; comprehending S and the incompatibility between the situations increases R's positive regard for N </TD>
+            <TD class="text">R's positive regard for N is increased </TD>
+          </TR>
+          <!-- Table 04 Row 03 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#background" class="textlinks">Background</a></TD>
+            <TD class="text">on N: R won't comprehend N sufficiently before reading text of S </TD>
+            <TD class="text">S increases the ability of R to comprehend an element in N </TD>
+            <TD class="text">R's ability to comprehend N increases </TD>
+          </TR>
+          <!-- Table 04 Row 04 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#concession" class="textlinks">Concession</a></TD>
+            <TD class="text">on N: W has positive regard for N <BR>
+              on S: W is not claiming that S does not hold; </TD>
+            <TD class="text">W acknowledges a potential or apparent incompatibility between N and S; recognizing the compatibility between N and S increases R's positive regard for N </TD>
+            <TD class="text">R's positive regard for N is increased </TD>
+          </TR>
+          <!-- Table 04 Row 05 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#enablement" class="textlinks">Enablement</a></TD>
+            <TD class="text">on N: presents an action by R (including accepting an offer), unrealized with respect to the context of N </TD>
+            <TD class="text">R comprehending S increases R's potential ability to perform the action in N </TD>
+            <TD class="text">R's potential ability to perform the action in N increases </TD>
+          </TR>
+          <!-- Table 04 Row 06 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#evidence" class="textlinks">Evidence</a></TD>
+            <TD class="text">on N: R might not believe N to a degree satisfactory to W <BR>
+              on S: R believes S or will find it credible </TD>
+            <TD class="text">R's comprehending S increases R's belief of N </TD>
+            <TD class="text">R's belief of N is increased </TD>
+          </TR>
+          <!-- Table 04 Row 07 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#justify" class="textlinks">Justify</a></TD>
+            <TD class="text">none </TD>
+            <TD class="text">R's comprehending S increases R's readiness to accept W's right to present N </TD>
+            <TD class="text">R's readiness to accept W's right to present N is increased </TD>
+          </TR>
+          <!-- Table 04 Row 08 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#motivation" class="textlinks">Motivation</a></TD>
+            <TD class="text">on N: N is an action in which R is the actor (including accepting an offer), unrealized with respect to the context of N </TD>
+            <TD class="text">Comprehending S increases R's desire to perform action in N </TD>
+            <TD class="text">R's desire to perform action in N is increased </TD>
+          </TR>
+          <!-- Table 04 Row 09 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#preparation" class="textlinks">Preparation</a></TD>
+            <TD class="text">none </TD>
+            <TD class="text">S precedes N in the text; S tends to make R more ready, interested or oriented for reading N </TD>
+            <TD class="text">R is more ready, interested or oriented for reading N </TD>
+          </TR>
+          <TR>
+            <TD vAlign=center class="text"><a href="#restatement" class="textlinks">Restatement</a></TD>
+            <TD class="text">none</TD>
+            <TD class="text">on N + S: S restates N, where S and N are of comparable bulk; N is more central to W's purposes than S is. </TD>
+            <TD class="text">R recognizes S as a restatement of N </TD>
+          </TR>
+          <TR>
+            <TD vAlign=center class="text"><a href="#summary" class="textlinks">Summary</a></TD>
+            <TD class="text">on N: N must be more than one unit </TD>
+            <TD class="text">S presents a restatement of the content of N, that is shorter in bulk </TD>
+            <TD class="text">R recognizes S as a shorter restatement of N </TD>
+          </TR>
+          <!-- Table 04 Row 10 -->
+          <!-- Table 04 Row 11 -->
+        </TBODY>
+      </TABLE>
+      <span class="text"><BR>
+      </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <BR>
+      <p>&nbsp;</p>
+      <TABLE width="100%" border=1 cellPadding=3 cellspacing="0" bgColor=#F2FFFF>
+        <!-- Table 05 Row 01 -->
+        <TBODY>
+          <TR>
+            <TD colspan="4" class="text"><div align="center"><strong>Definitions of Subject Matter Relations </strong></div></TD>
+          </TR>
+          <TR>
+            <TD width="14%" class="text"><div align="center"><strong>Relation Name </strong></div></TD>
+            <TD width="20%" class="text"><div align="center"><strong>Constraints on either S or N individually </strong></div></TD>
+            <TD width="41%" class="text"><div align="center"><strong>Constraints on N + S </strong></div></TD>
+            <TD width="25%" class="text"><div align="center"><strong>Intention of W </strong></div></TD>
+          </TR>
+          <!-- Table 05 Row 02 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#circumstance" class="textlinks">Circumstance</a></TD>
+            <TD class="text">on S: S is not unrealized </TD>
+            <TD class="text">S sets a framework in the subject matter within which R is intended to interpret N </TD>
+            <TD class="text">R recognizes that S provides the framework for interpreting N </TD>
+          </TR>
+          <!-- Table 05 Row 03 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#condition" class="textlinks">Condition</a></TD>
+            <TD class="text">on S: S presents a hypothetical, future, or otherwise unrealized situation (relative to the situational context of S) </TD>
+            <TD class="text">Realization of N depends on realization of S </TD>
+            <TD class="text">R recognizes how the realization of N depends on the realization of S </TD>
+          </TR>
+          <!-- Table 05 Row 04 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#elaboration" class="textlinks">Elaboration</a></TD>
+            <TD class="text">none </TD>
+            <TD class="text">S presents additional detail about the situation or some element of subject matter which is presented in N or inferentially accessible in N in one or more of the ways listed below. In the list, if N presents the first member of any pair, then S includes the second:
+                <LI>set :: member 
+                <LI>abstraction :: instance 
+                <LI>whole :: part 
+                <LI>process :: step 
+                <LI>object :: attribute 
+              <LI>generalization :: specific </LI></TD>
+            <TD class="text">R recognizes S as providing additional detail for N. R identifies the element of subject matter for which detail is provided. </TD>
+          </TR>
+          <!-- Table 05 Row 05 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#evaluation" class="textlinks">Evaluation</a></TD>
+            <TD class="text">none </TD>
+            <TD class="text">on N + S: S relates N to degree of W's positive regard toward N. </TD>
+            <TD class="text">R recognizes that S assesses N and recognizes the value it assigns </TD>
+          </TR>
+          <!-- Table 05 Row 06 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#interpretation" class="textlinks">Interpretation</a></TD>
+            <TD class="text">none </TD>
+            <TD class="text">on N + S: S relates N to a framework of ideas not involved in N itself and not concerned with W's positive regard </TD>
+            <TD class="text">R recognizes that S relates N to a framework of ideas not involved in the knowledge presented in N itself </TD>
+          </TR>
+          <!-- Table 05 Row 07 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#means" class="textlinks">Means</a></TD>
+            <TD class="text">on N: an activity </TD>
+            <TD class="text">S presents a method or instrument which tends to make realization of N more likely </TD>
+            <TD class="text">R recognizes that the method or instrument in S tends to make realization of N more likely </TD>
+          </TR>
+          <!-- Table 05 Row 08 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#nvcause" class="textlinks">Non-volitional Cause</a></TD>
+            <TD class="text">on N: N is not a volitional action </TD>
+            <TD class="text">S, by means other than motivating a volitional action, caused N; without the presentation of S, R might not know the particular cause of the situation; a presentation of N is more central than S to W's purposes in putting forth the N-S combination. </TD>
+            <TD class="text">R recognizes S as a cause of N </TD>
+          </TR>
+          <!-- Table 05 Row 09 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#nvresult" class="textlinks">Non-volitional Result</a></TD>
+            <TD class="text">on S: S is not a volitional action </TD>
+            <TD class="text">N caused S; presentation of N is more central to W's purposes in putting forth the N-S combination than is the presentation of S. </TD>
+            <TD class="text">R recognizes that N could have caused the situation in S </TD>
+          </TR>
+          <!-- Table 05 Row 10 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#otherwise" class="textlinks">Otherwise</a></TD>
+            <TD class="text">on N: N is an unrealized situation <BR>
+              on S: S is an unrealized situation </TD>
+            <TD class="text">realization of N prevents realization of S </TD>
+            <TD class="text">R recognizes the dependency relation of prevention between the realization of N and the realization of S </TD>
+          </TR>
+          <!-- Table 05 Row 11 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#purpose" class="textlinks">Purpose</a></TD>
+            <TD class="text">on N: N is an activity; <BR>
+              on S: S is a situation that is unrealized </TD>
+            <TD class="text">S is to be realized through the activity in N </TD>
+            <TD class="text">R recognizes that the activity in N is initiated in order to realize S </TD>
+          </TR>
+          <!-- Table 05 Row 12 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#solutionhood" class="textlinks">Solutionhood</a></TD>
+            <TD class="text">on S: S presents a problem </TD>
+            <TD class="text">N is a solution to the problem presented in S; </TD>
+            <TD class="text">R recognizes N as a solution to the problem presented in S </TD>
+          </TR>
+          <!-- Table 05 Row 13 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#unconditional" class="textlinks">Unconditional</a></TD>
+            <TD class="text">on S: S conceivably could affect the realization of N </TD>
+            <TD class="text">N does not depend on S </TD>
+            <TD class="text">R recognizes that N does not depend on S </TD>
+          </TR>
+          <!-- Table 05 Row 14 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#unless" class="textlinks">Unless</a></TD>
+            <TD class="text">none </TD>
+            <TD class="text">S affects the realization of N; N is realized provided that S is not realized </TD>
+            <TD class="text">R recognizes that N is realized provided that S is not realized </TD>
+          </TR>
+          <!-- Table 05 Row 15 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#vcause" class="textlinks">Volitional Cause</a></TD>
+            <TD class="text">on N: N is a volitional action or else a situation that could have arisen from a volitional action </TD>
+            <TD class="text">S could have caused the agent of the volitional action in N to perform that action; without the presentation of S, R might not regard the action as motivated or know the particular motivation; N is more central to W's purposes in putting forth the N-S combination than S is. </TD>
+            <TD class="text">R recognizes S as a cause for the volitional action in N </TD>
+          </TR>
+          <!-- Table 05 Row 16 -->
+          <TR>
+            <TD vAlign=center class="text"><a href="#vresult" class="textlinks">Volitional Result</a></TD>
+            <TD class="text">on S: S is a volitional action or a situation that could have arisen from a volitional action </TD>
+            <TD class="text">N could have caused S; presentation of N is more central to W's purposes than is presentation of S; </TD>
+            <TD class="text">R recognizes that N could be a cause for the action or situation in S </TD>
+          </TR>
+        </TBODY>
+      </TABLE>
+      <BR>
+      <p></P>
+      <P class="text">&nbsp; </P>
+      <TABLE width="100%" border=1 cellPadding=3 cellspacing="0" bgColor=#FFFFCC>
+        <!-- align="left" -->
+        <!-- Table 06 Row 01 -->
+        <TBODY>
+          <TR>
+            <TD colspan="3" class="text"><div align="center"><strong>Definitions of Multinuclear Relations </strong></div></TD>
+          </TR>
+          <TR>
+            <TD class="text"><div align="center"><strong>Relation Name </strong></div></TD>
+            <TD class="text"><div align="center"><strong>Constraints on each pair of N </strong></div></TD>
+            <TD class="text"><div align="center"><strong>Intention of W </strong></div></TD>
+          </TR>
+          <!-- Table 06 Row 02 -->
+          <TR valign="top">
+            <TD vAlign=middle class="text"><a href="#conjunction" class="textlinks">Conjunction</a></TD>
+            <TD valign="middle" class="text">The items are conjoined to form a unit in which each item plays a comparable role<BR></TD>
+            <TD valign="middle" class="text">R recognizes that the linked items are conjoined</TD>
+          </TR>
+          <TR>
+            <TD vAlign=middle class="text"><a href="#contrast" class="textlinks">Contrast</a></TD>
+            <TD valign="middle" class="text">No more than two nuclei; the situations in these two nuclei are (a) comprehended as the same in many respects (b) comprehended as differing in a few respects and (c) compared with respect to one or more of these differences </TD>
+            <TD valign="middle" class="text">R recognizes the comparability and the difference(s) yielded by the comparison is being made </TD>
+          </TR>
+          <!-- Table 06 Row 03 -->
+          <TR valign="top">
+            <TD vAlign=middle class="text"><a href="#disjunction" class="textlinks">Disjunction</a></TD>
+            <TD valign="middle" class="text">An item presents a (not necessarily exclusive) alternative for the other(s)<BR></TD>
+            <TD valign="middle" class="text">R recognizes that the linked items are alternatives</TD>
+          </TR>
+          <TR>
+            <TD vAlign=middle class="text"><a href="#joint" class="textlinks">Joint</a></TD>
+            <TD valign="middle" class="text">None </TD>
+            <TD valign="middle" class="text">none </TD>
+          </TR>
+          <!-- Table 06 Row 04 -->
+          <TR>
+            <TD valign="middle" class="text"><a href="#list" class="textlinks">List</a></TD>
+            <TD valign="middle" class="text">An item comparable to others linked to it by the List relation </TD>
+            <TD valign="middle" class="text">R recognizes the comparability of linked items </TD>
+          </TR>
+          <!-- Table 06 Row 05 -->
+          <TR>
+            <TD vAlign=middle class="text"><a href="#mrestatement" class="textlinks">Multinuclear Restatement</a></TD>
+            <TD valign="middle" class="text">An item is primarily a reexpression of one linked to it; the items are of comparable importance to the purposes of W </TD>
+            <TD valign="middle" class="text">R recognizes the reexpression by the linked items </TD>
+          </TR>
+          <!-- Table 06 Row 06 -->
+          <TR>
+            <TD vAlign=middle class="text"><a href="#sequence" class="textlinks">Sequence</a></TD>
+            <TD valign="middle" class="text">There is a succession relationship between the situations in the nuclei </TD>
+            <TD valign="middle" class="text">R recognizes the succession relationships among the nuclei. </TD>
+          </TR>
+        </TBODY>
+      </TABLE>
+      <P>      
+      <P>
+      <hr>
+      <p>&nbsp;</p>
+      <TABLE width="100%" border=1 cellPadding=3 cellspacing="0" bgColor=#FFF3F2 class="text">
+        <!-- Table 04 Row 01 -->
+        <TBODY>
+          <TR>
+            <TD colspan="5"><div align="center"><strong>Examples and Comments on the Presentational Relations </strong></div></TD>
+          </TR>
+          <TR>
+            <TD><div align="center"><strong>Relation Name </strong></div></TD>
+            <TD><div align="center"><strong>All of Example Text </strong></div></TD>
+            <TD><div align="center"><strong>Nuclear Part </strong></div></TD>
+            <TD><div align="center"><strong>Satellite Part </strong></div></TD>
+            <TD><div align="center"><strong>Comment </strong></div></TD>
+          </TR>
+          <!-- Table 04 Row 02 -->
+          <TR>
+            <TD vAlign=center><a name="antithesis"></a>Antithesis </TD>
+            <TD>12) But I don't think endorsing a specific nuclear freeze proposal is appropriate for CCC. 13) We should limit our involvement in defense and weaponry to matters of process, such as exposing the weapons industry's influence on the political process. </TD>
+            <TD>13) We should limit our involvement in defense and weaponry to matters of process, such as exposing the weapons industry's influence on the political process. </TD>
+            <TD>12) But I don't think endorsing a specific nuclear freeze proposal is appropriate for CCC. </TD>
+            <TD>The writer favors one idea and not the other. See the analysis of the <a href="../02analyses/published.html#ccausetext" class="textlinks">Common Cause letter</a>, on this website. </TD>
+          </TR>
+          <!-- Table 04 Row 03 -->
+          <TR>
+            <TD vAlign=center><a name="background"></a>Background </TD>
+            <TD>11A) ZPG's 1985 Urban Stress Test, 11B) created after months of persistent and exhaustive research, 11A) is the nation's first survey of how population-linked pressures affect U.S. cities. 12) It ranks 184 urban areas on 11 different criteria ranging from crowding and birth rates to air quality and toxic wastes. 13) The Urban Stress Test translates complex, technical data into an easy-to-use action tool for concerned citizens, elected officials and opinion leaders. </TD>
+            <TD>13) The Urban Stress Test translates complex, technical data into an easy-to-use action tool for concerned citizens, elected officials and opinion leaders. </TD>
+            <TD>11A) ZPG's 1985 Urban Stress Test, 11B) created after months of persistent and exhaustive research, 11A) is the nation's first survey of how population-linked pressures affect U.S. cities. 12) It ranks 184 urban areas on 11 different criteria ranging from crowding and birth rates to air quality and toxic wastes. </TD>
+            <TD>Background information is general information of any sort that is likely to help the reader to understand the nucleus. This differs from Circumstance, in which the nucleus and circumstance both refer to a single situation.
+            <P>This is a somewhat unusual case because it uses Background in the middle of a text. The facts in 11A through 12 make 13 more comprehensible. See the <a href="../02analyses/published.html#zpgtext" class="textlinks">ZPG Fund Raising Letter</a> on this website. </P></TD>
+          </TR>
+          <!-- Table 04 Row 04 -->
+          <TR>
+            <TD vAlign=center><a name="concession"></a>Concession </TD>
+            <TD>2) Tempting as it may be, 3) we shouldn't embrace every popular issue that comes along. </TD>
+            <TD>3) we shouldn't embrace every popular issue that comes along. </TD>
+            <TD>2) Tempting as it may be, </TD>
+            <TD>Concession can be traced back to the consistency of the thoughts of the writer. Here, the writer says that he can recognize that it is tempting to embrace (fund) every (this) popular issue, and yet also hold the idea that such ideas (this idea) should not be embraced (funded). See the analysis of the <a href="../02analyses/published.html#ccausetext" class="textlinks">Common Cause letter</a> on this website. </TD>
+          </TR>
+          <!-- Table 04 Row 05 -->
+          <TR>
+            <TD vAlign=center><a name="enablement"></a>Enablement </TD>
+            <TD>1. Training on jobs: A series of informative, inexpensive pamphlets and books on worker health discusses such topics as filing a compensation claim, ionizing radiation, asbestos, and several occupational diseases. <I>[intervening material skipped] </I>6. For a catalog and order form write WIOES, 2520 Milvia St., Berkeley, CA 95704. </TD>
+            <TD>1. Training on jobs: A series of informative, inexpensive pamphlets and books on worker health discusses such topics as filing a compensation claim, ionizing radiation, asbestos, and several occupational diseases. </TD>
+            <TD>6. For a catalog and order form write WIOES, 2520 Milvia St., Berkeley, CA 95704. </TD>
+            <TD>The Enablement relation is often used along with a Motivation relation in advertising. This pair is the only one where RST allows two different relations to bear on the same nucleus. </TD>
+          </TR>
+          <!-- Table 04 Row 06 -->
+          <TR>
+            <TD vAlign=center><a name="evidence"></a>Evidence </TD>
+            <TD>2) Tempting as it may be, 3) we shouldn't embrace every popular issue that comes along. 4) When we do so, 5) we use precious, limited resources 6) where other players with superior resources are already doing an adequate job. </TD>
+            <TD>2) Tempting as it may be, 3) we shouldn't embrace every popular issue that comes along. </TD>
+            <TD>4) When we do so, 5) we use precious, limited resources 6) where other players with superior resources are already doing an adequate job. </TD>
+            <TD>Units 2 and 3 are in a span that contains Concession. Units 4-6 are a complex item of evidence. See the <a href="../02analyses/published.html#ccausetext" class="textlinks">Common Cause letter</a> analysis on this website. </TD>
+          </TR>
+          <!-- Table 04 Row 07 -->
+          <TR>
+            <TD vAlign=center><a name="justify"></a>Justify </TD>
+            <TD>10) Let's be clear: 11) I personally favor the initiative and ardently support disarmament negotiations to reduce the risk of war. 12) But I don't think endorsing a specific nuclear freeze proposal is appropriate for CCC. 13) We should limit our involvement in defense and weaponry to matters of process, such as exposing the weapons industry's influence on the political process. </TD>
+            <TD>10) Let's be clear: </TD>
+            <TD>11) I personally favor the initiative and ardently support disarmament negotiations to reduce the risk of war. 12) But I don't think endorsing a specific nuclear freeze proposal is appropriate for CCC. 13) We should limit our involvement in defense and weaponry to matters of process, such as exposing the weapons industry's influence on the political process. </TD>
+            <TD>This is from the analysis of the  <a href="../02analyses/published.html#ccausetext" class="textlinks">Common Cause letter</a>, on this website. Unit 10 is establishing the need to argue a second time toward a particular conclusion. Thus it suggests what the basis is of the writer's right to speak this item. </TD>
+          </TR>
+          <!-- Table 04 Row 08 -->
+          <TR>
+            <TD vAlign=center><a name="motivation"></a>Motivation </TD>
+            <TD>2) Ask for SYNCOM diskettes, with burnished Ectype coating and dust-absorbing jacket liners. 3) As your floppy drive writes or reads, 4) a Syncom diskette is working four ways ... </TD>
+            <TD>2) Ask for SYNCOM diskettes, with burnished Ectype coating and dust-absorbing jacket liners. </TD>
+            <TD>3) As your floppy drive writes or reads, 4) a Syncom diskette is working four ways ... </TD>
+            <TD>The Motivation relation is about action by the reader. In this advertisement it is buying the product. Units 3-12 give many motivating reasons for the action in unit 2. See the <a href="../02analyses/published.html#syncomtext" class="textlinks">Syncom Floppy Disk Advertisement</a> on this website. </TD>
+          </TR>
+          <!-- Table 04 Row 09 -->
+          <TR>
+            <TD vAlign=center><a name="preparation"></a>Preparation </TD>
+            <TD>(See the analysis) </TD>
+            <TD>(the body of the article) </TD>
+            <TD>(a title): Bouquets in a basket - with living flowers </TD>
+            <TD>This is from the <a href="../02analyses/published.html#bouquetstext" class="textlinks">Bouquets</a> text analysis on this website. It is very common for titles to be preparatory (and not contributory) to a text. </TD>
+          </TR>
+          <TR>
+            <TD vAlign=center><a name="restatement"></a>Restatement </TD>
+            <TD>[Title:] 1. A WELL GROOMED CAR REFLECTS ITS OWNER 2. The car you drive says a lot about you. </TD>
+            <TD>1. A WELL GROOMED CAR REFLECTS ITS OWNER </TD>
+            <TD>2. The car you drive says a lot about you. </TD>
+            <TD>There are two versions of the Restatement relation. The other one is Multinuclear-Restatement. They differ because in some cases there is a clear focus on one of the two spans, and in other cases they have closely comparable importance in the writer's view. Restating is used both ways. </TD>
+          </TR>
+          <TR>
+            <TD vAlign=center><a name="summary"></a>Summary </TD>
+            <TD>--- </TD>
+            <TD>The body of a long entertaining text on telegrams had 43 units on the subject, followed by this summary of 5 units: </TD>
+            <TD>It seems a while since there's been a neatly worded dispatch from the field. (This was followed by 4 units of elaboration.) </TD>
+            <TD>There is not enough space here for the whole example. </TD>
+          </TR>
+          <!-- Table 04 Row 10 -->
+          <!-- Table 04 Row 11 -->
+        </TBODY>
+      </TABLE>
+             <BR>
+      <P>
+      <TABLE width="100%" border=1 cellPadding=3 cellspacing="0" bgColor=#F2FFFF class="text">
+        <!-- Table 05 Row 01 -->
+        <TBODY>
+          <TR>
+            <TD colspan="5" class="text"><div align="center"><strong>Examples and Comments on the Subject Matter Relations </strong></div></TD>
+          </TR>
+          <TR>
+            <TD><div align="center"><strong>Relation Name </strong></div></TD>
+            <TD><div align="center"><strong>All of Example Text </strong></div></TD>
+            <TD><div align="center"><strong>Nuclear Part </strong></div></TD>
+            <TD><div align="center"><strong>Satellite Part </strong></div></TD>
+            <TD><div align="center"><strong>Comment </strong></div></TD>
+          </TR>
+          <!-- Table 05 Row 02 -->
+          <TR>
+            <TD vAlign=center><a name="circumstance"></a>Circumstance </TD>
+            <TD>Probably the most extreme case of Visitors Fever I have ever witnessed was a few summers ago when I visited relatives in the Midwest. </TD>
+            <TD>Probably the most extreme case of Visitors Fever I have ever witnessed was a few summers ago </TD>
+            <TD>when I visited relatives in the Midwest. </TD>
+            <TD>For the Circumstance relation, unlike Background, the nucleus and satellite are both about a single situation.
+                <P>This function has been grammaticized in English in the form of circumstantial hypotactic clauses. </P></TD>
+          </TR>
+          <!-- Table 05 Row 03 -->
+          <TR>
+            <TD vAlign=center><a name="condition"></a>Condition </TD>
+            <TD>1. Employees are urged to complete new beneficiary designation forms for retirement or life insurance benefits 2. <I>whenever there is a change in marital or family status. </I></TD>
+            <TD>1. Employees are urged to complete new beneficiary designation forms for retirement or life insurance benefits </TD>
+            <TD>2. <I>whenever there is a change in marital or family status. </I></TD>
+            <TD>The Condition relation has been grammaticized in English by the hypotactic conditional clause. However, comparable to all of the other RST relations, which are textual relations rather than grammatical, this relation need not be expressed with an <I>if </I>clause. </TD>
+          </TR>
+          <!-- Table 05 Row 04 -->
+          <TR>
+            <TD vAlign=center><a name="elaboration"></a>Elaboration </TD>
+            <TD>1. <I>City, </I>in Sweden, will be the site of the 1969 International Conference on Computational Linguistics, September 1-4. 2. It is expected that some 250 linguists will attend from Asia, West Europe, East Europe including Russia, and the United States. 3. The conference will be concerned with the application of mathematical and computer techniques to the study of natural languages, the development of computer programs as tools for linguistic research, and the application of linguistics to the development of man-machine communication systems. </TD>
+            <TD>1. <I>City, </I>in Sweden, will be the site of the 1969 International Conference on Computational Linguistics, September 1-4. </TD>
+            <TD>First Satellite: 2. It is expected that some 250 linguists will attend from Asia, West Europe, East Europe including Russia, and the United States. <BR>
+        Second Satellite: 3. The conference will be concerned with the application of mathematical and computer techniques to the study of natural languages, the development of computer programs as tools for linguistic research, and the application of linguistics to the development of man-machine communication systems. </TD>
+            <TD>Of the six subtypes of Elaboration in the definition, this example is of the object : attribute subtype.
+                <P>The subtypes are not treated as separate relations because in many cases in text they are not distinguishable. </P></TD>
+          </TR>
+          <!-- Table 05 Row 05 -->
+          <TR>
+            <TD vAlign=center><a name="evaluation"></a>Evaluation </TD>
+            <TD>1. Features like our uniquely sealed jacket and protective hub ring make our discs last longer. 2. And a soft inner liner cleans the ultra-smooth disc surface while in use. 3. It all adds up to better performance and reliability. </TD>
+            <TD>1. Features like our uniquely sealed jacket and protective hub ring make our discs last longer. 2. And a soft inner liner cleans the ultra-smooth disc surface while in use. [These 2 form a single span, using Joint.] </TD>
+            <TD>3. It all adds up to better performance and reliability. </TD>
+            <TD>The Interpretation and Evaluation relations involve assessing nuclear material in terms of some frame of reference that is not part of the subject matter of the nucleus itself. Evaluation reflects positive regard on the part of the writer; Interpretation relates the nuclear material to any other frame of reference. </TD>
+          </TR>
+          <!-- Table 05 Row 06 -->
+          <TR>
+            <TD vAlign=center><a name="interpretation"></a>Interpretation </TD>
+            <TD>1. Steep declines in capital spending commitments and building permits, along with a drop in the money stock pushed the leading composite index down for the fifth time in the past 11 months... . 2. Such a decline is highly unusual at this stage in an expansion. </TD>
+            <TD>1. Steep declines in capital spending commitments and building permits, along with a drop in the money stock pushed the leading composite index down for the fifth time in the past 11 months... . </TD>
+            <TD>2. Such a decline is highly unusual at this stage in an expansion. </TD>
+            <TD>see Evaluation </TD>
+          </TR>
+          <!-- Table 05 Row 07 -->
+          <TR>
+            <TD vAlign=center><a name="means"></a>Means </TD>
+            <TD>... the visual system resolves confusion by applying some tricks that reflect a built-in knowledge of properties of the physical world. </TD>
+            <TD>the visual system resolves confusion </TD>
+            <TD>by applying some tricks that reflect a built-in knowledge of properties of the physical world. </TD>
+            <TD>This text is part of an abstract of an article on human vision. Here Means represents features of a method which is reflected in the design of the human body. </TD>
+          </TR>
+          <!-- Table 05 Row 08 -->
+          <TR>
+            <TD vAlign=center><a name="nvcause"></a>Non-volitional Cause </TD>
+            <TD>2) REMEMBER ALL THOSE VEGETABLES YOU SLIPPED UNDER THE TABLE? 3) MAYBE THAT'S WHY SPARKY LIVED SO LONG. </TD>
+            <TD>3) MAYBE THAT'S WHY SPARKY LIVED SO LONG. </TD>
+            <TD>2) REMEMBER ALL THOSE VEGETABLES YOU SLIPPED UNDER THE TABLE? </TD>
+            <TD>This is from the <a href="../02analyses/unpublished.html#sparkytext" class="textlinks">Sparky</a> text analysis on this website. Another example appears in the <a href="../02analyses/unpublished.html#salvagetext" class="textlinks">Salvage</a> text. </TD>
+          </TR>
+          <!-- Table 05 Row 09 -->
+          <TR>
+            <TD vAlign=center><a name="nvresult"></a>Non-volitional Result </TD>
+            <TD>1. The blast, the worst industrial accident in Mexico's history, destroyed the plant and most of the surrounding suburbs. 2. Several thousand people were injured, 3. and about 300 are still in hospital. </TD>
+            <TD>1. The blast, the worst industrial accident in Mexico's history, destroyed the plant and most of the surrounding suburbs. </TD>
+            <TD>2. Several thousand people were injured, 3. and about 300 are still in hospital. </TD>
+            <TD>A span consisting of 2 and 3 is linked by Non-Volitional Result to the nucleus. </TD>
+          </TR>
+          <!-- Table 05 Row 10 -->
+          <TR>
+            <TD vAlign=center><a name="otherwise"></a>Otherwise </TD>
+            <TD>1. Project leaders should submit their entries for the revised brochure immediately. 2. Otherwise the existing entry will be used. </TD>
+            <TD>1. Project leaders should submit their entries for the revised brochure immediately. </TD>
+            <TD>2. Otherwise the existing entry will be used. </TD>
+            <TD>Otherwise can also be used to describe patterns of the form: If A then B otherwise C. </TD>
+          </TR>
+          <!-- Table 05 Row 11 -->
+          <TR>
+            <TD vAlign=center><a name="purpose"></a>Purpose </TD>
+            <TD>1. To see which Syncom diskette will replace the ones you're using now, 2. send for our free "Flexi-Finder" selection guide and the name of the supplier nearest you. </TD>
+            <TD>2. send for our free "Flexi-Finder" selection guide and the name of the supplier nearest you. </TD>
+            <TD>1. To see which Syncom diskette will replace the ones you're using now, </TD>
+            <TD>Purpose includes both volitional and non-volitional cases. See the <a href="../02analyses/published.html#syncomtext" class="textlinks">Syncom Floppy Disk Advertisement</a> on this website. </TD>
+          </TR>
+          <!-- Table 05 Row 12 -->
+          <TR>
+            <TD vAlign=center><a name="solutionhood"></a>Solutionhood </TD>
+            <TD>1. One difficulty ... is with sleeping bags in which down and feather fillers are used as insulation.
+                <P>2. This insulation has a tendency to slip toward the bottom. 
+              <P>3. You can redistribute the filler. ... </P></TD>
+            <TD><P>3. You can redistribute the filler. ... </P></TD>
+            <TD>1. One difficulty ... is with sleeping bags in which down and feather fillers are used as insulation.
+              <P>2. This insulation has a tendency to slip toward the bottom. </P>
+            </TD>
+            <TD>( from instructions on redistributing the filler in a sleeping bag) The satellite is 2 units, as shown. The nucleus is units 3-11, partly shown. Solutionhood covers many sorts of problem-solution and question-answer relationships; the solution can be partial or complete. </TD>
+          </TR>
+          <!-- Table 05 Row 13 -->
+          <TR>
+            <TD vAlign=center><a name="unconditional"></a>Unconditional </TD>
+            <TD>IN NO EVENT SHALL THE AUTHOR OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY DERIVATIVES THEREOF, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. </TD>
+            <TD>IN NO EVENT SHALL THE AUTHOR OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY DERIVATIVES THEREOF, </TD>
+            <TD>EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. </TD>
+            <TD>This is from the <a href="../02analyses/unpublished.html#copyrighttext" class="textlinks">Copyright notice</a> text analysis on this website. </TD>
+          </TR>
+          <!-- Table 05 Row 14 -->
+          <TR>
+            <TD vAlign=center><a name="unless"></a>Unless </TD>
+            <TD>The following terms apply to all files associated with the software unless explicitly disclaimed in individual files. </TD>
+            <TD>The following terms apply to all files associated with the software </TD>
+            <TD>unless explicitly disclaimed in individual files. </TD>
+            <TD>Like the example of Unconditional above, this is from the <a href="../02analyses/unpublished.html#copyrighttext" class="textlinks">Copyright notice</a> text analysis on this website. </TD>
+          </TR>
+          <!-- Table 05 Row 15 -->
+          <TR>
+            <TD vAlign=center><a name="vcause"></a>Volitional Cause </TD>
+            <TD>6) Thinking that perhaps the counsel was simplistic, 7) coming from an unmarried person, 8) one of them asked, "Are you married?" </TD>
+            <TD>6) Thinking that perhaps the counsel was simplistic, 7) coming from an unmarried person, </TD>
+            <TD>8) one of them asked, "Are you married?" </TD>
+            <TD>The analysis forms a span of 6) and 7), representing the thoughts that caused the person to ask the question. 8) represents the caused action. This example is from <a href="../02analyses/unpublished.html#motherteresatext" class="textlinks">the first Mother Theresa analysis</a> on this website. </TD>
+          </TR>
+          <!-- Table 05 Row 16 -->
+          <TR>
+            <TD vAlign=center><a name="vresult"></a>Volitional Result </TD>
+            <TD>1) Farmington police had to help control traffic recently 2) when hundreds of people lined up to be among the first applying for jobs at the yet-to-open Marriott Hotel. 3) The hotel's help-wanted announcement - for 300 openings - was a rare opportunity for many unemployed. </TD>
+            <TD>2) when hundreds of people lined up to be among the first applying for jobs at the yet-to-open Marriott Hotel. 3) The hotel's help-wanted announcement - for 300 openings - was a rare opportunity for many unemployed. </TD>
+            <TD>1) Farmington police had to help control traffic recently </TD>
+            <TD>This example is from the <a href="../02analyses/published.html#notlazinesstext" class="textlinks">not-laziness text</a> on this website. The writer's concern is with the unemployed, not with traffic control, making 1) a satellite. </TD>
+          </TR>
+        </TBODY>
+      </TABLE>
+      <BR>
+      <P>
+        <!-- Experimentally removed here: 	BR			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			
+		END BR -->
+      <TABLE width="100%" border=1 cellPadding=3 cellspacing="0" bgColor=#FFFFCC class="text">
+        <!-- Table 06 Row 01 -->
+        <!-- align="left"  -->
+        <TBODY>
+          <TR>
+            <TD colspan="5"><div align="center"><strong>Examples and Comments on Multinuclear Relations </strong></div></TD>
+          </TR>
+          <TR>
+            <TD><div align="center"><strong>Relation Name </strong></div></TD>
+            <TD><div align="center"><strong>Text of Two Nuclei </strong></div></TD>
+            <TD><div align="center"><strong>Text of First Nucleus </strong></div></TD>
+            <TD><div align="center"><strong>Text of Second Nucleus </strong></div></TD>
+            <TD><div align="center"><strong>Comment </strong></div></TD>
+          </TR>
+          <!-- Table 06 Row 02 -->
+          <TR>
+            <TD vAlign=center><a name="conjunction"></a>Conjunction</TD>
+            <TD><p>Ex #1: 1. This didn't make me like the story any less 2. nor did I find it hard to follow.</p>
+              <p>Ex #2: 1. Disney provides great access to transportation 2. and every cast member is ready to provide detailed directions and tips for getting to your desired destination quickly.<BR>
+              </p></TD>
+            <TD><p>1. This didn't make me like the story any less </p>
+              <p>&nbsp;</p>
+            <p>1. Disney provides great access to transportation</p></TD>
+            <TD><p>2. nor did I find it hard to follow.</p>
+              <p>&nbsp;</p>
+            <p>2. and every cast member is ready to provide detailed directions and tips for getting to your desired destination quickly.</p></TD>
+            <TD>The Conjunction and Disjunction relations were present in the RST tool, but not defined formally anywhere. The definitions and examples came out of a discussion in the RST List (see <a href="http://www.sfu.ca/rst/09email_list/index.html" class="text">archives</a> for Sept-Oct 2006)</TD>
+          </TR>
+          <TR>
+            <TD vAlign=center><a name="contrast"></a>Contrast </TD>
+            <TD>1. Animals heal, 2. but trees compartmentalize. </TD>
+            <TD>1. Animals heal, </TD>
+            <TD>2. but trees compartmentalize. </TD>
+            <TD>This relation has been called Neutral Contrast to reflect the balance of nuclearity, unlike Concession or Antithesis. </TD>
+          </TR>
+          <!-- Table 06 Row 03 -->
+          <TR>
+            <TD vAlign=center><a name="disjunction"></a>Disjunction</TD>
+            <TD class="text"><p>Ex #1: 1. Most National Council members are themselves disabled 2. or are parents of children with disabilities.</p>
+            <p>Ex #2: In the aerobic phase, for instance, lactic acid and lactate are still produced, 1. but they are consumed by less active muscles 2. or metabolized in the liver and so do not accumulate<BR>
+            </p></TD>
+            <TD><p>1. Most National Council members are themselves disabled </p>
+              <p>&nbsp;</p>
+            <p>1. but they are consumed by less active muscles </p></TD>
+            <TD><p>2. or are parents of children with disabilities.</p>
+              <p>&nbsp;</p>
+            <p>2. or metabolized in the liver</p></TD>
+            <TD>See note under &quot;Conjunction&quot;. This relation may be exclusive or inclusive. </TD>
+          </TR>
+          <TR>
+            <TD vAlign=center><a name="joint"></a>Joint </TD>
+            <TD>1. Features like our uniquely sealed jacket and protective hub ring make our discs last longer. 2. And a soft inner liner cleans the ultra-smooth disc surface while in use. </TD>
+            <TD>1. Features like our uniquely sealed jacket and protective hub ring make our discs last longer. </TD>
+            <TD>2. And a soft inner liner cleans the ultra-smooth disc surface while in use. </TD>
+            <TD>See the example of Evaluation above. Joint represents the lack of a rhetorical relation between the nuclei. </TD>
+          </TR>
+          <!-- Table 06 Row 04 -->
+          <TR>
+            <TD><a name="list"></a>List </TD>
+            <TD>I am 17 years old. It is summer, and football practice is about to begin. </TD>
+            <TD>I am 17 years old. </TD>
+            <TD>It is summer, and football practice is about to begin. </TD>
+            <TD>These are the opening lines of an essay by a student. They give the first of a larger set of background facts, in a list. </TD>
+          </TR>
+          <!-- Table 06 Row 05 -->
+          <TR>
+            <TD vAlign=center><a name="mrestatement"></a>Multinuclear Restatement </TD>
+            <TD>Background information: "Harold Grace of Alberta has been blind for 15 years, ... . " </TD>
+            <TD>But Grace also said he was able to see the contestants' true beauty. </TD>
+            <TD>Grace is confident in his selections in the Miss Alberta and Miss Teen Alberta pageants by basing his judgment on the contestants' answers, how they projected their voices and their confidence through emphasis and firmness of their vocal deliveries. </TD>
+            <TD>This text, about an unusual beauty contest, is from a college newspaper. The restatement is separated by 2 units of intervening material. </TD>
+          </TR>
+          <!-- Table 06 Row 06 -->
+          <TR>
+            <TD vAlign=center><a name="sequence"></a>Sequence </TD>
+            <TD>[from a recipe:] 1. Peel oranges, 2. and slice crosswise. 3. Arrange in a bowl 4. and sprinkle with rum and coconut. 5. Chill until ready to serve. </TD>
+            <TD>1. Peel oranges, </TD>
+            <TD>2. and slice crosswise. [The given text yields 5 nuclei.] </TD>
+            <TD>Sequence includes both presentational sequence, e.g. "Secondly," and also subject matter sequence, e.g. "After that," as in this case. </TD>
+          </TR>
+        </TBODY>
+      </TABLE>
+      <BR>
+      <p></P>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+	  <!-- Start of StatCounter Code -->
+<script type="text/javascript" language="javascript">
+var sc_project=548016; 
+var sc_partition=1; 
+var sc_invisible=1; 
+</script>
+
+<script type="text/javascript" language="javascript" src="http://www.statcounter.com/counter/counter.js"></script><noscript><a href="http://www.statcounter.com/" target="_blank"><img  src="http://c2.statcounter.com/counter.php?sc_project=548016&amp;java=0&amp;invisible=1" alt="free hit counter code" border="0"> </noscript>
+<!-- End of StatCounter Code -->
+      <!-- InstanceEndEditable --></td>
+    <td width="20" rowspan="2">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="1" valign="bottom"><img src="../images/vert_big.gif" alt="vertical line" width="1" height="80"></td>
+    <td height="30" class="text"><br>
+      <img src="../images/top.gif" alt="arrow" width="19" height="8"><a href="#top" class="textlinks">go
+    to top</a><br>    <br>
+    <span class="greysmall">&copy;2005-2025 William C. Mann, Maite
+    Taboada</span>.<span class="greysmall"> All rights reserved.</span><br>
+    <br></td>
+  </tr>
+</table>
+<map name="Map">
+<area shape="rect" coords="19,10,365,83" href="../index.html">
+</map>
+</body>
+<!-- InstanceEnd --></html>
