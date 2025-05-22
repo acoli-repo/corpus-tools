@@ -44,11 +44,11 @@ You can segment manually. But also, you can let it segment. Unfortunately, it do
 
 From the [RSTTool Version 3.0 Users Guide by Michael O'Donnell](http://www.wagsoft.com/RSTTool/):
 
-1. [Structuring Text](./www.wagsoft.com/RSTTool/section5.html)
-2. [Dealing with Relations](./www.wagsoft.com/RSTTool/section6.html)
-3. [Printing and Saving Diagrams](./www.wagsoft.com/RSTTool/section7.html)
-4. [Statistics](./www.wagsoft.com/RSTTool/section8.html)
-5. [The Menus](./www.wagsoft.com/RSTTool/section9.html)
+1. [Structuring Text](./www.wagsoft.com/RSTTool/section5.html.md)
+2. [Dealing with Relations](./www.wagsoft.com/RSTTool/section6.html.md)
+3. [Printing and Saving Diagrams](./www.wagsoft.com/RSTTool/section7.html.md)
+4. [Statistics](./www.wagsoft.com/RSTTool/section8.html.md)
+5. [The Menus](./www.wagsoft.com/RSTTool/section9.html.md)
 
 ## Background on RST
 
