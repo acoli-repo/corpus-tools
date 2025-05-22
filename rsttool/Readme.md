@@ -2,7 +2,7 @@
 
 The RSTTool is a classic, but dated annotation tool for creating annotations according to Rhetorical Structure Theory (RST).
 
-## TL/DR
+## Starting
 
 Under Linux, run 
 
@@ -17,6 +17,48 @@ Optionally, this can be followed by a file to be loaded, but this seems to only 
 > As of May 2025, the Linux edition of RSTTool 3.42 is not runnable under Ubuntu 22.04L because its depends on TCL/TK 8.3.
 > Instead, `rsttool.sh` uses the [Windows version 3.45](./www.wagsoft.com/RSTTool/RSTTool345Install.exe) that can be unzipped and executed with `wine` (wine-6.0.3, Ubuntu 6.0.3~repack-1).
 
+## Import and Segment Text
+
+It is not possible to provide a text file for annotation as argument to the RSTTool. Instead, use the "Import text" dialog under "File". Note that the RSTTool will always start at its home directory, so you need to click to the actual place of your file. After importing, you need to segment.
+
+For segmenting, go to the "Text" tab. 
+You can segment manually. But also, you can let it segment. Unfortunately, it does not recognize line breaks as sentence boundaries
+
+- DON'T use "Segment"/"Sentences": It will treat every `[.!?]` as a sentence boundary marker, regardless of context.
+- If you have (EDU-)segmented data, replace all sentence boundaries (e.g., line breaks) by double line breaks and segment by "Segment"/"Paragraphs". 
+
+	Example for rendering a Markdown file:
+
+		$> pandoc bloomberg.md  \
+		   | perl -pe 's/\s+/ /g; s/<br[^>]*>|<\/p>|<\/h[0-9][^>]*>/\n/g; s/<[^>]*>//g;' \
+		   | perl -pe 's/^\s+//g; s/ +/ /g; s/$/\n/g' \
+		   > bloomberg.txt
+
+
+	> Note that this means you mess up (the whitespaces in) your source text. This can be re-aligned using [CoNLL-Merge](https://github.com/acoli-repo/conll-merge).
+
+
+![](img/segment.png)
+
+## Annotate, Save and Export
+
+From the [RSTTool Version 3.0 Users Guide by Michael O'Donnell](http://www.wagsoft.com/RSTTool/):
+
+1. [Structuring Text](./www.wagsoft.com/RSTTool/section5.html)
+2. [Dealing with Relations](./www.wagsoft.com/RSTTool/section6.html)
+3. [Printing and Saving Diagrams](./www.wagsoft.com/RSTTool/section7.html)
+4. [Statistics](./www.wagsoft.com/RSTTool/section8.html)
+5. [The Menus](./www.wagsoft.com/RSTTool/section9.html)
+
+## Background on RST
+
+From [Maite Taboada's RST Web Site](https://www.sfu.ca/rst/):
+
+1. [Intro to RST](./www.sfu.ca/rst/01intro/intro.html)
+2. [RST Definitions](./www.sfu.ca/rst/01intro/definitions.html)
+3. [Sample Analyses](./www.sfu.ca/rst/02analyses/index.html) (RS3 and PDF)
+4. [RST Bibliography](www.sfu.ca/rst/05bibliographies/index.html) (until 2023)
+
 ## Content
 
 - [`www.wagsoft.com`](./www.wagsoft.com) Full mirror of the RSTTool website from 2025-05-22 in case the original hosting falters. Includes binaries.
@@ -26,3 +68,6 @@ Optionally, this can be followed by a file to be loaded, but this seems to only 
 
 - https://www.sfu.ca/rst/: The home of RST, development stalled in January 2024
 - https://wiki.gucorpling.org/gum/rst: Some alternative tooling, incl. https://gucorpling.org/rstweb/info/ (server-side annotation tool)
+
+
+
