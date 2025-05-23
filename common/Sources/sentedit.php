@@ -245,8 +245,9 @@
 						};
 					};
 				};
-				if ( $doatt ) $maintable .= "<th>{$val2['display']}</th>";
-				else  $maintable .= "<th><a href='".modurl("doatt", $key2)."'>{$val2['display']}</a></th>";
+				$ctit = $val2['display'] or $ctit = "<i>$key2</i>";
+				if ( $doatt ) $maintable .= "<th>$ctit</th>";
+				else  $maintable .= "<th><a href='".modurl("doatt", $key2)."'>$ctit</a></th>";
 			};
 			$results = $xml->xpath($sxp); 
 			if ( !$results ) fatal("No results found");
