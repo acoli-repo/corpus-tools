@@ -147,12 +147,12 @@
 			
 				$maintext .= "<hr><p><a href='index.php?action=$action&act=merge&confirm=1&cid=$ttxml->fileid&sid=$sentid'>confirm merge</a>";
 			};
-					
+							
 		} else if ( $sentid == "multi" ) {
 		
-				
 			$doatt = $_GET['doatt'];			
 			$sxp = $_GET['sxp'];
+			if ( !$sxp ) $sxp = "//$stype$srest";
 			if ( $doatt ) {
 				$dodef = $sentatts[$stype][$doatt];
 				$doatts = array ( $doatt => $dodef );
@@ -167,9 +167,50 @@
 						without <span style='font-style:italic' title='$doatt'>{$dodef['display']}</span> 
 						- <a href='".modurl("show", "all")."'>show all</a>";
 				};
+			} else if ( $_POST['doatts'] || $_GET['doatts']  ) {
+				if ( $_GET['doatts'] ) foreach ( explode(';', $_GET['doatts']) as $tmp ) { list ( $key, $val ) = explode(':', $tmp); $_POST['doatts'][$key] = $val; };
+				$doatts = array();
+				foreach ( $_POST['doatts'] as $key => $val ) {
+					$doatts[$key] = $sentatts[$stype][$key];
+					$doatts[$key]['akt'] = $val;
+				};
 			} else {
 				$doatts = $sentatts[$stype];
-				$xrest = "<p>Click on a column title to edit only one of the attributes";
+				$xrest = "<p>Click on a column title to edit only one of the attributes or <a onclick='showsel();'>define</a> which columns to view and edit.</p>";
+				
+				foreach ( $sentatts[$stype] as $key => $val ) {
+					if ( !is_array($val) ) continue;
+					$ftxt = $val['display'] or $ftxt = $key;
+					$akt = $key."";
+					$optrows .= "<tr><th>$ftxt</th><td><input type=radio name=doatts[$akt] value='edit'><td><input type=radio name=doatts[$akt] value='show'></tr>";
+				};
+				$done = array();
+				foreach ( $xml->xpath($sxp) as $sent ) {
+					foreach ( $sent->attributes() as $ak => $av ) {
+						$akt = $ak."";
+						if ( !$sentatts[$stype][$ak] && !$done[$akt] ) {
+							$optrows .= "<tr><th>$akt</th><td><input type=radio name=doatts[$akt] value='edit'><td><input type=radio name=doatts[$akt] value='show'></tr>";
+							$done[$akt] = 1;
+						};
+					};
+				};
+				$maintext .= "<script>
+					function showsel() {
+						document.getElementById('selopts').style.display = 'block';
+					};
+				</script>
+				<div id='selopts' style='position: fixed; right: 10px; top: 10px; display: none; border: 1px solid #bbbbbb; background-color: white; padding: 10px;'>
+					<p>Fields to show/edit:</p>
+					<form action='index.php?action=$action&act=$act&cid=$fileid&sid=multi&elm=$stype' method='post'>
+					<table>
+						<tr><th>Field<th>Edit<th>Show</tr>
+						$optrows
+					</table>
+					<p>Items per page: <select name=perpage><option value=10>10</option><option value=100 selected>100</option><option value='all'>all</option></select>
+					<p><input type=submit value=Select>
+					</form>
+				</div>
+				";
 			};
 			if ( !$sxp ) $sxp = "//$stype$srest";
 			
@@ -208,9 +249,10 @@
 				else  $maintable .= "<th><a href='".modurl("doatt", $key2)."'>{$val2['display']}</a></th>";
 			};
 			$results = $xml->xpath($sxp); 
+			if ( !$results ) fatal("No results found");
 
 			$start = $_GET['start'] or $start = 0;
-			$pp = $_GET['perpage'] or $pp = 100;
+			$pp = $_GET['perpage'] or $pp = $_POST['perpage'] or $pp = 100;
 			$tot = count($results); $end = $start + $pp;
 			if ( $start >= $tot ) {
 				# We are done - reload
@@ -257,7 +299,9 @@
 							$transfield  = $key2;
 						};
 						$width = $val2['size'] or $width = 35;
-						if ( $binary[$key2] ) {
+						if ( $val2['akt'] == 'show' ) {
+							$maintext .= "<td>$atv";
+						} else if ( $binary[$key2] ) {
 							$maintext .= "<td>";
 							foreach ( $sentatts[$stype][$key2]['options'] as $key3 => $val3 ) {
 								$seld = ""; if ( $key3 == $atv ) $seld = "checked";
