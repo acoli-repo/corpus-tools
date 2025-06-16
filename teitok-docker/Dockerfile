@@ -1,4 +1,6 @@
-FROM debian:latest
+# use Ubuntu 22.04 as a basis
+FROM ubuntu:22.04
+
 RUN apt-get update
 RUN apt-get install -y wget sudo apt-utils
 
