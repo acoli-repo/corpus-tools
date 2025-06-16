@@ -86,7 +86,7 @@ You should now see the Admin Functions as in Fig. 2. If you click on "upload/man
 <table style="text-align: center;">
 	<tr>
 		<td>
-			<img src="img/admin.functions.png" height="255"/>
+			<img src="img/admin-functions.png" height="250"/>
 		</td>
 	</tr>
 	<tr><td>Fig. 2 Admin functions</td>
