@@ -4,7 +4,7 @@ SHELL=bash
 # CONFIG #
 ##########
 USER=chiarcos
-TAG=0.1
+TAG=0.2
 
 ##################
 # BUILD and PUSH #

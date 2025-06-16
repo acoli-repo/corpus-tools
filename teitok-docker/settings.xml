@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<ttsettings>
+	
+	<!-- Definition of the items to be displayed in the navigation menu -->
+	<menu noshare="1">	
+		<itemlist>
+			<item key="home" display="Home"/>
+			<item key="corplist" display="Corpora"/>
+		</itemlist>
+	</menu>
+
+	<defaults>
+	    <title display="TEITOK Corpora"/>
+	    <base foldername="shared"/>
+	</defaults>
+
+	<xmlreader noshare="1">
+    	<item key="corplist" title="Corpora" max="100"/>
+	</xmlreader>
+	
+<files><item key="xml" display="TEI/XML" delete="admin" folder="xmlfiles/" extension="*.xml"/><item key="Facsimile" display="Facsimile" delete="su" folder="Facsimile" extension=".jpg" description="facsimiles"/></files>
+<xmlfile>
+	<pattributes>
+		<forms><item key="word" display="word" inherit="word"/><item key="id" display="id" inherit="id"/></forms>
+		<tags>
+			<item key="lemma" display="lemma" input="text" values="single"/>
+			<item key="upos" display="upos" input="text" values="single"/>
+		</tags>
+	</pattributes>
+	<sattributes/>
+</xmlfile>
+<cqp corpus="test-corpus">
+	<pattributes>
+		<item key="upos" display="upos"/>
+		<item key="lemma" display="lemma"/>
+	<item key="id" display="id"/><item key="word" display="word" xpath=""/></pattributes>
+<sattributes><item key="text" level="text" display="text"/></sattributes></cqp>
+<scripts/><views/></ttsettings>
