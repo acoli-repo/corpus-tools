@@ -1,0 +1,51 @@
+<ttsettings>
+	<!-- Default settings imported from the common TEITOK files -->
+	
+	<!-- Definition of the languages to be used in the interface -->
+	<languages prefixed="1" default="en">
+		<language code="en" locale="en_UK.UTF-8" menu="EN"/>	
+	</languages>
+
+	
+	<!-- Definition of the items to be displayed in the navigation menu -->
+	<menu>	
+		<itemlist>
+			<item key="home" display="Home"/>
+			<item key="cqp" display="Search"/>
+		</itemlist>
+	</menu>
+		
+		
+	<!-- Definition of the CQP corpus created from the XML files -->
+	<cqp corpus="TT-NEWCORPUS" searchfolder="xmlfiles">	
+		<pattributes>
+			<item key="form"/>
+			<item key="pos"/>
+			<item key="lemma"/>
+		</pattributes>
+		<sattributes>
+		    <item key="s" level="s">
+    			<item key="id"/>
+		    </item>
+		</sattributes>
+	</cqp>
+
+	<!-- Definition of the items to be used in the XML files -->	
+	<xmlfile defaultform="dform" defaultview="interpret" xpath="//text">
+		<pattributes>
+			<forms>
+				<item key="pform" display="Transcription" direction="ltr"/>
+				<item key="form" display="Written form" direction="ltr" color="#990000"/>
+			</forms>
+			
+			<tags>			
+				<item key="pos" display="POS tag" type="select" lookup="form"/>
+				<item key="lemma" display="Lemma"/>
+			</tags>
+		</pattributes>
+		    <item key="s" level="s">
+    			<item key="id"/>
+		    </item>
+	</xmlfile>
+
+</ttsettings>

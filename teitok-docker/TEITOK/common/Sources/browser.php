@@ -1,0 +1,533 @@
+<?php
+	// File browser - browse files by category
+	// (c) Maarten Janssen, 2018
+
+	$class = $_GET['class'];
+	$val = $_GET['val'];
+
+	$brtit = getset("defaults/browser/title", "Document Browser");
+
+	$cqpcorpus = strtoupper(getset('cqp/corpus')); # a CQP corpus name ALWAYS is in all-caps
+	$cqpfolder = getset('cqp/cqpfolder',  "cqp");
+
+	$faction = $action; $saction = $action; $gaction = $action;
+	if ( getset('cqp/subcorpora') != "" ) {
+		if ( $act == "select" ) $_SESSION['subc-'.$foldername] = "";
+		if ( $_GET['subc'] ) $_SESSION['subc-'.$foldername] = $_GET['subc'];
+		$subcorpus = $_GET['subc'] or $subcorpus = $_SESSION['subc-'.$foldername] or $subcorpus = "";
+		if ( !$subcorpus ) {
+			# fatal("No subcorpus selected");
+			$act = "select";
+			$cqpcorpus = "";
+		} else {
+			if ( getset("cqp/subcorpora/$subfolder") != "" ) {
+				$subcorpusname = getset("cqp/subcorpora/$subfolder/display", "{%subc-$subcorpus}");
+			};
+			if ( !$subcorpusname ) $subcorpusname = "{%subc-$subcorpus}";
+			
+			$subname = strtolower("cqp/$subcorpus");
+			$subcdef = file_get_contents($subname);
+			if ( preg_match("/HOME (.+)/", $subcdef, $matches )  ) {
+				$home = $matches[1];
+				$cqpfolder = preg_replace("/.+\/(cqp\/)/", "cqp/", $home);
+			} else {
+				$cqpfolder = "$cqpfolder/$subfolder";
+				$subfolder = preg_replace("/$cqpcorpus-/i", "", $subcorpus);
+			};
+			
+			$cqpcorpus = strtoupper($subcorpus); # a CQP corpus name ALWAYS is in all-caps
+			$faction = "$action&act=select";
+			$saction = "$action&sub=$subcorpus";
+			$subpath = " &gt; <a href='index.php?action=$saction'>$subcorpusname</a>";
+		};
+	};
+
+	$maintext .= "<h1>{%$brtit}</h1>";
+
+	$titlefld = getset('cqp/titlefld');
+	if ( !$titlefld )
+		if ( getset('cqp/sattributes/text/title') != "" ) $titlefld = "text_title"; else $titlefld = "text_id";
+
+
+	if ( getset('defaults/locale') != "" ) $localebit = ", '".getset('defaults/locale')."'";
+	$docname = getset('defaults/browser/documents', "documents");
+
+	# Create the selected options
+	$sep = " :: "; foreach ( $_GET['q'] as $rp ) {
+		list ( $fld, $val ) = explode(":", $rp);
+		$valtxt = $val; $fldtxt = getset("cqp/sattributes/text/$fld/display", $fld);
+		if ( getset("cqp/sattributes/text/$fld/translate") != "" ) $valtxt = "{%$fld-$valtxt}";
+		$sels .= "<div class='selbox' title='$fldtxt'><span rst=\"$rp\" onclick='del(this);' class='x'>x</span> $valtxt</div>";
+		$val = preg_quote($val);
+		$cqlrest .= $sep."match.text_$fld = \"$val\""; $sep = " & ";
+		$jsrest .= "'$rp',";
+	};
+	$selmenu .= "<p>$sels</p>";
+
+	$maintext .= "
+		<script language=Javascript>
+			function sortList(ul){
+				var new_ul = ul.cloneNode(false);
+
+				// Add all lis to an array
+				var lis = [];
+				for(var i = ul.childNodes.length; i--;){
+					if(ul.childNodes[i].nodeName === 'LI') {
+						lis.push(ul.childNodes[i]);
+					};
+				}
+
+				// Sort the lis in descending order - locale dependent
+				lis.sort((a, b) => a.getAttribute('key').localeCompare(b.getAttribute('key')$localebit));
+				console.log(lis);
+
+				// Add them into the ul in order
+				for(var i = 0; i < lis.length; i++)
+					new_ul.appendChild(lis[i]);
+				ul.parentNode.replaceChild(new_ul, ul);
+			};
+
+			var jsrest = [$jsrest];
+			function add(elm) {
+				var rst = elm.getAttribute('rst');
+				jsrest.push(rst);
+				elm.style.display = 'none';
+				requery();
+			};
+			function del(elm) {
+				var i = 0;
+				var rst = elm.getAttribute('rst');
+				while ( i < jsrest.length) {
+					if (jsrest[i] === rst) {
+					  jsrest.splice(i, 1);
+					} else {
+					  ++i;
+					}
+				};
+				elm.parentNode.style.display = 'none';
+				requery();
+			};
+			function requery() {
+				newurl = 'index.php?action=$action';
+				for ( var i =0; i < jsrest.length; i++ ) {
+					newurl += '&q[]='+jsrest[i];
+				};
+				top.location = newurl;
+			};
+			var facslist = {};
+			var intfunc = setInterval(rolling, 2000);
+			var intelm; var intcid; var intidx = 0;
+			function rollimages( elm ) {
+				var cid = elm.getAttribute('cid');
+				intcid = cid;
+				intelm = elm;
+				intidx = 0;
+				rolling();
+			};
+			function rolloff( elm ) {
+				var cid = elm.getAttribute('cid');
+				if ( facslist[cid] ) { elm.src = intelm.src = facslist[cid][0]; };
+				intcid = 0;
+			};
+			function rolling() {
+				if ( !intcid ) { return; }
+				if ( !facslist[intcid] ) {
+				  var xhttp = new XMLHttpRequest();
+				  xhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+					  var tmp = JSON.parse(this.responseText);
+					   facslist[tmp.cid] = tmp.facs;
+					   rolling();
+					}
+				  };
+				  var url = 'index.php?action=ajax&data=facs&cid='+intcid;
+				  xhttp.open('GET', url, true);
+				  xhttp.send();
+				} else {
+					intidx++; if ( intidx >= facslist[intcid].length ) { intidx = 0; };
+					intelm.src = facslist[intcid][intidx];
+				};
+			};
+			</script>
+			";
+	if ( getset('defaults/browser/select') == "menu" ) {
+		$subsel = "menu"; $all = 1;
+	};
+	if ( $_GET['all'] || $_GET['show'] == "all" ) $all = 1;
+	
+	if ( $act == "select" ) {
+	
+		$corps = subcorpora();	
+	
+		if ( !$corps ) fatal("No subcorpora of this corpus are searchable at this time");
+		
+		$maintext .= "<p>{%!documents}$subpath<hr><ul>";
+		# $maintext .= getlangfile("subc-select");
+	
+		$fullcorp = strtolower(getset('cqp/corpus'));
+		foreach ( $corps as $corpid => $corpdata ) {
+			$corpname = $corpdata['name'];	
+			$corpfld = $corpf[$corpid];
+			$rawsize = hrnum(filesize("$corpfld/word.corpus")/4);
+			if ( $rawsize > 0 || 1==1 ) $maintext .= "<li><a href='index.php?action=$action&subc=$corpid'>$corpname</a>";
+		};
+		$maintext .= "</ul>";
+	
+	} else if ( ( $class && $val ) || $all ) {
+
+		// Do not allow searches while the corpus is being rebuilt...
+		if ( file_exists("tmp/recqp.pid") ) {
+			fatal ( "Search is currently unavailable because the CQP corpus is being rebuilt. Please try again in a couple of minutes." );
+		};
+
+		include ("$ttroot/common/Sources/cwcqp.php");
+		$item = getset("cqp/sattributes/text/$class", array());
+		$cat = $item['display'];
+
+		$cqp = new CQP();
+		$cqp->exec($cqpcorpus); // Select the corpus
+		$cqp->exec("set PrettyPrint off");
+
+		# $val = htmlentities($val);
+		$qval = cqlprotect($val); # Protect quotes
+		if ( $all ) $cqpquery = "Matches = <text> [] $cqlrest";
+		else if ( $item['values'] == "multi" ) $cqpquery = "Matches = <text> [] :: match.text_$class = '.*$qval.*'";
+		else $cqpquery = "Matches = <text> [] :: match.text_$class = '$qval'";
+		$cqp->exec($cqpquery);
+
+	# Deal with subselection style
+	if ( $subsel == "menu" ) {
+		# Make the menu bar options
+		foreach ( getset('cqp/sattributes/text', array()) as $key => $item ) {
+			if ( !is_array($item) || ( $item['type'] != "select" && !$item['browse'] ) ) continue;
+			if ( $item['admin'] && !$username ) continue;
+			$xkey = "text_$key"; 
+
+			$tmp = $cqp->exec("group Matches match $xkey");
+			unset($optarr); $optarr = array();
+			$resarr = explode ( "\n", $tmp );
+			foreach ( $resarr as $line ) { 
+				list ( $kva, $kcnt ) = explode("\t", $line ); unset($kvl);
+				if ( $kva != "" && $kva != "_" ) {
+					if ( $item['values'] == "multi" ) {
+						$mvsep = getset('cqp/multiseperator', ",");
+						$kvl = explode ( $mvsep, $kva );
+					} else {
+						$kvl = array ( $kva );
+					}
+				
+					foreach ( $kvl as $kval ) {
+						if ( $item['type'] == "kselect" || $item['translate']  ) $ktxt = "{-%$key-$kval}"; else $ktxt = $kval;
+						if ( $ktxt == "_" ) $ktxt = "none";
+						if ( $presets[$xkey] == $kval ) $sld = "selected"; else $sld = "";
+						$optarr[$kval] = "<p onclick=\"add(this);\" rst =\"$key:$kval\");\">$ktxt ($kcnt)</p>"; 
+					};
+				};
+				foreach ( $kvl as $kval ) {
+					if ( $kval != "" && $kval != "_" ) {
+						if ( $item['type'] == "kselect" || $item['translate'] ) $ktxt = "{%$key-$kval}"; 
+							else $ktxt = $kval;
+						if ( $presets[$xkey] == $kval ) $sld = "selected"; else $sld = "";
+						$optarr[$kval] = "<p onclick=\"add(this);\" rst =\"$key:$kval\");\">$ktxt ($kcnt)</p>"; 
+					};
+				};
+			};
+			if ( $item['sort'] == "numeric" ) sort( $optarr, SORT_NUMERIC ); 
+			else sort( $optarr, SORT_LOCALE_STRING ); 
+			$optlist = join ( "", $optarr );
+		
+			$scnt = count($optarr);
+			$selmenu .= "<h2>{$item['display']} ($scnt)</h2>";
+			$selmenu .= "<div style='max-height: 250px; margin-bottom: 10px; overflow-y: scroll;'>$optlist</div>";
+		};
+	};
+			
+		$oval = urlencode($val);
+		if ( $val == "" || $val == "_" ) $val = "({%none})";
+		else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
+
+		$cnt = $cqp->exec("size Matches"); $size = $cnt;
+
+		$max = $_GET['max'] or $max = getset('defaults/tablemax', 100);
+		$start = $_GET['start'] or $start = 0;
+		$stop = $start + $max;
+		if ( $_GET['show'] ) $morel = "&show={$_GET['show']}";
+		if ( ( $size > $max && $max != 0 ) || $start > 0 ) {
+			$next = $stop; $beg = $start + 1; $prev = max(0, $start - $max);
+			if ( $start > 0 ) $bnav .= " <a href='index.php?action=$saction&class=$class&val=$oval&start=$prev$morel'>{%previous}</a> ";
+			if ( $size > $max ) $bnav .= " <a href='index.php?action=$saction&class=$class&val=$oval&start=$next$morel'>{%next}</a> ";
+			$nav = " - {%showing} $beg - $stop - $bnav";
+		};
+		
+		if ( $subsel ) $path = "<div id=floatbox>$selmenu</div>";
+		else if ( $all ) $path = "<a href='index.php?action=$faction'>{%!documents}</a>$subpath > all";
+		else $path = "<a href='index.php?action=$faction'>{%!documents}</a>$subpath > <a href='index.php?action=$saction&class=$class'>{%$cat}</a> > $val";
+
+
+		if ( $cnt > 0 ) {
+			if ( getset('defaults/browser/style') == "table" || getset('defaults/browser/style') == "facs" ) {
+				$acnt = $bcnt = 0;
+				foreach ( getset('cqp/sattributes/text', array()) as $key => $item ) {
+					if ( $key == $class ) continue;
+					if ( !is_array($item) ) continue; # Only do real children
+					if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
+					$val = $item['display']; # $val = $item['long'] or
+					if ( $item['type'] == "group" ) {
+						$fldval = $val; # substr($key,4);
+						if ( $fldval != "" ) $fldtxt = " ($fldval)";
+						else $fldtxt = "";
+					} else if ( $item['noshow'] ) {
+						# Ignore items that are not to be shown
+					} else if ( $key != "id" ) {
+						$moreatts .= ", match $xkey";
+						$moreth .= "<th id='{$val}col'>{%$val}";
+						$atttik[$bcnt] = $key; $bcnt++;
+						$atttit[$acnt] = $val;
+						$acnt++;
+					};
+				}; 
+				if ( getset('defaults/browser/style') == "facs" && getset('cqp/pattributes/facs') != "" ) {
+					$withfacs = 1;
+					$moreatts .= ", match facs";
+				};
+				$cqpquery = "tabulate Matches $start $stop match text_id$moreatts";
+				$results = $cqp->exec($cqpquery);
+				
+				$resarr = explode ( "\n", $results ); $scnt = count($resarr);
+				$maintext .= "<p>$path<p>$cnt {%$docname}";
+// 				if ( $scnt < $cnt ) {
+// 					$maintext .= " &bull; {%!showing} $start - $stop";
+// 				};
+// 				if ( $start > 0 ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$before'; document.resubmit.submit();\">{%previous}</a>";
+// 				if ( $stop < $cnt ) $maintext .= " &bull; <a onclick=\"document.getElementById('rsstart').value ='$stop'; document.resubmit.submit();\">{%next}</a>";
+				$maintext .= $nav;
+
+				if ( getset('defaults/browser/style') == "facs" ) {
+					$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
+						<table id=facstable>";
+				} else { 
+					$maintext .= "<hr style='color: #cccccc; background-color: #cccccc; margin-top: 6px; margin-bottom: 6px;'>
+						<table data-sortable id=thistable><thead><tr><th id='idcol'>ID$moreth</thead><tbody>";
+				};
+				foreach ( $resarr as $line ) {
+					$fatts = explode ( "\t", $line ); $fid = array_shift($fatts);
+					if ( !$fid ) continue; # Skip empty rows
+					if ( $admin ) {
+						$fidtxt = preg_replace("/^\//", "", $fid );
+					} else {
+						$fidtxt = preg_replace("/.*\//", "", $fid );
+					};
+					# Translate the columns where needed
+					foreach ( $fatts as $key => $fatt ) {
+						if ( $key == $class ) continue;
+						$attit = $atttik[$key];
+						if ( $attit == getset('defaults/browser/title', 'title') ) {
+							$titelm = $fatt;
+							# TODO: This was here for a reason - why did we want to delete this? Only in facs?
+							if ( getset('defaults/browser/style') == "facs" ) unset($fatts[$key]);
+						};
+						$tmp = getset("cqp/sattributes/text/$attit/type");
+						if ( getset("cqp/sattributes/text/$attit/type") == "kselect" || getset("cqp/sattributes/text/$attit/translate") != "" ) {
+							if ( getset("cqp/sattributes/text/$attit/values") == "multi" ) {
+								$fatts[$key] = ""; $sep = "";
+								foreach ( explode(",", $fatt) as $fattp ) { $fatts[$key] .= "$sep{%$attit-$fattp}"; $sep = ", "; };
+							} else $fatts[$key] = "{%$attit-$fatt}";
+						};
+					};
+					if ( getset('defaults/browser/style') == "facs" ) {
+						$facs = array_pop($fatts);
+						$cid = preg_replace("/.*\//", "", $fid);
+						$opttit = $titelm or $opttit = $cid;
+						$ff = ""; if ( $withfacs && $facs ) {
+							if ( file_exists("Thumbnails/$facs") ) $ffolder = "Thumbnails"; else $ffolder = "Facsimile";
+							$ff = "<a href='index.php?action=text&cid=$cid'><img onmouseover=\"rollimages(this);\" onmouseout=\"rolloff(this);\" cid=\"$cid\" style='height: 100px; object-fit: cover; width: 100px; margin-right: 10px;' src='$ffolder/$facs'/></a>";
+						};
+						$maintext .= "<tr><td style='background-color: white;'>$ff
+							<td><a href='index.php?action=file&cid=$cid' style='font-size: large;'>$opttit</a><table class='subtable'>";
+						foreach ( $fatts as $key => $val ) { 
+							if ( $val != "_") $maintext .= "<tr><th>{$atttit[$key]}</th><td>$val</td></tr>"; 
+						};
+						$maintext .= "</table>";
+					} else {
+						$maintext .= "<tr><td><a href='index.php?action=file&cid={$fid}'>{$fidtxt}</a><td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>".join ( "<td style='padding-left: 6px; padding-right: 6px; border-left: 1px solid #dddddd;'>", $fatts );
+					};
+				};
+				$maintext .= "</tbody></table>";
+				$locale = getset('defaults/base/locale', 'en');
+				if ( getset('defaults/browser/style') == "table" ) {
+					$maintext .= "
+		<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
+		<script src='//cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js'></script>
+		<script src='https://cdn.datatables.net/plug-ins/1.13.1/sorting/intl.js'></script>
+		<script src='https://cdn.datatables.net/plug-ins/1.13.1/i18n/cs.json'></script>
+		<link rel=\"stylesheet\" href=\"//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css\">
+		<script>
+$(document).ready(function () {
+  $.fn.dataTable.ext.order.intl('idcol');
+  $('#thistable').DataTable({locale: '$locale', responsive: true, 'lengthMenu': [ [10, 25, 100, -1], [10, 25, 100, 'All'] ], 'pageLength': $max});
+  $('.dataTables_length').addClass('bs-select');
+});
+		
+		</script>
+					";
+				};
+
+			} else {
+				$maintext .= "<p>$path
+					<p>$cnt {%documents} $nav
+					<hr><ul id=sortlist>";
+
+				$catq = "tabulate Matches $start $stop match text_id, match $titlefld";
+				$results = $cqp->exec($catq);
+
+				foreach ( explode("\n", $results) as $result ) {
+					list ( $cid, $title ) = explode("\t", $result);
+					if ( $titlefld == "text_id" ) {
+						$title = preg_replace("/.*\/(.*?)\.xml/", "$1", $cid);
+					};
+					if ( $cid && $title ) $maintext .= "<li key='$title'><a href='index.php?action=file&cid=$cid'>$title</a></li>";
+				};
+				$maintext .= "</ul>";
+			};
+		} else {
+			if ( $username ) $maintext .= "<p class=adminpart>Failed query: ".htmlentities($cqpquery);
+		};
+		
+	} else if ( $class ) {
+
+		$item = getset("cqp/sattributes/text/$class");
+		$cat = $item['display'];
+
+		$maintext .= "<p><a href='index.php?action=$faction'>{%!documents}</a>$subpath > {%$cat}
+			<hr>";
+
+		$list = file_get_contents("$cqpfolder/text_$class.avs");
+
+		foreach ( explode("\0", $list) as $val ) {
+			if ( $item['values'] == "multi" ) {
+				foreach ( explode(",", $val) as $pval ) $vals[trim($pval)]++;
+			} else $vals[$val]++;
+		};
+		
+		if ( $item['type'] == "date") {
+			$datelist = "\"".join("\",\"", array_keys($vals))."\"";
+			$maintext .= "
+				<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css\">
+				<form name=\"datep\" id=\"datep\">
+				<input type=\"text\" class=\"datepicker\" id=\"datef\">
+				</form>
+				<script src=\"https://cdn.jsdelivr.net/npm/flatpickr\"></script>
+				<script>
+					var datelist = [$datelist];
+					var lastat;
+					function checkmonth() {
+						var tocheck = flatp.currentMonth + 12*flatp.currentYear;
+						var found = false; var bef = false; var aft = false;
+						console.log('looking for: ' + flatp.currentYear + '.' + flatp.currentMonth); 
+
+						var dir = 1;
+						if ( lastat < tocheck ) { 
+							dir = 0;
+						};
+						lastat = tocheck;
+						
+						for ( var i=0; i<datelist.length; i++ ) {
+							var tmp = datelist[i].split('-');
+							var checkval = parseInt(tmp[1])-1 + 12*(parseInt(tmp[0]));
+
+							if ( checkval < tocheck ) { 
+								bef = true; 
+							} else if ( checkval > tocheck ) { 
+								aft = true; 
+							} else if ( checkval == tocheck ) {
+								found = true; break;
+							};
+						};
+						
+						if ( dir ) {
+							if ( !found && bef ) { 
+								flatp.changeMonth(-1);
+							} else if ( !found && !bef ) {
+								flatp.changeMonth(1);
+							};
+						} else {
+							if ( !found && aft ) { 
+								flatp.changeMonth(1);
+							} else if ( !found && !aft ) {
+								flatp.changeMonth(-1);
+							};
+						};
+						
+					};
+					var flatp;
+					flatpickr(\"#datef\", {
+						enable: datelist,
+						inline: true,
+						onReady: function(selectedDates, dateStr, instance) {
+							flatp = instance;
+							checkmonth();
+						},
+						onMonthChange: function(selectedDates, dateStr, instance) {
+							checkmonth();
+						},
+						onChange: function(selectedDates, dateStr, instance) {
+							window.open('index.php?action=$saction&class=$class&val='+dateStr, '_self');
+						},
+					});
+				</script>";
+				
+	
+		} else {
+			$maintext .= "<ul id=sortlist>";
+			$scnt = count($vals);
+			foreach ( $vals as $val => $cnt ) {
+				$oval = urlencode($val);
+				if ( $val == "" || $val == "_" ) {
+					if ( !getset('cqp/listnone') ) continue;
+					$val = "({%none})";
+				} else if ( $item['type'] == "kselect" || $item['translate'] ) $val = "{%$class-$val}";
+				$maintext .= "<li key='$val'><a href='index.php?action=$saction&class=$class&val=$oval'>$val</a></li>";
+			};
+			$maintext .= "</ul><script language=Javascript>sortList(document.getElementById('sortlist'));</script>";
+			$maintext .= "<hr><p>$scnt {%results}";
+		};
+
+	} else {
+
+		if ( $subpath ) $doctitle = "<a href='index.php?action=$faction'>{%!documents}</a>$subpath";
+		else $doctitle = getlangfile("browsertext", true);
+		
+		$maintext .= "$doctitle
+			<hr><ul id=sortlist>";
+			
+		foreach ( getset('cqp/sattributes/text', array()) as $key => $item ) {
+
+			if ( !is_array($item) ) continue;
+			if ( strstr('_', $key ) ) { $xkey = $key; } else { $xkey = "text_$key"; };
+			$cat = $item['display']; # $val = $item['long'] or
+
+			if ( ( $item['type'] == "select" || $item['browse'] || $item['type'] == "kselect"  || $item['type'] == "date" )
+					&& is_array($item) && ( ( ( !$item['noshow'] || $item['browse'] ) && !$item['admin']  ) || $username ) ) {
+				# Check we have value (only _ has size 2)
+				if ( filesize("$cqpfolder/text_$key.avs") > 2 ) {
+					$foundsome = 1;
+					$maintext .= "<li key='$cat'><a href='index.php?action=$saction&class=$key'>{%$cat}</a>";
+					# if ( $username ) $maintext .= " <span style='color: grey'>".filesize("$cqpfolder/text_$key.avs")."</span>";
+				} else if ( $username ) {
+					$maintext .= "<li key='$cat' style='opacity: 0.5;'><a href='index.php?action=$saction&class=$key'>{%$cat}</a> (no values for this corpus)";
+				};
+			};
+		};
+		$maintext .= "<li key='$cat'><a href='index.php?action=$saction&show=all'>{%All documents}</a></li>";
+		$maintext .= "</ul>"; //<script language=Javascript>sortlist(document.getElementById('sortlist'));</script>";
+		if ( !$foundsome ) $maintext .= "<script language=Javascript>top.location='index.php?action=$gaction&show=all'</script>";
+	};
+
+	if ( $username ) {
+			$maintext .= "<hr><div class=adminpart>The files shown here are only the files in the indexed (CQP) corpus -
+				to see all XML files, click <a href='index.php?action=files'>here</a>,
+				and to update the CQP corpus, click <a href='index.php?action=recqp'>here</a> </div>";
+	};
+
+
+?>

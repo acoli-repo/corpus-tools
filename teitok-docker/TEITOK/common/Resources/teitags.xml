@@ -1,0 +1,240 @@
+<tags>
+<item key="ab" display="anonymous block">
+	<desc>(anonymous block) contains any arbitrary component-level unit of text, acting as an anonymous container for phrase or inter level elements analogous to, but without the semantic baggage of, a paragraph.</desc>
+</item>
+<item key="add" display="added later">
+	<desc>(addition) contains letters, words, or phrases inserted in the source text by an author, scribe, or a previous annotator or corrector.</desc>
+	<atts>
+		<item key="place" display="where the text was added">
+			<values>	
+				<item key="top" display="at the top of the page"/>
+				<item key="bottom" display="at the foot of the page"/>
+				<item key="margin" display="in the margin (left, right, or both)"/>
+				<item key="opposite" display="on the opposite, i.e. facing, page"/>
+				<item key="overleaf" display="on the other side of the leaf"/>
+				<item key="above" display="above the line"/>
+				<item key="right" display="to the right, e.g. to the right of a vertical line of text, or to the right of a figure"/>
+				<item key="below" display="below the line"/>
+				<item key="left" display="to the left, e.g. to the left of a vertical line of text, or to the left of a figure"/>
+				<item key="end" display="at the end of e.g. chapter or volume."/>
+				<item key="inline" display="within the body of the text."/>
+				<item key="inspace" display="in a predefined space, for example left by an earlier scribe."/>
+			</values>
+		</item>
+		<item key="hand" display="who added the text"/>
+	</atts>
+</item> 
+<item key="cb" display="column beginning" empty="1">
+	<desc>(column beginning) marks the beginning of a new column of a text on a multi-column page.</desc>
+	<atts>
+		<item key="n" display="column number"/>
+	</atts>
+</item>
+<item key="date" display="date">
+	<desc>(date) contains a date in any format.</desc>
+</item>
+<item key="del" display="deleted by author">
+	<desc>(deletion) contains a letter, word, or passage deleted, marked as deleted, or otherwise indicated as superfluous or spurious in the copy text by an author, scribe, or a previous annotator or corrector.</desc>
+	<atts>
+		<item key="rend" display="way of deleting">
+			<values>	
+				<item key="overstrike" display="letters striked out"/>
+				<item key="overtyped" display="typed over"/>
+				<item key="overwritten" display="written over"/>
+				<item key="strikethrough" display="striked through"/>
+			</values>	
+		</item>
+	</atts>
+</item>
+<item key="desc" display="description of parent elm">
+	<desc>(description) contains a short description of the purpose, function, or use of its parent element, or when the parent is a documentation element, describes or defines the object being documented.</desc>
+</item>
+<item key="div" display="text division">
+	<desc>(text division) contains a subdivision of the front, body, or back of a text.</desc>
+</item>
+<item key="foreign" display="in another language">
+	<desc>(foreign) identifies a word or phrase as belonging to some language other than that of the surrounding text.</desc>
+	<atts>
+		<item key="lang" display="language"/>
+	</atts>
+</item>
+<item key="fw" display="running head">
+	<desc>(forme work) contains a running head (e.g. a header, footer), catchword, or similar material appearing on the current page.</desc>
+</item>
+<item key="gap" display="untranscribed text" empty="1">
+	<desc>(gap) indicates a point where material has been omitted in a transcription, whether for editorial reasons described in the TEI header, as part of sampling practice, or because the material is illegible, invisible, or inaudible.</desc>
+	<atts>
+		<item key="reason" display="reason why text not transcribed"/>
+		<item key="agent" display="cause of damage"/>
+		<item key="quantity" display="size of gap"/>
+	</atts>
+</item>
+<item key="hi" display="highlighted text">
+	<desc>(highlighted) marks a word or phrase as graphically distinct from the surrounding text, for reasons concerning which no claim is made.</desc>
+	<atts>
+		<item key="rend" display="rendering">
+			<values>	
+				<item key="italic" display="italic"/>
+				<item key="bold" display="bold"/>
+				<item key="underlined" display="underlined"/>
+				<item key="smallcaps" display="smallcaps"/>
+			</values>	
+		</item>
+	</atts>
+</item>
+<item key="head" display="heading">
+	<desc>(heading) contains any type of heading, for example the title of a section, or the heading of a list, glossary, manuscript description, etc.</desc>
+	<atts>
+		<item key="place" display="placement"/>
+	</atts>
+</item>
+<item key="kinesic" display="non-vocalic" module="spoken">
+	<desc>(kinesic) marks any communicative phenomenon, not necessarily vocalized, for example a gesture, frown, etc.</desc>
+</item>
+<item key="l" display="verse line">
+	<desc>(verse line) contains a single, possibly incomplete, line of verse.</desc>
+	<atts>
+		<item key="met" display="metrical structure (conventional)"/>
+		<item key="real" display="metrical structure (real)"/>
+		<item key="rhyme" display="rhyme scheme"/>
+	</atts>
+</item>
+<item key="lb" display="line beginning" empty="1">
+	<desc>(line beginning) marks the beginning of a new (typographic) line in some edition or version of a text.</desc>
+	<atts>
+		<item key="n" display="line number"/>
+	</atts>
+</item>
+<item key="lg" display="line group (in a verse)">
+	<desc>(line group) contains one or more verse lines functioning as a formal unit, e.g. a stanza, refrain, verse paragraph, etc.</desc>
+	<atts>
+		<item key="type" display="type of group"/>
+	</atts>
+</item>
+<item key="m" display="morpheme">
+	<desc>(morpheme) represents a grammatical morpheme.</desc>
+</item>
+<item key="milestone" display="marker in text">
+	<desc>(milestone) marks a boundary point separating any kind of section of a text, typically but not necessarily indicating a point at which some part of a standard reference system changes, where the change is not represented by a structural element.</desc>
+	<atts>
+		<item key="type" display="type of marker"/>
+	</atts>
+</item>
+<item key="name" display="proper name">
+	<desc>(name, proper noun) contains a proper noun or noun phrase.</desc>
+	<atts>
+		<item key="type" display="type of name"/>
+		<item key="ana" display="named entity tag"/>
+	</atts>
+</item>
+<item key="note" display="explanatory note">
+	<desc>(note) contains a note or annotation.</desc>
+</item>
+<item key="orgName" display="organization name">
+	<desc>(organization name) contains an organizational name.</desc>
+</item>
+<item key="p" display="paragraph">
+	<desc>(paragraph) marks paragraphs in prose.</desc>
+</item>
+<item key="pause" display="pause" module="spoken" empty="1">
+	<desc>(pause) marks a pause either between or within utterances.</desc>
+	<atts>
+		<item key="dur" display="duration"/>
+		<item key="type" display="type of pause"/>
+	</atts>
+</item>
+<item key="persName" display="person name">
+	<desc>(personal name) contains a proper noun or proper-noun phrase referring to a person, possibly including one or more of the person's forenames, surnames, honorifics, added names, etc.</desc>
+</item>
+<item key="placeName" display="place name">
+	<desc>(place name) contains an absolute or relative place name.</desc>
+</item>
+<item key="pb" display="page beginning" empty="1">
+	<desc>(page beginning) marks the beginning of a new page in a paginated document.</desc>
+	<atts>
+		<item key="n" display="page number"/>
+		<item key="facs" display="facsimile image"/>
+		<item key="rend" display="image cut-out"/>
+	</atts>
+</item>
+<item key="q" display="quoted">
+	<desc>(quoted) contains material which is distinguished from the surrounding text using quotation marks or a similar method, for any one of a variety of reasons including, but not limited to: direct speech or thought, technical terms or jargon, authorial distance, quotations from elsewhere, and passages that are mentioned but not used.</desc>
+</item>
+<item key="quote" display="quotation">
+	<desc>(quotation) contains a phrase or passage attributed by the narrator or author to some agency external to the text.</desc>
+</item>
+<item key="ref" display="reference">
+	<desc>(reference) defines a reference to another location, possibly modified by additional text or comment.</desc>
+	<atts>
+		<item key="target" display="target of the reference"/>
+	</atts>
+</item>
+<item key="s" display="sentence">
+	<desc>(s-unit) contains a sentence-like division of a text.</desc>
+	<atts>
+		<item key="type" display="type of sentence"/>
+	</atts>
+</item>
+<item key="sic" display="apparently incorrect">
+	<desc>(Latin for thus or so) contains text reproduced although apparently incorrect or inaccurate.</desc>
+</item>
+<item key="seg" display="arbitrary segment">
+	<desc>(arbitrary segment) represents any segmentation of text below the ‘chunk’ level.</desc>
+</item>
+<item key="space" display="significant space" empty="1">
+	<desc>(space) indicates the location of a significant space in the text.</desc>
+	<atts>
+		<item key="dim" display="horizontal/vertical"/>
+		<item key="quantity" display="amount of space"/>
+	</atts>
+</item>
+<item key="span" display="annotation span">
+	<desc>associates an interpretative annotation directly with a span of text.</desc>
+</item>
+<item key="stage" display="stage direction">
+	<desc>(stage direction) contains any kind of stage direction within a dramatic text or fragment.</desc>
+</item>
+<item key="supplied" display="estimated content">
+	<desc>(supplied) signifies text supplied by the transcriber or editor for any reason; for example because the original cannot be read due to physical damage, or because of an obvious omission by the author or scribe.</desc>
+	<atts>
+		<item key="confidence" display="confidence in the transcription"/>
+		<item key="reason" display="reason why text had to be supplied"/>
+	</atts>
+</item>
+<item key="surplus" display="redundant text">
+	<desc>(surplus) marks text present in the source which the editor believes to be superfluous or redundant.</desc>
+</item>
+<item key="term" display="technical term">
+	<desc>(term) contains a single-word, multi-word, or symbolic designation which is regarded as a technical term.</desc>
+</item>
+<item key="time" display="time">
+	<desc>(time) contains a phrase defining a time of day in any format.</desc>
+</item>
+<item key="tok" display="token">
+	<desc>(token) contains a word or punctuation mark [TEITOK specific]</desc>
+	<atts>
+		<item key="form" display="written form"/>
+	</atts>
+</item>
+<item key="u" display="utterance" module="spoken">
+	<desc>(utterance) contains a stretch of speech usually preceded and followed by silence or by a change of speaker.</desc>
+	<atts>
+		<item key="who" display="speaker ID"/>
+		<item key="start" display="start time"/>
+		<item key="end" display="end time"/>
+	</atts>
+</item>
+<item key="unclear" display="seemingly readable text">
+	<desc>(unclear) contains a word, phrase, or passage which cannot be transcribed with certainty because it is illegible or inaudible in the source.</desc>
+	<atts>
+		<item key="agent" display="type of damage"/>
+		<item key="reason" display="reason why difficult"/>
+	</atts>
+</item>
+<item key="unit" display="unit">
+	<desc>contains a symbol, a word or a phrase referring to a unit of measurement in any kind of formal or informal system.</desc>
+</item>
+<item key="vocal" display="non-word" module="spoken">
+	<desc>(vocal) marks any vocalized but not necessarily lexical phenomenon, for example voiced pauses, non-lexical backchannels, etc.</desc>
+</item>
+</tags>

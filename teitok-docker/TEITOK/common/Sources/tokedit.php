@@ -1,0 +1,802 @@
+<?php
+	// Script to allow editing <tok> in an XML file
+	// Which features are edited is defined in settings.xml
+	// (c) Maarten Janssen, 2015
+
+	check_login();
+
+	$fileid = $_POST['cid'] or $fileid = $_GET['cid'] or $fileid = $_GET['id'] or $fileid = $_GET['fileid'];
+	$oid = $fileid;
+	$tokid = $_POST['tid'] or $tokid = $_GET['tid'];
+	$tokid = preg_replace("/r-\d+_/", "", $tokid); // for row-driven ids
+
+	$partform = getset('xmlfile/formpart', "form"); 
+	
+	if ( !strstr( $fileid, '.xml') ) { $fileid .= ".xml"; };
+	
+	require("$ttroot/common/Sources/ttxml.php");
+	$ttxml = new TTXML();
+	$fileid = $ttxml->fileid;
+	$xmlid = $ttxml->xmlid;
+	$xml = $ttxml->xml;
+
+	$result = $xml->xpath("//tok[@id='$tokid']"); 
+	$token = $result[0]; # print_r($token); exit;
+	if ( !$token ) { fatal("Token not found: $tokid"); };
+
+	$tokform = $token['form'] or $tokform = $token."";
+
+	$rawtok = preg_replace( "/<\/?tok[^>]*>/", "", $token->asXML() );
+
+	if ( !$token['id'] || $token->xpath(".//dtok[not(@id)]") ) {
+		$warning = "<div class=warning>There are TOK or DTOK without @id, which will not allow TEITOK 
+			tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$fileid\">here</a> to renumber the XML file
+			which will provide all TOK and DTOK with an @id.</div>";
+	}
+
+	if ( $token->xpath(".//dtok[not(@form)]") ) {
+		$warning = "<div class=warning>There are DTOK without @form, which will make the dtoks not correctly 
+			export to the CQP corpus. Please provide a written form for each dtok, which should correspond
+			to the form of the word if it would not have been part of this contraction/clitic/...</div>";
+	}
+
+	$result = $xml->xpath("//title"); 
+	$title = $result[0];
+	if ( $title == "" ) $title = "<i>{%Without Title}</i>";
+
+	// Allow replacing special symbols by simple ASCII sequences
+	if ( getset('input/replace') != '' ) {
+		$chareqjs .= "<p>{%Special characters}: "; $sep = "";
+		foreach ( getset('input/replace', array()) as $key => $item ) {
+			$val = $item['value'];
+			$chareqjs .= "$sep $key = $val"; 
+			$charlist .= "ces['$key'] = '$val';";
+			$sep = ",";
+		};
+		$chareqtxt = $chareqjs; 
+		$chareqjs .= "
+			<script language=\"Javascript\">
+			var ces = {};
+			$charlist
+			function chareq (fld) {
+				for(i in ces) {
+					fld.value = fld.value.replace(i, ces[i]);
+				}
+			};
+			</script>
+		";
+		$chareqfn = "onkeyup=\"chareq(this);\"";
+	};			
+
+		if ( $token['bbox'] ) {
+			# This is a token-aligned facsimile transcription
+			$curr = current($token->xpath("./preceding::pb[1]")); 
+			$imgsrc = $curr['facs']; 
+			if ( strpos($imgsrc, "http" ) === false ) $imgsrc = "Facsimile/$imgsrc";
+		
+			$bb = explode ( " ", $token['bbox'] );
+			if ( is_array($bb) && count($bb) == 4 ) {
+				$cropwidth = $bb[2]-$bb[0] + 10;
+				$cropheight = $bb[3]-$bb[1] + 10; 
+
+				list($imgwidth, $imgheight, $imgtype, $imgattr) = getImageSize($imgsrc);
+
+				$divwidth = 300;
+				$divheight = $divwidth*($cropheight/$cropwidth);
+				if ( $divheight > 150 ) {
+					$divheight = 120;
+					$divwidth = $divheight*($cropwidth/$cropheight);
+				};
+				$imgscale = $divwidth/$cropwidth;
+				$setwidth = $imgscale*$imgwidth;
+				$setheight = $imgscale*$imgheight;
+				$topoffset = ($bb[1]-5)*$imgscale;
+				$leftoffset = ($bb[0]-5)*$imgscale;
+				
+				// Add the data of the line
+				$bboxpart = "<div style='float: right;'><div style=' width: {$divwidth}px; height: {$divheight}px; overflow: hidden; margin: 3px;'>
+					<img style='width: {$setwidth}px; height: {$setheight}px; margin-top: -{$topoffset}px; margin-left: -{$leftoffset}px;' src='$imgsrc'/>
+					</div>
+					<p style='text-align: center; margin-top: -2px;'><a href='index.php?action=elmedit&tid=$tokid&cid=$fileid'>edit</a></p>			
+					</div>";
+
+			};
+			
+ 		};
+		if ( ( $token['start'] && $token['end'] ) || $token->xpath(".//ancestor::u[@start and @end]") ) {
+			# This is a token-level aligned audio transcription
+
+			$timeoffset = 0;			
+			$audionode = $ttxml->audio;
+			$audiosrc = $audionode[0]['url'];
+			if (  $token['start'] && $token['end'] ) {
+				$spstart = $token['start'] - $timeoffset; $spend =  $token['end']; $splen = $spend - $spstart;
+				$tokplay = "<p style='text-align: center; margin-top: 0px; margin-bottom: 0px;' onclick=\"playpart('', $spstart, $spend);\">play token audio</p>";
+			};
+			$utt = current($token->xpath(".//ancestor::u[@start and @end]"));
+			if ( $utt ) {
+				$utstart = $utt['start'] - $timeoffset; $utend = $utt['end']; $utlen = $utend - $utstart;
+				$uttplay = "<p style='text-align: center; margin-top: 0px;' onclick=\"playpart('', $utstart, $utend);\">play utterance audio</p>";
+			};
+			$sptapart = "<div style='float: right;'><div style='diplay: none;'>
+				<script language='Javascript' src=\"$jsurl/audiocontrol.js\" style='diplay: none;'></script>
+				<audio id=\"track\" src=\"$audiosrc\" controls=\"\" ontimeupdate=\"checkstop();\">
+							<p><i><a href=\"$audiosrc\">Audio</a></i></p>
+						</audio>
+				</div>
+				$tokplay			
+				$uttplay			
+				</div>";
+			
+		};
+		
+		$multisep = getset('cqp/multiseperator', ",");
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $item ) {
+			if ( $item['inherit'] ) $inherits .= "\n				inherit['{$item['key']}'] = '{$item['inherit']}';";
+		};
+		$tableheader = 	$ttxml->tableheader();
+		$title = $ttxml->title();
+		$maintext .= "<h2>$ttxml->filename</h2><h1>Edit Token: $tokid</h1>
+		
+				$tableheader
+		
+			<h2>Token value ($tokid): ".$rawtok."</h2>
+			$bboxpart
+			$sptapart
+			$chareqjs
+			<script language=Javascript>
+				var defmultisep = '$multisep';
+				function addvalue ( ak, sel, multisep=defmultisep ) {	
+					if ( document.getElementById('f'+ak).value != '' ) { document.getElementById('f'+ak).value += multisep; };
+					document.getElementById('f'+ak).value += sel.value;
+					sel.selectedIndex = 0;
+				};
+				var inherit = []; $inherits;
+				function fillfrom ( selobj, frm, att ) {
+					var i;
+					for(i=selobj.options.length-1;i>=0;i--)
+					{
+						selobj.remove(i);
+					}
+					var fromform = document.tagform['atts['+frm+']'].value;
+					ifrm = frm;
+					while ( ( fromform == '' || fromform == undefined ) && inherit[ifrm] != '' && document.tagform['atts['+inherit[ifrm]+']'] ) { 
+						ifrm = inherit[ifrm];
+						fromform = document.tagform['atts['+ifrm+']'].value; 
+					};
+					while ( ( fromform == '' || fromform == undefined ) && inherit[ifrm] != '' ) { 
+						fromform = document.tagform['word'].value; 
+					};
+					var xmlhttp;
+					if (window.XMLHttpRequest) {
+					  xmlhttp=new XMLHttpRequest();
+					} else {
+					  xmlhttp=new ActiveXObject(\"Microsoft.XMLHTTP\");
+					};
+					xmlhttp.selector = selobj;
+					xmlhttp.onreadystatechange = function() {
+					  if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+						    xmlDoc = xmlhttp.responseXML;
+						    if ( !xmlDoc ) { 
+						    	return -1;
+						    };
+							x=xmlDoc.getElementsByTagName('option');
+							for (i=0;i<x.length;i++) {
+								var optval = x[i].childNodes[0].nodeValue;
+								var j = i+1;
+								this.selector.options[j] = new Option(optval, optval, true);
+							}
+						}
+					  }
+					xmlhttp.open('GET','index.php?action=getvals&att='+att+'&key='+frm+'&val='+fromform,true);
+					xmlhttp.send();
+				};
+				
+			</script>
+			<form action='index.php?action=toksave' method=post name=tagform id=tagform>
+			<input type=hidden name=cid value='$fileid'>
+			<input type=hidden name=tid value='$tokid'>
+
+			<table>";
+
+
+		// show the innerHTML
+		$xmlword = $token->asXML(); 
+		$xmlword = preg_replace("/<\/?d?tok[^>]*>/", "", $xmlword); // Remove all dtoks from the raw XML - will be edited separately
+		$xmlword = preg_replace("/<\/?m(?=[ >])[^>]*>/", "", $xmlword); // Remove all morphological elements from the raw XML - will be edited separately
+		$xmlword = str_replace("&lt;", "&amp;lt;", $xmlword); // Protect <
+		$xmlword = str_replace("&gt;", "&amp;gt;", $xmlword); // Protect >
+		$xmlword = str_replace("'", "&#039;", $xmlword); // Protect quotes
+		$maintext .= "<tr><td>pform<td>Transcription (Inner XML)<td><input size=60 name=word id='word' value='$xmlword'>";
+
+		$tokclone = simplexml_load_string($token->asXML());
+		$leftatts = $tokclone->attributes();
+		unset($leftatts['id']);
+
+		// Show all the defined forms and make them editable
+		foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
+			unset($leftatts[$key]);
+			$atv = $token[$key]; 
+			$val = $item['display'];
+			if ( $key != "pform" && !$item['noedit'] ) { // the raw XML is not an attribute, and some attribute are set to be non-editable
+				$atv = str_replace("'", "&#039;", $atv); // protect the HTML field
+				$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv' $chareqfn>";
+			};
+		};
+		
+		
+		$maintext .= "<tr><td colspan=10><hr>";
+		// Show all the defined tags
+		foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
+		
+			unset($leftatts[$key]);
+		
+			// Reinterpret some depricated settings values
+			if ( $item['item'] == "eselect" ) { $item['input'] = "select"; $item['add'] = 1; }; 
+			if ( $item['item'] == "mselect" ) { $item['input'] = "select"; $item['values'] = "multi"; }; 
+		
+			# Check whether this is a multi-value field
+			$multival = 0; 
+			if ( $item['values'] == "multi" || getset("cqp/pattributes/$key/values") == "multi" ) {
+				$multival = 1;
+				if (!$item['multisep']) $item['multisep'] = getset("cqp/pattributes/$key/multisep", $multisep);
+			};
+		
+			$atv = $token[$key]; 
+			$val = $item['display'];
+			if ( $item['noedit'] ) {
+				if ( $val && $atv ) $maintext .= "<tr><td>$key<td id='name-$key'>$val<td>$atv";
+				continue;
+			};
+			
+			$lookuplink = "";
+			if ( $item['lookup'] ) {
+				if ( $lookupform == "" ) {
+					$lookupform = "<div id='lookupform' class='helpbox' style='display: none;'>
+							<span style='margin-right: -5px; float: right; cursor: pointer;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>
+							<h3>Value Lookup</h3>
+							<p>Click to select <span style='font-weight: bold;' id='lffld'></span> for <span id='lffrom'></span> = <span style='font-weight: bold;' id='lfval'></span>
+							<table id='lftable' style='background-color: white;'>
+							</table>
+							<br>
+						</div>
+						<script language=Javascript>
+							function insertval (fld, val) {
+								var selfld = document.getElementById('f'+fld);
+								if (selfld) { selfld.value = val; }
+								else { console.log('No HTML element for: '+fld); };
+							};
+							function lookup( fkey, fld ) {
+								var ftry = fkey;
+								var fform = document.getElementById('f'+fkey).value;
+								while ( fform == '' && ftry != 'form' && inherit[ftry] ) { 
+									ftry =  inherit[ftry];  
+									fform = document.getElementById('f'+ftry).value;
+								};
+								if ( fform == '' && ftry == 'form' ) { fform = document.getElementById('word').value; };
+								var xmlhttp;
+								if (window.XMLHttpRequest) {
+								  xmlhttp=new XMLHttpRequest();
+								} else {
+								  xmlhttp=new ActiveXObject(\"Microsoft.XMLHTTP\");
+								};
+								var geturl = 'index.php?action=getvals&format=json&att='+fld+'&key='+fkey+'&val='+fform;
+								xmlhttp.onreadystatechange = function() {
+								  if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+										var json = JSON.parse(xmlhttp.responseText);
+										if ( !json ) { 
+											return -1;
+										};
+										document.getElementById('lookupform').style.display = 'block';
+										document.getElementById('lffld').innerHTML = fld;
+										document.getElementById('lffrom').innerHTML = fkey;
+										document.getElementById('lfval').innerHTML = fform;
+										var x=json.options;
+										var lftable = document.getElementById('lftable');
+										lftable.innerHTML = '<tr><th>Value</th><th>Display</th><th>Corpus count</th></tr>';
+										if (x.length==1) lftable.innerHTML += '<tr><td colspan=3><i>No values found</i></td></tr>';
+										for (i=0;i<x.length;i++) {
+											var opt = x[i];
+											if ( !opt.val ) continue;
+											if ( !opt.display ) opt.display = opt.val;
+											
+											lftable.innerHTML += '<tr><td><a onclick=\"insertval(\''+fld+'\', \''+opt.val+'\');\">'+opt.val+'</a></td><td>'+opt.display+'</td><td>'+opt.cnt+'</td></tr>';
+										}
+									}
+								  }
+								xmlhttp.open('GET',geturl,true);
+								xmlhttp.send();
+							};
+						</script>";
+				};
+				$lookuplink = "<a onclick=\"lookup('{$item['lookup']}', '$key');\">lookup</a>";
+			};
+			if ( $lookuplink ) $sep = " &bull; "; else $sep = "";					
+			
+			if ( $key != "pform" ) {
+				$inputtype = $item['input'] or $inputtype = strtolower($item['type']);
+				if ( strpos($inputtype, 'select') !== false ) {
+					$maxsize = 5; $optlist = ""; unset($optarr);
+					if ( is_array($item['options']) ) {
+						// Build the options from the settings
+						foreach ( $item['options'] as $key2 => $val2 ) {
+							$kval = $val2['value'] or $kval = $key2;
+							$kvaltxt = $val2['display'] or $kvaltxt = $kva;
+							$maxsize = max($maxsize, strlen($kval));
+							if ($item['i18n']) $kvaltxt = "{%$kvaltxt}"; 
+							$seltxt = ""; if ( $kval == $atv ) $seltxt = "selected";
+ 							$optarr[$kval] = "<option value='$kval' $seltxt>$kvaltxt</option>"; 
+ 						}; 
+						if ( !$item['nosort'] ) sort( $optarr, SORT_LOCALE_STRING ); 
+						$optlist = join ( "", $optarr );
+					} else if ( file_exists("cqp/$key.lexicon") ) {
+						$tmp = file_get_contents("cqp/$key.lexicon"); 
+						$optarr = array();
+						foreach ( explode ( "\0", $tmp ) as $tmp ) { 
+							if ( $multival ) $vallist = explode($item['multisep'], $tmp); else $vallist = array($tmp);
+							foreach ( $vallist as $kval ) {
+								$kval = trim($kval); # Trim to avoid problems with spaces around commas
+								$maxsize = max($maxsize, strlen($kval));
+								if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
+								if ( $kval != "__UNDEF__" && $kval != "" ) $optarr[$kval] = "<option value='$kval' $seltxt>$kval</option>"; 
+							};
+						};
+						sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+					} else { $optlist = ""; };
+					
+					if ( $optlist ) {
+						if ( $inputtype == "mselect" || $item['values'] == "multi" ) {
+							$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'>    $lookuplink
+								$sep select: <select name=null[$key] onChange=\"addvalue('$key', this, '{$item['multisep']}');\"><option value=''>[select]</option>$optlist</select>";
+						} else {
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val 
+										<td><select name=atts[$key]><option value=''>[select]</option>$optlist</select>  $lookuplink";
+						};
+						
+						if ( $item['add'] )	$maintext .= " - new value: <input size=$maxsize name=newatt[$key] id='fn$key' value=''> <input type=button value='add'  onClick=\"addvalue('$key', document.getElementById('fn$key'), '{$item['multisep']}'); document.getElementById('fn$key').value='';\">";
+
+					} else {
+						# Fallback to input if select list fails
+						$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input type=text size=60 name=atts[$key] id='f$key' value='$atv'>  $lookuplink <i>No selectable options available for '$key'</i>";
+					};
+										 
+				} else if ( $inputtype == "lselect" ) {
+					$fromform = $item['form'] or $fromform = "form";
+					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=40 name=atts[$key] id='f$key' value='$atv'> Alternatives: <select name='' onchange=\"document.tagform['atts[{$key}]'].value = this.value;\" onfocus=\"fillfrom(this, '$fromform', '$key');\" onload=\"fillfrom(this, '$fromform', '$key');\"><option value=''>[choose]</option></select>  $lookuplink";					
+				} else if ( is_array($item) && $item['input']['link'] ) {
+					if ( $lookuplink ) $sep = " &bull; "; else $sep = "";
+					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name='atts[$key]' id='f$key' value='$atv'> <a onClick=\"settb('$key');\">{%{$item['input']['link']}</a> $sep $lookuplink";
+				} else if ( $item['type'] == "pos" ) {
+					if( !$tagbuilder && file_exists("Resources/tagset.xml") ) {
+						$tagbuilder = "
+						<script language=Javascript src='$jsurl/querybuilder.js'></script>
+						<div id='tbframe' class='helpbox' style='display: none; width: 50%;'>
+						<span style='margin-right: -5px; float: right; cursor: pointer;' onClick=\"this.parentNode.style.display = 'none';\">&times;</span>
+						<h3>{%Tag Builder}: <span id='tbtit'>{%$val}</span></h3>
+						<form>
+						";
+						if ( !$tagset ) {
+							require ( "$ttroot/common/Sources/tttags.php" );
+							$tagset = new TTTAGS("", false);
+						}; $optlist = "";
+						$noneval = $tagset->tagset['noval'] or $noneval = "0";
+						$taglens .= " var noval = '$noneval';";
+						foreach ( $tagset->taglist() as $letters => $name ) {
+							$mainlist .= "<option value=\"$letters\">$name</option>";
+							$letter = substr($letters,0,1);
+							$inneropts = "<table>"; $taglen = 0;
+							foreach ( $tagset->tagset['positions'][$letter] as $pos => $opt ) {
+								if ( !is_array($opt) || $pos == "multi" ) continue;
+								$innerlist = ""; $taglen++;
+								foreach ( $opt as $key2 => $val2 ) {
+									if ( !is_array($val2) ) continue;
+									$display = $val2['display-'.$lang] or $display = $val2['display'] or $display = $key2;
+									$innerlist .= "<option value='{$val2['key']}'>$display</option>";
+								};
+								$display = $opt['display-'.$lang] or $display = $opt['display'] or $display = $pos;
+								if ( $pos > $tagset->tagset['positions'][$letter]['maintag']) {
+									$posnr = $opt['pos'] or $posnr = $pos;
+									$taglen = max($taglen, $posnr);
+									$inneropts .= "\n<tr><th>$display<td><select id='posopt-$letters-$posnr'><option value='$noneval' selected>[{%any}]</option>$innerlist</select>";
+								};
+							};
+							$taglens .= " taglen['$letter'] = $taglen;";
+							$inneropts .= "</table>";
+						
+							$posopts .= "<div id='posopt-$letters' style='display: none;'>$inneropts</div>";
+						};
+						$tagbuilder .= "
+							<p>{%Main POS}: <select id='mainpos' onChange='changepos(this);'><option disabled selected>[{%select}]</option>$mainlist</select>
+							$posopts
+							<p><input type='button' value=\"{%Insert}\" onClick=\"filltag(0,1);\"> 
+							<input type='button' value=\"{%Append}\" onClick=\"filltag(1,1);\">
+							</form></div>
+							<script language='Javascript'>
+								var tagfld; var tagprev;
+								var taglen = []; $taglens
+								function settb(fldid) {
+									var fld = document.getElementById('f'+fldid);
+									var tit = document.getElementById('name-'+fldid).innerText;
+									var curpos = fld.value;									
+									var mainpos = curpos.substr(0,1);
+									
+									document.getElementById('tbtit').innerHTML = tit;
+									setbyval('mainpos', mainpos);
+									var taglist = document.getElementById('mainpos').options;
+									for ( var i=1; i<taglist.length; i++ ) {
+										var mp = taglist[i].value;
+										if ( mp ) document.getElementById('posopt-'+mp).style.display = 'none';
+									};
+									if ( mainpos ) {
+										document.getElementById('posopt-'+mainpos).style.display = 'block';
+										for ( var i=1; i<curpos.length; i++) {
+											setbyval('posopt-'+mainpos+'-'+i, curpos.substr(i,1));
+										};
+									} else {
+										document.getElementById('mainpos').selectedIndex = 0;
+									};
+									
+									tagbuilder('f'+fldid);									
+								};
+								function setbyval(selid, selval) {
+									var selfld = document.getElementById(selid);
+									if (selfld) selfld.value = selval;
+									else console.log('No field for: '+selid);
+								};
+							</script>";
+					};
+					if ( $lookuplink ) $sep = " &bull; "; else $sep = "";
+					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name='atts[$key]' id='f$key' value='$atv'> <a onClick=\"settb('$key');\">{%tag builder}</a> $sep $lookuplink";
+				} else {
+					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=atts[$key] id='f$key' value='$atv'> $lookuplink";
+				};
+			};
+		};
+
+		$maintext .= "</table>";
+
+
+		// Show all the DTOKS
+		$result2 = $token->xpath("dtok"); $dtk = 0;
+		foreach ( $result2 as $dtoken ) {
+			$did = $dtoken['id'] or $did = "<span class=warn>No ID!</span>"; $dtk++; 
+			if ( !$did ) { 
+				$warning = "<div class=warning>TOK or DTOK without @id, which will not allow TEITOK 
+					tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$fileid\">here</a> to renumber the XML file
+					which will provide all TOK and DTOK with an @id.</div>";
+				$did = $token['id'].'-'.$dtk; 
+			};
+			$dform = $dtoken['form'];
+			$dpart = $dtoken['formpart'] or $dpart = $dtoken['form'];
+			$totform .= $dpart;
+			$rawdxml = $dtoken->asXML();
+			$rawdxml = preg_replace("/'/", "&#039;", $rawdxml ); # We need to protect apostrophs in the HTML form
+			$maintext .= "<hr style='background-color: #aaaaaa;'><h2>D-Token ({$did})</h2> 
+				<input type=hidden name='dtok[$did]' size=70 value='$rawdxml'>
+				<table>
+				";
+			if ( getset('xmlfile/formpart') != '' ) {
+					$maintext .= "<tr><td>formpart<td>Part of token $tagform<td><input size=60 name=datts[$did:formpart] id='fformpart' value='{$dtoken['formpart']}'>";
+			};
+			foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
+				$atv = $dtoken[$key]; 
+				$val = $item['display'];
+				if ( $key != "pform" ) {
+					$atv = str_replace("'", "&#039;", $atv);
+					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=datts[$did:$key] id='f$key' value='$atv'>";
+				};
+			};
+			foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
+				$atv = $dtoken[$key]; 
+				$val = $item['display'];
+				if ( $key != "pform" ) {
+					// if ( $attype[$key] == "select" || $attype[$key] == "eselect" || $attype[$key] == "mselect" ) {
+					if ( $item['type'] == "Select" || $item['type'] == "ESelect" || $item['type'] == "MSelect" ) {
+						$tmp = file_get_contents("cqp/$key.lexicon"); $optarr = array();
+						foreach ( explode ( "\0", $tmp ) as $kval ) { 
+							if ( $kval ) {
+								if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
+								if ( ( $attype[$key] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) $optarr[$kval] = "<option value='$kval' $seltxt>$kval</option>"; 
+							};
+						};
+						sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+				
+						if ( $item['type'] == "ESelect" ) {
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
+										<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
+							$maintext .= "<input type=checkbox>new value: <span id='newat'><input size=30 name=newatt[$key] id='f$key' value=''></span>";
+						} else if ( $item['type'] == "Select" ) {
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
+										<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
+						} else if ( $item['type'] == "MSelect" ) {
+							$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=40 name=datts[$did:$key] id='f$key' value='$atv'>
+								$sep add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
+						} else {
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
+										<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
+						};
+					 
+					} else {
+						$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=datts[$did:$key] id='f$key' value='$atv'>";
+					};
+				};
+			};
+			$maintext .= "</table>";
+			if ( !$warning ) $maintext .= "<p><ul><li><a href='index.php?action=toksave&act=delete&cid=$fileid&tid=$did'>delete</a> this dtok</ul>"; 
+		};
+		
+
+		// Show all the Morphemes
+		if ( getset('annotations/m') != '' ) {
+			$result2 = $token->xpath("m"); $dtk = 0;
+			foreach ( $result2 as $dtoken ) {
+				$did = $dtoken['id']; $dtk++; 
+				if ( !$did ) { 
+					$warning = "<div class=warning>M(orphology) without @id, which will not allow TEITOK 
+						tok save changes made here. Click <a target=renum href=\"index.php?action=renumber&cid=$fileid\">here</a> to renumber the XML file
+						which will provide all TOK, DTOK, and M with an @id.</div>";
+					$did = $token['id'].'-'.$dtk; 
+				};
+				$dform = $dtoken['form'];
+				$rawdxml = $dtoken->asXML();
+				$rawdxml = preg_replace("/'/", "&#039;", $rawdxml ); # We need to protect apostrophs in the HTML form
+				$maintext .= "<hr style='background-color: #aaaaaa;'><h2>Morpheme</h2> 
+					<input type=hidden name='dtok[$did]' size=70 value='$rawdxml'>
+					<table>
+					";
+				foreach ( getset('annotations/m', array()) as $key => $item ) {
+					if ( !is_array($item) ) continue;
+					$atv = $dtoken[$key]; 
+					$val = $item['display'];
+					if ( $key != "pform" ) {
+						// if ( $attype[$key] == "select" || $attype[$key] == "eselect" || $attype[$key] == "mselect" ) {
+						if ( $item['type'] == "Select" || $item['type'] == "ESelect" || $item['type'] == "MSelect" ) {
+							$tmp = file_get_contents("cqp/$key.lexicon"); $optarr = array();
+							foreach ( explode ( "\0", $tmp ) as $kval ) { 
+								if ( $kval ) {
+									if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
+									if ( ( $attype[$key] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) $optarr[$kval] = "<option value='$kval' $seltxt>$kval</option>"; 
+								};
+							};
+							sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+				
+							if ( $item['type'] == "ESelect" ) {
+								$maintext .= "<tr><td>$key<td id='name-$key'>$val
+											<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
+								$maintext .= "<input type=checkbox>new value: <span id='newat'><input size=30 name=newatt[$key] id='f$key' value=''></span>";
+							} else if ( $item['type'] == "Select" ) {
+								$maintext .= "<tr><td>$key<td id='name-$key'>$val
+											<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
+							} else if ( $item['type'] == "MSelect" ) {
+								$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
+								$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=40 name=datts[$did:$key] id='f$key' value='$atv'>
+									add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
+							} else {
+								$maintext .= "<tr><td>$key<td id='name-$key'>$val
+											<td><select name=datts[$did:$key]><option value=''>[select]</option>$optlist</select>";
+							};
+					 
+						} else {
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=datts[$did:$key] id='f$key' value='$atv'>";
+						};
+					};
+				};
+				$maintext .= "</table>";
+				if ( !$warning ) $maintext .= "<p><ul><li><a href='index.php?action=toksave&act=delete&cid=$fileid&tid=$did'>delete</a> this morpheme</ul>"; 
+			};
+		};		
+
+		# Check if there is no XML in toks without a @form
+		# Which for now is any end of tag inside
+		if ( preg_match("/<\/.*<\/tok>/", $token->asXML()) && $token['form'] == "" ) {
+			$maintext .= "<hr><p style='background-color: #ffaaaa; padding: 5px; font-weight: bold'>Every token with XML inside should ALWAYS have a @form - consider correcting</p>";
+		};
+		
+		$totform = preg_replace("/[|]./", "", $totform);
+
+		# Check if the join of all @formpart of the dtoks equals the @form of the tok (when using formpart)
+		if ( $totform != "" && $totform != forminherit($token, $tagform) && getset('xmlfile/formpart') != '' ) { 
+			$maintext .= "<hr><p style='background-color: #ffaaaa; padding: 5px; font-weight: bold'>
+				The join of the @formpart of the &lt;dtok&gt; does not match the @$tagform of the &lt;tok&gt; - consider revising
+				</p>";
+		};
+		
+		
+		# Allow adding/deleting tokens 
+		if ( $username ) {
+		
+			$maintext .= "
+			<hr>
+				$warning
+			<!-- <a href=''>join to previous token</a> &bull;  -->
+				insert tok after:
+				<a href='index.php?action=retok&dir=after&cid=$fileid&tid=$tokid&pos=left'>attached</a> /
+				<a href='index.php?action=retok&dir=after&cid=$fileid&tid=$tokid'>separate</a>
+			&bull; before:
+				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&pos=right'>attached</a> /
+				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid'>separate</a>
+			&bull;
+				insert elm:";
+			
+			$editables = array(
+				"note" => array ( "place" => "after" ),
+				"lb" => array ( "place" => "before", "display" => "linebreak" ),
+			);
+			if ( $etype = getset("xmlfile/editable") ) {
+				if ( $etype == "replace" ) $editables = array(); # Remove default items
+				foreach ( getset('xmlfile/sattributes', array()) as $sk => $satt ) {
+					if ( $satt['etype'] == "empty" || $satt['editable'] ) {
+						$editables[$sk] = array();
+						$editables[$sk]['place'] = $satt['place'];
+						$editables[$sk]['pos'] = $satt['pos'];
+						$editables[$sk]['display'] = $satt['display'];
+					};
+				};
+			};
+			$sep = "";
+			foreach ( $editables as $ek => $ev ) {
+				$edir = $ev['place'] or $edir = "before";
+				$etxt = $ev['display'] or $etxt = $ek;
+				$maintext .= "\n\t\t\t$sep<a title='$edir' href='index.php?action=retok&dir=$edir&cid=$fileid&tid=$tokid&node=$ek'>$etxt</a>";
+				$sep = " ; ";
+			};
+
+// 				<!-- <a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=par'>paragraph</a> ; -->
+// 				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=note'>note</a> ;
+// 				<a href='index.php?action=retok&dir=before&cid=$fileid&tid=$tokid&node=lb'>linebreak</a>
+		
+			if ( $dtk ) {
+				$maintext .= " &bull;
+					add: <a href='index.php?action=retok&node=dtok&cnt=1&cid=$fileid&tid=$tokid'>dtok</a>";
+			} else {
+				$maintext .= " &bull;
+					split in dtoks: <a href='index.php?action=retok&node=dtok&cnt=2&cid=$fileid&tid=$tokid'>2</a> ;
+						<a href='index.php?action=retok&node=dtok&cnt=3&cid=$fileid&tid=$tokid'>3</a>";
+			};
+
+			$maintext .= "<br><a href='index.php?action=contextedit&cid=$fileid&tid=$tokid'>edit</a> context XML";
+
+			# Lookup word to the left (adepted to large files)
+			#	$tmp = $token->xpath('preceding-sibling::tok');
+			$tokpar = current($token->xpath(".."));
+			if ( $tokpar ) {
+				$tmp = $tokpar->asXML(); 
+				$tokpos = strpos($tmp, "id=\"$tokid\"");
+				$tmp2 = rstrpos($tmp, "<tok ", $tokpos);
+				$pbef = rstrpos($tmp, "<tok ", $tmp2-1);
+				if ( !$pbef ) $pbef = 0; # Avoid non-int error
+				$tmp2 = substr($tmp, $pbef, 30);
+				if ( preg_match("/id=\"([^\"]+)\"/", $tmp2, $matches ) ) $previd = $matches[1];
+			};
+			if ( $previd ) { 		
+				$maintext .= "&bull; <a href='index.php?action=mergetoks&cid=$fileid&tid1=$previd&tid2=$tokid'>merge</a> left to $previd";
+			};
+
+		
+			$mtok = current($token->xpath('ancestor::mtok'));
+			if ( !$mtok && $previd ) {
+				$maintext .= " &bull; create mtok left: <a href='index.php?action=makemtok&cid=$fileid&tid=$tokid&num=1'>1</a> ; <a href='index.php?action=makemtok&cid=$fileid&tid=$tokid&num=2'>2</a>";
+			};
+
+			# Similar tokens only works on tokens that are displayed here - which no longer works if we clip 
+			$maintext .= "<br>
+				<script language=Javascript src='$jsurl/simtoks.js'></script>
+				<span onClick=\"simtoks('$tokid');\">treat similar tokens</span>
+				<div id='simtoks'></div>
+		
+			";
+		};
+		
+		if ( $leftatts ) {
+			$maintext .= "<hr><h3>Undefined attributes</h3><table>";
+			foreach ( $leftatts as $key => $val ) {
+				$maintext .= "<tr><th>$key<td>$val";
+			};
+			$maintext .= "</table>";
+		};	
+
+		
+		# In case this is part of an <mtok>, show that as well
+		if ( $mtok ) {
+			$mtokid = $mtok['id'];
+
+			$maintext .= "<hr><h2>Multi-token value ({$mtok['id']}): {$mtok['form']}</h2>
+				<table>";
+			
+			// Show all the defined forms and make them editable
+			foreach ( getset('xmlfile/pattributes/forms', array()) as $key => $item ) {
+				$atv = $mtok[$key]; 
+				$val = $item['display'];
+				if ( $key != "pform" && !$item['noedit'] ) { // the raw XML is not an attribute, and some attribute are set to be non-editable
+					$atv = str_replace("'", "&#039;", $atv); // protect the HTML field
+					$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=matts[$mtokid:$key] id='f$key' value='$atv' $chareqfn>";
+				};
+			};
+			foreach ( getset('xmlfile/pattributes/tags', array()) as $key => $item ) {
+				$atv = $mtok[$key]; 
+				$val = $item['display'];
+				if ( $key != "pform" ) {
+					// if ( $attype[$key] == "select" || $attype[$key] == "eselect" || $attype[$key] == "mselect" ) {
+					if ( $item['type'] == "Select" || $item['type'] == "ESelect" || $item['type'] == "MSelect" ) {
+						$tmp = file_get_contents("cqp/$key.lexicon"); $optarr = array();
+						foreach ( explode ( "\0", $tmp ) as $kval ) { 
+							if ( $kval ) {
+								if ( $atv == $kval ) $seltxt = "selected"; else $seltxt = "";
+								if ( ( $attype[$key] != "mselect" || !strstr($kval, '+') )  && $kval != "__UNDEF__" ) $optarr[$kval] = "<option value='$kval' $seltxt>$kval</option>"; 
+							};
+						};
+						sort( $optarr, SORT_LOCALE_STRING ); $optlist = join ( "", $optarr );
+				
+						if ( $item['type'] == "ESelect" ) {
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
+										<td><select name=matts[$mtokid:$key]><option value=''>[select]</option>$optlist</select>";
+							$maintext .= "<input type=checkbox>new value: <span id='newat'><input size=30 name=newatt[$key] id='f$key' value=''></span>";
+						} else if ( $item['type'] == "Select" ) {
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
+										<td><select name=matts[$mtokid:$key]><option value=''>[select]</option>$optlist</select>";
+						} else if ( $item['type'] == "MSelect" ) {
+							$optlist = preg_replace("/<option[^>]+selected>.*?<\/option>/", "", $optlist);
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=40 name=matts[$mtokid:$key] id='f$key' value='$atv'>
+								add: <select name=null[$key] onChange=\"addvalue('$key', this);\"><option value=''>[select]</option>$optlist</select>";
+						} else {
+							$maintext .= "<tr><td>$key<td id='name-$key'>$val
+										<td><select name=matts[$mtokid:$key]><option value=''>[select]</option>$optlist</select>";
+						};
+					 
+					} else {
+						$maintext .= "<tr><td>$key<td id='name-$key'>$val<td><input size=60 name=matts[$mtokid:$key] id='f$key' value='$atv'>";
+					};
+				};
+			};
+			$maintext .= "</table>";
+
+		};
+		
+		// Get the first parent node for the context
+		$xp = "//tok[@id='$tokid']/..";
+		$result = $xml->xpath($xp); 
+		$txtxml = $result[0];
+		$editxml = $txtxml->asXML();
+
+		# Hard cut-down if the context is too long
+		if ( strlen($editxml) > 50000 ) { 
+			$tmp = strlen($editxml);
+			$respos = strpos($editxml, "id=\"$tokid\"");
+			$editxml = substr($editxml, max(0, $respos-10000), 20000);
+			$tok1 = max(0, strpos($editxml, "<tok"));
+			if ( $tok1 ) {
+				$editxml = substr($editxml, $tok1);
+				$tok2 = strrpos($editxml, "</tok>");
+				$editxml = substr($editxml, 0, $tok2+6);
+			};
+		};
+		
+		# empty tags are working horribly in browsers - change
+		$editxml = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $editxml );
+		
+		$focusform = getset('xmlfile/focusform', "nform");
+		# Show the context
+		$maintext .= "<hr><input type=submit value=\"Save\">
+		<!-- <button onClick=\"window.open('index.php?action=file&cid=$fileid', '_self');\">Cancel</button> -->
+		<a href='index.php?action=file&cid=$fileid'>Cancel</a>
+		<script language=Javascript src=\"$jsurl/tokedit.js\"></script>
+		&bull; <a href='index.php?action=wordinfo&cid=$fileid&tid=$tokid'>Token Details</a>
+		
+		<hr><h3>Context</h3><div id=mtxt>".$editxml."</div>
+
+		
+		</form>
+		<script language=Javascript>
+			document.getElementById('f$focusform').focus();
+			highlight('$tokid',  '#ffee88', null, null);
+		</script>
+		$tagbuilder
+		$lookupform
+		";
+
+		// Add a session logout tester live check
+		$maintext .= "<script language=Javascript src='$jsurl/sessionrenew.js'></script>";
+		
+?>

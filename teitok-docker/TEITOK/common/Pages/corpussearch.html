@@ -1,0 +1,52 @@
+<h1>CorpusSearch in PSD vs. XPath in PSDX</h1>
+
+<p>TEITOK provides the option to search throught PSDX files using XPath queries. 
+For those people that are used to search through PSD files using CorpusSearch (henceforth CS), 
+here are some useful correspondences between CS and XPath. 
+
+<p>CS starts with a definition of the desired result node, and then defines a query. 
+In XPath, there is no such separation: the result node and the "query" are defined in a
+single query, and the query can be empty. Take a look at the following examples.
+
+<table>
+<tr><th>CorpusSearch<th>XPath
+<tr><td>node: X<td>//eTree[@Label="X"]
+<tr><td>node: X<br>query: (A exists)<td>//eTree[@Label="X" and .//eTree[@Label="A"]]
+<tr><td>node: X<br>query: (a exists)<td>//eTree[@Label="X" and .//eLeaf[@Text="a"]]
+</table>
+
+<p>The first is a result node without a query, the second specifies not only the result node,
+but furthermore specifies additional requirements on the node. Notice that in XPath, it 
+is necessary to specify whether you are looking for a node (eTree) or a terminal node (eLeaf).
+
+<p>To simplify matters, we will shorten the correspondence of (A exists) in this explanation to //A, 
+which hence when used as a restriction is short for .//eTree[@Label="A"]. Using the shorthand
+(which cannot be used in the actual XPath search!), below
+is the XPath expression for a number of CorpusSearch queries:
+
+<table>
+<tr><th>CorpusSearch<th>XPath
+<tr><td>(A exists)<td>//A
+<tr><td>(A Dominates B)<td>//A[.//B]
+<tr><td>(A iDominates B)<td>//A[./B] <i>or</i> //A[B]
+<tr><td>(A hasSister B)<td>//A[../B]
+<tr><td>(A Precedes B)<td>//B/preceding-sibling::A
+<tr><td>(A isRoot)<td>//forest/A <i>or</i> //A[parent::forest]
+<tr><td>(A iDomsTotal 3)<td>//A[count(eTree) = 3]
+<tr><td>(A domsWords 3)<td>//A[count(.//eLeaf) = 3]
+</table>
+
+<p>In CS, nodes with the same name (label) are by default interpreted to be the same,
+unless they get a specific number, so (A Dominates B) and (B iDominates C) means an A node
+dominating a B node that directly dominates a C node. In XPath, this works differently:
+further specifications on a node are given directly as specifications on the node, whereas
+different nodes that happen the have the same label are given independently
+
+<table>
+<tr><th>CorpusSearch<th>XPath
+<tr><td>(A Dominates B) and (B iDominates C)<td>//A[B[C]]
+<tr><td>(A Dominates [1]B) and ([2]B iDominates C)<td>//A[B] and //B[C]
+</table>
+
+<hr>
+<p><a href='index.php?action=psdx&act=xpath'>To XPath search</a></p>

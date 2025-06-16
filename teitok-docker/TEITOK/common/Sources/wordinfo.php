@@ -1,0 +1,50 @@
+<?php
+
+	// Word at a glance
+	// (c) Maarten Janssen, 2019
+
+	$tid = $_GET['tid'];
+	if ( !$tid ) fatal("No token specified");
+	
+	require ("$ttroot/common/Sources/ttxml.php");
+	$ttxml = new TTXML();
+	$fileid = $ttxml->fileid;
+
+
+	$maintext .= "<h1>{%Word Info}</h1><table>";
+	
+	$node = current($ttxml->xpath("//*[@id=\"$tid\"]"));
+
+	$cqlbase = getset('cqp/cqlbase',  "index.php?action=cqp&cql=");
+	
+	$maintext .= "<tr><th>{%Attributes}<td><table>";
+	$tags = array_merge(getset('xmlfile/pattributes/forms', array()), getset('xmlfile/pattributes/tags', array()));
+	foreach ( $tags as $key => $item ) {
+		if ( $item['admin'] && !$username ) continue;
+		$form = forminherit($node, $key);
+		$formtxt = $form;
+		if ( $item['link'] ) {
+			$cls = ""; if ( substr( $item['link'], 0, 4 ) == "http" ) $cls = "class=\"extlink\" target=\"_new\"";
+			$formtxt = "<a $cls href='".str_replace('{$val}', $form, $item['link'])."'>$form</a>";
+		} else if ( $item['type'] == "pos" && file_exists("Resources/tagset.xml") ) {
+			$formtxt = "<a href='index.php?action=tagset&act=analyze&tag=$form'>$form</a>";
+		}
+		if ( $node[$key.''] || $key == "form" ) $maintext .= "<tr><th>".pattname($key)."<td>$formtxt<td style='padding-left: 20px;'><a href='{$cqlbase}[$key=\"$form\"]'>{%search similar}</i></a>";
+	};
+	$maintext .= "</table>";
+	
+	$cntx = $ttxml->context($tid);
+	$cntx = preg_replace( "/<([^> ]+)([^>]*)\/>/", "<\\1\\2></\\1>", $cntx );
+
+	if ( $cntx ) $maintext .= "<tr><th>{%Context}<td id=mtxt>".$cntx;
+
+	$maintext .= "
+		</td></tr></table>
+		<script  type=\"text/javascript\" src=\"$jsurl/tokedit.js\"></script>
+		<script  type=\"text/javascript\">
+			console.log('ieps');
+			highlight('{$node['id']}');
+		</script>
+		";
+
+?>

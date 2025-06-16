@@ -1,0 +1,36 @@
+	forest { display: block; margin-bottom: 20px; }
+	forest div { display: none; }
+	nodeName { 
+		display: table-caption; caption-side: left; height: 100%; 
+		vertical-align: middle; 
+		border-left: 1px solid #992000;
+		border-top: 1px solid #992000;
+		border-bottom: 1px solid #992000;
+		border-radius: 5px;
+		padding-left: 10px; padding-right: 10px; 
+		padding-top: 2px; padding-bottom: 2px; 
+		background-color: #eeeeee;
+	}
+	eTree { 
+		display: table; border-left: 1px solid #992000; clear: both;  
+		border-collapse: collapse;
+		margin-top: 3px; 
+		margin-bottom: 3px; 
+		margin-left: 5px;
+	}
+	/* 
+	eTree::before {
+		content: '--';
+		position: inline; 
+		border-bottom: 1px solid #ccc;
+		width: 20px; height: 50%;
+	}
+	 */
+	eLeaf { 
+		display: table-cell; 
+		border: 1px solid #992000; 
+		padding-left: 10px; padding-right: 10px; 
+		padding-top: 2px; padding-bottom: 2px; 
+		margin-left: 5px;
+		float: left;
+	}

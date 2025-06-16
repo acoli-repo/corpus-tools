@@ -1,0 +1,30 @@
+<tags>
+<item key="authors" display="list of authors">
+</item>
+<item key="author" display="author of the dictionary (inside list)">
+	<atts>
+		<item key="role" display="role of the author"/>
+	</atts>
+</item>
+<item key="title" display="short title of the dictionary">
+</item>
+<item key="full_title" display="full title of the dictionary">
+</item>
+<item key="creation_date" display="creation date of the XDXF">
+</item>
+<item key="description" display="description of the dictionary">
+</item>
+<item key="dict_edition" display="edition of the dictionary">
+</item>
+<item key="dict_src_url" display="URL of the source of the dictionary">
+</item>
+<item key="file_ver" display="version of the XDXF file">
+</item>
+<item key="last_edited_date" display="last editing date of the XDXF file">
+</item>
+<item key="publisher" display="name of the publisher of the dictionary">
+</item>
+<item key="publishing_date" display="date the dictionary was published">
+</item>
+</tags>
+
