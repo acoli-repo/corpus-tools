@@ -105,10 +105,11 @@ A TEITOK corpus is effectively just an HTML page with links to both your XML fil
 
 ## History
 
-- teitok-docker:0.01 this is [Maarten Jansen's original Dockerfile](https://hub.docker.com/r/maartenpt/teitok) from late 2024, adjusted to use Ubuntu:22.04
-- teitok-docker:0.02 custom configuration, adapted from the Montenegro corpus
+- teitok-docker:0.1 this is [Maarten Jansen's original Dockerfile](https://hub.docker.com/r/maartenpt/teitok) from late 2024, adjusted to use Ubuntu:22.04
+- teitok-docker:0.2 custom configuration, adapted from the Montenegro corpus
+- teitok-docker:0.21 extended CoNLL-U configuration
+- teitok-docker:0.21 extended CoNLL-U configuration, --volume .:/shared (optional)
 
 ## TODO
 
 - No full CoNLL-U support, yet.
-- No file access

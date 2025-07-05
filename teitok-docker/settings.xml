@@ -25,7 +25,7 @@
 		<tags>
 			<item key="lemma" display="lemma" input="text" values="single"/>
 			<item key="upos" display="upos" input="text" values="single"/>
-		</tags>
+		<item key="deprel" display="deprel" input="text" values="single"/><item key="feats" display="feats" input="text" values="single"/><item key="ohead" display="ohead" input="text" values="single"/><item key="ord" display="ord" input="text" values="single"/><item key="misc" display="misc" input="text" values="single"/><item key="head" display="head" input="text" values="single"/></tags>
 	</pattributes>
 	<sattributes/>
 </xmlfile>
@@ -36,3 +36,4 @@
 	<item key="id" display="id"/><item key="word" display="word" xpath=""/></pattributes>
 <sattributes><item key="text" level="text" display="text"/></sattributes></cqp>
 <scripts/><views/></ttsettings>
+

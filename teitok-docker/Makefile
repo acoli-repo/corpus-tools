@@ -4,7 +4,7 @@ SHELL=bash
 # CONFIG #
 ##########
 USER=chiarcos
-TAG=0.2
+TAG=0.22
 
 ##################
 # BUILD and PUSH #
@@ -18,6 +18,10 @@ all:
 	 	echo "       $> docker login -u "${USER}" -p INSERT_PASSWORD_HERE docker.io" 1>&2;\
 		exit 2;\
 	fi;	 	
+
+refresh:
+	docker build --no-cache --tag ${USER}/teitok-docker:${TAG} .
+	
 
 build:
 	@echo building ${USER}/teitok-docker:${TAG} 1>&2;
